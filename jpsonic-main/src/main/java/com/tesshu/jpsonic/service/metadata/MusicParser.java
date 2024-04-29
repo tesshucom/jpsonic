@@ -149,22 +149,22 @@ public class MusicParser extends MetaDataParser {
             return metaData;
         }
 
-        getField(af, tag, FieldKey.ALBUM_ARTIST).ifPresent(s -> metaData.setAlbumArtist(s));
-        getField(af, tag, FieldKey.ALBUM).ifPresent(s -> metaData.setAlbumName(s));
-        getField(af, tag, FieldKey.ARTIST).ifPresent(s -> metaData.setArtist(s));
+        getField(af, tag, FieldKey.ALBUM_ARTIST).ifPresent(metaData::setAlbumArtist);
+        getField(af, tag, FieldKey.ALBUM).ifPresent(metaData::setAlbumName);
+        getField(af, tag, FieldKey.ARTIST).ifPresent(metaData::setArtist);
         getField(af, tag, FieldKey.DISC_NO).ifPresent(s -> metaData.setDiscNumber(ParserUtils.parseInt(s)));
         getField(af, tag, FieldKey.GENRE).ifPresent(s -> metaData.setGenre(ParserUtils.mapGenre(s)));
-        getField(af, tag, FieldKey.MUSICBRAINZ_TRACK_ID).ifPresent(s -> metaData.setMusicBrainzRecordingId(s));
-        getField(af, tag, FieldKey.MUSICBRAINZ_RELEASEID).ifPresent(s -> metaData.setMusicBrainzReleaseId(s));
-        getField(af, tag, FieldKey.TITLE).ifPresent(s -> metaData.setTitle(s));
+        getField(af, tag, FieldKey.MUSICBRAINZ_TRACK_ID).ifPresent(metaData::setMusicBrainzRecordingId);
+        getField(af, tag, FieldKey.MUSICBRAINZ_RELEASEID).ifPresent(metaData::setMusicBrainzReleaseId);
+        getField(af, tag, FieldKey.TITLE).ifPresent(metaData::setTitle);
         getField(af, tag, FieldKey.TRACK).ifPresent(s -> metaData.setTrackNumber(ParserUtils.parseTrackNumber(s)));
         getField(af, tag, FieldKey.YEAR).ifPresent(s -> metaData.setYear(ParserUtils.parseYear(s)));
-        getField(af, tag, FieldKey.ARTIST_SORT).ifPresent(s -> metaData.setArtistSort(s));
-        getField(af, tag, FieldKey.ALBUM_SORT).ifPresent(s -> metaData.setAlbumSort(s));
-        getField(af, tag, FieldKey.TITLE_SORT).ifPresent(s -> metaData.setTitleSort(s));
-        getField(af, tag, FieldKey.ALBUM_ARTIST_SORT).ifPresent(s -> metaData.setAlbumArtistSort(s));
-        getField(af, tag, FieldKey.COMPOSER).ifPresent(s -> metaData.setComposer(s));
-        getField(af, tag, FieldKey.COMPOSER_SORT).ifPresent(s -> metaData.setComposerSort(s));
+        getField(af, tag, FieldKey.ARTIST_SORT).ifPresent(metaData::setArtistSort);
+        getField(af, tag, FieldKey.ALBUM_SORT).ifPresent(metaData::setAlbumSort);
+        getField(af, tag, FieldKey.TITLE_SORT).ifPresent(metaData::setTitleSort);
+        getField(af, tag, FieldKey.ALBUM_ARTIST_SORT).ifPresent(metaData::setAlbumArtistSort);
+        getField(af, tag, FieldKey.COMPOSER).ifPresent(metaData::setComposer);
+        getField(af, tag, FieldKey.COMPOSER_SORT).ifPresent(metaData::setComposerSort);
 
         if (isBlank(metaData.getArtist())) {
             metaData.setArtist(metaData.getAlbumArtist());

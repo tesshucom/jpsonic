@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * differences in the meta processing specifications, but the specifications have been resolved at a level where
  * problems are unlikely to occur in daily use.
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert", "PMD.UseExplicitTypes" })
 class AnalyzerFactoryTest {
 
     private SettingsService settingsService;

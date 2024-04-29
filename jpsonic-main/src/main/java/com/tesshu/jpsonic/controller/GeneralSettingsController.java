@@ -110,7 +110,7 @@ public class GeneralSettingsController {
         List<Locale> locales = settingsService.getAvailableLocales();
         locales.stream().filter(locale -> locale.equals(settingsService.getLocale())).findFirst()
                 .ifPresent(locale -> command.setLocaleIndex(String.valueOf(locales.indexOf(locale))));
-        command.setLocales(locales.stream().map(locale -> locale.getDisplayName()).collect(Collectors.toList()));
+        command.setLocales(locales.stream().map(Locale::getDisplayName).collect(Collectors.toList()));
 
         command.setIndexScheme(IndexScheme.of(settingsService.getIndexSchemeName()));
 
@@ -267,8 +267,7 @@ public class GeneralSettingsController {
             settingsService.setVideoFileTypes(command.getVideoFileTypes());
             settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
             settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
-            PathValidator.validateFolderPath(command.getPlaylistFolder())
-                    .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
+            PathValidator.validateFolderPath(command.getPlaylistFolder()).ifPresent(settingsService::setPlaylistFolder);
             settingsService.setShortcuts(command.getShortcuts());
         }
 

@@ -156,7 +156,7 @@ public class WritableMediaFileService {
     Optional<Path> updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
-                .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
+                .collect(Collectors.toMap(MediaFile::getPathString, mf -> mf));
 
         LongAdder updateCount = new LongAdder();
         CoverArtDetector coverArtDetector = new CoverArtDetector(securityService, mediaFileService);
@@ -398,8 +398,7 @@ public class WritableMediaFileService {
 
     private Optional<Path> getFirstChildMediaFile(@NonNull Path parent) {
         try (Stream<Path> children = Files.list(parent)) {
-            return children.filter(child -> Files.isRegularFile(child))
-                    .filter(child -> mediaFileService.includeMediaFile(child)).findFirst();
+            return children.filter(Files::isRegularFile).filter(mediaFileService::includeMediaFile).findFirst();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -508,7 +507,7 @@ public class WritableMediaFileService {
         }
         refreshMediaFile(file);
         MediaFile refreshed = mediaFileService.getMediaFileStrict(file.getId());
-        mediaFileService.getParent(refreshed).ifPresent(parent -> refreshMediaFile(parent));
+        mediaFileService.getParent(refreshed).ifPresent(this::refreshMediaFile);
     }
 
     // Updateable even during scanning

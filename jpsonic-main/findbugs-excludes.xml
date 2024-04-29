@@ -40,6 +40,14 @@
         <!-- Not important for now -->
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <Match>
+        <!-- Not compatible with Spring DI -->
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
+    <Match>
+        <!-- It is a bug rule. spotbugs#2881 -->
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE" />
+    </Match>
 
     <!-- find-sec-bugs -->
     <Match>

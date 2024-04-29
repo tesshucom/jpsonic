@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryManagerMXBean;
 import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -146,7 +147,8 @@ public class InternalHelpController {
     }
 
     private String guessGCName() {
-        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(b -> b.getName()).toList();
+        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(MemoryManagerMXBean::getName)
+                .toList();
         if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
             return "Z GC";
         } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {

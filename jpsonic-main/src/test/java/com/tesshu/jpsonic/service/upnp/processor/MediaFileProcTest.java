@@ -377,7 +377,7 @@ class MediaFileProcTest {
             List<MediaFile> albums = mediaFileProc.getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(31, albums.size());
             assertTrue(UpnpProcessorTestUtils
-                    .validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList())));
+                    .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
 
         }
 
@@ -399,7 +399,7 @@ class MediaFileProcTest {
 
             List<MediaFile> albums = mediaFileProc.getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(31, albums.size());
-            assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+            assertEquals(reversedByYear, albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
 
         }
 

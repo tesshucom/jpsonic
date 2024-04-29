@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -99,8 +99,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         }
 
         // Equivalence
-        var sortedLeft = new TreeMap<>(left);
-        var sortedRight = new TreeMap<>(right);
+        Map<String, List<String>> sortedLeft = new ConcurrentHashMap<>(left);
+        Map<String, List<String>> sortedRight = new ConcurrentHashMap<>(right);
         sortedRight.remove(JWTSecurityService.JWT_PARAM_NAME);
         return Arrays.equals(sortedLeft.keySet().toArray(), sortedRight.keySet().toArray())
                 && Arrays.deepEquals(sortedLeft.values().toArray(), sortedRight.values().toArray());
