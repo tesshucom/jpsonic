@@ -5,7 +5,7 @@
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
-        This file is whitelist definition of rules for a PMD(6.x).
+        This file is whitelist definition of rules for a PMD(7.x).
 
         [Priority level value controllable by Maven / Logical name in Eclipse plug-in]
         priority 1 / blocker   : Almost follow default rules
@@ -87,8 +87,6 @@
         <exclude name="ExcessiveImports" />
         <exclude name="ExcessiveParameterList" />
         <exclude name="ExcessivePublicCount" />
-        <exclude name="ExcessiveMethodLength" />
-        <exclude name="ExcessiveClassLength" />
         <exclude name="NcssCount" />
 
         <!-- The rule flags any usage of objects not created locally received as 
@@ -137,6 +135,11 @@
             </properties>
         </rule>
          -->
+
+        <!-- It's too early(bug rule). Type determination is inaccurate. Cases in 
+            which accurate boxing is expected are also detected excessively. Or may not 
+            work on Windows. Or workarounds always conflict with Unnecessary**Cast rules. -->
+        <exclude name="ConfusingArgumentToVarargsMethod" />
     </rule>
 
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
@@ -191,15 +194,6 @@
         <!-- *** Escape is applied to required items. #614 *** -->
         <exclude name="NoUnsanitizedJSPExpression" />
     </rule>
-
-    <!-- VM:Best Practices -->
-    <rule ref="category/vm/bestpractices.xml" />
-
-    <!-- VM:Design -->
-    <rule ref="category/vm/design.xml" />
-
-    <!-- VM:Error Prone -->
-    <rule ref="category/vm/errorprone.xml" />
 
     <!-- POM:Error Prone -->
     <rule ref="category/pom/errorprone.xml" />

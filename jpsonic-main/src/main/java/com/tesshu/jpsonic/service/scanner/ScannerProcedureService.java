@@ -442,7 +442,7 @@ public class ScannerProcedureService {
         if (songs.isEmpty()) {
             return null;
         }
-        invokeUpdateOrder(songs, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        invokeUpdateOrder(songs, comparators.songsDefault(), wmfs::updateOrder);
         return songs.get(0);
     }
 
@@ -904,8 +904,7 @@ public class ScannerProcedureService {
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        int count = invokeUpdateOrder(artists, comparators.mediaFileOrderByAlpha(),
-                (artist) -> wmfs.updateOrder(artist));
+        int count = invokeUpdateOrder(artists, comparators.mediaFileOrderByAlpha(), wmfs::updateOrder);
         String comment = "Updated order of (%d) artists".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, comment);
     }
@@ -920,7 +919,7 @@ public class ScannerProcedureService {
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
-        int count = invokeUpdateOrder(albums, comparators.mediaFileOrderByAlpha(), (album) -> wmfs.updateOrder(album));
+        int count = invokeUpdateOrder(albums, comparators.mediaFileOrderByAlpha(), wmfs::updateOrder);
         String comment = "Updated order of (%d) albums".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, comment);
     }

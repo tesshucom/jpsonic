@@ -174,7 +174,7 @@ public class JpsonicComparators {
     }
 
     public Comparator<MediaFile> songsDefault() {
-        final LazyPathComparator comparator = new LazyPathComparator(() -> createCollator());
+        final LazyPathComparator comparator = new LazyPathComparator(this::createCollator);
         return (a, b) -> {
             Integer trackA = a.getTrackNumber();
             Integer trackB = b.getTrackNumber();

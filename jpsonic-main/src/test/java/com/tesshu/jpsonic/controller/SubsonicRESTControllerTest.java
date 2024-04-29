@@ -1251,7 +1251,7 @@ class SubsonicRESTControllerTest {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
-                        }, () -> Assertions.fail());
+                        }, Assertions::fail);
 
                 res = new MockHttpServletResponse();
 
@@ -1273,7 +1273,7 @@ class SubsonicRESTControllerTest {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
-                        }, () -> Assertions.fail());
+                        }, Assertions::fail);
 
                 res.getOutputStream().close();
             }
@@ -1312,7 +1312,7 @@ class SubsonicRESTControllerTest {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
-                        }, () -> Assertions.fail());
+                        }, Assertions::fail);
 
                 res = new MockHttpServletResponse();
 
@@ -1336,7 +1336,7 @@ class SubsonicRESTControllerTest {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
-                        }, () -> Assertions.fail());
+                        }, Assertions::fail);
 
                 res.getOutputStream().close();
             }

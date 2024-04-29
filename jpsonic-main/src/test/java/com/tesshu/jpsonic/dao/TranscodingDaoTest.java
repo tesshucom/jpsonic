@@ -126,13 +126,12 @@ class TranscodingDaoTest {
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
 
-        transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcodingA.getId() });
+        transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingA.getId());
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingA, activeTranscodings.get(0));
 
-        transcodingDao.setTranscodingsForPlayer(player.getId(),
-                new int[] { transcodingB.getId(), transcodingC.getId() });
+        transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingB.getId(), transcodingC.getId());
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(2, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingB, activeTranscodings.get(0));
@@ -152,7 +151,7 @@ class TranscodingDaoTest {
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
         Transcoding transcoding = transcodingDao.getAllTranscodings().get(0);
 
-        transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcoding.getId() });
+        transcodingDao.setTranscodingsForPlayer(player.getId(), transcoding.getId());
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 
@@ -170,7 +169,7 @@ class TranscodingDaoTest {
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
         Transcoding transcoding = transcodingDao.getAllTranscodings().get(0);
 
-        transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcoding.getId() });
+        transcodingDao.setTranscodingsForPlayer(player.getId(), transcoding.getId());
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 

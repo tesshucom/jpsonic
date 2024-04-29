@@ -474,7 +474,7 @@ class IndexProcTest {
         @Test
         void testSongs() {
 
-            List<IndexOrSong> indexes = indexProc.getDirectChildren(0, 100).stream().filter(i -> i.isMusicIndex())
+            List<IndexOrSong> indexes = indexProc.getDirectChildren(0, 100).stream().filter(IndexOrSong::isMusicIndex)
                     .filter(a -> "#".equals(a.getMusicIndex().getIndex())).collect(Collectors.toList());
             assertEquals(1, indexes.size());
 

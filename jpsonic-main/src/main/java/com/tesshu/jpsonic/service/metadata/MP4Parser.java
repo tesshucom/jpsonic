@@ -101,19 +101,19 @@ public class MP4Parser {
         getField(metadata, TIFF.IMAGE_WIDTH.getName()).ifPresent(s -> result.setWidth(ParserUtils.parseInt(s)));
         getField(metadata, XMPDM.DURATION.getName())
                 .ifPresent(s -> result.setDurationSeconds(ParserUtils.parseDoubleToInt(s)));
-        getField(metadata, XMPDM.ALBUM_ARTIST.getName()).ifPresent(s -> result.setAlbumArtist(s));
-        getField(metadata, XMPDM.ALBUM.getName()).ifPresent(s -> result.setAlbumName(s));
-        getField(metadata, XMPDM.ARTIST.getName()).ifPresent(s -> result.setArtist(s));
+        getField(metadata, XMPDM.ALBUM_ARTIST.getName()).ifPresent(result::setAlbumArtist);
+        getField(metadata, XMPDM.ALBUM.getName()).ifPresent(result::setAlbumName);
+        getField(metadata, XMPDM.ARTIST.getName()).ifPresent(result::setArtist);
         if (isEmpty(result.getArtist())) {
-            getField(metadata, DublinCore.CREATOR.getName()).ifPresent(s -> result.setArtist(s));
+            getField(metadata, DublinCore.CREATOR.getName()).ifPresent(result::setArtist);
         }
         getField(metadata, XMPDM.DISC_NUMBER.getName()).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
-        getField(metadata, XMPDM.GENRE.getName()).ifPresent(s -> result.setGenre(s));
-        getField(metadata, DublinCore.TITLE.getName()).ifPresent(s -> result.setTitle(s));
+        getField(metadata, XMPDM.GENRE.getName()).ifPresent(result::setGenre);
+        getField(metadata, DublinCore.TITLE.getName()).ifPresent(result::setTitle);
         getField(metadata, XMPDM.TRACK_NUMBER.getName())
                 .ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
         getField(metadata, XMPDM.RELEASE_DATE.getName()).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
-        getField(metadata, XMPDM.COMPOSER.getName()).ifPresent(s -> result.setComposer(s));
+        getField(metadata, XMPDM.COMPOSER.getName()).ifPresent(result::setComposer);
 
         return result;
     }

@@ -30,6 +30,7 @@ import java.util.Optional;
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
@@ -122,8 +123,8 @@ public class PlayerSettingsController {
             UserSettings userSettings = securityService.getUserSettings(player.getUsername());
             command.setMaxBitrate(userSettings.getTranscodeScheme());
             command.setTranscodeScheme(player.getTranscodeScheme());
-            command.setActiveTranscodingIds(
-                    transcodingService.getTranscodingsForPlayer(player).stream().mapToInt(t -> t.getId()).toArray());
+            command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(player).stream()
+                    .mapToInt(Transcoding::getId).toArray());
             command.setDynamicIp(player.isDynamicIp());
             command.setAutoControlEnabled(player.isAutoControlEnabled());
             command.setM3uBomEnabled(player.isM3uBomEnabled());

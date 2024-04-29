@@ -78,8 +78,7 @@ public class PodcastSettingsController {
             settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
             settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
             settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
-            PathValidator.validateFolderPath(command.getFolder())
-                    .ifPresent(folderPath -> settingsService.setPodcastFolder(folderPath));
+            PathValidator.validateFolderPath(command.getFolder()).ifPresent(settingsService::setPodcastFolder);
             settingsService.save();
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }

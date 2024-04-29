@@ -300,7 +300,7 @@ public class SearchServiceImpl implements SearchService {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (files) -> files.stream().skip(offset).limit(count)
-                .forEach(file -> result.add(file));
+                .forEach(result::add);
 
         util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName())
                 .ifPresent(addSubToResult);

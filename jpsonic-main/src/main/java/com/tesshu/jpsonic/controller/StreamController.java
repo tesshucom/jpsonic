@@ -362,8 +362,8 @@ public class StreamController {
     }
 
     private boolean isAliveStream(Player player) {
-        return !destroy.get() && statusService.getStreamStatusesForPlayer(player).stream().filter(ts -> ts.isActive())
-                .allMatch(ts -> !ts.isTerminated());
+        return !destroy.get() && statusService.getStreamStatusesForPlayer(player).stream()
+                .filter(TransferStatus::isActive).allMatch(ts -> !ts.isTerminated());
     }
 
     private static void writeErrorLog(IOException e, HttpServletRequest req) {
