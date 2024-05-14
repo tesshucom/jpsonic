@@ -72,7 +72,7 @@
     <versions.maven-artifact>3.9.6</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.11.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.2</versions.moxy>
-    <versions.mysql-connector-j>8.3.0</versions.mysql-connector-j>
+    <versions.mysql-connector-j>8.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.1.0</versions.pmd>
