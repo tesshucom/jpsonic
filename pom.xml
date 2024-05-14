@@ -31,7 +31,7 @@
     <versions.antlr>4.13.1</versions.antlr>
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.42.0</versions.checker-qual>
+    <versions.checker-qual>3.43.0</versions.checker-qual>
     <versions.checkstyle>10.15.0</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
