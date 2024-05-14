@@ -61,7 +61,7 @@
     <versions.jfreechart>1.5.4</versions.jfreechart>
     <versions.junit-jupiter-api>5.10.2</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
-    <versions.jupnp>3.0.1</versions.jupnp>
+    <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
     <versions.liquibase-core>4.27.0</versions.liquibase-core>
