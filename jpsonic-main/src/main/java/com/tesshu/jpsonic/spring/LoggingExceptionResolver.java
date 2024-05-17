@@ -43,8 +43,9 @@ public class LoggingExceptionResolver implements HandlerExceptionResolver, Order
      * A list of frequently exceptions that occur outside the control of the server. It is managed by a string to store
      * vendor-specific exceptions. (Depending on packaging, these classes may not exist in the classpath)
      */
-    private static final List<String> TO_BE_SUPPRESSED_CLASS_NAME = Arrays
-            .asList("org.apache.catalina.connector.ClientAbortException", "org.eclipse.jetty.io.EofException");
+    private static final List<String> TO_BE_SUPPRESSED_CLASS_NAME = Arrays.asList(
+            "org.apache.catalina.connector.ClientAbortException", "org.eclipse.jetty.io.EofException",
+            "org.springframework.web.context.request.async.AsyncRequestNotUsableException");
 
     private static boolean isInstanceOfClassName(Object o, String className) {
         try {
