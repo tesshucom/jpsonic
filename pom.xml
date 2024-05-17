@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>114.1.1</version>
+  <version>114.1.2</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -31,8 +31,8 @@
     <versions.antlr>4.13.1</versions.antlr>
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.42.0</versions.checker-qual>
-    <versions.checkstyle>10.15.0</versions.checkstyle>
+    <versions.checker-qual>3.43.0</versions.checker-qual>
+    <versions.checkstyle>10.16.0</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.10.1</versions.commons-configuration2>
@@ -48,7 +48,7 @@
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.2</versions.hsqldb>
     <versions.icu4j>75.1</versions.icu4j>
-    <versions.jackson>2.17.0</versions.jackson>
+    <versions.jackson>2.17.1</versions.jackson>
     <versions.jakarta.servlet-api>6.0.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -57,11 +57,13 @@
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty-ee10-apache-jsp>12.0.8</versions.jetty-ee10-apache-jsp>
+
+    <!-- jetty-ee10-apache-jsp is currently fixed. See #2638 -->
+    <versions.jetty>12.0.6</versions.jetty>
     <versions.jfreechart>1.5.4</versions.jfreechart>
     <versions.junit-jupiter-api>5.10.2</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
-    <versions.jupnp>3.0.1</versions.jupnp>
+    <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
     <versions.liquibase-core>4.27.0</versions.liquibase-core>
@@ -70,15 +72,15 @@
     <versions.logback>1.5.6</versions.logback>
     <versions.lucene>9.10.0</versions.lucene>
     <versions.maven-artifact>3.9.6</versions.maven-artifact>
-    <versions.mockito-junit-jupiter>5.11.0</versions.mockito-junit-jupiter>
+    <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.2</versions.moxy>
-    <versions.mysql-connector-j>8.3.0</versions.mysql-connector-j>
+    <versions.mysql-connector-j>8.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.1.0</versions.pmd>
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.8.4</versions.spotbugs>
+    <versions.spotbugs>4.8.5</versions.spotbugs>
     <versions.spring-boot>3.2.5</versions.spring-boot>
     <versions.spring-security>6.2.4</versions.spring-security>
     <versions.spring-web>6.1.6</versions.spring-web>
@@ -317,7 +319,57 @@
       <dependency>
         <groupId>org.eclipse.jetty.ee10</groupId>
         <artifactId>jetty-ee10-apache-jsp</artifactId>
-        <version>${versions.jetty-ee10-apache-jsp}</version>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-servlet</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-servlets</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-webapp</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-http</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-security</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-session</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${versions.jetty}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-xml</artifactId>
+        <version>${versions.jetty}</version>
       </dependency>
 
       <dependency>
@@ -685,7 +737,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.4.0</version>
+          <version>4.8.5.0</version>
           <configuration>
             <plugins>
               <plugin>
@@ -706,7 +758,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>9.1.0</version>
+          <version>9.2.0</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -759,12 +811,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.1.2</version>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>4.3</version>
+          <version>4.5</version>
           <inherited>false</inherited>
         </plugin>
         <plugin>
