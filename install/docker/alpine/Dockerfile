@@ -56,7 +56,7 @@ VOLUME \
     $JPSONIC_DIR/playlists \
     $JPSONIC_DIR/podcasts
 
-HEALTHCHECK --interval=30s --timeout=2s CMD wget -q http://localhost:"$JPSONIC_PORT""$CONTEXT_PATH"rest/ping -O /dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=2s CMD export HEALTHCHECK_QUERY=$(echo localhost:"$JPSONIC_PORT""$CONTEXT_PATH"/rest/ping | tr -s /);wget -q http://"$HEALTHCHECK_QUERY" -O /dev/null || exit 1
 
 COPY entry-point.sh /usr/local/bin/entry-point.sh
 RUN chmod +x /usr/local/bin/entry-point.sh
