@@ -57,23 +57,21 @@
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-
-    <!-- jetty-ee10-apache-jsp is currently fixed. See #2638 -->
-    <versions.jetty>12.0.6</versions.jetty>
+    <versions.jetty>12.0.9</versions.jetty>
     <versions.jfreechart>1.5.4</versions.jfreechart>
     <versions.junit-jupiter-api>5.10.2</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
-    <versions.liquibase-core>4.27.0</versions.liquibase-core>
+    <versions.liquibase-core>4.28.0</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.6</versions.logback>
     <versions.lucene>9.10.0</versions.lucene>
-    <versions.maven-artifact>3.9.6</versions.maven-artifact>
+    <versions.maven-artifact>3.9.7</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
-    <versions.moxy>4.0.2</versions.moxy>
+    <versions.moxy>4.0.3</versions.moxy>
     <versions.mysql-connector-j>8.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
@@ -81,9 +79,9 @@
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.5</versions.spotbugs>
-    <versions.spring-boot>3.2.5</versions.spring-boot>
-    <versions.spring-security>6.2.4</versions.spring-security>
-    <versions.spring-web>6.1.6</versions.spring-web>
+    <versions.spring-boot>3.3.0</versions.spring-boot>
+    <versions.spring-security>6.3.0</versions.spring-security>
+    <versions.spring-web>6.1.8</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
