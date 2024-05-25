@@ -33,6 +33,7 @@ COPY local.conf /etc/fonts
 
 RUN apk --no-cache add \
     openssl \
+    libxml2 \
     su-exec \
     bash \
     tini \
