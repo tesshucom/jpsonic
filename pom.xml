@@ -59,7 +59,7 @@
     <versions.jdom2>2.0.6.1</versions.jdom2>
 
     <!-- jetty-ee10-apache-jsp is currently fixed. See #2638 -->
-    <versions.jetty>12.0.6</versions.jetty>
+    <versions.jetty>12.0.9</versions.jetty>
     <versions.jfreechart>1.5.4</versions.jfreechart>
     <versions.junit-jupiter-api>5.10.2</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
@@ -978,7 +978,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
