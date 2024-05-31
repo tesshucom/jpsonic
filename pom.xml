@@ -75,7 +75,7 @@
     <versions.mysql-connector-j>8.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
-    <versions.pmd>7.1.0</versions.pmd>
+    <versions.pmd>7.2.0</versions.pmd>
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.5</versions.spotbugs>
