@@ -46,7 +46,7 @@
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
     <versions.ecj>3.37.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
-    <versions.hsqldb>2.7.2</versions.hsqldb>
+    <versions.hsqldb>2.7.3</versions.hsqldb>
     <versions.icu4j>75.1</versions.icu4j>
     <versions.jackson>2.17.1</versions.jackson>
     <versions.jakarta.servlet-api>6.0.0</versions.jakarta.servlet-api>
