@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:21-jdk-ubi9-minimal
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -29,20 +29,19 @@ ENV JPSONIC_DIR=/jpsonic \
 
 WORKDIR $JPSONIC_DIR
 
+RUN microdnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 -y \
+    xz \
+    unzip \
+    findutils \
+    && microdnf clean all \
+    && rm -rf /var/lib/dnf
+
 COPY local.conf /etc/fonts
 
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    gosu \
-    tini \
-    fonts-noto-cjk \
-    ffmpeg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm /usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc \
-    && rm /usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc \
-    && rm /usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc \
-    && fc-cache -vf
+COPY install-tools.sh "${JPSONIC_DIR}/install-tools.sh"
+RUN chmod +x "${JPSONIC_DIR}/install-tools.sh"
+RUN ["/bin/bash", "-c", "${JPSONIC_DIR}/install-tools.sh amd64"]
+RUN rm "${JPSONIC_DIR}/install-tools.sh"
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
