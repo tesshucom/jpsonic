@@ -49,6 +49,9 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -73,6 +76,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TotalHitCountCollectorManager;
 import org.apache.lucene.store.FSDirectory;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -116,6 +120,8 @@ public class IndexManager implements ReadWriteLockSupport {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
+    private static final MediaType[] MUSIC_AND_AUDIOBOOK = { MediaType.MUSIC, MediaType.AUDIOBOOK };
+
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
     private final QueryFactory queryFactory;
@@ -129,6 +135,10 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
+
+    /*
+     *
+     */
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
 
     @NonNull
@@ -707,6 +717,99 @@ public class IndexManager implements ReadWriteLockSupport {
             release(IndexType.ALBUM, albumSearcher);
         }
 
+    }
+
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // lucene/HighFreqTerms#getHighFreqTerms
+    private List<GenreFreq> getGenreFreqs() {
+        IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
+        if (isEmpty(genreSearcher)) {
+            return Collections.emptyList();
+        }
+
+        Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
+        if (fields.isEmpty()) {
+            LOG.info("The multi-genre master has been updated(no record).");
+            return Collections.emptyList();
+        }
+
+        try {
+            TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(),
+                    HighFreqTerms.DEFAULT_NUMTERMS, FieldNamesConstants.GENRE, new HighFreqTerms.DocFreqComparator());
+            return Arrays.stream(stats).map(stat -> new GenreFreq(stat.termtext.utf8ToString(), stat.docFreq)).toList();
+        } catch (Exception e) {
+            LOG.info("The genre field may not exist.");
+            return Collections.emptyList();
+        } finally {
+            release(IndexType.GENRE, genreSearcher);
+        }
+    }
+
+    private int getAlbumGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria)
+            throws IOException {
+        if (criteria.scope() != Scope.ALBUM) {
+            return Genre.COUNT_UNACQUIRED;
+        }
+        Query query = queryFactory.getAlbumId3GenreCount(genreName, criteria.folders());
+        return searcher.search(query, new TotalHitCountCollectorManager());
+    }
+
+    private int getSongGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria)
+            throws IOException {
+        if (criteria.scope() == Scope.SONG || criteria.sort() == Sort.SONG_COUNT) {
+            MediaType[] types = criteria.scope() == Scope.SONG ? criteria.types() : MUSIC_AND_AUDIOBOOK;
+            Query query = queryFactory.getSongGenreCount(genreName, criteria.folders(), types);
+            return searcher.search(query, new TotalHitCountCollectorManager());
+        }
+        return Genre.COUNT_UNACQUIRED;
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    // [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable
+    public List<Genre> createGenreMaster(GenreMasterCriteria criteria) {
+        IndexSearcher songSearcher = getSearcher(IndexType.SONG);
+        IndexSearcher albumSearcher = getSearcher(IndexType.ALBUM_ID3);
+        if (isEmpty(songSearcher) || isEmpty(albumSearcher)) {
+            return Collections.emptyList();
+        }
+
+        List<Genre> result = new ArrayList<>();
+        try {
+            for (GenreFreq genreFreq : getGenreFreqs()) {
+                String name = genreFreq.genre;
+                int albumCount = getAlbumGenreCount(albumSearcher, name, criteria);
+                int songCount = getSongGenreCount(songSearcher, name, criteria);
+                if (criteria.scope() == Scope.ALBUM && albumCount > 0) {
+                    result.add(new Genre(name, songCount, albumCount));
+                } else if (criteria.scope() == Scope.SONG && songCount > 0) {
+                    result.add(new Genre(name, songCount, albumCount));
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } finally {
+            release(IndexType.SONG, songSearcher);
+            release(IndexType.ALBUM, albumSearcher);
+        }
+
+        switch (criteria.sort()) {
+        case FREQUENCY -> {
+        }
+        case NAME -> {
+            result.sort(comparators.genreOrderByAlpha());
+        }
+        case ALBUM_COUNT -> {
+            result.sort(comparators.genreOrderByAlpha());
+            result.sort(comparators.genreOrder(true));
+        }
+        case SONG_COUNT -> {
+            result.sort(comparators.genreOrderByAlpha());
+            result.sort(comparators.genreOrder(false));
+        }
+        }
+        return result;
+    }
+
+    private record GenreFreq(String genre, int songCount) {
     }
 
     private static class CustomSearcherFactory extends SearcherFactory {

@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
@@ -513,6 +514,16 @@ public class SearchServiceImpl implements SearchService {
         util.putCache(genres, musicFolders, IndexType.SONG, cache);
         addSubToResult.accept(cache);
         return result;
+    }
+
+    @Override
+    public List<Genre> getGenres(GenreMasterCriteria strategy, long offset, long maxResults) {
+        if (maxResults <= 0) {
+            return Collections.emptyList();
+        }
+        // TODO Cashe?
+        List<Genre> genres = indexManager.createGenreMaster(strategy);
+        return genres.subList((int) offset, Math.min(genres.size(), (int) (offset + maxResults)));
     }
 
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
@@ -169,7 +170,8 @@ public interface SearchService {
     List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
-     * Returns all genres in the music collection.
+     * Returns all genres in the music collection. The method for simulating the genre specification of legacy servers.
+     * Use {@link #getGenres(GenreMasterCriteria, long, long)}, if you don't need backward compatibility.
      *
      * @since 101.2.0
      *
@@ -181,7 +183,8 @@ public interface SearchService {
     List<Genre> getGenres(boolean sortByAlbum);
 
     /**
-     * Returns all genres in the music collection.
+     * Returns all genres in the music collection. The method for simulating the genre specification of legacy servers.
+     * Use {@link #getGenres(GenreMasterCriteria, long, long)}, if you don't need backward compatibility.
      *
      * @since 105.3.0
      *
@@ -195,6 +198,13 @@ public interface SearchService {
      * @return Sorted list of genres.
      */
     List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults);
+
+    /**
+     * Returns all genres in the music collection.
+     *
+     * @since 114.2.0
+     */
+    List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults);
 
     /**
      * Returns count of Genres.
@@ -261,5 +271,4 @@ public interface SearchService {
      * @return songs in the genre.
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
-
 }

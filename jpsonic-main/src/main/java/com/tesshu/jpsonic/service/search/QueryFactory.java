@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -366,5 +367,20 @@ public class QueryFactory {
     public Query getGenre(@NonNull String genre) {
         return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD)
                 .build();
+    }
+
+    public Query getAlbumId3GenreCount(@NonNull String genre, List<MusicFolder> folders) {
+        return new BooleanQuery.Builder().add(createFolderQuery(true, folders), Occur.MUST)
+                .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.MUST).build();
+    }
+
+    public Query getSongGenreCount(@NonNull String genre, List<MusicFolder> folders, MediaType... types) {
+        assert types != null && types.length > 0;
+        BooleanQuery.Builder typeQuery = new BooleanQuery.Builder();
+        Stream.of(types).forEach(type -> typeQuery
+                .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, type.name())), Occur.SHOULD));
+        return new BooleanQuery.Builder().add(createFolderQuery(false, folders), Occur.MUST)
+                .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.MUST)
+                .add(typeQuery.build(), Occur.MUST).build();
     }
 }
