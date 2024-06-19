@@ -376,6 +376,19 @@ public class MediaFileDao {
                 MediaType.PODCAST.name(), count, offset);
     }
 
+    public List<String> getID3AlbumGenres(MediaFile mediaFile) {
+        return template.queryForStrings("select distinct ordered.genre " + """
+                from (select genre from media_file
+                        where album_artist=?
+                            and album=?
+                            and present
+                            and genre is not null
+                            and type in (?,?)
+                        order by track_number) as ordered
+                """, mediaFile.getAlbumArtist(), mediaFile.getAlbumName(), MediaType.MUSIC.name(),
+                MediaType.AUDIOBOOK.name());
+    }
+
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
         return template.query("select " + prefix(QUERY_COLUMNS, "media_file") + """
                 from playlist_file, media_file

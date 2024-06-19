@@ -530,7 +530,8 @@ public class ScannerProcedureService {
         album.setArtistReading(song.getAlbumArtistReading());
         album.setArtistSort(song.getAlbumArtistSort());
         album.setYear(song.getYear());
-        album.setGenre(song.getGenre());
+        // Please note that VIDEO is not currently included.
+        album.setGenre(mediaFileService.getID3AlbumGenresString(song));
         album.setCreated(song.getChanged());
         album.setMusicBrainzReleaseId(song.getMusicBrainzReleaseId());
         mediaFileService.getParent(song).ifPresent(parent -> album.setCoverArtPath(parent.getCoverArtPathString()));
