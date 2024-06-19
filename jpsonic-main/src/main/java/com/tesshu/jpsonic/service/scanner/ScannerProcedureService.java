@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Files;
@@ -754,12 +755,17 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_GENRE_MASTER, null);
     }
 
-    private void invokeUpdateIndex(List<Integer> merged, List<Integer> copied, List<Integer> compensated) {
+    private void invokeUpdateIndex(@NonNull Instant scanDate, List<Integer> merged, List<Integer> copied,
+            List<Integer> compensated) {
         List<Integer> ids = Stream
                 .concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
                 .collect(Collectors.toList());
         for (int i = 0; i < ids.size(); i++) {
-            indexManager.index(mediaFileService.getMediaFileStrict(ids.get(i)));
+            MediaFile mediaFile = mediaFileService.getMediaFileStrict(ids.get(i));
+            indexManager.index(mediaFile);
+            if (mediaFile.getMediaType() == MediaType.ALBUM && FAR_FUTURE.equals(mediaFile.getChildrenLastUpdated())) {
+                mediaFileDao.updateChildrenLastUpdated(mediaFile.getPathString(), scanDate);
+            }
             if (i % 10_000 == 0) {
                 repeatWait();
                 if (isInterrupted()) {
@@ -803,7 +809,7 @@ public class ScannerProcedureService {
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            invokeUpdateIndex(merged, copied, compensated);
+            invokeUpdateIndex(scanDate, merged, copied, compensated);
         }
 
         String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
@@ -874,7 +880,7 @@ public class ScannerProcedureService {
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            invokeUpdateIndex(merged, copied, compensated);
+            invokeUpdateIndex(scanDate, merged, copied, compensated);
         }
 
         updateIndexOfAlbum();
