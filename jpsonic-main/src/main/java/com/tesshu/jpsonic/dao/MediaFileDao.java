@@ -1014,9 +1014,9 @@ public class MediaFileDao {
     public void updateAlbumSort(SortCandidate cand) {
         template.update("""
                 update media_file
-                set album_reading = ?, album_sort = ?
+                set album_reading = ?, album_sort = ?, children_last_updated = ?
                 where present and id = ?
-                """, cand.getReading(), cand.getSort(), cand.getTargetId());
+                """, cand.getReading(), cand.getSort(), FAR_FUTURE, cand.getTargetId());
     }
 
     public void updateArtistSort(ArtistSortCandidate cand) {
@@ -1035,9 +1035,9 @@ public class MediaFileDao {
         } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
             template.update("""
                     update media_file
-                    set album_artist_reading = ?, album_artist_sort = ?
+                    set album_artist_reading = ?, album_artist_sort = ?, children_last_updated = ?
                     where id = ?
-                    """, cand.getReading(), cand.getSort(), cand.getTargetId());
+                    """, cand.getReading(), cand.getSort(), FAR_FUTURE, cand.getTargetId());
         } else if (cand.getTargetField() == TargetField.COMPOSER) {
             template.update("""
                     update media_file
@@ -1065,9 +1065,10 @@ public class MediaFileDao {
                 args.add(cand.getReading());
                 args.add(cand.getSort());
             } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
-                cols.append("album_artist_reading=?, album_artist_sort=?, ");
+                cols.append("album_artist_reading=?, album_artist_sort=?, children_last_updated = ?, ");
                 args.add(cand.getReading());
                 args.add(cand.getSort());
+                args.add(FAR_FUTURE);
             } else if (cand.getTargetField() == TargetField.COMPOSER) {
                 cols.append("composer_sort=?, ");
                 args.add(cand.getSort());
@@ -1076,7 +1077,7 @@ public class MediaFileDao {
         args.add(cands.get(0).getTargetId());
 
         String query = updates + cols.toString().replaceFirst(", $", " ") + cond;
-        template.getJdbcTemplate().update(query, args.toArray());
+        template.update(query, args.toArray());
     }
 
     static class RandomSongsQueryBuilder {

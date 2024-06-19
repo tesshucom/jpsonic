@@ -106,11 +106,15 @@ class MediaFileDaoTest {
             argCaptor = ArgumentCaptor.forClass(Object[].class);
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
-            assertEquals(
-                    "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=? where id = ?",
-                    queryCaptor.getValue());
+            assertEquals("""
+                    update media_file \
+                    set artist_reading=?, artist_sort=?, album_artist_reading=?, \
+                    album_artist_sort=?, \
+                    children_last_updated = ? \
+                    where id = ?\
+                    """, queryCaptor.getValue());
             assertEquals(1, argCaptor.getAllValues().size());
-            assertEquals(5, argCaptor.getValue().length);
+            assertEquals(6, argCaptor.getValue().length);
 
             ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.COMPOSER.getValue());
@@ -119,11 +123,15 @@ class MediaFileDaoTest {
             argCaptor = ArgumentCaptor.forClass(Object[].class);
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
-            assertEquals(
-                    "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
-                    queryCaptor.getValue());
+            assertEquals("""
+                    update media_file \
+                    set artist_reading=?, artist_sort=?, \
+                    album_artist_reading=?, album_artist_sort=?, children_last_updated = ?, \
+                    composer_sort=? \
+                    where id = ?\
+                    """, queryCaptor.getValue());
             assertEquals(1, argCaptor.getAllValues().size());
-            assertEquals(6, argCaptor.getValue().length);
+            assertEquals(7, argCaptor.getValue().length);
         }
 
         @Nested
