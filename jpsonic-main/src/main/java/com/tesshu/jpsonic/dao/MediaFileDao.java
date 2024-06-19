@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.dao.dialect.DialectMediaFileDao;
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.domain.DuplicateSort;
@@ -467,6 +468,14 @@ public class MediaFileDao {
                 set children_last_updated = ?, present=?
                 where path=?
                 """, childrenLastUpdated, true, pathString);
+    }
+
+    public void updateChildrenLastUpdated(Album album, Instant childrenLastUpdated) {
+        template.update("""
+                update media_file
+                set children_last_updated = ?, present=?
+                where album_artist = ? and album = ? and children_last_updated = ? and path <> ?
+                """, childrenLastUpdated, true, album.getArtist(), album.getName(), FAR_FUTURE, album.getPath());
     }
 
     public int updateOrder(int id, int order) {
