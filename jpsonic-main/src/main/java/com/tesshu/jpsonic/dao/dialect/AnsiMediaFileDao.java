@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.dao.dialect;
 
 import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -194,7 +195,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
-                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
+                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX, "future", FAR_FUTURE);
         String query = "select " + prefix(QUERY_COLUMNS, "mf_fetched") + """
                 from (select registered.*
                     from
@@ -204,6 +205,10 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                                 music_folder.id as mf_folder_id,
                                 mf_al.cover_art_path as mf_al_cover_art_path
                         from media_file mf
+                        join (select distinct album_artist, album
+                                from media_file
+                                where type in (:types) and children_last_updated = :future) changed
+                        on changed.album_artist = mf.album_artist and changed.album = mf.album
                         join music_folder
                         on music_folder.path = mf.folder
                         join media_file mf_al
@@ -225,34 +230,6 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                             and fetched.file_order = registered.al_order * :childMax
                                     + registered.mf_order
                                     + registered.folder_order * :childMax * 10) mf_fetched
-                join album al
-                on al.name = mf_fetched.album and al.artist = mf_fetched.album_artist
-                    and (mf_fetched.parent_path <> al.path
-                            or mf_fetched.changed <> al.created
-                            or mf_folder_id <> al.folder_id
-                            or (mf_al_cover_art_path is not null
-                                    and al.cover_art_path is null)
-                            or (mf_al_cover_art_path is null
-                                    and al.cover_art_path is not null)
-                            or mf_al_cover_art_path <> al.cover_art_path
-                            or (mf_fetched.year is not null and al.year is null)
-                            or mf_fetched.year <> al.year
-                            or (mf_fetched.genre is not null and al.genre is null)
-                            or mf_fetched.genre <> al.genre
-                            or (mf_fetched.album_artist_reading is not null
-                                    and al.artist_reading is null)
-                            or mf_fetched.album_artist_reading <> al.artist_reading
-                            or (mf_fetched.album_artist_sort is not null
-                                    and al.artist_sort is null)
-                            or mf_fetched.album_artist_sort <> al.artist_sort
-                            or (mf_fetched.album_reading is not null
-                                    and al.name_reading is null)
-                            or mf_fetched.album_reading <> al.name_reading
-                            or (mf_fetched.album_sort is not null and al.name_sort is null)
-                            or mf_fetched.album_sort <> al.name_sort
-                            or (mf_fetched.mb_release_id is not null
-                                    and al.mb_release_id is null)
-                            or mf_fetched.mb_release_id <> al.mb_release_id)
                 limit :count
                 """;
         return template.namedQuery(query, rowMapper, args);

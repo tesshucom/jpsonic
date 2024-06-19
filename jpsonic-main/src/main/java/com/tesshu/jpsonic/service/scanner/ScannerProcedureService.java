@@ -562,6 +562,7 @@ public class ScannerProcedureService {
                     Album album = albumId3Of(scanDate, folder.getId(), song, registered);
                     Optional.ofNullable(albumDao.updateAlbum(album)).ifPresent(updated -> {
                         indexManager.index(updated);
+                        mediaFileDao.updateChildrenLastUpdated(album, scanDate);
                         count.increment();
                     });
                 });
@@ -588,6 +589,7 @@ public class ScannerProcedureService {
                     Album album = albumId3Of(scanDate, folder.getId(), song, null);
                     Optional.ofNullable(albumDao.createAlbum(album)).ifPresent(created -> {
                         indexManager.index(created);
+                        mediaFileDao.updateChildrenLastUpdated(album, scanDate);
                         count.increment();
                     });
                 });
