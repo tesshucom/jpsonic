@@ -23,6 +23,8 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public final class Album implements Orderable {
 
     private int id;
@@ -143,6 +145,7 @@ public final class Album implements Orderable {
         this.year = year;
     }
 
+    @Nullable
     public String getGenre() {
         return genre;
     }

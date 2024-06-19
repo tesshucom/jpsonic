@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -401,5 +402,11 @@ public class MediaFileService {
                 shortcut -> folders.stream().map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
                 .toList();
         return mediaFileDao.getMudicIndexCounts(folders, shortcutPaths);
+    }
+
+    @Nullable
+    public String getID3AlbumGenresString(MediaFile mediaFile) {
+        String genresString = mediaFileDao.getID3AlbumGenres(mediaFile).stream().collect(Collectors.joining(";"));
+        return genresString.isBlank() ? null : genresString;
     }
 }
