@@ -1087,6 +1087,14 @@
       </properties>
     </profile>
     <profile>
+      <id>release22</id>
+      <properties>
+        <java.version>22</java.version>
+        <jpsonic.concurent.module>jpsonic-concurent21</jpsonic.concurent.module>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+      </properties>
+    </profile>
+    <profile>
       <id>unit-test</id>
       <modules>
         <module>subsonic-rest-api</module>
