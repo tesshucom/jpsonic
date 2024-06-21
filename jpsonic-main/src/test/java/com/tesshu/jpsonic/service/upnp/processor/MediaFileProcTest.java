@@ -160,16 +160,14 @@ class MediaFileProcTest {
 
             @Test
             void testSingleFolder() {
-                when(mediaFileService.getMediaFileStrict(any(String.class))).thenReturn(mfolder1, mfolder2,
-                        mfolder3);
+                when(mediaFileService.getMediaFileStrict(any(String.class))).thenReturn(mfolder1, mfolder2, mfolder3);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(0, proc.getDirectChildren(0, 30).size());
             }
 
             @Test
             void testMultiFolder() {
-                when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2,
-                        mfolder3);
+                when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2, mfolder3);
                 MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
                 MusicFolder folder3 = new MusicFolder("path3", "name3", true, null, false);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2, folder3));
@@ -189,10 +187,9 @@ class MediaFileProcTest {
 
             @BeforeEach
             public void setup() {
-                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
-                        any(ChildOrder.class), any(MediaType.class)))
-                                .thenReturn(List.of(new MediaFile(), new MediaFile(),
-                                        new MediaFile(), new MediaFile()));
+                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
+                        any(MediaType.class))).thenReturn(
+                                List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
             }
 
             @Test
