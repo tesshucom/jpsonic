@@ -78,10 +78,10 @@
     <versions.pmd>7.2.0</versions.pmd>
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.8.5</versions.spotbugs>
-    <versions.spring-boot>3.3.0</versions.spring-boot>
+    <versions.spotbugs>4.8.6</versions.spotbugs>
+    <versions.spring-boot>3.3.1</versions.spring-boot>
     <versions.spring-security>6.3.1</versions.spring-security>
-    <versions.spring-web>6.1.9</versions.spring-web>
+    <versions.spring-web>6.1.10</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
