@@ -31,7 +31,7 @@
     <versions.antlr>4.13.1</versions.antlr>
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.44.0</versions.checker-qual>
+    <versions.checker-qual>3.45.0</versions.checker-qual>
     <versions.checkstyle>10.17.0</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
@@ -48,7 +48,7 @@
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.3</versions.hsqldb>
     <versions.icu4j>75.1</versions.icu4j>
-    <versions.jackson>2.17.1</versions.jackson>
+    <versions.jackson>2.17.2</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -57,9 +57,9 @@
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.10</versions.jetty>
-    <versions.jfreechart>1.5.4</versions.jfreechart>
-    <versions.junit-jupiter-api>5.10.2</versions.junit-jupiter-api>
+    <versions.jetty>12.0.11</versions.jetty>
+    <versions.jfreechart>1.5.5</versions.jfreechart>
+    <versions.junit-jupiter-api>5.10.3</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
@@ -68,11 +68,11 @@
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.6</versions.logback>
-    <versions.lucene>9.11.0</versions.lucene>
+    <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.8</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.3</versions.moxy>
-    <versions.mysql-connector-j>8.4.0</versions.mysql-connector-j>
+    <versions.mysql-connector-j>9.0.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
@@ -622,7 +622,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.7.0</version>
+          <version>3.7.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -632,7 +632,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -735,7 +735,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.5.0</version>
+          <version>4.8.6.2</version>
           <configuration>
             <plugins>
               <plugin>
@@ -756,7 +756,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>9.2.0</version>
+          <version>10.0.2</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -955,7 +955,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.16.2</version>
+        <version>2.17.0</version>
         <configuration>
           <rulesUri>file:///${main.basedir}/versions-ignored.xml</rulesUri>
         </configuration>
