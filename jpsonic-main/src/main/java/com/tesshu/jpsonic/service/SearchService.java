@@ -28,6 +28,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -207,7 +208,8 @@ public interface SearchService {
     List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults);
 
     /**
-     * Returns count of Genres.
+     * Returns count of Genres. The method for simulating the genre specification of legacy servers. Use
+     * {@link #getGenresCount(GenreMasterCriteria)}, if you don't need backward compatibility.
      *
      * @since 105.3.0
      *
@@ -217,6 +219,13 @@ public interface SearchService {
      * @return Count of Genres
      */
     int getGenresCount(boolean sortByAlbum);
+
+    /**
+     * Returns the number of genres in the specified Folders and Scope.
+     *
+     * @since 114.2.0
+     */
+    int getGenresCount(GenreMasterCriteria criteria);
 
     /**
      * Returns albums in a genre.
@@ -271,4 +280,20 @@ public interface SearchService {
      * @return songs in the genre.
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
+
+    /**
+     * Returns only the children size of an Album that match the specified criteria.
+     *
+     * @since 114.2.0
+     */
+    int getChildSizeOf(String genre, Album album, List<MusicFolder> folders, MediaType... types);
+
+    /**
+     * Returns only the children of an Album that match the specified criteria. The size of the expected result is
+     * assumed to be finite, so offset and count are unsupported.
+     *
+     * @since 114.2.0
+     */
+    List<MediaFile> getChildrenOf(String genre, Album album, int offset, int count, List<MusicFolder> folders,
+            MediaType... types);
 }

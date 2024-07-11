@@ -179,6 +179,23 @@ public class MediaFileDao {
                 """.formatted(typeFilter), 0, args);
     }
 
+    public int getChildSizeOf(List<MusicFolder> folders, List<String> genres, String albumArtist, String album,
+            MediaType... types) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(folders), "types",
+                Arrays.asList(types).stream().map(MediaType::name).toList(), "genres", genres, "albumArtist",
+                albumArtist, "album", album);
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file
+                where folder in (:folders) and present
+                        and album_artist = :albumArtist and album = :album
+                        and genre in (:genres) and type in (:types)
+                """, 0, args);
+    }
+
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders, List<String> shortcutPaths) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
@@ -316,6 +333,24 @@ public class MediaFileDao {
                 order by type_order, media_file_order
                 offset :offset limit :count
                 """.formatted(typeFilter), rowMapper, args);
+    }
+
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, List<String> genres, String albumArtist,
+            String album, int offset, int count, MediaType... types) {
+        if (genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(folders), "types",
+                Arrays.asList(types).stream().map(MediaType::name).toList(), "genres", genres, "albumArtist",
+                albumArtist, "album", album, "count", count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from media_file
+                where folder in (:folders) and present
+                        and album_artist = :albumArtist and album = :album
+                        and genre in (:genres) and type in (:types)
+                order by media_file_order, track_number
+                offset :offset limit :count
+                """, rowMapper, args);
     }
 
     public List<MediaFile> getDirectChildFiles(List<MusicFolder> folders, long offset, long count,

@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
@@ -151,6 +152,10 @@ public class DLNASettingsController {
         command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control
+        command.setAvairableAlbumGenreSort(Arrays.asList(Sort.values()));
+        command.setAlbumGenreSort(Sort.of(settingsService.getUPnPAlbumGenreSort()));
+        command.setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
+        command.setSongGenreSort(Sort.of(settingsService.getUPnPSongGenreSort()));
         command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
@@ -193,6 +198,8 @@ public class DLNASettingsController {
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         // Display options / Access control
+        settingsService.setUPnPAlbumGenreSort(command.getAlbumGenreSort().name());
+        settingsService.setUPnPSongGenreSort(command.getSongGenreSort().name());
         final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
                 .collect(Collectors.toList());
         List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(MusicFolder::getId)

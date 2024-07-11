@@ -146,7 +146,7 @@ class IndexManagerTest {
         public void setup() {
             settingsService = Mockito.mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, null, null, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, null, null, null, null);
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
             indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,

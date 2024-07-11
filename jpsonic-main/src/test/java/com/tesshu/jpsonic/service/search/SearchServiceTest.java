@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
@@ -41,6 +42,9 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -932,6 +936,89 @@ class SearchServiceTest {
             criteria = director.construct("theater", offset, count, false, folders, IndexType.SONG);
             result = searchService.search(criteria);
             assertEquals(1, result.getTotalHits(), "Theater hit by \"theater\" ");
+        }
+    }
+
+    @Nested
+    @Order(5)
+    class GenreMasterTest extends AbstractNeedsScan {
+
+        @Autowired
+        private SearchService searchService;
+
+        private final List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 1, false));
+
+        private static boolean populated;
+
+        @Override
+        public List<MusicFolder> getMusicFolders() {
+            return musicFolders;
+        }
+
+        @BeforeEach
+        public void setup() {
+            if (!populated) {
+                populateDatabase();
+                populated = true;
+            }
+        }
+
+        /*
+         * @see IndexManagerTest$CreateGenreMasterTest
+         */
+        @Test
+        void testGet() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.NAME);
+            List<Genre> genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
+            assertEquals(14, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).getName());
+            assertEquals("Audiobook - Sports", genres.get(1).getName());
+            assertEquals("GENRE_A", genres.get(2).getName());
+            assertEquals("GENRE_B", genres.get(3).getName());
+            assertEquals("GENRE_C", genres.get(4).getName());
+            assertEquals("GENRE_D", genres.get(5).getName());
+            assertEquals("GENRE_E", genres.get(6).getName());
+            assertEquals("GENRE_F", genres.get(7).getName());
+            assertEquals("GENRE_G", genres.get(8).getName());
+            assertEquals("GENRE_H", genres.get(9).getName());
+            assertEquals("GENRE_I", genres.get(10).getName());
+            assertEquals("GENRE_J", genres.get(11).getName());
+            assertEquals("GENRE_K", genres.get(12).getName());
+            assertEquals("GENRE_L", genres.get(13).getName());
+            genres.stream().forEach(genre -> {
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+            assertEquals(genres.size(), searchService.getGenresCount(criteria));
+        }
+
+        @Test
+        void testOffsetCount() {
+
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.NAME);
+            List<Genre> genres = searchService.getGenres(criteria, 0, 3);
+            assertEquals(3, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).getName());
+            assertEquals("Audiobook - Sports", genres.get(1).getName());
+            assertEquals("GENRE_A", genres.get(2).getName());
+
+            genres = searchService.getGenres(criteria, 3, 6);
+            assertEquals(6, genres.size());
+            assertEquals("GENRE_B", genres.get(0).getName());
+            assertEquals("GENRE_C", genres.get(1).getName());
+            assertEquals("GENRE_D", genres.get(2).getName());
+            assertEquals("GENRE_E", genres.get(3).getName());
+            assertEquals("GENRE_F", genres.get(4).getName());
+            assertEquals("GENRE_G", genres.get(5).getName());
+
+            genres = searchService.getGenres(criteria, 9, 6);
+            assertEquals(5, genres.size());
+            assertEquals("GENRE_H", genres.get(0).getName());
+            assertEquals("GENRE_I", genres.get(1).getName());
+            assertEquals("GENRE_J", genres.get(2).getName());
+            assertEquals("GENRE_K", genres.get(3).getName());
+            assertEquals("GENRE_L", genres.get(4).getName());
         }
     }
 }

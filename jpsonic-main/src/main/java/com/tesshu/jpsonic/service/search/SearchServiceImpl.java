@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -427,12 +428,30 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults) {
         List<Genre> genres = getGenres(sortByAlbum);
-        return genres.subList((int) offset, Math.min(genres.size(), (int) (offset + maxResults)));
+        return genres.stream().skip(offset).limit(Math.min(genres.size() - offset, (int) maxResults)).toList();
+    }
+
+    @Override
+    public List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults) {
+        if (maxResults <= 0) {
+            return Collections.emptyList();
+        }
+        List<Genre> genres = util.getCache(criteria);
+        if (genres.isEmpty()) {
+            genres = indexManager.createGenreMaster(criteria);
+            util.putCache(criteria, genres);
+        }
+        return genres.stream().skip(offset).limit(Math.min(genres.size() - offset, (int) maxResults)).toList();
     }
 
     @Override
     public int getGenresCount(boolean sortByAlbum) {
         return getGenres(sortByAlbum).size();
+    }
+
+    @Override
+    public int getGenresCount(GenreMasterCriteria criteria) {
+        return getGenres(criteria, 0, Integer.MAX_VALUE).size();
     }
 
     @Override
@@ -517,13 +536,15 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<Genre> getGenres(GenreMasterCriteria strategy, long offset, long maxResults) {
-        if (maxResults <= 0) {
-            return Collections.emptyList();
-        }
-        // TODO Cashe?
-        List<Genre> genres = indexManager.createGenreMaster(strategy);
-        return genres.subList((int) offset, Math.min(genres.size(), (int) (offset + maxResults)));
+    public int getChildSizeOf(String genre, Album album, List<MusicFolder> folders, MediaType... types) {
+        return mediaFileDao.getChildSizeOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre)),
+                album.getArtist(), album.getName(), types);
     }
 
+    @Override
+    public List<MediaFile> getChildrenOf(String genre, Album album, int offset, int count, List<MusicFolder> folders,
+            MediaType... types) {
+        return mediaFileDao.getChildrenOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre)),
+                album.getArtist(), album.getName(), offset, count, types);
+    }
 }

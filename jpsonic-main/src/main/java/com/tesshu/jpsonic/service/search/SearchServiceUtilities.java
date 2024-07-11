@@ -28,17 +28,21 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
@@ -76,8 +80,10 @@ public class SearchServiceUtilities {
     private final AlbumDao albumDao;
 
     private final Ehcache searchCache;
+    private final Ehcache genreCache;
     private final Ehcache randomCache;
     private final ReentrantLock searchCacheLock = new ReentrantLock();
+    private final ReentrantLock genreCacheLock = new ReentrantLock();
     private final ReentrantLock randomCacheLock = new ReentrantLock();
 
     @SuppressWarnings("PMD.SingularField")
@@ -123,11 +129,13 @@ public class SearchServiceUtilities {
     };
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("searchCache") Ehcache searchCache,
-            @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
+            @Qualifier("genreCache") Ehcache genreCache, @Qualifier("randomCache") Ehcache randomCache,
+            MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.searchCache = searchCache;
+        this.genreCache = genreCache;
         this.randomCache = randomCache;
         this.mediaFileService = mediaFileService;
     }
@@ -243,6 +251,16 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
+    private String createCacheKey(GenreMasterCriteria criteria) {
+        StringBuilder b = new StringBuilder();
+        b.append(criteria.scope().name()).append(',').append(criteria.sort().name()).append(',');
+        criteria.folders().forEach(folder -> b.append(folder.getId()).append(','));
+        b.append("],[");
+        Stream.of(criteria.types()).forEach(type -> b.append(type.name()).append(','));
+        b.append(']');
+        return b.toString();
+    }
+
     @SuppressWarnings("unchecked")
     public Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         List<MediaFile> mediaFiles = null;
@@ -292,6 +310,17 @@ public class SearchServiceUtilities {
         return Optional.ofNullable(ids);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Genre> getCache(GenreMasterCriteria criteria) {
+        genreCacheLock.lock();
+        try {
+            Element element = genreCache.get(createCacheKey(criteria));
+            return isEmpty(element) ? Collections.emptyList() : (List<Genre>) element.getObjectValue();
+        } finally {
+            genreCacheLock.unlock();
+        }
+    }
+
     public void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
         searchCacheLock.lock();
         try {
@@ -315,6 +344,38 @@ public class SearchServiceUtilities {
         randomCacheLock.lock();
         try {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
+        } finally {
+            randomCacheLock.unlock();
+        }
+    }
+
+    public void putCache(GenreMasterCriteria criteria, List<Genre> value) {
+        genreCacheLock.lock();
+        try {
+            genreCache.put(new Element(createCacheKey(criteria), value));
+        } finally {
+            genreCacheLock.unlock();
+        }
+    }
+
+    public void removeCacheAll() {
+        searchCacheLock.lock();
+        try {
+            searchCache.removeAll();
+        } finally {
+            searchCacheLock.unlock();
+        }
+
+        genreCacheLock.lock();
+        try {
+            genreCache.removeAll();
+        } finally {
+            genreCacheLock.unlock();
+        }
+
+        randomCacheLock.lock();
+        try {
+            randomCache.removeAll();
         } finally {
             randomCacheLock.unlock();
         }
