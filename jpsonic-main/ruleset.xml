@@ -43,6 +43,9 @@
         
         <!-- Degrade pmd/pmd#1218 -->
         <exclude name="LooseCoupling" />
+
+        <!-- No longer required by current Java. -->
+        <exclude name="SwitchStmtsShouldHaveDefault" />
     </rule>
 
     <!-- Java Rules:Code Style -->
