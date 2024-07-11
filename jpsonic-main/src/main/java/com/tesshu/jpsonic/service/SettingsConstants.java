@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
@@ -277,6 +278,10 @@ final class SettingsConstants {
         }
 
         static final class Options {
+            static final Pair<String> UPNP_ALBUM_GENRE_SORT = Pair.of("UPnPAlbumGenreSort",
+                    GenreMasterCriteria.Sort.FREQUENCY.name());
+            static final Pair<String> UPNP_SONG_GENRE_SORT = Pair.of("UPnPSongGenreSort",
+                    GenreMasterCriteria.Sort.FREQUENCY.name());
             static final Pair<Boolean> GENRE_COUNT = Pair.of("DlnaGenreCountVisible", false);
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);
             static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", true);
