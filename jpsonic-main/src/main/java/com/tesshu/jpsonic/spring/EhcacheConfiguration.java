@@ -74,6 +74,12 @@ public class EhcacheConfiguration {
         return cacheFactory.getCache("searchCache");
     }
 
+    @Bean
+    @Qualifier("genreCache")
+    public Ehcache genreCache(CacheFactory cacheFactory) {
+        return cacheFactory.getCache("genreCache");
+    }
+
     public enum RandomCacheKey {
         ALBUM, SONG, SONG_BY_ARTIST
     }
