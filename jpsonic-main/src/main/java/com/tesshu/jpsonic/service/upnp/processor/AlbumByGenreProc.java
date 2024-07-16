@@ -26,11 +26,13 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumByGenreProc extends SongByGenreProc {
+public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -39,7 +41,7 @@ public class AlbumByGenreProc extends SongByGenreProc {
 
     public AlbumByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
             SearchService searchService) {
-        super(util, factory, searchService);
+        super();
         this.util = util;
         this.factory = factory;
         this.mediaFileService = mediaFileService;
@@ -49,6 +51,27 @@ public class AlbumByGenreProc extends SongByGenreProc {
     @Override
     public ProcId getProcId() {
         return ProcId.ALBUM_BY_GENRE;
+    }
+
+    @Override
+    public Container createContainer(Genre genre) {
+        return factory.toGenre(genre, getProcId(), util.isGenreCountAvailable(), genre.getSongCount());
+    }
+
+    @Override
+    public List<Genre> getDirectChildren(long offset, long maxResults) {
+        return searchService.getGenres(false, offset, maxResults);
+    }
+
+    @Override
+    public int getDirectChildrenCount() {
+        return searchService.getGenresCount(false);
+    }
+
+    @Override
+    public @Nullable Genre getDirectChild(String id) {
+        return searchService.getGenres(false).stream().filter(genre -> genre.getName().equals(id)).findFirst()
+                .orElse(null);
     }
 
     @Override
