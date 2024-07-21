@@ -306,6 +306,20 @@ public class AlbumDao {
         }
     }
 
+    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres, List<MusicFolder> folders) {
+        if (genres.isEmpty() || folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(folders), "genres", genres, "count",
+                count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where present and folder_id in (:folders) and genre in (:genres)
+                order by album_order
+                limit :count offset :offset
+                """, rowMapper, args);
+    }
+
     public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
         String podcastQuery = withPodcast ? "or child.type=?" : "";
         String query = """

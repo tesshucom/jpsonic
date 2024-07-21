@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -50,8 +51,6 @@ import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopDocs;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -68,15 +67,17 @@ public class SearchServiceImpl implements SearchService {
     private final SearchServiceUtilities util;
     private final SettingsService settingsService;
     private final MediaFileDao mediaFileDao;
+    private final AlbumDao albumDao;
 
     public SearchServiceImpl(QueryFactory queryFactory, IndexManager indexManager, SearchServiceUtilities util,
-            SettingsService settingsService, MediaFileDao mediaFileDao) {
+            SettingsService settingsService, MediaFileDao mediaFileDao, AlbumDao albumDao) {
         super();
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;
         this.util = util;
         this.settingsService = settingsService;
         this.mediaFileDao = mediaFileDao;
+        this.albumDao = albumDao;
     }
 
     @Override
@@ -468,8 +469,8 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
-        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList,
+        List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true);
+        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenres,
                 musicFolders);
         util.putCache(genres, musicFolders, IndexType.ALBUM, cache);
         addSubToResult.accept(cache);
@@ -478,39 +479,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<Album> getAlbumId3sByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
-
-        List<Album> result = new ArrayList<>();
         if (isEmpty(genres)) {
-            return result;
+            return Collections.emptyList();
         }
-
-        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-        if (searcher == null) {
-            return result;
-        }
-
-        try {
-            Sort sort = new Sort(IndexType.ALBUM_ID3.getFields().stream()
-                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new));
-            Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
-            TopDocs topDocs = searcher.search(query, offset + count, sort);
-
-            int totalHits = util.round.apply(topDocs.totalHits.value);
-            int start = Math.min(offset, totalHits);
-            int end = Math.min(start + count, totalHits);
-
-            for (int i = start; i < end; i++) {
-                Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
-                util.addAlbumId3IfAnyMatch(result, util.getId.apply(doc));
-            }
-
-        } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
-        } finally {
-            indexManager.release(IndexType.ALBUM_ID3, searcher);
-        }
-        return result;
-
+        List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), false);
+        return albumDao.getAlbumsByGenre(offset, count, preAnalyzedGenres, musicFolders);
     }
 
     @Override
@@ -527,8 +500,8 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
-        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE,
+        List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true);
+        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenres, 0, Integer.MAX_VALUE,
                 musicFolders);
         util.putCache(genres, musicFolders, IndexType.SONG, cache);
         addSubToResult.accept(cache);
@@ -537,14 +510,14 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public int getChildSizeOf(String genre, Album album, List<MusicFolder> folders, MediaType... types) {
-        return mediaFileDao.getChildSizeOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre)),
+        return mediaFileDao.getChildSizeOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true),
                 album.getArtist(), album.getName(), types);
     }
 
     @Override
     public List<MediaFile> getChildrenOf(String genre, Album album, int offset, int count, List<MusicFolder> folders,
             MediaType... types) {
-        return mediaFileDao.getChildrenOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre)),
+        return mediaFileDao.getChildrenOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true),
                 album.getArtist(), album.getName(), offset, count, types);
     }
 }

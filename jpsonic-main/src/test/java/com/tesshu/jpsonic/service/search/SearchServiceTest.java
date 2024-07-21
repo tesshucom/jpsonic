@@ -525,16 +525,16 @@ class SearchServiceTest {
         void testToPreAnalyzedGenres() {
 
             List<String> preAnalyzedGenres = indexManager
-                    .toPreAnalyzedGenres(Arrays.asList("Baroque Instrumental", "Gothik Folk Psychobilly"));
+                    .toPreAnalyzedGenres(Arrays.asList("Baroque Instrumental", "Gothik Folk Psychobilly"), true);
             assertEquals(2, preAnalyzedGenres.size(), "size");
             assertEquals("Baroque Instrumental", preAnalyzedGenres.get(0), "genre1");
             assertEquals("Gothik Folk Psychobilly", preAnalyzedGenres.get(1), "genre2");
 
-            preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList("Baroque Instrumental"));
+            preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList("Baroque Instrumental"), true);
             assertEquals(1, preAnalyzedGenres.size(), "size");
             assertEquals("Baroque Instrumental", preAnalyzedGenres.get(0), "genre");
 
-            preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList("Baroque"));
+            preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList("Baroque"), true);
             assertEquals(0, preAnalyzedGenres.size(), "size");
 
         }

@@ -136,9 +136,10 @@ public class IndexManager implements ReadWriteLockSupport {
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
 
-    /*
-     *
+    /**
+     * @deprecated Use Ehcache
      */
+    @Deprecated
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
 
     @NonNull
@@ -183,6 +184,11 @@ public class IndexManager implements ReadWriteLockSupport {
         Document document = documentFactory.createAlbumId3Document(album);
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
+            if (!isEmpty(album.getGenre())) {
+                Term genrekey = DocumentFactory.createPrimarykey(album.getGenre().hashCode());
+                Document genreDoc = documentFactory.createGenreDocument(album);
+                writers.get(IndexType.ALBUM_ID3_GENRE).updateDocument(genrekey, genreDoc);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -241,6 +247,10 @@ public class IndexManager implements ReadWriteLockSupport {
         return new IndexWriter(FSDirectory.open(indexDirectory), config);
     }
 
+    /**
+     * @deprecated Use Ehcache
+     */
+    @Deprecated
     private void clearMultiGenreMaster() {
         writeLock(genreLock);
         try {
@@ -300,59 +310,61 @@ public class IndexManager implements ReadWriteLockSupport {
     @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
     public void expungeGenreOtherThan(List<Genre> existing) {
         writeLock(genreLock);
+        // This method is executed during scanning.
         try {
-
-            // This method is executed during scanning.
-
-            try {
-                if (existing.isEmpty()) {
-                    writers.get(IndexType.GENRE).deleteAll();
-                    writers.get(IndexType.GENRE).flush();
-                    clearMultiGenreMaster();
-                    return;
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-
-            // Stop indexing to get Searcher.
-            stopIndexing(IndexType.GENRE);
-            IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
-            if (genreSearcher == null) {
-                return;
-            }
-
-            try {
-                Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
-                if (fields.isEmpty()) {
-                    return;
-                }
-
-                TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(),
-                        HighFreqTerms.DEFAULT_NUMTERMS, FieldNamesConstants.GENRE,
-                        new HighFreqTerms.DocFreqComparator());
-                List<String> indexedNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
-                        .collect(Collectors.toList());
-                List<String> existingNames = existing.stream().map(Genre::getName).collect(Collectors.toList());
-                Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
-                        .map(String::hashCode).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
-
-                // Reopen Writer for editing.
-                writers.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
-                writers.get(IndexType.GENRE).deleteDocuments(primarykeys);
-
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            } catch (Exception e) {
-                LOG.info("The genre field may not exist.");
-            } finally {
-                release(IndexType.GENRE, genreSearcher);
-            }
-
+            removeUnnecessaryGenres(existing, IndexType.GENRE);
+            removeUnnecessaryGenres(existing, IndexType.ALBUM_ID3_GENRE);
             // Don't call it asynchronously. Genre is required for subsequent processing of the scan.
             refreshMultiGenreMaster();
         } finally {
             writeUnlock(genreLock);
+        }
+    }
+
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
+    private void removeUnnecessaryGenres(List<Genre> existing, IndexType genreType) {
+        try {
+            if (existing.isEmpty()) {
+                writers.get(genreType).deleteAll();
+                writers.get(genreType).flush();
+                clearMultiGenreMaster();
+                return;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        // Stop indexing to get Searcher.
+        stopIndexing(genreType);
+        IndexSearcher genreSearcher = getSearcher(genreType);
+        if (genreSearcher == null) {
+            return;
+        }
+
+        try {
+            Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
+            if (fields.isEmpty()) {
+                return;
+            }
+
+            List<String> indexedNames = Stream
+                    .of(HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), HighFreqTerms.DEFAULT_NUMTERMS,
+                            FieldNamesConstants.GENRE, new HighFreqTerms.DocFreqComparator()))
+                    .map(t -> t.termtext.utf8ToString()).toList();
+            List<String> existingNames = existing.stream().map(Genre::getName).collect(Collectors.toList());
+            Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
+                    .map(String::hashCode).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+
+            // Reopen Writer for editing.
+            writers.put(genreType, createIndexWriter(genreType));
+            writers.get(genreType).deleteDocuments(primarykeys);
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            LOG.info("The genre field may not exist.");
+        } finally {
+            release(genreType, genreSearcher);
         }
     }
 
@@ -563,17 +575,23 @@ public class IndexManager implements ReadWriteLockSupport {
     /**
      * Get pre-parsed genre string from parsed genre string.
      *
-     * The genre analysis includes tokenize processing. Therefore, the parsed genre string and the cardinal of the
-     * unedited genre string are n: n.
+     * The pre-analysis genre text refers to the non-normalized genre text stored in the database layer. The genre
+     * analysis includes tokenize processing. Therefore, the parsed genre string and the cardinal of the unedited genre
+     * string are n: n.
      *
      * @param genres
      *            list of analyzed genres
+     * @param isFileStructure
+     *            If true, returns the genre of FileStructure (Genres associated with media types other than PODCAST).
+     *            Otherwise, returns the genre of Album (Multiple Genres associated with ID3 Album).
      *
-     * @return pre-analyzed genres
+     * @return The entire pre-analysis genre text that contains the specified genres.
+     *
+     * @version 114.2.0
      *
      * @since 101.2.0
      */
-    public List<String> toPreAnalyzedGenres(@NonNull List<String> genres) {
+    public List<String> toPreAnalyzedGenres(@NonNull List<String> genres, boolean isFileStructure) {
 
         List<String> result = new ArrayList<>();
         if (genres.isEmpty()) {
@@ -581,9 +599,10 @@ public class IndexManager implements ReadWriteLockSupport {
         }
 
         IndexSearcher searcher;
+        IndexType genereType = isFileStructure ? IndexType.GENRE : IndexType.ALBUM_ID3_GENRE;
         readLock(genreLock);
         try {
-            searcher = getSearcher(IndexType.GENRE);
+            searcher = getSearcher(genereType);
             if (isEmpty(searcher)) {
                 return result;
             }
@@ -611,7 +630,7 @@ public class IndexManager implements ReadWriteLockSupport {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } finally {
-            release(IndexType.GENRE, searcher);
+            release(genereType, searcher);
         }
         return result;
     }

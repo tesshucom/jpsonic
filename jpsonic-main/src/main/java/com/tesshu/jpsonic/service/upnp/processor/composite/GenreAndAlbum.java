@@ -40,6 +40,6 @@ public record GenreAndAlbum(Genre genre, Album album) {
     }
 
     public static String parseGenreName(String compositeId) {
-        return compositeId.substring(compositeId.indexOf(SEPA));
+        return compositeId.substring(compositeId.indexOf(SEPA) + 1);
     }
 }
