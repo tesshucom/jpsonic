@@ -58,6 +58,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.search.SearchServiceUtilities.LegacyGenreCriteria;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
@@ -116,10 +117,6 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private final ReentrantReadWriteLock genreLock = new ReentrantReadWriteLock();
 
-    private enum GenreSort {
-        ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
-    }
-
     private static final MediaType[] MUSIC_AND_AUDIOBOOK = { MediaType.MUSIC, MediaType.AUDIOBOOK };
 
     private final AnalyzerFactory analyzerFactory;
@@ -135,12 +132,6 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
-
-    /**
-     * @deprecated Use Ehcache
-     */
-    @Deprecated
-    private final Map<GenreSort, List<Genre>> multiGenreMaster;
 
     @NonNull
     Path getRootIndexDirectory() {
@@ -168,7 +159,6 @@ public class IndexManager implements ReadWriteLockSupport {
         this.shortExecutor = shortExecutor;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
-        multiGenreMaster = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -247,19 +237,6 @@ public class IndexManager implements ReadWriteLockSupport {
         return new IndexWriter(FSDirectory.open(indexDirectory), config);
     }
 
-    /**
-     * @deprecated Use Ehcache
-     */
-    @Deprecated
-    private void clearMultiGenreMaster() {
-        writeLock(genreLock);
-        try {
-            multiGenreMaster.clear();
-        } finally {
-            writeUnlock(genreLock);
-        }
-    }
-
     @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
     public void expungeArtist(int id) {
         try {
@@ -327,7 +304,7 @@ public class IndexManager implements ReadWriteLockSupport {
             if (existing.isEmpty()) {
                 writers.get(genreType).deleteAll();
                 writers.get(genreType).flush();
-                clearMultiGenreMaster();
+                util.removeCacheAll();
                 return;
             }
         } catch (IOException e) {
@@ -385,7 +362,7 @@ public class IndexManager implements ReadWriteLockSupport {
      */
     public void stopIndexing() {
         Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
-        clearMultiGenreMaster();
+        util.removeCacheAll();
     }
 
     /**
@@ -638,35 +615,36 @@ public class IndexManager implements ReadWriteLockSupport {
     public List<Genre> getGenres(boolean sortByAlbum) {
         readLock(genreLock);
         try {
-            if (multiGenreMaster.isEmpty()) {
+
+            if (util.getCache(LegacyGenreCriteria.SONG_COUNT).isEmpty()) {
                 refreshMultiGenreMaster();
             }
             if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
-                if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
-                    return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
+                if (util.containsCache(LegacyGenreCriteria.ALBUM_ALPHABETICAL)) {
+                    return util.getCache(LegacyGenreCriteria.ALBUM_ALPHABETICAL);
                 }
                 List<Genre> albumGenres = new ArrayList<>();
-                if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
-                    albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
+                if (!isEmpty(util.getCache(LegacyGenreCriteria.ALBUM_COUNT))) {
+                    albumGenres.addAll(util.getCache(LegacyGenreCriteria.ALBUM_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
                 }
-                multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
+                util.putCache(LegacyGenreCriteria.ALBUM_ALPHABETICAL, albumGenres);
                 return albumGenres;
             } else if (settingsService.isSortGenresByAlphabet()) {
-                if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
-                    return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
+                if (util.containsCache(LegacyGenreCriteria.SONG_ALPHABETICAL)) {
+                    return util.getCache(LegacyGenreCriteria.SONG_ALPHABETICAL);
                 }
                 List<Genre> albumGenres = new ArrayList<>();
-                if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
-                    albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
+                if (!isEmpty(util.getCache(LegacyGenreCriteria.SONG_COUNT))) {
+                    albumGenres.addAll(util.getCache(LegacyGenreCriteria.SONG_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
                 }
-                multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
+                util.putCache(LegacyGenreCriteria.SONG_ALPHABETICAL, albumGenres);
                 return albumGenres;
             }
 
-            List<Genre> genres = sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
-                    : multiGenreMaster.get(GenreSort.SONG_COUNT);
+            List<Genre> genres = sortByAlbum ? util.getCache(LegacyGenreCriteria.ALBUM_COUNT)
+                    : util.getCache(LegacyGenreCriteria.SONG_COUNT);
             return isEmpty(genres) ? Collections.emptyList() : genres;
         } finally {
             readUnlock(genreLock);
@@ -686,7 +664,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
                 mayBeInit: {
 
-                    multiGenreMaster.clear();
+                    Stream.of(LegacyGenreCriteria.values()).forEach(util::removeCache);
 
                     Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
                     if (fields.isEmpty()) {
@@ -718,12 +696,12 @@ public class IndexManager implements ReadWriteLockSupport {
                     }
 
                     genres.sort(comparators.genreOrder(false));
-                    multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
+                    util.putCache(LegacyGenreCriteria.SONG_COUNT, genres);
 
                     List<Genre> genresByAlbum = new ArrayList<>();
                     genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(genresByAlbum::add);
                     genresByAlbum.sort(comparators.genreOrder(true));
-                    multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);
+                    util.putCache(LegacyGenreCriteria.ALBUM_COUNT, genresByAlbum);
 
                     LOG.info("The multi-genre master has been updated.");
                 }

@@ -58,6 +58,7 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
+import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -146,7 +147,8 @@ class IndexManagerTest {
         public void setup() {
             settingsService = Mockito.mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, null, null, null, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, Mockito.mock(Ehcache.class), null,
+                    null);
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
             indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,

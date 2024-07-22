@@ -61,7 +61,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.service.search.SearchServiceUtilities;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -109,7 +108,6 @@ public class ScannerProcedureService {
     private final ScannerStateServiceImpl scannerState;
     private final MusicIndexServiceImpl musicIndexService;
     private final MediaFileCache mediaFileCache;
-    private final SearchServiceUtilities searchServiceUtilities;
     private final JapaneseReadingUtils readingUtils;
     private final JpsonicComparators comparators;
     private final ThreadPoolTaskExecutor scanExecutor;
@@ -124,8 +122,7 @@ public class ScannerProcedureService {
             PlaylistService playlistService, TemplateWrapper template, MediaFileDao mediaFileDao, ArtistDao artistDao,
             AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
             ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService,
-            MediaFileCache mediaFileCache, SearchServiceUtilities searchServiceUtilities,
-            JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
+            MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
             @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
@@ -143,7 +140,6 @@ public class ScannerProcedureService {
         this.scannerState = scannerStateService;
         this.musicIndexService = musicIndexService;
         this.mediaFileCache = mediaFileCache;
-        this.searchServiceUtilities = searchServiceUtilities;
         this.readingUtils = readingUtils;
         this.comparators = comparators;
         this.scanExecutor = scanExecutor;
@@ -988,7 +984,6 @@ public class ScannerProcedureService {
     void afterScan(@NonNull Instant scanDate) {
         mediaFileCache.setEnabled(true);
         indexManager.stopIndexing();
-        searchServiceUtilities.removeCacheAll();
         sortProcedure.clearMemoryCache();
         createScanEvent(scanDate, ScanEventType.AFTER_SCAN, null);
     }

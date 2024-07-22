@@ -457,24 +457,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
-        final List<MediaFile> result = new ArrayList<>();
         if (isEmpty(genres)) {
-            return result;
+            return Collections.emptyList();
         }
-
-        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
-                .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
-        util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
-        if (!result.isEmpty()) {
-            return result;
-        }
-
         List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true);
-        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenres,
-                musicFolders);
-        util.putCache(genres, musicFolders, IndexType.ALBUM, cache);
-        addSubToResult.accept(cache);
-        return result;
+        return mediaFileDao.getAlbumsByGenre(offset, count, preAnalyzedGenres, musicFolders);
     }
 
     @Override
@@ -492,20 +479,8 @@ public class SearchServiceImpl implements SearchService {
         if (isEmpty(genres)) {
             return result;
         }
-
-        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
-                .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
-        util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
-        if (!result.isEmpty()) {
-            return result;
-        }
-
         List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true);
-        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenres, 0, Integer.MAX_VALUE,
-                musicFolders);
-        util.putCache(genres, musicFolders, IndexType.SONG, cache);
-        addSubToResult.accept(cache);
-        return result;
+        return mediaFileDao.getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders);
     }
 
     @Override

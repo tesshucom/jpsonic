@@ -52,7 +52,6 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.service.search.SearchServiceUtilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -84,8 +83,8 @@ class ScannerProcedureServiceTest {
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mock(TemplateWrapper.class), mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao,
                 mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao),
-                mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class), mock(SearchServiceUtilities.class),
-                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+                mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class), mock(JapaneseReadingUtils.class),
+                mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested
@@ -277,8 +276,7 @@ class ScannerProcedureServiceTest {
                 mock(PlaylistService.class), mock(TemplateWrapper.class), mock(MediaFileDao.class),
                 mock(ArtistDao.class), mock(AlbumDao.class), mock(StaticsDao.class), mock(SortProcedureService.class),
                 scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
-                mock(SearchServiceUtilities.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
-                mock(ThreadPoolTaskExecutor.class));
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
 
         Mockito.when(scannerStateService.isScanning()).thenReturn(false);
         Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.UNKNOWN);

@@ -86,7 +86,6 @@ import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
-import com.tesshu.jpsonic.service.search.SearchServiceUtilities;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -229,8 +228,8 @@ class MediaScannerServiceImplTest {
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                     mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, utils,
                     scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
-                    mock(SearchServiceUtilities.class), mock(JapaneseReadingUtils.class),
-                    mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+                    mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
@@ -1280,8 +1279,8 @@ class MediaScannerServiceImplTest {
                     musicFolderService, indexManager, mediaFileService, writableMediaFileService,
                     mock(PlaylistService.class), mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao,
                     staticsDao, sortProcedureService, scannerStateService, mock(MusicIndexServiceImpl.class),
-                    mock(MediaFileCache.class), mock(SearchServiceUtilities.class), mock(JapaneseReadingUtils.class),
-                    comparators, mock(ThreadPoolTaskExecutor.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }

@@ -78,13 +78,17 @@ public class SearchServiceUtilities {
 
     /* Search by id only. */
     private final AlbumDao albumDao;
-
-    private final Ehcache searchCache;
     private final Ehcache genreCache;
     private final Ehcache randomCache;
-    private final ReentrantLock searchCacheLock = new ReentrantLock();
     private final ReentrantLock genreCacheLock = new ReentrantLock();
     private final ReentrantLock randomCacheLock = new ReentrantLock();
+
+    /**
+     * For backward compatibility
+     */
+    enum LegacyGenreCriteria {
+        ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
+    }
 
     @SuppressWarnings("PMD.SingularField")
     private Random random;
@@ -128,13 +132,11 @@ public class SearchServiceUtilities {
         return fieldName;
     };
 
-    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("searchCache") Ehcache searchCache,
-            @Qualifier("genreCache") Ehcache genreCache, @Qualifier("randomCache") Ehcache randomCache,
-            MediaFileService mediaFileService) {
+    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("genreCache") Ehcache genreCache,
+            @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.searchCache = searchCache;
         this.genreCache = genreCache;
         this.randomCache = randomCache;
         this.mediaFileService = mediaFileService;
@@ -231,14 +233,6 @@ public class SearchServiceUtilities {
         }
     }
 
-    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        StringBuilder b = new StringBuilder();
-        b.append(genres).append('[');
-        musicFolders.forEach(m -> b.append(m.getId()).append(','));
-        b.append(']').append(indexType.name());
-        return b.toString();
-    }
-
     private String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
             String... additional) {
         StringBuilder b = new StringBuilder();
@@ -259,22 +253,6 @@ public class SearchServiceUtilities {
         Stream.of(criteria.types()).forEach(type -> b.append(type.name()).append(','));
         b.append(']');
         return b.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        List<MediaFile> mediaFiles = null;
-        Element element;
-        searchCacheLock.lock();
-        try {
-            element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
-        } finally {
-            searchCacheLock.unlock();
-        }
-        if (!isEmpty(element)) {
-            mediaFiles = (List<MediaFile>) element.getObjectValue();
-        }
-        return Optional.ofNullable(mediaFiles);
     }
 
     @SuppressWarnings("unchecked")
@@ -321,12 +299,25 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
-        searchCacheLock.lock();
+    @SuppressWarnings("unchecked")
+    public List<Genre> getCache(LegacyGenreCriteria criteria) {
+        genreCacheLock.lock();
         try {
-            searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+            Element element = genreCache.get(criteria.name());
+            return isEmpty(element) ? Collections.emptyList() : (List<Genre>) element.getObjectValue();
         } finally {
-            searchCacheLock.unlock();
+            genreCacheLock.unlock();
+        }
+    }
+
+    public boolean containsCache(LegacyGenreCriteria criteria) {
+        genreCacheLock.lock();
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> keys = (List<String>) genreCache.getKeys();
+            return keys.stream().anyMatch(k -> k.equals(criteria.name()));
+        } finally {
+            genreCacheLock.unlock();
         }
     }
 
@@ -358,14 +349,26 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void removeCacheAll() {
-        searchCacheLock.lock();
+    public void putCache(LegacyGenreCriteria criteria, List<Genre> value) {
+        genreCacheLock.lock();
         try {
-            searchCache.removeAll();
+            genreCache.put(new Element(criteria.name(), value));
         } finally {
-            searchCacheLock.unlock();
+            genreCacheLock.unlock();
+        }
+    }
+
+    public void removeCache(LegacyGenreCriteria criteria) {
+        genreCacheLock.lock();
+        try {
+            genreCache.remove(criteria.name());
+        } finally {
+            genreCacheLock.unlock();
         }
 
+    }
+
+    public void removeCacheAll() {
         genreCacheLock.lock();
         try {
             genreCache.removeAll();

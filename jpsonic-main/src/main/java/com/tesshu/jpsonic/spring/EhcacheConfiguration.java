@@ -69,12 +69,6 @@ public class EhcacheConfiguration {
     }
 
     @Bean
-    @Qualifier("searchCache")
-    public Ehcache searchCache(CacheFactory cacheFactory) {
-        return cacheFactory.getCache("searchCache");
-    }
-
-    @Bean
     @Qualifier("genreCache")
     public Ehcache genreCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("genreCache");
