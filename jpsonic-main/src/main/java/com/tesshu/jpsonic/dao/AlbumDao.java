@@ -21,19 +21,18 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
 import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.dao.dialect.DialectAlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -52,19 +51,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AlbumDao {
 
-    private static final String INSERT_COLUMNS = """
-            path, name, artist, song_count, duration_seconds, cover_art_path, year, genre,
-            play_count, last_played, comment, created, last_scanned, present, folder_id,
-            mb_release_id, artist_sort, name_sort, artist_reading, name_reading, album_order\s
-            """;
-    private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
+    private static final String INSERT_COLUMNS = DaoUtils.getInsertColumns(Album.class);
+    private static final String QUERY_COLUMNS = DaoUtils.getQueryColumns(Album.class);
 
+    private final RowMapper<Album> rowMapper = DaoUtils.createRowMapper(Album.class);
     private final TemplateWrapper template;
-    private final RowMapper<Album> rowMapper;
 
-    public AlbumDao(TemplateWrapper templateWrapper) {
+    private final DialectAlbumDao dialect;
+
+    public AlbumDao(TemplateWrapper templateWrapper, DialectAlbumDao dialect) {
         template = templateWrapper;
-        rowMapper = new AlbumMapper();
+        this.dialect = dialect;
     }
 
     public @Nullable Album getAlbum(int id) {
@@ -307,17 +304,7 @@ public class AlbumDao {
     }
 
     public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres, List<MusicFolder> folders) {
-        if (genres.isEmpty() || folders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(folders), "genres", genres, "count",
-                count, "offset", offset);
-        return template.namedQuery("select " + QUERY_COLUMNS + """
-                from album
-                where present and folder_id in (:folders) and genre in (:genres)
-                order by album_order
-                limit :count offset :offset
-                """, rowMapper, args);
+        return dialect.getAlbumsByGenre(offset, count, genres, folders);
     }
 
     public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
@@ -393,17 +380,5 @@ public class AlbumDao {
                 from album
                 where artist = :artist and present and folder_id in (:folders)
                 """, 0, args);
-    }
-
-    private static class AlbumMapper implements RowMapper<Album> {
-        @Override
-        public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Album(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5),
-                    rs.getInt(6), rs.getString(7), rs.getInt(8) == 0 ? null : rs.getInt(8), rs.getString(9),
-                    rs.getInt(10), nullableInstantOf(rs.getTimestamp(11)), rs.getString(12),
-                    nullableInstantOf(rs.getTimestamp(13)), nullableInstantOf(rs.getTimestamp(14)), rs.getBoolean(15),
-                    rs.getInt(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20),
-                    rs.getString(21), rs.getInt(22));
-        }
     }
 }

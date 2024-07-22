@@ -75,4 +75,7 @@ public interface DialectMediaFileDao {
 
     List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback);
+
+    List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count,
+            List<MusicFolder> musicFolders);
 }

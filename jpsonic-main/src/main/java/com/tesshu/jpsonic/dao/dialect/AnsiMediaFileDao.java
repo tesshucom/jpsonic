@@ -586,4 +586,30 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         });
         return result;
     }
+
+    @Override
+    public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
+            final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty() || genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types",
+                Arrays.asList(MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name()), "genres",
+                genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
+                , al.media_file_order = -1 as is_under_root
+                from media_file s
+                join media_file al
+                on s.parent_path = al.path
+                left join media_file ar
+                on al.parent_path = ar.path
+                join music_folder
+                on s.folder = music_folder.path
+                where s.type in (:types) and s.genre in (:genres)
+                        and s.present and s.folder in (:folders)
+                order by is_under_root, ar.media_file_order, al.media_file_order,
+                        folder_order, s.media_file_order, s.track_number
+                limit :count offset :offset
+                """, rowMapper, args);
+    }
 }
