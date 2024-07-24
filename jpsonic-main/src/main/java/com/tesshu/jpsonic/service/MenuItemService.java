@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.MenuItemDao;
@@ -68,28 +69,34 @@ public class MenuItemService {
     }
 
     public int getTopMenuItemCount(ViewType viewType) {
-        return menuItemDao.getTopMenuItemCount(viewType);
+        return (int) menuItemDao.getTopMenuIds(viewType).stream().filter(childId -> childId != MenuItemId.ANY).count();
     }
 
     public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
-        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(viewType, enabledOnly, offset, count);
+        // To be modifiable
+        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(viewType, enabledOnly, offset, count).stream()
+                .filter(menu -> menu.getId() != MenuItemId.ANY).collect(Collectors.toList());
         menuItems.stream().filter(item -> item.getName().isBlank())
                 .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
     }
 
     public List<MenuItemWithDefaultName> getTopMenuItems(ViewType viewType) {
+        // To be modifiable
         return getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE).stream()
-                .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId()))).toList();
+                .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId())))
+                .collect(Collectors.toList());
     }
 
     public int getChildSizeOf(ViewType viewType, MenuItemId id) {
-        return menuItemDao.getChildSizeOf(viewType, id);
+        return (int) menuItemDao.getChildIds(viewType, id).stream().filter(childId -> childId != MenuItemId.ANY)
+                .count();
     }
 
     public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
             long count) {
-        List<MenuItem> menuItems = menuItemDao.getChildlenOf(viewType, id, enabledOnly, offset, count);
+        List<MenuItem> menuItems = menuItemDao.getChildlenOf(viewType, id, enabledOnly, offset, count).stream()
+                .filter(item -> item.getId() != MenuItemId.ANY).toList();
         menuItems.stream().filter(item -> item.getName().isBlank())
                 .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
@@ -109,8 +116,8 @@ public class MenuItemService {
     public void ensureUPnPSubMenuEnabled() {
         List<MenuItem> subMenus = menuItemDao.getSubMenuItems(ViewType.UPNP);
         getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).forEach(topMenu -> {
-            long enableCounts = subMenus.stream().filter(subMenu -> subMenu.getParent() == topMenu.getId())
-                    .filter(MenuItem::isEnabled).count();
+            long enableCounts = subMenus.stream().filter(subMenu -> subMenu.getId() != MenuItemId.ANY)
+                    .filter(subMenu -> subMenu.getParent() == topMenu.getId()).filter(MenuItem::isEnabled).count();
             if (enableCounts == 0) {
                 MenuItemId defaultSubMenuItemId = switch (topMenu.getId()) {
                 case FOLDER -> MenuItemId.MEDIA_FILE;
@@ -157,13 +164,14 @@ public class MenuItemService {
     }
 
     public List<MenuItemWithDefaultName> getSubMenuItems(ViewType viewType) {
-        return menuItemDao.getSubMenuItems(viewType).stream().map(item -> {
-            String defaultName = getItemName(item.getId());
-            if (item.getName().isBlank()) {
-                item.setName(defaultName);
-            }
-            return new MenuItemWithDefaultName(item, defaultName);
-        }).toList();
+        return menuItemDao.getSubMenuItems(viewType).stream().filter(item -> item.getId() != MenuItemId.ANY)
+                .map(item -> {
+                    String defaultName = getItemName(item.getId());
+                    if (item.getName().isBlank()) {
+                        item.setName(defaultName);
+                    }
+                    return new MenuItemWithDefaultName(item, defaultName);
+                }).toList();
     }
 
     public void resetMenuItem(ViewType viewType, ResetMode mode) {
