@@ -42,6 +42,7 @@ public class MenuItemDao {
     private final TemplateWrapper template;
     private final RowMapper<MenuItem> rowMapper = (ResultSet rs, int num) -> new MenuItem(ViewType.of(rs.getInt(1)),
             MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)), rs.getString(4), rs.getBoolean(5), rs.getInt(6));
+    private final RowMapper<MenuItemId> idRowMapper = (ResultSet rs, int num) -> MenuItemId.of(rs.getInt(1));
 
     public MenuItemDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -54,11 +55,11 @@ public class MenuItemDao {
                 """, rowMapper, id);
     }
 
-    public int getTopMenuItemCount(ViewType viewType) {
-        return template.queryForInt("""
-                select count(id) from menu_item
+    public List<MenuItemId> getTopMenuIds(ViewType viewType) {
+        return template.query("""
+                select id from menu_item
                 where view_type=? and parent=? and enabled=?
-                """, 0, viewType.value(), MenuItemId.ROOT.value(), true);
+                """, idRowMapper, viewType.value(), MenuItemId.ROOT.value(), true);
     }
 
     public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
@@ -72,11 +73,11 @@ public class MenuItemDao {
                 """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
     }
 
-    public int getChildSizeOf(ViewType viewType, MenuItemId id) {
-        return template.queryForInt("""
-                select count(id) from menu_item
+    public List<MenuItemId> getChildIds(ViewType viewType, MenuItemId id) {
+        return template.query("""
+                select id from menu_item
                 where view_type=? and parent=? and enabled=?
-                """, 0, viewType.value(), id.value(), true);
+                """, idRowMapper, viewType.value(), id.value(), true);
     }
 
     public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
