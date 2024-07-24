@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MenuItemDao;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
@@ -56,6 +56,8 @@ class MenuItemServiceTest {
     MenuItemDao menuItemDao;
     @Autowired
     private MenuItemService menuItemService;
+    @Autowired
+    private TemplateWrapper templateWrapper;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
@@ -343,5 +345,90 @@ class MenuItemServiceTest {
         menuItemService.resetMenuItem(ViewType.UPNP, ResetMode.SUB_MENU);
         subMenuItems = menuItemDao.getSubMenuItems(ViewType.UPNP);
         assertTrue(validateDefaultSubMenuItems.apply(subMenuItems));
+    }
+
+    /**
+     * This case will not occur in the latest version of Jpsonic. This case would occur if a new menu was added to the
+     * latest version of the database and then the Jpsonic was launched with an older version. (When viewed from a
+     * previous version of Jpsonic, there are menus with unknown IDs.)
+     */
+    @Nested
+    class UnknownMenuTest {
+
+        @Test
+        void testUnknownTopMenu() {
+
+            assertEquals(8, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
+            assertEquals(8, menuItemService.getTopMenuItemCount(ViewType.UPNP));
+
+            assertEquals(8, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP).size());
+
+            // Add a dummy sub menu
+            templateWrapper.update("""
+                    insert into menu_item
+                    (view_type, id, parent, name, enabled, menu_item_order)
+                    values(?, ?, ?, ?, ?, ?);
+                    """, ViewType.UPNP.value(), -1, MenuItemId.ROOT.value(), "dummy", true, 99);
+
+            // Menus with unknown IDs are excluded in the Service layer.
+            assertEquals(9, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
+            assertEquals(8, menuItemService.getTopMenuItemCount(ViewType.UPNP));
+
+            assertEquals(9, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP).size());
+
+            templateWrapper.update("""
+                    delete from menu_item where id < 0
+                    """);
+
+            assertEquals(8, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
+            assertEquals(8, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+        }
+
+        @Test
+        void testUnknownSubMenu() {
+
+            assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
+            assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
+
+            assertEquals(2,
+                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(2,
+                    menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+
+            assertEquals(17, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
+            assertEquals(17, menuItemService.getSubMenuItems(ViewType.UPNP).size());
+
+            // Add a dummy sub menu
+            templateWrapper.update("""
+                    insert into menu_item
+                    (view_type, id, parent, name, enabled, menu_item_order)
+                    values(?, ?, ?, ?, ?, ?);
+                    """, ViewType.UPNP.value(), -1, MenuItemId.GENRE.value(), "", true, 99);
+
+            // Menus with unknown IDs are excluded in the Service layer.
+
+            assertEquals(2, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
+            assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
+
+            assertEquals(3,
+                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(2,
+                    menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+
+            assertEquals(18, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
+            assertEquals(17, menuItemService.getSubMenuItems(ViewType.UPNP).size());
+
+            templateWrapper.update("""
+                    delete from menu_item where id < 0
+                    """);
+            assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
+            assertEquals(2,
+                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(17, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
+        }
     }
 }
