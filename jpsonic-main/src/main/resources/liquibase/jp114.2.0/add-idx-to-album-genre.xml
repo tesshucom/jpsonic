@@ -1,0 +1,15 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-idx-to-album-genre" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="album" />
+        </preConditions>
+        <createIndex tableName="album" indexName="idx_album_genre">
+            <column name="genre"/>
+        </createIndex>
+        <rollback />
+    </changeSet>
+</databaseChangeLog>
