@@ -153,6 +153,49 @@ public class WritableMediaFileService {
         return createMediaFile(scanDate, path).get();
     }
 
+    /*
+     * In Jpsonic, ChildrenLastUpdated is used to detect changes in related child data fields. The meaning depends on
+     * the MediaType: for ALBUM, it indicates a change in the album in the file structure. For MUSIC, AUDIOBOOK, MOVIE,
+     * it indicates a change in the album in the ID3.
+     */
+
+    private void updateAlbumChildrenLastUpdated(@NonNull MediaFile album) {
+        mediaFileDao.updateChildrenLastUpdated(album.getPathString(),
+                album.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : album.getChanged());
+    }
+
+    /*
+     * If there is a difference in the children, set ChildrenLastUpdated to FAR_FUTURE
+     */
+    private void updateSongChildrenLastUpdated(@NonNull MediaFile updated, @NonNull MediaFile old) {
+        if (!(updated.getMediaType() == MediaType.MUSIC || updated.getMediaType() == MediaType.AUDIOBOOK
+                || updated.getMediaType() == MediaType.VIDEO)) {
+            return;
+        }
+        if (!(Objects.equals(updated.getFolder(), old.getFolder())
+                && Objects.equals(updated.getPathString(), old.getPathString())
+                && Objects.equals(updated.getCoverArtPath(), old.getCoverArtPath())
+                && Objects.equals(updated.getAlbumArtist(), old.getAlbumArtist())
+                && Objects.equals(updated.getAlbumName(), old.getAlbumName())
+                && Objects.equals(updated.getYear(), old.getYear())
+                && Objects.equals(updated.getGenre(), old.getGenre())
+                && Objects.equals(updated.getMusicBrainzReleaseId(), old.getMusicBrainzReleaseId()))) {
+            mediaFileDao.updateChildrenLastUpdated(updated.getPathString(), FAR_FUTURE);
+        }
+    }
+
+    /*
+     * If any children are deleted, set ChildrenLastUpdated of any existing children to FAR_FUTURE.
+     */
+    private void updateSongChildrenLastUpdated(@NonNull MediaFile parent) {
+        for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
+            if (child.getMediaType() == MediaType.MUSIC || child.getMediaType() == MediaType.AUDIOBOOK
+                    || child.getMediaType() == MediaType.VIDEO) {
+                mediaFileDao.updateChildrenLastUpdated(child.getPathString(), FAR_FUTURE);
+            }
+        }
+    }
+
     Optional<Path> updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
@@ -172,28 +215,40 @@ public class WritableMediaFileService {
                 coverArtDetector.setMediaFilePath(childPath);
 
                 MediaFile child = stored.get(childPath.toString());
+                createOrUpdateChild(child, childPath, scanDate).ifPresentOrElse(updated -> {
+                    if (child != null) {
+                        /*
+                         * Updates the ChildrenLastUpdated which is used to detect changes when updating ID3 Album
+                         * records. Note that this process does not include detecting changes to the Sort tag.
+                         */
+                        updateSongChildrenLastUpdated(updated, child);
+                    }
+                    updateCount.increment();
+                }, () -> {
+                    if (child != null && !scanDate.equals(child.getLastScanned())
+                            && !FAR_FUTURE.equals(child.getLastScanned())) {
+                        mediaFileDao.updateLastScanned(child.getId(), scanDate);
+                    }
+                });
                 stored.remove(childPath.toString());
-                createOrUpdateChild(child, childPath, scanDate).ifPresentOrElse(result -> updateCount.increment(),
-                        () -> {
-                            if (child != null && !scanDate.equals(child.getLastScanned())
-                                    && !FAR_FUTURE.equals(child.getLastScanned())) {
-                                mediaFileDao.updateLastScanned(child.getId(), scanDate);
-                            }
-                        });
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
+        if (updateCount.intValue() > 0) {
+            updateAlbumChildrenLastUpdated(parent);
+        }
+
+        LongAdder deleteCount = new LongAdder();
         stored.values().stream().filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0).forEach(m -> {
             deleteMediafileIndex(m);
-            updateCount.increment();
+            deleteCount.increment();
         });
-
-        if (updateCount.intValue() > 0) {
-            mediaFileDao.updateChildrenLastUpdated(parent.getPathString(),
-                    parent.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : parent.getChanged());
+        if (deleteCount.intValue() > 0) {
+            updateSongChildrenLastUpdated(parent);
         }
+
         return coverArtDetector.getCoverArtAvailable();
     }
 

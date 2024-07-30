@@ -26,27 +26,39 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
+import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -57,6 +69,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +87,419 @@ class IndexManagerTest {
     @AfterAll
     public static void tearDownOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(false);
+    }
+
+    @Documented
+    private @interface GetGenresDecisions {
+        @interface Conditions {
+            @interface Settings {
+                @interface IsSortGenresByAlphabet {
+                    @interface FALSE {
+                    }
+
+                    @interface TRUE {
+                    }
+                }
+            }
+
+            @interface Params {
+                @interface SortByAlbum {
+                    @interface FALSE {
+                    }
+
+                    @interface TRUE {
+                    }
+                }
+            }
+        }
+
+        @interface Result {
+            @interface GenreSort {
+                @interface SongCount {
+
+                }
+
+                @interface AlbumCount {
+
+                }
+
+                @interface SongAlphabetical {
+                }
+
+                @interface AlbumAlphabetical {
+                }
+            }
+        }
+    }
+
+    /*
+     * The implementation is poor and difficult to assert. This is a coverage test for later fix.
+     */
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Nested
+    @ExtendWith(NeedsHome.class)
+    class GetGenresTest {
+
+        private SettingsService settingsService;
+        private IndexManager indexManager;
+
+        @BeforeEach
+        public void setup() {
+            settingsService = Mockito.mock(SettingsService.class);
+            QueryFactory queryFactory = new QueryFactory(settingsService, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, Mockito.mock(Ehcache.class), null,
+                    null);
+            JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
+            JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
+            indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,
+                    null, null);
+        }
+
+        @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
+        @GetGenresDecisions.Conditions.Params.SortByAlbum.FALSE
+        @GetGenresDecisions.Result.GenreSort.SongCount
+        @Test
+        void c00() {
+            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            indexManager.getGenres(false);
+        }
+
+        @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
+        @GetGenresDecisions.Conditions.Params.SortByAlbum.TRUE
+        @GetGenresDecisions.Result.GenreSort.AlbumCount
+        @Test
+        void c01() {
+            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            indexManager.getGenres(true);
+        }
+
+        @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.TRUE
+        @GetGenresDecisions.Conditions.Params.SortByAlbum.FALSE
+        @GetGenresDecisions.Result.GenreSort.SongAlphabetical
+        @Test
+        void c02() {
+
+            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            indexManager.getGenres(false);
+        }
+
+        @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.TRUE
+        @GetGenresDecisions.Conditions.Params.SortByAlbum.TRUE
+        @GetGenresDecisions.Result.GenreSort.AlbumAlphabetical
+        @Test
+        void c03() {
+
+            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            indexManager.getGenres(true);
+        }
+    }
+
+    @Documented
+    private @interface CreateGenreMasterDecisions {
+        @interface Conditions {
+            @interface Criteria {
+                @interface Scope {
+                    @interface Album {
+                    }
+
+                    @interface Song {
+                    }
+                }
+
+                @interface Sort {
+                    @interface Frequency {
+                    }
+
+                    @interface Name {
+                    }
+
+                    @interface AlbumCount {
+                    }
+
+                    @interface SongCount {
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * The implementation is poor and difficult to assert. This is a coverage test for later fix.
+     */
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Nested
+    class CreateGenreMasterTest extends AbstractNeedsScan {
+
+        @Autowired
+        private IndexManager indexManager;
+
+        private final List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 1, false));
+
+        private static boolean populated;
+
+        @Override
+        public List<MusicFolder> getMusicFolders() {
+            return musicFolders;
+        }
+
+        @BeforeEach
+        public void setup() {
+            if (!populated) {
+                populateDatabase();
+                populated = true;
+            }
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
+        @Test
+        void c00() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.NAME);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(14, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).getName());
+            assertEquals("Audiobook - Sports", genres.get(1).getName());
+            assertEquals("GENRE_A", genres.get(2).getName());
+            assertEquals("GENRE_B", genres.get(3).getName());
+            assertEquals("GENRE_C", genres.get(4).getName());
+            assertEquals("GENRE_D", genres.get(5).getName());
+            assertEquals("GENRE_E", genres.get(6).getName());
+            assertEquals("GENRE_F", genres.get(7).getName());
+            assertEquals("GENRE_G", genres.get(8).getName());
+            assertEquals("GENRE_H", genres.get(9).getName());
+            assertEquals("GENRE_I", genres.get(10).getName());
+            assertEquals("GENRE_J", genres.get(11).getName());
+            assertEquals("GENRE_K", genres.get(12).getName());
+            assertEquals("GENRE_L", genres.get(13).getName());
+            genres.stream().forEach(genre -> {
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.AlbumCount
+        @Test
+        void c01() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.ALBUM_COUNT);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(14, genres.size());
+            assertEquals("GENRE_D", genres.get(0).getName());
+            assertEquals("GENRE_K", genres.get(1).getName());
+            assertEquals("GENRE_L", genres.get(2).getName());
+            assertEquals("Audiobook - Historical", genres.get(3).getName());
+            assertEquals("Audiobook - Sports", genres.get(4).getName());
+            assertEquals("GENRE_A", genres.get(5).getName());
+            assertEquals("GENRE_B", genres.get(6).getName());
+            assertEquals("GENRE_C", genres.get(7).getName());
+            assertEquals("GENRE_E", genres.get(8).getName());
+            assertEquals("GENRE_F", genres.get(9).getName());
+            assertEquals("GENRE_G", genres.get(10).getName());
+            assertEquals("GENRE_H", genres.get(11).getName());
+            assertEquals("GENRE_I", genres.get(12).getName());
+            assertEquals("GENRE_J", genres.get(13).getName());
+            genres.stream().forEach(genre -> {
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+            assertEquals(2, genres.get(0).getAlbumCount());
+            assertEquals(2, genres.get(1).getAlbumCount());
+            assertEquals(2, genres.get(2).getAlbumCount());
+            assertEquals(1, genres.get(3).getAlbumCount());
+            assertEquals(1, genres.get(4).getAlbumCount());
+            assertEquals(1, genres.get(5).getAlbumCount());
+            assertEquals(1, genres.get(6).getAlbumCount());
+            assertEquals(1, genres.get(7).getAlbumCount());
+            assertEquals(1, genres.get(8).getAlbumCount());
+            assertEquals(1, genres.get(9).getAlbumCount());
+            assertEquals(1, genres.get(10).getAlbumCount());
+            assertEquals(1, genres.get(11).getAlbumCount());
+            assertEquals(1, genres.get(12).getAlbumCount());
+            assertEquals(1, genres.get(13).getAlbumCount());
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
+        @Test
+        void c02() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.SONG_COUNT);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(14, genres.size());
+            assertEquals("GENRE_A", genres.get(0).getName());
+            assertEquals("GENRE_D", genres.get(1).getName());
+            assertEquals("GENRE_E", genres.get(2).getName());
+            assertEquals("GENRE_F", genres.get(3).getName());
+            assertEquals("GENRE_K", genres.get(4).getName());
+            assertEquals("GENRE_L", genres.get(5).getName());
+            assertEquals("Audiobook - Historical", genres.get(6).getName());
+            assertEquals("Audiobook - Sports", genres.get(7).getName());
+            assertEquals("GENRE_B", genres.get(8).getName());
+            assertEquals("GENRE_C", genres.get(9).getName());
+            assertEquals("GENRE_G", genres.get(10).getName());
+            assertEquals("GENRE_H", genres.get(11).getName());
+            assertEquals("GENRE_I", genres.get(12).getName());
+            assertEquals("GENRE_J", genres.get(13).getName());
+            genres.stream().forEach(genre -> {
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+            assertEquals(2, genres.get(0).getSongCount());
+            assertEquals(2, genres.get(1).getSongCount());
+            assertEquals(2, genres.get(2).getSongCount());
+            assertEquals(2, genres.get(3).getSongCount());
+            assertEquals(2, genres.get(4).getSongCount());
+            assertEquals(2, genres.get(5).getSongCount());
+            assertEquals(1, genres.get(6).getSongCount());
+            assertEquals(1, genres.get(7).getSongCount());
+            assertEquals(1, genres.get(8).getSongCount());
+            assertEquals(1, genres.get(9).getSongCount());
+            assertEquals(1, genres.get(10).getSongCount());
+            assertEquals(1, genres.get(11).getSongCount());
+            assertEquals(1, genres.get(12).getSongCount());
+            assertEquals(1, genres.get(13).getSongCount());
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
+        @Test
+        void c03() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.NAME,
+                    MediaType.MUSIC);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(13, genres.size());
+            assertEquals("GENRE_A", genres.get(0).getName());
+            assertEquals("GENRE_B", genres.get(1).getName());
+            assertEquals("GENRE_C", genres.get(2).getName());
+            assertEquals("GENRE_D", genres.get(3).getName());
+            assertEquals("GENRE_E", genres.get(4).getName());
+            assertEquals("GENRE_F", genres.get(5).getName());
+            assertEquals("GENRE_G", genres.get(6).getName());
+            assertEquals("GENRE_H", genres.get(7).getName());
+            assertEquals("GENRE_I", genres.get(8).getName());
+            assertEquals("GENRE_J", genres.get(9).getName());
+            assertEquals("GENRE_K", genres.get(10).getName());
+            assertEquals("GENRE_L", genres.get(11).getName());
+            assertEquals("NO_ALBUM", genres.get(12).getName());
+            genres.stream().forEach(genre -> {
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
+        @Test
+        void c04() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.SONG_COUNT,
+                    MediaType.MUSIC);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(13, genres.size());
+            assertEquals("GENRE_A", genres.get(0).getName());
+            assertEquals("GENRE_D", genres.get(1).getName());
+            assertEquals("GENRE_E", genres.get(2).getName());
+            assertEquals("GENRE_F", genres.get(3).getName());
+            assertEquals("GENRE_K", genres.get(4).getName());
+            assertEquals("GENRE_L", genres.get(5).getName());
+            assertEquals("GENRE_B", genres.get(6).getName());
+            assertEquals("GENRE_C", genres.get(7).getName());
+            assertEquals("GENRE_G", genres.get(8).getName());
+            assertEquals("GENRE_H", genres.get(9).getName());
+            assertEquals("GENRE_I", genres.get(10).getName());
+            assertEquals("GENRE_J", genres.get(11).getName());
+            assertEquals("NO_ALBUM", genres.get(12).getName());
+            assertEquals(2, genres.get(0).getSongCount());
+            assertEquals(2, genres.get(1).getSongCount());
+            assertEquals(2, genres.get(2).getSongCount());
+            assertEquals(2, genres.get(3).getSongCount());
+            assertEquals(2, genres.get(4).getSongCount());
+            assertEquals(2, genres.get(5).getSongCount());
+            assertEquals(1, genres.get(6).getSongCount());
+            assertEquals(1, genres.get(7).getSongCount());
+            assertEquals(1, genres.get(8).getSongCount());
+            assertEquals(1, genres.get(9).getSongCount());
+            assertEquals(1, genres.get(10).getSongCount());
+            assertEquals(1, genres.get(11).getSongCount());
+            assertEquals(1, genres.get(12).getSongCount());
+            genres.stream().forEach(genre -> {
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
+        @Test
+        void c05() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.NAME, MediaType.MUSIC,
+                    MediaType.AUDIOBOOK);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(15, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).getName());
+            assertEquals("Audiobook - Sports", genres.get(1).getName());
+            assertEquals("GENRE_A", genres.get(2).getName());
+            assertEquals("GENRE_B", genres.get(3).getName());
+            assertEquals("GENRE_C", genres.get(4).getName());
+            assertEquals("GENRE_D", genres.get(5).getName());
+            assertEquals("GENRE_E", genres.get(6).getName());
+            assertEquals("GENRE_F", genres.get(7).getName());
+            assertEquals("GENRE_G", genres.get(8).getName());
+            assertEquals("GENRE_H", genres.get(9).getName());
+            assertEquals("GENRE_I", genres.get(10).getName());
+            assertEquals("GENRE_J", genres.get(11).getName());
+            assertEquals("GENRE_K", genres.get(12).getName());
+            assertEquals("GENRE_L", genres.get(13).getName());
+            assertEquals("NO_ALBUM", genres.get(14).getName());
+            genres.stream().forEach(genre -> {
+                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
+            });
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
+        @Test
+        void c06() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.FREQUENCY,
+                    MediaType.MUSIC, MediaType.AUDIOBOOK);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(14, genres.size());
+            for (int i = 0; i < genres.size(); i++) {
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getAlbumCount());
+                if (i < 3) {
+                    assertTrue("GENRE_D".equals(genres.get(i).getName()) || "GENRE_K".equals(genres.get(i).getName())
+                            || "GENRE_L".equals(genres.get(i).getName()));
+                    assertEquals(2, genres.get(i).getAlbumCount());
+                } else {
+                    assertEquals(1, genres.get(i).getAlbumCount());
+                }
+                assertEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getSongCount());
+            }
+        }
+
+        @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
+        @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
+        @Test
+        void c07() {
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.FREQUENCY,
+                    MediaType.MUSIC, MediaType.AUDIOBOOK);
+            List<Genre> genres = indexManager.createGenreMaster(criteria);
+            assertEquals(15, genres.size());
+            for (int i = 0; i < genres.size(); i++) {
+                assertEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getAlbumCount());
+                assertNotEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getSongCount());
+                if (i < 6) {
+                    assertTrue("GENRE_A".equals(genres.get(i).getName()) || "GENRE_D".equals(genres.get(i).getName())
+                            || "GENRE_E".equals(genres.get(i).getName()) || "GENRE_F".equals(genres.get(i).getName())
+                            || "GENRE_K".equals(genres.get(i).getName()) || "GENRE_L".equals(genres.get(i).getName()));
+                    assertEquals(2, genres.get(i).getSongCount());
+                } else {
+                    assertEquals(1, genres.get(i).getSongCount());
+                }
+            }
+        }
     }
 
     @Nested

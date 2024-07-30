@@ -105,4 +105,9 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     public List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders) {
         return deligate.getDuplicateSortPersons(folders);
     }
+
+    @Override
+    public List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count, List<MusicFolder> musicFolders) {
+        return deligate.getSongsByGenre(genres, offset, count, musicFolders);
+    }
 }

@@ -257,11 +257,14 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3}">
                                 [Album] [Song]
                             </c:when>
-                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
-                                [Genre] [Album Folder] [Song]
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
+                                [Genre] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
                                 [Genre] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
+                                [Genre] [Album Folder] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.PODCAST_DEFALT}">
                                 [Channel] [Episode] [Media(Audio)]
@@ -292,6 +295,44 @@
                         </c:choose>
                     </td>
                     <c:choose>
+                        <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
+                            <c:choose>
+                                <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <form:select path="albumGenreSort">
+                                            <c:forEach items="${command.avairableAlbumGenreSort}" var="genreSort">
+                                                <c:set var="genreSortViewName">
+                                                    <fmt:message key="dlnasettings.dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
+                                                </c:set>
+                                                <form:option value="${genreSort}" label="${genreSortViewName}"/>
+                                            </c:forEach>
+                                        </form:select>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenresort"/></c:import>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <form:select path="songGenreSort">
+                                            <c:forEach items="${command.avairableSongGenreSort}" var="genreSort">
+                                                <c:set var="genreSortViewName">
+                                                    <fmt:message key="dlnasettings.dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
+                                                </c:set>
+                                                <form:option value="${genreSort}" label="${genreSortViewName}"/>
+                                            </c:forEach>
+                                        </form:select>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
+                                        <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
+                                    </td>
+                                </c:when>
+                                <c:otherwise>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:when>
                         <c:when test="${isFirstSubMenu}">
                             <c:choose>
                                 <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">

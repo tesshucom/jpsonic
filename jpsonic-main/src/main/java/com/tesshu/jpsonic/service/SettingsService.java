@@ -1244,6 +1244,22 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
     }
 
+    public String getUPnPAlbumGenreSort() {
+        return getString(SettingsConstants.UPnP.Options.UPNP_ALBUM_GENRE_SORT);
+    }
+
+    public void setUPnPAlbumGenreSort(String s) {
+        setProperty(SettingsConstants.UPnP.Options.UPNP_ALBUM_GENRE_SORT, s);
+    }
+
+    public String getUPnPSongGenreSort() {
+        return getString(SettingsConstants.UPnP.Options.UPNP_SONG_GENRE_SORT);
+    }
+
+    public void setUPnPSongGenreSort(String s) {
+        setProperty(SettingsConstants.UPnP.Options.UPNP_SONG_GENRE_SORT, s);
+    }
+
     public boolean isDlnaGenreCountVisible() {
         return getBoolean(SettingsConstants.UPnP.Options.GENRE_COUNT);
     }

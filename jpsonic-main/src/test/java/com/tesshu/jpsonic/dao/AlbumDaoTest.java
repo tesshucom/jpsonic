@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.dao.dialect.DialectAlbumDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -42,7 +43,7 @@ class AlbumDaoTest {
     @BeforeEach
     public void setup() {
         this.templateWrapper = Mockito.mock(TemplateWrapper.class);
-        albumDao = new AlbumDao(templateWrapper);
+        albumDao = new AlbumDao(templateWrapper, Mockito.mock(DialectAlbumDao.class));
     }
 
     @Documented

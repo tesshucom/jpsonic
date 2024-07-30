@@ -577,6 +577,16 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testGetUPnPAlbumGenreSort() {
+        assertEquals("FREQUENCY", settingsService.getUPnPAlbumGenreSort());
+    }
+
+    @Test
+    void testGetUPnPSongGenreSort() {
+        assertEquals("FREQUENCY", settingsService.getUPnPSongGenreSort());
+    }
+
+    @Test
     void testIsDlnaGenreCountVisible() {
         assertFalse(settingsService.isDlnaGenreCountVisible());
     }

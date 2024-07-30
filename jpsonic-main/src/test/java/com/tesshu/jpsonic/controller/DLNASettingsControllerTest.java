@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.dao.MenuItemDao;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
@@ -142,6 +143,8 @@ class DLNASettingsControllerTest {
         command.setTranscodeScheme(TranscodeScheme.MAX_1411);
         command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
+        command.setAlbumGenreSort(Sort.FREQUENCY);
+        command.setSongGenreSort(Sort.FREQUENCY);
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(playerService, Mockito.times(1)).updatePlayer(playerCaptor.capture());
@@ -240,6 +243,8 @@ class DLNASettingsControllerTest {
         command.setDlnaGenreCountVisible(false);
         command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
+        command.setAlbumGenreSort(Sort.FREQUENCY);
+        command.setSongGenreSort(Sort.FREQUENCY);
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -289,6 +294,8 @@ class DLNASettingsControllerTest {
             command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
         }
 
         @Test
@@ -390,6 +397,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
             command.setSubMenuItemRowInfos(Collections.emptyMap());
 
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
@@ -429,6 +438,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
@@ -475,6 +486,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -525,6 +538,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -605,6 +620,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -627,6 +644,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
@@ -652,6 +671,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
@@ -677,6 +698,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -700,6 +723,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL("changedDlnaBaseLANURL");
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
