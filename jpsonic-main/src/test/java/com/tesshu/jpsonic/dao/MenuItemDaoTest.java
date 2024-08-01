@@ -81,9 +81,11 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertFalse(menuItems.get(2).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
-        assertEquals(1, menuItems.size());
+        assertEquals(2, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ID3, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER, menuItems.get(1).getId());
+        assertFalse(menuItems.get(1).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());

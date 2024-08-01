@@ -58,6 +58,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final MediaFileByFolderProc mediaFileByFolderProc;
     private final PlaylistProc playlistProc;
     private final AlbumProc albumProc;
+    private final AlbumByFolderProc albumByFolderProc;
     private final RecentAlbumProc recentAlbumProc;
     private final RecentAlbumId3Proc recentAlbumId3Proc;
     private final ArtistProc artistProc;
@@ -79,7 +80,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
-            @Lazy @Qualifier("albumProc") AlbumProc ap, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("albumProc") AlbumProc ap, @Lazy AlbumByFolderProc albfp,
+            @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
             @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
@@ -95,6 +97,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         mediaFileByFolderProc = mfbfp;
         playlistProc = playp;
         albumProc = ap;
+        albumByFolderProc = albfp;
         recentAlbumProc = rap;
         recentAlbumId3Proc = raip;
         artistProc = arP;
@@ -123,6 +126,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case MEDIA_FILE -> mediaFileProc;
         case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
         case ALBUM -> albumProc;
+        case ALBUM_BY_FOLDER -> albumByFolderProc;
         case RECENT -> recentAlbumProc;
         case RECENT_ID3 -> recentAlbumId3Proc;
         case ARTIST -> artistProc;

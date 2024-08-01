@@ -257,6 +257,9 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3}">
                                 [Album] [Song]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER}">
+                                [Music Folder] [Album] [Song]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
                                 [Genre] [Album] [Song]
                             </c:when>
