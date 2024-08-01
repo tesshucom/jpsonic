@@ -30,7 +30,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
@@ -72,7 +71,7 @@ class AlbumByGenreProcTest {
                 transcodingService);
         mediaFileService = mock(MediaFileService.class);
         searchService = mock(SearchService.class);
-        util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
                 mock(JpsonicComparators.class));
         proc = new AlbumByGenreProc(util, factory, mediaFileService, searchService);
     }
@@ -91,10 +90,6 @@ class AlbumByGenreProcTest {
         assertEquals("abg", container.getParentID());
         assertEquals("English/Japanese", container.getTitle());
         assertEquals(50, container.getChildCount());
-
-        when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-        container = proc.createContainer(genre);
-        assertEquals("English/Japanese 50", container.getTitle());
     }
 
     @Test

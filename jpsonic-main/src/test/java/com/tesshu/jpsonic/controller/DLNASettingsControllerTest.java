@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,10 +38,8 @@ import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
-import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.ApacheCommonsConfigurationService;
 import com.tesshu.jpsonic.service.MenuItemService;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
@@ -227,56 +224,6 @@ class DLNASettingsControllerTest {
                     command.getSubMenuItemRowInfos().get(MenuItemId.ALBUM).firstChild().getId());
             assertEquals(1, command.getSubMenuItemRowInfos().get(MenuItemId.ALBUM).count());
         }
-    }
-
-    @Test
-    void testIsDlnaGenreCountVisible() {
-        settingsService = mock(SettingsService.class);
-        musicFolderService = mock(MusicFolderService.class);
-        upnpService = mock(UPnPService.class);
-        controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
-                mock(MenuItemService.class), mock(OutlineHelpSelector.class));
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-
-        DLNASettingsCommand command = new DLNASettingsCommand();
-        command.setDlnaGenreCountVisible(false);
-        command.setTopMenuItems(Collections.emptyList());
-        command.setSubMenuItems(Collections.emptyList());
-        command.setAlbumGenreSort(Sort.FREQUENCY);
-        command.setSongGenreSort(Sort.FREQUENCY);
-        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(1)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertFalse(captor.getValue());
-
-        command.setDlnaGenreCountVisible(true);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(2)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertTrue(captor.getValue());
-
-        /*
-         * Always false if all folders are not allowed. Because the genre count is a statistical result for all
-         * directories.
-         */
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", null, true, null, false));
-        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
-        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
-
-        command.setDlnaGenreCountVisible(false);
-        captor = ArgumentCaptor.forClass(boolean.class);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(3)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertFalse(captor.getValue());
-
-        command.setDlnaGenreCountVisible(true);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(4)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertFalse(captor.getValue());
     }
 
     @Nested

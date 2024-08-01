@@ -57,7 +57,6 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private Sort albumGenreSort;
     private List<Sort> avairableSongGenreSort;
     private Sort songGenreSort;
-    private boolean dlnaGenreCountVisible;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -207,14 +206,6 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setSongGenreSort(Sort musicGenreSort) {
         this.songGenreSort = musicGenreSort;
-    }
-
-    public boolean isDlnaGenreCountVisible() {
-        return dlnaGenreCountVisible;
-    }
-
-    public void setDlnaGenreCountVisible(boolean dlnaGenreCountVisible) {
-        this.dlnaGenreCountVisible = dlnaGenreCountVisible;
     }
 
     public Integer getDlnaRandomMax() {

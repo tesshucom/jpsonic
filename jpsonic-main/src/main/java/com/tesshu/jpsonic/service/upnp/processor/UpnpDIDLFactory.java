@@ -225,22 +225,20 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public GenreContainer toGenre(Genre genre, ProcId procId, boolean isCountVisible, int childCount) {
+    public GenreContainer toGenre(Genre genre, ProcId procId, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
         container.setParentID(procId.getValue());
-        container.setTitle(isCountVisible ? genre.getName().concat(" ").concat(Integer.toString(genre.getSongCount()))
-                : genre.getName());
+        container.setTitle(genre.getName());
         container.setChildCount(childCount);
         return container;
     }
 
-    public GenreContainer toId3Genre(Genre genre, ProcId procId, boolean isCountVisible, int childCount) {
+    public GenreContainer toId3Genre(Genre genre, ProcId procId, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
         container.setParentID(procId.getValue());
-        container.setTitle(isCountVisible ? genre.getName().concat(" ").concat(Integer.toString(genre.getSongCount()))
-                : genre.getName());
+        container.setTitle(genre.getName());
         container.setChildCount(childCount);
         return container;
     }
