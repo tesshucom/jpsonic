@@ -156,7 +156,6 @@ public class DLNASettingsController {
         command.setAlbumGenreSort(Sort.of(settingsService.getUPnPAlbumGenreSort()));
         command.setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
         command.setSongGenreSort(Sort.of(settingsService.getUPnPSongGenreSort()));
-        command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
 
@@ -202,9 +201,6 @@ public class DLNASettingsController {
         settingsService.setUPnPSongGenreSort(command.getSongGenreSort().name());
         final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
                 .collect(Collectors.toList());
-        List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(MusicFolder::getId)
-                .collect(Collectors.toList());
-        settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
         int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
                 ? DLNA_RANDOM_DEFAULT : command.getDlnaRandomMax();

@@ -587,11 +587,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsDlnaGenreCountVisible() {
-        assertFalse(settingsService.isDlnaGenreCountVisible());
-    }
-
-    @Test
     void testIsDlnaGuestPublish() {
         assertTrue(settingsService.isDlnaGuestPublish());
     }

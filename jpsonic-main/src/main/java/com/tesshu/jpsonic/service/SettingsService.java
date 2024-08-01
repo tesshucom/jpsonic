@@ -104,7 +104,7 @@ public class SettingsService implements ReadWriteLockSupport {
             "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
             "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
             "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
-            "DlnaPodcastVisible");
+            "DlnaPodcastVisible", "DlnaGenreCountVisible");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -1258,14 +1258,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     public void setUPnPSongGenreSort(String s) {
         setProperty(SettingsConstants.UPnP.Options.UPNP_SONG_GENRE_SORT, s);
-    }
-
-    public boolean isDlnaGenreCountVisible() {
-        return getBoolean(SettingsConstants.UPnP.Options.GENRE_COUNT);
-    }
-
-    public void setDlnaGenreCountVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Options.GENRE_COUNT, b);
     }
 
     public int getDlnaRandomMax() {

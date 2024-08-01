@@ -55,7 +55,7 @@ public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(genre, getProcId(), util.isGenreCountAvailable(), genre.getSongCount());
+        return factory.toGenre(genre, getProcId(), genre.getSongCount());
     }
 
     @Override

@@ -85,7 +85,7 @@ class SongByGenreProcTest {
             factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
                     transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(SecurityService.class),
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
                     mock(JpsonicComparators.class));
             proc = new SongByGenreProc(settingsService, util, factory, searchService);
         }
@@ -104,10 +104,6 @@ class SongByGenreProcTest {
             assertEquals("sbg", container.getParentID());
             assertEquals("English/Japanese", container.getTitle());
             assertEquals(50, container.getChildCount());
-
-            when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-            container = proc.createContainer(genre);
-            assertEquals("English/Japanese 50", container.getTitle());
         }
 
         @Test

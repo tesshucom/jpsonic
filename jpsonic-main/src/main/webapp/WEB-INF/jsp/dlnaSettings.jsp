@@ -325,26 +325,13 @@
                                         </form:select>
                                     </td>
                                 </c:when>
-                                <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
-                                    <td class="${ifDisabled}">
-                                        <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
-                                        <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
-                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
-                                    </td>
-                                </c:when>
                                 <c:otherwise>
+                                    <td class="${ifDisabled}"/>
                                 </c:otherwise>
                             </c:choose>
                         </c:when>
                         <c:when test="${isFirstSubMenu}">
                             <c:choose>
-                                <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
-                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
-                                        <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
-                                        <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
-                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
-                                    </td>
-                                </c:when>
                                 <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
                                     <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
                                         <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
