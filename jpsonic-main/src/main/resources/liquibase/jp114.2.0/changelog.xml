@@ -5,4 +5,5 @@
     <include file="add-upnp-album-id3-by-genre.xml" relativeToChangelogFile="true"/>
     <include file="add-idx-to-album-genre.xml" relativeToChangelogFile="true"/>
     <include file="add-upnp-album-by-folder.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-album-id3-by-folder-genre.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

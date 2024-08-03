@@ -30,9 +30,10 @@ public enum ProcId {
 
     ROOT("0"), PLAYLIST("playlist"), MEDIA_FILE("mediaFile"), MEDIA_FILE_BY_FOLDER("folder"), ALBUM("album"),
     ALBUM_BY_FOLDER("albumByFolder"), ARTIST("artist"), ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"),
-    ALBUM_ID3_BY_GENRE("aibg"), SONG_BY_GENRE("sbg"), RECENT("recent"), RECENT_ID3("recentId3"), INDEX("index"),
-    INDEX_ID3("indexId3"), PODCAST("podcast"), RANDOM_ALBUM("randomAlbum"), RANDOM_SONG("randomSong"),
-    RANDOM_SONG_BY_ARTIST("randomSongByArtist"), RANDOM_SONG_BY_FOLDER_ARTIST("randomSongByFolderArtist");
+    ALBUM_ID3_BY_GENRE("aibg"), ALBUM_ID3_BY_FOLDER_GENRE("aibfg"), SONG_BY_GENRE("sbg"), SONG_BY_FOLDER_GENRE("sbfg"),
+    RECENT("recent"), RECENT_ID3("recentId3"), INDEX("index"), INDEX_ID3("indexId3"), PODCAST("podcast"),
+    RANDOM_ALBUM("randomAlbum"), RANDOM_SONG("randomSong"), RANDOM_SONG_BY_ARTIST("randomSongByArtist"),
+    RANDOM_SONG_BY_FOLDER_ARTIST("randomSongByFolderArtist");
 
     /**
      * Separator used for Compound IDs (CID).
@@ -65,7 +66,9 @@ public enum ProcId {
         case ALBUM_ID3_BY_FOLDER -> ALBUM_BY_FOLDER;
         case ALBUM_BY_GENRE -> ALBUM_BY_GENRE;
         case ALBUM_ID3_BY_GENRE -> ALBUM_ID3_BY_GENRE;
+        case ALBUM_ID3_BY_FOLDER_GENRE -> ALBUM_ID3_BY_FOLDER_GENRE;
         case SONG_BY_GENRE -> SONG_BY_GENRE;
+        case SONG_BY_FOLDER_GENRE -> SONG_BY_FOLDER_GENRE;
         case PODCAST_DEFALT -> PODCAST;
         case PLAYLISTS_DEFALT -> PLAYLIST;
         case RECENTLY_ADDED_ALBUM -> RECENT;

@@ -130,10 +130,12 @@ class MenuItemServiceTest {
         assertEquals("By Folder", menuItems.get(1).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
-        assertEquals(3, menuItems.size());
+        assertEquals(5, menuItems.size());
         assertEquals("By Album", menuItems.get(0).getName());
-        assertEquals("By Music", menuItems.get(1).getName());
-        assertEquals("Subsonic Style", menuItems.get(2).getName());
+        assertEquals("By Folder&Album", menuItems.get(1).getName());
+        assertEquals("By Music", menuItems.get(2).getName());
+        assertEquals("By Folder&Music", menuItems.get(3).getName());
+        assertEquals("Subsonic Style", menuItems.get(4).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
@@ -316,16 +318,18 @@ class MenuItemServiceTest {
             assertEquals(MenuItemId.ALBUM_ID3, subMenuItems.get(6).getId());
             assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER, subMenuItems.get(7).getId());
             assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, subMenuItems.get(8).getId());
-            assertEquals(MenuItemId.SONG_BY_GENRE, subMenuItems.get(9).getId());
-            assertEquals(MenuItemId.ALBUM_BY_GENRE, subMenuItems.get(10).getId());
-            assertEquals(MenuItemId.PODCAST_DEFALT, subMenuItems.get(11).getId());
-            assertEquals(MenuItemId.PLAYLISTS_DEFALT, subMenuItems.get(12).getId());
-            assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, subMenuItems.get(13).getId());
-            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(14).getId());
-            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(15).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(16).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(17).getId());
-            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(18).getId());
+            assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE, subMenuItems.get(9).getId());
+            assertEquals(MenuItemId.SONG_BY_GENRE, subMenuItems.get(10).getId());
+            assertEquals(MenuItemId.SONG_BY_FOLDER_GENRE, subMenuItems.get(11).getId());
+            assertEquals(MenuItemId.ALBUM_BY_GENRE, subMenuItems.get(12).getId());
+            assertEquals(MenuItemId.PODCAST_DEFALT, subMenuItems.get(13).getId());
+            assertEquals(MenuItemId.PLAYLISTS_DEFALT, subMenuItems.get(14).getId());
+            assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, subMenuItems.get(15).getId());
+            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(16).getId());
+            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(17).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(18).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(19).getId());
+            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(20).getId());
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {
@@ -398,13 +402,14 @@ class MenuItemServiceTest {
             assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
             assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
 
-            assertEquals(3,
-                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
-            assertEquals(3,
+            int genreSize = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                    .size();
+            assertEquals(5, genreSize);
+            assertEquals(genreSize,
                     menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
 
             int subMenuItemsSize = menuItemDao.getSubMenuItems(ViewType.UPNP).size();
-            assertEquals(19, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
+            assertEquals(21, subMenuItemsSize);
             assertEquals(subMenuItemsSize, menuItemService.getSubMenuItems(ViewType.UPNP).size());
 
             // Add a dummy sub menu
@@ -419,9 +424,9 @@ class MenuItemServiceTest {
             assertEquals(2, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
             assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
 
-            assertEquals(4,
+            assertEquals(6,
                     menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
-            assertEquals(3,
+            assertEquals(5,
                     menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
 
             assertEquals(subMenuItemsSize + 1, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
@@ -431,7 +436,7 @@ class MenuItemServiceTest {
                     delete from menu_item where id < 0
                     """);
             assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
-            assertEquals(3,
+            assertEquals(5,
                     menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
             assertEquals(subMenuItemsSize, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
         }

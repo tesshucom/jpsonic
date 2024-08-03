@@ -263,8 +263,14 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
                                 [Genre] [Album] [Song]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE}">
+                                [Music Folder] [Genre] [Album] [Song]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
                                 [Genre] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_GENRE}">
+                                [Music Folder] [Genre] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
                                 [Genre] [Album Folder] [Song]
@@ -313,6 +319,11 @@
                                         <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenresort"/></c:import>
                                     </td>
                                 </c:when>
+                                <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenre1"/></c:import>
+                                    </td>
+                                </c:when>
                                 <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
                                     <td class="${ifDisabled}">
                                         <form:select path="songGenreSort">
@@ -323,6 +334,16 @@
                                                 <form:option value="${genreSort}" label="${genreSortViewName}"/>
                                             </c:forEach>
                                         </form:select>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenre2"/></c:import>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
+                                    <td class="${ifDisabled}">
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpsubsonicgenre"/></c:import>
                                     </td>
                                 </c:when>
                                 <c:otherwise>

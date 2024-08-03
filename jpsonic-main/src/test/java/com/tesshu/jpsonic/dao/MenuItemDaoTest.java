@@ -88,13 +88,17 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertFalse(menuItems.get(1).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
-        assertEquals(3, menuItems.size());
+        assertEquals(5, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
-        assertEquals(MenuItemId.SONG_BY_GENRE, menuItems.get(1).getId());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE, menuItems.get(1).getId());
         assertFalse(menuItems.get(1).isEnabled());
-        assertEquals(MenuItemId.ALBUM_BY_GENRE, menuItems.get(2).getId());
+        assertEquals(MenuItemId.SONG_BY_GENRE, menuItems.get(2).getId());
         assertFalse(menuItems.get(2).isEnabled());
+        assertEquals(MenuItemId.SONG_BY_FOLDER_GENRE, menuItems.get(3).getId());
+        assertFalse(menuItems.get(3).isEnabled());
+        assertEquals(MenuItemId.ALBUM_BY_GENRE, menuItems.get(4).getId());
+        assertFalse(menuItems.get(4).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());

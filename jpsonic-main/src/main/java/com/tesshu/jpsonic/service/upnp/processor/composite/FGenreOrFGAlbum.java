@@ -19,28 +19,27 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
+public class FGenreOrFGAlbum {
 
-public record GenreAndAlbum(Genre genre, Album album) {
+    private final Object o;
 
-    // Definitely not part of genre name.
-    private static final String SEPA = ";";
-
-    public String createCompositeId() {
-        return album.getId() + SEPA + genre.getName();
+    public FGenreOrFGAlbum(FolderGenre genre) {
+        this.o = genre;
     }
 
-    // TODO to be fixed
-    public static boolean isCompositeId(String s) {
-        return s.contains(SEPA);
+    public FGenreOrFGAlbum(FolderGenreAlbum album) {
+        this.o = album;
     }
 
-    public static int parseAlbumId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(0, compositeId.indexOf(SEPA)));
+    public FolderGenre getGenre() {
+        return (FolderGenre) o;
     }
 
-    public static String parseGenreName(String compositeId) {
-        return compositeId.substring(compositeId.indexOf(SEPA) + 1);
+    public FolderGenreAlbum getAlbum() {
+        return (FolderGenreAlbum) o;
+    }
+
+    public boolean isAlbum() {
+        return o instanceof FolderGenreAlbum;
     }
 }
