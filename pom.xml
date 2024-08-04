@@ -81,7 +81,7 @@
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.3.1</versions.spring-boot>
     <versions.spring-security>6.3.1</versions.spring-security>
-    <versions.spring-web>6.1.10</versions.spring-web>
+    <versions.spring-web>6.1.11</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
