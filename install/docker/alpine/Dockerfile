@@ -32,7 +32,6 @@ WORKDIR $JPSONIC_DIR
 COPY local.conf /etc/fonts
 
 RUN apk --no-cache add \
-    openssl \
     su-exec \
     bash \
     tini \
