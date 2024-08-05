@@ -538,7 +538,7 @@ jobs:
           sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
           cat production.windows.yml
           set -x
-          docker-compose -f production.windows.yml up -d
+          docker compose -f production.windows.yml up -d
           for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
   ##########################################################################
   run-docker4ea:
@@ -568,5 +568,5 @@ jobs:
           sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
           cat production.windows.yml
           set -x
-          docker-compose -f production.windows.yml up -d
+          docker compose -f production.windows.yml up -d
           for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
