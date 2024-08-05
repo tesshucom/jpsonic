@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>114.1.7</version>
+  <version>114.1.8</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -40,7 +40,7 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.16.1</versions.commons-io>
     <versions.commons-lang>2.6</versions.commons-lang>
-    <versions.commons-lang3>3.15.0</versions.commons-lang3>
+    <versions.commons-lang3>3.14.0</versions.commons-lang3>
     <versions.commons-net>3.11.1</versions.commons-net>
     <versions.commons-text>1.12.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
