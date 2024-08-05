@@ -71,7 +71,7 @@
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.8</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
-    <versions.moxy>4.0.3</versions.moxy>
+    <versions.moxy>4.0.4</versions.moxy>
     <versions.mysql-connector-j>9.0.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
