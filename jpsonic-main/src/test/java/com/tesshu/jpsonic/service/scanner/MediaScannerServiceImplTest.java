@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -89,6 +90,7 @@ import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -391,6 +393,22 @@ class MediaScannerServiceImplTest {
         }
     }
 
+    /*
+     * Used if NIO2 fails
+     */
+    private boolean copy(Path in, Path out) {
+        try (InputStream is = Files.newInputStream(in);
+                OutputStream os = Files.newOutputStream(out);) {
+            byte[] buf = new byte[256];
+            while (is.read(buf) != -1) {
+                os.write(buf);
+            }
+        } catch (IOException e) {
+            throw new UncheckedException(e);
+        }
+        return true;
+    }
+
     @Nested
     class UpdateAlbumTest extends AbstractNeedsScan {
 
@@ -635,11 +653,11 @@ class MediaScannerServiceImplTest {
 
             // ### Test UD(Tag Update&Delete)
             Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE01.mp3"));
-            FileUtils.copyFile(new File(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM1/FILE01.mp3")),
-                    Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE01.mp3").toFile());
+            copy(Path.of(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM1/FILE01.mp3")),
+                    Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE01.mp3"));
             Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM7/FILE11.mp3"));
-            FileUtils.copyFile(new File(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM7/FILE11.mp3")),
-                    Path.of(tempDir.toString(), "ARTIST1/ALBUM7/FILE11.mp3").toFile());
+            copy(Path.of(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM7/FILE11.mp3")),
+                    Path.of(tempDir.toString(), "ARTIST1/ALBUM7/FILE11.mp3"));
             TestCaseUtils.execScan(mediaScannerService);
 
             // Deleting a file will reduce the number of genres by 2.

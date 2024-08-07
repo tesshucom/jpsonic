@@ -46,6 +46,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAndAlbum;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -234,6 +236,15 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
+    public GenreContainer toGenre(FolderGenre folderGenre, ProcId procId, int childCount) {
+        GenreContainer container = new GenreContainer();
+        container.setId(procId.getValue() + ProcId.CID_SEPA + folderGenre.createCompositeId());
+        container.setParentID(procId.getValue());
+        container.setTitle(folderGenre.genre().getName());
+        container.setChildCount(childCount);
+        return container;
+    }
+
     public GenreContainer toId3Genre(Genre genre, ProcId procId, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
@@ -311,6 +322,20 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         if (!isEmpty(channel.getImageUrl())) {
             container.addProperty(toPodcastArt(channel));
         }
+        return container;
+    }
+
+    public MusicAlbum toAlbum(FolderGenreAlbum composite, int childCount) {
+        MusicAlbum container = new MusicAlbum();
+        container.setId(ProcId.ALBUM_ID3_BY_FOLDER_GENRE.getValue() + ProcId.CID_SEPA + composite.createCompositeId());
+        container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
+        container.setTitle(composite.album().getName());
+        container.setChildCount(childCount);
+        container.addProperty(toAlbumArt(composite.album()));
+        if (composite.album().getArtist() != null) {
+            container.addProperty(toPerson(composite.album().getArtist()));
+        }
+        container.setDescription(composite.album().getComment());
         return container;
     }
 

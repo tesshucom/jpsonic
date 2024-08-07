@@ -1,5 +1,5 @@
 /*
- * This file is part of Jpsonic.
+, * This file is part of Jpsonic.
  *
  * Jpsonic is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,28 +19,29 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.MusicFolder;
 
-public record GenreAndAlbum(Genre genre, Album album) {
+public class FolderOrFGenre {
 
-    // Definitely not part of genre name.
-    private static final String SEPA = ";";
+    private final Object o;
 
-    public String createCompositeId() {
-        return album.getId() + SEPA + genre.getName();
+    public FolderOrFGenre(MusicFolder folder) {
+        this.o = folder;
     }
 
-    // TODO to be fixed
-    public static boolean isCompositeId(String s) {
-        return s.contains(SEPA);
+    public FolderOrFGenre(FolderGenre folderGenre) {
+        this.o = folderGenre;
     }
 
-    public static int parseAlbumId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(0, compositeId.indexOf(SEPA)));
+    public MusicFolder getFolder() {
+        return (MusicFolder) o;
     }
 
-    public static String parseGenreName(String compositeId) {
-        return compositeId.substring(compositeId.indexOf(SEPA) + 1);
+    public FolderGenre getFolderGenre() {
+        return (FolderGenre) o;
+    }
+
+    public boolean isFolderGenre() {
+        return o instanceof FolderGenre;
     }
 }
