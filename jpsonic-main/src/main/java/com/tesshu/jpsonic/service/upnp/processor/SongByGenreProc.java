@@ -39,7 +39,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
-    private static final MediaType[] TYPES = { MediaType.MUSIC, MediaType.AUDIOBOOK };
+    private static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final SettingsService settingsService;
     private final SearchService searchService;

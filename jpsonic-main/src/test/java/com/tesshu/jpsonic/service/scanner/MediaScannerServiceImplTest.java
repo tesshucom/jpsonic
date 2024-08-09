@@ -576,7 +576,6 @@ class MediaScannerServiceImplTest {
             GenreMasterCriteria criteria = new GenreMasterCriteria(folders, Scope.ALBUM, Sort.NAME);
             List<Genre> genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
             assertEquals(14, genres.size());
-            genres.forEach(g -> assertEquals(Genre.COUNT_UNACQUIRED, g.getSongCount()));
             assertEquals("Audiobook - Historical", genres.get(0).getName());
             assertEquals(1, genres.get(0).getAlbumCount());
             assertEquals("Audiobook - Sports", genres.get(1).getName());

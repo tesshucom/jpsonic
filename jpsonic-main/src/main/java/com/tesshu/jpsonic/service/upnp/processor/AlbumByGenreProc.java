@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -33,6 +34,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
+
+    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
+            .toArray(size -> new MediaType[size]);
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -86,7 +90,6 @@ public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile
 
     @Override
     public void addChild(DIDLContent parent, MediaFile album) {
-        parent.addContainer(factory.toAlbum(album,
-                mediaFileService.getChildSizeOf(album, MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)));
+        parent.addContainer(factory.toAlbum(album, mediaFileService.getChildSizeOf(album, EXCLUDED_TYPES)));
     }
 }

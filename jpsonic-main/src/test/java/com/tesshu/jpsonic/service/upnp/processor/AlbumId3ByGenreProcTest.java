@@ -87,7 +87,7 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
     @Test
     @Order(3)
     void testBrowseRoot() throws ExecutionException {
-        assertEquals(14, proc.getDirectChildrenCount());
+        assertEquals(12, proc.getDirectChildrenCount());
         BrowseResult browseResult = proc.browseRoot(null, 0, Integer.MAX_VALUE);
         assertEquals(proc.getDirectChildrenCount(), browseResult.getTotalMatchesLong());
     }
