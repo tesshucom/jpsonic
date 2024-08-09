@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrSong> {
 
     private static final Scope SCOPE = GenreMasterCriteria.Scope.SONG;
-    private static final MediaType[] TYPES = { MediaType.MUSIC, MediaType.AUDIOBOOK };
+    private static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final SettingsService settingsService;
     private final SearchService searchService;

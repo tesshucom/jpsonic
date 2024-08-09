@@ -624,7 +624,7 @@ class JapaneseReadingUtilsTest {
 
         String genreName = "現代邦楽";
 
-        Genre genre = new Genre(genreName, Genre.COUNT_UNACQUIRED, Genre.COUNT_UNACQUIRED);
+        Genre genre = new Genre(genreName, 0, 0);
         assertEquals(genreName, genre.getName());
         assertNull(genre.getReading());
 
@@ -637,14 +637,14 @@ class JapaneseReadingUtilsTest {
         utils.clear();
         assertEquals("Gendaihogaku", genre.getReading());
 
-        genre = new Genre(genreName, Genre.COUNT_UNACQUIRED, Genre.COUNT_UNACQUIRED);
+        genre = new Genre(genreName, 0, 0);
         utils.analyze(genre);
         utils.clear();
         assertEquals("Gendaihogaku", genre.getReading());
 
         Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
         utils.clear();
-        genre = new Genre(genreName, Genre.COUNT_UNACQUIRED, Genre.COUNT_UNACQUIRED);
+        genre = new Genre(genreName, 0, 0);
         utils.analyze(genre);
         assertEquals(genreName, genre.getReading());
     }

@@ -87,6 +87,6 @@ public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile
     @Override
     public void addChild(DIDLContent parent, MediaFile album) {
         parent.addContainer(factory.toAlbum(album,
-                mediaFileService.getChildSizeOf(album, MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)));
+                mediaFileService.getChildSizeOf(album, MediaType.PODCAST, MediaType.AUDIOBOOK)));
     }
 }

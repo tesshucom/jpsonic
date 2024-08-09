@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
@@ -986,10 +985,6 @@ class SearchServiceTest {
             assertEquals("GENRE_J", genres.get(11).getName());
             assertEquals("GENRE_K", genres.get(12).getName());
             assertEquals("GENRE_L", genres.get(13).getName());
-            genres.stream().forEach(genre -> {
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
             assertEquals(genres.size(), searchService.getGenresCount(criteria));
         }
 

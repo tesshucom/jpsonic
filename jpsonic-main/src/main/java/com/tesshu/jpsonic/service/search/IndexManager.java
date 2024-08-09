@@ -51,7 +51,6 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -115,8 +114,6 @@ public class IndexManager implements ReadWriteLockSupport {
      */
     private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
-    private final ReentrantReadWriteLock genreLock = new ReentrantReadWriteLock();
-
     private static final MediaType[] MUSIC_AND_AUDIOBOOK = { MediaType.MUSIC, MediaType.AUDIOBOOK };
 
     private final AnalyzerFactory analyzerFactory;
@@ -132,6 +129,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
+    private final ReentrantReadWriteLock genreLock = new ReentrantReadWriteLock();
 
     @NonNull
     Path getRootIndexDirectory() {
@@ -741,23 +739,23 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
-    private int getAlbumGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria)
-            throws IOException {
-        if (criteria.scope() != Scope.ALBUM) {
-            return Genre.COUNT_UNACQUIRED;
+    private int getAlbumGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
+        try {
+            return searcher.search(queryFactory.getAlbumId3GenreCount(genreName, criteria.folders()),
+                    new TotalHitCountCollectorManager());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        Query query = queryFactory.getAlbumId3GenreCount(genreName, criteria.folders());
-        return searcher.search(query, new TotalHitCountCollectorManager());
     }
 
-    private int getSongGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria)
-            throws IOException {
-        if (criteria.scope() == Scope.SONG || criteria.sort() == Sort.SONG_COUNT) {
-            MediaType[] types = criteria.scope() == Scope.SONG ? criteria.types() : MUSIC_AND_AUDIOBOOK;
-            Query query = queryFactory.getSongGenreCount(genreName, criteria.folders(), types);
-            return searcher.search(query, new TotalHitCountCollectorManager());
+    private int getSongGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
+        try {
+            MediaType[] types = criteria.types().length == 0 ? MUSIC_AND_AUDIOBOOK : criteria.types();
+            return searcher.search(queryFactory.getSongGenreCount(genreName, criteria.folders(), types),
+                    new TotalHitCountCollectorManager());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return Genre.COUNT_UNACQUIRED;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
@@ -770,23 +768,18 @@ public class IndexManager implements ReadWriteLockSupport {
         }
 
         List<Genre> result = new ArrayList<>();
-        try {
-            for (GenreFreq genreFreq : getGenreFreqs()) {
-                String name = genreFreq.genre;
-                int albumCount = getAlbumGenreCount(albumSearcher, name, criteria);
-                int songCount = getSongGenreCount(songSearcher, name, criteria);
-                if (criteria.scope() == Scope.ALBUM && albumCount > 0) {
-                    result.add(new Genre(name, songCount, albumCount));
-                } else if (criteria.scope() == Scope.SONG && songCount > 0) {
-                    result.add(new Genre(name, songCount, albumCount));
-                }
+        for (GenreFreq genreFreq : getGenreFreqs()) {
+            String name = genreFreq.genre;
+            int albumCount = getAlbumGenreCount(albumSearcher, name, criteria);
+            int songCount = getSongGenreCount(songSearcher, name, criteria);
+            if (criteria.scope() == Scope.ALBUM && albumCount > 0 && songCount > 0) {
+                result.add(new Genre(name, songCount, albumCount));
+            } else if (criteria.scope() == Scope.SONG && songCount > 0) {
+                result.add(new Genre(name, songCount, albumCount));
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } finally {
-            release(IndexType.SONG, songSearcher);
-            release(IndexType.ALBUM, albumSearcher);
         }
+        release(IndexType.SONG, songSearcher);
+        release(IndexType.ALBUM, albumSearcher);
 
         switch (criteria.sort()) {
         case FREQUENCY -> {

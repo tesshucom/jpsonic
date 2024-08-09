@@ -219,7 +219,7 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.GENRE.getId());
-            List<Genre> genres = Arrays.asList(new Genre("pops", Genre.COUNT_UNACQUIRED, Genre.COUNT_UNACQUIRED));
+            List<Genre> genres = Arrays.asList(new Genre("pops", 0, 0));
             Mockito.when(searchService.getGenres(true)).thenReturn(genres);
             controller.handleRequestInternal(req);
             Mockito.verify(searchService, Mockito.times(1)).getAlbumsByGenres(anyString(), anyInt(), anyInt(),
