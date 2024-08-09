@@ -70,6 +70,7 @@ import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
@@ -397,8 +398,7 @@ class MediaScannerServiceImplTest {
      * Used if NIO2 fails
      */
     private boolean copy(Path in, Path out) {
-        try (InputStream is = Files.newInputStream(in);
-                OutputStream os = Files.newOutputStream(out);) {
+        try (InputStream is = Files.newInputStream(in); OutputStream os = Files.newOutputStream(out);) {
             byte[] buf = new byte[256];
             while (is.read(buf) != -1) {
                 os.write(buf);
@@ -980,7 +980,7 @@ class MediaScannerServiceImplTest {
             }
 
             List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre(Arrays.asList("Baroque Instrumental"), 0, 0,
-                    musicFolderDao.getAllMusicFolders());
+                    musicFolderDao.getAllMusicFolders(), Arrays.asList(MediaType.MUSIC));
             assertEquals(2, listeSongs.size());
 
             // display out metrics report

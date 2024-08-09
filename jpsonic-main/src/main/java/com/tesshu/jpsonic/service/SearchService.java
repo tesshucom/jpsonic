@@ -266,6 +266,8 @@ public interface SearchService {
     /**
      * Returns songs in a genre.
      *
+     * @version 114.2.0
+     *
      * @since 101.2.0
      *
      * @param offset
@@ -279,7 +281,8 @@ public interface SearchService {
      *
      * @return songs in the genre.
      */
-    List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
+    List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
+            MediaType... types);
 
     /**
      * Returns only the children size of an Album that match the specified criteria.

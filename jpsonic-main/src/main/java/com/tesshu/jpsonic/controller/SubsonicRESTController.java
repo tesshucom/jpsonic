@@ -428,7 +428,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername(), musicFolderId);
 
-        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders)) {
+        com.tesshu.jpsonic.domain.MediaFile.MediaType[] types = { com.tesshu.jpsonic.domain.MediaFile.MediaType.MUSIC,
+                com.tesshu.jpsonic.domain.MediaFile.MediaType.AUDIOBOOK,
+                com.tesshu.jpsonic.domain.MediaFile.MediaType.PODCAST };
+        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders, types)) {
             songs.getSong().add(createJaxbChild(player, mediaFile, user.getUsername()));
         }
         Response res = createResponse();
