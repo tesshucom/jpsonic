@@ -261,16 +261,19 @@
                                 [Music Folder] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
-                                [Genre] [Album] [Song]
+                                [Genre] [Album] [MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE}">
-                                [Music Folder] [Genre] [Album] [Song]
+                                [Music Folder] [Genre] [Album] [MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
-                                [Genre] [Song]
+                                [Genre] [MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_GENRE}">
-                                [Music Folder] [Genre] [Song]
+                                [Music Folder] [Genre] [MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.AUDIOBOOK_BY_GENRE}">
+                                [Genre] [AUDIOBOOK]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
                                 [Genre] [Album Folder] [Song]
@@ -336,7 +339,8 @@
                                         </form:select>
                                     </td>
                                 </c:when>
-                                <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_GENRE}">
+                                <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_GENRE
+                                        or subMenuItem.id eq MenuItemId.AUDIOBOOK_BY_GENRE}">
                                     <td class="${ifDisabled}">
                                         <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenre2"/></c:import>
                                     </td>

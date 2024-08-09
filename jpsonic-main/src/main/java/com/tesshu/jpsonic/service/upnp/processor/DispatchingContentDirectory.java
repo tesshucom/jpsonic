@@ -68,6 +68,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final AlbumId3ByFolderGenreProc albumId3ByFolderGenreProc;
     private final SongByGenreProc songByGenreProc;
     private final SongByFolderGenreProc songByFolderGenreProc;
+    private final AudiobookByGenreProc audiobookByGenreProc;
     private final IndexProc indexProc;
     private final IndexId3Proc indexId3Proc;
     private final PodcastProc podcastProc;
@@ -89,7 +90,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
             @Lazy @Qualifier("albumId3ByFolderGenreProc") AlbumId3ByFolderGenreProc aibfgp,
             @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp,
-            @Lazy @Qualifier("songByFolderGenreProc") SongByFolderGenreProc sbfgp,
+            @Lazy @Qualifier("songByFolderGenreProc") SongByFolderGenreProc sbfgp, @Lazy AudiobookByGenreProc abbgp,
             @Lazy @Qualifier("indexProc") IndexProc ip, @Lazy IndexId3Proc iip,
             @Lazy @Qualifier("podcastProc") PodcastProc podp,
             @Lazy @Qualifier("randomAlbumProc") RandomAlbumProc randomap,
@@ -112,6 +113,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         albumId3ByFolderGenreProc = aibfgp;
         songByGenreProc = sbgp;
         songByFolderGenreProc = sbfgp;
+        audiobookByGenreProc = abbgp;
         indexProc = ip;
         indexId3Proc = iip;
         podcastProc = podp;
@@ -143,6 +145,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
         case SONG_BY_GENRE -> songByGenreProc;
         case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
+        case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;
         case INDEX -> indexProc;
         case INDEX_ID3 -> indexId3Proc;
         case PODCAST -> podcastProc;

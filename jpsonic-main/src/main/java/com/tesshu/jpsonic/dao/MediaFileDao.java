@@ -776,8 +776,8 @@ public class MediaFileDao {
     }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
-            final List<MusicFolder> musicFolders) {
-        return dialect.getSongsByGenre(genres, offset, count, musicFolders);
+            final List<MusicFolder> musicFolders, List<MediaType> types) {
+        return dialect.getSongsByGenre(genres, offset, count, musicFolders, types);
     }
 
     public List<MediaFile> getSongsByArtist(String artist, int offset, int count) {
