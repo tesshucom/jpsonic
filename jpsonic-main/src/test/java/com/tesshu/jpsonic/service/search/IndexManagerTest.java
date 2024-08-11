@@ -26,7 +26,6 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -274,10 +273,6 @@ class IndexManagerTest {
             assertEquals("GENRE_J", genres.get(11).getName());
             assertEquals("GENRE_K", genres.get(12).getName());
             assertEquals("GENRE_L", genres.get(13).getName());
-            genres.stream().forEach(genre -> {
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
         }
 
         @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
@@ -301,10 +296,6 @@ class IndexManagerTest {
             assertEquals("GENRE_H", genres.get(11).getName());
             assertEquals("GENRE_I", genres.get(12).getName());
             assertEquals("GENRE_J", genres.get(13).getName());
-            genres.stream().forEach(genre -> {
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
             assertEquals(2, genres.get(0).getAlbumCount());
             assertEquals(2, genres.get(1).getAlbumCount());
             assertEquals(2, genres.get(2).getAlbumCount());
@@ -342,10 +333,6 @@ class IndexManagerTest {
             assertEquals("GENRE_H", genres.get(11).getName());
             assertEquals("GENRE_I", genres.get(12).getName());
             assertEquals("GENRE_J", genres.get(13).getName());
-            genres.stream().forEach(genre -> {
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
             assertEquals(2, genres.get(0).getSongCount());
             assertEquals(2, genres.get(1).getSongCount());
             assertEquals(2, genres.get(2).getSongCount());
@@ -383,10 +370,6 @@ class IndexManagerTest {
             assertEquals("GENRE_K", genres.get(10).getName());
             assertEquals("GENRE_L", genres.get(11).getName());
             assertEquals("NO_ALBUM", genres.get(12).getName());
-            genres.stream().forEach(genre -> {
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
         }
 
         @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
@@ -423,10 +406,6 @@ class IndexManagerTest {
             assertEquals(1, genres.get(10).getSongCount());
             assertEquals(1, genres.get(11).getSongCount());
             assertEquals(1, genres.get(12).getSongCount());
-            genres.stream().forEach(genre -> {
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
         }
 
         @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Song
@@ -452,10 +431,6 @@ class IndexManagerTest {
             assertEquals("GENRE_K", genres.get(12).getName());
             assertEquals("GENRE_L", genres.get(13).getName());
             assertEquals("NO_ALBUM", genres.get(14).getName());
-            genres.stream().forEach(genre -> {
-                assertEquals(Genre.COUNT_UNACQUIRED, genre.getAlbumCount());
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genre.getSongCount());
-            });
         }
 
         @CreateGenreMasterDecisions.Conditions.Criteria.Scope.Album
@@ -467,7 +442,6 @@ class IndexManagerTest {
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             for (int i = 0; i < genres.size(); i++) {
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getAlbumCount());
                 if (i < 3) {
                     assertTrue("GENRE_D".equals(genres.get(i).getName()) || "GENRE_K".equals(genres.get(i).getName())
                             || "GENRE_L".equals(genres.get(i).getName()));
@@ -475,7 +449,6 @@ class IndexManagerTest {
                 } else {
                     assertEquals(1, genres.get(i).getAlbumCount());
                 }
-                assertEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getSongCount());
             }
         }
 
@@ -488,8 +461,6 @@ class IndexManagerTest {
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(15, genres.size());
             for (int i = 0; i < genres.size(); i++) {
-                assertEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getAlbumCount());
-                assertNotEquals(Genre.COUNT_UNACQUIRED, genres.get(i).getSongCount());
                 if (i < 6) {
                     assertTrue("GENRE_A".equals(genres.get(i).getName()) || "GENRE_D".equals(genres.get(i).getName())
                             || "GENRE_E".equals(genres.get(i).getName()) || "GENRE_F".equals(genres.get(i).getName())
@@ -586,7 +557,8 @@ class IndexManagerTest {
 
                 // #1842 Airsonic does not implement Rating expunge
 
-                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, musicFolders);
+                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true,
+                        getMusicFolders());
                 assertEquals(4, albums.size());
 
                 albums.forEach(m -> ratingDao.setRatingForUser(USER_NAME, m, 1));

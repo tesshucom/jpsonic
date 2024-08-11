@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile> {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)
+    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
             .toArray(size -> new MediaType[size]);
 
     private final UpnpProcessorUtil util;

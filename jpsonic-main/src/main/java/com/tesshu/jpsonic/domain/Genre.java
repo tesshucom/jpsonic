@@ -28,8 +28,6 @@ package com.tesshu.jpsonic.domain;
  */
 public class Genre {
 
-    public static final int COUNT_UNACQUIRED = -1;
-
     private final String name;
     private transient String reading;
     private final int songCount;

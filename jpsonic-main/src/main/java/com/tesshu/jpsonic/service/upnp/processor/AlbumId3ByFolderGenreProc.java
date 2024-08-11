@@ -48,7 +48,7 @@ import org.springframework.stereotype.Service;
 public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrFGAlbum> {
 
     private static final Scope SCOPE = GenreMasterCriteria.Scope.ALBUM;
-    private static final MediaType[] TYPES = { MediaType.MUSIC, MediaType.AUDIOBOOK };
+    private static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;

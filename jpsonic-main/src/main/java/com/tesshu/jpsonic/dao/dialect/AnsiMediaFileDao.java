@@ -589,13 +589,12 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
 
     @Override
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
-            final List<MusicFolder> musicFolders) {
+            final List<MusicFolder> musicFolders, List<MediaType> types) {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types",
-                Arrays.asList(MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name()), "genres",
-                genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of("types", types.stream().map(MediaType::name).toList(), "genres", genres,
+                "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
         return template.namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
                 , al.media_file_order = -1 as is_under_root
                 from media_file s

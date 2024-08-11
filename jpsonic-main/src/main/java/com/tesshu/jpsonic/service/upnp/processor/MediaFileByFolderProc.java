@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileByFolderProc extends MediaFileProc {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)
+    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
             .toArray(size -> new MediaType[size]);
     public static final int SINGLE_MUSIC_FOLDER = 1;
 

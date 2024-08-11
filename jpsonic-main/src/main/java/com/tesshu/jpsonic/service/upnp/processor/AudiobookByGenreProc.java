@@ -14,9 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2017 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.service.upnp.processor;
@@ -37,16 +35,14 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
-
-    private static final MediaType[] TYPES = { MediaType.MUSIC };
+public class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     private final SettingsService settingsService;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public SongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
+    public AudiobookByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
             SearchService searchService) {
         super();
         this.settingsService = settingsService;
@@ -57,12 +53,12 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     private GenreMasterCriteria createGenreMasterCriteria() {
         return new GenreMasterCriteria(util.getGuestFolders(), Scope.SONG,
-                Sort.of(settingsService.getUPnPSongGenreSort()), TYPES);
+                Sort.of(settingsService.getUPnPSongGenreSort()), MediaType.AUDIOBOOK);
     }
 
     @Override
     public ProcId getProcId() {
-        return ProcId.SONG_BY_GENRE;
+        return ProcId.AUDIOBOOK_BY_GENRE;
     }
 
     @Override
@@ -88,7 +84,8 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getGuestFolders());
+        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getGuestFolders(),
+                MediaType.AUDIOBOOK);
     }
 
     @Override

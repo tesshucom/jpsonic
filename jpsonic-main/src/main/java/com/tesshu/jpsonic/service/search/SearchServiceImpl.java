@@ -474,13 +474,16 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
+            MediaType... types) {
         final List<MediaFile> result = new ArrayList<>();
         if (isEmpty(genres)) {
             return result;
         }
         List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true);
-        return mediaFileDao.getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders);
+        List<MediaType> targetTypes = types.length == 0 ? Arrays.asList(MediaType.MUSIC, MediaType.AUDIOBOOK)
+                : Arrays.asList(types);
+        return mediaFileDao.getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders, targetTypes);
     }
 
     @Override
