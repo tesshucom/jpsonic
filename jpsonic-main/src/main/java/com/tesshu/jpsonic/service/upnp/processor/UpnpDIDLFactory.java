@@ -203,7 +203,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }
 
-    private StorageFolder createMusicFolder(int id, String name, ProcId procId, int childCount) {
+    private StorageFolder createMusicFolder(ProcId procId, int id, String name, int childCount) {
         StorageFolder container = new StorageFolder();
         container.setId(procId.getValue() + ProcId.CID_SEPA + id);
         container.setParentID(procId.getValue());
@@ -212,15 +212,15 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public StorageFolder toMusicFolder(MusicFolder folder, ProcId procId, int childCount) {
-        return createMusicFolder(folder.getId(), folder.getName(), procId, childCount);
+    public StorageFolder toMusicFolder(ProcId procId, MusicFolder folder, int childCount) {
+        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
     }
 
-    public StorageFolder toMusicFolder(MediaFile folder, ProcId procId, int childCount) {
-        return createMusicFolder(folder.getId(), folder.getName(), procId, childCount);
+    public StorageFolder toMusicFolder(ProcId procId, MediaFile folder, int childCount) {
+        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
     }
 
-    public GenreContainer toMusicIndex(MusicIndex musicIndex, ProcId procId, int childCount) {
+    public GenreContainer toMusicIndex(ProcId procId, MusicIndex musicIndex, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + musicIndex.getIndex());
         container.setParentID(procId.getValue());
@@ -229,7 +229,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public GenreContainer toGenre(Genre genre, ProcId procId, int childCount) {
+    public GenreContainer toGenre(ProcId procId, Genre genre, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
         container.setParentID(procId.getValue());
@@ -238,20 +238,11 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public GenreContainer toGenre(FolderGenre folderGenre, ProcId procId, int childCount) {
+    public GenreContainer toGenre(ProcId procId, FolderGenre folderGenre, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + folderGenre.createCompositeId());
         container.setParentID(procId.getValue());
         container.setTitle(folderGenre.genre().getName());
-        container.setChildCount(childCount);
-        return container;
-    }
-
-    public GenreContainer toId3Genre(Genre genre, ProcId procId, int childCount) {
-        GenreContainer container = new GenreContainer();
-        container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
-        container.setParentID(procId.getValue());
-        container.setTitle(genre.getName());
         container.setChildCount(childCount);
         return container;
     }
@@ -277,18 +268,6 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public MusicArtist toArtist(ProcId procId, FolderArtist folderArtist, int childCount) {
-        MusicArtist container = new MusicArtist();
-        container.setId(procId.getValue() + ProcId.CID_SEPA + folderArtist.createCompositeId());
-        container.setParentID(procId.getValue());
-        container.setTitle(folderArtist.artist().getName());
-        container.setChildCount(folderArtist.artist().getAlbumCount());
-        if (folderArtist.artist().getCoverArtPath() != null) {
-            container.addProperty(toArtistArt(folderArtist.artist()));
-        }
-        return container;
-    }
-
     public MusicArtist toArtist(Artist artist) {
         MusicArtist container = new MusicArtist();
         container.setId(ProcId.ARTIST.getValue() + ProcId.CID_SEPA + artist.getId());
@@ -297,6 +276,18 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         container.setChildCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
             container.addProperty(toArtistArt(artist));
+        }
+        return container;
+    }
+
+    public MusicArtist toArtist(ProcId procId, FolderArtist folderArtist, int childCount) {
+        MusicArtist container = new MusicArtist();
+        container.setId(procId.getValue() + ProcId.CID_SEPA + folderArtist.createCompositeId());
+        container.setParentID(procId.getValue());
+        container.setTitle(folderArtist.artist().getName());
+        container.setChildCount(folderArtist.artist().getAlbumCount());
+        if (folderArtist.artist().getCoverArtPath() != null) {
+            container.addProperty(toArtistArt(folderArtist.artist()));
         }
         return container;
     }

@@ -62,7 +62,7 @@ public class MediaFileByFolderProc extends MediaFileProc {
         int childSize = getChildSizeOf(entity);
         return switch (entity.getMediaType()) {
         case ALBUM -> factory.toAlbum(entity, childSize);
-        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(entity, getProcId(), childSize)
+        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
                 : factory.toArtist(entity, childSize);
         default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
         };

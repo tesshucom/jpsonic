@@ -100,7 +100,7 @@ class IndexProcTest {
             when(musicIndexService.getMusicFolderContentCounts(anyList()))
                     .thenReturn(new MusicFolderContent.Counts(map, 0));
             assertNull(proc.createContainer(new IndexOrSong(musicIndex)));
-            verify(factory, times(1)).toMusicIndex(any(MusicIndex.class), any(ProcId.class), anyInt());
+            verify(factory, times(1)).toMusicIndex(any(ProcId.class), any(MusicIndex.class), anyInt());
         }
 
         @Test

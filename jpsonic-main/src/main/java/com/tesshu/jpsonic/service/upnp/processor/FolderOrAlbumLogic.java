@@ -52,7 +52,7 @@ public class FolderOrAlbumLogic {
             return factory.toAlbum(procId, folderAlbum, getChildSizeOf(folderAlbum));
         }
         MusicFolder folder = folderOrAlbum.getFolder();
-        return factory.toMusicFolder(folder, procId, getChildSizeOf(folder));
+        return factory.toMusicFolder(procId, folder, getChildSizeOf(folder));
     }
 
     public List<FolderOrFAlbum> getDirectChildren(long offset, long count) {

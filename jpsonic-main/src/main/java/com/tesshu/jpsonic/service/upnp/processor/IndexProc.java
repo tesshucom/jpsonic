@@ -64,7 +64,7 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
 
     @Override
     public Container createContainer(IndexOrSong indexOrSong) {
-        return factory.toMusicIndex(indexOrSong.getMusicIndex(), getProcId(), getChildSizeOf(indexOrSong));
+        return factory.toMusicIndex(getProcId(), indexOrSong.getMusicIndex(), getChildSizeOf(indexOrSong));
     }
 
     @Override

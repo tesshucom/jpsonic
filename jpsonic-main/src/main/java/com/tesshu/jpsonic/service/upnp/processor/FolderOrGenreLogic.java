@@ -55,12 +55,12 @@ public class FolderOrGenreLogic {
 
     private Container createContainer(ProcId procId, FolderGenre folderGenre, Scope scope) {
         int childCount = getChildSizeOf(folderGenre.genre(), scope);
-        return factory.toGenre(folderGenre, procId, childCount);
+        return factory.toGenre(procId, folderGenre, childCount);
     }
 
     private Container createContainer(ProcId procId, MusicFolder folder, Scope scope, Sort sort, MediaType... types) {
         int childCount = getChildSizeOf(folder, scope, sort, types);
-        return factory.toMusicFolder(folder, procId, childCount);
+        return factory.toMusicFolder(procId, folder, childCount);
     }
 
     Container createContainer(ProcId procId, FolderOrFGenre folderOrGenre, Scope scope, Sort sort, MediaType... types) {
@@ -133,7 +133,7 @@ public class FolderOrGenreLogic {
     }
 
     void addChild(DIDLContent parent, ProcId procId, FolderGenre folderGenre, int childCount) {
-        GenreContainer genreContainer = factory.toGenre(folderGenre, procId, childCount);
+        GenreContainer genreContainer = factory.toGenre(procId, folderGenre, childCount);
         parent.addContainer(genreContainer);
     }
 }

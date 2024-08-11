@@ -58,7 +58,7 @@ public class FolderOrArtistLogic {
         }
         MusicFolder folder = folderOrArtist.getFolder();
         int childCount = getChildSizeOf(folder);
-        return factory.toMusicFolder(folder, procId, childCount);
+        return factory.toMusicFolder(procId, folder, childCount);
     }
 
     public List<FolderOrFArtist> getDirectChildren(long offset, long count) {

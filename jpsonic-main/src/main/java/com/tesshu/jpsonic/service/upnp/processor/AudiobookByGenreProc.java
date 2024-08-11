@@ -63,7 +63,7 @@ public class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, Media
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(genre, getProcId(), genre.getSongCount());
+        return factory.toGenre(getProcId(), genre, genre.getSongCount());
     }
 
     @Override

@@ -71,7 +71,7 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toId3Genre(genre, getProcId(), genre.getAlbumCount());
+        return factory.toGenre(getProcId(), genre, genre.getAlbumCount());
     }
 
     @Override

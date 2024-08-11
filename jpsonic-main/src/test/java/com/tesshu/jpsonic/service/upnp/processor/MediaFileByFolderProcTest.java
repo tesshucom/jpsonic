@@ -107,7 +107,7 @@ class MediaFileByFolderProcTest {
             clearInvocations(factory);
             entity.setMediaType(MediaType.DIRECTORY);
             proc.createContainer(entity);
-            verify(factory, times(1)).toMusicFolder(any(MediaFile.class), any(ProcId.class), anyInt());
+            verify(factory, times(1)).toMusicFolder(any(ProcId.class), any(MediaFile.class), anyInt());
 
             clearInvocations(factory);
             entity.setArtist("artist");

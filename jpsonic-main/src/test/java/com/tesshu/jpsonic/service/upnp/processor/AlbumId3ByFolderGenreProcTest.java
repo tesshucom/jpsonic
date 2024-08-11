@@ -105,14 +105,14 @@ class AlbumId3ByFolderGenreProcTest {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrGenre = new FolderOrFGenre(folder);
         proc.createContainer(folderOrGenre);
-        verify(factory, never()).toGenre(any(FolderGenre.class), any(ProcId.class), anyInt());
-        verify(factory, times(1)).toMusicFolder(any(MusicFolder.class), any(ProcId.class), anyInt());
+        verify(factory, never()).toGenre(any(ProcId.class), any(FolderGenre.class), anyInt());
+        verify(factory, times(1)).toMusicFolder(any(ProcId.class), any(MusicFolder.class), anyInt());
         clearInvocations(factory);
 
         folderOrGenre = new FolderOrFGenre(new FolderGenre(folder, new Genre("genre", 0, 0)));
         proc.createContainer(folderOrGenre);
-        verify(factory, times(1)).toGenre(any(FolderGenre.class), any(ProcId.class), anyInt());
-        verify(factory, never()).toMusicFolder(any(MusicFolder.class), any(ProcId.class), anyInt());
+        verify(factory, times(1)).toGenre(any(ProcId.class), any(FolderGenre.class), anyInt());
+        verify(factory, never()).toMusicFolder(any(ProcId.class), any(MusicFolder.class), anyInt());
     }
 
     @Test
