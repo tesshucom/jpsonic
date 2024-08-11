@@ -19,20 +19,17 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
-public class FolderOrAlbum {
-
-    private static final String TYPE_PREFIX_ALBUM = "album:";
+public class FolderOrFAlbum {
 
     private final Object o;
 
-    public FolderOrAlbum(MusicFolder folder) {
+    public FolderOrFAlbum(MusicFolder folder) {
         this.o = folder;
     }
 
-    public FolderOrAlbum(Album album) {
+    public FolderOrFAlbum(FolderAlbum album) {
         this.o = album;
     }
 
@@ -40,23 +37,11 @@ public class FolderOrAlbum {
         return (MusicFolder) o;
     }
 
-    public Album getAlbum() {
-        return (Album) o;
+    public FolderAlbum getFolderAlbum() {
+        return (FolderAlbum) o;
     }
 
-    public boolean isAlbum() {
-        return o instanceof Album;
-    }
-
-    public String createCompositeId() {
-        return TYPE_PREFIX_ALBUM.concat(Integer.toString(getAlbum().getId()));
-    }
-
-    public static boolean isAlbumId(String compositeId) {
-        return compositeId.startsWith(TYPE_PREFIX_ALBUM);
-    }
-
-    public static int toId(String compositeId) {
-        return Integer.parseInt(compositeId.replaceAll("^.*:", ""));
+    public boolean isFolderAlbum() {
+        return o instanceof FolderAlbum;
     }
 }

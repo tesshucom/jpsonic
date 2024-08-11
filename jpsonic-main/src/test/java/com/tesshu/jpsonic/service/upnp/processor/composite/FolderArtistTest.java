@@ -21,46 +21,47 @@ package com.tesshu.jpsonic.service.upnp.processor.composite;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-class FolderGenreTest {
+class FolderArtistTest {
 
     @Test
     void testCreateCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Genre genre = new Genre("GENRE", 0, 0);
-        FolderGenre folderGenre = new FolderGenre(folder, genre);
-        assertEquals("fg:99;GENRE", folderGenre.createCompositeId());
+        Artist artist = new Artist();
+        artist.setId(88);
+        CompositeModel folderArtist = new FolderArtist(folder, artist);
+        assertEquals("far:99;88", folderArtist.createCompositeId());
     }
 
     @Test
     void testIsCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Genre genre = new Genre("GENRE", 0, 0);
-        assertFalse(GenreAlbum.isCompositeId(Integer.toString(folder.getId())));
-        assertFalse(GenreAlbum.isCompositeId(genre.getName()));
-        FolderGenre folderGenre = new FolderGenre(folder, genre);
-        assertTrue(FolderGenre.isCompositeId(folderGenre.createCompositeId()));
+        Artist artist = new Artist();
+        artist.setId(88);
+        CompositeModel folderArtist = new FolderArtist(folder, artist);
+        assertTrue(FolderArtist.isCompositeId(folderArtist.createCompositeId()));
     }
 
     @Test
     void testParseFolderId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Genre genre = new Genre("GENRE", 0, 0);
-        FolderGenre folderGenre = new FolderGenre(folder, genre);
-        assertEquals(99, FolderGenre.parseFolderId(folderGenre.createCompositeId()));
+        Artist artist = new Artist();
+        artist.setId(88);
+        CompositeModel folderArtist = new FolderArtist(folder, artist);
+        assertEquals(99, FolderArtist.parseFolderId(folderArtist.createCompositeId()));
     }
 
     @Test
     void testParseGenreName() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Genre genre = new Genre("GENRE", 0, 0);
-        FolderGenre folderGenre = new FolderGenre(folder, genre);
-        assertEquals("GENRE", FolderGenre.parseGenreName(folderGenre.createCompositeId()));
+        Artist artist = new Artist();
+        artist.setId(88);
+        CompositeModel folderArtist = new FolderArtist(folder, artist);
+        assertEquals(88, FolderArtist.parseArtistId(folderArtist.createCompositeId()));
     }
 }

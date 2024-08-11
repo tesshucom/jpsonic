@@ -22,25 +22,25 @@ package com.tesshu.jpsonic.service.upnp.processor.composite;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Genre;
 
-public record GenreAndAlbum(Genre genre, Album album) {
+public record GenreAlbum(Genre genre, Album album) implements CompositeModel {
 
-    // Definitely not part of genre name.
-    private static final String SEPA = ";";
+    private static final String TYPE_PREFIX = "gal:";
+    private static final String SEPA = ";"; // Definitely not part of genre name.
 
+    @Override
     public String createCompositeId() {
-        return album.getId() + SEPA + genre.getName();
+        return TYPE_PREFIX + album.getId() + SEPA + genre.getName();
     }
 
-    // TODO to be fixed
     public static boolean isCompositeId(String s) {
-        return s.contains(SEPA);
+        return s.startsWith(TYPE_PREFIX);
     }
 
     public static int parseAlbumId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(0, compositeId.indexOf(SEPA)));
+        return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
     public static String parseGenreName(String compositeId) {
-        return compositeId.substring(compositeId.indexOf(SEPA) + 1);
+        return compositeId.substring(compositeId.indexOf(SEPA) + SEPA.length());
     }
 }

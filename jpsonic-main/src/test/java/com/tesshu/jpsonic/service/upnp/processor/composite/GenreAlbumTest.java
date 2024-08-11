@@ -28,15 +28,15 @@ import com.tesshu.jpsonic.domain.Genre;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-class GenreAndAlbumTest {
+class GenreAlbumTest {
 
     @Test
     void testCreateCompositeId() {
         Genre genre = new Genre("GENRE", 0, 0);
         Album album = new Album();
         album.setId(99);
-        GenreAndAlbum genreAndAlbum = new GenreAndAlbum(genre, album);
-        assertEquals("99;GENRE", genreAndAlbum.createCompositeId());
+        GenreAlbum genreAndAlbum = new GenreAlbum(genre, album);
+        assertEquals("gal:99;GENRE", genreAndAlbum.createCompositeId());
     }
 
     @Test
@@ -44,10 +44,10 @@ class GenreAndAlbumTest {
         Genre genre = new Genre("GENRE", 0, 0);
         Album album = new Album();
         album.setId(99);
-        assertFalse(GenreAndAlbum.isCompositeId(genre.getName()));
-        assertFalse(GenreAndAlbum.isCompositeId(Integer.toString(album.getId())));
-        GenreAndAlbum genreAndAlbum = new GenreAndAlbum(genre, album);
-        assertTrue(GenreAndAlbum.isCompositeId(genreAndAlbum.createCompositeId()));
+        assertFalse(GenreAlbum.isCompositeId(genre.getName()));
+        assertFalse(GenreAlbum.isCompositeId(Integer.toString(album.getId())));
+        GenreAlbum genreAndAlbum = new GenreAlbum(genre, album);
+        assertTrue(GenreAlbum.isCompositeId(genreAndAlbum.createCompositeId()));
     }
 
     @Test
@@ -55,8 +55,8 @@ class GenreAndAlbumTest {
         Genre genre = new Genre("GENRE", 0, 0);
         Album album = new Album();
         album.setId(99);
-        GenreAndAlbum genreAndAlbum = new GenreAndAlbum(genre, album);
-        assertEquals(99, GenreAndAlbum.parseAlbumId(genreAndAlbum.createCompositeId()));
+        GenreAlbum genreAndAlbum = new GenreAlbum(genre, album);
+        assertEquals(99, GenreAlbum.parseAlbumId(genreAndAlbum.createCompositeId()));
     }
 
     @Test
@@ -64,7 +64,7 @@ class GenreAndAlbumTest {
         Genre genre = new Genre("GENRE", 0, 0);
         Album album = new Album();
         album.setId(99);
-        GenreAndAlbum genreAndAlbum = new GenreAndAlbum(genre, album);
-        assertEquals("GENRE", GenreAndAlbum.parseGenreName(genreAndAlbum.createCompositeId()));
+        GenreAlbum genreAndAlbum = new GenreAlbum(genre, album);
+        assertEquals("GENRE", GenreAlbum.parseGenreName(genreAndAlbum.createCompositeId()));
     }
 }

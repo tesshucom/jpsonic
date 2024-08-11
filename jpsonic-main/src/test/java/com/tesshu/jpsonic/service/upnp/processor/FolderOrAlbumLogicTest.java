@@ -33,7 +33,6 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -42,7 +41,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.container.Container;
@@ -56,14 +56,12 @@ class FolderOrAlbumLogicTest {
 
     private UpnpProcessorUtil util;
     private AlbumDao albumDao;
-    private MusicFolderDao musicFolderDao;
     private FolderOrAlbumLogic logic;
 
     @BeforeEach
     public void setup() {
         util = mock(UpnpProcessorUtil.class);
         albumDao = mock(AlbumDao.class);
-        musicFolderDao = mock(MusicFolderDao.class);
         SettingsService settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
@@ -74,14 +72,14 @@ class FolderOrAlbumLogicTest {
                 .thenReturn(dummyCoverArtbuilder);
         UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
-        logic = new FolderOrAlbumLogic(util, factory, musicFolderDao, albumDao);
+        logic = new FolderOrAlbumLogic(util, factory, albumDao);
 
     }
 
     @Test
     void testCreateContainerWithFolder() {
         MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
-        FolderOrAlbum folderOrAlbum = new FolderOrAlbum(folder);
+        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
         Mockito.when(albumDao.getAlbumCount(anyList())).thenReturn(100);
         Container container = logic.createContainer(ProcId.ALBUM_BY_FOLDER, folderOrAlbum);
         assertInstanceOf(StorageFolder.class, container);
@@ -94,13 +92,14 @@ class FolderOrAlbumLogicTest {
     @Test
     void testCreateContainerWithAlbum() {
         Album album = new Album();
-        FolderOrAlbum folderOrAlbum = new FolderOrAlbum(album);
         album.setId(999);
         album.setName("Album");
         album.setSongCount(20);
+        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         Container container = logic.createContainer(ProcId.ALBUM_BY_FOLDER, folderOrAlbum);
         assertInstanceOf(MusicAlbum.class, container);
-        assertEquals("albumByFolder/album:999", container.getId());
+        assertEquals("albumByFolder/fal:99;999", container.getId());
         assertEquals("albumByFolder", container.getParentID());
         assertEquals("Album", container.getTitle());
         assertEquals(20, container.getChildCount());
@@ -117,10 +116,10 @@ class FolderOrAlbumLogicTest {
         assertEquals(2, logic.getDirectChildren(0, 2).size());
         assertEquals(2, logic.getDirectChildren(1, 4).size());
         assertEquals(2, logic.getDirectChildren(1, 2).size());
-        List<FolderOrAlbum> folderOrAlbums = logic.getDirectChildren(0, 4);
+        List<FolderOrFAlbum> folderOrAlbums = logic.getDirectChildren(0, 4);
         Mockito.verify(albumDao, Mockito.never()).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
                 anyList());
-        folderOrAlbums.forEach(folder -> assertFalse(folder.isAlbum()));
+        folderOrAlbums.forEach(folder -> assertFalse(folder.isFolderAlbum()));
 
         folders = List.of(folder1);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
@@ -152,11 +151,11 @@ class FolderOrAlbumLogicTest {
         album.setId(id);
         album.setName("album");
         Mockito.when(albumDao.getAlbum(id)).thenReturn(album);
-        FolderOrAlbum folderOrAlbum = new FolderOrAlbum(album);
-        String compositeId = folderOrAlbum.createCompositeId();
-        FolderOrAlbum.toId(folderOrAlbum.createCompositeId());
-        logic.getDirectChild(compositeId);
-        assertEquals(album, logic.getDirectChild(compositeId).getAlbum());
+        MusicFolder folder = new MusicFolder(88, "/Nusic", "Music", true, null, null, false);
+        Mockito.when(util.getGuestFolders()).thenReturn(List.of(folder));
+        FolderAlbum folderAlbum = new FolderAlbum(folder, album);
+        String compositeId = folderAlbum.createCompositeId();
+        assertEquals(album, logic.getDirectChild(compositeId).getFolderAlbum().album());
     }
 
     @Test
@@ -165,7 +164,7 @@ class FolderOrAlbumLogicTest {
         MusicFolder folder2 = new MusicFolder(1, "/folder2", "folder2", true, now(), 2, false);
         MusicFolder folder3 = new MusicFolder(2, "/folder3", "folder3", true, now(), 3, false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
-        Mockito.when(musicFolderDao.getAllMusicFolders()).thenReturn(folders);
+        Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(folder3, logic.getDirectChild("2").getFolder());
     }
 
@@ -175,14 +174,15 @@ class FolderOrAlbumLogicTest {
         album.setId(0);
         album.setName("album");
         album.setSongCount(3);
-        FolderOrAlbum folderOrAlbum = new FolderOrAlbum(album);
+        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         assertEquals(3, logic.getChildSizeOf(folderOrAlbum));
     }
 
     @Test
     void testGetChildSizeOfWithFolder() {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        FolderOrAlbum folderOrAlbum = new FolderOrAlbum(folder);
+        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
         assertEquals(0, logic.getChildSizeOf(folderOrAlbum));
         Mockito.verify(albumDao, Mockito.times(1)).getAlbumCount(anyList());
     }

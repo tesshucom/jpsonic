@@ -26,13 +26,13 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrAlbum, AlbumOrSong> {
+public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, AlbumOrSong> {
 
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
@@ -54,12 +54,12 @@ public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrAlbum, 
     }
 
     @Override
-    public Container createContainer(FolderOrAlbum folderOrAlbum) {
+    public Container createContainer(FolderOrFAlbum folderOrAlbum) {
         return deligate.createContainer(getProcId(), folderOrAlbum);
     }
 
     @Override
-    public List<FolderOrAlbum> getDirectChildren(long offset, long count) {
+    public List<FolderOrFAlbum> getDirectChildren(long offset, long count) {
         return deligate.getDirectChildren(offset, count);
     }
 
@@ -69,15 +69,15 @@ public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrAlbum, 
     }
 
     @Override
-    public FolderOrAlbum getDirectChild(String compositeId) {
+    public FolderOrFAlbum getDirectChild(String compositeId) {
         return deligate.getDirectChild(compositeId);
     }
 
     @Override
-    public List<AlbumOrSong> getChildren(FolderOrAlbum folderOrAlbum, long offset, long count) {
+    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long offset, long count) {
 
-        if (folderOrAlbum.isAlbum()) {
-            Album album = folderOrAlbum.getAlbum();
+        if (folderOrAlbum.isFolderAlbum()) {
+            Album album = folderOrAlbum.getFolderAlbum().album();
             return mediaFileService.getSongsForAlbum(offset, count, album.getArtist(), album.getName()).stream()
                     .map(AlbumOrSong::new).toList();
         }
@@ -87,7 +87,7 @@ public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrAlbum, 
     }
 
     @Override
-    public int getChildSizeOf(FolderOrAlbum folderOrAlbum) {
+    public int getChildSizeOf(FolderOrFAlbum folderOrAlbum) {
         return deligate.getChildSizeOf(folderOrAlbum);
     }
 

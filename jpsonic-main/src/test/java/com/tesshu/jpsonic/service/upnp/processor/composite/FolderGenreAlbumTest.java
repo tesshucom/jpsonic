@@ -38,7 +38,7 @@ class FolderGenreAlbumTest {
         Album album = new Album();
         album.setId(88);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
-        assertEquals("fga:99;88;GENRE", folderGenreAlbum.createCompositeId());
+        assertEquals("fgal:99;88;GENRE", folderGenreAlbum.createCompositeId());
     }
 
     @Test

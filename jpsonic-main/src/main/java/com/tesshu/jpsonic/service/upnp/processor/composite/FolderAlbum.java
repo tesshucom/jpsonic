@@ -19,17 +19,17 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
-public record FolderGenre(MusicFolder folder, Genre genre) implements CompositeModel {
+public record FolderAlbum(MusicFolder folder, Album album) implements CompositeModel {
 
-    private static final String TYPE_PREFIX = "fg:";
-    private static final String SEPA = ";"; // Definitely not part of genre name.
+    private static final String TYPE_PREFIX = "fal:";
+    private static final String SEPA = ";";
 
     @Override
     public String createCompositeId() {
-        return TYPE_PREFIX + folder.getId() + SEPA + genre.getName();
+        return TYPE_PREFIX + folder.getId() + SEPA + album.getId();
     }
 
     public static boolean isCompositeId(String s) {
@@ -40,7 +40,7 @@ public record FolderGenre(MusicFolder folder, Genre genre) implements CompositeM
         return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
-    public static String parseGenreName(String compositeId) {
-        return compositeId.substring(compositeId.indexOf(SEPA) + SEPA.length());
+    public static int parseAlbumId(String compositeId) {
+        return Integer.parseInt(compositeId.substring(compositeId.indexOf(SEPA) + SEPA.length()));
     }
 }

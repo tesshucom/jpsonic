@@ -33,7 +33,6 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -44,7 +43,8 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -73,8 +73,7 @@ class AlbumByFolderProcTest {
                 .thenReturn(dummyCoverArtbuilder);
         UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
-        MusicFolderDao musicFolderDao = mock(MusicFolderDao.class);
-        FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, musicFolderDao, albumDao);
+        FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
         proc = new AlbumByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
     }
 
@@ -91,8 +90,9 @@ class AlbumByFolderProcTest {
         album.setName("album");
         album.setArtist("artist");
         Mockito.when(albumDao.getAlbum(id)).thenReturn(album);
-        FolderOrAlbum folderOrArtist = new FolderOrAlbum(album);
-        assertEquals(0, proc.getChildren(folderOrArtist, 0, 2).size());
+        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
+        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
+        assertEquals(0, proc.getChildren(folderOrAlbum, 0, 2).size());
         Mockito.verify(mediaFileService, Mockito.times(1)).getSongsForAlbum(anyLong(), anyLong(), anyString(),
                 anyString());
     }
@@ -102,7 +102,7 @@ class AlbumByFolderProcTest {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         Mockito.when(albumDao.getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
                 .thenReturn(List.of(new Album()));
-        FolderOrAlbum folderOrArtist = new FolderOrAlbum(folder);
+        FolderOrFAlbum folderOrArtist = new FolderOrFAlbum(folder);
         assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
         Mockito.verify(albumDao, Mockito.times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
                 anyList());

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.service.upnp.processor;
@@ -23,12 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.container.Container;
-import org.jupnp.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,36 +39,36 @@ public class FolderOrArtistLogic {
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
-    private final MusicFolderDao musicFolderDao;
 
-    public FolderOrArtistLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory, MusicFolderDao musicFolderDao,
-            ArtistDao artistDao) {
+    public FolderOrArtistLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao) {
         super();
         this.util = util;
         this.factory = factory;
         this.artistDao = artistDao;
-        this.musicFolderDao = musicFolderDao;
     }
 
-    public Container createContainer(ProcId procId, FolderOrArtist folderArtist) {
-        if (folderArtist.isArtist()) {
-            MusicArtist artist = factory.toArtist(folderArtist.getArtist());
-            artist.setId(procId.getValue() + ProcId.CID_SEPA + folderArtist.createCompositeId());
-            artist.setParentID(procId.getValue());
-            return artist;
-        }
-        MusicFolder folder = folderArtist.getFolder();
+    public Container createContainer(ProcId procId, FolderArtist folderArtist) {
         int childCount = getChildSizeOf(folderArtist);
+        return factory.toArtist(procId, folderArtist, childCount);
+    }
+
+    public Container createContainer(ProcId procId, FolderOrFArtist folderOrArtist) {
+        if (folderOrArtist.isFolderArtist()) {
+            return createContainer(procId, folderOrArtist.getFolderArtist());
+        }
+        MusicFolder folder = folderOrArtist.getFolder();
+        int childCount = getChildSizeOf(folder);
         return factory.toMusicFolder(folder, procId, childCount);
     }
 
-    public List<FolderOrArtist> getDirectChildren(long offset, long count) {
+    public List<FolderOrFArtist> getDirectChildren(long offset, long count) {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() != SINGLE_FOLDER) {
-            return folders.stream().skip(offset).limit(count).map(FolderOrArtist::new).toList();
+            return folders.stream().skip(offset).limit(count).map(FolderOrFArtist::new).toList();
         }
+        MusicFolder folder = folders.get(0);
         return artistDao.getAlphabetialArtists((int) offset, (int) count, Arrays.asList(folders.get(0))).stream()
-                .map(FolderOrArtist::new).toList();
+                .map(artist -> new FolderArtist(folder, artist)).map(FolderOrFArtist::new).toList();
     }
 
     public int getDirectChildrenCount() {
@@ -79,23 +79,32 @@ public class FolderOrArtistLogic {
         return util.getGuestFolders().size();
     }
 
-    public FolderOrArtist getDirectChild(String compositeId) {
-        int id = FolderOrArtist.toId(compositeId);
-        if (FolderOrArtist.isArtistId(compositeId)) {
-            Artist artist = artistDao.getArtist(id);
-            if (artist == null) {
-                throw new IllegalArgumentException("The specified Artist cannot be found.");
-            }
-            return new FolderOrArtist(artist);
-        }
-        return new FolderOrArtist(
-                musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
+    private @Nullable MusicFolder getFolder(int folderId) {
+        return util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId).findFirst()
+                .orElseGet(null);
     }
 
-    public int getChildSizeOf(FolderOrArtist folderOrArtist) {
-        if (folderOrArtist.isArtist()) {
-            return folderOrArtist.getArtist().getAlbumCount();
+    public FolderOrFArtist getDirectChild(String id) {
+        if (FolderArtist.isCompositeId(id)) {
+            Artist artist = artistDao.getArtist(FolderArtist.parseArtistId(id));
+            MusicFolder folder = getFolder(FolderArtist.parseFolderId(id));
+            return new FolderOrFArtist(new FolderArtist(folder, artist));
         }
-        return artistDao.getArtistsCount(util.getGuestFolders());
+        return new FolderOrFArtist(getFolder(Integer.parseInt(id)));
+    }
+
+    private int getChildSizeOf(MusicFolder folder) {
+        return artistDao.getArtistsCount(Arrays.asList(folder));
+    }
+
+    private int getChildSizeOf(FolderArtist folderArtist) {
+        return folderArtist.artist().getAlbumCount();
+    }
+
+    public int getChildSizeOf(FolderOrFArtist folderOrArtist) {
+        if (folderOrArtist.isFolderArtist()) {
+            return getChildSizeOf(folderOrArtist.getFolderArtist());
+        }
+        return getChildSizeOf(folderOrArtist.getFolder());
     }
 }

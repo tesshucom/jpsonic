@@ -32,14 +32,14 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAndAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAndAlbum> {
+public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
 
     private static final MediaType[] TYPES = { MediaType.MUSIC };
 
@@ -91,10 +91,10 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
     }
 
     @Override
-    public List<GenreAndAlbum> getChildren(Genre genre, long offset, long maxLength) {
+    public List<GenreAlbum> getChildren(Genre genre, long offset, long maxLength) {
         return searchService
                 .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) maxLength, util.getGuestFolders()).stream()
-                .map(album -> new GenreAndAlbum(genre, album)).toList();
+                .map(album -> new GenreAlbum(genre, album)).toList();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
     }
 
     @Override
-    public void addChild(DIDLContent parent, GenreAndAlbum composite) {
+    public void addChild(DIDLContent parent, GenreAlbum composite) {
         parent.addContainer(
                 factory.toAlbumWithGenre(composite, getChildSizeOf(composite.genre().getName(), composite.album())));
     }
@@ -115,9 +115,9 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
     @Override
     public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
         final DIDLContent content = new DIDLContent();
-        if (GenreAndAlbum.isCompositeId(id)) {
-            String genre = GenreAndAlbum.parseGenreName(id);
-            Album album = albumDao.getAlbum(GenreAndAlbum.parseAlbumId(id));
+        if (GenreAlbum.isCompositeId(id)) {
+            String genre = GenreAlbum.parseGenreName(id);
+            Album album = albumDao.getAlbum(GenreAlbum.parseAlbumId(id));
             List<MediaFile> songs = searchService.getChildrenOf(genre, album, (int) offset, (int) maxLength,
                     util.getGuestFolders(), TYPES);
             songs.stream().forEach(song -> content.addItem(factory.toMusicTrack(song)));
@@ -126,7 +126,7 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
 
         // If it's not the CompositeId, it's the Genre name
         Genre genre = getDirectChild(id);
-        List<GenreAndAlbum> albums = getChildren(genre, offset, maxLength);
+        List<GenreAlbum> albums = getChildren(genre, offset, maxLength);
         albums.stream().forEach(album -> addChild(content, album));
         return createBrowseResult(content, albums.size(), getChildSizeOf(genre));
     }

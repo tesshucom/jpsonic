@@ -19,30 +19,29 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 
-public class ArtistOrSong {
+public final class FolderOrFArtist {
 
     private final Object o;
 
-    public ArtistOrSong(MediaFile song) {
-        this.o = song;
+    public FolderOrFArtist(MusicFolder folder) {
+        this.o = folder;
     }
 
-    public ArtistOrSong(Artist artist) {
-        this.o = artist;
+    public FolderOrFArtist(FolderArtist folderArtist) {
+        this.o = folderArtist;
     }
 
-    public MediaFile getSong() {
-        return (MediaFile) o;
+    public MusicFolder getFolder() {
+        return (MusicFolder) o;
     }
 
-    public Artist getArtist() {
-        return (Artist) o;
+    public FolderArtist getFolderArtist() {
+        return (FolderArtist) o;
     }
 
-    public boolean isArtist() {
-        return o instanceof Artist;
+    public boolean isFolderArtist() {
+        return o instanceof FolderArtist;
     }
 }

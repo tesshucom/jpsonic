@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -30,11 +29,11 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.Arrays;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -44,10 +43,12 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
@@ -64,11 +65,10 @@ class ArtistByFolderProcTest {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);
-        MusicFolderDao musicFolderDao = mock(MusicFolderDao.class);
         SettingsService settingsService = mock(SettingsService.class);
         UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
                 mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
-        folderOrArtistProc = new FolderOrArtistLogic(util, factory, musicFolderDao, artistDao);
+        folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);
         proc = new ArtistByFolderProc(util, factory, artistDao, albumDao, folderOrArtistProc);
     }
 
@@ -84,20 +84,21 @@ class ArtistByFolderProcTest {
         artist.setId(id);
         artist.setName("artist");
         Mockito.when(artistDao.getArtist(id)).thenReturn(artist);
-        FolderOrArtist folderOrArtist = new FolderOrArtist(artist);
-
-        assertEquals(0, proc.getChildren(folderOrArtist, 0, 2).size());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        FolderArtist folderArtist = new FolderArtist(folder, artist);
+        assertEquals(0, proc.getChildren(new FolderOrFArtist(folderArtist), 0, 2).size());
         Mockito.verify(albumDao, Mockito.times(1)).getAlbumsForArtist(anyLong(), anyLong(), anyString(), anyBoolean(),
                 anyList());
     }
 
     @Test
     void testGetChildrenWithFolder() {
-        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        Mockito.when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), anyList())).thenReturn(List.of(new Artist()));
-        FolderOrArtist folderOrArtist = new FolderOrArtist(folder);
-        assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
-        Mockito.verify(artistDao, Mockito.times(1)).getAlphabetialArtists(anyInt(), anyInt(), anyList());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        Mockito.when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList()))
+                .thenReturn(Arrays.asList(new Artist()));
+        assertEquals(1, proc.getChildren(new FolderOrFArtist(folder), 0, 2).size());
+        Mockito.verify(artistDao, Mockito.times(1)).getAlphabetialArtists(anyInt(), anyInt(),
+                ArgumentMatchers.<MusicFolder> anyList());
     }
 
     @Test

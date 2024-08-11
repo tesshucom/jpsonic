@@ -19,16 +19,15 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.container.Container;
-import org.jupnp.support.model.container.MusicAlbum;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,36 +38,31 @@ public class FolderOrAlbumLogic {
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final AlbumDao albumDao;
-    private final MusicFolderDao musicFolderDao;
 
-    public FolderOrAlbumLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory, MusicFolderDao musicFolderDao,
-            AlbumDao albumDao) {
+    public FolderOrAlbumLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory, AlbumDao albumDao) {
         super();
         this.util = util;
         this.factory = factory;
         this.albumDao = albumDao;
-        this.musicFolderDao = musicFolderDao;
     }
 
-    public Container createContainer(ProcId procId, FolderOrAlbum folderAlbum) {
-        if (folderAlbum.isAlbum()) {
-            MusicAlbum album = factory.toAlbum(folderAlbum.getAlbum());
-            album.setId(procId.getValue() + ProcId.CID_SEPA + folderAlbum.createCompositeId());
-            album.setParentID(procId.getValue());
-            return album;
+    public Container createContainer(ProcId procId, FolderOrFAlbum folderOrAlbum) {
+        if (folderOrAlbum.isFolderAlbum()) {
+            FolderAlbum folderAlbum = folderOrAlbum.getFolderAlbum();
+            return factory.toAlbum(procId, folderAlbum, getChildSizeOf(folderAlbum));
         }
-        MusicFolder folder = folderAlbum.getFolder();
-        int childCount = getChildSizeOf(folderAlbum);
-        return factory.toMusicFolder(folder, procId, childCount);
+        MusicFolder folder = folderOrAlbum.getFolder();
+        return factory.toMusicFolder(folder, procId, getChildSizeOf(folder));
     }
 
-    public List<FolderOrAlbum> getDirectChildren(long offset, long count) {
+    public List<FolderOrFAlbum> getDirectChildren(long offset, long count) {
         List<MusicFolder> folders = util.getGuestFolders();
-        if (folders.size() != SINGLE_FOLDER) {
-            return folders.stream().skip(offset).limit(count).map(FolderOrAlbum::new).toList();
+        if (folders.size() == SINGLE_FOLDER) {
+            MusicFolder folder = folders.get(0);
+            return albumDao.getAlphabeticalAlbums((int) offset, (int) count, false, true, List.of(folders.get(0)))
+                    .stream().map(album -> new FolderAlbum(folder, album)).map(FolderOrFAlbum::new).toList();
         }
-        return albumDao.getAlphabeticalAlbums((int) offset, (int) count, false, true, Arrays.asList(folders.get(0)))
-                .stream().map(FolderOrAlbum::new).toList();
+        return folders.stream().skip(offset).limit(count).map(FolderOrFAlbum::new).toList();
     }
 
     public int getDirectChildrenCount() {
@@ -79,23 +73,35 @@ public class FolderOrAlbumLogic {
         return util.getGuestFolders().size();
     }
 
-    public FolderOrAlbum getDirectChild(String compositeId) {
-        int id = FolderOrAlbum.toId(compositeId);
-        if (FolderOrAlbum.isAlbumId(compositeId)) {
-            Album album = albumDao.getAlbum(id);
+    private @Nullable MusicFolder getFolder(int folderId) {
+        return util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId).findFirst()
+                .orElseGet(null);
+    }
+
+    public FolderOrFAlbum getDirectChild(String id) {
+        if (FolderAlbum.isCompositeId(id)) {
+            MusicFolder folder = getFolder(FolderAlbum.parseFolderId(id));
+            Album album = albumDao.getAlbum(FolderAlbum.parseAlbumId(id));
             if (album == null) {
                 throw new IllegalArgumentException("The specified Album cannot be found.");
             }
-            return new FolderOrAlbum(album);
+            return new FolderOrFAlbum(new FolderAlbum(folder, album));
         }
-        return new FolderOrAlbum(
-                musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
+        return new FolderOrFAlbum(getFolder(Integer.parseInt(id)));
     }
 
-    public int getChildSizeOf(FolderOrAlbum folderOrAlbum) {
-        if (folderOrAlbum.isAlbum()) {
-            return folderOrAlbum.getAlbum().getSongCount();
+    private int getChildSizeOf(FolderAlbum folderAlbum) {
+        return folderAlbum.album().getSongCount();
+    }
+
+    private int getChildSizeOf(MusicFolder musicFolder) {
+        return albumDao.getAlbumCount(List.of(musicFolder));
+    }
+
+    public int getChildSizeOf(FolderOrFAlbum folderOrAlbum) {
+        if (folderOrAlbum.isFolderAlbum()) {
+            return getChildSizeOf(folderOrAlbum.getFolderAlbum());
         }
-        return albumDao.getAlbumCount(util.getGuestFolders());
+        return getChildSizeOf(folderOrAlbum.getFolder());
     }
 }

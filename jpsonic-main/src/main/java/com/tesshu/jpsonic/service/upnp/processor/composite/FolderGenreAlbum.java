@@ -23,11 +23,12 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
-public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album) {
+public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album) implements CompositeModel {
 
-    private static final String TYPE_PREFIX = "fga:";
+    private static final String TYPE_PREFIX = "fgal:";
     private static final String SEPA = ";"; // Definitely not part of genre name.
 
+    @Override
     public String createCompositeId() {
         return TYPE_PREFIX + folder.getId() + SEPA + album.getId() + SEPA + genre.getName();
     }
