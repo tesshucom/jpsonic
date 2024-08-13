@@ -77,7 +77,7 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testCreateContainerWithArtist() {
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        MusicFolder folder = new MusicFolder(99, "/Music", "Music", true, null, null, false);
         Artist artist = new Artist();
         FolderOrFArtist folderOrArtist = new FolderOrFArtist(new FolderArtist(folder, artist));
         artist.setId(999);

@@ -291,19 +291,22 @@
                                 [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
-                                [Random Song]
+                                [Random MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_ARTIST}">
-                                [Artist] [Random Song]
+                                [Artist] [Random MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST}">
-                                [Music Folder] [Artist] [Random Song]
+                                [Music Folder] [Artist] [Random MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_GENRE}">
-                                [Genre] [Random Song]
+                                [Genre] [Random MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE}">
+                                [Music Folder] [Genre] [Random MUSIC]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
-                                [Random Album] [Song]
+                                [Random Album] [MUSIC]
                             </c:when>
                             <c:otherwise>
                             </c:otherwise>

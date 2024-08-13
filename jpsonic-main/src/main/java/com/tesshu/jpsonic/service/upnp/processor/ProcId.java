@@ -33,7 +33,7 @@ public enum ProcId {
     ALBUM_ID3_BY_GENRE("aibg"), ALBUM_ID3_BY_FOLDER_GENRE("aibfg"), SONG_BY_GENRE("sbg"), SONG_BY_FOLDER_GENRE("sbfg"),
     AUDIOBOOK_BY_GENRE("abbg"), RECENT("recent"), RECENT_ID3("recentId3"), INDEX("index"), INDEX_ID3("indexId3"),
     PODCAST("podcast"), RANDOM_ALBUM("ral"), RANDOM_SONG("rs"), RANDOM_SONG_BY_ARTIST("rsbar"),
-    RANDOM_SONG_BY_FOLDER_ARTIST("rsbfar"), RANDOM_SONG_BY_GENRE("rsbg");
+    RANDOM_SONG_BY_FOLDER_ARTIST("rsbfar"), RANDOM_SONG_BY_GENRE("rsbg"), RANDOM_SONG_BY_FOLDER_GENRE("rsbfg");
 
     /**
      * Separator used for Compound IDs (CID).
@@ -78,6 +78,7 @@ public enum ProcId {
         case RANDOM_SONG_BY_ARTIST -> RANDOM_SONG_BY_ARTIST;
         case RANDOM_SONG_BY_FOLDER_ARTIST -> RANDOM_SONG_BY_FOLDER_ARTIST;
         case RANDOM_SONG_BY_GENRE -> RANDOM_SONG_BY_GENRE;
+        case RANDOM_SONG_BY_FOLDER_GENRE -> RANDOM_SONG_BY_FOLDER_GENRE;
         case RANDOM_ALBUM -> RANDOM_ALBUM;
         default -> throw new IllegalArgumentException("Unexpected value: " + menuItemId);
         };

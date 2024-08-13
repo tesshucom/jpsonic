@@ -77,6 +77,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final RandomSongByArtistProc randomSongByArtistProc;
     private final RandomSongByFolderArtistProc randomSongByFolderArtistProc;
     private final RandomSongByGenreProc randomSongByGenreProc;
+    private final RandomSongByFolderGenreProc randomSongByFolderGenreProc;
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil util;
     private final WMPProc wmpProc;
@@ -96,8 +97,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             @Lazy @Qualifier("podcastProc") PodcastProc podp,
             @Lazy @Qualifier("randomAlbumProc") RandomAlbumProc randomap,
             @Lazy @Qualifier("randomSongProc") RandomSongProc randomsp, @Lazy RandomSongByArtistProc randomsbap,
-            @Lazy RandomSongByFolderArtistProc randomsbfap, @Lazy RandomSongByGenreProc rsbg, QueryFactory queryFactory,
-            UpnpProcessorUtil util, WMPProc wmpp, SearchService ss) {
+
+            @Lazy RandomSongByFolderArtistProc randomsbfap, @Lazy RandomSongByGenreProc rsbgp,
+            @Lazy RandomSongByFolderGenreProc rsbfgp, QueryFactory queryFactory, UpnpProcessorUtil util, WMPProc wmpp,
+            SearchService ss) {
         super();
         rootProc = rp;
         mediaFileProc = mfp;
@@ -122,7 +125,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         randomSongProcessor = randomsp;
         randomSongByArtistProc = randomsbap;
         randomSongByFolderArtistProc = randomsbfap;
-        randomSongByGenreProc = rsbg;
+        randomSongByGenreProc = rsbgp;
+        randomSongByFolderGenreProc = rsbfgp;
         this.queryFactory = queryFactory;
         this.util = util;
         this.wmpProc = wmpp;
@@ -156,6 +160,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProc;
         case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProc;
         case RANDOM_SONG_BY_GENRE -> randomSongByGenreProc;
+        case RANDOM_SONG_BY_FOLDER_GENRE -> randomSongByFolderGenreProc;
         };
     }
 

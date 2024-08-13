@@ -25,9 +25,6 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -39,19 +36,16 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrSong> {
-
-    protected static final Scope SCOPE = GenreMasterCriteria.Scope.SONG;
-    protected static final MediaType[] TYPES = { MediaType.MUSIC };
+public class RandomSongByFolderGenreProc extends SongByFolderGenreProc implements CountLimitProc {
 
     private final SettingsService settingsService;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
 
-    public SongByFolderGenreProc(SettingsService settingsService, SearchService searchService, UpnpDIDLFactory factory,
-            FolderOrGenreLogic folderOrGenreLogic) {
-        super();
+    public RandomSongByFolderGenreProc(SettingsService settingsService, SearchService searchService,
+            UpnpDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
+        super(settingsService, searchService, factory, folderOrGenreLogic);
         this.settingsService = settingsService;
         this.searchService = searchService;
         this.factory = factory;
@@ -60,11 +54,7 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
 
     @Override
     public ProcId getProcId() {
-        return ProcId.SONG_BY_FOLDER_GENRE;
-    }
-
-    protected Sort getSort() {
-        return Sort.of(settingsService.getUPnPSongGenreSort());
+        return ProcId.RANDOM_SONG_BY_FOLDER_GENRE;
     }
 
     @Override
@@ -73,26 +63,14 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
     }
 
     @Override
-    public List<FolderOrFGenre> getDirectChildren(long offset, long count) {
-        return deligate.getDirectChildren(offset, count, SCOPE, getSort(), TYPES);
-    }
-
-    @Override
-    public int getDirectChildrenCount() {
-        return deligate.getDirectChildrenCount(SCOPE, getSort(), TYPES);
-    }
-
-    @Override
-    public FolderOrFGenre getDirectChild(String id) {
-        return deligate.getDirectChild(id, SCOPE, getSort(), TYPES);
-    }
-
-    @Override
-    public List<FGenreOrSong> getChildren(FolderOrFGenre folderOrGenre, long offset, long count) {
+    public List<FGenreOrSong> getChildren(FolderOrFGenre folderOrGenre, long firstResult, long maxResults) {
+        int offset = (int) firstResult;
+        int max = getChildSizeOf(folderOrGenre);
+        int count = toCount(firstResult, maxResults, max);
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService.getSongsByGenres(genre.getName(), (int) offset, (int) count, asList(folder)).stream()
+            return searchService.getRandomSongs(count, offset, max, List.of(folder), genre.getName()).stream()
                     .map(FGenreOrSong::new).toList();
         }
         MusicFolder folder = folderOrGenre.getFolder();
@@ -103,7 +81,11 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
 
     @Override
     public int getChildSizeOf(FolderOrFGenre folderOrGenre) {
-        return deligate.getChildSizeOf(folderOrGenre, SCOPE, getSort(), TYPES);
+        int childSize = super.getChildSizeOf(folderOrGenre);
+        if (folderOrGenre.isFolderGenre()) {
+            return Math.min(childSize, settingsService.getDlnaRandomMax());
+        }
+        return childSize;
     }
 
     @Override
