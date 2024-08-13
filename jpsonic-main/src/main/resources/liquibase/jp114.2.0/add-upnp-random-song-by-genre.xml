@@ -1,0 +1,32 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="change-upnp-menu-item-order6" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <!-- See com.tesshu.jpsonic.domain.MenuItemId -->
+        <sql>update menu_item set menu_item_order = 85 where id = 81</sql>
+        <rollback />
+    </changeSet>
+    <changeSet id="add-upnp-random-song-by-genre" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 85</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="85" />
+            <column name="parent" valueNumeric="80" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="84" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 85</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

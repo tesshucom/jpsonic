@@ -290,9 +290,6 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
                                 [Album] [Song]
                             </c:when>
-                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
-                                [Random Album] [Song]
-                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
                                 [Random Song]
                             </c:when>
@@ -301,6 +298,12 @@
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST}">
                                 [Music Folder] [Artist] [Random Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_GENRE}">
+                                [Genre] [Random Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
+                                [Random Album] [Song]
                             </c:when>
                             <c:otherwise>
                             </c:otherwise>
