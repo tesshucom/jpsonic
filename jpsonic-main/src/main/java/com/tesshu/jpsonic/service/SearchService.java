@@ -87,6 +87,8 @@ public interface SearchService {
      * This method uses a very short-lived cache. This cache is not for long-running transactions like paging, but for
      * short-term repetitive calls.
      *
+     * @version 114.2.0
+     *
      * @since 106.1.0
      *
      * @param count
@@ -97,10 +99,13 @@ public interface SearchService {
      *            Data duplication due to paging is avoided when the cache is an iterative call within the valid period.
      * @param musicFolders
      *            Only return albums from these folders.
+     * @param genres
+     *            Genres
      *
      * @return List of random albums.
      */
-    List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
+    List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders,
+            String... genres);
 
     /**
      * Returns random songs. The song returned by this list is limited to MesiaType=SONG. In other words, PODCAST,

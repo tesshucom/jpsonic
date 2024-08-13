@@ -254,7 +254,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders,
+            String... genres) {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<Integer>> addSubToResult = (ids) -> ids.stream().skip(offset).limit(count)
@@ -269,7 +270,7 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        Query query = queryFactory.getRandomSongs(musicFolders);
+        Query query = queryFactory.getRandomSongs(musicFolders, genres);
 
         try {
 

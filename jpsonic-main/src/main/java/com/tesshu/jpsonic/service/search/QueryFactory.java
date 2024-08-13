@@ -231,17 +231,24 @@ public class QueryFactory {
     }
 
     /**
-     * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(int, int, int, List)}.
+     * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(int, int, int, List, String...)}.
      *
      * @param musicFolders
      *            musicFolders
      *
      * @return Query
      */
-    public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder()
+    public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders, String... genres) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
-                .add(createFolderQuery(false, musicFolders), Occur.MUST).build();
+                .add(createFolderQuery(false, musicFolders), Occur.MUST);
+        if (genres.length > 0) {
+            BooleanQuery.Builder genreQueryBuilder = new BooleanQuery.Builder();
+            Stream.of(genres).forEach(genre -> genreQueryBuilder
+                    .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD));
+            builder.add(genreQueryBuilder.build(), Occur.MUST);
+        }
+        return builder.build();
     }
 
     /**
