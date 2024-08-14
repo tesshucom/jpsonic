@@ -80,7 +80,7 @@ class RandomSongByFolderArtistProcTest {
 
         @Test
         void testGetProcId() {
-            assertEquals("randomSongByFolderArtist", proc.getProcId().getValue());
+            assertEquals("rsbfar", proc.getProcId().getValue());
         }
 
         @Test
@@ -90,7 +90,7 @@ class RandomSongByFolderArtistProcTest {
             artist.setId(id);
             artist.setName("artist");
             Mockito.when(artistDao.getArtist(id)).thenReturn(artist);
-            MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+            MusicFolder folder = new MusicFolder(99, "/Music", "Music", true, null, null, false);
             FolderOrFArtist folderOrArtist = new FolderOrFArtist(new FolderArtist(folder, artist));
 
             assertEquals(0, proc.getChildren(folderOrArtist, 0, 2).size());
@@ -110,7 +110,7 @@ class RandomSongByFolderArtistProcTest {
 
         @Test
         void testAddChild() {
-            MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+            MusicFolder folder = new MusicFolder(99, "/Music", "Music", true, null, null, false);
             Artist artist = new Artist();
             artist.setId(0);
             artist.setName("artist");

@@ -49,7 +49,7 @@ class RandomAlbumProcTest {
 
     @Test
     void testGetProcId() {
-        assertEquals("randomAlbum", proc.getProcId().getValue());
+        assertEquals("ral", proc.getProcId().getValue());
     }
 
     @Test

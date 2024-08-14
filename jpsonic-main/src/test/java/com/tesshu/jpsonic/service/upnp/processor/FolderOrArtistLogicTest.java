@@ -69,15 +69,15 @@ class FolderOrArtistLogicTest {
         Mockito.when(artistDao.getArtistsCount(anyList())).thenReturn(100);
         Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
         assertInstanceOf(StorageFolder.class, container);
-        assertEquals("randomSongByFolderArtist/99", container.getId());
-        assertEquals("randomSongByFolderArtist", container.getParentID());
+        assertEquals("rsbfar/99", container.getId());
+        assertEquals("rsbfar", container.getParentID());
         assertEquals("Music", container.getTitle());
         assertEquals(100, container.getChildCount());
     }
 
     @Test
     void testCreateContainerWithArtist() {
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        MusicFolder folder = new MusicFolder(99, "/Music", "Music", true, null, null, false);
         Artist artist = new Artist();
         FolderOrFArtist folderOrArtist = new FolderOrFArtist(new FolderArtist(folder, artist));
         artist.setId(999);
@@ -85,8 +85,8 @@ class FolderOrArtistLogicTest {
         artist.setAlbumCount(20);
         Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
         assertInstanceOf(MusicArtist.class, container);
-        assertEquals("randomSongByFolderArtist/far:99;999", container.getId());
-        assertEquals("randomSongByFolderArtist", container.getParentID());
+        assertEquals("rsbfar/far:99;999", container.getId());
+        assertEquals("rsbfar", container.getParentID());
         assertEquals("Artist", container.getTitle());
         assertEquals(20, container.getChildCount());
     }

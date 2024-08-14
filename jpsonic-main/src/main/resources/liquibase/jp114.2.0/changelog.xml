@@ -7,4 +7,5 @@
     <include file="add-upnp-album-by-folder.xml" relativeToChangelogFile="true"/>
     <include file="add-upnp-album-id3-by-folder-genre.xml" relativeToChangelogFile="true"/>
     <include file="add-upnp-audiobook-by-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-random-song-by-genre.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

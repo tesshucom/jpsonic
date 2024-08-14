@@ -24,12 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 class RandomSongProcTest {
@@ -48,7 +50,7 @@ class RandomSongProcTest {
 
     @Test
     void testGetProcId() {
-        assertEquals("randomSong", proc.getProcId().getValue());
+        assertEquals("rs", proc.getProcId().getValue());
     }
 
     @Test
@@ -57,14 +59,14 @@ class RandomSongProcTest {
         assertEquals(0, result.getCount().getValue());
         Mockito.verify(settingsService, Mockito.times(2)).getDlnaRandomMax();
         Mockito.verify(searchService, Mockito.times(1)).getRandomSongs(Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyList());
+                Mockito.anyInt(), ArgumentMatchers.<MusicFolder> anyList());
     }
 
     @Test
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, 100).size());
         Mockito.verify(searchService, Mockito.times(1)).getRandomSongs(Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyList());
+                Mockito.anyInt(), ArgumentMatchers.<MusicFolder> anyList());
     }
 
     @Test

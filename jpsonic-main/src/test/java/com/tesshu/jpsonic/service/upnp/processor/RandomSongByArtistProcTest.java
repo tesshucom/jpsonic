@@ -86,7 +86,7 @@ class RandomSongByArtistProcTest {
 
         @Test
         void testGetProcId() {
-            assertEquals("randomSongByArtist", proc.getProcId().getValue());
+            assertEquals("rsbar", proc.getProcId().getValue());
         }
 
         @Test
@@ -96,8 +96,8 @@ class RandomSongByArtistProcTest {
             artist.setAlbumCount(50);
             Container container = proc.createContainer(artist);
             assertInstanceOf(MusicArtist.class, container);
-            assertEquals("randomSongByArtist/0", container.getId());
-            assertEquals("randomSongByArtist", container.getParentID());
+            assertEquals("rsbar/0", container.getId());
+            assertEquals("rsbar", container.getParentID());
             assertEquals("artistName", container.getTitle());
             assertEquals(50, container.getChildCount());
         }
