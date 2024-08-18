@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:21-jdk-noble
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -31,7 +31,7 @@ WORKDIR $JPSONIC_DIR
 
 COPY local.conf /etc/fonts
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get -q install -y --no-install-recommends \
     software-properties-common \
     gosu \
     tini \
