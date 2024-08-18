@@ -287,6 +287,230 @@ jobs:
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:ea .
   ##########################################################################
+  ship-docker-image-ubi9:
+    name: Docker(ubi9-amd)
+    needs: ship-war
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Get current date
+        id: date
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
+      - name: Create Tag
+        run: |
+          echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Copy artifact
+        run: |
+          mkdir -p install/docker/ubi9/target/dependency
+          mv jpsonic.war install/docker/ubi9/target/dependency
+      - name: Release with Version Tag
+        if: "(github.ref == 'refs/heads/master')"
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/ubi9
+            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-ubi9 package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-ubi9 .
+            mvn -DdockerTag=${DOCKER_TAG%.*}-ubi9 package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-ubi9 .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-ubi9 package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-ubi9 .
+          fi
+      - name: Release with Latest Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/ubi9
+            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-ubi9 package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest-ubi9 .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/ubi9
+            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-ubi9 package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-ubi9 .
+          fi
+      - name: Release with Early-Access Tag
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
+        run: |
+          cd install/docker/ubi9
+          mvn -DdockerTag=ea-ubi9 package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:ea-ubi9 .
+  ##########################################################################
+  ship-docker-image-noble:
+    name: Docker(noble-amd,arm)
+    needs: ship-war
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Get current date
+        id: date
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
+      - name: Create Tag
+        run: |
+          echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Copy artifact
+        run: |
+          mkdir -p install/docker/noble/target/dependency
+          mv jpsonic.war install/docker/noble/target/dependency
+      - name: Release with Version Tag
+        if: "(github.ref == 'refs/heads/master')"
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble .
+            mvn -DdockerTag=${DOCKER_TAG%.*}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-noble .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-noble .
+          fi
+      - name: Release with Latest Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest-noble .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble .
+          fi
+      - name: Release with Early-Access Tag
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
+        run: |
+          cd install/docker/noble
+          mvn -DdockerTag=ea-noble package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:ea-noble .
+  ##########################################################################
+  ship-docker-image-noble-v7:
+    name: Docker(noble-arm/v7)
+    needs: ship-war
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Get current date
+        id: date
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
+      - name: Create Tag
+        run: |
+          echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Copy artifact
+        run: |
+          mkdir -p install/docker/noble/target/dependency
+          mv jpsonic.war install/docker/noble/target/dependency
+      - name: Release with Version Tag
+        if: "(github.ref == 'refs/heads/master')"
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
+            mvn -DdockerTag=${DOCKER_TAG%.*}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-noble-v7 .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-noble-v7 .
+          fi
+      - name: Release with Latest Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-noble-v7 .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/noble
+            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-noble package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
+          fi
+  ##########################################################################
   ship-docker-image-jammy:
     name: Docker(jammy-amd,arm)
     needs: ship-war
@@ -434,91 +658,14 @@ jobs:
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
           fi
   ##########################################################################
-  ship-docker-image-ubi9:
-    name: Docker(ubi9-amd)
-    needs: ship-war
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 21
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
-      - name: Get current date
-        id: date
-        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      - name: Download package
-        uses: actions/download-artifact@v4
-        with:
-          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
-      - name: Create Tag
-        run: |
-          echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-      - name: Copy artifact
-        run: |
-          mkdir -p install/docker/ubi9/target/dependency
-          mv jpsonic.war install/docker/ubi9/target/dependency
-      - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master')"
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=${{ env.DOCKER_TAG }}-ubi9 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-ubi9 .
-            mvn -DdockerTag=${DOCKER_TAG%.*}-ubi9 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-ubi9 .
-            mvn -DdockerTag=${DOCKER_TAG%.*.*}-ubi9 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-ubi9 .
-          fi
-      - name: Release with Latest Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-ubi9 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest-ubi9 .
-          fi
-      - name: Release with Alpha/Beta Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-ubi9 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-ubi9 .
-          fi
-      - name: Release with Early-Access Tag
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
-        run: |
-          cd install/docker/ubi9
-          mvn -DdockerTag=ea-ubi9 package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:ea-ubi9 .
-  ##########################################################################
   run-docker4latest:
     name: Run ${{ matrix.tag }}
-    needs: [ ship-docker-image, ship-docker-image-jammy, ship-docker-image-jammy-v7, ship-docker-image-ubi9 ]
+    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7, ship-docker-image-jammy, ship-docker-image-jammy-v7 ]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: [ latest, latest-jammy ]
+        tag: [ latest, latest-ubi9, latest-noble, latest-jammy ]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -530,25 +677,25 @@ jobs:
       - name: Boot test for ea (Within 30 sec)
         run: |
           mkdir -p /tmp/${{ matrix.tag }}
-          cp install/docker/production.windows.yml /tmp/${{ matrix.tag }}
+          cp install/docker/production.synology.yml /tmp/${{ matrix.tag }}
           cd /tmp/${{ matrix.tag }}
           mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
-          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.windows.yml
-          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.windows.yml
-          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
-          cat production.windows.yml
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.synology.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.synology.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.synology.yml
+          cat production.synology.yml
           set -x
-          docker compose -f production.windows.yml up -d
-          for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
+          docker compose -f production.synology.yml up -d
+          for i in {1..30};do sleep 1;curl http://localhost:4040/rest/ping&&break;done
   ##########################################################################
   run-docker4ea:
     name: Run ${{ matrix.tag }}
-    needs: [ ship-docker-image, ship-docker-image-jammy, ship-docker-image-jammy-v7, ship-docker-image-ubi9 ]
+    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7, ship-docker-image-jammy, ship-docker-image-jammy-v7 ]
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: [ ea, ea-jammy ]
+        tag: [ ea, ea-ubi9, ea-noble, ea-jammy ]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -560,13 +707,13 @@ jobs:
       - name: Boot test for ea (Within 30 sec)
         run: |
           mkdir -p /tmp/${{ matrix.tag }}
-          cp install/docker/production.windows.yml /tmp/${{ matrix.tag }}
+          cp install/docker/production.synology.yml /tmp/${{ matrix.tag }}
           cd /tmp/${{ matrix.tag }}
           mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
-          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.windows.yml
-          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.windows.yml
-          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
-          cat production.windows.yml
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.synology.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.synology.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.synology.yml
+          cat production.synology.yml
           set -x
-          docker compose -f production.windows.yml up -d
-          for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
+          docker compose -f production.synology.yml up -d
+          for i in {1..30};do sleep 1;curl http://localhost:4040/rest/ping&&break;done
