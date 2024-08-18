@@ -31,7 +31,7 @@ WORKDIR $JPSONIC_DIR
 
 COPY local.conf /etc/fonts
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     gosu \
     tini \
