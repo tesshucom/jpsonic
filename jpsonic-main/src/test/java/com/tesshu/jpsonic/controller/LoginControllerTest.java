@@ -86,7 +86,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -228,18 +227,17 @@ class LoginControllerTest {
             assertEquals(WebAsyncManagerIntegrationFilter.class, filters.get(1).getClass());
             assertEquals(SecurityContextHolderFilter.class, filters.get(2).getClass());
             assertEquals(HeaderWriterFilter.class, filters.get(3).getClass());
-            assertEquals(CorsFilter.class, filters.get(4).getClass());
-            assertEquals(CsrfFilter.class, filters.get(5).getClass());
-            assertEquals(LogoutFilter.class, filters.get(6).getClass());
-            assertEquals(RESTRequestParameterProcessingFilter.class, filters.get(7).getClass());
-            assertEquals(UsernamePasswordAuthenticationFilter.class, filters.get(8).getClass());
-            assertEquals(RequestCacheAwareFilter.class, filters.get(9).getClass());
-            assertEquals(SecurityContextHolderAwareRequestFilter.class, filters.get(10).getClass());
-            assertEquals(RememberMeAuthenticationFilter.class, filters.get(11).getClass());
-            assertEquals(AnonymousAuthenticationFilter.class, filters.get(12).getClass());
-            assertEquals(ExceptionTranslationFilter.class, filters.get(13).getClass());
-            assertEquals(AuthorizationFilter.class, filters.get(14).getClass());
-            assertEquals(15, filters.size());
+            assertEquals(CsrfFilter.class, filters.get(4).getClass());
+            assertEquals(LogoutFilter.class, filters.get(5).getClass());
+            assertEquals(RESTRequestParameterProcessingFilter.class, filters.get(6).getClass());
+            assertEquals(UsernamePasswordAuthenticationFilter.class, filters.get(7).getClass());
+            assertEquals(RequestCacheAwareFilter.class, filters.get(8).getClass());
+            assertEquals(SecurityContextHolderAwareRequestFilter.class, filters.get(9).getClass());
+            assertEquals(RememberMeAuthenticationFilter.class, filters.get(10).getClass());
+            assertEquals(AnonymousAuthenticationFilter.class, filters.get(11).getClass());
+            assertEquals(ExceptionTranslationFilter.class, filters.get(12).getClass());
+            assertEquals(AuthorizationFilter.class, filters.get(13).getClass());
+            assertEquals(14, filters.size());
         }
 
         @Test
