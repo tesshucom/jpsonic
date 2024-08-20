@@ -52,7 +52,7 @@
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
-    <versions.jakarta.servlet.jsp.jstl-api>3.0.0</versions.jakarta.servlet.jsp.jstl-api>
+    <versions.jakarta.servlet.jsp.jstl-api>3.0.1</versions.jakarta.servlet.jsp.jstl-api>
     <versions.jaudiotagger>3.0.1</versions.jaudiotagger>
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
@@ -69,7 +69,7 @@
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.6</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
-    <versions.maven-artifact>3.9.8</versions.maven-artifact>
+    <versions.maven-artifact>3.9.9</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.4</versions.moxy>
     <versions.mysql-connector-j>9.0.0</versions.mysql-connector-j>
@@ -81,7 +81,7 @@
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.3.2</versions.spring-boot>
     <versions.spring-security>6.3.1</versions.spring-security>
-    <versions.spring-web>6.1.11</versions.spring-web>
+    <versions.spring-web>6.1.12</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
