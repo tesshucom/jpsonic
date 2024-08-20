@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>114.1.8</version>
+    <version>114.1.9</version>
   </parent>
   <artifactId>airsonic-taglibs</artifactId>
   <name>Airsonic Tag Libs</name>
