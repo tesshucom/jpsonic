@@ -52,7 +52,7 @@
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
-    <versions.jakarta.servlet.jsp.jstl-api>3.0.0</versions.jakarta.servlet.jsp.jstl-api>
+    <versions.jakarta.servlet.jsp.jstl-api>3.0.1</versions.jakarta.servlet.jsp.jstl-api>
     <versions.jaudiotagger>3.0.1</versions.jaudiotagger>
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
