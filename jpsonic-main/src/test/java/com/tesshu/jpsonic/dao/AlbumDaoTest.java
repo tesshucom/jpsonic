@@ -147,7 +147,7 @@ class AlbumDaoTest {
     }
 
     /*
-     * Confirm (bug) that Starred Albums are deleted when the scan ignoring timestamps.
+     * Make sure that scanning ignoring timestamps will not delete starred albums.
      */
     @Nested
     class StarredPersistenceTest extends AbstractNeedsScan {
@@ -209,9 +209,11 @@ class AlbumDaoTest {
             settingsService.save();
             TestCaseUtils.execScan(mediaScannerService);
 
-            // Starred will be deleted (this is not the intended behavior)
+            // The result remains the same
             starred = albumDao.getStarredAlbums(0, Integer.MAX_VALUE, ADMIN_NAME, folders);
-            assertEquals(0, starred.size());
+            assertEquals(2, starred.size());
+            assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", starred.get(0).getName());
+            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.get(1).getName());
         }
     }
 

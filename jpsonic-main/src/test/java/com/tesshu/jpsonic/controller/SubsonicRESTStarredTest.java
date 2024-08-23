@@ -426,6 +426,36 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         Starred2 starred2 = response.getStarred2();
         assertNotNull(starred2);
         assertEquals(0, starred2.getArtist().size()); // TODO This is a case that has not yet been fixed.
-        assertEquals(0, starred2.getAlbum().size()); // TODO This is a case that has not yet been fixed.
+        assertEquals(1, starred2.getAlbum().size());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred2.getAlbum().get(0).getName());
+        assertEquals(0, starred2.getSong().size());
+
+        // unstar
+        mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                // .param("artistId", Integer.toString(artists.get(0).getId()))
+                .param("albumId", Integer.toString(albums.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+
+        result = mvc
+                .perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
+                        .param(Attributes.Request.C.value(), CLIENT_NAME)
+                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                        .param(Attributes.Request.P.value(), ADMIN_PASS)
+                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+
+        response = readResponse(result.getResponse().getContentAsString());
+        starred2 = response.getStarred2();
+        assertNotNull(starred2);
+        assertEquals(0, starred2.getArtist().size());
+        assertEquals(0, starred2.getAlbum().size());
+        assertEquals(0, starred2.getSong().size());
     }
 }

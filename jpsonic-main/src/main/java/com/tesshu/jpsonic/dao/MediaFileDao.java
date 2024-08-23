@@ -526,6 +526,15 @@ public class MediaFileDao {
                 """, childrenLastUpdated, true, album.getArtist(), album.getName(), FAR_FUTURE, album.getPath());
     }
 
+    public void resetAlbumChildrenLastUpdated() {
+        template.update("""
+                update media_file
+                set children_last_updated = ?
+                where type in (?, ?, ?) and present
+                """, FAR_FUTURE, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
+                MediaFile.MediaType.VIDEO.name());
+    }
+
     public int updateOrder(int id, int order) {
         return template.update("""
                 update media_file
