@@ -32,7 +32,7 @@
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.46.0</versions.checker-qual>
-    <versions.checkstyle>10.17.0</versions.checkstyle>
+    <versions.checkstyle>10.18.0</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
@@ -52,14 +52,14 @@
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
-    <versions.jakarta.servlet.jsp.jstl-api>3.0.1</versions.jakarta.servlet.jsp.jstl-api>
+    <versions.jakarta.servlet.jsp.jstl-api>3.0.2</versions.jakarta.servlet.jsp.jstl-api>
     <versions.jaudiotagger>3.0.1</versions.jaudiotagger>
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
     <versions.jetty>12.0.12</versions.jetty>
     <versions.jfreechart>1.5.5</versions.jfreechart>
-    <versions.junit-jupiter-api>5.10.3</versions.junit-jupiter-api>
+    <versions.junit-jupiter-api>5.11.0</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
@@ -70,13 +70,13 @@
     <versions.logback>1.5.7</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
-    <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
+    <versions.mockito-junit-jupiter>5.13.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.4</versions.moxy>
     <versions.mysql-connector-j>9.0.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
-    <versions.postgresql>42.7.3</versions.postgresql>
+    <versions.postgresql>42.7.4</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.3.3</versions.spring-boot>
