@@ -67,7 +67,7 @@
     <versions.liquibase-core>4.29.1</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
-    <versions.logback>1.5.6</versions.logback>
+    <versions.logback>1.5.7</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.12.0</versions.mockito-junit-jupiter>
@@ -79,8 +79,8 @@
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
-    <versions.spring-boot>3.3.2</versions.spring-boot>
-    <versions.spring-security>6.3.2</versions.spring-security>
+    <versions.spring-boot>3.3.3</versions.spring-boot>
+    <versions.spring-security>6.3.3</versions.spring-security>
     <versions.spring-web>6.1.12</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
