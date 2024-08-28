@@ -570,6 +570,7 @@
           <printFailingErrors>true</printFailingErrors>
           <includeTests>true</includeTests>
           <verbose>false</verbose>
+          <renderSuppressedViolations>false</renderSuppressedViolations>
           <compileSourceRoots>
             <compileSourceRoot>${basedir}/src/main/java</compileSourceRoot>
             <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
