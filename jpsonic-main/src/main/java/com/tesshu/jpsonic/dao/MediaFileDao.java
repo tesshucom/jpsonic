@@ -70,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class MediaFileDao {
 
-    public static final int VERSION = 14;
+    public static final int VERSION = 15;
 
     private static final String INSERT_COLUMNS = DaoUtils.getInsertColumns(MediaFile.class);
     private static final String QUERY_COLUMNS = DaoUtils.getQueryColumns(MediaFile.class);
