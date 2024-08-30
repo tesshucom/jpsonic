@@ -213,7 +213,6 @@ public class ScannerProcedureService {
         if (settingsService.isIgnoreFileTimestamps()) {
             mediaFileDao.resetLastScanned(null);
             artistDao.deleteAll();
-            albumDao.deleteAll();
             indexManager.deleteAll();
         }
 
@@ -606,6 +605,11 @@ public class ScannerProcedureService {
         }
         boolean withPodcast = isPodcastInMusicFolders();
         iterateAlbumId3(scanDate, withPodcast);
+
+        if (settingsService.isIgnoreFileTimestamps()) {
+            mediaFileDao.resetAlbumChildrenLastUpdated();
+        }
+
         int countUpdate = updateAlbumId3s(scanDate, withPodcast);
         int countNew = createAlbumId3s(scanDate, withPodcast);
         String comment = "Update(%d)/New(%d)".formatted(countUpdate, countNew);

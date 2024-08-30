@@ -107,7 +107,7 @@ public class IndexManager implements ReadWriteLockSupport {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 27;
+    private static final int INDEX_VERSION = 28;
 
     /**
      * Literal name of index top directory.

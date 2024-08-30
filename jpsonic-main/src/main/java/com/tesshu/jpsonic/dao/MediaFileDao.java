@@ -70,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class MediaFileDao {
 
-    public static final int VERSION = 14;
+    public static final int VERSION = 15;
 
     private static final String INSERT_COLUMNS = DaoUtils.getInsertColumns(MediaFile.class);
     private static final String QUERY_COLUMNS = DaoUtils.getQueryColumns(MediaFile.class);
@@ -524,6 +524,15 @@ public class MediaFileDao {
                 set children_last_updated = ?, present=?
                 where album_artist = ? and album = ? and children_last_updated = ? and path <> ?
                 """, childrenLastUpdated, true, album.getArtist(), album.getName(), FAR_FUTURE, album.getPath());
+    }
+
+    public void resetAlbumChildrenLastUpdated() {
+        template.update("""
+                update media_file
+                set children_last_updated = ?
+                where type in (?, ?, ?) and present
+                """, FAR_FUTURE, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
+                MediaFile.MediaType.VIDEO.name());
     }
 
     public int updateOrder(int id, int order) {
