@@ -32,14 +32,14 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, AlbumOrSong> {
+public class AlbumId3ByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, AlbumOrSong> {
 
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
     private final UpnpDIDLFactory factory;
     private final FolderOrAlbumLogic deligate;
 
-    public AlbumByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao, UpnpDIDLFactory factory,
+    public AlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao, UpnpDIDLFactory factory,
             FolderOrAlbumLogic folderOrAlbumLogic) {
         super();
         this.mediaFileService = mediaFileService;
@@ -50,7 +50,7 @@ public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum,
 
     @Override
     public ProcId getProcId() {
-        return ProcId.ALBUM_BY_FOLDER;
+        return ProcId.ALBUM_ID3_BY_FOLDER;
     }
 
     @Override

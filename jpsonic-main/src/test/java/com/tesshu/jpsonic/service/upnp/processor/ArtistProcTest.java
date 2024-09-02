@@ -57,8 +57,8 @@ class ArtistProcTest extends AbstractNeedsScan {
     private ArtistProc proc;
 
     @Autowired()
-    @Qualifier("albumProc")
-    private AlbumProc albumProc;
+    @Qualifier("albumId3Proc")
+    private AlbumId3Proc albumId3Proc;
 
     @Autowired
     private SettingsService settingsService;
@@ -209,7 +209,7 @@ class ArtistProcTest extends AbstractNeedsScan {
             Album album = albums.get(0);
             assertEquals("AlBum!", album.getName()); // the case where album name is different between file and id3
 
-            List<MediaFile> songs = albumProc.getChildren(album, 0, Integer.MAX_VALUE);
+            List<MediaFile> songs = albumId3Proc.getChildren(album, 0, Integer.MAX_VALUE);
             assertEquals(1, songs.size());
 
             MediaFile song = songs.get(0);

@@ -52,11 +52,11 @@ import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
-class AlbumByFolderProcTest {
+class AlbumId3ByFolderProcTest {
 
     private MediaFileService mediaFileService;
     private AlbumDao albumDao;
-    private AlbumByFolderProc proc;
+    private AlbumId3ByFolderProc proc;
 
     @BeforeEach
     public void setup() {
@@ -74,12 +74,12 @@ class AlbumByFolderProcTest {
         UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
         FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
-        proc = new AlbumByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
+        proc = new AlbumId3ByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
     }
 
     @Test
     void testGetProcId() {
-        assertEquals("albumByFolder", proc.getProcId().getValue());
+        assertEquals("alid3bf", proc.getProcId().getValue());
     }
 
     @Test

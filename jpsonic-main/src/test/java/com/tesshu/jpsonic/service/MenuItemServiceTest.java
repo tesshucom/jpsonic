@@ -126,8 +126,8 @@ class MenuItemServiceTest {
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
         assertEquals(2, menuItems.size());
-        assertEquals("Simple List", menuItems.get(0).getName());
-        assertEquals("By Folder", menuItems.get(1).getName());
+        assertEquals("Simple List(ID3)", menuItems.get(0).getName());
+        assertEquals("By Folder(ID3)", menuItems.get(1).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());

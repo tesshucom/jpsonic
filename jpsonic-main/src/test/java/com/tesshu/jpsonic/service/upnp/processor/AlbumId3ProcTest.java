@@ -51,7 +51,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SpringBootTest
-class AlbumProcTest extends AbstractNeedsScan {
+class AlbumId3ProcTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
             new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
@@ -60,8 +60,8 @@ class AlbumProcTest extends AbstractNeedsScan {
     private SettingsService settingsService;
 
     @Autowired
-    @Qualifier("albumProc")
-    private AlbumProc proc;
+    @Qualifier("albumId3Proc")
+    private AlbumId3Proc proc;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -79,7 +79,7 @@ class AlbumProcTest extends AbstractNeedsScan {
 
     @Test
     void testGetProcId() {
-        assertEquals("album", proc.getProcId().getValue());
+        assertEquals("alid3", proc.getProcId().getValue());
     }
 
     @Test
@@ -88,7 +88,7 @@ class AlbumProcTest extends AbstractNeedsScan {
         Container container = proc.createContainer(album);
         assertInstanceOf(MusicAlbum.class, container);
         // assertEquals("album/0", container.getId()); (Nonconforming test case)
-        assertEquals("album", container.getParentID());
+        assertEquals("alid3", container.getParentID());
         assertEquals("10", container.getTitle());
         assertEquals(31, container.getChildCount());
     }
@@ -211,7 +211,7 @@ class AlbumProcTest extends AbstractNeedsScan {
                 """));
         // ... id="album/***"
         assertTrue(browseResult.getResult().contains("""
-                parentID="album" restricted="1" searchable="0">\
+                parentID="alid3" restricted="1" searchable="0">\
                 <dc:title>10</dc:title>\
                 <upnp:class>object.container.album.musicAlbum</upnp:class>\
                 <upnp:albumArtURI>\

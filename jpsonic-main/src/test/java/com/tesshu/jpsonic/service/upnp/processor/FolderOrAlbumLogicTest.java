@@ -81,10 +81,10 @@ class FolderOrAlbumLogicTest {
         MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
         Mockito.when(albumDao.getAlbumCount(anyList())).thenReturn(100);
-        Container container = logic.createContainer(ProcId.ALBUM_BY_FOLDER, folderOrAlbum);
+        Container container = logic.createContainer(ProcId.ALBUM_ID3_BY_FOLDER, folderOrAlbum);
         assertInstanceOf(StorageFolder.class, container);
-        assertEquals("albumByFolder/99", container.getId());
-        assertEquals("albumByFolder", container.getParentID());
+        assertEquals("alid3bf/99", container.getId());
+        assertEquals("alid3bf", container.getParentID());
         assertEquals("Music", container.getTitle());
         assertEquals(100, container.getChildCount());
     }
@@ -97,10 +97,10 @@ class FolderOrAlbumLogicTest {
         album.setSongCount(20);
         MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
-        Container container = logic.createContainer(ProcId.ALBUM_BY_FOLDER, folderOrAlbum);
+        Container container = logic.createContainer(ProcId.ALBUM_ID3_BY_FOLDER, folderOrAlbum);
         assertInstanceOf(MusicAlbum.class, container);
-        assertEquals("albumByFolder/fal:99;999", container.getId());
-        assertEquals("albumByFolder", container.getParentID());
+        assertEquals("alid3bf/fal:99;999", container.getId());
+        assertEquals("alid3bf", container.getParentID());
         assertEquals("Album", container.getTitle());
         assertEquals(20, container.getChildCount());
     }

@@ -34,14 +34,14 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumProc extends DirectChildrenContentProc<Album, MediaFile> {
+public class AlbumId3Proc extends DirectChildrenContentProc<Album, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
 
-    public AlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
+    public AlbumId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
             AlbumDao albumDao) {
         super();
         this.util = util;
@@ -52,7 +52,7 @@ public class AlbumProc extends DirectChildrenContentProc<Album, MediaFile> {
 
     @Override
     public ProcId getProcId() {
-        return ProcId.ALBUM;
+        return ProcId.ALBUM_ID3;
     }
 
     @Override

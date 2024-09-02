@@ -28,8 +28,8 @@ import com.tesshu.jpsonic.domain.MenuItemId;
  */
 public enum ProcId {
 
-    ROOT("0"), PLAYLIST("playlist"), MEDIA_FILE("mediaFile"), MEDIA_FILE_BY_FOLDER("folder"), ALBUM("album"),
-    ALBUM_BY_FOLDER("albumByFolder"), ARTIST("artist"), ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"),
+    ROOT("0"), PLAYLIST("playlist"), MEDIA_FILE("mediaFile"), MEDIA_FILE_BY_FOLDER("folder"), ALBUM_ID3("alid3"),
+    ALBUM_ID3_BY_FOLDER("alid3bf"), ARTIST("artist"), ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"),
     ALBUM_ID3_BY_GENRE("aibg"), ALBUM_ID3_BY_FOLDER_GENRE("aibfg"), SONG_BY_GENRE("sbg"), SONG_BY_FOLDER_GENRE("sbfg"),
     AUDIOBOOK_BY_GENRE("abbg"), RECENT("recent"), RECENT_ID3("recentId3"), INDEX("index"), INDEX_ID3("indexId3"),
     PODCAST("podcast"), RANDOM_ALBUM("ral"), RANDOM_SONG("rs"), RANDOM_SONG_BY_ARTIST("rsbar"),
@@ -62,8 +62,8 @@ public enum ProcId {
         case INDEX_ID3 -> INDEX_ID3;
         case ALBUM_ARTIST -> ARTIST;
         case ALBUM_ARTIST_BY_FOLDER -> ARTIST_BY_FOLDER;
-        case ALBUM_ID3 -> ALBUM;
-        case ALBUM_ID3_BY_FOLDER -> ALBUM_BY_FOLDER;
+        case ALBUM_ID3 -> ALBUM_ID3;
+        case ALBUM_ID3_BY_FOLDER -> ALBUM_ID3_BY_FOLDER;
         case ALBUM_ID3_BY_GENRE -> ALBUM_ID3_BY_GENRE;
         case ALBUM_ID3_BY_FOLDER_GENRE -> ALBUM_ID3_BY_FOLDER_GENRE;
         case SONG_BY_GENRE -> SONG_BY_GENRE;
