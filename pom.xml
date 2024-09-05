@@ -637,7 +637,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.2.1</version>
         </plugin>
         <plugin>
           <groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -735,7 +735,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.2</version>
+          <version>4.8.6.3</version>
           <configuration>
             <plugins>
               <plugin>
@@ -756,7 +756,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>10.0.3</version>
+          <version>10.0.4</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
