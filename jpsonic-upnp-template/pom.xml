@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>114.1.9</version>
+    <version>114.1.10</version>
   </parent>
   <artifactId>jpsonic-upnp-template</artifactId>
   <name>Upnp Template</name>
