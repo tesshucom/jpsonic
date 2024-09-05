@@ -66,6 +66,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final AlbumByGenreProc albumByGenreProc;
     private final AlbumId3ByGenreProc albumId3ByGenreProc;
     private final AlbumProc albumProc;
+    private final AlbumByFolderProc albumByFolderProc;
     private final AlbumId3ByFolderGenreProc albumId3ByFolderGenreProc;
     private final SongByGenreProc songByGenreProc;
     private final SongByFolderGenreProc songByFolderGenreProc;
@@ -86,11 +87,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
-            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc albfp,
-            @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc alid3bfp,
+            @Lazy AlbumProc alp, @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
-            @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp, @Lazy AlbumProc alp,
+            @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
             @Lazy @Qualifier("albumId3ByFolderGenreProc") AlbumId3ByFolderGenreProc aibfgp,
             @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp,
             @Lazy @Qualifier("songByFolderGenreProc") SongByFolderGenreProc sbfgp, @Lazy AudiobookByGenreProc abbgp,
@@ -107,14 +108,15 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         mediaFileByFolderProc = mfbfp;
         playlistProc = playp;
         albumId3Proc = aid3p;
-        albumId3ByFolderProc = albfp;
+        albumId3ByFolderProc = alid3bfp;
+        albumProc = alp;
+        albumByFolderProc = albfp;
         recentAlbumProc = rap;
         recentAlbumId3Proc = raip;
         artistProc = arP;
         artistByFolderProc = abfP;
         albumByGenreProc = abgp;
         albumId3ByGenreProc = aibgp;
-        albumProc = alp;
         albumId3ByFolderGenreProc = aibfgp;
         songByGenreProc = sbgp;
         songByFolderGenreProc = sbfgp;
@@ -143,6 +145,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
         case ALBUM_ID3 -> albumId3Proc;
         case ALBUM_ID3_BY_FOLDER -> albumId3ByFolderProc;
+        case ALBUM -> albumProc;
+        case ALBUM_BY_FOLDER -> albumByFolderProc;
         case RECENT -> recentAlbumProc;
         case RECENT_ID3 -> recentAlbumId3Proc;
         case ARTIST -> artistProc;
@@ -150,7 +154,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case ALBUM_BY_GENRE -> albumByGenreProc;
         case ALBUM_ID3_BY_GENRE -> albumId3ByGenreProc;
         case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
-        case ALBUM -> albumProc;
         case SONG_BY_GENRE -> songByGenreProc;
         case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
         case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;
