@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -138,9 +139,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getAlbumName());
         assertEquals("Complete Piano Works", albums.get(3).getAlbumName());
 
-        List<MediaFile> songs = mediaFileDao.getSongsByArtist(artists.get(0).getArtist(), 0, 1);
-        assertEquals(1, songs.size());
-        assertEquals("01 - Gaspard de la Nuit - i. Ondine", songs.get(0).getTitle());
+        List<MediaFile> songs = mediaFileDao.getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                ChildOrder.BY_ALPHA);
+        assertEquals(2, songs.size());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", songs.get(0).getTitle());
 
         // star
         mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
@@ -173,7 +175,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(1, starred.getAlbum().size());
         assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.getAlbum().get(0).getAlbum());
         assertEquals(1, starred.getSong().size());
-        assertEquals("01 - Gaspard de la Nuit - i. Ondine", starred.getSong().get(0).getTitle());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", starred.getSong().get(0).getTitle());
 
         // unstar
         mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
@@ -223,9 +225,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getAlbumName());
         assertEquals("Complete Piano Works", albums.get(3).getAlbumName());
 
-        List<MediaFile> songs = mediaFileDao.getSongsByArtist(artists.get(0).getArtist(), 0, 1);
-        assertEquals(1, songs.size());
-        assertEquals("01 - Gaspard de la Nuit - i. Ondine", songs.get(0).getTitle());
+        List<MediaFile> songs = mediaFileDao.getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                ChildOrder.BY_ALPHA);
+        assertEquals(2, songs.size());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", songs.get(0).getTitle());
 
         // star
         mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
@@ -263,7 +266,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(1, starred.getAlbum().size());
         assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.getAlbum().get(0).getAlbum());
         assertEquals(1, starred.getSong().size());
-        assertEquals("01 - Gaspard de la Nuit - i. Ondine", starred.getSong().get(0).getTitle());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", starred.getSong().get(0).getTitle());
 
         // unstar
         mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
