@@ -570,6 +570,7 @@
           <printFailingErrors>true</printFailingErrors>
           <includeTests>true</includeTests>
           <verbose>false</verbose>
+          <renderSuppressedViolations>false</renderSuppressedViolations>
           <compileSourceRoots>
             <compileSourceRoot>${basedir}/src/main/java</compileSourceRoot>
             <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
@@ -590,7 +591,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.3.2</version>
+        <version>3.3.3</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>
@@ -716,7 +717,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
       </plugin>
     </plugins>
   </reporting>
