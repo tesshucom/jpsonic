@@ -27,12 +27,12 @@
     <project.inceptionYear>2018</project.inceptionYear>
     <versions.HikariCP>5.1.0</versions.HikariCP>
 
-    <versions.ant>1.10.14</versions.ant>
+    <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.46.0</versions.checker-qual>
-    <versions.checkstyle>10.18.0</versions.checkstyle>
+    <versions.checker-qual>3.47.0</versions.checker-qual>
+    <versions.checkstyle>10.18.1</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
@@ -40,7 +40,7 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.16.1</versions.commons-io>
     <versions.commons-lang>2.6</versions.commons-lang>
-    <versions.commons-lang3>3.14.0</versions.commons-lang3>
+    <versions.commons-lang3>3.17.0</versions.commons-lang3>
     <versions.commons-net>3.11.1</versions.commons-net>
     <versions.commons-text>1.12.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
@@ -64,7 +64,7 @@
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
-    <versions.liquibase-core>4.29.1</versions.liquibase-core>
+    <versions.liquibase-core>4.29.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.7</versions.logback>
