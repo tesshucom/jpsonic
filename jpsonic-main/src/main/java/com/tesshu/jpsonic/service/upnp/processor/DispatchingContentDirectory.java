@@ -65,6 +65,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final ArtistByFolderProc artistByFolderProc;
     private final AlbumByGenreProc albumByGenreProc;
     private final AlbumId3ByGenreProc albumId3ByGenreProc;
+    private final AlbumProc albumProc;
     private final AlbumId3ByFolderGenreProc albumId3ByFolderGenreProc;
     private final SongByGenreProc songByGenreProc;
     private final SongByFolderGenreProc songByFolderGenreProc;
@@ -89,7 +90,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
-            @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
+            @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp, @Lazy AlbumProc alp,
             @Lazy @Qualifier("albumId3ByFolderGenreProc") AlbumId3ByFolderGenreProc aibfgp,
             @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp,
             @Lazy @Qualifier("songByFolderGenreProc") SongByFolderGenreProc sbfgp, @Lazy AudiobookByGenreProc abbgp,
@@ -113,6 +114,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         artistByFolderProc = abfP;
         albumByGenreProc = abgp;
         albumId3ByGenreProc = aibgp;
+        albumProc = alp;
         albumId3ByFolderGenreProc = aibfgp;
         songByGenreProc = sbgp;
         songByFolderGenreProc = sbfgp;
@@ -148,6 +150,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case ALBUM_BY_GENRE -> albumByGenreProc;
         case ALBUM_ID3_BY_GENRE -> albumId3ByGenreProc;
         case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
+        case ALBUM -> albumProc;
         case SONG_BY_GENRE -> songByGenreProc;
         case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
         case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;

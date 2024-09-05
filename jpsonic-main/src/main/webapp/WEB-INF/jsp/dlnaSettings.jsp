@@ -181,7 +181,6 @@
         </table>
     </details>
 
-
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
 
@@ -222,6 +221,7 @@
                             subMenuItem.id eq MenuItemId.MEDIA_FILE
                             or subMenuItem.id eq MenuItemId.MEDIA_FILE_BY_FOLDER
                             or subMenuItem.id eq MenuItemId.INDEX
+                            or subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE
                             or subMenuItem.id eq MenuItemId.RANDOM_SONG
                             or subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM
                                 ? "F"
@@ -271,6 +271,9 @@
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER}">
                                 [Music Folder] [Album] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE}">
+                                [Album Folder] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
                                 [Genre] [Album] [MUSIC]
