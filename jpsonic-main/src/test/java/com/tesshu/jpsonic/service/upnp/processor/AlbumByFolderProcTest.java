@@ -20,116 +20,97 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.jupnp.support.model.DIDLContent;
-import org.mockito.Mockito;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.mockito.ArgumentMatchers;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class AlbumByFolderProcTest {
 
     private MediaFileService mediaFileService;
-    private AlbumDao albumDao;
+    private UpnpProcessorUtil util;
     private AlbumByFolderProc proc;
 
     @BeforeEach
     public void setup() {
         mediaFileService = mock(MediaFileService.class);
-        albumDao = mock(AlbumDao.class);
-        UpnpProcessorUtil util = mock(UpnpProcessorUtil.class);
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-                .fromUriString(settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", "99").queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        Mockito.when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
-                .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
-        FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
-        proc = new AlbumByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
+        util = mock(UpnpProcessorUtil.class);
+        proc = new AlbumByFolderProc(util, mock(UpnpDIDLFactory.class), mediaFileService);
     }
 
     @Test
     void testGetProcId() {
-        assertEquals("albumByFolder", proc.getProcId().getValue());
+        assertEquals("albf", proc.getProcId().getValue());
     }
 
-    @Test
-    void testGetChildrenWithAlbum() {
-        int id = 99;
-        Album album = new Album();
-        album.setId(id);
-        album.setName("album");
-        album.setArtist("artist");
-        Mockito.when(albumDao.getAlbum(id)).thenReturn(album);
-        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
-        assertEquals(0, proc.getChildren(folderOrAlbum, 0, 2).size());
-        Mockito.verify(mediaFileService, Mockito.times(1)).getSongsForAlbum(anyLong(), anyLong(), anyString(),
-                anyString());
+    @Nested
+    class GetDirectChildrenTest {
+
+        private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
+        private final MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
+
+        @Test
+        void testNoFolder() {
+            assertTrue(proc.getDirectChildren(0, 30).isEmpty());
+        }
+
+        @Test
+        void testWithSingleFolder() {
+            when(util.getGuestFolders()).thenReturn(List.of(folder1));
+            assertEquals(0, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
+            verify(mediaFileService, times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                    ArgumentMatchers.<MusicFolder> anyList());
+        }
+
+        @Test
+        void testMultiFolder() {
+            when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2));
+            assertEquals(2, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
+            verify(mediaFileService, times(2)).getMediaFile(any(Path.class));
+        }
     }
 
-    @Test
-    void testGetChildrenWithFolder() {
-        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        Mockito.when(albumDao.getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
-                .thenReturn(List.of(new Album()));
-        FolderOrFAlbum folderOrArtist = new FolderOrFAlbum(folder);
-        assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
-        Mockito.verify(albumDao, Mockito.times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
-                anyList());
-    }
+    @Nested
+    class GetDirectChildrenCountTest {
 
-    @Test
-    void testAddChild() {
-        Album album = new Album();
-        album.setId(0);
-        album.setName("album");
-        album.setArtist("artist");
-        AlbumOrSong albumOrSong = new AlbumOrSong(album);
+        private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
+        private final MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
 
-        DIDLContent content = new DIDLContent();
-        assertEquals(0, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
-        proc.addChild(content, albumOrSong);
-        assertEquals(1, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
+        @Test
+        void testNoFolder() {
+            when(util.getGuestFolders()).thenReturn(Collections.emptyList());
+            assertEquals(0, proc.getDirectChildrenCount());
+        }
 
-        content = new DIDLContent();
-        MediaFile song = new MediaFile();
-        albumOrSong = new AlbumOrSong(song);
-        assertEquals(0, content.getItems().size());
-        assertEquals(0, content.getItems().size());
-        proc.addChild(content, albumOrSong);
-        assertEquals(0, content.getContainers().size());
-        assertEquals(1, content.getItems().size());
+        @Test
+        void testWithSingleFolder() {
+            when(util.getGuestFolders()).thenReturn(List.of(folder1));
+            assertEquals(0, proc.getDirectChildrenCount());
+            verify(mediaFileService, times(1)).getAlbumCount(ArgumentMatchers.<MusicFolder> anyList());
+        }
+
+        @Test
+        void testMultiFolder() {
+            when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2));
+            assertEquals(2, proc.getDirectChildrenCount());
+            verify(mediaFileService, never()).getAlbumCount(ArgumentMatchers.<MusicFolder> anyList());
+        }
     }
 }

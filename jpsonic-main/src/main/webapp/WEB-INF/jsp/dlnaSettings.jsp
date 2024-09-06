@@ -181,7 +181,6 @@
         </table>
     </details>
 
-
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
 
@@ -205,7 +204,10 @@
                     <th><fmt:message key="dlnasettings.menuname"/></th>
                     <th><fmt:message key="dlnasettings.menuenabled"/></th>
                     <th><fmt:message key="dlnasettings.nameOnClient"/></th>
-                    <th><fmt:message key="dlnasettings.contentoverview"/></th>
+                    <th colspan="2">
+                        <fmt:message key="dlnasettings.contentoverview"/>
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpcontent"/></c:import>
+                    </th>
                     <th><fmt:message key="dlnasettings.viewopt"/></th>
                 </tr>
             </thead>
@@ -215,6 +217,16 @@
                     <c:set var="isFirstSubMenu" value="${subMenuItem.parent eq rowInfo.firstChild().parent and subMenuItem.id eq rowInfo.firstChild().id}" />
                     <c:set var="isLastMenu" value="${subMenuItem.parent eq command.topMenuItems[fn:length(command.topMenuItems) - 1].id}" />
                     <c:set var="ifDisabled" value='${(!subMenuItem.enabled or !command.topMenuEnableds.get(subMenuItem.parent)) ? "disabledNow" : ""}' />
+                    <c:set var="ifFileStructure" value='${
+                            subMenuItem.id eq MenuItemId.MEDIA_FILE
+                            or subMenuItem.id eq MenuItemId.MEDIA_FILE_BY_FOLDER
+                            or subMenuItem.id eq MenuItemId.INDEX
+                            or subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE
+                            or subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE_BY_FOLDER
+                            or subMenuItem.id eq MenuItemId.RANDOM_SONG
+                            or subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM
+                                ? "F"
+                                : ""}' />
                     <c:choose>
                         <c:when test="${isLastMenu}">
                             <tr class="lastMenu">
@@ -234,6 +246,7 @@
                     <td class="input-text-container ${ifDisabled}">
                         <form:input path="subMenuItems[${loopStatus.count-1}].name" placeholder="${subMenuItem.defaultName}" value="${subMenuItem.name}" class="subMenuName"/>
                     </td>
+                    <td class="fileStructure ${ifDisabled}">${ifFileStructure}</td>
                     <td class="hierarchy ${ifDisabled}">
                         <c:choose>
                             <c:when test="${subMenuItem.id eq MenuItemId.MEDIA_FILE}">
@@ -260,6 +273,12 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER}">
                                 [Music Folder] [Album] [Song]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE_BY_FOLDER}">
+                                [Music Folder] [Album Folder] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE}">
+                                [Album Folder] [Song]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
                                 [Genre] [Album] [MUSIC]
                             </c:when>
@@ -285,7 +304,7 @@
                                 [Playlist] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM}">
-                                [Album] [Song]
+                                [Album Folder] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
                                 [Album] [Song]

@@ -30,7 +30,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RecentAlbumId3Proc extends AlbumProc implements CountLimitProc {
+public class RecentAlbumId3Proc extends AlbumId3Proc implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 

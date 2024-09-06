@@ -1,0 +1,41 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-upnp-album-filestrucure" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 33</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="33" />
+            <column name="parent" valueNumeric="30" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="33" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 33</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-upnp-album-filestrucure-by-foleder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 34</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="34" />
+            <column name="parent" valueNumeric="30" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="34" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 34</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

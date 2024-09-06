@@ -69,10 +69,10 @@
           &:nth-child(1) {
             padding-left: 10px;
           }
-          &:nth-child(5) {
+          &:nth-child(6) {
             padding-right: 10px;
             .popup.help {
-              vertical-align: middle;
+              overflow: visible;
             }
           }
           &.chk-container {
@@ -83,6 +83,9 @@
           &.input-text-container {
             width: 180px;
             padding: 0;
+          }
+          &.fileStructure {
+            font-weight: 700;
           }
           &.hierarchy {
             overflow: hidden;

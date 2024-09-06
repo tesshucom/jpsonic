@@ -57,14 +57,16 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final MediaFileProc mediaFileProc;
     private final MediaFileByFolderProc mediaFileByFolderProc;
     private final PlaylistProc playlistProc;
-    private final AlbumProc albumProc;
-    private final AlbumByFolderProc albumByFolderProc;
+    private final AlbumId3Proc albumId3Proc;
+    private final AlbumId3ByFolderProc albumId3ByFolderProc;
     private final RecentAlbumProc recentAlbumProc;
     private final RecentAlbumId3Proc recentAlbumId3Proc;
     private final ArtistProc artistProc;
     private final ArtistByFolderProc artistByFolderProc;
     private final AlbumByGenreProc albumByGenreProc;
     private final AlbumId3ByGenreProc albumId3ByGenreProc;
+    private final AlbumProc albumProc;
+    private final AlbumByFolderProc albumByFolderProc;
     private final AlbumId3ByFolderGenreProc albumId3ByFolderGenreProc;
     private final SongByGenreProc songByGenreProc;
     private final SongByFolderGenreProc songByFolderGenreProc;
@@ -85,8 +87,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
-            @Lazy @Qualifier("albumProc") AlbumProc ap, @Lazy AlbumByFolderProc albfp,
-            @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc alid3bfp,
+            @Lazy AlbumProc alp, @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
             @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
@@ -97,7 +99,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             @Lazy @Qualifier("podcastProc") PodcastProc podp,
             @Lazy @Qualifier("randomAlbumProc") RandomAlbumProc randomap,
             @Lazy @Qualifier("randomSongProc") RandomSongProc randomsp, @Lazy RandomSongByArtistProc randomsbap,
-
             @Lazy RandomSongByFolderArtistProc randomsbfap, @Lazy RandomSongByGenreProc rsbgp,
             @Lazy RandomSongByFolderGenreProc rsbfgp, QueryFactory queryFactory, UpnpProcessorUtil util, WMPProc wmpp,
             SearchService ss) {
@@ -106,7 +107,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         mediaFileProc = mfp;
         mediaFileByFolderProc = mfbfp;
         playlistProc = playp;
-        albumProc = ap;
+        albumId3Proc = aid3p;
+        albumId3ByFolderProc = alid3bfp;
+        albumProc = alp;
         albumByFolderProc = albfp;
         recentAlbumProc = rap;
         recentAlbumId3Proc = raip;
@@ -140,6 +143,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case PLAYLIST -> playlistProc;
         case MEDIA_FILE -> mediaFileProc;
         case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
+        case ALBUM_ID3 -> albumId3Proc;
+        case ALBUM_ID3_BY_FOLDER -> albumId3ByFolderProc;
         case ALBUM -> albumProc;
         case ALBUM_BY_FOLDER -> albumByFolderProc;
         case RECENT -> recentAlbumProc;
@@ -220,7 +225,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         if (Artist.class == criteria.getAssignableClass()) {
             return artistProc.toBrowseResult(searchService.search(criteria));
         } else if (Album.class == criteria.getAssignableClass()) {
-            return albumProc.toBrowseResult(searchService.search(criteria));
+            return albumId3Proc.toBrowseResult(searchService.search(criteria));
         } else if (MediaFile.class == criteria.getAssignableClass()) {
             return mediaFileProc.toBrowseResult(searchService.search(criteria));
         }

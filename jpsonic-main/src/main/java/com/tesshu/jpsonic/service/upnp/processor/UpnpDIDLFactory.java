@@ -306,8 +306,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     public MusicAlbum toAlbum(Album album) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.ALBUM.getValue() + ProcId.CID_SEPA + album.getId());
-        container.setParentID(ProcId.ALBUM.getValue());
+        container.setId(ProcId.ALBUM_ID3.getValue() + ProcId.CID_SEPA + album.getId());
+        container.setParentID(ProcId.ALBUM_ID3.getValue());
         container.setTitle(album.getName());
         container.setChildCount(album.getSongCount());
         container.addProperty(toAlbumArt(album));

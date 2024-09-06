@@ -19,33 +19,24 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
-import org.jupnp.support.model.DIDLContent;
-import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, AlbumOrSong> {
+public class AlbumByFolderProc extends MediaFileByFolderProc {
 
+    private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
-    private final AlbumDao albumDao;
-    private final UpnpDIDLFactory factory;
-    private final FolderOrAlbumLogic deligate;
 
-    public AlbumByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao, UpnpDIDLFactory factory,
-            FolderOrAlbumLogic folderOrAlbumLogic) {
-        super();
+    public AlbumByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+        super(util, factory, mediaFileService);
+        this.util = util;
         this.mediaFileService = mediaFileService;
-        this.albumDao = albumDao;
-        this.factory = factory;
-        this.deligate = folderOrAlbumLogic;
     }
 
     @Override
@@ -54,49 +45,23 @@ public class AlbumByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum,
     }
 
     @Override
-    public Container createContainer(FolderOrFAlbum folderOrAlbum) {
-        return deligate.createContainer(getProcId(), folderOrAlbum);
-    }
-
-    @Override
-    public List<FolderOrFAlbum> getDirectChildren(long offset, long count) {
-        return deligate.getDirectChildren(offset, count);
+    public List<MediaFile> getDirectChildren(long offset, long count) {
+        List<MusicFolder> folders = util.getGuestFolders();
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
+            return mediaFileService.getAlphabeticalAlbums((int) offset, (int) count, true, folders);
+        }
+        return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+                .toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return deligate.getDirectChildrenCount();
-    }
-
-    @Override
-    public FolderOrFAlbum getDirectChild(String compositeId) {
-        return deligate.getDirectChild(compositeId);
-    }
-
-    @Override
-    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long offset, long count) {
-
-        if (folderOrAlbum.isFolderAlbum()) {
-            Album album = folderOrAlbum.getFolderAlbum().album();
-            return mediaFileService.getSongsForAlbum(offset, count, album.getArtist(), album.getName()).stream()
-                    .map(AlbumOrSong::new).toList();
+        List<MusicFolder> folders = util.getGuestFolders();
+        if (folders.size() == SINGLE_MUSIC_FOLDER) {
+            return (int) mediaFileService.getAlbumCount(folders);
         }
-        return albumDao
-                .getAlphabeticalAlbums((int) offset, (int) count, false, true, Arrays.asList(folderOrAlbum.getFolder()))
-                .stream().map(AlbumOrSong::new).toList();
-    }
-
-    @Override
-    public int getChildSizeOf(FolderOrFAlbum folderOrAlbum) {
-        return deligate.getChildSizeOf(folderOrAlbum);
-    }
-
-    @Override
-    public void addChild(DIDLContent parent, AlbumOrSong albumOrSong) {
-        if (albumOrSong.isAlbum()) {
-            parent.addContainer(factory.toAlbum(albumOrSong.getAlbum()));
-        } else {
-            parent.addItem(factory.toMusicTrack(albumOrSong.getSong()));
-        }
+        return folders.size();
     }
 }
