@@ -62,7 +62,7 @@ class RecentAlbumProcTest extends AbstractNeedsScan {
 
     @Test
     void testGetProcId() {
-        assertEquals("recent", processor.getProcId().getValue());
+        assertEquals("r", processor.getProcId().getValue());
     }
 
     @Test

@@ -149,10 +149,11 @@ class MenuItemServiceTest {
         assertEquals("Simple List", menuItems.get(0).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
-        assertEquals(3, menuItems.size());
+        assertEquals(4, menuItems.size());
         assertEquals("Added Albums", menuItems.get(0).getName());
-        assertEquals("Tagged Albums", menuItems.get(1).getName());
-        assertEquals("Tagged Albums By Folder", menuItems.get(2).getName());
+        assertEquals("Added Albums By Folder", menuItems.get(1).getName());
+        assertEquals("Tagged Albums", menuItems.get(2).getName());
+        assertEquals("Tagged Albums By Folder", menuItems.get(3).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());
@@ -334,14 +335,15 @@ class MenuItemServiceTest {
             assertEquals(MenuItemId.PODCAST_DEFALT, subMenuItems.get(16).getId());
             assertEquals(MenuItemId.PLAYLISTS_DEFALT, subMenuItems.get(17).getId());
             assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, subMenuItems.get(18).getId());
-            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(19).getId());
-            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER, subMenuItems.get(20).getId());
-            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(21).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(22).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(23).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_GENRE, subMenuItems.get(24).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE, subMenuItems.get(25).getId());
-            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(26).getId());
+            assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM_BY_FOLDER, subMenuItems.get(19).getId());
+            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(20).getId());
+            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER, subMenuItems.get(21).getId());
+            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(22).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(23).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(24).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_GENRE, subMenuItems.get(25).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE, subMenuItems.get(26).getId());
+            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(27).getId());
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {
@@ -421,7 +423,7 @@ class MenuItemServiceTest {
                     menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
 
             int subMenuItemsSize = menuItemDao.getSubMenuItems(ViewType.UPNP).size();
-            assertEquals(27, subMenuItemsSize);
+            assertEquals(28, subMenuItemsSize);
             assertEquals(subMenuItemsSize, menuItemService.getSubMenuItems(ViewType.UPNP).size());
 
             // Add a dummy sub menu
