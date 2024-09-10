@@ -32,9 +32,9 @@ public enum ProcId {
     ALBUM_ID3_BY_FOLDER("alid3bf"), ALBUM("al"), ALBUM_BY_FOLDER("albf"), ARTIST("artist"),
     ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"), ALBUM_ID3_BY_GENRE("aibg"),
     ALBUM_ID3_BY_FOLDER_GENRE("aibfg"), SONG_BY_GENRE("sbg"), SONG_BY_FOLDER_GENRE("sbfg"), AUDIOBOOK_BY_GENRE("abbg"),
-    RECENT("recent"), RECENT_ID3("recentId3"), INDEX("index"), INDEX_ID3("indexId3"), PODCAST("podcast"),
-    RANDOM_ALBUM("ral"), RANDOM_SONG("rs"), RANDOM_SONG_BY_ARTIST("rsbar"), RANDOM_SONG_BY_FOLDER_ARTIST("rsbfar"),
-    RANDOM_SONG_BY_GENRE("rsbg"), RANDOM_SONG_BY_FOLDER_GENRE("rsbfg");
+    RECENT("recent"), RECENT_ID3("rid3"), RECENT_ID3_BY_FOLDER("rid3bf"), INDEX("index"), INDEX_ID3("indexId3"),
+    PODCAST("podcast"), RANDOM_ALBUM("ral"), RANDOM_SONG("rs"), RANDOM_SONG_BY_ARTIST("rsbar"),
+    RANDOM_SONG_BY_FOLDER_ARTIST("rsbfar"), RANDOM_SONG_BY_GENRE("rsbg"), RANDOM_SONG_BY_FOLDER_GENRE("rsbfg");
 
     /**
      * Separator used for Compound IDs (CID).
@@ -77,6 +77,7 @@ public enum ProcId {
         case PLAYLISTS_DEFALT -> PLAYLIST;
         case RECENTLY_ADDED_ALBUM -> RECENT;
         case RECENTLY_TAGGED_ALBUM -> RECENT_ID3;
+        case RECENTLY_TAGGED_ALBUM_BY_FOLDER -> RECENT_ID3_BY_FOLDER;
         case RANDOM_SONG -> RANDOM_SONG;
         case RANDOM_SONG_BY_ARTIST -> RANDOM_SONG_BY_ARTIST;
         case RANDOM_SONG_BY_FOLDER_ARTIST -> RANDOM_SONG_BY_FOLDER_ARTIST;

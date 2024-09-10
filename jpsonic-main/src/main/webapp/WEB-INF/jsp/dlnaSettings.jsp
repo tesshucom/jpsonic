@@ -309,6 +309,9 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
                                 [Album] [Song]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER}">
+                                [Music Folder] [Album] [Song]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
                                 [Random MUSIC]
                             </c:when>

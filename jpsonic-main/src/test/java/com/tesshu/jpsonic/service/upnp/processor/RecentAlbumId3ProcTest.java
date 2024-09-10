@@ -70,7 +70,7 @@ class RecentAlbumId3ProcTest {
 
         @Test
         void testGetProcId() {
-            assertEquals("recentId3", proc.getProcId().getValue());
+            assertEquals("rid3", proc.getProcId().getValue());
         }
 
         @Test
