@@ -1,0 +1,50 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="change-upnp-menu-item-order4" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <!-- See com.tesshu.jpsonic.domain.MenuItemId -->
+        <sql>update menu_item set menu_item_order = 73 where id = 72</sql>
+        <rollback />
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-recently-added-album-by-folder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 73</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="73" />
+            <column name="parent" valueNumeric="70" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="72" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 73</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-recently-tagged-album-by-folder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 74</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="74" />
+            <column name="parent" valueNumeric="70" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="74" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 74</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

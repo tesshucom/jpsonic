@@ -225,6 +225,7 @@
                             or subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE_BY_FOLDER
                             or subMenuItem.id eq MenuItemId.RANDOM_SONG
                             or subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM
+                            or subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM_BY_FOLDER
                                 ? "F"
                                 : ""}' />
                     <c:choose>
@@ -306,8 +307,14 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM}">
                                 [Album Folder] [Song]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM_BY_FOLDER}">
+                                [Music Folder] [Album Folder] [Song]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
                                 [Album] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER}">
+                                [Music Folder] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
                                 [Random MUSIC]

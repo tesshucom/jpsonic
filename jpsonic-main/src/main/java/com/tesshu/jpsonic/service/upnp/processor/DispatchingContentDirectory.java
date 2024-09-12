@@ -60,7 +60,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final AlbumId3Proc albumId3Proc;
     private final AlbumId3ByFolderProc albumId3ByFolderProc;
     private final RecentAlbumProc recentAlbumProc;
+    private final RecentAlbumByFolderProc recentAlbumByFolderProc;
     private final RecentAlbumId3Proc recentAlbumId3Proc;
+    private final RecentAlbumId3ByFolderProc recentAlbumId3ByFolderProc;
     private final ArtistProc artistProc;
     private final ArtistByFolderProc artistByFolderProc;
     private final AlbumByGenreProc albumByGenreProc;
@@ -89,7 +91,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
             @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc alid3bfp,
             @Lazy AlbumProc alp, @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
-            @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
+            @Lazy @Qualifier("recentAlbumByFolderProc") RecentAlbumByFolderProc rabfp,
+            @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip,
+            @Lazy @Qualifier("recentAlbumId3ByFolderProc") RecentAlbumId3ByFolderProc raigfp, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
             @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
             @Lazy @Qualifier("albumId3ByFolderGenreProc") AlbumId3ByFolderGenreProc aibfgp,
@@ -112,7 +116,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         albumProc = alp;
         albumByFolderProc = albfp;
         recentAlbumProc = rap;
+        recentAlbumByFolderProc = rabfp;
         recentAlbumId3Proc = raip;
+        recentAlbumId3ByFolderProc = raigfp;
         artistProc = arP;
         artistByFolderProc = abfP;
         albumByGenreProc = abgp;
@@ -148,7 +154,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case ALBUM -> albumProc;
         case ALBUM_BY_FOLDER -> albumByFolderProc;
         case RECENT -> recentAlbumProc;
+        case RECENT_BY_FOLDER -> recentAlbumByFolderProc;
         case RECENT_ID3 -> recentAlbumId3Proc;
+        case RECENT_ID3_BY_FOLDER -> recentAlbumId3ByFolderProc;
         case ARTIST -> artistProc;
         case ARTIST_BY_FOLDER -> artistByFolderProc;
         case ALBUM_BY_GENRE -> albumByGenreProc;
