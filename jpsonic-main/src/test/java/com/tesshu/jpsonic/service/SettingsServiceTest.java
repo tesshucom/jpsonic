@@ -647,11 +647,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseRemovingTrackFromId3Title() {
-        assertFalse(settingsService.isUseRemovingTrackFromId3Title());
-    }
-
-    @Test
     void testIsUseCleanUp() {
         assertFalse(settingsService.isUseCleanUp());
     }

@@ -67,7 +67,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useExternalPlayer;
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
-    private boolean useRemovingTrackFromId3Title;
     private boolean useCleanUp;
     private boolean redundantFolderCheck;
     private boolean showIndexDetails;
@@ -285,14 +284,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseJsonp(boolean useJsonp) {
         this.useJsonp = useJsonp;
-    }
-
-    public boolean isUseRemovingTrackFromId3Title() {
-        return useRemovingTrackFromId3Title;
-    }
-
-    public void setUseRemovingTrackFromId3Title(boolean useRemovingTrackFromId3Title) {
-        this.useRemovingTrackFromId3Title = useRemovingTrackFromId3Title;
     }
 
     public boolean isUseCleanUp() {

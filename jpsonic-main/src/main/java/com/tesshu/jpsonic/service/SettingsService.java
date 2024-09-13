@@ -104,7 +104,8 @@ public class SettingsService implements ReadWriteLockSupport {
             "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
             "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
             "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
-            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast");
+            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast",
+            "UseRemovingTrackFromId3Title");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -611,14 +612,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     public void setUseJsonp(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_JSONP, b);
-    }
-
-    public boolean isUseRemovingTrackFromId3Title() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_REMOVING_TRACK_FROM_ID3TITLE);
-    }
-
-    public void setUseRemovingTrackFromId3Title(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_REMOVING_TRACK_FROM_ID3TITLE, b);
     }
 
     public boolean isUseCleanUp() {

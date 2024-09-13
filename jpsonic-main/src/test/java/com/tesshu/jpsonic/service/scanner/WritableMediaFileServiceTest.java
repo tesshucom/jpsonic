@@ -80,7 +80,7 @@ class WritableMediaFileServiceTest {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
 
-        MusicParser musicParser = new MusicParser(settingsService, mock(MusicFolderService.class));
+        MusicParser musicParser = new MusicParser(mock(MusicFolderService.class));
 
         MediaFileCache mediaFileCache = mock(MediaFileCache.class);
         MediaFileService mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
