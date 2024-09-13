@@ -67,7 +67,7 @@
     <versions.liquibase-core>4.29.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
-    <versions.logback>1.5.7</versions.logback>
+    <versions.logback>1.5.8</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.13.0</versions.mockito-junit-jupiter>
