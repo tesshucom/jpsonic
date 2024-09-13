@@ -135,8 +135,6 @@ public class GeneralSettingsController {
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
 
         // Suppressed legacy features
-        command.setShowServerLog(settingsService.isShowServerLog());
-        command.setShowStatus(settingsService.isShowStatus());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
@@ -241,8 +239,6 @@ public class GeneralSettingsController {
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
 
         // Suppressed legacy features
-        settingsService.setShowServerLog(command.isShowServerLog());
-        settingsService.setShowStatus(command.isShowStatus());
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setPublishPodcast(command.isPublishPodcast());

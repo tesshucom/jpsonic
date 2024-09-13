@@ -62,8 +62,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean outputSearchQuery;
 
     // Suppressed legacy features
-    private boolean showServerLog;
-    private boolean showStatus;
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean publishPodcast;
@@ -248,22 +246,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setOutputSearchQuery(boolean outputSearchQuery) {
         this.outputSearchQuery = outputSearchQuery;
-    }
-
-    public boolean isShowServerLog() {
-        return showServerLog;
-    }
-
-    public void setShowServerLog(boolean showServerLog) {
-        this.showServerLog = showServerLog;
-    }
-
-    public boolean isShowStatus() {
-        return showStatus;
-    }
-
-    public void setShowStatus(boolean showStatus) {
-        this.showStatus = showStatus;
     }
 
     public boolean isOthersPlayingEnabled() {

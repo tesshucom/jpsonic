@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.Version;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,11 +57,9 @@ class HelpControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException, IOException {
         SecurityService securityService = mock(SecurityService.class);
-        SettingsService settingsService = mock(SettingsService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
-        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, settingsService, securityService))
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, securityService)).build();
 
         Path testLog = Path.of(TestCaseUtils.jpsonicHomePathForTest(), "jpsonic.log");
         if (!Files.exists(testLog)) {

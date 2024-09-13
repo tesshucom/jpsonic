@@ -51,14 +51,11 @@ public class StatusController {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
 
-    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final StatusService statusService;
 
-    public StatusController(SettingsService settingsService, SecurityService securityService,
-            StatusService statusService) {
+    public StatusController(SecurityService securityService, StatusService statusService) {
         super();
-        this.settingsService = settingsService;
         this.securityService = securityService;
         this.statusService = statusService;
     }
@@ -86,10 +83,11 @@ public class StatusController {
         for (int i = 0; i < uploadStatuses.size(); i++) {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
-        return new ModelAndView("status", "model", LegacyMap.of("brand", SettingsService.getBrand(), "admin",
-                securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()), "showStatus",
-                settingsService.isShowStatus(), "transferStatuses", transferStatuses, "chartWidth",
-                StatusChartController.IMAGE_WIDTH, "chartHeight", StatusChartController.IMAGE_HEIGHT));
+        return new ModelAndView("status", "model",
+                LegacyMap.of("brand", SettingsService.getBrand(), "admin",
+                        securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()),
+                        "transferStatuses", transferStatuses, "chartWidth", StatusChartController.IMAGE_WIDTH,
+                        "chartHeight", StatusChartController.IMAGE_HEIGHT));
     }
 
     public static class TransferStatusHolder {

@@ -11,7 +11,6 @@
 <c:import url="helpHeader.jsp">
     <c:param name="cat" value="help"/>
     <c:param name="isAdmin" value="${model.admin}"/>
-    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <c:choose>
@@ -70,7 +69,7 @@
     </dl>
 </details>
 
-<c:if test="${model.user.adminRole or model.showServerLog}">
+<c:if test="${model.user.adminRole}">
     <details>
         <summary class="legacy"><fmt:message key="help.log"/> (${model.lastModified} ${model.logFile})</summary>
         <div class="actions">

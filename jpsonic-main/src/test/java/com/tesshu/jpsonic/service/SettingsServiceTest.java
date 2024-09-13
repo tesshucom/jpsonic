@@ -602,16 +602,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsShowServerLog() {
-        assertFalse(settingsService.isShowServerLog());
-    }
-
-    @Test
-    void testIsShowStatus() {
-        assertFalse(settingsService.isShowStatus());
-    }
-
-    @Test
     void testIsOthersPlayingEnabled() {
         assertFalse(settingsService.isOthersPlayingEnabled());
     }

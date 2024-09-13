@@ -21,8 +21,6 @@ function resetSortSettings() {
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
 }
 function resetLegacyFeatures() {
-    $('[name="showServerLog"]').prop('checked', false);
-    $('[name="showStatus"]').prop('checked', false);
     $('[name="othersPlayingEnabled"]').prop('checked', false);
     $('[name="showRememberMe"]').prop('checked', false);
     $('[name="publishPodcast"]').prop('checked', false);
@@ -216,18 +214,6 @@ function resetExtension() {
         </c:if>
 
         <dl>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="showServerLog" id="showServerLog"/>
-                <label for="showServerLog"><fmt:message key="generalsettings.showserverlog"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showserverlog"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="showStatus" id="showStatus"/>
-                <label for="showStatus"><fmt:message key="generalsettings.showstatus"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showstatus"/></c:import>
-            </dd>
             <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="othersPlayingEnabled" id="othersPlayingEnabled"/>
