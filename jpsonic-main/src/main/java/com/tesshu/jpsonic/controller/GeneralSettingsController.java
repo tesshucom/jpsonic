@@ -140,7 +140,6 @@ public class GeneralSettingsController {
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
         command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
-        command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
         command.setUseCast(settingsService.isUseCast());
@@ -244,9 +243,6 @@ public class GeneralSettingsController {
         }
         settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
-        if (!scannerStateService.isScanning()) {
-            settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
-        }
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());
         settingsService.setUseCast(command.isUseCast());

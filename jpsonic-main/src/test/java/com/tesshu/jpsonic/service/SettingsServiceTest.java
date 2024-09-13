@@ -647,18 +647,13 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsRedundantFolderCheck() {
-        assertFalse(settingsService.isRedundantFolderCheck());
-    }
-
-    @Test
     void testIsShowIndexDetails() {
-        assertFalse(settingsService.isRedundantFolderCheck());
+        assertFalse(settingsService.isShowIndexDetails());
     }
 
     @Test
     void testIsShowDBDetails() {
-        assertFalse(settingsService.isRedundantFolderCheck());
+        assertFalse(settingsService.isShowDBDetails());
     }
 
     @Test

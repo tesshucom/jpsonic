@@ -141,7 +141,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         private boolean enabled;
         private Integer folderOrder;
         private boolean delete;
-        private boolean existing;
 
         public MusicFolderInfo(MusicFolder musicFolder) {
             id = musicFolder.getId();
@@ -150,7 +149,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             Path folderPath = musicFolder.toPath();
             path = folderPath.toString();
             folderOrder = musicFolder.getFolderOrder();
-            existing = true;
         }
 
         public MusicFolderInfo() {
@@ -203,14 +201,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public void setDelete(boolean delete) {
             this.delete = delete;
-        }
-
-        public boolean isExisting() {
-            return existing;
-        }
-
-        public void setExisting(boolean existing) {
-            this.existing = existing;
         }
     }
 }

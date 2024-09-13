@@ -23,13 +23,9 @@ package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
@@ -109,7 +105,8 @@ public class MusicFolderSettingsController {
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
         // Specify folder
-        command.setMusicFolders(wrap(musicFolderService.getAllMusicFolders(true, true)));
+        command.setMusicFolders(musicFolderService.getAllMusicFolders(true, true).stream()
+                .map(MusicFolderSettingsCommand.MusicFolderInfo::new).toList());
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
 
         // Run a scan
@@ -135,18 +132,6 @@ public class MusicFolderSettingsController {
         command.setCancel(mediaScannerService.isCancel());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
-    }
-
-    List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        List<MusicFolderSettingsCommand.MusicFolderInfo> folders = musicFolders.stream()
-                .map(MusicFolderSettingsCommand.MusicFolderInfo::new).collect(Collectors.toCollection(ArrayList::new));
-        if (settingsService.isRedundantFolderCheck()) {
-            folders.forEach(folder -> {
-                Path path = Path.of(folder.getPath());
-                folder.setExisting(Files.exists(path) && Files.isDirectory(path));
-            });
-        }
-        return folders;
     }
 
     @GetMapping

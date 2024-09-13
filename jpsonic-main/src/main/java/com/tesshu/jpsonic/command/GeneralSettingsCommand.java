@@ -67,7 +67,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useExternalPlayer;
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
-    private boolean redundantFolderCheck;
     private boolean showIndexDetails;
     private boolean showDBDetails;
     private boolean useCast;
@@ -283,14 +282,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseJsonp(boolean useJsonp) {
         this.useJsonp = useJsonp;
-    }
-
-    public boolean isRedundantFolderCheck() {
-        return redundantFolderCheck;
-    }
-
-    public void setRedundantFolderCheck(boolean redundantFolderCheck) {
-        this.redundantFolderCheck = redundantFolderCheck;
     }
 
     public boolean isShowIndexDetails() {
