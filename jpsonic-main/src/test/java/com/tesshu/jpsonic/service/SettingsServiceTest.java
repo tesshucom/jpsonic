@@ -647,11 +647,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseCleanUp() {
-        assertFalse(settingsService.isUseCleanUp());
-    }
-
-    @Test
     void testIsRedundantFolderCheck() {
         assertFalse(settingsService.isRedundantFolderCheck());
     }

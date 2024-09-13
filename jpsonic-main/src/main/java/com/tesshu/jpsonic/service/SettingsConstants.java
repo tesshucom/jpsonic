@@ -123,7 +123,6 @@ final class SettingsConstants {
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
-            static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
             static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
             static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
             static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);

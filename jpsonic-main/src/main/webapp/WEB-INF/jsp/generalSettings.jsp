@@ -28,7 +28,6 @@ function resetLegacyFeatures() {
     $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
     $('[name="useJsonp"]').prop('checked', false);
     if(!scanning) {
-        $('[name="useCleanUp"]').prop('checked', false);
         $('[name="redundantFolderCheck"]').prop('checked', false);
     }
     $('[name="showIndexDetails"]').prop('checked', false);
@@ -247,12 +246,6 @@ function resetExtension() {
                 <form:checkbox path="useJsonp" id="useJsonp"/>
                 <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useCleanUp" id="useCleanUp" disabled="${command.scanning}"/>
-                <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
             </dd>
             <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
