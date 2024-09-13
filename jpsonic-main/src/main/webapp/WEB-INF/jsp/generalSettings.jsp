@@ -23,7 +23,6 @@ function resetSortSettings() {
 function resetLegacyFeatures() {
     $('[name="othersPlayingEnabled"]').prop('checked', false);
     $('[name="showRememberMe"]').prop('checked', false);
-    $('[name="publishPodcast"]').prop('checked', false);
     $('[name="useRadio"]').prop('checked', false);
     $('[name="useExternalPlayer"]').prop('checked', false);
     $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
@@ -225,12 +224,6 @@ function resetExtension() {
                 <form:checkbox path="showRememberMe" id="showRememberMe"/>
                 <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="publishPodcast" id="publishPodcast"/>
-                <label for="publishPodcast"><fmt:message key="generalsettings.publishpodcast"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="publishpodcast"/></c:import>
             </dd>
             <dt></dt>
             <dd>

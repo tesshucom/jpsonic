@@ -104,7 +104,7 @@ public class SettingsService implements ReadWriteLockSupport {
             "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
             "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
             "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
-            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus");
+            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -579,14 +579,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     public void setShowRememberMe(boolean b) {
         setProperty(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME, b);
-    }
-
-    public boolean isPublishPodcast() {
-        return getBoolean(SettingsConstants.General.Legacy.PUBLISH_PODCAST);
-    }
-
-    public void setPublishPodcast(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.PUBLISH_PODCAST, b);
     }
 
     public boolean isUseRadio() {

@@ -119,7 +119,6 @@ final class SettingsConstants {
         static final class Legacy {
             static final Pair<Boolean> OTHERS_PLAYING_ENABLED = Pair.of("OthersPlayingEnabled", false);
             static final Pair<Boolean> SHOW_REMEMBER_ME = Pair.of("ShowRememberMe", false);
-            static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);

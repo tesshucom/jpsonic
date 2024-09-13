@@ -64,7 +64,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     // Suppressed legacy features
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
-    private boolean publishPodcast;
     private boolean useExternalPlayer;
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
@@ -262,14 +261,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setShowRememberMe(boolean showRememberMe) {
         this.showRememberMe = showRememberMe;
-    }
-
-    public boolean isPublishPodcast() {
-        return publishPodcast;
-    }
-
-    public void setPublishPodcast(boolean publishPodcast) {
-        this.publishPodcast = publishPodcast;
     }
 
     public boolean isUseExternalPlayer() {

@@ -597,11 +597,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsPublishPodcast() {
-        assertFalse(settingsService.isPublishPodcast());
-    }
-
-    @Test
     void testIsOthersPlayingEnabled() {
         assertFalse(settingsService.isOthersPlayingEnabled());
     }

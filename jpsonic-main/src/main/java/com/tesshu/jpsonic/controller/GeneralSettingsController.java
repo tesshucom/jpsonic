@@ -137,7 +137,6 @@ public class GeneralSettingsController {
         // Suppressed legacy features
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
-        command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
         command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
@@ -241,7 +240,6 @@ public class GeneralSettingsController {
         // Suppressed legacy features
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
-        settingsService.setPublishPodcast(command.isPublishPodcast());
         settingsService.setUseExternalPlayer(command.isUseExternalPlayer());
         if (!command.isUseExternalPlayer()) {
             playerService.resetExternalPlayer();

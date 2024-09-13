@@ -30,7 +30,6 @@ import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -47,15 +46,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping({ "/playlists", "/playlists.view", })
 public class PlaylistsController {
 
-    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final PlaylistService playlistService;
     private final ViewAsListSelector viewSelector;
 
-    public PlaylistsController(SettingsService settingsService, SecurityService securityService,
-            PlaylistService playlistService, ViewAsListSelector viewSelector) {
+    public PlaylistsController(SecurityService securityService, PlaylistService playlistService,
+            ViewAsListSelector viewSelector) {
         super();
-        this.settingsService = settingsService;
         this.securityService = securityService;
         this.playlistService = playlistService;
         this.viewSelector = viewSelector;
@@ -69,7 +66,7 @@ public class PlaylistsController {
         model.addAttribute("model",
                 LegacyMap.of("playlists", playlists.stream().map(Playlist::new).collect(Collectors.toList()),
                         "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
-                        CoverArtScheme.MEDIUM.getSize(), "publishPodcast", settingsService.isPublishPodcast()));
+                        CoverArtScheme.MEDIUM.getSize()));
         return "playlists";
     }
 
