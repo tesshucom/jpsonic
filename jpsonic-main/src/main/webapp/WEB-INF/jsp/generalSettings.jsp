@@ -25,7 +25,6 @@ function resetLegacyFeatures() {
     $('[name="showRememberMe"]').prop('checked', false);
     $('[name="useRadio"]').prop('checked', false);
     $('[name="useExternalPlayer"]').prop('checked', false);
-    $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
     $('[name="useJsonp"]').prop('checked', false);
     $('[name="showIndexDetails"]').prop('checked', false);
     $('[name="showDBDetails"]').prop('checked', false);
@@ -231,12 +230,6 @@ function resetExtension() {
                 <form:checkbox path="useExternalPlayer" id="useExternalPlayer"/>
                 <label for="useExternalPlayer"><fmt:message key="generalsettings.useexternalplayer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useexternalplayer"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useCopyOfAsciiUnprintable" id="useCopyOfAsciiUnprintable"/>
-                <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecopyofasciiunprintable"/></c:import>
             </dd>
             <dt></dt>
             <dd>

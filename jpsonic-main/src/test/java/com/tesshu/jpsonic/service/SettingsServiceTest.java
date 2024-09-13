@@ -637,11 +637,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseCopyOfAsciiUnprintable() {
-        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
-    }
-
-    @Test
     void testIsUseJsonp() {
         assertFalse(settingsService.isUseJsonp());
     }

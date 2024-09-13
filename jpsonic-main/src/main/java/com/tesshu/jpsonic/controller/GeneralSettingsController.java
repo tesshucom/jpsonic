@@ -38,7 +38,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.util.PathValidator;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -138,7 +137,6 @@ public class GeneralSettingsController {
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
-        command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
@@ -241,7 +239,6 @@ public class GeneralSettingsController {
         if (!command.isUseExternalPlayer()) {
             playerService.resetExternalPlayer();
         }
-        settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());

@@ -65,7 +65,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean useExternalPlayer;
-    private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
     private boolean showIndexDetails;
     private boolean showDBDetails;
@@ -266,14 +265,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseExternalPlayer(boolean useExternalPlayer) {
         this.useExternalPlayer = useExternalPlayer;
-    }
-
-    public boolean isUseCopyOfAsciiUnprintable() {
-        return useCopyOfAsciiUnprintable;
-    }
-
-    public void setUseCopyOfAsciiUnprintable(boolean useCopyOfAsciiUnprintable) {
-        this.useCopyOfAsciiUnprintable = useCopyOfAsciiUnprintable;
     }
 
     public boolean isUseJsonp() {
