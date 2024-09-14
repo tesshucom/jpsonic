@@ -53,8 +53,7 @@ $(document).ready(function(){
 
     dwr.engine.setErrorHandler(null);
     startTimer();
-    
-    <c:if test="${model.player.web}">createMediaElementPlayer();</c:if>
+    createMediaElementPlayer();
 
     $("#playQueueBody").sortable({
         stop: function(event, ui) {
@@ -184,11 +183,6 @@ function startTimer() {
 function nowPlayingCallback(nowPlayingInfo) {
     if (nowPlayingInfo != null && nowPlayingInfo.streamUrl != currentStreamUrl) {
         getPlayQueue();
-    <c:if test="${not model.player.web}">
-        currentStreamUrl = nowPlayingInfo.streamUrl;
-        currentSong = null;
-        onPlaying();
-    </c:if>
     }
 }
 
@@ -334,15 +328,7 @@ window.onGainAdd = function(gain) {
 
 function onSkip(index) {
     top.onChangeCurrentSong(null);
-    <c:choose>
-    <c:when test="${model.player.web}">
-        loadPlayer(index);
-    </c:when>
-    <c:otherwise>
-        currentStreamUrl = songs[index].streamUrl;
-        playQueueService.skip(index, playQueueCallback);
-    </c:otherwise>
-    </c:choose>
+    loadPlayer(index);
 }
 window.onNext = function(wrap) {
     var index = parseInt(getCurrentSongIndex()) + 1;
@@ -525,9 +511,7 @@ function playQueueCallback(playQueue) {
 
     // On the web player, the play button is handled by MEJS and does
     // nothing if a first song hasn't been loaded.
-    <c:if test="${model.player.web}">
     if (songs.length > 0 && !currentStreamUrl) preparePlayer(0);
-    </c:if>
 
     // Delete all the rows except for the "pattern" row
     dwr.util.removeAllRows("playQueueBody", { filter:function(tr) {
@@ -625,15 +609,7 @@ function playQueueCallback(playQueue) {
         // Note: show() method causes page to scroll to top.
         $("#pattern" + id).css("display", "table-row");
     }
-
-    if (playQueue.sendM3U) {
-        parent.location.href="play.m3u?";
-    }
-
-<c:if test="${model.player.web}">
     triggerPlayer(playQueue.startPlayerAt, playQueue.startPlayerAtPosition);
-</c:if>
-
 }
 
 function triggerPlayer(index, positionMillis) {
@@ -939,43 +915,33 @@ window.onTryCloseQueue = function() {
             </c:forEach>
         </select>
     </c:if>
-    <c:if test="${model.player.web}">
-        <div title="<fmt:message key='more.keyboard.previous'/>" onclick="onPrevious()" class="control prev"><fmt:message key="more.keyboard.previous"/></div>
-    </c:if>
-    <c:if test="${model.player.web}">
-        <span id="player">
-            <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
-        </span>
-        <c:if test="${model.useCast}">
-            <span id="castPlayer">
-                <span>
-                    <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
-                    <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
-                    <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
-                    <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
-                </span>
-                <span>
-                    <div id="castVolume"></div>
-                    <script>
-                        $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
-                        $("#castVolume").on("slidestop", onCastVolumeChanged);
-                    </script>
-                </span>
+    <div title="<fmt:message key='more.keyboard.previous'/>" onclick="onPrevious()" class="control prev"><fmt:message key="more.keyboard.previous"/></div>
+    <span id="player">
+        <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
+    </span>
+    <c:if test="${model.useCast}">
+        <span id="castPlayer">
+            <span>
+                <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
+                <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
+                <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
+                <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
             </span>
-        </c:if>
-        <%--
-        #622 Nodes that are not currently in use. Reimplement if necessary.
-        <div title="Cast on" id="castOn" onclick="CastPlayer.launchCastApp()">
-        <div title="Cast off" id="castOff" onclick="CastPlayer.stopCastApp()">
-         --%>
+            <span>
+                <div id="castVolume"></div>
+                <script>
+                    $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
+                    $("#castVolume").on("slidestop", onCastVolumeChanged);
+                </script>
+            </span>
+        </span>
     </c:if>
-    <c:if test="${model.user.streamRole and not model.player.web}">
-        <span title="<fmt:message key='playqueue.start'/>" id="start" onclick="onStart()" class="control play"><fmt:message key="playqueue.start"/></span>
-        <span title="<fmt:message key='playqueue.stop'/>" id="stop" onclick="onStop()" class="control pause"><fmt:message key="playqueue.stop"/></span>
-    </c:if>
-    <c:if test="${model.player.web}">
-        <div title="<fmt:message key='more.keyboard.next'/>" onclick="onNext(false)" class="control forward"><fmt:message key="more.keyboard.next"/></div>
-    </c:if>
+    <%--
+    #622 Nodes that are not currently in use. Reimplement if necessary.
+    <div title="Cast on" id="castOn" onclick="CastPlayer.launchCastApp()">
+    <div title="Cast off" id="castOff" onclick="CastPlayer.stopCastApp()">
+     --%>
+    <div title="<fmt:message key='more.keyboard.next'/>" onclick="onNext(false)" class="control forward"><fmt:message key="more.keyboard.next"/></div>
 
     <a title="<fmt:message key='playqueue.maximize'/>" href="javascript:toggleElasticity()" id="elasticity"><div class="control elasticity"><fmt:message key="playqueue.maximize"/></div></a>
     <a href="javascript:onTogglePlayQueue()">
@@ -1059,10 +1025,7 @@ window.onTryCloseQueue = function() {
                     </c:if>
                     <c:if test="${model.userSettings.playlistVisibility.trackNumberVisible}"><td class="track"><span id="trackNumber">1</span></td></c:if>
                     <td class="${songClass}" id="playingStateReceiver">
-                        <c:choose>
-                            <c:when test="${model.player.externalWithPlaylist}"><span id="title">Title</span></c:when>
-                            <c:otherwise><span><a id="titleUrl" href="javascript:void(0)">Title</a></span></c:otherwise>
-                        </c:choose>
+                        <span><a id="titleUrl" href="javascript:void(0)">Title</a></span>
                     </td>
                     <c:if test="${model.userSettings.playlistVisibility.albumVisible}"><td class="${albumClass}"><a id="albumUrl" target="main"><span id="album">Album</span></a></td></c:if>
                     <c:if test="${model.userSettings.playlistVisibility.artistVisible}"><td class="${artistClass}"><span id="artist">Artist</span></td></c:if>

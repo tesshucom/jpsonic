@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -118,9 +117,8 @@ public class PlayerDao {
         player.setId(id);
         String sql = "insert into player (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
         template.update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(),
-                player.getIpAddress(), player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
-                CoverArtScheme.MEDIUM.name(), player.getTranscodeScheme().name(), player.isDynamicIp(),
-                player.getTechnology().name(), player.getClientId(), null);
+                player.getIpAddress(), false, false, player.getLastSeen(), CoverArtScheme.MEDIUM.name(),
+                player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB", player.getClientId(), null);
         addPlaylist(player, playlists, playerDaoPlayQueueFactory);
 
         if (LOG.isInfoEnabled()) {
@@ -143,8 +141,9 @@ public class PlayerDao {
         String sql = """
                 delete from player
                 where name is null and client_id is null and (last_seen is null or last_seen < ?)
+                        or technology <> ?
                 """;
-        int n = template.update(sql, cal.getTime());
+        int n = template.update(sql, cal.getTime(), "WEB");
         if (LOG.isInfoEnabled() && n > 0) {
             LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
         }
@@ -157,9 +156,8 @@ public class PlayerDao {
                         m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?,
                         dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?
                 """;
-        template.update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
-                player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
-                player.getTranscodeScheme().name(), player.isDynamicIp(), player.getTechnology().name(),
+        template.update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(), false,
+                false, player.getLastSeen(), player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB",
                 player.getClientId(), null, player.getId());
     }
 
@@ -193,13 +191,13 @@ public class PlayerDao {
             player.setType(rs.getString(col++));
             player.setUsername(rs.getString(col++));
             player.setIpAddress(rs.getString(col++));
-            player.setAutoControlEnabled(rs.getBoolean(col++));
-            player.setM3uBomEnabled(rs.getBoolean(col++));
+            col++;
+            col++;
             player.setLastSeen(nullableInstantOf(rs.getTimestamp(col++)));
             col++; // Ignore cover art scheme.
             player.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
             player.setDynamicIp(rs.getBoolean(col++));
-            player.setTechnology(PlayerTechnology.of(rs.getString(col++)));
+            col++;
             player.setClientId(rs.getString(col));
             addPlaylist(player, playlistMap, factory);
             return player;

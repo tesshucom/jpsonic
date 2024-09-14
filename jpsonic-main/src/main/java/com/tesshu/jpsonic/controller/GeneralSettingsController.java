@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -77,19 +76,17 @@ public class GeneralSettingsController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
-    private final PlayerService playerService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService,
+            MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
-        this.playerService = playerService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
@@ -136,7 +133,6 @@ public class GeneralSettingsController {
         // Suppressed legacy features
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
-        command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
         command.setUseJsonp(settingsService.isUseJsonp());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
@@ -235,10 +231,6 @@ public class GeneralSettingsController {
         // Suppressed legacy features
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
-        settingsService.setUseExternalPlayer(command.isUseExternalPlayer());
-        if (!command.isUseExternalPlayer()) {
-            playerService.resetExternalPlayer();
-        }
         settingsService.setUseJsonp(command.isUseJsonp());
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());

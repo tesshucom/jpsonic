@@ -37,18 +37,16 @@ public class PlayQueueInfo {
     private final boolean repeatEnabled;
     private final boolean shuffleRadioEnabled;
     private final boolean internetRadioEnabled;
-    private final boolean sendM3U;
     private int startPlayerAt;
     private long startPlayerAtPosition; // millis
 
     public PlayQueueInfo(List<Entry> entries, boolean stopEnabled, boolean repeatEnabled, boolean shuffleRadioEnabled,
-            boolean internetRadioEnabled, boolean sendM3U) {
+            boolean internetRadioEnabled) {
         this.entries = entries;
         this.stopEnabled = stopEnabled;
         this.repeatEnabled = repeatEnabled;
         this.shuffleRadioEnabled = shuffleRadioEnabled;
         this.internetRadioEnabled = internetRadioEnabled;
-        this.sendM3U = sendM3U;
         startPlayerAt = -1;
     }
 
@@ -68,10 +66,6 @@ public class PlayQueueInfo {
 
     public boolean isStopEnabled() {
         return stopEnabled;
-    }
-
-    public boolean isSendM3U() {
-        return sendM3U;
     }
 
     public boolean isRepeatEnabled() {

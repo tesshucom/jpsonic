@@ -118,6 +118,7 @@ class PlayQueueServiceTest {
         when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
         mediaFileService = mock(MediaFileService.class);
         securityService = mock(SecurityService.class);
+        when(securityService.getCurrentUsername(any(HttpServletRequest.class))).thenReturn(ServiceMockUtils.ADMIN_NAME);
         playQueueDao = mock(PlayQueueDao.class);
         internetRadioDao = mock(InternetRadioDao.class);
         internetRadioService = mock(InternetRadioService.class);
@@ -139,7 +140,6 @@ class PlayQueueServiceTest {
         PlayQueueInfo playQueueInfo = playQueueService.getPlayQueue();
         assertFalse(playQueueInfo.isInternetRadioEnabled());
         assertFalse(playQueueInfo.isRepeatEnabled());
-        assertFalse(playQueueInfo.isSendM3U());
         assertFalse(playQueueInfo.isShuffleRadioEnabled());
         assertFalse(playQueueInfo.isStopEnabled());
 
@@ -678,25 +678,20 @@ class PlayQueueServiceTest {
         when(mediaFileService.getMediaFileStrict(song.getId())).thenReturn(song);
         when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean())).thenReturn(List.of(song));
 
-        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, null, false);
+        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, null);
+        verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile> anyList());
         verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
 
         // With Index
-        clearInvocations(player.getPlayQueue());
-        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, 0, false);
-        verify(player.getPlayQueue(), times(1)).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
-
-        // Exclude Video
-        clearInvocations(player.getPlayQueue());
-        verify(mediaFileService, never()).removeVideoFiles(ArgumentMatchers.<MediaFile> anyList());
-        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, 0, true);
-        verify(player.getPlayQueue(), times(1)).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
+        clearInvocations(player.getPlayQueue(), mediaFileService);
+        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, 0);
         verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile> anyList());
+        verify(player.getPlayQueue(), times(1)).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
     }
 
     @Test
     void testResetPlayQueue() {
-        playQueueService.resetPlayQueue(player.getPlayQueue(), new int[] { 0 }, false);
+        playQueueService.resetPlayQueue(player.getPlayQueue(), new int[] { 0 });
         verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
         verify(player.getPlayQueue(), times(1)).setIndex(anyInt());
         verify(player.getPlayQueue(), times(1)).setStatus(nullable(Status.class));
