@@ -1325,11 +1325,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 continue;
             }
 
-            UserSettings userSettings = securityService.getUserSettings(username);
-            if (!userSettings.isNowPlayingAllowed()) {
-                continue;
-            }
-
             long minutesAgo = status.getMinutesAgo();
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 NowPlayingEntry entry = new NowPlayingEntry();

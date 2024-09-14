@@ -7,7 +7,7 @@
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/utils.js'/>"></script>
-<script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
+<script src="<c:url value='/dwr/interface/scanInfoService.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/dialogsTop.js'/>"></script>
 <script>
@@ -94,7 +94,7 @@ window.onChangeMainLocation = function(location) {
 }
 
 function callScanningStatus() {
-    nowPlayingService.getScanningStatus(getScanningStatusCallback);
+	scanInfoService.getScanningStatus(getScanningStatusCallback);
 }
 
 let retryCallScanningStatus = false;
@@ -168,9 +168,6 @@ window.onChangeCurrentSong = function(song) {
 <%-- dialogs(dialogsTop.js) --%>
 function onOpenDialogVoiceInput() {
     lazyOpenDialogVoiceInput('${model.voiceInputLocale}', "<fmt:message key='common.cancel'/>");
-}
-function onOpenDialogNowplayinginfos() {
-    lazyOpenDialogNowplayinginfos("<fmt:message key='common.cancel'/>");
 }
 window.onShowKeyboardShortcuts = function() {
     lazyOpenDialogKeyboardShortcuts("<fmt:message key='common.cancel'/>");
@@ -280,9 +277,6 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                         <li><a href="starred.view?" target="main" title="${starred}" class="menu-item star">${starred}</a></li>
                         <li><a href="playlists.view?" target="main" title="${playlists}" class="menu-item playlists">${playlists}</a></li>
                         <li><a href="podcastChannels.view?" target="main" title="${podcast}" class="menu-item podcast">${podcast}</a></li>
-                    </c:if>
-                    <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
-                        <li><a href="javascript:onOpenDialogNowplayinginfos();" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
                     </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>

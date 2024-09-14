@@ -106,7 +106,7 @@ public class SettingsService implements ReadWriteLockSupport {
             "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
             "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast",
             "UseRemovingTrackFromId3Title", "UseCleanUp", "RedundantFolderCheck", "UseCopyOfAsciiUnprintable",
-            "UseExternalPlayer");
+            "UseExternalPlayer", "OthersPlayingEnabled");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -565,14 +565,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     public void setOutputSearchQuery(boolean b) {
         setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return getBoolean(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED);
-    }
-
-    public void setOthersPlayingEnabled(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED, b);
     }
 
     public boolean isShowRememberMe() {

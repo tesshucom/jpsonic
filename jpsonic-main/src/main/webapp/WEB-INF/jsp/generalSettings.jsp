@@ -21,7 +21,6 @@ function resetSortSettings() {
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
 }
 function resetLegacyFeatures() {
-    $('[name="othersPlayingEnabled"]').prop('checked', false);
     $('[name="showRememberMe"]').prop('checked', false);
     $('[name="useRadio"]').prop('checked', false);
     $('[name="useJsonp"]').prop('checked', false);
@@ -206,12 +205,6 @@ function resetExtension() {
         </c:if>
 
         <dl>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="othersPlayingEnabled" id="othersPlayingEnabled"/>
-                <label for="othersPlayingEnabled"><fmt:message key="generalsettings.othersplayingenabled"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="othersplayingenabled"/></c:import>
-            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="showRememberMe" id="showRememberMe"/>

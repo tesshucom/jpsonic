@@ -201,6 +201,7 @@ class UserDaoTest {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> userDao.updateUserSettings(userSettings));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void testUserSettings() throws ExecutionException {
         userDao.createUser(new User("sindre", "secret", null));
@@ -290,7 +291,7 @@ class UserDaoTest {
         assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
         assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
-        assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
+        assertFalse(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
         Assertions.assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(), "Error in getUserSettings().");
         assertEquals(102, userSettings.getSystemAvatarId(), "Error in getUserSettings().");
         assertEquals(Instant.ofEpochMilli(9412L), userSettings.getChanged(), "Error in getUserSettings().");

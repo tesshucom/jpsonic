@@ -8,8 +8,8 @@
             <param name="beanName" value="ajaxMultiService"/>
         </create>
 
-        <create creator="spring" javascript="nowPlayingService">
-            <param name="beanName" value="ajaxNowPlayingService"/>
+        <create creator="spring" javascript="scanInfoService">
+            <param name="beanName" value="ajaxScanInfoService"/>
         </create>
 
         <create creator="spring" javascript="playQueueService">
@@ -40,7 +40,6 @@
             <param name="beanName" value="ajaxTransferService"/>
         </create>
 
-        <convert converter="bean" match="com.tesshu.jpsonic.ajax.NowPlayingInfo"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.ScanInfo"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlayQueueInfo"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlayQueueInfo$Entry"/>

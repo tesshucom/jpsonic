@@ -131,7 +131,6 @@ public class GeneralSettingsController {
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
 
         // Suppressed legacy features
-        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setUseJsonp(settingsService.isUseJsonp());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
@@ -194,8 +193,7 @@ public class GeneralSettingsController {
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
-                || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
+                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
 
         settingsService.setThemeId(theme.getId());
@@ -229,7 +227,6 @@ public class GeneralSettingsController {
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
 
         // Suppressed legacy features
-        settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setUseJsonp(command.isUseJsonp());
         settingsService.setShowIndexDetails(command.isShowIndexDetails());

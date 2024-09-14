@@ -5,7 +5,6 @@
 <%@ include file="jquery.jsp" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
-<script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
 <script src="<c:url value='/dwr/interface/playQueueService.js'/>"></script>
 <script src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
 <script src="<c:url value='/dwr/util.js'/>"></script>
@@ -52,7 +51,6 @@ const useCast = ${model.useCast};
 $(document).ready(function(){
 
     dwr.engine.setErrorHandler(null);
-    startTimer();
     createMediaElementPlayer();
 
     $("#playQueueBody").sortable({
@@ -173,12 +171,6 @@ $(document).ready(function(){
         });
     </c:if>
 });
-
-function startTimer() {
-    <!-- Periodically check if the current song has changed. -->
-    nowPlayingService.getNowPlayingForCurrentPlayer(nowPlayingCallback);
-    setTimeout("startTimer()", 10000);
-}
 
 function nowPlayingCallback(nowPlayingInfo) {
     if (nowPlayingInfo != null && nowPlayingInfo.streamUrl != currentStreamUrl) {

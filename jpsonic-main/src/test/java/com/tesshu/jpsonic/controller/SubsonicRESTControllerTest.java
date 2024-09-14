@@ -1264,7 +1264,11 @@ class SubsonicRESTControllerTest {
                 assertEquals("1.15.0", response.getVersion());
                 NowPlaying nowPlaying = response.getNowPlaying();
                 assertNotNull(nowPlaying);
-                assertEquals(0, nowPlaying.getEntry().size()); // Entry can't be obtained
+
+                // Temporarily reverting functionality.
+                // https://github.com/tesshucom/jpsonic/issues/2688
+                // assertEquals(0, nowPlaying.getEntry().size()); // Entry can't be obtained
+                assertEquals(2, nowPlaying.getEntry().size());
 
                 statusService.getAllStreamStatuses().stream()
                         .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()

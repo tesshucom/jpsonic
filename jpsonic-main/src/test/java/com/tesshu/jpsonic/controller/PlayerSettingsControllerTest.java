@@ -71,8 +71,9 @@ class PlayerSettingsControllerTest {
         List<Transcoding> allTranscodings = transcodingDao.getAllTranscodings();
         TranscodingService transcodingService = mock(TranscodingService.class);
         Mockito.when(transcodingService.getTranscodingsForPlayer(Mockito.any())).thenReturn(allTranscodings);
-        PlayerSettingsController controller = new PlayerSettingsController(mock(SettingsService.class), mock(SecurityService.class), playerService,
-                transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
+        PlayerSettingsController controller = new PlayerSettingsController(mock(SettingsService.class),
+                mock(SecurityService.class), playerService, transcodingService, mock(ShareService.class),
+                mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

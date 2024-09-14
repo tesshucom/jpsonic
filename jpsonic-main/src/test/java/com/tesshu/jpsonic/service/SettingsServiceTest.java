@@ -597,11 +597,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsOthersPlayingEnabled() {
-        assertFalse(settingsService.isOthersPlayingEnabled());
-    }
-
-    @Test
     void testIsShowRememberMe() {
         assertFalse(settingsService.isShowRememberMe());
     }

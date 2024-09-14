@@ -136,6 +136,7 @@ class SecurityServiceTest {
             assertTrue(userSettings.getPlaylistVisibility().isFileSizeVisible());
         }
 
+        @SuppressWarnings("deprecation")
         @Test
         void testAdditionalDisplay() throws ExecutionException {
             UserSettings userSettings = service.getUserSettings("");
