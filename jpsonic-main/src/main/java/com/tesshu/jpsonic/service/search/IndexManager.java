@@ -167,13 +167,14 @@ public class IndexManager implements ReadWriteLockSupport {
     }
 
     @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
-    public void index(Album album) {
+    public void index(@NonNull Album album) {
         Term primarykey = DocumentFactory.createPrimarykey(album);
         Document document = documentFactory.createAlbumId3Document(album);
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
-            if (!isEmpty(album.getGenre())) {
-                Term genrekey = DocumentFactory.createPrimarykey(album.getGenre().hashCode());
+            String genre = album.getGenre();
+            if (genre != null && !genre.isEmpty()) {
+                Term genrekey = DocumentFactory.createPrimarykey(genre.hashCode());
                 Document genreDoc = documentFactory.createGenreDocument(album);
                 writers.get(IndexType.ALBUM_ID3_GENRE).updateDocument(genrekey, genreDoc);
             }

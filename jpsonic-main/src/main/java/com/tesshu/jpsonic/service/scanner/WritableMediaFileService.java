@@ -272,20 +272,7 @@ public class WritableMediaFileService {
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")
     Optional<MediaFile> createOrUpdateChild(@Nullable MediaFile child, @NonNull Path childPath,
             @NonNull Instant scanDate) {
-        if (child == null) {
-            if (settingsService.isUseCleanUp()) {
-                if (mediaFileDao.exists(childPath)) {
-                    return refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath));
-                } else {
-                    return createMediaFile(scanDate, childPath);
-                }
-            } else {
-                // @see ScannerProcedureService#beforeScan
-                return createMediaFile(scanDate, childPath);
-            }
-        } else {
-            return checkLastModified(scanDate, child);
-        }
+        return child == null ? createMediaFile(scanDate, childPath) : checkLastModified(scanDate, child);
     }
 
     List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent, boolean fileOnly) {

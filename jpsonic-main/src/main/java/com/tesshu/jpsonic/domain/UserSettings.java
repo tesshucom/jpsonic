@@ -135,10 +135,12 @@ public class UserSettings {
         this.themeId = themeId;
     }
 
+    @Deprecated
     public boolean isShowNowPlayingEnabled() {
         return showNowPlayingEnabled;
     }
 
+    @Deprecated
     public void setShowNowPlayingEnabled(boolean showNowPlayingEnabled) {
         this.showNowPlayingEnabled = showNowPlayingEnabled;
     }
@@ -255,10 +257,12 @@ public class UserSettings {
         this.partyModeEnabled = partyModeEnabled;
     }
 
+    @Deprecated
     public boolean isNowPlayingAllowed() {
         return nowPlayingAllowed;
     }
 
+    @Deprecated
     public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
         this.nowPlayingAllowed = nowPlayingAllowed;
     }

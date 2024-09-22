@@ -31,7 +31,6 @@ import com.tesshu.jpsonic.controller.StatusController.TransferStatusHolder;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,8 +49,8 @@ class StatusControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new StatusController(mock(SettingsService.class),
-                mock(SecurityService.class), mock(StatusService.class))).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new StatusController(mock(SecurityService.class), mock(StatusService.class))).build();
     }
 
     @Test

@@ -60,7 +60,6 @@ import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SavedPlayQueue;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
@@ -1326,11 +1325,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 continue;
             }
 
-            UserSettings userSettings = securityService.getUserSettings(username);
-            if (!userSettings.isNowPlayingAllowed()) {
-                continue;
-            }
-
             long minutesAgo = status.getMinutesAgo();
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 NowPlayingEntry entry = new NowPlayingEntry();
@@ -2574,7 +2568,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
             player.setUsername(username);
             player.setClientId(clientId);
             player.setName(clientId);
-            player.setTechnology(PlayerTechnology.WEB);
             playerService.createPlayer(player);
             players = playerService.getPlayersForUserAndClientId(username, clientId);
         }

@@ -89,9 +89,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private String ietfDisplayDefault;
     private boolean openDetailStar;
     private boolean openDetailIndex;
-    private boolean nowPlayingAllowed;
-    private boolean othersPlayingEnabled;
-    private boolean showNowPlayingEnabled;
     private boolean showArtistInfoEnabled;
     private boolean forceBio2Eng;
     private boolean showTopSongs;
@@ -437,30 +434,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
 
     public void setOpenDetailIndex(boolean openDetailIndex) {
         this.openDetailIndex = openDetailIndex;
-    }
-
-    public boolean isNowPlayingAllowed() {
-        return nowPlayingAllowed;
-    }
-
-    public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
-        this.nowPlayingAllowed = nowPlayingAllowed;
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return othersPlayingEnabled;
-    }
-
-    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
-        this.othersPlayingEnabled = othersPlayingEnabled;
-    }
-
-    public boolean isShowNowPlayingEnabled() {
-        return showNowPlayingEnabled;
-    }
-
-    public void setShowNowPlayingEnabled(boolean showNowPlayingEnabled) {
-        this.showNowPlayingEnabled = showNowPlayingEnabled;
     }
 
     public boolean isShowArtistInfoEnabled() {

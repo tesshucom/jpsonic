@@ -62,17 +62,8 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean outputSearchQuery;
 
     // Suppressed legacy features
-    private boolean showServerLog;
-    private boolean showStatus;
-    private boolean othersPlayingEnabled;
     private boolean showRememberMe;
-    private boolean publishPodcast;
-    private boolean useExternalPlayer;
-    private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
-    private boolean useRemovingTrackFromId3Title;
-    private boolean useCleanUp;
-    private boolean redundantFolderCheck;
     private boolean showIndexDetails;
     private boolean showDBDetails;
     private boolean useCast;
@@ -250,30 +241,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.outputSearchQuery = outputSearchQuery;
     }
 
-    public boolean isShowServerLog() {
-        return showServerLog;
-    }
-
-    public void setShowServerLog(boolean showServerLog) {
-        this.showServerLog = showServerLog;
-    }
-
-    public boolean isShowStatus() {
-        return showStatus;
-    }
-
-    public void setShowStatus(boolean showStatus) {
-        this.showStatus = showStatus;
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return othersPlayingEnabled;
-    }
-
-    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
-        this.othersPlayingEnabled = othersPlayingEnabled;
-    }
-
     public boolean isShowRememberMe() {
         return showRememberMe;
     }
@@ -282,60 +249,12 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.showRememberMe = showRememberMe;
     }
 
-    public boolean isPublishPodcast() {
-        return publishPodcast;
-    }
-
-    public void setPublishPodcast(boolean publishPodcast) {
-        this.publishPodcast = publishPodcast;
-    }
-
-    public boolean isUseExternalPlayer() {
-        return useExternalPlayer;
-    }
-
-    public void setUseExternalPlayer(boolean useExternalPlayer) {
-        this.useExternalPlayer = useExternalPlayer;
-    }
-
-    public boolean isUseCopyOfAsciiUnprintable() {
-        return useCopyOfAsciiUnprintable;
-    }
-
-    public void setUseCopyOfAsciiUnprintable(boolean useCopyOfAsciiUnprintable) {
-        this.useCopyOfAsciiUnprintable = useCopyOfAsciiUnprintable;
-    }
-
     public boolean isUseJsonp() {
         return useJsonp;
     }
 
     public void setUseJsonp(boolean useJsonp) {
         this.useJsonp = useJsonp;
-    }
-
-    public boolean isUseRemovingTrackFromId3Title() {
-        return useRemovingTrackFromId3Title;
-    }
-
-    public void setUseRemovingTrackFromId3Title(boolean useRemovingTrackFromId3Title) {
-        this.useRemovingTrackFromId3Title = useRemovingTrackFromId3Title;
-    }
-
-    public boolean isUseCleanUp() {
-        return useCleanUp;
-    }
-
-    public void setUseCleanUp(boolean useCleanUp) {
-        this.useCleanUp = useCleanUp;
-    }
-
-    public boolean isRedundantFolderCheck() {
-        return redundantFolderCheck;
-    }
-
-    public void setRedundantFolderCheck(boolean redundantFolderCheck) {
-        this.redundantFolderCheck = redundantFolderCheck;
     }
 
     public boolean isShowIndexDetails() {

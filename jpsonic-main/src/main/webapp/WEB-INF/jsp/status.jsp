@@ -12,7 +12,6 @@
 <c:import url="helpHeader.jsp">
 	<c:param name="cat" value="status"/>
     <c:param name="isAdmin" value="${model.admin}"/>
-    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <div>

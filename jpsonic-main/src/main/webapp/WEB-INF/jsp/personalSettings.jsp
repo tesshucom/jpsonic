@@ -112,8 +112,6 @@ function resetAdditionalDisplay() {
     $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
     $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
     $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
-    $('[name="showNowPlayingEnabled"]').prop('checked', ${command.defaultSettings.showNowPlayingEnabled});
-    $('[name="nowPlayingAllowed"]').prop('checked', ${command.defaultSettings.nowPlayingAllowed});
     $('[name="showArtistInfoEnabled"]').prop('checked', ${command.defaultSettings.showArtistInfoEnabled});
     $('[name="forceBio2Eng"]').prop('checked', ${command.defaultSettings.forceBio2Eng});
     $('[name="showTopSongs"]').prop('checked', ${command.defaultSettings.showTopSongs});
@@ -519,20 +517,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <form:checkbox path="openDetailIndex" id="openDetailIndex" />
                 <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="nowplayingallowed"/></c:import>
-            </dd>
-            <c:if test="${command.othersPlayingEnabled}">
-                <dt><fmt:message key="personalsettings.menu"/></dt>
-                <dd>
-                    <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
-                    <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-                </dd>
-            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
                 <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />

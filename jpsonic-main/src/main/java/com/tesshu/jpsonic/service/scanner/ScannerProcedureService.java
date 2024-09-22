@@ -219,9 +219,7 @@ public class ScannerProcedureService {
         mediaFileCache.setEnabled(false);
         mediaFileCache.removeAll();
 
-        if (!settingsService.isUseCleanUp() && mediaFileDao.existsNonPresent()) {
-            // If useCleanUp=false(default), Clean-up can be managed by Scan processes.
-            // Removing present=false in advance can reduce the number of subsequent queries issued.
+        if (mediaFileDao.existsNonPresent()) {
             expungeFileStructure();
         }
 
@@ -372,10 +370,6 @@ public class ScannerProcedureService {
     @Transactional
     public void iterateFileStructure(@NonNull Instant scanDate) {
         if (isInterrupted()) {
-            return;
-        }
-        if (settingsService.isUseCleanUp()) {
-            createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, MSG_SKIP);
             return;
         }
         writeInfo("Marking non-present files.");

@@ -40,12 +40,10 @@ import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -63,7 +61,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.TooManyStaticImports")
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class PersonalSettingsControllerTest {
 
     private static final String VIEW_NAME = "personalSettings";
@@ -131,11 +128,9 @@ class PersonalSettingsControllerTest {
         assertEquals("2", command.getLocaleIndex());
         assertEquals(28, command.getLocales().size());
         assertNotNull(command.getMainVisibility());
-        assertFalse(command.isNowPlayingAllowed());
         assertFalse(command.isOpenDetailIndex());
         assertFalse(command.isOpenDetailSetting());
         assertFalse(command.isOpenDetailStar());
-        assertFalse(command.isOthersPlayingEnabled());
         assertEquals(40, command.getPaginationSize());
         assertFalse(command.isPartyModeEnabled());
         assertNotNull(command.getPlaylistVisibility());
@@ -151,7 +146,6 @@ class PersonalSettingsControllerTest {
         assertFalse(command.isShowDownload());
         assertTrue(command.isShowIndex());
         assertFalse(command.isShowLastPlay());
-        assertFalse(command.isShowNowPlayingEnabled());
         assertFalse(command.isShowOutlineHelp());
         assertFalse(command.isShowRate());
         assertFalse(command.isShowShare());
@@ -198,16 +192,6 @@ class PersonalSettingsControllerTest {
                     }
 
                     @interface NotNull {
-                    }
-                }
-            }
-
-            @interface SettingsService {
-                @interface OthersPlayingEnabled {
-                    @interface False {
-                    }
-
-                    @interface True {
                     }
                 }
             }
@@ -262,13 +246,11 @@ class PersonalSettingsControllerTest {
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    @Order(2)
     class DoSubmitAction {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.Null
         @DoSubmitDecision.Conditions.UserSettings.SpeechLangSchemeName.Default
         @DoSubmitDecision.Conditions.UserSettings.ThemeId.Null
-        @DoSubmitDecision.Conditions.SettingsService.OthersPlayingEnabled.False
         @DoSubmitDecision.Conditions.Command.Ietf.NotBlank.FineFormat
         @DoSubmitDecision.Conditions.Command.LastFmPassword.Blank
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.Default
@@ -290,10 +272,9 @@ class PersonalSettingsControllerTest {
             assertNotNull(command.getIetf()); // Depends on the test environment
 
             UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
-            assertEquals(Locale.US, userSettings.getLocale());
+            assertNull(userSettings.getLocale());
             assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
             assertNull(userSettings.getThemeId());
-            assertFalse(settingsService.isOthersPlayingEnabled());
 
             result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
@@ -392,7 +373,6 @@ class PersonalSettingsControllerTest {
             assertNotNull(result);
         }
 
-        @DoSubmitDecision.Conditions.SettingsService.OthersPlayingEnabled.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(5)
@@ -406,8 +386,6 @@ class PersonalSettingsControllerTest {
             PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
-
-            settingsService.setOthersPlayingEnabled(true);
 
             result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
@@ -435,8 +413,6 @@ class PersonalSettingsControllerTest {
             assertNotNull(command);
             command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf(null);
-
-            settingsService.setOthersPlayingEnabled(true);
 
             modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
@@ -470,8 +446,6 @@ class PersonalSettingsControllerTest {
             assertNotNull(command);
             command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf("Unknown.Unknown");
-
-            settingsService.setOthersPlayingEnabled(true);
 
             modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
@@ -579,201 +553,6 @@ class PersonalSettingsControllerTest {
 
             assertNotNull(command);
             assertEquals(AvatarScheme.CUSTOM.getCode(), command.getAvatarId());
-        }
-    }
-
-    @Documented
-    private @interface NowPlayingDecision {
-        @interface Conditions {
-            @interface SettingsService {
-                @interface OthersPlayingEnabled {
-                    @interface False {
-                    }
-
-                    @interface True {
-                    }
-                }
-            }
-
-            @interface UserSettings {
-                @interface ShowNowPlayingEnabled {
-                    @interface False {
-                    }
-
-                    @interface True {
-                    }
-                }
-
-                @interface NowPlayingAllowed {
-                    @interface False {
-                    }
-
-                    @interface True {
-                    }
-                }
-            }
-
-            @interface Command {
-                @interface ShowNowPlayingEnabled {
-                    @interface True {
-                    }
-                }
-
-                @interface NowPlayingAllowed {
-                    @interface True {
-                    }
-                }
-            }
-        }
-
-        @interface Result {
-            @interface UserSettings {
-                @interface ShowNowPlayingEnabled {
-                    @interface False {
-                    }
-
-                    @interface True {
-                    }
-                }
-
-                @interface NowPlayingAllowed {
-
-                    @interface True {
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * #638, #1048
-     */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
-    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    @Nested
-    @Order(1)
-    class NowPlaying {
-
-        @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.False
-        @NowPlayingDecision.Conditions.UserSettings.ShowNowPlayingEnabled.False
-        @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.False
-        @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
-        @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
-        @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        @Test
-        @Order(1)
-        void c1() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-            assertNotNull(result);
-            ModelAndView modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
-            assertNotNull(command);
-
-            assertFalse(command.isNowPlayingAllowed());
-            assertFalse(command.isShowNowPlayingEnabled());
-            command.setNowPlayingAllowed(true);
-            command.setShowNowPlayingEnabled(true);
-
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
-            assertNull(modelAndView.getViewName());
-
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-            assertNotNull(result);
-            modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
-
-            assertTrue(command.isNowPlayingAllowed());
-            assertFalse(command.isShowNowPlayingEnabled());
-        }
-
-        @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.True
-        @NowPlayingDecision.Conditions.UserSettings.ShowNowPlayingEnabled.False
-        @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.True
-        @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
-        @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
-        @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.True
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        @Test
-        @Order(2)
-        void c2() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-            assertNotNull(result);
-            ModelAndView modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
-            assertNotNull(command);
-
-            assertTrue(command.isNowPlayingAllowed());
-            assertFalse(command.isShowNowPlayingEnabled());
-            command.setNowPlayingAllowed(true);
-            command.setShowNowPlayingEnabled(true);
-            settingsService.setOthersPlayingEnabled(true);
-
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
-            assertNull(modelAndView.getViewName());
-
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-            assertNotNull(result);
-            modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
-
-            assertTrue(command.isNowPlayingAllowed());
-            assertTrue(command.isShowNowPlayingEnabled());
-        }
-
-        @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.True
-        @NowPlayingDecision.Conditions.UserSettings.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.False
-        @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
-        @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
-        @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        @Test
-        @Order(3)
-        void c3() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-            assertNotNull(result);
-            ModelAndView modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
-            assertNotNull(command);
-
-            assertTrue(command.isNowPlayingAllowed());
-            assertTrue(command.isShowNowPlayingEnabled());
-            command.setNowPlayingAllowed(true);
-            command.setShowNowPlayingEnabled(true);
-            settingsService.setOthersPlayingEnabled(false);
-
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
-            assertNull(modelAndView.getViewName());
-
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-            assertNotNull(result);
-            modelAndView = result.getModelAndView();
-            assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
-
-            assertTrue(command.isNowPlayingAllowed());
-            assertFalse(command.isShowNowPlayingEnabled());
         }
     }
 }

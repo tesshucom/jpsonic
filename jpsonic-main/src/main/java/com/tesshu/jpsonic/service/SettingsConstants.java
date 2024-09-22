@@ -117,19 +117,9 @@ final class SettingsConstants {
         }
 
         static final class Legacy {
-            static final Pair<Boolean> SHOW_SERVER_LOG = Pair.of("ShowServerLog", false);
-            static final Pair<Boolean> SHOW_STATUS = Pair.of("ShowStatus", false);
-            static final Pair<Boolean> OTHERS_PLAYING_ENABLED = Pair.of("OthersPlayingEnabled", false);
             static final Pair<Boolean> SHOW_REMEMBER_ME = Pair.of("ShowRememberMe", false);
-            static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
-            static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
-            static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
-            static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
-                    false);
-            static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
-            static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
             static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
             static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);
             static final Pair<Boolean> USE_CAST = Pair.of("UseCast", false);

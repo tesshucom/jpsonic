@@ -21,7 +21,6 @@ function refreshScanLogs() {
 <c:import url="helpHeader.jsp">
     <c:param name="cat" value="scanlog"/>
     <c:param name="isAdmin" value="${model.admin}"/>
-    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <c:import url="outlineHelpSelector.jsp">

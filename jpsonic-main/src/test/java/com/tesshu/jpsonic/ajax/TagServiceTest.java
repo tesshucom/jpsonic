@@ -32,7 +32,6 @@ import java.util.Optional;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
@@ -59,7 +58,7 @@ class TagServiceTest {
         scannerStateService = mock(ScannerStateServiceImpl.class);
         tagService = new TagService(metaDataParserFactory, mediaFileService, writableMediaFileService,
                 scannerStateService);
-        parser = new MusicParser(mock(SettingsService.class), mock(MusicFolderService.class));
+        parser = new MusicParser(mock(MusicFolderService.class));
     }
 
     @Test

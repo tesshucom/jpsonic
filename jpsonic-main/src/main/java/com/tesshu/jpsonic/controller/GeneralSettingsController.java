@@ -32,13 +32,11 @@ import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.util.PathValidator;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -78,19 +76,17 @@ public class GeneralSettingsController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
-    private final PlayerService playerService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService,
+            MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
-        this.playerService = playerService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
@@ -135,17 +131,8 @@ public class GeneralSettingsController {
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
 
         // Suppressed legacy features
-        command.setShowServerLog(settingsService.isShowServerLog());
-        command.setShowStatus(settingsService.isShowStatus());
-        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
-        command.setPublishPodcast(settingsService.isPublishPodcast());
-        command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
-        command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
-        command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
-        command.setUseCleanUp(settingsService.isUseCleanUp());
-        command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
         command.setUseCast(settingsService.isUseCast());
@@ -206,8 +193,7 @@ public class GeneralSettingsController {
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
-                || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
+                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
 
         settingsService.setThemeId(theme.getId());
@@ -241,22 +227,8 @@ public class GeneralSettingsController {
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
 
         // Suppressed legacy features
-        settingsService.setShowServerLog(command.isShowServerLog());
-        settingsService.setShowStatus(command.isShowStatus());
-        settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
-        settingsService.setPublishPodcast(command.isPublishPodcast());
-        settingsService.setUseExternalPlayer(command.isUseExternalPlayer());
-        if (!command.isUseExternalPlayer()) {
-            playerService.resetExternalPlayer();
-        }
-        settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
-        if (!scannerStateService.isScanning()) {
-            settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
-            settingsService.setUseCleanUp(command.isUseCleanUp());
-            settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
-        }
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());
         settingsService.setUseCast(command.isUseCast());

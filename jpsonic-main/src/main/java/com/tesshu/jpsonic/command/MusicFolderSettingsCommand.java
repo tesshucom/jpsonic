@@ -44,7 +44,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean ignoreFileTimestamps;
     private String interval;
     private String hour;
-    private boolean useCleanUp;
 
     // Exclusion settings
     private String excludePatternString;
@@ -102,14 +101,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         this.hour = hour;
     }
 
-    public boolean isUseCleanUp() {
-        return useCleanUp;
-    }
-
-    public void setUseCleanUp(boolean useCleanUp) {
-        this.useCleanUp = useCleanUp;
-    }
-
     public String getExcludePatternString() {
         return excludePatternString;
     }
@@ -150,7 +141,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         private boolean enabled;
         private Integer folderOrder;
         private boolean delete;
-        private boolean existing;
 
         public MusicFolderInfo(MusicFolder musicFolder) {
             id = musicFolder.getId();
@@ -159,7 +149,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             Path folderPath = musicFolder.toPath();
             path = folderPath.toString();
             folderOrder = musicFolder.getFolderOrder();
-            existing = true;
         }
 
         public MusicFolderInfo() {
@@ -212,14 +201,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public void setDelete(boolean delete) {
             this.delete = delete;
-        }
-
-        public boolean isExisting() {
-            return existing;
-        }
-
-        public void setExisting(boolean existing) {
-            this.existing = existing;
         }
     }
 }

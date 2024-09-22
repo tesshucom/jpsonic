@@ -21,20 +21,9 @@ function resetSortSettings() {
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
 }
 function resetLegacyFeatures() {
-    $('[name="showServerLog"]').prop('checked', false);
-    $('[name="showStatus"]').prop('checked', false);
-    $('[name="othersPlayingEnabled"]').prop('checked', false);
     $('[name="showRememberMe"]').prop('checked', false);
-    $('[name="publishPodcast"]').prop('checked', false);
     $('[name="useRadio"]').prop('checked', false);
-    $('[name="useExternalPlayer"]').prop('checked', false);
-    $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
     $('[name="useJsonp"]').prop('checked', false);
-    if(!scanning) {
-        $('[name="useRemovingTrackFromId3Title"]').prop('checked', false);
-        $('[name="useCleanUp"]').prop('checked', false);
-        $('[name="redundantFolderCheck"]').prop('checked', false);
-    }
     $('[name="showIndexDetails"]').prop('checked', false);
     $('[name="showDBDetails"]').prop('checked', false);
     $('[name="useCast"]').prop('checked', false);
@@ -216,35 +205,11 @@ function resetExtension() {
         </c:if>
 
         <dl>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="showServerLog" id="showServerLog"/>
-                <label for="showServerLog"><fmt:message key="generalsettings.showserverlog"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showserverlog"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="showStatus" id="showStatus"/>
-                <label for="showStatus"><fmt:message key="generalsettings.showstatus"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showstatus"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="othersPlayingEnabled" id="othersPlayingEnabled"/>
-                <label for="othersPlayingEnabled"><fmt:message key="generalsettings.othersplayingenabled"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="othersplayingenabled"/></c:import>
-            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="showRememberMe" id="showRememberMe"/>
                 <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="publishPodcast" id="publishPodcast"/>
-                <label for="publishPodcast"><fmt:message key="generalsettings.publishpodcast"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="publishpodcast"/></c:import>
             </dd>
             <dt></dt>
             <dd>
@@ -252,41 +217,11 @@ function resetExtension() {
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
             </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useExternalPlayer" id="useExternalPlayer"/>
-                <label for="useExternalPlayer"><fmt:message key="generalsettings.useexternalplayer"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="useexternalplayer"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useCopyOfAsciiUnprintable" id="useCopyOfAsciiUnprintable"/>
-                <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecopyofasciiunprintable"/></c:import>
-            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="useJsonp" id="useJsonp"/>
                 <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useRemovingTrackFromId3Title" id="useRemovingTrackFromId3Title" disabled="${command.scanning}"/>
-                <label for="useRemovingTrackFromId3Title"><fmt:message key="generalsettings.useremovingtrackfromid3title"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="useremovingtrackfromid3title"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="useCleanUp" id="useCleanUp" disabled="${command.scanning}"/>
-                <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
-            </dd>
-            <dt><strong>Deprecated. Will be removed.</strong></dt>
-            <dd>
-                <form:checkbox path="redundantFolderCheck" id="redundantFolderCheck" disabled="${command.scanning}"/>
-                <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="redundantfoldercheck"/></c:import>
             </dd>
             <dt></dt>
             <dd>

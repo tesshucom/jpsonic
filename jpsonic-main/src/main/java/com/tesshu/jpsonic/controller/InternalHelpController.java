@@ -116,7 +116,6 @@ public class InternalHelpController {
 
         map.put("brand", SettingsService.getBrand());
         map.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
-        map.put("showStatus", settingsService.isShowStatus());
 
         // Gather internal information
         gatherPlatfomInfo(request, map);

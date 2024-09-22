@@ -36,7 +36,6 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,16 +49,14 @@ import org.mockito.Mockito;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MetaDataParserTest {
 
-    private SettingsService settingsService;
     private MusicFolderService musicFolderService;
     private MetaDataParser parser;
 
     @BeforeEach
     void setUp() {
-        settingsService = mock(SettingsService.class);
         musicFolderService = mock(MusicFolderService.class);
 
-        parser = new MetaDataParser(settingsService) {
+        parser = new MetaDataParser() {
             @Override
             public MetaData getRawMetaData(Path path) {
                 return null;
@@ -101,7 +98,7 @@ class MetaDataParserTest {
             musicParser = mock(MusicParser.class);
             metaData = mock(MetaData.class);
             path = Path.of(MetaDataParserTest.class.getResource("/MEDIAS/Metadata/tagger3/blank/blank.flac").toURI());
-            parser = new MetaDataParser(settingsService) {
+            parser = new MetaDataParser() {
                 @Override
                 public MetaData getRawMetaData(Path path) {
                     return musicParser.getMetaData(path);
@@ -131,7 +128,7 @@ class MetaDataParserTest {
 
         @Test
         void testWithEmptyMeta() throws URISyntaxException {
-            MusicParser musicParser = new MusicParser(settingsService, musicFolderService);
+            MusicParser musicParser = new MusicParser(musicFolderService);
             Path blankData = Path
                     .of(MetaDataParserTest.class.getResource("/MEDIAS/Metadata/tagger3/blank/blank.flac").toURI());
             MetaData metaData = musicParser.getMetaData(blankData);
@@ -165,21 +162,6 @@ class MetaDataParserTest {
             assertNull(result.getTitleSort());
         }
 
-        /*
-         * #1875 Note that this method is not guaranteed to be perfect.
-         */
-        @Test
-        void testExcessiveFormatting() {
-            metaData = new MetaData();
-            metaData.setTitle("10 Years Today");
-            metaData.setTrackNumber(10);
-            Mockito.when(musicParser.getMetaData(path)).thenReturn(metaData);
-
-            Mockito.when(settingsService.isUseRemovingTrackFromId3Title()).thenReturn(true);
-            MetaData result = parser.getMetaData(path);
-            assertEquals("Years Today", result.getTitle());
-        }
-
         @Test
         void testNonExcessiveFormatting() {
             metaData = new MetaData();
@@ -187,7 +169,6 @@ class MetaDataParserTest {
             metaData.setTrackNumber(10);
             Mockito.when(musicParser.getMetaData(path)).thenReturn(metaData);
 
-            Mockito.when(settingsService.isUseRemovingTrackFromId3Title()).thenReturn(false);
             MetaData result = parser.getMetaData(path);
             assertEquals("10 Years Today", result.getTitle());
         }

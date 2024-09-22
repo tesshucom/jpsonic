@@ -26,10 +26,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -53,15 +51,13 @@ public class MoreController {
 
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final PlayerService playerService;
     private final SearchService searchService;
 
     public MoreController(MusicFolderService musicFolderService, SecurityService securityService,
-            PlayerService playerService, SearchService searchService) {
+            SearchService searchService) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        this.playerService = playerService;
         this.searchService = searchService;
     }
 
@@ -77,12 +73,10 @@ public class MoreController {
             uploadDirectory = Path.of(musicFolders.get(0).getPathString(), "Incoming").toString();
         }
 
-        Player player = playerService.getPlayer(request, response);
         ModelAndView result = new ModelAndView();
         result.addObject("model",
                 LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "genres", searchService.getGenres(false),
-                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
-                        "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(), "brand",
+                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders, "brand",
                         SettingsService.getBrand()));
         return result;
     }

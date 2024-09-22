@@ -62,14 +62,11 @@ public class HelpController {
     private static final int LOG_LINES_TO_SHOW = 50;
 
     private final VersionService versionService;
-    private final SettingsService settingsService;
     private final SecurityService securityService;
 
-    public HelpController(VersionService versionService, SettingsService settingsService,
-            SecurityService securityService) {
+    public HelpController(VersionService versionService, SecurityService securityService) {
         super();
         this.versionService = versionService;
-        this.settingsService = settingsService;
         this.securityService = securityService;
     }
 
@@ -106,8 +103,6 @@ public class HelpController {
                 throw new UncheckedIOException(e);
             }
         }
-        map.put("showServerLog", settingsService.isShowServerLog());
-        map.put("showStatus", settingsService.isShowStatus());
         return new ModelAndView("help", "model", map);
     }
 

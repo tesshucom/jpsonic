@@ -104,7 +104,9 @@ public class SettingsService implements ReadWriteLockSupport {
             "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
             "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
             "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
-            "DlnaPodcastVisible", "DlnaGenreCountVisible");
+            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast",
+            "UseRemovingTrackFromId3Title", "UseCleanUp", "RedundantFolderCheck", "UseCopyOfAsciiUnprintable",
+            "UseExternalPlayer", "OthersPlayingEnabled");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -565,44 +567,12 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
     }
 
-    public boolean isShowServerLog() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_SERVER_LOG);
-    }
-
-    public void setShowServerLog(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_SERVER_LOG, b);
-    }
-
-    public boolean isShowStatus() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_STATUS);
-    }
-
-    public void setShowStatus(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_STATUS, b);
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return getBoolean(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED);
-    }
-
-    public void setOthersPlayingEnabled(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED, b);
-    }
-
     public boolean isShowRememberMe() {
         return getBoolean(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME);
     }
 
     public void setShowRememberMe(boolean b) {
         setProperty(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME, b);
-    }
-
-    public boolean isPublishPodcast() {
-        return getBoolean(SettingsConstants.General.Legacy.PUBLISH_PODCAST);
-    }
-
-    public void setPublishPodcast(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.PUBLISH_PODCAST, b);
     }
 
     public boolean isUseRadio() {
@@ -613,52 +583,12 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
     }
 
-    public boolean isUseExternalPlayer() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER);
-    }
-
-    public void setUseExternalPlayer(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER, b);
-    }
-
-    public boolean isUseCopyOfAsciiUnprintable() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_COPY_OF_ASCII_UNPRINTABLE);
-    }
-
-    public void setUseCopyOfAsciiUnprintable(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_COPY_OF_ASCII_UNPRINTABLE, b);
-    }
-
     public boolean isUseJsonp() {
         return getBoolean(SettingsConstants.General.Legacy.USE_JSONP);
     }
 
     public void setUseJsonp(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_JSONP, b);
-    }
-
-    public boolean isUseRemovingTrackFromId3Title() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_REMOVING_TRACK_FROM_ID3TITLE);
-    }
-
-    public void setUseRemovingTrackFromId3Title(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_REMOVING_TRACK_FROM_ID3TITLE, b);
-    }
-
-    public boolean isUseCleanUp() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_CLEAN_UP);
-    }
-
-    public void setUseCleanUp(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_CLEAN_UP, b);
-    }
-
-    public boolean isRedundantFolderCheck() {
-        return getBoolean(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK);
-    }
-
-    public void setRedundantFolderCheck(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK, b);
     }
 
     public boolean isShowIndexDetails() {
