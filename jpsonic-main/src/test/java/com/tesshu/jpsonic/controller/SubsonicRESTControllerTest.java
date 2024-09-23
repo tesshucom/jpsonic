@@ -1216,7 +1216,6 @@ class SubsonicRESTControllerTest {
             /*
              * @see #1048
              */
-            @SuppressWarnings("deprecation")
             @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(1)
@@ -1264,11 +1263,7 @@ class SubsonicRESTControllerTest {
                 assertEquals("1.15.0", response.getVersion());
                 NowPlaying nowPlaying = response.getNowPlaying();
                 assertNotNull(nowPlaying);
-
-                // Temporarily reverting functionality.
-                // https://github.com/tesshucom/jpsonic/issues/2688
-                // assertEquals(0, nowPlaying.getEntry().size()); // Entry can't be obtained
-                assertEquals(2, nowPlaying.getEntry().size());
+                assertEquals(0, nowPlaying.getEntry().size()); // Entry can't be obtained
 
                 statusService.getAllStreamStatuses().stream()
                         .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()
@@ -1281,7 +1276,6 @@ class SubsonicRESTControllerTest {
                 res.getOutputStream().close();
             }
 
-            @SuppressWarnings("deprecation")
             @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(2)

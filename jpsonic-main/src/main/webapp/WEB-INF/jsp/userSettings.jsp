@@ -178,6 +178,12 @@
                 <label for="podcast"><fmt:message key="usersettings.podcast"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingspodcastenable"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" cssClass="checkbox"/>
+                <label for="nowPlayingAllowed"><fmt:message key="usersettings.nowplayingallowed"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsnowplayingallowed"/></c:import>
+            </dd>
         </dl>
 
     </details>
