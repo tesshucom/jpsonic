@@ -36,7 +36,6 @@ public class UserSettings {
     private String username;
     private Locale locale;
     private String themeId;
-    private boolean showNowPlayingEnabled;
     private boolean showArtistInfoEnabled;
     private boolean finalVersionNotificationEnabled;
     private boolean betaVersionNotificationEnabled;
@@ -133,16 +132,6 @@ public class UserSettings {
 
     public void setThemeId(String themeId) {
         this.themeId = themeId;
-    }
-
-    @Deprecated
-    public boolean isShowNowPlayingEnabled() {
-        return showNowPlayingEnabled;
-    }
-
-    @Deprecated
-    public void setShowNowPlayingEnabled(boolean showNowPlayingEnabled) {
-        this.showNowPlayingEnabled = showNowPlayingEnabled;
     }
 
     public boolean isShowArtistInfoEnabled() {
@@ -257,12 +246,10 @@ public class UserSettings {
         this.partyModeEnabled = partyModeEnabled;
     }
 
-    @Deprecated
     public boolean isNowPlayingAllowed() {
         return nowPlayingAllowed;
     }
 
-    @Deprecated
     public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
         this.nowPlayingAllowed = nowPlayingAllowed;
     }

@@ -270,22 +270,23 @@ public class UserDao {
                 playlist.isDurationVisible(), playlist.isFormatVisible(), playlist.isFileSizeVisible(),
                 settings.isLastFmEnabled(), settings.getLastFmUsername(), encrypt(settings.getLastFmPassword()),
                 settings.isListenBrainzEnabled(), settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
-                false, settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(), false,
-                settings.getAvatarScheme().name(), settings.getSystemAvatarId(), settings.getChanged(),
-                settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(), settings.isViewAsList(),
-                settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(), settings.isCloseDrawer(),
-                60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(), settings.getPaginationSize(),
-                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(),
-                settings.isClosePlayQueue(), settings.isAlternativeDrawer(), settings.isAssignAccesskeyToNumber(),
-                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(),
-                settings.isShowIndex(), settings.isSimpleDisplay(), settings.isShowSibling(), settings.isShowRate(),
-                settings.isShowAlbumSearch(), settings.isShowLastPlay(), settings.isShowDownload(),
-                settings.isShowTag(), settings.isShowComment(), settings.isShowShare(), settings.isShowChangeCoverArt(),
-                settings.isShowTopSongs(), settings.isShowSimilar(), settings.isShowAlbumActions(),
-                settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
-                settings.isShowOutlineHelp(), settings.isForceBio2Eng(), settings.isVoiceInputEnabled(),
-                settings.isShowCurrentSongInfo(), settings.getSpeechLangSchemeName(), settings.getIetf(),
-                settings.getFontFamily(), settings.getFontSize(), settings.isShowScannedCount());
+                false, settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
+                settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(), settings.getSystemAvatarId(),
+                settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
+                settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
+                settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
+                settings.getPaginationSize(), main.isComposerVisible(), playlist.isComposerVisible(),
+                settings.isCloseDrawer(), settings.isClosePlayQueue(), settings.isAlternativeDrawer(),
+                settings.isAssignAccesskeyToNumber(), settings.isOpenDetailIndex(), settings.isOpenDetailSetting(),
+                settings.isOpenDetailStar(), settings.isShowIndex(), settings.isSimpleDisplay(),
+                settings.isShowSibling(), settings.isShowRate(), settings.isShowAlbumSearch(),
+                settings.isShowLastPlay(), settings.isShowDownload(), settings.isShowTag(), settings.isShowComment(),
+                settings.isShowShare(), settings.isShowChangeCoverArt(), settings.isShowTopSongs(),
+                settings.isShowSimilar(), settings.isShowAlbumActions(), settings.isBreadcrumbIndex(),
+                settings.isPutMenuInDrawer(), settings.getFontSchemeName(), settings.isShowOutlineHelp(),
+                settings.isForceBio2Eng(), settings.isVoiceInputEnabled(), settings.isShowCurrentSongInfo(),
+                settings.getSpeechLangSchemeName(), settings.getIetf(), settings.getFontFamily(),
+                settings.getFontSize(), settings.isShowScannedCount());
     }
 
     private static String encrypt(String s) {
@@ -416,10 +417,10 @@ public class UserDao {
             settings.setListenBrainzToken(rs.getString(col++));
 
             settings.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
-            col++;
+            col++; // showNowPlayingEnabled (Unused)
             settings.setSelectedMusicFolderId(rs.getInt(col++));
             settings.setPartyModeEnabled(rs.getBoolean(col++));
-            col++;
+            settings.setNowPlayingAllowed(rs.getBoolean(col++));
             settings.setAvatarScheme(AvatarScheme.valueOf(rs.getString(col++)));
             settings.setSystemAvatarId((Integer) rs.getObject(col++));
             settings.setChanged(nullableInstantOf(rs.getTimestamp(col++)));
@@ -429,7 +430,7 @@ public class UserDao {
             settings.setDefaultAlbumList(AlbumListType.fromId(rs.getString(col++)));
             settings.setQueueFollowingSongs(rs.getBoolean(col++));
             settings.setCloseDrawer(rs.getBoolean(col++));
-            col++; // Skip the now unused listReloadDelay
+            col++; // listReloadDelay (Unused)
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
