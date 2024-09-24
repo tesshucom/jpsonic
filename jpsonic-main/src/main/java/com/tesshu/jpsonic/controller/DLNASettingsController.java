@@ -125,7 +125,7 @@ public class DLNASettingsController {
         command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
                 .mapToInt(MusicFolder::getId).toArray());
         command.setAllTranscodings(transcodingService.getAllTranscodings());
-        Player guestPlayer = playerService.getGuestPlayer(null);
+        Player guestPlayer = playerService.getUPnPPlayer();
         command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(guestPlayer).stream()
                 .mapToInt(Transcoding::getId).toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -218,7 +218,7 @@ public class DLNASettingsController {
         UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(now());
-        Player guestPlayer = playerService.getGuestPlayer(null);
+        Player guestPlayer = playerService.getUPnPPlayer();
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         if (command.getActiveTranscodingIds().length == 0) {
             guestPlayer.setTranscodeScheme(TranscodeScheme.OFF);
