@@ -260,7 +260,7 @@ public class SecurityService implements UserDetailsService {
         // Create guest user if necessary.
         User user = getUserByName(User.USERNAME_GUEST);
         if (user == null) {
-            user = new User(User.USERNAME_GUEST, RandomStringUtils.randomAlphanumeric(30), null);
+            user = new User(User.USERNAME_GUEST, RandomStringUtils.secure().nextAlphanumeric(30), null);
             user.setStreamRole(true);
             createUser(user);
         }
