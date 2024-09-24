@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,8 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Documented;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -48,8 +52,11 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -74,7 +81,7 @@ class PlayerServiceTest {
                 "mp3 ogg oga m4a flac wav wma aif aiff ape mpc shn", "aac",
                 "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, false);
         transcodings.add(inactiveTranscoding);
-        Mockito.when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
+        when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         playerService = new PlayerService(playerDao, null, new SecurityService(userDao, null, musicFolderService),
                 transcodingService);
@@ -167,8 +174,8 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(playerWithIp, dummy));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(playerWithIp, dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -196,8 +203,8 @@ class PlayerServiceTest {
             old.setTime(Date.from(dummy.getLastSeen()));
             old.add(Calendar.DATE, -2);
             dummy.setLastSeen(old.getTime().toInstant());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(dummy));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -225,8 +232,8 @@ class PlayerServiceTest {
             Calendar today = Calendar.getInstance();
             today.setTime(Date.from(now()));
 
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Collections.emptyList());
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Collections.emptyList());
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -260,8 +267,8 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(dummy, playerWithIp));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(dummy, playerWithIp));
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -352,7 +359,7 @@ class PlayerServiceTest {
 
             UserSettings settings = new UserSettings();
             settings.setTranscodeScheme(TranscodeScheme.MAX_128);
-            Mockito.when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
+            when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
@@ -377,5 +384,36 @@ class PlayerServiceTest {
         assertNull(player.getLastSeen());
         assertTrue(playerService.isToBeUpdate(req, true, player));
         assertNotNull(player.getLastSeen());
+    }
+
+    @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class GetUPnPPlayerTest {
+
+        @Test
+        void testGetAndCreate() {
+            Player player = playerService.getUPnPPlayer();
+            assertEquals("Jpsonic UPnP Player", player.getClientId());
+
+            when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
+                    .thenReturn(List.of(player));
+            player = playerService.getUPnPPlayer();
+            assertEquals("Jpsonic UPnP Player", player.getClientId());
+        }
+
+        @Test
+        @Order(2)
+        void testLastseen() {
+            Player player = playerService.getUPnPPlayer();
+            Instant lastSeen = player.getLastSeen();
+            assertNotNull(lastSeen);
+
+            Instant daysAgo = player.getLastSeen().minus(100, ChronoUnit.DAYS);
+            player.setLastSeen(daysAgo);
+            when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
+                    .thenReturn(List.of(player));
+            player = playerService.getUPnPPlayer();
+            assertFalse(player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now()));
+        }
     }
 }
