@@ -93,6 +93,10 @@ public class PlayerService implements ReadWriteLockSupport {
         writeLock(playerLock);
         try {
             playerDao.deleteOldPlayers(60);
+            Player upnpPlayer = getUPnPPlayer();
+            User guestUser = securityService.getGuestUser();
+            getPlayersForUserAndClientId(guestUser.getUsername(), null).stream()
+                    .filter(p -> p.getId().equals(upnpPlayer.getId())).forEach(p -> playerDao.deletePlayer(p.getId()));
         } finally {
             writeUnlock(playerLock);
         }
