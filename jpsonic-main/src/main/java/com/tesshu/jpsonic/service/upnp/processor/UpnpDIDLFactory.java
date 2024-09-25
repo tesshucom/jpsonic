@@ -114,7 +114,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
         String token = addJWTToken(builder).toUriString();
         if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
-            Player player = playerService.getGuestPlayer(null);
+            Player player = playerService.getUPnPPlayer();
             String fmt = transcodingService.getSuffix(player, song, null);
             token = token.concat(".").concat(fmt);
         }
@@ -373,7 +373,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     Res toRes(MediaFile file) {
-        Player player = playerService.getGuestPlayer(null);
+        Player player = playerService.getUPnPPlayer();
         MimeType mimeType = getMimeType(file, player);
         Res res = new Res(mimeType, null, createStreamURI(file, player));
         res.setDuration(formatDuration(file.getDurationSeconds()));
