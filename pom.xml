@@ -79,7 +79,7 @@
     <versions.postgresql>42.7.4</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
-    <versions.spring-boot>3.3.3</versions.spring-boot>
+    <versions.spring-boot>3.3.4</versions.spring-boot>
     <versions.spring-security>6.3.3</versions.spring-security>
     <versions.spring-web>6.1.13</versions.spring-web>
     <versions.stax-ex>2.1.0</versions.stax-ex>
@@ -740,7 +740,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.3</version>
+          <version>4.8.6.4</version>
           <configuration>
             <plugins>
               <plugin>
@@ -819,7 +819,7 @@
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>4.5</version>
+          <version>4.6</version>
           <inherited>false</inherited>
         </plugin>
         <plugin>
