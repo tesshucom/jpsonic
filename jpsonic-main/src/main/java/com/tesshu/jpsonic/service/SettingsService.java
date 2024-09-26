@@ -615,6 +615,14 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.General.Legacy.USE_CAST, b);
     }
 
+    public boolean isUsePartyMode() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_PARTY_MODE);
+    }
+
+    public void setUsePartyMode(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_PARTY_MODE, b);
+    }
+
     public String getMusicFileTypes() {
         readLock(musicFileTypesLock);
         try {

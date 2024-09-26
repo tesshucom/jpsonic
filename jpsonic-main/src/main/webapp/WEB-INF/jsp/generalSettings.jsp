@@ -27,6 +27,7 @@ function resetLegacyFeatures() {
     $('[name="showIndexDetails"]').prop('checked', false);
     $('[name="showDBDetails"]').prop('checked', false);
     $('[name="useCast"]').prop('checked', false);
+    $('[name="usePartyMode"]').prop('checked', false);
 }
 function resetExtension() {
     if(scanning) {
@@ -223,23 +224,29 @@ function resetExtension() {
                 <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="showIndexDetails" id="showIndexDetails"/>
                 <label for="showIndexDetails"><fmt:message key="generalsettings.showindexdetails"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showindexdetails"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="showDBDetails" id="showDBDetails"/>
                 <label for="showDBDetails"><fmt:message key="generalsettings.showdbdetails"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showdbdetails"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="useCast" id="useCast"/>
                 <label for="usecast"><fmt:message key="generalsettings.usecast"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="chromecast"/></c:import>
+            </dd>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
+            <dd>
+                <form:checkbox path="usePartyMode" id="usePartyMode"/>
+                <label for="usePartyMode"><fmt:message key="generalsettings.usepartymode"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usepartymode"/></c:import>
             </dd>
         </dl>
     </details>

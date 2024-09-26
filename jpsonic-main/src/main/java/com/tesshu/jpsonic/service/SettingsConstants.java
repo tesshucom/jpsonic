@@ -123,6 +123,7 @@ final class SettingsConstants {
             static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
             static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);
             static final Pair<Boolean> USE_CAST = Pair.of("UseCast", false);
+            static final Pair<Boolean> USE_PARTY_MODE = Pair.of("UsePartyMode", false);
 
             private Legacy() {
             }

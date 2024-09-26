@@ -136,6 +136,7 @@ public class GeneralSettingsController {
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
         command.setUseCast(settingsService.isUseCast());
+        command.setUsePartyMode(settingsService.isUsePartyMode());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -232,6 +233,7 @@ public class GeneralSettingsController {
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());
         settingsService.setUseCast(command.isUseCast());
+        settingsService.setUsePartyMode(command.isUsePartyMode());
 
         // Extensions and shortcuts
         if (!scannerStateService.isScanning()) {

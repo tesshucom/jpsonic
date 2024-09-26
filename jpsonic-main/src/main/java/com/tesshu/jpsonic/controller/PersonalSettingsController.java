@@ -174,6 +174,7 @@ public class PersonalSettingsController {
         command.setShowDownload(userSettings.isShowDownload());
         command.setShowShare(userSettings.isShowShare());
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
+        command.setUsePartyMode(settingsService.isUsePartyMode());
 
         // Personal image
         command.setAvatarId(getAvatarId(userSettings));
