@@ -67,6 +67,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean showIndexDetails;
     private boolean showDBDetails;
     private boolean useCast;
+    private boolean usePartyMode;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -279,6 +280,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseCast(boolean useCast) {
         this.useCast = useCast;
+    }
+
+    public boolean isUsePartyMode() {
+        return usePartyMode;
+    }
+
+    public void setUsePartyMode(boolean usePartyMode) {
+        this.usePartyMode = usePartyMode;
     }
 
     public String getMusicFileTypes() {

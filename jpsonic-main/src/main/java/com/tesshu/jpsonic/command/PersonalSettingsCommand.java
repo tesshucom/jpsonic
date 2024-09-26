@@ -105,6 +105,7 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private boolean showDownload;
     private boolean showShare;
     private boolean partyModeEnabled;
+    private boolean usePartyMode;
 
     // Personal image
     private int avatarId;
@@ -562,6 +563,14 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
 
     public void setPartyModeEnabled(boolean partyModeEnabled) {
         this.partyModeEnabled = partyModeEnabled;
+    }
+
+    public boolean isUsePartyMode() {
+        return usePartyMode;
+    }
+
+    public void setUsePartyMode(boolean usePartyMode) {
+        this.usePartyMode = usePartyMode;
     }
 
     public int getAvatarId() {

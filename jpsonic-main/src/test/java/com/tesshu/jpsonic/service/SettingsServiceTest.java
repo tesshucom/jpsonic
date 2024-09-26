@@ -647,6 +647,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUsePartyMode() {
+        assertFalse(settingsService.isUsePartyMode());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }
