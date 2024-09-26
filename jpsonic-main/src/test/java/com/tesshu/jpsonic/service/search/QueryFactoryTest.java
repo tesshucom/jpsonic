@@ -262,6 +262,15 @@ class QueryFactoryTest {
 
     @Order(6)
     @Test
+    void testGetRandomSongsByMusicFolderAndGenre() {
+        Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS, "Rock & Roll", "Pop/Funk");
+        assertEquals("+m:MUSIC +(f:" + PATH1 + ") +(g:Rock & Roll g:Pop/Funk)", query.toString());
+        query = queryFactory.getRandomSongs(MULTI_FOLDERS, "Rock & Roll", "Pop/Funk");
+        assertEquals("+m:MUSIC +(f:" + PATH1 + " f:" + PATH2 + ") +(g:Rock & Roll g:Pop/Funk)", query.toString());
+    }
+
+    @Order(7)
+    @Test
     void testGetRandomAlbums() {
         Query query = queryFactory.getRandomAlbums(SINGLE_FOLDERS);
         assertEquals("(f:" + PATH1 + ")", query.toString());
@@ -269,7 +278,7 @@ class QueryFactoryTest {
         assertEquals("(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }
 
-    @Order(7)
+    @Order(8)
     @Test
     void testGetRandomAlbumsId3() {
         Query query = queryFactory.getRandomAlbumsId3(SINGLE_FOLDERS);
@@ -278,7 +287,7 @@ class QueryFactoryTest {
         assertEquals("(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
-    @Order(8)
+    @Order(9)
     @Test
     void testGetAlbumId3sByGenre() throws IOException {
         Query query = queryFactory.getAlbumId3sByGenres("Instrumental pop", SINGLE_FOLDERS);
@@ -291,7 +300,7 @@ class QueryFactoryTest {
         assertEquals("+(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
-    @Order(9)
+    @Order(10)
     @Test
     void testGetMediasByGenre() throws IOException {
         Query query = queryFactory.getMediasByGenres("Instrumental pop", SINGLE_FOLDERS);
@@ -307,7 +316,7 @@ class QueryFactoryTest {
         assertEquals("+(f:" + PATH1 + " f:" + PATH2 + ")", query.toString(), "null genre");
     }
 
-    @Order(10)
+    @Order(11)
     @Test
     void testToPreAnalyzedGenres() throws IOException {
         Query query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock"));
@@ -318,7 +327,7 @@ class QueryFactoryTest {
         assertEquals("+()", query.toString(), "multi genres");
     }
 
-    @Order(11)
+    @Order(12)
     @Test
     void testGetGenre() throws IOException {
         assertEquals("g:Classic Rock", queryFactory.getGenre("Classic Rock").toString());

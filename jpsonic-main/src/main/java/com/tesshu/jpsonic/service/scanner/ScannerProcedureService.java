@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Files;
@@ -212,16 +213,13 @@ public class ScannerProcedureService {
         if (settingsService.isIgnoreFileTimestamps()) {
             mediaFileDao.resetLastScanned(null);
             artistDao.deleteAll();
-            albumDao.deleteAll();
             indexManager.deleteAll();
         }
 
         mediaFileCache.setEnabled(false);
         mediaFileCache.removeAll();
 
-        if (!settingsService.isUseCleanUp() && mediaFileDao.existsNonPresent()) {
-            // If useCleanUp=false(default), Clean-up can be managed by Scan processes.
-            // Removing present=false in advance can reduce the number of subsequent queries issued.
+        if (mediaFileDao.existsNonPresent()) {
             expungeFileStructure();
         }
 
@@ -372,10 +370,6 @@ public class ScannerProcedureService {
     @Transactional
     public void iterateFileStructure(@NonNull Instant scanDate) {
         if (isInterrupted()) {
-            return;
-        }
-        if (settingsService.isUseCleanUp()) {
-            createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, MSG_SKIP);
             return;
         }
         writeInfo("Marking non-present files.");
@@ -529,7 +523,8 @@ public class ScannerProcedureService {
         album.setArtistReading(song.getAlbumArtistReading());
         album.setArtistSort(song.getAlbumArtistSort());
         album.setYear(song.getYear());
-        album.setGenre(song.getGenre());
+        // Please note that VIDEO is not currently included.
+        album.setGenre(mediaFileService.getID3AlbumGenresString(song));
         album.setCreated(song.getChanged());
         album.setMusicBrainzReleaseId(song.getMusicBrainzReleaseId());
         mediaFileService.getParent(song).ifPresent(parent -> album.setCoverArtPath(parent.getCoverArtPathString()));
@@ -561,6 +556,7 @@ public class ScannerProcedureService {
                     Album album = albumId3Of(scanDate, folder.getId(), song, registered);
                     Optional.ofNullable(albumDao.updateAlbum(album)).ifPresent(updated -> {
                         indexManager.index(updated);
+                        mediaFileDao.updateChildrenLastUpdated(album, scanDate);
                         count.increment();
                     });
                 });
@@ -587,6 +583,7 @@ public class ScannerProcedureService {
                     Album album = albumId3Of(scanDate, folder.getId(), song, null);
                     Optional.ofNullable(albumDao.createAlbum(album)).ifPresent(created -> {
                         indexManager.index(created);
+                        mediaFileDao.updateChildrenLastUpdated(album, scanDate);
                         count.increment();
                     });
                 });
@@ -602,6 +599,11 @@ public class ScannerProcedureService {
         }
         boolean withPodcast = isPodcastInMusicFolders();
         iterateAlbumId3(scanDate, withPodcast);
+
+        if (settingsService.isIgnoreFileTimestamps()) {
+            mediaFileDao.resetAlbumChildrenLastUpdated();
+        }
+
         int countUpdate = updateAlbumId3s(scanDate, withPodcast);
         int countNew = createAlbumId3s(scanDate, withPodcast);
         String comment = "Update(%d)/New(%d)".formatted(countUpdate, countNew);
@@ -754,12 +756,17 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_GENRE_MASTER, null);
     }
 
-    private void invokeUpdateIndex(List<Integer> merged, List<Integer> copied, List<Integer> compensated) {
+    private void invokeUpdateIndex(@NonNull Instant scanDate, List<Integer> merged, List<Integer> copied,
+            List<Integer> compensated) {
         List<Integer> ids = Stream
                 .concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
                 .collect(Collectors.toList());
         for (int i = 0; i < ids.size(); i++) {
-            indexManager.index(mediaFileService.getMediaFileStrict(ids.get(i)));
+            MediaFile mediaFile = mediaFileService.getMediaFileStrict(ids.get(i));
+            indexManager.index(mediaFile);
+            if (mediaFile.getMediaType() == MediaType.ALBUM && FAR_FUTURE.equals(mediaFile.getChildrenLastUpdated())) {
+                mediaFileDao.updateChildrenLastUpdated(mediaFile.getPathString(), scanDate);
+            }
             if (i % 10_000 == 0) {
                 repeatWait();
                 if (isInterrupted()) {
@@ -803,7 +810,7 @@ public class ScannerProcedureService {
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            invokeUpdateIndex(merged, copied, compensated);
+            invokeUpdateIndex(scanDate, merged, copied, compensated);
         }
 
         String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
@@ -874,7 +881,7 @@ public class ScannerProcedureService {
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            invokeUpdateIndex(merged, copied, compensated);
+            invokeUpdateIndex(scanDate, merged, copied, compensated);
         }
 
         updateIndexOfAlbum();

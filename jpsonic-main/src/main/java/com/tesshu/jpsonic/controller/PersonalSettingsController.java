@@ -158,9 +158,6 @@ public class PersonalSettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
         command.setOpenDetailStar(userSettings.isOpenDetailStar());
-        command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
-        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
-        command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
         command.setShowArtistInfoEnabled(userSettings.isShowArtistInfoEnabled());
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowTopSongs(userSettings.isShowTopSongs());
@@ -177,6 +174,7 @@ public class PersonalSettingsController {
         command.setShowDownload(userSettings.isShowDownload());
         command.setShowShare(userSettings.isShowShare());
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
+        command.setUsePartyMode(settingsService.isUsePartyMode());
 
         // Personal image
         command.setAvatarId(getAvatarId(userSettings));
@@ -266,9 +264,6 @@ public class PersonalSettingsController {
         } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
-        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
-        settings.setShowNowPlayingEnabled(
-                settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
         settings.setForceBio2Eng(command.isForceBio2Eng());
         settings.setShowTopSongs(command.isShowTopSongs());

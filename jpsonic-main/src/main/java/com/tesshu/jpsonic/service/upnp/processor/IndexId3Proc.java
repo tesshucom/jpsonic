@@ -53,7 +53,7 @@ public class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> 
 
     @Override
     public Container createContainer(MusicIndex musicIndex) {
-        return factory.toMusicIndex(musicIndex, getProcId(), getChildSizeOf(musicIndex));
+        return factory.toMusicIndex(getProcId(), musicIndex, getChildSizeOf(musicIndex));
     }
 
     @Override

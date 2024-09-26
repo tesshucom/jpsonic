@@ -223,7 +223,6 @@ class UserDaoTest {
         assertFalse(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
         assertNull(userSettings.getListenBrainzToken(), "Error in getUserSettings().");
         Assertions.assertSame(TranscodeScheme.OFF, userSettings.getTranscodeScheme(), "Error in getUserSettings().");
-        assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
         assertEquals(-1, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertFalse(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
@@ -252,7 +251,6 @@ class UserDaoTest {
         settings.setListenBrainzEnabled(true);
         settings.setListenBrainzToken("01234567-89ab-cdef-0123-456789abcdef");
         settings.setTranscodeScheme(TranscodeScheme.MAX_256);
-        settings.setShowNowPlayingEnabled(false);
         settings.setSelectedMusicFolderId(3);
         settings.setPartyModeEnabled(true);
         settings.setNowPlayingAllowed(true);
@@ -287,7 +285,6 @@ class UserDaoTest {
                 "Error in getUserSettings().");
         Assertions.assertSame(TranscodeScheme.MAX_256, userSettings.getTranscodeScheme(),
                 "Error in getUserSettings().");
-        assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
         assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");

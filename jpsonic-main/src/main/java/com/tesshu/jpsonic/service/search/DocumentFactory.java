@@ -304,6 +304,13 @@ public class DocumentFactory {
         return doc;
     }
 
+    public Document createGenreDocument(Album album) {
+        Document doc = new Document();
+        applyFieldGenreKey(doc, GENRE_KEY, album.getGenre());
+        applyGenre(doc, album.getGenre());
+        return doc;
+    }
+
     void acceptReading(Document doc, String field, String romanizedfield, String value, String sort, String reading) {
         if (isEmpty(value)) {
             return;

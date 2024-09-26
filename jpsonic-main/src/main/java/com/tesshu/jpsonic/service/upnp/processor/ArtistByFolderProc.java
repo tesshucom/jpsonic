@@ -26,13 +26,13 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrArtist, ArtistOrAlbum> {
+public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtist, ArtistOrAlbum> {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -56,12 +56,12 @@ public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrArtist
     }
 
     @Override
-    public Container createContainer(FolderOrArtist folderArtist) {
-        return deligate.createContainer(getProcId(), folderArtist);
+    public Container createContainer(FolderOrFArtist folderOrArtist) {
+        return deligate.createContainer(getProcId(), folderOrArtist);
     }
 
     @Override
-    public List<FolderOrArtist> getDirectChildren(long offset, long count) {
+    public List<FolderOrFArtist> getDirectChildren(long offset, long count) {
         return deligate.getDirectChildren(offset, count);
     }
 
@@ -71,15 +71,15 @@ public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrArtist
     }
 
     @Override
-    public FolderOrArtist getDirectChild(String compositeId) {
+    public FolderOrFArtist getDirectChild(String compositeId) {
         return deligate.getDirectChild(compositeId);
     }
 
     @Override
-    public List<ArtistOrAlbum> getChildren(FolderOrArtist folderOrArtist, long first, long count) {
+    public List<ArtistOrAlbum> getChildren(FolderOrFArtist folderOrArtist, long first, long count) {
         int offset = (int) first;
-        if (folderOrArtist.isArtist()) {
-            Artist artist = folderOrArtist.getArtist();
+        if (folderOrArtist.isFolderArtist()) {
+            Artist artist = folderOrArtist.getFolderArtist().artist();
             return albumDao.getAlbumsForArtist(offset, count, artist.getName(),
                     util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders()).stream().map(ArtistOrAlbum::new)
                     .toList();
@@ -89,7 +89,7 @@ public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrArtist
     }
 
     @Override
-    public int getChildSizeOf(FolderOrArtist folderOrArtist) {
+    public int getChildSizeOf(FolderOrFArtist folderOrArtist) {
         return deligate.getChildSizeOf(folderOrArtist);
     }
 

@@ -167,7 +167,7 @@ class RootProcTest extends AbstractNeedsScan {
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.GENRE), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
-        assertEquals(MenuItemId.SONG_BY_GENRE, children.get(0).getId());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, children.get(0).getId());
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.PODCAST), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());

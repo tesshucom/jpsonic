@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -229,17 +231,24 @@ public class QueryFactory {
     }
 
     /**
-     * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(int, int, int, List)}.
+     * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(int, int, int, List, String...)}.
      *
      * @param musicFolders
      *            musicFolders
      *
      * @return Query
      */
-    public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder()
+    public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders, String... genres) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
-                .add(createFolderQuery(false, musicFolders), Occur.MUST).build();
+                .add(createFolderQuery(false, musicFolders), Occur.MUST);
+        if (genres.length > 0) {
+            BooleanQuery.Builder genreQueryBuilder = new BooleanQuery.Builder();
+            Stream.of(genres).forEach(genre -> genreQueryBuilder
+                    .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD));
+            builder.add(genreQueryBuilder.build(), Occur.MUST);
+        }
+        return builder.build();
     }
 
     /**
@@ -366,5 +375,36 @@ public class QueryFactory {
     public Query getGenre(@NonNull String genre) {
         return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD)
                 .build();
+    }
+
+    public Query getAlbumId3GenreCount(@NonNull String genre, List<MusicFolder> folders) {
+        return new BooleanQuery.Builder().add(createFolderQuery(true, folders), Occur.MUST)
+                .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.MUST).build();
+    }
+
+    private Query getTypesQuery(MediaType... types) {
+        assert types != null && types.length > 0;
+        BooleanQuery.Builder typeQuery = new BooleanQuery.Builder();
+        Stream.of(types).forEach(type -> typeQuery
+                .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, type.name())), Occur.SHOULD));
+        return typeQuery.build();
+    }
+
+    public Query getSongGenreCount(@NonNull String genre, List<MusicFolder> folders, MediaType... types) {
+        return new BooleanQuery.Builder().add(createFolderQuery(false, folders), Occur.MUST)
+                .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.MUST)
+                .add(getTypesQuery(types), Occur.MUST).build();
+    }
+
+    public Query getAlbumChildren(Album album, String genre, List<MusicFolder> folders, MediaType... types) {
+        assert types != null && types.length > 0;
+        BooleanQuery.Builder typeQuery = new BooleanQuery.Builder();
+        Stream.of(types).forEach(type -> typeQuery
+                .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, type.name())), Occur.SHOULD));
+        return new BooleanQuery.Builder()
+
+                .add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.MUST)
+                .add(createFolderQuery(false, folders), Occur.MUST).add(typeQuery.build(), Occur.MUST).build();
+
     }
 }

@@ -120,6 +120,7 @@ public class UserSettingsController {
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
                         securityService.getCurrentUserStrict(request).getUsername().equals(user.getUsername()));
+                command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
             }
         }
 
@@ -239,6 +240,7 @@ public class UserSettingsController {
                 }
             }
         }
+        userSettings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         userSettings.setChanged(now());
         securityService.updateUserSettings(userSettings);
 

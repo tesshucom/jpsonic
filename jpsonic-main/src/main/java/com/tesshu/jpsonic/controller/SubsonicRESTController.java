@@ -60,7 +60,6 @@ import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SavedPlayQueue;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
@@ -428,7 +427,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername(), musicFolderId);
 
-        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders)) {
+        MediaFile.MediaType[] types = { MediaFile.MediaType.MUSIC, MediaFile.MediaType.AUDIOBOOK,
+                MediaFile.MediaType.PODCAST };
+        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders, types)) {
             songs.getSong().add(createJaxbChild(player, mediaFile, user.getUsername()));
         }
         Response res = createResponse();
@@ -2572,7 +2573,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
             player.setUsername(username);
             player.setClientId(clientId);
             player.setName(clientId);
-            player.setTechnology(PlayerTechnology.WEB);
             playerService.createPlayer(player);
             players = playerService.getPlayersForUserAndClientId(username, clientId);
         }

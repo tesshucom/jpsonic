@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -43,6 +42,7 @@ import java.util.Map;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -85,9 +85,9 @@ class SongByGenreProcTest {
             factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
                     transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(SecurityService.class),
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
                     mock(JpsonicComparators.class));
-            proc = new SongByGenreProc(util, factory, searchService);
+            proc = new SongByGenreProc(settingsService, util, factory, searchService);
         }
 
         @Test
@@ -104,28 +104,25 @@ class SongByGenreProcTest {
             assertEquals("sbg", container.getParentID());
             assertEquals("English/Japanese", container.getTitle());
             assertEquals(50, container.getChildCount());
-
-            when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-            container = proc.createContainer(genre);
-            assertEquals("English/Japanese 50", container.getTitle());
         }
 
         @Test
         void testGetDirectChildren() {
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(searchService, times(1)).getGenres(anyBoolean(), anyLong(), anyLong());
+            verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         }
 
         @Test
         void testGetDirectChildrenCount() {
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(searchService, times(1)).getGenresCount(anyBoolean());
+            verify(searchService, times(1)).getGenresCount(any(GenreMasterCriteria.class));
         }
 
         @Test
         void testGetDirectChild() {
             Genre genre = new Genre("English/Japanese", 50, 100);
-            when(searchService.getGenres(false)).thenReturn(List.of(genre));
+            when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
+                    .thenReturn(List.of(genre));
             assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
             assertNull(proc.getDirectChild("None"));
         }
@@ -148,7 +145,7 @@ class SongByGenreProcTest {
             DIDLContent content = new DIDLContent();
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new SongByGenreProc(util, factory, searchService);
+            proc = new SongByGenreProc(mock(SettingsService.class), util, factory, searchService);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());

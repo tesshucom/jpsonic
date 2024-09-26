@@ -30,7 +30,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,9 +53,7 @@ import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -447,29 +444,18 @@ public class TranscodingService {
         List<String> commands = Arrays.asList(splitCommand(command));
         commands.set(0, getTranscodeDirectory().toString() + File.separatorChar + commands.get(0));
 
-        Path tmpFile = null;
         for (int i = 1; i < commands.size(); i++) {
             String cmd = commands.get(i);
             cmd = mergeTransCommand(cmd, artist, album, title, maxBitRate, vts);
             if (cmd.contains("%s")) {
-                // Work-around for filename character encoding problem on Windows.
-                // Create temporary file, and feed this to the transcoder.
                 Path path = mediaFile.toPath();
-                if (settingsService.isUseCopyOfAsciiUnprintable() && PlayerUtils.isWindows() && !mediaFile.isVideo()
-                        && !StringUtils.isAsciiPrintable(path.toString())) {
-                    tmpFile = Files.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path.toString()));
-                    Files.copy(mediaFile.toPath(), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-                    tmpFile.toFile().deleteOnExit();
-                    cmd = cmd.replace("%s", tmpFile.toString());
-                } else {
-                    cmd = cmd.replace("%s", path.toString());
-                }
+                cmd = cmd.replace("%s", path.toString());
             }
             commands.set(i, cmd);
         }
         ProcessBuilder pb = new ProcessBuilder();
         commands.forEach(op -> pb.command().add(op));
-        return new TranscodeInputStream(pb, in, tmpFile, shortExecutor);
+        return new TranscodeInputStream(pb, in, null, shortExecutor);
     }
 
     private String mergeTransCommand(@NonNull String transCommand, String artist, String album, String title,

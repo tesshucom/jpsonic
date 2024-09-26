@@ -270,7 +270,7 @@ public class UserDao {
                 playlist.isDurationVisible(), playlist.isFormatVisible(), playlist.isFileSizeVisible(),
                 settings.isLastFmEnabled(), settings.getLastFmUsername(), encrypt(settings.getLastFmPassword()),
                 settings.isListenBrainzEnabled(), settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
-                settings.isShowNowPlayingEnabled(), settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
+                false, settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
                 settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(), settings.getSystemAvatarId(),
                 settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
                 settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
@@ -417,7 +417,7 @@ public class UserDao {
             settings.setListenBrainzToken(rs.getString(col++));
 
             settings.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
-            settings.setShowNowPlayingEnabled(rs.getBoolean(col++));
+            col++; // showNowPlayingEnabled (Unused)
             settings.setSelectedMusicFolderId(rs.getInt(col++));
             settings.setPartyModeEnabled(rs.getBoolean(col++));
             settings.setNowPlayingAllowed(rs.getBoolean(col++));
@@ -430,7 +430,7 @@ public class UserDao {
             settings.setDefaultAlbumList(AlbumListType.fromId(rs.getString(col++)));
             settings.setQueueFollowingSongs(rs.getBoolean(col++));
             settings.setCloseDrawer(rs.getBoolean(col++));
-            col++; // Skip the now unused listReloadDelay
+            col++; // listReloadDelay (Unused)
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));

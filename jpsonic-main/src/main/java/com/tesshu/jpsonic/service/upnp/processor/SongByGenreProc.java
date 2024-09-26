@@ -24,8 +24,13 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -34,15 +39,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
+    private static final MediaType[] TYPES = { MediaType.MUSIC };
+
+    private final SettingsService settingsService;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public SongByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, SearchService searchService) {
+    public SongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            SearchService searchService) {
         super();
+        this.settingsService = settingsService;
         this.util = util;
         this.factory = factory;
         this.searchService = searchService;
+    }
+
+    private GenreMasterCriteria createGenreMasterCriteria() {
+        return new GenreMasterCriteria(util.getGuestFolders(), Scope.SONG,
+                Sort.of(settingsService.getUPnPSongGenreSort()), TYPES);
     }
 
     @Override
@@ -52,23 +67,23 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(genre, getProcId(), util.isGenreCountAvailable(), genre.getSongCount());
+        return factory.toGenre(getProcId(), genre, genre.getSongCount());
     }
 
     @Override
     public List<Genre> getDirectChildren(long offset, long maxResults) {
-        return searchService.getGenres(false, offset, maxResults);
+        return searchService.getGenres(createGenreMasterCriteria(), offset, maxResults);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return searchService.getGenresCount(false);
+        return searchService.getGenresCount(createGenreMasterCriteria());
     }
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService.getGenres(false).stream().filter(genre -> genre.getName().equals(id)).findFirst()
-                .orElse(null);
+        return searchService.getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE).stream()
+                .filter(genre -> genre.getName().equals(id)).findFirst().orElse(null);
     }
 
     @Override

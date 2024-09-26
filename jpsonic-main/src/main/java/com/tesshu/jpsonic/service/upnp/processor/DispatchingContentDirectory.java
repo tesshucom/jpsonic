@@ -57,13 +57,22 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final MediaFileProc mediaFileProc;
     private final MediaFileByFolderProc mediaFileByFolderProc;
     private final PlaylistProc playlistProc;
-    private final AlbumProc albumProc;
+    private final AlbumId3Proc albumId3Proc;
+    private final AlbumId3ByFolderProc albumId3ByFolderProc;
     private final RecentAlbumProc recentAlbumProc;
+    private final RecentAlbumByFolderProc recentAlbumByFolderProc;
     private final RecentAlbumId3Proc recentAlbumId3Proc;
+    private final RecentAlbumId3ByFolderProc recentAlbumId3ByFolderProc;
     private final ArtistProc artistProc;
     private final ArtistByFolderProc artistByFolderProc;
     private final AlbumByGenreProc albumByGenreProc;
+    private final AlbumId3ByGenreProc albumId3ByGenreProc;
+    private final AlbumProc albumProc;
+    private final AlbumByFolderProc albumByFolderProc;
+    private final AlbumId3ByFolderGenreProc albumId3ByFolderGenreProc;
     private final SongByGenreProc songByGenreProc;
+    private final SongByFolderGenreProc songByFolderGenreProc;
+    private final AudiobookByGenreProc audiobookByGenreProc;
     private final IndexProc indexProc;
     private final IndexId3Proc indexId3Proc;
     private final PodcastProc podcastProc;
@@ -71,6 +80,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final RandomSongProc randomSongProcessor;
     private final RandomSongByArtistProc randomSongByArtistProc;
     private final RandomSongByFolderArtistProc randomSongByFolderArtistProc;
+    private final RandomSongByGenreProc randomSongByGenreProc;
+    private final RandomSongByFolderGenreProc randomSongByFolderGenreProc;
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil util;
     private final WMPProc wmpProc;
@@ -78,27 +89,44 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
-            @Lazy @Qualifier("albumProc") AlbumProc ap, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
-            @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
+            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc alid3bfp,
+            @Lazy AlbumProc alp, @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("recentAlbumByFolderProc") RecentAlbumByFolderProc rabfp,
+            @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip,
+            @Lazy @Qualifier("recentAlbumId3ByFolderProc") RecentAlbumId3ByFolderProc raigfp, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
-            @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp, @Lazy @Qualifier("indexProc") IndexProc ip,
-            @Lazy IndexId3Proc iip, @Lazy @Qualifier("podcastProc") PodcastProc podp,
+            @Lazy @Qualifier("albumId3ByGenreProc") AlbumId3ByGenreProc aibgp,
+            @Lazy @Qualifier("albumId3ByFolderGenreProc") AlbumId3ByFolderGenreProc aibfgp,
+            @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp,
+            @Lazy @Qualifier("songByFolderGenreProc") SongByFolderGenreProc sbfgp, @Lazy AudiobookByGenreProc abbgp,
+            @Lazy @Qualifier("indexProc") IndexProc ip, @Lazy IndexId3Proc iip,
+            @Lazy @Qualifier("podcastProc") PodcastProc podp,
             @Lazy @Qualifier("randomAlbumProc") RandomAlbumProc randomap,
             @Lazy @Qualifier("randomSongProc") RandomSongProc randomsp, @Lazy RandomSongByArtistProc randomsbap,
-            @Lazy RandomSongByFolderArtistProc randomsbfap, QueryFactory queryFactory, UpnpProcessorUtil util,
-            WMPProc wmpp, SearchService ss) {
+            @Lazy RandomSongByFolderArtistProc randomsbfap, @Lazy RandomSongByGenreProc rsbgp,
+            @Lazy RandomSongByFolderGenreProc rsbfgp, QueryFactory queryFactory, UpnpProcessorUtil util, WMPProc wmpp,
+            SearchService ss) {
         super();
         rootProc = rp;
         mediaFileProc = mfp;
         mediaFileByFolderProc = mfbfp;
         playlistProc = playp;
-        albumProc = ap;
+        albumId3Proc = aid3p;
+        albumId3ByFolderProc = alid3bfp;
+        albumProc = alp;
+        albumByFolderProc = albfp;
         recentAlbumProc = rap;
+        recentAlbumByFolderProc = rabfp;
         recentAlbumId3Proc = raip;
+        recentAlbumId3ByFolderProc = raigfp;
         artistProc = arP;
         artistByFolderProc = abfP;
         albumByGenreProc = abgp;
+        albumId3ByGenreProc = aibgp;
+        albumId3ByFolderGenreProc = aibfgp;
         songByGenreProc = sbgp;
+        songByFolderGenreProc = sbfgp;
+        audiobookByGenreProc = abbgp;
         indexProc = ip;
         indexId3Proc = iip;
         podcastProc = podp;
@@ -106,6 +134,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         randomSongProcessor = randomsp;
         randomSongByArtistProc = randomsbap;
         randomSongByFolderArtistProc = randomsbfap;
+        randomSongByGenreProc = rsbgp;
+        randomSongByFolderGenreProc = rsbfgp;
         this.queryFactory = queryFactory;
         this.util = util;
         this.wmpProc = wmpp;
@@ -119,13 +149,22 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case PLAYLIST -> playlistProc;
         case MEDIA_FILE -> mediaFileProc;
         case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
+        case ALBUM_ID3 -> albumId3Proc;
+        case ALBUM_ID3_BY_FOLDER -> albumId3ByFolderProc;
         case ALBUM -> albumProc;
+        case ALBUM_BY_FOLDER -> albumByFolderProc;
         case RECENT -> recentAlbumProc;
+        case RECENT_BY_FOLDER -> recentAlbumByFolderProc;
         case RECENT_ID3 -> recentAlbumId3Proc;
+        case RECENT_ID3_BY_FOLDER -> recentAlbumId3ByFolderProc;
         case ARTIST -> artistProc;
         case ARTIST_BY_FOLDER -> artistByFolderProc;
         case ALBUM_BY_GENRE -> albumByGenreProc;
+        case ALBUM_ID3_BY_GENRE -> albumId3ByGenreProc;
+        case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
         case SONG_BY_GENRE -> songByGenreProc;
+        case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
+        case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;
         case INDEX -> indexProc;
         case INDEX_ID3 -> indexId3Proc;
         case PODCAST -> podcastProc;
@@ -133,6 +172,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         case RANDOM_SONG -> randomSongProcessor;
         case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProc;
         case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProc;
+        case RANDOM_SONG_BY_GENRE -> randomSongByGenreProc;
+        case RANDOM_SONG_BY_FOLDER_GENRE -> randomSongByFolderGenreProc;
         };
     }
 
@@ -192,7 +233,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         if (Artist.class == criteria.getAssignableClass()) {
             return artistProc.toBrowseResult(searchService.search(criteria));
         } else if (Album.class == criteria.getAssignableClass()) {
-            return albumProc.toBrowseResult(searchService.search(criteria));
+            return albumId3Proc.toBrowseResult(searchService.search(criteria));
         } else if (MediaFile.class == criteria.getAssignableClass()) {
             return mediaFileProc.toBrowseResult(searchService.search(criteria));
         }

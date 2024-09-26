@@ -111,10 +111,5 @@ $(document).ready(function(){
     </c:choose>
 </c:if>
 
-<c:if test="${model.publishPodcast}">
-    <h2><fmt:message key="more.podcast.title"/></h2>
-    <fmt:message key="more.podcast.text"/>
-</c:if>
-
 </body>
 </html>

@@ -27,7 +27,6 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -38,13 +37,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @author Sindre Mehus
  */
 public abstract class MetaDataParser {
-
-    private final SettingsService settingsService;
-
-    public MetaDataParser(SettingsService settingsService) {
-        super();
-        this.settingsService = settingsService;
-    }
 
     /**
      * Parses meta data for the given file.
@@ -73,8 +65,6 @@ public abstract class MetaDataParser {
         String title = metaData.getTitle();
         if (title == null) {
             title = removeTrackNumberFromTitle(guessTitle(path), metaData.getTrackNumber());
-        } else if (settingsService.isUseRemovingTrackFromId3Title()) {
-            title = removeTrackNumberFromTitle(title, metaData.getTrackNumber());
         }
 
         metaData.setArtist(artist);

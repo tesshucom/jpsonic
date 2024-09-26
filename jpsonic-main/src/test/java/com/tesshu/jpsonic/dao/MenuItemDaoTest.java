@@ -81,16 +81,30 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertFalse(menuItems.get(2).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
-        assertEquals(1, menuItems.size());
+        assertEquals(4, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ID3, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER, menuItems.get(1).getId());
+        assertFalse(menuItems.get(1).isEnabled());
+        assertEquals(MenuItemId.ALBUM_FILE_STRUCTURE, menuItems.get(2).getId());
+        assertFalse(menuItems.get(2).isEnabled());
+        assertEquals(MenuItemId.ALBUM_FILE_STRUCTURE_BY_FOLDER, menuItems.get(3).getId());
+        assertFalse(menuItems.get(3).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
-        assertEquals(2, menuItems.size());
-        assertEquals(MenuItemId.SONG_BY_GENRE, menuItems.get(0).getId());
+        assertEquals(6, menuItems.size());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
-        assertEquals(MenuItemId.ALBUM_BY_GENRE, menuItems.get(1).getId());
+        assertEquals(MenuItemId.ALBUM_ID3_BY_FOLDER_GENRE, menuItems.get(1).getId());
         assertFalse(menuItems.get(1).isEnabled());
+        assertEquals(MenuItemId.SONG_BY_GENRE, menuItems.get(2).getId());
+        assertFalse(menuItems.get(2).isEnabled());
+        assertEquals(MenuItemId.SONG_BY_FOLDER_GENRE, menuItems.get(3).getId());
+        assertFalse(menuItems.get(3).isEnabled());
+        assertEquals(MenuItemId.AUDIOBOOK_BY_GENRE, menuItems.get(4).getId());
+        assertFalse(menuItems.get(4).isEnabled());
+        assertEquals(MenuItemId.ALBUM_BY_GENRE, menuItems.get(5).getId());
+        assertFalse(menuItems.get(5).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
@@ -103,21 +117,29 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertTrue(menuItems.get(0).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
-        assertEquals(2, menuItems.size());
+        assertEquals(4, menuItems.size());
         assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
-        assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, menuItems.get(1).getId());
+        assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM_BY_FOLDER, menuItems.get(1).getId());
         assertFalse(menuItems.get(1).isEnabled());
+        assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, menuItems.get(2).getId());
+        assertFalse(menuItems.get(2).isEnabled());
+        assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER, menuItems.get(3).getId());
+        assertFalse(menuItems.get(3).isEnabled());
 
         menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
-        assertEquals(4, menuItems.size());
+        assertEquals(6, menuItems.size());
         assertEquals(MenuItemId.RANDOM_SONG, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
         assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, menuItems.get(1).getId());
         assertFalse(menuItems.get(1).isEnabled());
         assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, menuItems.get(2).getId());
         assertFalse(menuItems.get(2).isEnabled());
-        assertEquals(MenuItemId.RANDOM_ALBUM, menuItems.get(3).getId());
+        assertEquals(MenuItemId.RANDOM_SONG_BY_GENRE, menuItems.get(3).getId());
         assertFalse(menuItems.get(3).isEnabled());
+        assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE, menuItems.get(4).getId());
+        assertFalse(menuItems.get(4).isEnabled());
+        assertEquals(MenuItemId.RANDOM_ALBUM, menuItems.get(5).getId());
+        assertFalse(menuItems.get(5).isEnabled());
     }
 }

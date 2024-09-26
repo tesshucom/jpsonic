@@ -18,7 +18,6 @@ function isDialogOpened() {
         top.$("#dialog-select-playlist").is(":visible") ||
         top.$("#dialog-keyboard-shortcuts").is(":visible") ||
         top.$("#dialog-edit").is(":visible") ||
-        top.$("#dialog-nowplayinginfos").is(":visible") ||
         top.$("#dialog-voice-input").is(":visible") ||
         top.$("#dialog-video").is(":visible");
 }

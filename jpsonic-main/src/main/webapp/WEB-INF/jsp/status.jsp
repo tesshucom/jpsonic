@@ -10,9 +10,8 @@
 <body class="mainframe status">
 
 <c:import url="helpHeader.jsp">
-	<c:param name="cat" value="status"/>
+    <c:param name="cat" value="status"/>
     <c:param name="isAdmin" value="${model.admin}"/>
-    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <div>
@@ -89,7 +88,12 @@
                         <dl>
                             <dt><fmt:message key="status.user" /></dt><dd>${user}</dd>
                             <dt><fmt:message key="status.type" /></dt><dd>${transferType}</dd>
-                            <dt><fmt:message key="status.player" /></dt><dd title="${status.player} ... ${type}">${status.player}<br>${type}</dd>
+                            <dt>
+                                <fmt:message key="status.player" /></dt><dd title="${status.player} ... ${type}">${status.player}
+                                <c:if test="${user ne 'guest'}">
+                                    <br>${type}
+                                </c:if>
+                            </dd>
                             <dt><fmt:message key="status.current" /></dt><dd title="${current}">${current}</dd>
                             <dt><fmt:message key="status.transmitted" /></dt><dd>${status.bytes}</dd>
                         </dl>

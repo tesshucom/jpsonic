@@ -60,6 +60,7 @@ public class UserSettingsCommand extends SettingsPageCommons {
     private boolean coverArtRole;
     private boolean commentRole;
     private boolean podcastRole;
+    private boolean nowPlayingAllowed;
 
     // User update
     private boolean passwordChange;
@@ -86,17 +87,18 @@ public class UserSettingsCommand extends SettingsPageCommons {
     public void setUser(User user) {
         if (user != null) {
             username = user.getUsername();
+            ldapAuthenticated = user.isLdapAuthenticated();
+
+            adminRole = user.isAdminRole();
+            settingsRole = user.isSettingsRole();
+            streamRole = user.isStreamRole();
+            downloadRole = user.isDownloadRole();
+            uploadRole = user.isUploadRole();
+            shareRole = user.isShareRole();
+            coverArtRole = user.isCoverArtRole();
+            commentRole = user.isCommentRole();
+            podcastRole = user.isPodcastRole();
         }
-        adminRole = user != null && user.isAdminRole();
-        downloadRole = user != null && user.isDownloadRole();
-        uploadRole = user != null && user.isUploadRole();
-        coverArtRole = user != null && user.isCoverArtRole();
-        commentRole = user != null && user.isCommentRole();
-        podcastRole = user != null && user.isPodcastRole();
-        streamRole = user != null && user.isStreamRole();
-        settingsRole = user != null && user.isSettingsRole();
-        shareRole = user != null && user.isShareRole();
-        ldapAuthenticated = user != null && user.isLdapAuthenticated();
         newUser = false;
     }
 
@@ -260,6 +262,14 @@ public class UserSettingsCommand extends SettingsPageCommons {
 
     public void setPodcastRole(boolean podcastRole) {
         this.podcastRole = podcastRole;
+    }
+
+    public boolean isNowPlayingAllowed() {
+        return nowPlayingAllowed;
+    }
+
+    public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
+        this.nowPlayingAllowed = nowPlayingAllowed;
     }
 
     public boolean isPasswordChange() {

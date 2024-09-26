@@ -1,7 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%@ include file="include.jsp" %>
 
-<c:set var="categories" value="${param.isAdmin ? 'help status internalhelp scanlog' : param.showStatus ? 'help status' : 'help'}"/>
+<c:set var="categories" value="${param.isAdmin
+        ? 'help status internalhelp scanlog'
+        : 'help'}"/>
 
 <section>
     <h1 class="info"><fmt:message key="help.title"><fmt:param value="${model.brand}"/></fmt:message></h1>
@@ -20,7 +22,7 @@
                     <a href="${url}"><fmt:message key="settingsheader.${cat}"/></a>
                 </c:otherwise>
             </c:choose>
-	        <c:if test="${loopStatus.last}"></li></c:if>
+            <c:if test="${loopStatus.last}"></li></c:if>
         </c:forTokens>
     </ul>
 </section>

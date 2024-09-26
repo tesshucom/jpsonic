@@ -379,7 +379,7 @@ public class RandomPlayQueueController {
     private List<String> parseGenre(String genre) {
         List<String> genres = null;
         if (null != genre) {
-            List<String> preAnalyzeds = indexManager.toPreAnalyzedGenres(Arrays.asList(genre));
+            List<String> preAnalyzeds = indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true);
             if (preAnalyzeds.isEmpty()) {
                 // #267 Invalid search for genre containing specific string
                 if (LOG.isWarnEnabled()) {

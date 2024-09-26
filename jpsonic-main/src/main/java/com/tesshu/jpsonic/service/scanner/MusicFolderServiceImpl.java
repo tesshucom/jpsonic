@@ -33,7 +33,6 @@ import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -52,22 +51,20 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
 
     private final MusicFolderDao musicFolderDao;
     private final StaticsDao staticsDao;
-    private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerStateService;
     private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
-    public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao, SettingsService settingsService,
+    public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao,
             ScannerStateServiceImpl scannerStateService) {
         this.musicFolderDao = musicFolderDao;
         this.staticsDao = staticsDao;
-        this.settingsService = settingsService;
         this.scannerStateService = scannerStateService;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
 
     @Override
     public List<MusicFolder> getAllMusicFolders() {
-        return getAllMusicFolders(false, !settingsService.isRedundantFolderCheck());
+        return getAllMusicFolders(false, true);
     }
 
     @Override

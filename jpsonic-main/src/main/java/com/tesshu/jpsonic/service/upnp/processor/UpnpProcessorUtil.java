@@ -25,20 +25,17 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UpnpProcessorUtil {
 
-    private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final JpsonicComparators comparators;
 
-    public UpnpProcessorUtil(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, JpsonicComparators comparators) {
-        this.settingsService = settingsService;
+    public UpnpProcessorUtil(MusicFolderService musicFolderService, SecurityService securityService,
+            JpsonicComparators comparators) {
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.comparators = comparators;
@@ -46,11 +43,6 @@ public class UpnpProcessorUtil {
 
     public List<MusicFolder> getGuestFolders() {
         return musicFolderService.getMusicFoldersForUser(securityService.getGuestUser().getUsername());
-    }
-
-    public boolean isGenreCountAvailable() {
-        return settingsService.isDlnaGenreCountVisible()
-                && getGuestFolders().equals(musicFolderService.getAllMusicFolders());
     }
 
     public boolean isSortAlbumsByYear(String artist) {

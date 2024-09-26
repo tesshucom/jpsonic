@@ -150,7 +150,7 @@ class PlaylistProcTest {
         private PlaylistProc playlistProc;
 
         @Autowired
-        private AlbumProc albumProc;
+        private AlbumId3Proc albumId3Proc;
 
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -191,7 +191,7 @@ class PlaylistProcTest {
                 shallow.stream().map(toPlaylist).forEach(playlistDao::createPlaylist);
             }
 
-            List<Album> albums = albumProc.getDirectChildren(0, 100);
+            List<Album> albums = albumId3Proc.getDirectChildren(0, 100);
             assertEquals(61, albums.size());
             List<MediaFile> files = albums.stream()
                     .map(a -> mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, a.getArtist(), a.getName()).get(0))

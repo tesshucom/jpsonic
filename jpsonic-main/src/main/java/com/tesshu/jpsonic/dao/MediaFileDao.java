@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.dao.dialect.DialectMediaFileDao;
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.domain.DuplicateSort;
@@ -69,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class MediaFileDao {
 
-    public static final int VERSION = 14;
+    public static final int VERSION = 15;
 
     private static final String INSERT_COLUMNS = DaoUtils.getInsertColumns(MediaFile.class);
     private static final String QUERY_COLUMNS = DaoUtils.getQueryColumns(MediaFile.class);
@@ -176,6 +177,23 @@ public class MediaFileDao {
                 from media_file
                 where parent_path=:parentPath and present %s
                 """.formatted(typeFilter), 0, args);
+    }
+
+    public int getChildSizeOf(List<MusicFolder> folders, List<String> genres, String albumArtist, String album,
+            MediaType... types) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(folders), "types",
+                Arrays.asList(types).stream().map(MediaType::name).toList(), "genres", genres, "albumArtist",
+                albumArtist, "album", album);
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file
+                where folder in (:folders) and present
+                        and album_artist = :albumArtist and album = :album
+                        and genre in (:genres) and type in (:types)
+                """, 0, args);
     }
 
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders, List<String> shortcutPaths) {
@@ -317,6 +335,24 @@ public class MediaFileDao {
                 """.formatted(typeFilter), rowMapper, args);
     }
 
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, List<String> genres, String albumArtist,
+            String album, int offset, int count, MediaType... types) {
+        if (genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(folders), "types",
+                Arrays.asList(types).stream().map(MediaType::name).toList(), "genres", genres, "albumArtist",
+                albumArtist, "album", album, "count", count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from media_file
+                where folder in (:folders) and present
+                        and album_artist = :albumArtist and album = :album
+                        and genre in (:genres) and type in (:types)
+                order by media_file_order, track_number
+                offset :offset limit :count
+                """, rowMapper, args);
+    }
+
     public List<MediaFile> getDirectChildFiles(List<MusicFolder> folders, long offset, long count,
             MediaType... excludes) {
         if (folders.isEmpty()) {
@@ -373,6 +409,19 @@ public class MediaFileDao {
                 limit ? offset ?
                 """, rowMapper, albumArtist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
                 MediaType.PODCAST.name(), count, offset);
+    }
+
+    public List<String> getID3AlbumGenres(MediaFile mediaFile) {
+        return template.queryForStrings("select distinct ordered.genre " + """
+                from (select genre from media_file
+                        where album_artist=?
+                            and album=?
+                            and present
+                            and genre is not null
+                            and type in (?,?)
+                        order by track_number) as ordered
+                """, mediaFile.getAlbumArtist(), mediaFile.getAlbumName(), MediaType.MUSIC.name(),
+                MediaType.AUDIOBOOK.name());
     }
 
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
@@ -467,6 +516,23 @@ public class MediaFileDao {
                 set children_last_updated = ?, present=?
                 where path=?
                 """, childrenLastUpdated, true, pathString);
+    }
+
+    public void updateChildrenLastUpdated(Album album, Instant childrenLastUpdated) {
+        template.update("""
+                update media_file
+                set children_last_updated = ?, present=?
+                where album_artist = ? and album = ? and children_last_updated = ? and path <> ?
+                """, childrenLastUpdated, true, album.getArtist(), album.getName(), FAR_FUTURE, album.getPath());
+    }
+
+    public void resetAlbumChildrenLastUpdated() {
+        template.update("""
+                update media_file
+                set children_last_updated = ?
+                where type in (?, ?, ?) and present
+                """, FAR_FUTURE, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
+                MediaFile.MediaType.VIDEO.name());
     }
 
     public int updateOrder(int id, int order) {
@@ -719,22 +785,8 @@ public class MediaFileDao {
     }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
-            final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty() || genres.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("types",
-                Arrays.asList(MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name()), "genres",
-                genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
-        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
-                from media_file s
-                join media_file al
-                on s.parent_path = al.path join media_file ar on al.parent_path = ar.path
-                where s.type in (:types) and s.genre in (:genres)
-                        and s.present and s.folder in (:folders)
-                order by ar.media_file_order, al.media_file_order, s.track_number
-                limit :count offset :offset
-                """, rowMapper, args);
+            final List<MusicFolder> musicFolders, List<MediaType> types) {
+        return dialect.getSongsByGenre(genres, offset, count, musicFolders, types);
     }
 
     public List<MediaFile> getSongsByArtist(String artist, int offset, int count) {
@@ -1014,9 +1066,9 @@ public class MediaFileDao {
     public void updateAlbumSort(SortCandidate cand) {
         template.update("""
                 update media_file
-                set album_reading = ?, album_sort = ?
+                set album_reading = ?, album_sort = ?, children_last_updated = ?
                 where present and id = ?
-                """, cand.getReading(), cand.getSort(), cand.getTargetId());
+                """, cand.getReading(), cand.getSort(), FAR_FUTURE, cand.getTargetId());
     }
 
     public void updateArtistSort(ArtistSortCandidate cand) {
@@ -1035,9 +1087,9 @@ public class MediaFileDao {
         } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
             template.update("""
                     update media_file
-                    set album_artist_reading = ?, album_artist_sort = ?
+                    set album_artist_reading = ?, album_artist_sort = ?, children_last_updated = ?
                     where id = ?
-                    """, cand.getReading(), cand.getSort(), cand.getTargetId());
+                    """, cand.getReading(), cand.getSort(), FAR_FUTURE, cand.getTargetId());
         } else if (cand.getTargetField() == TargetField.COMPOSER) {
             template.update("""
                     update media_file
@@ -1065,9 +1117,10 @@ public class MediaFileDao {
                 args.add(cand.getReading());
                 args.add(cand.getSort());
             } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
-                cols.append("album_artist_reading=?, album_artist_sort=?, ");
+                cols.append("album_artist_reading=?, album_artist_sort=?, children_last_updated = ?, ");
                 args.add(cand.getReading());
                 args.add(cand.getSort());
+                args.add(FAR_FUTURE);
             } else if (cand.getTargetField() == TargetField.COMPOSER) {
                 cols.append("composer_sort=?, ");
                 args.add(cand.getSort());
@@ -1076,7 +1129,7 @@ public class MediaFileDao {
         args.add(cands.get(0).getTargetId());
 
         String query = updates + cols.toString().replaceFirst(", $", " ") + cond;
-        template.getJdbcTemplate().update(query, args.toArray());
+        template.update(query, args.toArray());
     }
 
     static class RandomSongsQueryBuilder {

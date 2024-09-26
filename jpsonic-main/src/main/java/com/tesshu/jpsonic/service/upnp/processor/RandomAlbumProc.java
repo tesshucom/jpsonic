@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomAlbumProc extends AlbumProc implements CountLimitProc {
+public class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;

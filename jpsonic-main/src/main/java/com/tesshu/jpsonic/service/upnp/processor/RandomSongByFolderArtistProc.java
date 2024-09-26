@@ -23,16 +23,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrSong;
-import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FArtistOrSong;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrArtist, ArtistOrSong>
+public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFArtist, FArtistOrSong>
         implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
@@ -59,12 +61,12 @@ public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<Fold
     }
 
     @Override
-    public Container createContainer(FolderOrArtist folderArtist) {
-        return deligate.createContainer(getProcId(), folderArtist);
+    public Container createContainer(FolderOrFArtist folderOrArtist) {
+        return deligate.createContainer(getProcId(), folderOrArtist);
     }
 
     @Override
-    public List<FolderOrArtist> getDirectChildren(long offset, long count) {
+    public List<FolderOrFArtist> getDirectChildren(long offset, long count) {
         return deligate.getDirectChildren(offset, count);
     }
 
@@ -74,33 +76,33 @@ public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<Fold
     }
 
     @Override
-    public FolderOrArtist getDirectChild(String compositeId) {
+    public FolderOrFArtist getDirectChild(String compositeId) {
         return deligate.getDirectChild(compositeId);
     }
 
     @Override
-    public List<ArtistOrSong> getChildren(FolderOrArtist item, long firstResult, long maxResults) {
+    public List<FArtistOrSong> getChildren(FolderOrFArtist folderOrArtist, long firstResult, long maxResults) {
         int offset = (int) firstResult;
-        if (item.isArtist()) {
+        if (folderOrArtist.isFolderArtist()) {
             int randomMax = settingsService.getDlnaRandomMax();
             int count = toCount(firstResult, maxResults, randomMax);
-            return searchService
-                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getGuestFolders()).stream()
-                    .map(ArtistOrSong::new).toList();
+            return searchService.getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,
+                    randomMax, util.getGuestFolders()).stream().map(FArtistOrSong::new).toList();
         }
-        return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(item.getFolder())).stream()
-                .map(ArtistOrSong::new).toList();
+        MusicFolder folder = folderOrArtist.getFolder();
+        return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(folderOrArtist.getFolder()))
+                .stream().map(artist -> new FolderArtist(folder, artist)).map(FArtistOrSong::new).toList();
     }
 
     @Override
-    public int getChildSizeOf(FolderOrArtist folderOrArtist) {
+    public int getChildSizeOf(FolderOrFArtist folderOrArtist) {
         return deligate.getChildSizeOf(folderOrArtist);
     }
 
     @Override
-    public void addChild(DIDLContent parent, ArtistOrSong artistOrSong) {
-        if (artistOrSong.isArtist()) {
-            parent.addContainer(createContainer(new FolderOrArtist(artistOrSong.getArtist())));
+    public void addChild(DIDLContent parent, FArtistOrSong artistOrSong) {
+        if (artistOrSong.isFolderArtist()) {
+            parent.addContainer(deligate.createContainer(getProcId(), artistOrSong.getFolderArtist()));
         } else {
             parent.addItem(factory.toMusicTrack(artistOrSong.getSong()));
         }

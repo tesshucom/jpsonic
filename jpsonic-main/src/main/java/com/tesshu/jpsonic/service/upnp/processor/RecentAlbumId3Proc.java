@@ -19,18 +19,16 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.service.MediaFileService;
-import org.jupnp.support.model.BrowseResult;
-import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RecentAlbumId3Proc extends AlbumProc implements CountLimitProc {
+public class RecentAlbumId3Proc extends AlbumId3Proc implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 
@@ -50,18 +48,14 @@ public class RecentAlbumId3Proc extends AlbumProc implements CountLimitProc {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
-        DIDLContent parent = new DIDLContent();
+    public List<Album> getDirectChildren(long firstResult, long maxResults) {
         int offset = (int) firstResult;
         int directChildrenCount = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, directChildrenCount);
-        getDirectChildren(offset, count).forEach(a -> addDirectChild(parent, a));
-        return createBrowseResult(parent, (int) parent.getCount(), directChildrenCount);
-    }
-
-    @Override
-    public List<Album> getDirectChildren(long offset, long max) {
-        return albumDao.getNewestAlbums((int) offset, (int) max, util.getGuestFolders());
+        if (count == 0) {
+            return Collections.emptyList();
+        }
+        return albumDao.getNewestAlbums(offset, count, util.getGuestFolders());
     }
 
     @Override

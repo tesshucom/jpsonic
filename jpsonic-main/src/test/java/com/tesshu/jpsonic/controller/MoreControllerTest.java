@@ -58,8 +58,8 @@ class MoreControllerTest {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new MoreController(musicFolderService, mock(SecurityService.class), playerService, searchService))
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new MoreController(musicFolderService, mock(SecurityService.class), searchService))
                 .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
