@@ -89,9 +89,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private String ietfDisplayDefault;
     private boolean openDetailStar;
     private boolean openDetailIndex;
-    private boolean nowPlayingAllowed;
-    private boolean othersPlayingEnabled;
-    private boolean showNowPlayingEnabled;
     private boolean showArtistInfoEnabled;
     private boolean forceBio2Eng;
     private boolean showTopSongs;
@@ -108,6 +105,7 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private boolean showDownload;
     private boolean showShare;
     private boolean partyModeEnabled;
+    private boolean usePartyMode;
 
     // Personal image
     private int avatarId;
@@ -439,30 +437,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         this.openDetailIndex = openDetailIndex;
     }
 
-    public boolean isNowPlayingAllowed() {
-        return nowPlayingAllowed;
-    }
-
-    public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
-        this.nowPlayingAllowed = nowPlayingAllowed;
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return othersPlayingEnabled;
-    }
-
-    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
-        this.othersPlayingEnabled = othersPlayingEnabled;
-    }
-
-    public boolean isShowNowPlayingEnabled() {
-        return showNowPlayingEnabled;
-    }
-
-    public void setShowNowPlayingEnabled(boolean showNowPlayingEnabled) {
-        this.showNowPlayingEnabled = showNowPlayingEnabled;
-    }
-
     public boolean isShowArtistInfoEnabled() {
         return showArtistInfoEnabled;
     }
@@ -589,6 +563,14 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
 
     public void setPartyModeEnabled(boolean partyModeEnabled) {
         this.partyModeEnabled = partyModeEnabled;
+    }
+
+    public boolean isUsePartyMode() {
+        return usePartyMode;
+    }
+
+    public void setUsePartyMode(boolean usePartyMode) {
+        this.usePartyMode = usePartyMode;
     }
 
     public int getAvatarId() {

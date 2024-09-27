@@ -577,8 +577,13 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsDlnaGenreCountVisible() {
-        assertFalse(settingsService.isDlnaGenreCountVisible());
+    void testGetUPnPAlbumGenreSort() {
+        assertEquals("FREQUENCY", settingsService.getUPnPAlbumGenreSort());
+    }
+
+    @Test
+    void testGetUPnPSongGenreSort() {
+        assertEquals("FREQUENCY", settingsService.getUPnPSongGenreSort());
     }
 
     @Test
@@ -589,26 +594,6 @@ class SettingsServiceTest {
     @Test
     void testGetDlnaRandomMax() {
         assertEquals(50, settingsService.getDlnaRandomMax());
-    }
-
-    @Test
-    void testIsPublishPodcast() {
-        assertFalse(settingsService.isPublishPodcast());
-    }
-
-    @Test
-    void testIsShowServerLog() {
-        assertFalse(settingsService.isShowServerLog());
-    }
-
-    @Test
-    void testIsShowStatus() {
-        assertFalse(settingsService.isShowStatus());
-    }
-
-    @Test
-    void testIsOthersPlayingEnabled() {
-        assertFalse(settingsService.isOthersPlayingEnabled());
     }
 
     @Test
@@ -642,48 +627,28 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseExternalPlayer() {
-        assertFalse(settingsService.isUseExternalPlayer());
-    }
-
-    @Test
-    void testIsUseCopyOfAsciiUnprintable() {
-        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
-    }
-
-    @Test
     void testIsUseJsonp() {
         assertFalse(settingsService.isUseJsonp());
     }
 
     @Test
-    void testIsUseRemovingTrackFromId3Title() {
-        assertFalse(settingsService.isUseRemovingTrackFromId3Title());
-    }
-
-    @Test
-    void testIsUseCleanUp() {
-        assertFalse(settingsService.isUseCleanUp());
-    }
-
-    @Test
-    void testIsRedundantFolderCheck() {
-        assertFalse(settingsService.isRedundantFolderCheck());
-    }
-
-    @Test
     void testIsShowIndexDetails() {
-        assertFalse(settingsService.isRedundantFolderCheck());
+        assertFalse(settingsService.isShowIndexDetails());
     }
 
     @Test
     void testIsShowDBDetails() {
-        assertFalse(settingsService.isRedundantFolderCheck());
+        assertFalse(settingsService.isShowDBDetails());
     }
 
     @Test
     void testIsUseCast() {
         assertFalse(settingsService.isUseCast());
+    }
+
+    @Test
+    void testIsUsePartyMode() {
+        assertFalse(settingsService.isUsePartyMode());
     }
 
     @Test

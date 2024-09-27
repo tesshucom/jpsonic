@@ -3,7 +3,62 @@
 # jpsonic/jpsonic
 # -->
 
-## v114.1.0
+## v114.2.0
+
+#### Bug fixes
+
+  * Fix bug that ffmpeg did not work ([#2649](https://github.com/tesshucom/jpsonic/issues/2649))
+  * Fix Docker health checks ([#2650](https://github.com/tesshucom/jpsonic/issues/2650))
+  * Fix to filter unknown menus ([#2660](https://github.com/tesshucom/jpsonic/issues/2660))
+  * Revert commons-lang3 ([#2670](https://github.com/tesshucom/jpsonic/issues/2670)) -> Fix(v114.1.10)  ([#2685](https://github.com/tesshucom/jpsonic/issues/2685))
+  * Fix bug that Star in ID3Album was deleted by full scan ([#2683](https://github.com/tesshucom/jpsonic/issues/2683))
+  * Fix bug in UPnP Recent Album that returned results exceeding the server limit ([#2687](https://github.com/tesshucom/jpsonic/issues/2687))
+  * Fix bug that caused UPnP transcoding settings to be reset ([#2695](https://github.com/tesshucom/jpsonic/issues/2695))
+
+#### Enhancement
+
+  * Docker
+    * Add UBI9 Base Docker Image ([#2652](https://github.com/tesshucom/jpsonic/issues/2652))
+    * Add Ubuntu 24.04 (Noble Numbat) base Docker Image ([#2678](https://github.com/tesshucom/jpsonic/issues/2678))
+  * UPnP
+    * Add upnp id3genre ([#2662](https://github.com/tesshucom/jpsonic/issues/2662))
+    * Add album by folders to the UPnP submenu ([#2666](https://github.com/tesshucom/jpsonic/issues/2666))
+    * Remove UPnP Genre count display ([#2667](https://github.com/tesshucom/jpsonic/issues/2667))
+    * Add UPnP menu: Filtering genre by folders ([#2672](https://github.com/tesshucom/jpsonic/issues/2672))
+    * Change to be able to use audiobooks with UPnP ([#2674](https://github.com/tesshucom/jpsonic/issues/2674))
+    * Add music shuffle by genre to UPnP ([#2677](https://github.com/tesshucom/jpsonic/issues/2677))
+    * Add File Structure album to upnp menu ([#2686](https://github.com/tesshucom/jpsonic/issues/2686))
+    * [UPnP Menu] Add Recently by Music Folder ([#2689](https://github.com/tesshucom/jpsonic/issues/2689))
+  * Others
+    * Change Nowplaying output to be configurable in User settings ([#2694](https://github.com/tesshucom/jpsonic/issues/2694))
+
+#### Maintenance
+
+  * Add Java22 validation to CI ([#2657](https://github.com/tesshucom/jpsonic/issues/2657))
+  * Fix to suppress redundant logs at startup ([#2653](https://github.com/tesshucom/jpsonic/issues/2653))
+  * Suppress AsyncRequestNotUsableException ([#2642](https://github.com/tesshucom/jpsonic/issues/2642))
+  * Improve lib configuration management ([#2631](https://github.com/tesshucom/jpsonic/issues/2631))
+  * Remove or modify unnecessary features ([#2692](https://github.com/tesshucom/jpsonic/issues/2692))
+  * Mark some features as deprecated ([#2697](https://github.com/tesshucom/jpsonic/issues/2697))
+
+#### Update Libs
+
+  - [v114.1.1](https://github.com/tesshucom/jpsonic/issues/2634)
+  - [v114.1.2](https://github.com/tesshucom/jpsonic/issues/2643)
+  - [v114.1.3](https://github.com/tesshucom/jpsonic/issues/2655)
+  - [v114.1.4](https://github.com/tesshucom/jpsonic/issues/2658)
+  - [v114.1.5](https://github.com/tesshucom/jpsonic/issues/2659)
+  - [v114.1.6](https://github.com/tesshucom/jpsonic/issues/2661)
+  - [v114.1.7](https://github.com/tesshucom/jpsonic/issues/2668)
+  - [v114.1.8](https://github.com/tesshucom/jpsonic/issues/2670)
+  - [v114.1.9](https://github.com/tesshucom/jpsonic/issues/2681)
+  - [v114.1.10](https://github.com/tesshucom/jpsonic/issues/2685)
+  - [v114.1.11](https://github.com/tesshucom/jpsonic/issues/2690)
+  - [v114.1.12](https://github.com/tesshucom/jpsonic/issues/2696)
+
+
+<details>
+<summary>v114.1.0</summary>
 
 #### Bug fixes
 
@@ -29,6 +84,7 @@
   - [v114.0.6](https://github.com/tesshucom/jpsonic/issues/2617)
   - [v114.0.7](https://github.com/tesshucom/jpsonic/issues/2621)
 
+</details>
 <details>
 <summary>v114.0.0</summary>
 

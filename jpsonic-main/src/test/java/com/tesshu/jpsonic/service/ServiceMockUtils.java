@@ -84,6 +84,11 @@ public final class ServiceMockUtils {
             player.setId(99);
             player.setUsername(User.USERNAME_GUEST);
             Mockito.when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class))).thenReturn(player);
+            Player upnpPlayer = new Player();
+            upnpPlayer.setId(999);
+            upnpPlayer.setUsername(User.USERNAME_GUEST);
+            upnpPlayer.setClientId("Jpsonic UPnP Player");
+            Mockito.when(playerService.getUPnPPlayer()).thenReturn(upnpPlayer);
             mock = playerService;
         } else if (SettingsService.class == classToMock) {
             SettingsService settingsService = Mockito.mock(SettingsService.class);

@@ -36,7 +36,6 @@ import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -61,8 +60,9 @@ class PlaylistsControllerTest {
         List<Playlist> playlists = Arrays.asList(playlist);
         PlaylistService playlistService = mock(PlaylistService.class);
         Mockito.when(playlistService.getReadablePlaylistsForUser(Mockito.any())).thenReturn(playlists);
-        mockMvc = MockMvcBuilders.standaloneSetup(new PlaylistsController(mock(SettingsService.class),
-                mock(SecurityService.class), playlistService, mock(ViewAsListSelector.class))).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(
+                new PlaylistsController(mock(SecurityService.class), playlistService, mock(ViewAsListSelector.class)))
+                .build();
     }
 
     @SuppressWarnings("unchecked")

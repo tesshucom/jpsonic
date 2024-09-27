@@ -21,16 +21,8 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -40,15 +32,13 @@ import org.mockito.Mockito;
 
 class UpnpProcessorUtilTest {
 
-    private MusicFolderService musicFolderService;
     private SettingsService settingsService;
     private UpnpProcessorUtil util;
 
     @BeforeEach
     public void setup() {
-        musicFolderService = mock(MusicFolderService.class);
         settingsService = mock(SettingsService.class);
-        util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
                 mock(JpsonicComparators.class));
     }
 
@@ -56,26 +46,5 @@ class UpnpProcessorUtilTest {
     void testGetAllMusicFolders() {
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
         assertNotNull(util.getGuestFolders());
-    }
-
-    @Test
-    void testIsGenreCountAvailable() {
-        Mockito.when(settingsService.isDlnaGenreCountVisible()).thenReturn(false);
-        assertFalse(util.isGenreCountAvailable());
-
-        Mockito.when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", null, true, null, false));
-        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
-        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
-        assertTrue(util.isGenreCountAvailable());
-
-        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(Collections.emptyList());
-        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
-        assertFalse(util.isGenreCountAvailable());
-
-        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
-        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST))
-                .thenReturn(Collections.emptyList());
-        assertFalse(util.isGenreCountAvailable());
     }
 }

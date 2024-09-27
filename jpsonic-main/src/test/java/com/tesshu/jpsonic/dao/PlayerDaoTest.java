@@ -27,13 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -59,6 +60,9 @@ class PlayerDaoTest {
     @Autowired
     private PlayerDao playerDao;
 
+    @Autowired
+    private TemplateWrapper templateWrapper;
+
     @BeforeEach
     public void setUp() {
         daoHelper.getJdbcTemplate().execute("delete from player");
@@ -72,8 +76,6 @@ class PlayerDaoTest {
         player.setUsername("username");
         player.setIpAddress("ipaddress");
         player.setDynamicIp(false);
-        player.setAutoControlEnabled(false);
-        player.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
         player.setClientId("android");
         player.setLastSeen(now());
         player.setTranscodeScheme(TranscodeScheme.MAX_256);
@@ -92,7 +94,6 @@ class PlayerDaoTest {
         Player player = playerDao.getAllPlayers().get(0);
 
         assertTrue(player.isDynamicIp(), "Player should have dynamic IP by default.");
-        assertTrue(player.isAutoControlEnabled(), "Player should be auto-controlled by default.");
         assertNull(player.getClientId(), "Player client ID should be null by default.");
     }
 
@@ -167,12 +168,10 @@ class PlayerDaoTest {
 
         player.setName("name");
         player.setType("Winamp");
-        player.setTechnology(PlayerTechnology.WEB);
         player.setClientId("foo");
         player.setUsername("username");
         player.setIpAddress("ipaddress");
         player.setDynamicIp(true);
-        player.setAutoControlEnabled(false);
         player.setLastSeen(now());
         player.setTranscodeScheme(TranscodeScheme.MAX_256);
 
@@ -201,14 +200,64 @@ class PlayerDaoTest {
     private void assertPlayerEquals(Player expected, Player actual) {
         assertEquals(expected.getId(), actual.getId(), "Wrong ID.");
         assertEquals(expected.getName(), actual.getName(), "Wrong name.");
-        assertEquals(expected.getTechnology(), actual.getTechnology(), "Wrong technology.");
         assertEquals(expected.getClientId(), actual.getClientId(), "Wrong client ID.");
         assertEquals(expected.getType(), actual.getType(), "Wrong type.");
         assertEquals(expected.getUsername(), actual.getUsername(), "Wrong username.");
         assertEquals(expected.getIpAddress(), actual.getIpAddress(), "Wrong IP address.");
         assertEquals(expected.isDynamicIp(), actual.isDynamicIp(), "Wrong dynamic IP.");
-        assertEquals(expected.isAutoControlEnabled(), actual.isAutoControlEnabled(), "Wrong auto control enabled.");
         assertEquals(expected.getLastSeen(), actual.getLastSeen(), "Wrong last seen.");
         assertEquals(expected.getTranscodeScheme(), actual.getTranscodeScheme(), "Wrong transcode scheme.");
+    }
+
+    @Test
+    void tesDeleteOldPlayers() {
+        Player player = new Player();
+        player.setId(0);
+        player.setName("name");
+        player.setClientId("client_id");
+        player.setLastSeen(now());
+        playerDao.createPlayer(player);
+        assertEquals(1, playerDao.getAllPlayers().size());
+        playerDao.deleteOldPlayers(60);
+        assertEquals(1, playerDao.getAllPlayers().size());
+
+        player.setName(null);
+        playerDao.updatePlayer(player);
+        playerDao.deleteOldPlayers(60);
+        assertEquals(1, playerDao.getAllPlayers().size());
+
+        player.setClientId(null);
+        playerDao.updatePlayer(player);
+        playerDao.deleteOldPlayers(60);
+        assertEquals(1, playerDao.getAllPlayers().size());
+
+        player.setLastSeen(null);
+        playerDao.updatePlayer(player);
+        playerDao.deleteOldPlayers(60);
+        assertEquals(0, playerDao.getAllPlayers().size());
+
+        player.setLastSeen(now().minus(90L, ChronoUnit.DAYS));
+        playerDao.createPlayer(player);
+        assertEquals(1, playerDao.getAllPlayers().size());
+        playerDao.deleteOldPlayers(60);
+        assertEquals(0, playerDao.getAllPlayers().size());
+
+        player.setName("name");
+        player.setClientId("client_id");
+        player.setLastSeen(now());
+        playerDao.createPlayer(player);
+        assertEquals(1, playerDao.getAllPlayers().size());
+        templateWrapper.getJdbcTemplate().update("update player set technology = ? where id = ?", "EXTERNAL",
+                player.getId());
+        playerDao.deleteOldPlayers(60);
+
+        player.setName("name");
+        player.setClientId("client_id");
+        player.setLastSeen(now());
+        playerDao.createPlayer(player);
+        assertEquals(1, playerDao.getAllPlayers().size());
+        templateWrapper.getJdbcTemplate().update("update player set technology = ? where id = ?",
+                "EXTERNAL_WITH_PLAYLIST", player.getId());
+        playerDao.deleteOldPlayers(60);
     }
 }

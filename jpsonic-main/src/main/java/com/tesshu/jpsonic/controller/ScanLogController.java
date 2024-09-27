@@ -58,16 +58,14 @@ public class ScanLogController {
     private static final DateTimeFormatter DATE_AND_OPTIONAL_MILLI_TIME = DateTimeFormatter
             .ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
 
-    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ScannerStateService scannerStateService;
     private final StaticsDao staticsDao;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public ScanLogController(SettingsService settingsService, SecurityService securityService,
-            ScannerStateService scannerStateService, StaticsDao staticsDao, OutlineHelpSelector outlineHelpSelector) {
+    public ScanLogController(SecurityService securityService, ScannerStateService scannerStateService,
+            StaticsDao staticsDao, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
         this.securityService = securityService;
         this.scannerStateService = scannerStateService;
         this.staticsDao = staticsDao;
@@ -85,7 +83,6 @@ public class ScanLogController {
         model.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
 
         model.put("scanning", scannerStateService.isScanning());
-        model.put("showStatus", settingsService.isShowStatus());
 
         List<ScanLogVO> scanLogs = staticsDao.getScanLog(ScanLogType.SCAN_ALL).stream().map(ScanLogVO::new)
                 .collect(Collectors.toList());

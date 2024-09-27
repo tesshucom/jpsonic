@@ -25,6 +25,7 @@ import java.util.function.BiFunction;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 
@@ -75,4 +76,7 @@ public interface DialectMediaFileDao {
 
     List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback);
+
+    List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count, List<MusicFolder> musicFolders,
+            List<MediaType> types);
 }

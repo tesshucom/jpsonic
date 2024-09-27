@@ -43,6 +43,7 @@ import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.dao.dialect.DialectMediaFileDao;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -106,11 +107,15 @@ class MediaFileDaoTest {
             argCaptor = ArgumentCaptor.forClass(Object[].class);
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
-            assertEquals(
-                    "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=? where id = ?",
-                    queryCaptor.getValue());
+            assertEquals("""
+                    update media_file \
+                    set artist_reading=?, artist_sort=?, album_artist_reading=?, \
+                    album_artist_sort=?, \
+                    children_last_updated = ? \
+                    where id = ?\
+                    """, queryCaptor.getValue());
             assertEquals(1, argCaptor.getAllValues().size());
-            assertEquals(5, argCaptor.getValue().length);
+            assertEquals(6, argCaptor.getValue().length);
 
             ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.COMPOSER.getValue());
@@ -119,11 +124,15 @@ class MediaFileDaoTest {
             argCaptor = ArgumentCaptor.forClass(Object[].class);
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
-            assertEquals(
-                    "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
-                    queryCaptor.getValue());
+            assertEquals("""
+                    update media_file \
+                    set artist_reading=?, artist_sort=?, \
+                    album_artist_reading=?, album_artist_sort=?, children_last_updated = ?, \
+                    composer_sort=? \
+                    where id = ?\
+                    """, queryCaptor.getValue());
             assertEquals(1, argCaptor.getAllValues().size());
-            assertEquals(6, argCaptor.getValue().length);
+            assertEquals(7, argCaptor.getValue().length);
         }
 
         @Nested
@@ -778,6 +787,39 @@ class MediaFileDaoTest {
                 default -> throw new IllegalArgumentException("Unexpected value: " + index.index());
                 }
             });
+        }
+
+        /**
+         * SQL: Boundary value testing for count. NewestAlbums is the only place within Apps where count can be 0
+         * (UPnP's View-Paging). Please note that in the current Dao implementation, a count of 0 is treated as having
+         * no condition.
+         */
+        @Test
+        void testGetNewestAlbums() {
+
+            // There are 4 test data albums in total.
+            List<MediaFile> albums = mediaFileDao.getNewestAlbums(0, Integer.MAX_VALUE, getMusicFolders());
+            assertEquals(4, albums.size());
+
+            albums = mediaFileDao.getNewestAlbums(0, 1, getMusicFolders());
+            assertEquals(1, albums.size());
+
+            albums = mediaFileDao.getNewestAlbums(0, 2, getMusicFolders());
+            assertEquals(2, albums.size());
+
+            albums = mediaFileDao.getNewestAlbums(0, 3, getMusicFolders());
+            assertEquals(3, albums.size());
+
+            albums = mediaFileDao.getNewestAlbums(0, 4, getMusicFolders());
+            assertEquals(4, albums.size());
+
+            // Up until this point, everything has gone as expected...
+            albums = mediaFileDao.getNewestAlbums(0, 5, getMusicFolders());
+            assertEquals(4, albums.size());
+
+            // Please note that even if we specify 0, it will not return 0.
+            albums = mediaFileDao.getNewestAlbums(0, 0, getMusicFolders());
+            assertEquals(4, albums.size());
         }
     }
 }

@@ -20,7 +20,7 @@ services:
     container_name: 'jpsonic'
 
     # Not required. However, if you specify, please specify the correct name.
-    #　hostname: 'SynologyNAS'
+    # hostname: 'SynologyNAS'
 
     network_mode: 'host'
     pid: host
@@ -43,6 +43,13 @@ services:
     #
     # - '/volume1/Music2:/jpsonic/music2'
     # - '/volume1/Music3:/jpsonic/music3'
+
+    # If you use Audiobook,
+    # we recommend that you include the audiobook string in the entry path.
+    # In Subsonic's direct lineage servers, it is used for shuffle exclusion, etc.
+    # In Jpsonic, you can separate music and audiobook genres (with UPnP).
+    #
+    # - '/volume1/SomeDir:/jpsonic/audiobook'
 
     # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
     # Please change this depending on the number of songs in your library.
@@ -113,10 +120,10 @@ services:
      #MIME_DSF: 'audio/x-dsd'
      #MIME_DFF: 'audio/x-dsd'
 
-     #　Option example when using JMX. The "ea" tag image is required to use JMX.
-     #　Note that port 3333 is free on "ea" !!
-     #　For VisualVM, you need to specify the port in File-Add JMX Connection.
-     #　e.g. localhost:3333
+     # Option example when using JMX. The "ea" tag image is required to use JMX.
+     # Note that port 3333 is free on "ea" !!
+     # For VisualVM, you need to specify the port in File-Add JMX Connection.
+     # e.g. localhost:3333
      #
      #JAVA_OPTS: >
      #  -Xms512m

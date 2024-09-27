@@ -1,0 +1,13 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <include file="add-upnp-album-id3-by-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-idx-to-album-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-album-by-folder.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-album-id3-by-folder-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-audiobook-by-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-random-song-by-genre.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-filestrucure-album.xml" relativeToChangelogFile="true"/>
+    <include file="add-upnp-recently-by-folder.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

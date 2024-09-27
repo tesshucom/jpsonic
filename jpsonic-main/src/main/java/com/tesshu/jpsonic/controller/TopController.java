@@ -111,8 +111,6 @@ public class TopController {
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         map.put("user", user);
-        map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());
-        map.put("showNowPlayingEnabled", userSettings.isShowNowPlayingEnabled());
         map.put("showCurrentSongInfo", userSettings.isShowCurrentSongInfo());
         map.put("closeDrawer", userSettings.isCloseDrawer());
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);

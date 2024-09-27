@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileByFolderProc extends MediaFileProc {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)
+    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
             .toArray(size -> new MediaType[size]);
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
@@ -62,7 +62,7 @@ public class MediaFileByFolderProc extends MediaFileProc {
         int childSize = getChildSizeOf(entity);
         return switch (entity.getMediaType()) {
         case ALBUM -> factory.toAlbum(entity, childSize);
-        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(entity, getProcId(), childSize)
+        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
                 : factory.toArtist(entity, childSize);
         default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
         };

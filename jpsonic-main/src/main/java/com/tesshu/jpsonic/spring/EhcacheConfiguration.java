@@ -69,9 +69,9 @@ public class EhcacheConfiguration {
     }
 
     @Bean
-    @Qualifier("searchCache")
-    public Ehcache searchCache(CacheFactory cacheFactory) {
-        return cacheFactory.getCache("searchCache");
+    @Qualifier("genreCache")
+    public Ehcache genreCache(CacheFactory cacheFactory) {
+        return cacheFactory.getCache("genreCache");
     }
 
     public enum RandomCacheKey {

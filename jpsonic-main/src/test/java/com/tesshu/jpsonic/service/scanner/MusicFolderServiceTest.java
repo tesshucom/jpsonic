@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -47,7 +46,6 @@ import org.mockito.Mockito;
 class MusicFolderServiceTest {
 
     private MusicFolderDao musicFolderDao;
-    private SettingsService settingsService;
     private MusicFolderServiceImpl musicFolderService;
 
     private static final String USER_NAME = "user";
@@ -55,12 +53,9 @@ class MusicFolderServiceTest {
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException {
         musicFolderDao = mock(MusicFolderDao.class);
-        settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
         ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
         Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-        musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), settingsService,
-                scannerStateService);
+        musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), scannerStateService);
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null, 0, false);
         MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null, 1, false);
@@ -100,19 +95,11 @@ class MusicFolderServiceTest {
     @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.True
     // Same as GetAllMusicFoldersDisabledExistingTest#c03 if redundantFolderCheck = false, otherwise same as c01
     void testGetAllMusicFolders() {
-
         // Files.exists is never called
-        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         assertEquals(2, folders.size());
         assertEquals("Enabled&NonExisting", folders.get(0).getName());
         assertEquals("Enabled&Existing", folders.get(1).getName());
-
-        // Files.exists will be called 2 times
-        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(true);
-        folders = musicFolderService.getAllMusicFolders();
-        assertEquals(1, folders.size());
-        assertEquals("Enabled&Existing", folders.get(0).getName());
     }
 
     @Nested

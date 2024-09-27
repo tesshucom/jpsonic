@@ -21,12 +21,19 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Documented;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -39,15 +46,17 @@ import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -58,7 +67,6 @@ class PlayerServiceTest {
     private PlayerDao playerDao;
     private UserDao userDao;
     private TranscodingDao transcodingDao;
-    private SettingsService settingsService;
     private TranscodingService transcodingService;
     private PlayerService playerService;
 
@@ -67,54 +75,22 @@ class PlayerServiceTest {
         playerDao = mock(PlayerDao.class);
         userDao = mock(UserDao.class);
         transcodingDao = mock(TranscodingDao.class);
-        settingsService = mock(SettingsService.class);
         transcodingService = mock(TranscodingService.class);
         List<Transcoding> transcodings = new ArrayList<>(transcodingDao.getAllTranscodings());
         Transcoding inactiveTranscoding = new Transcoding(10, "aac",
                 "mp3 ogg oga m4a flac wav wma aif aiff ape mpc shn", "aac",
                 "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, false);
         transcodings.add(inactiveTranscoding);
-        Mockito.when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
+        when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        playerService = new PlayerService(playerDao, null, settingsService,
-                new SecurityService(userDao, null, musicFolderService), transcodingService);
+        playerService = new PlayerService(playerDao, null, new SecurityService(userDao, null, musicFolderService),
+                transcodingService);
     }
 
     @Test
     void testInit() {
-        Player player1 = new Player();
-        player1.setName("player1");
-        player1.setTechnology(PlayerTechnology.WEB);
-        Player player2 = new Player();
-        player2.setName("player2");
-        player2.setTechnology(PlayerTechnology.EXTERNAL);
-        Player player3 = new Player();
-        player3.setName("player3");
-        player3.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
-
-        Mockito.when(playerDao.getAllPlayers()).thenReturn(Arrays.asList(player1, player2, player3));
-        ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
-        Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
-
-        // Do nothing if UseExternalPlayer is enabled.
-        Mockito.when(settingsService.isUseExternalPlayer()).thenReturn(true);
         playerService.init();
-        Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-
-        // Do reset if UseExternalPlayer is disbled.
-        Mockito.when(settingsService.isUseExternalPlayer()).thenReturn(false);
-        playerService.init();
-        Mockito.verify(playerDao, Mockito.times(2)).updatePlayer(Mockito.any(Player.class));
-
-        List<Player> results = playerCaptor.getAllValues();
-        assertEquals("player2", results.get(0).getName());
-        assertEquals(PlayerTechnology.WEB, results.get(0).getTechnology());
-        assertTrue(results.get(0).isAutoControlEnabled());
-        assertTrue(results.get(0).isM3uBomEnabled());
-        assertEquals("player3", results.get(1).getName());
-        assertEquals(PlayerTechnology.WEB, results.get(1).getTechnology());
-        assertTrue(results.get(1).isAutoControlEnabled());
-        assertTrue(results.get(1).isM3uBomEnabled());
+        verify(playerDao, times(1)).deleteOldPlayers(anyInt());
     }
 
     @Documented
@@ -180,9 +156,9 @@ class PlayerServiceTest {
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
 
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
 
@@ -198,8 +174,8 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(playerWithIp, dummy));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(playerWithIp, dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -210,9 +186,9 @@ class PlayerServiceTest {
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
 
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
 
@@ -227,8 +203,8 @@ class PlayerServiceTest {
             old.setTime(Date.from(dummy.getLastSeen()));
             old.add(Calendar.DATE, -2);
             dummy.setLastSeen(old.getTime().toInstant());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(dummy));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -241,9 +217,9 @@ class PlayerServiceTest {
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
 
-            Mockito.verify(playerDao, Mockito.times(1)).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(playerDao, times(1)).updatePlayer(Mockito.any(Player.class));
+            verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
 
@@ -256,8 +232,8 @@ class PlayerServiceTest {
             Calendar today = Calendar.getInstance();
             today.setTime(Date.from(now()));
 
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Collections.emptyList());
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Collections.emptyList());
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -272,9 +248,9 @@ class PlayerServiceTest {
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
 
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
 
@@ -291,8 +267,8 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
-                    Mockito.nullable(String.class))).thenReturn(Arrays.asList(dummy, playerWithIp));
+            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
+                    .thenReturn(Arrays.asList(dummy, playerWithIp));
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -307,9 +283,9 @@ class PlayerServiceTest {
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
 
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
 
@@ -351,7 +327,7 @@ class PlayerServiceTest {
             Player createdPlayer = playerCaptor.getValue();
             assertEquals(User.USERNAME_GUEST, createdPlayer.getUsername());
             assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
-            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.any(List.class));
         }
 
@@ -383,7 +359,7 @@ class PlayerServiceTest {
 
             UserSettings settings = new UserSettings();
             settings.setTranscodeScheme(TranscodeScheme.MAX_128);
-            Mockito.when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
+            when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
@@ -408,5 +384,36 @@ class PlayerServiceTest {
         assertNull(player.getLastSeen());
         assertTrue(playerService.isToBeUpdate(req, true, player));
         assertNotNull(player.getLastSeen());
+    }
+
+    @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class GetUPnPPlayerTest {
+
+        @Test
+        void testGetAndCreate() {
+            Player player = playerService.getUPnPPlayer();
+            assertEquals("Jpsonic UPnP Player", player.getClientId());
+
+            when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
+                    .thenReturn(List.of(player));
+            player = playerService.getUPnPPlayer();
+            assertEquals("Jpsonic UPnP Player", player.getClientId());
+        }
+
+        @Test
+        @Order(2)
+        void testLastseen() {
+            Player player = playerService.getUPnPPlayer();
+            Instant lastSeen = player.getLastSeen();
+            assertNotNull(lastSeen);
+
+            Instant daysAgo = player.getLastSeen().minus(100, ChronoUnit.DAYS);
+            player.setLastSeen(daysAgo);
+            when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
+                    .thenReturn(List.of(player));
+            player = playerService.getUPnPPlayer();
+            assertFalse(player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now()));
+        }
     }
 }

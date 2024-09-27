@@ -123,7 +123,7 @@ public class MenuItemService {
                 case FOLDER -> MenuItemId.MEDIA_FILE;
                 case ARTIST -> MenuItemId.ALBUM_ARTIST;
                 case ALBUM -> MenuItemId.ALBUM_ID3;
-                case GENRE -> MenuItemId.SONG_BY_GENRE;
+                case GENRE -> MenuItemId.ALBUM_ID3_BY_GENRE;
                 case PODCAST -> MenuItemId.PODCAST_DEFALT;
                 case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
                 case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;

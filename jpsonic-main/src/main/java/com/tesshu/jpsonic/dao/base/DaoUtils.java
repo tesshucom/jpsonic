@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -42,7 +43,12 @@ public final class DaoUtils {
             artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw,
             media_file_order, music_index\s
             """;
-    private static final String MEDIA_FILE_QUERY_COLUMNS = "id, " + MEDIA_FILE_INSERT_COLUMNS;
+
+    private static final String ALBUM_INSERT_COLUMNS = """
+            path, name, artist, song_count, duration_seconds, cover_art_path, year, genre,
+            play_count, last_played, comment, created, last_scanned, present, folder_id,
+            mb_release_id, artist_sort, name_sort, artist_reading, name_reading, album_order\s
+            """;
 
     private DaoUtils() {
     }
@@ -65,13 +71,17 @@ public final class DaoUtils {
     public static String getInsertColumns(Class<?> domainClass) {
         if (domainClass == MediaFile.class) {
             return MEDIA_FILE_INSERT_COLUMNS;
+        } else if (domainClass == Album.class) {
+            return ALBUM_INSERT_COLUMNS;
         }
         throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
     }
 
     public static String getQueryColumns(Class<?> domainClass) {
         if (domainClass == MediaFile.class) {
-            return MEDIA_FILE_QUERY_COLUMNS;
+            return "id, " + MEDIA_FILE_INSERT_COLUMNS;
+        } else if (domainClass == Album.class) {
+            return "id, " + ALBUM_INSERT_COLUMNS;
         }
         throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
     }
@@ -80,6 +90,8 @@ public final class DaoUtils {
     public static <T> RowMapper<T> createRowMapper(Class<T> domainClass) {
         if (domainClass == MediaFile.class) {
             return (RowMapper<T>) createMediaFileRowMapper();
+        } else if (domainClass == Album.class) {
+            return (RowMapper<T>) createAlbumRowMapper();
         }
         throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
     }
@@ -100,5 +112,13 @@ public final class DaoUtils {
                 rs.getString(37), rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41),
                 rs.getString(42), rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46),
                 rs.getString(47));
+    }
+
+    private static RowMapper<Album> createAlbumRowMapper() {
+        return (rs, num) -> new Album(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5),
+                rs.getInt(6), rs.getString(7), rs.getInt(8) == 0 ? null : rs.getInt(8), rs.getString(9), rs.getInt(10),
+                nullableInstantOf(rs.getTimestamp(11)), rs.getString(12), nullableInstantOf(rs.getTimestamp(13)),
+                nullableInstantOf(rs.getTimestamp(14)), rs.getBoolean(15), rs.getInt(16), rs.getString(17),
+                rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22));
     }
 }

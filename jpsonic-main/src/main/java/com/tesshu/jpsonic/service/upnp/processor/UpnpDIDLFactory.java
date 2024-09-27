@@ -46,6 +46,11 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -109,7 +114,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
         String token = addJWTToken(builder).toUriString();
         if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
-            Player player = playerService.getGuestPlayer(null);
+            Player player = playerService.getUPnPPlayer();
             String fmt = transcodingService.getSuffix(player, song, null);
             token = token.concat(".").concat(fmt);
         }
@@ -198,7 +203,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }
 
-    private StorageFolder createMusicFolder(int id, String name, ProcId procId, int childCount) {
+    private StorageFolder createMusicFolder(ProcId procId, int id, String name, int childCount) {
         StorageFolder container = new StorageFolder();
         container.setId(procId.getValue() + ProcId.CID_SEPA + id);
         container.setParentID(procId.getValue());
@@ -207,15 +212,15 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public StorageFolder toMusicFolder(MusicFolder folder, ProcId procId, int childCount) {
-        return createMusicFolder(folder.getId(), folder.getName(), procId, childCount);
+    public StorageFolder toMusicFolder(ProcId procId, MusicFolder folder, int childCount) {
+        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
     }
 
-    public StorageFolder toMusicFolder(MediaFile folder, ProcId procId, int childCount) {
-        return createMusicFolder(folder.getId(), folder.getName(), procId, childCount);
+    public StorageFolder toMusicFolder(ProcId procId, MediaFile folder, int childCount) {
+        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
     }
 
-    public GenreContainer toMusicIndex(MusicIndex musicIndex, ProcId procId, int childCount) {
+    public GenreContainer toMusicIndex(ProcId procId, MusicIndex musicIndex, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + musicIndex.getIndex());
         container.setParentID(procId.getValue());
@@ -224,12 +229,20 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
-    public GenreContainer toGenre(Genre genre, ProcId procId, boolean isCountVisible, int childCount) {
+    public GenreContainer toGenre(ProcId procId, Genre genre, int childCount) {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
         container.setParentID(procId.getValue());
-        container.setTitle(isCountVisible ? genre.getName().concat(" ").concat(Integer.toString(genre.getSongCount()))
-                : genre.getName());
+        container.setTitle(genre.getName());
+        container.setChildCount(childCount);
+        return container;
+    }
+
+    public GenreContainer toGenre(ProcId procId, FolderGenre folderGenre, int childCount) {
+        GenreContainer container = new GenreContainer();
+        container.setId(procId.getValue() + ProcId.CID_SEPA + folderGenre.createCompositeId());
+        container.setParentID(procId.getValue());
+        container.setTitle(folderGenre.genre().getName());
         container.setChildCount(childCount);
         return container;
     }
@@ -267,6 +280,18 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
+    public MusicArtist toArtist(ProcId procId, FolderArtist folderArtist, int childCount) {
+        MusicArtist container = new MusicArtist();
+        container.setId(procId.getValue() + ProcId.CID_SEPA + folderArtist.createCompositeId());
+        container.setParentID(procId.getValue());
+        container.setTitle(folderArtist.artist().getName());
+        container.setChildCount(folderArtist.artist().getAlbumCount());
+        if (folderArtist.artist().getCoverArtPath() != null) {
+            container.addProperty(toArtistArt(folderArtist.artist()));
+        }
+        return container;
+    }
+
     public MusicAlbum toAlbum(MediaFile album, int childCount) {
         MusicAlbum container = new MusicAlbum();
         container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.getId());
@@ -281,8 +306,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     public MusicAlbum toAlbum(Album album) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.ALBUM.getValue() + ProcId.CID_SEPA + album.getId());
-        container.setParentID(ProcId.ALBUM.getValue());
+        container.setId(ProcId.ALBUM_ID3.getValue() + ProcId.CID_SEPA + album.getId());
+        container.setParentID(ProcId.ALBUM_ID3.getValue());
         container.setTitle(album.getName());
         container.setChildCount(album.getSongCount());
         container.addProperty(toAlbumArt(album));
@@ -290,6 +315,20 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
             container.addProperty(toPerson(album.getArtist()));
         }
         container.setDescription(album.getComment());
+        return container;
+    }
+
+    public MusicAlbum toAlbum(ProcId procId, FolderAlbum folderAlbum, int childCount) {
+        MusicAlbum container = new MusicAlbum();
+        container.setId(procId.getValue() + ProcId.CID_SEPA + folderAlbum.createCompositeId());
+        container.setParentID(procId.getValue());
+        container.setTitle(folderAlbum.album().getName());
+        container.setChildCount(childCount);
+        container.addProperty(toAlbumArt(folderAlbum.album()));
+        if (folderAlbum.album().getArtist() != null) {
+            container.addProperty(toPerson(folderAlbum.album().getArtist()));
+        }
+        container.setDescription(folderAlbum.album().getComment());
         return container;
     }
 
@@ -305,8 +344,36 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
+    public MusicAlbum toAlbum(FolderGenreAlbum composite, int childCount) {
+        MusicAlbum container = new MusicAlbum();
+        container.setId(ProcId.ALBUM_ID3_BY_FOLDER_GENRE.getValue() + ProcId.CID_SEPA + composite.createCompositeId());
+        container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
+        container.setTitle(composite.album().getName());
+        container.setChildCount(childCount);
+        container.addProperty(toAlbumArt(composite.album()));
+        if (composite.album().getArtist() != null) {
+            container.addProperty(toPerson(composite.album().getArtist()));
+        }
+        container.setDescription(composite.album().getComment());
+        return container;
+    }
+
+    public MusicAlbum toAlbumWithGenre(GenreAlbum composite, int childCount) {
+        MusicAlbum container = new MusicAlbum();
+        container.setId(ProcId.ALBUM_ID3_BY_GENRE.getValue() + ProcId.CID_SEPA + composite.createCompositeId());
+        container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
+        container.setTitle(composite.album().getName());
+        container.setChildCount(childCount);
+        container.addProperty(toAlbumArt(composite.album()));
+        if (composite.album().getArtist() != null) {
+            container.addProperty(toPerson(composite.album().getArtist()));
+        }
+        container.setDescription(composite.album().getComment());
+        return container;
+    }
+
     Res toRes(MediaFile file) {
-        Player player = playerService.getGuestPlayer(null);
+        Player player = playerService.getUPnPPlayer();
         MimeType mimeType = getMimeType(file, player);
         Res res = new Res(mimeType, null, createStreamURI(file, player));
         res.setDuration(formatDuration(file.getDurationSeconds()));

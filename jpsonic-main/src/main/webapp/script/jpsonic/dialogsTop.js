@@ -60,39 +60,6 @@ function lazyOpenDialogVoiceInput(lang, closeText) {
     top.$("#dialog-voice-input").dialog("open");
 }
 
-function createDialogNowplayinginfos(closeText) {
-    const ps = new PrefferedSize(840, 480);
-    top.$("#dialog-nowplayinginfos").dialog({
-        autoOpen: false,
-        closeOnEscape: true,
-        draggable: false,
-        resizable: false,
-        modal: true,
-        width  : ps.width,
-        height  : ps.height,
-        stack: true,
-        buttons: {
-            closeButton : {
-                text: closeText,
-                id: 'npCancelButton',
-                click: function() {top.$("#dialog-nowplayinginfos").dialog('close');}
-            }
-        },
-        open : function() {
-            top.$("#npCancelButton").focus();
-            top.$("#dialog-nowplayinginfos").append('<iframe id="iframeNowPlayings" scrolling="no" frameborder="no"></iframe>');
-            top.$("#iframeNowPlayings").attr({src : "nowPlayingInfos.view?", width : '98%', height : '98%' });},
-        close : function() {top.$("#iframeNowPlayings").remove();}
-    });
-}
-
-function lazyOpenDialogNowplayinginfos(closeText) {
-    if(!top.$("#dialog-nowplayinginfos").hasClass("ui-dialog-content")) {
-        createDialogNowplayinginfos(closeText);
-    }
-    top.$("#dialog-nowplayinginfos").dialog("open");
-}
-
 function createDialogKeyboardShortcuts(closeText) {
     const shortcutsPs = new PrefferedSize(840, 480);
     top.$("#dialog-keyboard-shortcuts").dialog({

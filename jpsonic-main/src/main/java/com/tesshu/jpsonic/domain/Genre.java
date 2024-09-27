@@ -30,12 +30,8 @@ public class Genre {
 
     private final String name;
     private transient String reading;
-    private int songCount;
-    private int albumCount;
-
-    public Genre(String name) {
-        this.name = name;
-    }
+    private final int songCount;
+    private final int albumCount;
 
     public Genre(String name, int songCount, int albumCount) {
         this.name = name;

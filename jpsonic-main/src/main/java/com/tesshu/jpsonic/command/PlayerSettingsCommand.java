@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.tesshu.jpsonic.controller.PlayerSettingsController;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -50,18 +49,12 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private String ipAddress;
     private boolean guest;
     private boolean anonymous;
-    private PlayerTechnology playerTechnology;
     private List<Transcoding> allTranscodings;
     private TranscodeScheme maxBitrate;
     private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds;
     private boolean dynamicIp;
-    private boolean autoControlEnabled;
-    private boolean m3uBomEnabled;
     private ZonedDateTime lastSeen;
-
-    // for view page control
-    private boolean useExternalPlayer;
 
     public List<Player> getPlayers() {
         return players;
@@ -143,14 +136,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.anonymous = isAnonymous;
     }
 
-    public PlayerTechnology getPlayerTechnology() {
-        return playerTechnology;
-    }
-
-    public void setPlayerTechnology(PlayerTechnology playerTechnology) {
-        this.playerTechnology = playerTechnology;
-    }
-
     public List<Transcoding> getAllTranscodings() {
         return allTranscodings;
     }
@@ -193,36 +178,12 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.dynamicIp = dynamicIp;
     }
 
-    public boolean isAutoControlEnabled() {
-        return autoControlEnabled;
-    }
-
-    public void setAutoControlEnabled(boolean autoControlEnabled) {
-        this.autoControlEnabled = autoControlEnabled;
-    }
-
-    public boolean isM3uBomEnabled() {
-        return m3uBomEnabled;
-    }
-
-    public void setM3uBomEnabled(boolean m3uBomEnabled) {
-        this.m3uBomEnabled = m3uBomEnabled;
-    }
-
     public @Nullable ZonedDateTime getLastSeen() {
         return lastSeen;
     }
 
     public void setLastSeen(ZonedDateTime lastSeen) {
         this.lastSeen = lastSeen;
-    }
-
-    public boolean isUseExternalPlayer() {
-        return useExternalPlayer;
-    }
-
-    public void setUseExternalPlayer(boolean useExternalPlayer) {
-        this.useExternalPlayer = useExternalPlayer;
     }
 
     /**

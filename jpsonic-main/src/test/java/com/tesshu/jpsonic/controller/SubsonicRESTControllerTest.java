@@ -48,7 +48,6 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -1232,7 +1231,6 @@ class SubsonicRESTControllerTest {
                 final Player player = playerService.getPlayer(req, res, false, true);
                 assertNotNull(player);
                 assertEquals(ServiceMockUtils.ADMIN_NAME, player.getUsername());
-                assertEquals(PlayerTechnology.WEB, player.getTechnology());
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 
@@ -1293,7 +1291,6 @@ class SubsonicRESTControllerTest {
                 final Player player = playerService.getPlayer(req, res, false, true);
                 assertNotNull(player);
                 assertEquals(ServiceMockUtils.ADMIN_NAME, player.getUsername());
-                assertEquals(PlayerTechnology.WEB, player.getTechnology());
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 

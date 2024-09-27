@@ -26,6 +26,8 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +47,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -67,7 +70,7 @@ class RecentAlbumId3ProcTest {
 
         @Test
         void testGetProcId() {
-            assertEquals("recentId3", proc.getProcId().getValue());
+            assertEquals("rid3", proc.getProcId().getValue());
         }
 
         @Test
@@ -75,16 +78,29 @@ class RecentAlbumId3ProcTest {
             when(albumDao.getNewestAlbums(anyInt(), anyInt(), anyList())).thenReturn(List.of(new Album()));
             when(albumDao.getAlbumCount(anyList())).thenReturn(99);
             BrowseResult result = proc.browseRoot(null, 0, 0);
+            assertEquals(0, result.getCountLong());
+            assertEquals(50, result.getTotalMatches().getValue()); // RECENT_COUNT
+            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), anyList());
+            verify(albumDao, times(2)).getAlbumCount(anyList());
+
+            clearInvocations(albumDao);
+            result = proc.browseRoot(null, 0, 1);
             assertEquals(1, result.getCountLong());
             assertEquals(50, result.getTotalMatches().getValue()); // RECENT_COUNT
             verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
-            verify(albumDao, times(1)).getAlbumCount(anyList());
+            verify(albumDao, times(2)).getAlbumCount(anyList());
         }
 
         @Test
         void testGetDirectChildren() {
+            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder> anyList())).thenReturn(50);
+
             assertEquals(0, proc.getDirectChildren(0, 0).size());
-            verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
+            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+
+            clearInvocations(albumDao);
+            assertEquals(0, proc.getDirectChildren(0, 1).size());
+            verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
         }
 
         @Test

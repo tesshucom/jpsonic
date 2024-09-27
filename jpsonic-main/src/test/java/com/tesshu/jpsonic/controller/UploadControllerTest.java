@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -73,6 +74,8 @@ class UploadControllerTest {
 
     @Autowired
     private MusicFolderDao musicFolderDao;
+    @Autowired
+    private MusicFolderServiceImpl musicFolderService;
 
     private static final String FILE_NAME = "piano.mp3";
     private static final String FILE_PATH = "/MEDIAS/piano.mp3";
@@ -84,12 +87,14 @@ class UploadControllerTest {
     private static final String SEPA = "\r\n";
 
     @SuppressWarnings({ "unchecked", "PMD.DefaultPackage" })
+    @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws IOException, URISyntaxException {
 
         MusicFolder musicFolder = new MusicFolder(0, tempDirPath.toString(), "Incoming1", true, now(), 1, false);
         musicFolderDao.createMusicFolder(musicFolder);
+        musicFolderService.clearMusicFolderCache();
 
         URL url = UploadController.class.getResource(FILE_PATH);
 
@@ -116,8 +121,9 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Incoming2", true, now(), 1, false);
+        MusicFolder musicFolder = new MusicFolder(10, tempDirPath.toString(), "Incoming2", true, now(), 1, false);
         musicFolderDao.createMusicFolder(musicFolder);
+        musicFolderService.clearMusicFolderCache();
 
         URL url = UploadController.class.getResource(ZIP_PATH);
 

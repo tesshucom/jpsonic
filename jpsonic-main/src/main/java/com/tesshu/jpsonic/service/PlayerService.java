@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
@@ -70,23 +69,21 @@ public class PlayerService implements ReadWriteLockSupport {
 
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
-    private static final String GUEST_PLAYER_TYPE = "UPnP Processor";
+    private static final String UPNP_PLAYER_ID = "Jpsonic UPnP Player";
     private static final int COOKIE_EXPIRY = 360 * 24 * 3600; // About One year
 
     private final PlayerDao playerDao;
     private final StatusService statusService;
-    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
 
     private final ReentrantReadWriteLock playerLock = new ReentrantReadWriteLock();
 
-    public PlayerService(PlayerDao playerDao, StatusService statusService, SettingsService settingsService,
-            SecurityService securityService, TranscodingService transcodingService) {
+    public PlayerService(PlayerDao playerDao, StatusService statusService, SecurityService securityService,
+            TranscodingService transcodingService) {
         super();
         this.playerDao = playerDao;
         this.statusService = statusService;
-        this.settingsService = settingsService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
     }
@@ -96,9 +93,10 @@ public class PlayerService implements ReadWriteLockSupport {
         writeLock(playerLock);
         try {
             playerDao.deleteOldPlayers(60);
-            if (!settingsService.isUseExternalPlayer()) {
-                resetExternalPlayer();
-            }
+            Player upnpPlayer = getUPnPPlayer();
+            User guestUser = securityService.getGuestUser();
+            getPlayersForUserAndClientId(guestUser.getUsername(), null).stream()
+                    .filter(p -> p.getId().equals(upnpPlayer.getId())).forEach(p -> playerDao.deletePlayer(p.getId()));
         } finally {
             writeUnlock(playerLock);
         }
@@ -492,30 +490,27 @@ public class PlayerService implements ReadWriteLockSupport {
             player.setIpAddress(request.getRemoteAddr());
         }
         player.setUsername(user.getUsername());
-        player.setType(GUEST_PLAYER_TYPE);
         player.setLastSeen(now());
         createPlayer(player, false);
-
         return player;
     }
 
-    /**
-     * Initializes the properties of a player that has a setting to use external player.
-     */
-    public void resetExternalPlayer() {
-        writeLock(playerLock);
-        try {
-            for (Player player : playerDao.getAllPlayers()) {
-                if (PlayerTechnology.EXTERNAL == player.getTechnology()
-                        || PlayerTechnology.EXTERNAL_WITH_PLAYLIST == player.getTechnology()) {
-                    player.setTechnology(PlayerTechnology.WEB);
-                    player.setAutoControlEnabled(true);
-                    player.setM3uBomEnabled(true);
-                    updatePlayer(player);
-                }
-            }
-        } finally {
-            writeUnlock(playerLock);
+    public Player getUPnPPlayer() {
+        User user = securityService.getGuestUser();
+        Player player = getPlayersForUserAndClientId(user.getUsername(), UPNP_PLAYER_ID).stream().findFirst()
+                .orElseGet(() -> {
+                    Player p = new Player();
+                    p.setUsername(User.USERNAME_GUEST);
+                    p.setClientId(UPNP_PLAYER_ID);
+                    p.setLastSeen(now());
+                    createPlayer(p, false);
+                    return p;
+                });
+        Instant now = now();
+        if (player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now)) {
+            player.setLastSeen(now);
+            updatePlayer(player);
         }
+        return player;
     }
 }

@@ -20,14 +20,11 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.jupnp.support.model.BrowseResult;
-import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,13 +45,6 @@ public class RandomSongProc extends MediaFileByFolderProc implements CountLimitP
     @Override
     public ProcId getProcId() {
         return ProcId.RANDOM_SONG;
-    }
-
-    @Override
-    public BrowseResult browseRoot(String filter, long offset, long count) throws ExecutionException {
-        DIDLContent content = new DIDLContent();
-        getDirectChildren(offset, count).forEach(song -> addDirectChild(content, song));
-        return createBrowseResult(content, (int) content.getCount(), getDirectChildrenCount());
     }
 
     @Override

@@ -43,6 +43,9 @@
         
         <!-- Degrade pmd/pmd#1218 -->
         <exclude name="LooseCoupling" />
+
+        <!-- No longer required by current Java. -->
+        <exclude name="SwitchStmtsShouldHaveDefault" />
     </rule>
 
     <!-- Java Rules:Code Style -->
@@ -160,7 +163,13 @@
     </rule>
 
     <!-- Java Rules:Performance -->
-    <rule ref="category/java/performance.xml" />
+    <rule ref="category/java/performance.xml">
+
+        <!-- This is an old rule. Switch-arrows targeting enums
+             should be used proactively even if they have few branches. -->
+        <exclude name="TooFewBranchesForASwitchStatement" />
+
+    </rule>
 
     <!-- Java Rules:Security -->
     <rule ref="category/java/security.xml" />

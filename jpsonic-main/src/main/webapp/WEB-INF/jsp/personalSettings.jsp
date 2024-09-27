@@ -112,8 +112,6 @@ function resetAdditionalDisplay() {
     $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
     $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
     $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
-    $('[name="showNowPlayingEnabled"]').prop('checked', ${command.defaultSettings.showNowPlayingEnabled});
-    $('[name="nowPlayingAllowed"]').prop('checked', ${command.defaultSettings.nowPlayingAllowed});
     $('[name="showArtistInfoEnabled"]').prop('checked', ${command.defaultSettings.showArtistInfoEnabled});
     $('[name="forceBio2Eng"]').prop('checked', ${command.defaultSettings.forceBio2Eng});
     $('[name="showTopSongs"]').prop('checked', ${command.defaultSettings.showTopSongs});
@@ -519,20 +517,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <form:checkbox path="openDetailIndex" id="openDetailIndex" />
                 <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="nowplayingallowed"/></c:import>
-            </dd>
-            <c:if test="${command.othersPlayingEnabled}">
-                <dt><fmt:message key="personalsettings.menu"/></dt>
-                <dd>
-                    <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
-                    <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-                </dd>
-            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
                 <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />
@@ -557,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="showSimilar"><fmt:message key="personalsettings.showsimilar"/></label>
                 <div class="lastfm" title="<fmt:message key='personalsettings.lastfmapi'/>"></div>
             </dd>      
-            <c:if test="${command.user.commentRole eq true}">
+            <c:if test="${command.user.commentRole}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
                 <dd>
                     <form:checkbox path="showComment" id="showComment" />
@@ -574,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <fmt:message key="personalsettings.paginationsize"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="paginationsize"/></c:import>
             </dd>
-            <c:if test="${command.user.coverArtRole eq true}">
+            <c:if test="${command.user.coverArtRole}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
                 <dd>
                     <form:checkbox path="showTag" id="showTag" />
@@ -597,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <form:checkbox path="showLastPlay" id="showLastPlay" />
                 <label for="showLastPlay"><fmt:message key="personalsettings.showlastplay"/></label>
             </dd>
-            <c:if test="${command.user.commentRole eq true}">
+            <c:if test="${command.user.commentRole}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.home"/></dt>
                 <dd>
                     <form:checkbox path="showRate" id="showRate" />
@@ -610,26 +594,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="showAlbumActions"><fmt:message key="personalsettings.showalbumactions"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="albumactions"/></c:import>
             </dd>
-            <c:if test="${command.user.downloadRole eq true}">
+            <c:if test="${command.user.downloadRole}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
                 <dd>
                     <form:checkbox path="showDownload" id="showDownload" />
                     <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
                 </dd>
             </c:if>
-            <c:if test="${command.user.shareRole eq true}">
+            <c:if test="${command.user.shareRole}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
                 <dd>
                     <form:checkbox path="showShare" id="showShare" />
                     <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
                 </dd>
             </c:if>
-            <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/> etc</dt>
-            <dd>
-                <form:checkbox path="partyModeEnabled" id="partyModeEnabled" />
-                <label for="partyModeEnabled"><fmt:message key="personalsettings.partymode"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="partymode"/></c:import>
-            </dd>
+            <c:if test="${command.usePartyMode}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/> etc</dt>
+                <dd>
+                    <form:checkbox path="partyModeEnabled" id="partyModeEnabled" />
+                    <label for="partyModeEnabled"><fmt:message key="personalsettings.partymode"/></label>
+                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="partymode"/></c:import>
+                </dd>
+            </c:if>
         </dl>
     </details>
 

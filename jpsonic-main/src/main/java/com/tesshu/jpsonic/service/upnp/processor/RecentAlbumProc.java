@@ -19,13 +19,11 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import org.jupnp.support.model.BrowseResult;
-import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,17 +46,14 @@ public class RecentAlbumProc extends MediaFileByFolderProc implements CountLimit
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
-        DIDLContent parent = new DIDLContent();
+    public List<MediaFile> getDirectChildren(long firstResult, long maxResults) {
         int offset = (int) firstResult;
-        int count = toCount(firstResult, maxResults, RECENT_COUNT);
-        getDirectChildren(offset, count).forEach(a -> addDirectChild(parent, a));
-        return createBrowseResult(parent, (int) parent.getCount(), getDirectChildrenCount());
-    }
-
-    @Override
-    public List<MediaFile> getDirectChildren(long count, long offset) {
-        return mediaFileService.getNewestAlbums((int) count, (int) offset, util.getGuestFolders());
+        int max = getDirectChildrenCount();
+        int count = toCount(firstResult, maxResults, max);
+        if (count == 0) {
+            return Collections.emptyList();
+        }
+        return mediaFileService.getNewestAlbums(offset, count, util.getGuestFolders());
     }
 
     @Override

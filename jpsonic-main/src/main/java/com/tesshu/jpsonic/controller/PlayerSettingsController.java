@@ -29,7 +29,6 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -118,7 +117,6 @@ public class PlayerSettingsController {
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
-            command.setPlayerTechnology(player.getTechnology());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             UserSettings userSettings = securityService.getUserSettings(player.getUsername());
             command.setMaxBitrate(userSettings.getTranscodeScheme());
@@ -126,8 +124,6 @@ public class PlayerSettingsController {
             command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(player).stream()
                     .mapToInt(Transcoding::getId).toArray());
             command.setDynamicIp(player.isDynamicIp());
-            command.setAutoControlEnabled(player.isAutoControlEnabled());
-            command.setM3uBomEnabled(player.isM3uBomEnabled());
             if (player.getLastSeen() != null) {
                 command.setLastSeen(ZonedDateTime.ofInstant(player.getLastSeen(), ZoneId.systemDefault()));
             }
@@ -140,7 +136,6 @@ public class PlayerSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -157,16 +152,6 @@ public class PlayerSettingsController {
             player.setName(StringUtils.trimToNull(command.getName()));
             player.setTranscodeScheme(command.getTranscodeScheme());
             player.setDynamicIp(command.isDynamicIp());
-
-            if (settingsService.isUseExternalPlayer()) {
-                player.setTechnology(command.getPlayerTechnology());
-                player.setAutoControlEnabled(command.isAutoControlEnabled());
-                player.setM3uBomEnabled(command.isM3uBomEnabled());
-            } else {
-                player.setTechnology(PlayerTechnology.WEB);
-                player.setAutoControlEnabled(true);
-                player.setM3uBomEnabled(true);
-            }
 
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());

@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,10 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.MediaFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,17 +42,18 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class MediaFileServiceTest {
 
     private SecurityService securityService;
+    private MediaFileDao mediaFileDao;
     private MediaFileService mediaFileService;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
         SettingsService settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
-        MediaFileDao mediaFileDao = mock(MediaFileDao.class);
+        mediaFileDao = mock(MediaFileDao.class);
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
                 mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
 
@@ -124,5 +128,25 @@ class MediaFileServiceTest {
             Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
             assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
         }
+    }
+
+    @Test
+    void testGetGenresString() {
+        List<String> genres = Collections.emptyList();
+        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        MediaFile album = new MediaFile();
+        assertNull(mediaFileService.getID3AlbumGenresString(album));
+
+        genres = Arrays.asList("GenreA");
+        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        assertEquals("GenreA", mediaFileService.getID3AlbumGenresString(album));
+
+        genres = Arrays.asList("GenreA", "GenreB");
+        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        assertEquals("GenreA;GenreB", mediaFileService.getID3AlbumGenresString(album));
+
+        genres = Arrays.asList("GenreA", "GenreA;GenreB");
+        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        assertEquals("GenreA;GenreA;GenreB", mediaFileService.getID3AlbumGenresString(album));
     }
 }

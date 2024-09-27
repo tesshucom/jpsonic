@@ -139,7 +139,6 @@ class SecurityServiceTest {
         @Test
         void testAdditionalDisplay() throws ExecutionException {
             UserSettings userSettings = service.getUserSettings("");
-            assertFalse(userSettings.isShowNowPlayingEnabled());
             assertFalse(userSettings.isNowPlayingAllowed());
             assertFalse(userSettings.isShowArtistInfoEnabled());
             assertFalse(userSettings.isForceBio2Eng());

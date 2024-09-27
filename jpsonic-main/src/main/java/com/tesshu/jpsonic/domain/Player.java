@@ -35,14 +35,11 @@ public class Player {
 
     private Integer id;
     private String name;
-    private PlayerTechnology technology = PlayerTechnology.WEB;
     private String clientId;
     private String type;
     private String username;
     private String ipAddress;
     private boolean dynamicIp = true;
-    private boolean autoControlEnabled = true;
-    private boolean m3uBomEnabled = true;
     private Instant lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
@@ -86,15 +83,6 @@ public class Player {
     }
 
     /**
-     * Returns the player "technology"
-     *
-     * @return The player technology.
-     */
-    public PlayerTechnology getTechnology() {
-        return technology;
-    }
-
-    /**
      * Returns the third-party client ID (used if this player is managed over the Airsonic REST API).
      *
      * @return The client ID.
@@ -111,28 +99,6 @@ public class Player {
      */
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    /**
-     * Sets the player "technology"
-     *
-     * @param technology
-     *            The player technology.
-     */
-    public void setTechnology(PlayerTechnology technology) {
-        this.technology = technology;
-    }
-
-    public boolean isExternal() {
-        return technology == PlayerTechnology.EXTERNAL;
-    }
-
-    public boolean isExternalWithPlaylist() {
-        return technology == PlayerTechnology.EXTERNAL_WITH_PLAYLIST;
-    }
-
-    public boolean isWeb() {
-        return technology == PlayerTechnology.WEB;
     }
 
     /**
@@ -171,44 +137,6 @@ public class Player {
      */
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    /**
-     * Returns whether the player is automatically started.
-     *
-     * @return Whether the player is automatically started.
-     */
-    public boolean isAutoControlEnabled() {
-        return autoControlEnabled;
-    }
-
-    /**
-     * Sets whether the player is automatically started.
-     *
-     * @param isAutoControlEnabled
-     *            Whether the player is automatically started.
-     */
-    public void setAutoControlEnabled(boolean isAutoControlEnabled) {
-        this.autoControlEnabled = isAutoControlEnabled;
-    }
-
-    /**
-     * Returns whether apply BOM mark when generating a M3U file.
-     *
-     * @return Whether apply BOM mark when generating a M3U file.
-     */
-    public boolean isM3uBomEnabled() {
-        return m3uBomEnabled;
-    }
-
-    /**
-     * Sets whether apply BOM mark when generating a M3U file.
-     *
-     * @param isM3uBomEnabled
-     *            Whether apply BOM mark when generating a M3U file.
-     */
-    public void setM3uBomEnabled(boolean isM3uBomEnabled) {
-        this.m3uBomEnabled = isM3uBomEnabled;
     }
 
     /**

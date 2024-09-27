@@ -26,6 +26,7 @@ import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
@@ -104,5 +105,11 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     @Override
     public List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders) {
         return deligate.getDuplicateSortPersons(folders);
+    }
+
+    @Override
+    public List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count, List<MusicFolder> musicFolders,
+            List<MediaType> types) {
+        return deligate.getSongsByGenre(genres, offset, count, musicFolders, types);
     }
 }

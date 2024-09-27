@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItemId;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -52,7 +53,10 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos;
 
     // Display options / Access control
-    private boolean dlnaGenreCountVisible;
+    private List<Sort> avairableAlbumGenreSort;
+    private Sort albumGenreSort;
+    private List<Sort> avairableSongGenreSort;
+    private Sort songGenreSort;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -172,12 +176,36 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.subMenuItemRowInfos = subMenuItemRowInfos;
     }
 
-    public boolean isDlnaGenreCountVisible() {
-        return dlnaGenreCountVisible;
+    public List<Sort> getAvairableAlbumGenreSort() {
+        return avairableAlbumGenreSort;
     }
 
-    public void setDlnaGenreCountVisible(boolean dlnaGenreCountVisible) {
-        this.dlnaGenreCountVisible = dlnaGenreCountVisible;
+    public void setAvairableAlbumGenreSort(List<Sort> avairableAlbumGenreSort) {
+        this.avairableAlbumGenreSort = avairableAlbumGenreSort;
+    }
+
+    public Sort getAlbumGenreSort() {
+        return albumGenreSort;
+    }
+
+    public List<Sort> getAvairableSongGenreSort() {
+        return avairableSongGenreSort;
+    }
+
+    public void setAvairableSongGenreSort(List<Sort> avairableMusicGenreSort) {
+        this.avairableSongGenreSort = avairableMusicGenreSort;
+    }
+
+    public void setAlbumGenreSort(Sort albumGenreSort) {
+        this.albumGenreSort = albumGenreSort;
+    }
+
+    public Sort getSongGenreSort() {
+        return songGenreSort;
+    }
+
+    public void setSongGenreSort(Sort musicGenreSort) {
+        this.songGenreSort = musicGenreSort;
     }
 
     public Integer getDlnaRandomMax() {

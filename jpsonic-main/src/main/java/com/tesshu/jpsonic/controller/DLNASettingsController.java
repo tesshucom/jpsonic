@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
@@ -124,7 +125,7 @@ public class DLNASettingsController {
         command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
                 .mapToInt(MusicFolder::getId).toArray());
         command.setAllTranscodings(transcodingService.getAllTranscodings());
-        Player guestPlayer = playerService.getGuestPlayer(null);
+        Player guestPlayer = playerService.getUPnPPlayer();
         command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(guestPlayer).stream()
                 .mapToInt(Transcoding::getId).toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -151,7 +152,10 @@ public class DLNASettingsController {
         command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control
-        command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
+        command.setAvairableAlbumGenreSort(Arrays.asList(Sort.values()));
+        command.setAlbumGenreSort(Sort.of(settingsService.getUPnPAlbumGenreSort()));
+        command.setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
+        command.setSongGenreSort(Sort.of(settingsService.getUPnPSongGenreSort()));
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
 
@@ -193,11 +197,10 @@ public class DLNASettingsController {
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         // Display options / Access control
+        settingsService.setUPnPAlbumGenreSort(command.getAlbumGenreSort().name());
+        settingsService.setUPnPSongGenreSort(command.getSongGenreSort().name());
         final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
                 .collect(Collectors.toList());
-        List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(MusicFolder::getId)
-                .collect(Collectors.toList());
-        settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
         int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
                 ? DLNA_RANDOM_DEFAULT : command.getDlnaRandomMax();
@@ -215,7 +218,7 @@ public class DLNASettingsController {
         UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(now());
-        Player guestPlayer = playerService.getGuestPlayer(null);
+        Player guestPlayer = playerService.getUPnPPlayer();
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         if (command.getActiveTranscodingIds().length == 0) {
             guestPlayer.setTranscodeScheme(TranscodeScheme.OFF);

@@ -91,7 +91,9 @@ public enum IndexType {
             FieldNamesConstants.GENRE), //
             createBoosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
 
-    ;
+    ALBUM_ID3_GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, //
+            FieldNamesConstants.GENRE), //
+            createBoosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F)));
 
     @SuppressWarnings("ImmutableEnumChecker")
     private final Map<String, Float> boosts;
