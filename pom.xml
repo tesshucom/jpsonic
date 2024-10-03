@@ -48,7 +48,7 @@
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.3</versions.hsqldb>
     <versions.icu4j>75.1</versions.icu4j>
-    <versions.jackson>2.17.2</versions.jackson>
+    <versions.jackson>2.18.0</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
