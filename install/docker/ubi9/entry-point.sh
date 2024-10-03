@@ -60,9 +60,9 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Dlogging.level.com.tesshu.jpsonic="$LOG_LEVEL" \
      -Djava.awt.headless=true \
      -Duser.timezone="$TIME_ZONE" \
+     -XX:SharedArchiveFile=/opt/jpsonic/jpsonic.jsa \
      "${java_opts_array[@]}" \
-     -jar jpsonic.war "$@"
+     org.springframework.boot.loader.launch.WarLauncher "$@"
 fi
 
 exec "$@"
-exit
