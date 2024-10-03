@@ -58,6 +58,11 @@ HEALTHCHECK --interval=30s --timeout=2s CMD export HEALTHCHECK_QUERY=$(echo loca
 
 COPY entry-point.sh /usr/local/bin/entry-point.sh
 RUN chmod +x /usr/local/bin/entry-point.sh
+
 COPY target/dependency/jpsonic.war jpsonic.war
+RUN unzip -q jpsonic.war \
+    && rm jpsonic.war \
+    && mkdir -p /opt/jpsonic \
+    && java -Dspring.context.exit=onRefresh -XX:ArchiveClassesAtExit=/opt/jpsonic/jpsonic.jsa org.springframework.boot.loader.launch.WarLauncher
 
 ENTRYPOINT ["tini", "-e", "143", "--", "entry-point.sh"]

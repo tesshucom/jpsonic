@@ -31,8 +31,8 @@
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.7</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.47.0</versions.checker-qual>
-    <versions.checkstyle>10.18.1</versions.checkstyle>
+    <versions.checker-qual>3.48.0</versions.checker-qual>
+    <versions.checkstyle>10.18.2</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
@@ -48,7 +48,7 @@
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.3</versions.hsqldb>
     <versions.icu4j>75.1</versions.icu4j>
-    <versions.jackson>2.17.2</versions.jackson>
+    <versions.jackson>2.18.0</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -57,7 +57,7 @@
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.13</versions.jetty>
+    <versions.jetty>12.0.14</versions.jetty>
     <versions.jfreechart>1.5.5</versions.jfreechart>
     <versions.junit-jupiter-api>5.11.1</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
