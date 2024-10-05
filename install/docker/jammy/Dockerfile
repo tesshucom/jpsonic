@@ -35,7 +35,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     gosu \
     tini \
-    unzip \
     fonts-noto-cjk \
     ffmpeg \
     && apt-get clean \
@@ -62,9 +61,9 @@ COPY entry-point.sh /usr/local/bin/entry-point.sh
 RUN chmod +x /usr/local/bin/entry-point.sh
 
 COPY target/dependency/jpsonic.war jpsonic.war
-RUN unzip -q jpsonic.war \
+RUN java -Djarmode=tools -jar jpsonic.war extract --launcher --destination app \
     && rm jpsonic.war \
-    && mkdir -p /opt/jpsonic \
-    && java -Dspring.context.exit=onRefresh -XX:ArchiveClassesAtExit=/opt/jpsonic/jpsonic.jsa org.springframework.boot.loader.launch.WarLauncher
+    && cd app \
+    && java -Dspring.context.exit=onRefresh -XX:ArchiveClassesAtExit=../jpsonic.jsa org.springframework.boot.loader.launch.WarLauncher
 
 ENTRYPOINT ["tini", "-e", "143", "--", "entry-point.sh"]

@@ -35,6 +35,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
 
     # su-exec and gosu may obscure exit codes.
     # Use set to enable graceful shutdown.
+    cd "$JPSONIC_DIR"/app
     set -- gosu "$username":"$groupname" java \
      -Dserver.host=0.0.0.0 \
      -Dserver.port="$JPSONIC_PORT" \
@@ -60,7 +61,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Dlogging.level.com.tesshu.jpsonic="$LOG_LEVEL" \
      -Djava.awt.headless=true \
      -Duser.timezone="$TIME_ZONE" \
-     -XX:SharedArchiveFile=/opt/jpsonic/jpsonic.jsa \
+     -XX:SharedArchiveFile="$JPSONIC_DIR"/jpsonic.jsa \
      "${java_opts_array[@]}" \
      org.springframework.boot.loader.launch.WarLauncher "$@"
 fi
