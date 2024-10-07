@@ -9,7 +9,7 @@
         <groupId>com.tesshu.jpsonic.player</groupId>
     </parent>
     <packaging>pom</packaging>
-    <artifactId>jpsonic-docker-alpine</artifactId>
+    <artifactId>jpsonic-docker-armv7</artifactId>
     <name>Jpsonic Docker Image</name>
 
     <build>
