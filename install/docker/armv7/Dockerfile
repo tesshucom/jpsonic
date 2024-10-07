@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:17-jre-noble
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -47,7 +47,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
 EXPOSE 1900/udp
-EXPOSE 3333
 
 VOLUME \
     $JPSONIC_DIR/data \
@@ -59,11 +58,6 @@ HEALTHCHECK --interval=30s --timeout=2s CMD export HEALTHCHECK_QUERY=$(echo loca
 
 COPY entry-point.sh /usr/local/bin/entry-point.sh
 RUN chmod +x /usr/local/bin/entry-point.sh
-
 COPY target/dependency/jpsonic.war jpsonic.war
-RUN java -Djarmode=tools -jar jpsonic.war extract --launcher --destination app \
-    && rm jpsonic.war \
-    && cd app \
-    && java -Dspring.context.exit=onRefresh -XX:ArchiveClassesAtExit=../jpsonic.jsa org.springframework.boot.loader.launch.WarLauncher
 
 ENTRYPOINT ["tini", "-e", "143", "--", "entry-point.sh"]

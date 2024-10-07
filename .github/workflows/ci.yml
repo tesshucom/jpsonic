@@ -469,22 +469,20 @@ jobs:
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Copy artifact
         run: |
-          mkdir -p install/docker/noble/target/dependency
-          mv jpsonic.war install/docker/noble/target/dependency
+          mkdir -p install/docker/armv7/target/dependency
+          mv jpsonic.war install/docker/armv7/target/dependency
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble package
+            cd install/docker/armv7
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*}-noble package
+            mvn -DdockerTag=${DOCKER_TAG%.*}-noble-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-noble-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*.*}-noble package
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-noble-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-noble-v7 .
           fi
@@ -492,10 +490,8 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-noble package
+            cd install/docker/armv7
+            mvn -DdockerTag=latest-noble-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-noble-v7 .
           fi
@@ -503,10 +499,8 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/17-jre-noble/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-noble package
+            cd install/docker/armv7
+            mvn -DdockerTag=latest-noble-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
           fi
@@ -616,22 +610,21 @@ jobs:
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Copy artifact
         run: |
-          mkdir -p install/docker/jammy/target/dependency
-          mv jpsonic.war install/docker/jammy/target/dependency
+          mkdir -p install/docker/armv7/target/dependency
+          mv jpsonic.war install/docker/armv7/target/dependency
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/jammy
-            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
+            cd install/docker/armv7
+            sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
+            mvn -DdockerTag=${DOCKER_TAG%.*}-jammy-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy-v7 .
           fi
@@ -639,10 +632,9 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/jammy
-            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-jammy package
+            cd install/docker/armv7
+            sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
+            mvn -DdockerTag=latest-jammy-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-jammy-v7 .
           fi
@@ -650,10 +642,9 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/jammy
-            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
-            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-            mvn -DdockerTag=latest-jammy package
+            cd install/docker/armv7
+            sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
+            mvn -DdockerTag=latest-jammy-v7 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
             docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
           fi
