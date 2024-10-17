@@ -91,7 +91,7 @@ jobs:
       - name: Create coverage
         id: create-coverage
         if: contains(matrix.os, 'ubuntu-latest')
-        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean test jacoco:report
+        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease17 clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
         uses: actions/upload-artifact@v4
@@ -101,7 +101,7 @@ jobs:
           retention-days: 7
       - name: Verify with Maven on Win
         if: contains(matrix.os, 'windows-latest')
-        run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
+        run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease17 clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
   verify-Java21-or-later:
     needs: pre_job

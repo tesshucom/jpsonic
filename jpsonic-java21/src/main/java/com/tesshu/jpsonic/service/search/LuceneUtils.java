@@ -37,7 +37,7 @@ public class LuceneUtils {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 29;
+    private static final int INDEX_VERSION = 30;
 
     /**
      * Literal name of index top directory.
@@ -53,16 +53,16 @@ public class LuceneUtils {
     }
 
     /*
-     * Depends on Lucene9
+     * Depends on Lucene10
      */
     long getTotalHits(TopDocs topDocs) {
-        return topDocs.totalHits.value;
+        return topDocs.totalHits.value();
     }
 
     /*
-     * Depends on Lucene9
+     * Depends on Lucene10
      */
     int getCount(IndexSearcher searcher, Query query) throws IOException {
-        return searcher.search(query, new TotalHitCountCollectorManager());
+        return searcher.count(query);
     }
 }
