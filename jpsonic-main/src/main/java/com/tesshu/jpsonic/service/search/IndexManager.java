@@ -76,7 +76,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHitCountCollectorManager;
 import org.apache.lucene.store.FSDirectory;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -100,22 +99,9 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
-    /**
-     * Schema version of Airsonic index. It may be incremented in the following cases:
-     *
-     * - Incompatible update case in Lucene index implementation - When schema definition is changed due to modification
-     * of AnalyzerFactory, DocumentFactory or the class that they use.
-     *
-     */
-    private static final int INDEX_VERSION = 29;
-
-    /**
-     * Literal name of index top directory.
-     */
-    private static final String INDEX_ROOT_DIR_NAME = "index-JP";
-
     private static final MediaType[] MUSIC_AND_AUDIOBOOK = { MediaType.MUSIC, MediaType.AUDIOBOOK };
 
+    private final LuceneUtils luceneUtils;
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
     private final QueryFactory queryFactory;
@@ -133,18 +119,20 @@ public class IndexManager implements ReadWriteLockSupport {
 
     @NonNull
     Path getRootIndexDirectory() {
-        return Path.of(SettingsService.getJpsonicHome().toString(), INDEX_ROOT_DIR_NAME + INDEX_VERSION);
+        return Path.of(SettingsService.getJpsonicHome().toString(),
+                luceneUtils.getIndexRootDirName() + luceneUtils.getIndexVersion());
     }
 
     private @NonNull Path getIndexDirectory(IndexType indexType) {
         return Path.of(getRootIndexDirectory().toString(), indexType.toString().toLowerCase(Locale.ENGLISH));
     }
 
-    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, QueryFactory queryFactory,
-            SearchServiceUtilities util, JpsonicComparators comparators, SettingsService settingsService,
-            ScannerStateServiceImpl scannerState, ArtistDao artistDao, AlbumDao albumDao,
-            @Qualifier("shortExecutor") Executor shortExecutor) {
+    public IndexManager(LuceneUtils luceneUtils, AnalyzerFactory analyzerFactory, DocumentFactory documentFactory,
+            QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
+            SettingsService settingsService, ScannerStateServiceImpl scannerState, ArtistDao artistDao,
+            AlbumDao albumDao, @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
+        this.luceneUtils = luceneUtils;
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
         this.queryFactory = queryFactory;
@@ -515,7 +503,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
     void deleteOldFiles() {
         // Delete if not old index version
-        Pattern indexPattern = Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$");
+        Pattern indexPattern = Pattern.compile("^" + luceneUtils.getIndexRootDirName() + "\\d+$");
 
         try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome())) {
             children.filter(childPath -> {
@@ -536,15 +524,15 @@ public class IndexManager implements ReadWriteLockSupport {
         if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
             if (LOG.isInfoEnabled()) {
-                LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+                LOG.info("Index was found (index version {}). ", luceneUtils.getIndexVersion());
             }
             return;
         }
 
         artistDao.deleteAll();
         albumDao.deleteAll();
-        if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {
-            LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
+        if (FileUtil.createDirectories(getRootIndexDirectory()) == null && LOG.isWarnEnabled()) {
+            LOG.warn("Failed to create index directory :  (index version {}). ", luceneUtils.getIndexVersion());
         }
     }
 
@@ -589,7 +577,7 @@ public class IndexManager implements ReadWriteLockSupport {
         try {
             final Query query = queryFactory.toPreAnalyzedGenres(genres);
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             for (int i = 0; i < totalHits; i++) {
                 IndexableField[] fields = searcher.storedFields().document(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
@@ -688,9 +676,9 @@ public class IndexManager implements ReadWriteLockSupport {
                     for (String genreName : genreNames) {
                         Query query = queryFactory.getGenre(genreName);
                         TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
-                        int songCount = util.round.apply(topDocs.totalHits.value);
+                        int songCount = util.round.apply(luceneUtils.getTotalHits(topDocs));
                         topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
-                        int albumCount = util.round.apply(topDocs.totalHits.value);
+                        int albumCount = util.round.apply(luceneUtils.getTotalHits(topDocs));
                         genres.add(new Genre(genreName, songCount, albumCount));
                     }
 
@@ -742,8 +730,8 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private int getAlbumGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
         try {
-            return searcher.search(queryFactory.getAlbumId3GenreCount(genreName, criteria.folders()),
-                    new TotalHitCountCollectorManager());
+            Query query = queryFactory.getAlbumId3GenreCount(genreName, criteria.folders());
+            return luceneUtils.getCount(searcher, query);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -752,8 +740,8 @@ public class IndexManager implements ReadWriteLockSupport {
     private int getSongGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
         try {
             MediaType[] types = criteria.types().length == 0 ? MUSIC_AND_AUDIOBOOK : criteria.types();
-            return searcher.search(queryFactory.getSongGenreCount(genreName, criteria.folders(), types),
-                    new TotalHitCountCollectorManager());
+            Query query = queryFactory.getSongGenreCount(genreName, criteria.folders(), types);
+            return luceneUtils.getCount(searcher, query);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

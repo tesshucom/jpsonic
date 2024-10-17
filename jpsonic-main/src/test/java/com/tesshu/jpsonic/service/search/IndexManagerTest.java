@@ -150,8 +150,8 @@ class IndexManagerTest {
                     null);
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
-            indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,
-                    null, null);
+            indexManager = new IndexManager(new LuceneUtils(), null, null, queryFactory, utils, comparators,
+                    settingsService, null, null, null, null);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -485,8 +485,8 @@ class IndexManagerTest {
             SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
-            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, albumDao,
-                    null);
+            indexManager = new IndexManager(new LuceneUtils(), null, null, null, null, null, settingsService, null,
+                    artistDao, albumDao, null);
         }
 
         @AfterEach
