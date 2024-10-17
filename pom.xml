@@ -29,9 +29,9 @@
 
     <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
-    <versions.asm>9.7</versions.asm>
+    <versions.asm>9.7.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.48.0</versions.checker-qual>
+    <versions.checker-qual>3.48.1</versions.checker-qual>
     <versions.checkstyle>10.18.2</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
@@ -59,7 +59,7 @@
     <versions.jdom2>2.0.6.1</versions.jdom2>
     <versions.jetty>12.0.14</versions.jetty>
     <versions.jfreechart>1.5.5</versions.jfreechart>
-    <versions.junit-jupiter-api>5.11.1</versions.junit-jupiter-api>
+    <versions.junit-jupiter-api>5.11.2</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
@@ -67,12 +67,12 @@
     <versions.liquibase-core>4.29.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
-    <versions.logback>1.5.8</versions.logback>
+    <versions.logback>1.5.11</versions.logback>
     <versions.lucene>9.12.0</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
-    <versions.mockito-junit-jupiter>5.13.0</versions.mockito-junit-jupiter>
+    <versions.mockito-junit-jupiter>5.14.2</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.4</versions.moxy>
-    <versions.mysql-connector-j>9.0.0</versions.mysql-connector-j>
+    <versions.mysql-connector-j>9.1.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
@@ -786,7 +786,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.1</version>
           <configuration>
             <excludes>${test.excludes}</excludes>
           </configuration>
