@@ -100,7 +100,7 @@ public class SearchServiceImpl implements SearchService {
         try {
 
             TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(topDocs.totalHits.value());
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
@@ -149,7 +149,7 @@ public class SearchServiceImpl implements SearchService {
         try {
 
             TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(topDocs.totalHits.value());
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);

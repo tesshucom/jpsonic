@@ -76,7 +76,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHitCountCollectorManager;
 import org.apache.lucene.store.FSDirectory;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -107,7 +106,7 @@ public class IndexManager implements ReadWriteLockSupport {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 29;
+    private static final int INDEX_VERSION = 30;
 
     /**
      * Literal name of index top directory.
@@ -589,7 +588,7 @@ public class IndexManager implements ReadWriteLockSupport {
         try {
             final Query query = queryFactory.toPreAnalyzedGenres(genres);
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(topDocs.totalHits.value());
             for (int i = 0; i < totalHits; i++) {
                 IndexableField[] fields = searcher.storedFields().document(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
@@ -688,9 +687,9 @@ public class IndexManager implements ReadWriteLockSupport {
                     for (String genreName : genreNames) {
                         Query query = queryFactory.getGenre(genreName);
                         TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
-                        int songCount = util.round.apply(topDocs.totalHits.value);
+                        int songCount = util.round.apply(topDocs.totalHits.value());
                         topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
-                        int albumCount = util.round.apply(topDocs.totalHits.value);
+                        int albumCount = util.round.apply(topDocs.totalHits.value());
                         genres.add(new Genre(genreName, songCount, albumCount));
                     }
 
@@ -742,8 +741,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private int getAlbumGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
         try {
-            return searcher.search(queryFactory.getAlbumId3GenreCount(genreName, criteria.folders()),
-                    new TotalHitCountCollectorManager());
+            return searcher.count(queryFactory.getAlbumId3GenreCount(genreName, criteria.folders()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -752,8 +750,7 @@ public class IndexManager implements ReadWriteLockSupport {
     private int getSongGenreCount(IndexSearcher searcher, String genreName, GenreMasterCriteria criteria) {
         try {
             MediaType[] types = criteria.types().length == 0 ? MUSIC_AND_AUDIOBOOK : criteria.types();
-            return searcher.search(queryFactory.getSongGenreCount(genreName, criteria.folders(), types),
-                    new TotalHitCountCollectorManager());
+            return searcher.count(queryFactory.getSongGenreCount(genreName, criteria.folders(), types));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
