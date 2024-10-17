@@ -62,6 +62,7 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
+    private final LuceneUtils luceneUtils;
     private final QueryFactory queryFactory;
     private final IndexManager indexManager;
     private final SearchServiceUtilities util;
@@ -69,9 +70,11 @@ public class SearchServiceImpl implements SearchService {
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
 
-    public SearchServiceImpl(QueryFactory queryFactory, IndexManager indexManager, SearchServiceUtilities util,
-            SettingsService settingsService, MediaFileDao mediaFileDao, AlbumDao albumDao) {
+    public SearchServiceImpl(LuceneUtils luceneUtils, QueryFactory queryFactory, IndexManager indexManager,
+            SearchServiceUtilities util, SettingsService settingsService, MediaFileDao mediaFileDao,
+            AlbumDao albumDao) {
         super();
+        this.luceneUtils = luceneUtils;
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;
         this.util = util;
@@ -100,7 +103,7 @@ public class SearchServiceImpl implements SearchService {
         try {
 
             TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
@@ -149,7 +152,7 @@ public class SearchServiceImpl implements SearchService {
         try {
 
             TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
-            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
