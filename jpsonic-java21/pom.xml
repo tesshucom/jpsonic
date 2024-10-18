@@ -8,8 +8,8 @@
     <artifactId>jpsonic</artifactId>
     <version>114.3.0-SNAPSHOT</version>
   </parent>
-  <artifactId>jpsonic-concurent21</artifactId>
-  <name>Concurent Config for Java21</name>
+  <artifactId>jpsonic-java21</artifactId>
+  <name>Backwards compatibility lib (Java21)</name>
 
   <properties>
     <main.basedir>${project.parent.basedir}</main.basedir>
@@ -34,6 +34,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
     </dependency>
   </dependencies>
 </project>
