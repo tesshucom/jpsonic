@@ -343,10 +343,6 @@ public class AlbumDao {
                 """, scanDate);
     }
 
-    public void deleteAll() {
-        template.update("delete from album");
-    }
-
     public void starAlbum(int albumId, String username) {
         unstarAlbum(albumId, username);
         template.update("""
