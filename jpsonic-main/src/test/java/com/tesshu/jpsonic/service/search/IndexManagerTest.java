@@ -38,7 +38,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
@@ -151,7 +150,7 @@ class IndexManagerTest {
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
             indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,
-                    null, null);
+                    null);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -477,16 +476,13 @@ class IndexManagerTest {
     class UnitTest {
 
         private ArtistDao artistDao;
-        private AlbumDao albumDao;
         private IndexManager indexManager;
 
         @BeforeEach
         public void setup() {
             SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
-            albumDao = mock(AlbumDao.class);
-            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, albumDao,
-                    null);
+            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, null);
         }
 
         @AfterEach
@@ -500,7 +496,6 @@ class IndexManagerTest {
             Files.createDirectories(indexManager.getRootIndexDirectory());
             indexManager.initializeIndexDirectory();
             Mockito.verify(artistDao, Mockito.never()).deleteAll();
-            Mockito.verify(albumDao, Mockito.never()).deleteAll();
         }
 
         @Test
@@ -508,7 +503,6 @@ class IndexManagerTest {
             System.setProperty("jpsonic.home", tempDir.toString());
             indexManager.initializeIndexDirectory();
             Mockito.verify(artistDao, Mockito.times(1)).deleteAll();
-            Mockito.verify(albumDao, Mockito.times(1)).deleteAll();
         }
     }
 
