@@ -44,7 +44,6 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
-import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -110,7 +109,6 @@ public class IndexManager implements ReadWriteLockSupport {
     private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerState;
     private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final Executor shortExecutor;
 
     private final Map<IndexType, SearcherManager> searchers;
@@ -130,7 +128,7 @@ public class IndexManager implements ReadWriteLockSupport {
     public IndexManager(LuceneUtils luceneUtils, AnalyzerFactory analyzerFactory, DocumentFactory documentFactory,
             QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
             SettingsService settingsService, ScannerStateServiceImpl scannerState, ArtistDao artistDao,
-            AlbumDao albumDao, @Qualifier("shortExecutor") Executor shortExecutor) {
+            @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
         this.luceneUtils = luceneUtils;
         this.analyzerFactory = analyzerFactory;
@@ -141,7 +139,6 @@ public class IndexManager implements ReadWriteLockSupport {
         this.settingsService = settingsService;
         this.scannerState = scannerState;
         this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.shortExecutor = shortExecutor;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
@@ -530,7 +527,6 @@ public class IndexManager implements ReadWriteLockSupport {
         }
 
         artistDao.deleteAll();
-        albumDao.deleteAll();
         if (FileUtil.createDirectories(getRootIndexDirectory()) == null && LOG.isWarnEnabled()) {
             LOG.warn("Failed to create index directory :  (index version {}). ", luceneUtils.getIndexVersion());
         }
