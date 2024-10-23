@@ -89,8 +89,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
             @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
-            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p, @Lazy AlbumId3ByFolderProc alid3bfp,
-            @Lazy AlbumProc alp, @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("albumId3Proc") AlbumId3Proc aid3p,
+            @Lazy @Qualifier("albumId3ByFolderProc") AlbumId3ByFolderProc alid3bfp, @Lazy AlbumProc alp,
+            @Lazy AlbumByFolderProc albfp, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumByFolderProc") RecentAlbumByFolderProc rabfp,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip,
             @Lazy @Qualifier("recentAlbumId3ByFolderProc") RecentAlbumId3ByFolderProc raigfp, @Lazy ArtistProc arP,
