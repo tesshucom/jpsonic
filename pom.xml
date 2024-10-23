@@ -81,7 +81,7 @@
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.3.4</versions.spring-boot>
     <versions.spring-framework>6.1.14</versions.spring-framework>
-    <versions.spring-security>6.3.3</versions.spring-security>
+    <versions.spring-security>6.3.4</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>2.9.2</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
@@ -187,6 +187,12 @@
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
         <version>${versions.spring-security}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-test</artifactId>
+        <version>${versions.spring-security}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
