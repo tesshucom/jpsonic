@@ -638,11 +638,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         boolean isId3 = t == IndexType.ALBUM_ID3 || t == IndexType.ARTIST_ID3;
         Query folderQuery = queryFactory.createFolderQuery(isId3, upnpUtil.getGuestFolders());
         mainQuery.add(folderQuery, Occur.MUST);
-
-        result = new UPnPSearchCriteria(upnpSearchQuery, offset, count);
-        result.setIndexType(indexType);
-        result.setParsedQuery(mainQuery.build());
-
+        result = new UPnPSearchCriteria(upnpSearchQuery, mainQuery.build(), offset, count, indexType);
     }
 
     @Override

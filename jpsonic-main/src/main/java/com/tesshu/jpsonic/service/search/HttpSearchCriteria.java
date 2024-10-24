@@ -19,36 +19,14 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import java.util.List;
-
-import com.tesshu.jpsonic.domain.MusicFolder;
+import org.apache.lucene.search.Query;
 
 /**
- * Search criteria used in the Web or API search implementation
+ * Search criteria used in the Web or API search implementation.
+ *
+ * @param input
+ *            User-entered phrase
  */
-public class HttpSearchCriteria extends SearchCriteria {
-
-    private final List<MusicFolder> musicFolders;
-    private final IndexType indexType;
-    private final boolean includeComposer;
-
-    HttpSearchCriteria(String searchInput, int offset, int count, boolean includeComposer,
-            List<MusicFolder> musicFolders, IndexType indexType) {
-        super(searchInput, offset, count);
-        this.musicFolders = musicFolders;
-        this.indexType = indexType;
-        this.includeComposer = includeComposer;
-    }
-
-    public IndexType getIndexType() {
-        return indexType;
-    }
-
-    public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
-    }
-
-    public boolean isIncludeComposer() {
-        return includeComposer;
-    }
+public record HttpSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType,
+        boolean includeComposer) implements SearchCriteria {
 }

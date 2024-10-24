@@ -21,31 +21,14 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import org.apache.lucene.search.Query;
+
 /**
  * Search criteria used in the UPnP search implementation
  *
- * A UPnP query structure analysis is always required for a UPnP search. Instances of this class are created by Builders
- * that have UPnP message analysis capabilities. The UPnP query for field search including complex compound statements
- * can be obtained with lucene query.
+ * @param input
+ *            queries based on UPnP Search spec
  */
-public class UPnPSearchCriteria extends SearchCriteria {
-
-    private IndexType indexType;
-
-    UPnPSearchCriteria(String upnpSearchQuery, int offset, int count) {
-        super(upnpSearchQuery, offset, count);
-    }
-
-    /**
-     * Returns the target index. For UPnP searches, this value can only be determined after parsing UPnP messages.
-     *
-     * @return T target index
-     */
-    public IndexType getIndexType() {
-        return indexType;
-    }
-
-    public void setIndexType(IndexType assignableIndexType) {
-        this.indexType = assignableIndexType;
-    }
+public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType)
+        implements SearchCriteria {
 }

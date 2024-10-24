@@ -270,9 +270,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h01() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
+                assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
                 assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(" + fid + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
@@ -282,9 +282,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h02() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
+                assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
                 assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(" + fid + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
@@ -294,8 +294,8 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h03() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.getParsedQuery().toString());
+                assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
@@ -305,8 +305,8 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h04() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.getParsedQuery().toString());
+                assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -319,9 +319,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h05() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -332,9 +332,8 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h06() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
-                assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:VIDEO) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                assertEquals(IndexType.SONG, criteria.targetType());
+                assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:VIDEO) +(" + path + ")", criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -344,9 +343,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h07() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
+                assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
                 assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(" + fid + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
         }
 
@@ -360,8 +359,8 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h08() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
-                assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.getParsedQuery().toString());
+                assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+                assertEquals("+(((alb:\"test\"~1)^4.0)) +(" + fid + ")", criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemMusicTrack
@@ -372,9 +371,8 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h09() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
-                assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                assertEquals(IndexType.SONG, criteria.targetType());
+                assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(" + path + ")", criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBroadcast
@@ -385,9 +383,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h10() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:PODCAST) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBook
@@ -398,9 +396,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h11() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:AUDIOBOOK) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMovie
@@ -411,9 +409,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h12() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemVideoBroadcast
@@ -424,9 +422,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h13() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMusicVideoClip
@@ -437,9 +435,9 @@ public class UPnPSearchCriteriaDirectorTest {
             public void h14() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
-                assertEquals(IndexType.SONG, criteria.getIndexType());
+                assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
-                        criteria.getParsedQuery().toString());
+                        criteria.parsedQuery().toString());
             }
         }
     }
@@ -665,13 +663,13 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b01() {
             String searchQuery1 = "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"にほんごはむずかしい\")";
             UPnPSearchCriteria criteria = director.construct(0, 50, searchQuery1);
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-            assertEquals(0, criteria.getOffset());
-            assertEquals(50, criteria.getCount());
-            assertEquals(searchQuery1, criteria.getQuery());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+            assertEquals(0, criteria.offset());
+            assertEquals(50, criteria.count());
+            assertEquals(searchQuery1, criteria.input());
             assertEquals(
                     "+(((alb:\"に ほん ご は むずかしい\"~1)^4.0 (albR:\"にほ ほん んご ごは はむ むず ずか かし しい\"~1)^4.2)) +(" + fid + ")",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -681,12 +679,12 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b02() {
             String searchQuery2 = "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"いきものがかり\")";
             UPnPSearchCriteria criteria = director.construct(1, 51, searchQuery2);
-            assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
-            assertEquals(1, criteria.getOffset());
-            assertEquals(51, criteria.getCount());
-            assertEquals(searchQuery2, criteria.getQuery());
+            assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
+            assertEquals(1, criteria.offset());
+            assertEquals(51, criteria.count());
+            assertEquals(searchQuery2, criteria.input());
             assertEquals("+((art:\"いき もの が かり\"~1 (artR:\"いき きも もの のが がか かり\"~1)^2.2)) +(" + fid + ")",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -696,12 +694,12 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b03() {
             String searchQuery3 = "(upnp:class = \"object.container.album.musicAlbum\" and upnp:artist contains \"日本語テスト\")";
             UPnPSearchCriteria criteria = director.construct(2, 52, searchQuery3);
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-            assertEquals(2, criteria.getOffset());
-            assertEquals(52, criteria.getCount());
-            assertEquals(searchQuery3, criteria.getQuery());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+            assertEquals(2, criteria.offset());
+            assertEquals(52, criteria.count());
+            assertEquals(searchQuery3, criteria.input());
             assertEquals("+((art:\"日本語 テスト\"~1 (artR:\"日本 本語 語て てす すと\"~1)^2.2)) +(" + fid + ")",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -715,12 +713,12 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b04() {
             String searchQuery4 = "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"なくもんか\")";
             UPnPSearchCriteria criteria = director.construct(3, 53, searchQuery4);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
-            assertEquals(3, criteria.getOffset());
-            assertEquals(53, criteria.getCount());
-            assertEquals(searchQuery4, criteria.getQuery());
+            assertEquals(IndexType.SONG, criteria.targetType());
+            assertEquals(3, criteria.offset());
+            assertEquals(53, criteria.count());
+            assertEquals(searchQuery4, criteria.input());
             assertEquals("+(((tit:\"なく もん か\"~1)^6.0 (titR:\"なく くも もん んか\"~1)^6.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
-                    + path + ")", criteria.getParsedQuery().toString());
+                    + path + ")", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -735,14 +733,14 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b05() {
             String searchQuery5 = "(upnp:class derivedfrom \"object.item.audioItem\" and (dc:creator contains \"日本語テスト\" or upnp:artist contains \"日本語テスト\"))";
             UPnPSearchCriteria criteria = director.construct(4, 54, searchQuery5);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
-            assertEquals(4, criteria.getOffset());
-            assertEquals(54, criteria.getCount());
-            assertEquals(searchQuery5, criteria.getQuery());
+            assertEquals(IndexType.SONG, criteria.targetType());
+            assertEquals(4, criteria.offset());
+            assertEquals(54, criteria.count());
+            assertEquals(searchQuery5, criteria.input());
             assertEquals(
                     "+((cmp:\"日本語 テスト\"~1 (cmpR:\"日本 本語 語て てす すと\"~1)^2.2) ((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                             + path + ")",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -758,14 +756,14 @@ public class UPnPSearchCriteriaDirectorTest {
             Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
             String searchQuery5 = "(upnp:class derivedfrom \"object.item.audioItem\" and (dc:creator contains \"日本語テスト\" or upnp:artist contains \"日本語テスト\"))";
             UPnPSearchCriteria criteria = director.construct(4, 54, searchQuery5);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
-            assertEquals(4, criteria.getOffset());
-            assertEquals(54, criteria.getCount());
-            assertEquals(searchQuery5, criteria.getQuery());
+            assertEquals(IndexType.SONG, criteria.targetType());
+            assertEquals(4, criteria.offset());
+            assertEquals(54, criteria.count());
+            assertEquals(searchQuery5, criteria.input());
             assertEquals(
                     "+(((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                             + path + ")",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -776,12 +774,11 @@ public class UPnPSearchCriteriaDirectorTest {
         public void b07() {
             String searchQuery6 = "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"日本語テスト\")";
             UPnPSearchCriteria criteria = director.construct(5, 55, searchQuery6);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
-            assertEquals(5, criteria.getOffset());
-            assertEquals(55, criteria.getCount());
-            assertEquals(searchQuery6, criteria.getQuery());
-            assertEquals("+(((tit:\"日本語 テスト\"~1)^6.0)) +(m:VIDEO) +(" + path + ")",
-                    criteria.getParsedQuery().toString());
+            assertEquals(IndexType.SONG, criteria.targetType());
+            assertEquals(5, criteria.offset());
+            assertEquals(55, criteria.count());
+            assertEquals(searchQuery6, criteria.input());
+            assertEquals("+(((tit:\"日本語 テスト\"~1)^6.0)) +(m:VIDEO) +(" + path + ")", criteria.parsedQuery().toString());
         }
     }
 
@@ -795,8 +792,8 @@ public class UPnPSearchCriteriaDirectorTest {
         public void h01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class derivedfrom \"object.item.audioItem.musicTrack\" and dc:title contains \"test\"");
-            assertEquals(IndexType.SONG, criteria.getIndexType());
-            assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.SONG, criteria.targetType());
+            assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", criteria.parsedQuery().toString());
         }
     }
 
@@ -810,9 +807,9 @@ public class UPnPSearchCriteriaDirectorTest {
         public void m01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "(upnp:class = \"object.container.person.musicArtist\") and (dc:title contains \"test\" or upnp:genre contains \"test\" )");
-            assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
+            assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
             assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2) (g:\"test\"~1)) +(fId:1)",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
@@ -826,10 +823,10 @@ public class UPnPSearchCriteriaDirectorTest {
                     (upnp:class = "object.container.album.musicAlbum") \
                     and (dc:title contains "test" or dc:creator contains "test" or upnp:artist contains "test" )\
                     """);
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
             assertEquals(
                     "+(((alb:\"test\"~1)^4.0) (cmp:\"test\"~1 cmpR:\"test\"~1) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
@@ -844,9 +841,9 @@ public class UPnPSearchCriteriaDirectorTest {
                     (upnp:class = "object.container.album.musicAlbum") \
                     and (dc:title contains "test" or dc:creator contains "test" or upnp:artist contains "test" )\
                     """);
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
             assertEquals("+(((alb:\"test\"~1)^4.0) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -867,13 +864,13 @@ public class UPnPSearchCriteriaDirectorTest {
                             or upnp:author contains "test" \
                             or upnp:genre contains "test" )\
                             """);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
+            assertEquals(IndexType.SONG, criteria.targetType());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
                     + "(g:\"test\"~1)) " //
                     + "+(m:MUSIC m:PODCAST m:AUDIOBOOK m:VIDEO) " // audio or video
-                    + "+(f:dummy)", criteria.getParsedQuery().toString());
+                    + "+(f:dummy)", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -895,12 +892,12 @@ public class UPnPSearchCriteriaDirectorTest {
                             or upnp:author contains "test" \
                             or upnp:genre contains "test" )\
                             """);
-            assertEquals(IndexType.SONG, criteria.getIndexType());
+            assertEquals(IndexType.SONG, criteria.targetType());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
                     + "(g:\"test\"~1)) " //
                     + "+(m:MUSIC m:PODCAST m:AUDIOBOOK m:VIDEO) " // audio or video
-                    + "+(f:dummy)", criteria.getParsedQuery().toString());
+                    + "+(f:dummy)", criteria.parsedQuery().toString());
         }
     }
 
@@ -914,9 +911,9 @@ public class UPnPSearchCriteriaDirectorTest {
         public void ak01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\"");
-            assertEquals(IndexType.SONG, criteria.getIndexType());
+            assertEquals(IndexType.SONG, criteria.targetType());
             assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", // music only
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -926,8 +923,8 @@ public class UPnPSearchCriteriaDirectorTest {
         public void ak02() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\"");
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-            assertEquals("+(((alb:\"test\"~1)^4.0)) +(fId:1)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+            assertEquals("+(((alb:\"test\"~1)^4.0)) +(fId:1)", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -937,8 +934,8 @@ public class UPnPSearchCriteriaDirectorTest {
         public void ak03() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\"");
-            assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
-            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
+            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.parsedQuery().toString());
         }
     }
 
@@ -971,12 +968,12 @@ public class UPnPSearchCriteriaDirectorTest {
                             + "or microsoft:authorWriter contains \"test\" " //
                             + "or upnp:userAnnotation contains \"test\" " //
                             + "or upnp:longDescription contains \"test\")");
-            assertEquals(IndexType.SONG, criteria.getIndexType());
+            assertEquals(IndexType.SONG, criteria.targetType());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "(g:\"test\"~1) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
                     + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2)) " //
-                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)", criteria.getParsedQuery().toString());
+                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)", criteria.parsedQuery().toString());
         }
     }
 
@@ -990,8 +987,8 @@ public class UPnPSearchCriteriaDirectorTest {
         public void k01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\"");
-            assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
-            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
+            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
@@ -1004,8 +1001,8 @@ public class UPnPSearchCriteriaDirectorTest {
                     upnp:class derivedfrom "object.container.person.musicArtist" \
                     and dc:title contains "test" and upnp:genre contains "classical"\
                     """);
-            assertEquals(IndexType.ARTIST_ID3, criteria.getIndexType());
-            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
+            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
@@ -1015,8 +1012,8 @@ public class UPnPSearchCriteriaDirectorTest {
         public void k03() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
                     "upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\"");
-            assertEquals(IndexType.ALBUM_ID3, criteria.getIndexType());
-            assertEquals("+(((alb:\"test\"~1)^4.0)) +(fId:1)", criteria.getParsedQuery().toString());
+            assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
+            assertEquals("+(((alb:\"test\"~1)^4.0)) +(fId:1)", criteria.parsedQuery().toString());
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -1030,12 +1027,12 @@ public class UPnPSearchCriteriaDirectorTest {
                             + "or upnp:album contains \"test\" " //
                             + "or upnp:artist contains \"test\" " //
                             + "or upnp:genre contains \"test\" )");
-            assertEquals(IndexType.SONG, criteria.getIndexType());
+            assertEquals(IndexType.SONG, criteria.targetType());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
                     + "(g:\"test\"~1)) " //
                     + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)", //
-                    criteria.getParsedQuery().toString());
+                    criteria.parsedQuery().toString());
         }
     }
 }

@@ -25,37 +25,15 @@ import org.apache.lucene.search.Query;
  * Abstract class that holds Lucene queries. Objects representing subclass search criteria must properly return parsed
  * Lucene queries.
  */
-public class SearchCriteria {
+public interface SearchCriteria {
 
-    private final String query;
-    private final int offset;
-    private final int count;
+    String input();
 
-    private Query parsedQuery;
+    Query parsedQuery();
 
-    protected SearchCriteria(String query, int offset, int count) {
-        this.query = query;
-        this.offset = offset;
-        this.count = count;
-    }
+    int offset();
 
-    public final int getCount() {
-        return count;
-    }
+    int count();
 
-    public final int getOffset() {
-        return offset;
-    }
-
-    public final Query getParsedQuery() {
-        return parsedQuery;
-    }
-
-    public final String getQuery() {
-        return query;
-    }
-
-    protected final void setParsedQuery(Query parsedQuery) {
-        this.parsedQuery = parsedQuery;
-    }
+    IndexType targetType();
 }

@@ -227,7 +227,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(queryFactory, util);
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
-        return switch (criteria.getIndexType()) {
+        return switch (criteria.targetType()) {
         case SONG -> mediaFileProc.toBrowseResult(searchService.search(criteria));
         case ALBUM -> throw new AssertionError("Unreachable code.");
         case ALBUM_ID3 -> albumId3Proc.toBrowseResult(searchService.search(criteria));

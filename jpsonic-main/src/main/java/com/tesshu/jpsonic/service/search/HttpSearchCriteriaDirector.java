@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
+import org.apache.lucene.search.Query;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -37,11 +38,9 @@ public class HttpSearchCriteriaDirector {
         this.queryFactory = queryFactory;
     }
 
-    public HttpSearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
+    public HttpSearchCriteria construct(String input, int offset, int count, boolean includeComposer,
             List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        HttpSearchCriteria criteria = new HttpSearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
-                indexType);
-        criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
-        return criteria;
+        Query parsedQuery = queryFactory.searchByPhrase(input, includeComposer, musicFolders, indexType);
+        return new HttpSearchCriteria(input, parsedQuery, offset, count, indexType, includeComposer);
     }
 }
