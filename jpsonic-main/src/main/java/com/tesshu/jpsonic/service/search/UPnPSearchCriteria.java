@@ -30,24 +30,22 @@ package com.tesshu.jpsonic.service.search;
  */
 public class UPnPSearchCriteria extends LuceneSearchCriteria {
 
-    private Class<?> assignableClass;
+    private IndexType indexType;
 
     UPnPSearchCriteria(String upnpSearchQuery, int offset, int count) {
         super(upnpSearchQuery, offset, count);
     }
 
     /**
-     * Returns a class that represents the search target and return value. For UPnP searches, this value can only be
-     * determined after parsing UPnP.
+     * Returns the target index. For UPnP searches, this value can only be determined after parsing UPnP messages.
      *
-     * @return T that represents search target and return value
+     * @return T target index
      */
-    public Class<?> getAssignableClass() {
-        return assignableClass;
+    public IndexType getIndexType() {
+        return indexType;
     }
 
-    public void setAssignableClass(Class<?> assignableClass) {
-        this.assignableClass = assignableClass;
+    public void setIndexType(IndexType assignableIndexType) {
+        this.indexType = assignableIndexType;
     }
-
 }

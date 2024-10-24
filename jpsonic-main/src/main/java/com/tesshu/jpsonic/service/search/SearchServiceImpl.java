@@ -52,7 +52,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -137,7 +136,7 @@ public class SearchServiceImpl implements SearchService {
         ParamSearchResult<T> result = new ParamSearchResult<>();
         result.setOffset(offset);
 
-        IndexType indexType = searchableIndex(criteria);
+        IndexType indexType = criteria.getIndexType();
         if (count <= 0 || indexType == null) {
             return result;
         }
@@ -194,18 +193,6 @@ public class SearchServiceImpl implements SearchService {
             LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
                     criteria.getQuery(), criteria.getOffset(), criteria.getCount());
         }
-    }
-
-    private @Nullable IndexType searchableIndex(UPnPSearchCriteria criteria) {
-        IndexType indexType = null;
-        if (Artist.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ARTIST_ID3;
-        } else if (Album.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ALBUM_ID3;
-        } else if (MediaFile.class == criteria.getAssignableClass()) {
-            indexType = IndexType.SONG;
-        }
-        return indexType;
     }
 
     /**
