@@ -34,9 +34,9 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteria;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -64,11 +64,11 @@ public class SearchController {
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final SearchService searchService;
-    private final SearchCriteriaDirector director;
+    private final HttpSearchCriteriaDirector director;
 
     public SearchController(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, PlayerService playerService, SearchService searchService,
-            SearchCriteriaDirector director) {
+            HttpSearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -111,7 +111,7 @@ public class SearchController {
             boolean includeComposer = settingsService.isSearchComposer()
                     || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
+            HttpSearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
                     IndexType.ARTIST);
             SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());

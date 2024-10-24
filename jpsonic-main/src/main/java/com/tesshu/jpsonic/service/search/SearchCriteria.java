@@ -19,34 +19,21 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import java.util.List;
+import org.apache.lucene.search.Query;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+/**
+ * Abstract class that holds Lucene queries. Objects representing subclass search criteria must properly return parsed
+ * Lucene queries.
+ */
+public interface SearchCriteria {
 
-public class SearchCriteria extends LuceneSearchCriteria {
+    String input();
 
-    private final List<MusicFolder> musicFolders;
-    private final IndexType indexType;
-    private final boolean includeComposer;
+    Query parsedQuery();
 
-    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) {
-        super(searchInput, offset, count);
-        this.musicFolders = musicFolders;
-        this.indexType = indexType;
-        this.includeComposer = includeComposer;
-    }
+    int offset();
 
-    public IndexType getIndexType() {
-        return indexType;
-    }
+    int count();
 
-    public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
-    }
-
-    public boolean isIncludeComposer() {
-        return includeComposer;
-    }
-
+    IndexType targetType();
 }

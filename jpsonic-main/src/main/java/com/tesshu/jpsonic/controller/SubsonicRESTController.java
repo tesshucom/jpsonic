@@ -86,9 +86,9 @@ import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteria;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -214,7 +214,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     private final PlayQueueDao playQueueDao;
     private final MediaScannerService mediaScannerService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
-    private final SearchCriteriaDirector director;
+    private final HttpSearchCriteriaDirector director;
 
     private final JAXBWriter jaxbWriter;
 
@@ -230,7 +230,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             RatingService ratingService, SearchService searchService, InternetRadioService internetRadioService,
             MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
             PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
-            AirsonicLocaleResolver airsonicLocaleResolver, SearchCriteriaDirector director) {
+            AirsonicLocaleResolver airsonicLocaleResolver, HttpSearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -840,7 +840,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 || securityService.getUserSettings(user.getUsername()).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
-        SearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer,
+        HttpSearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer,
                 musicFolders, IndexType.SONG);
 
         com.tesshu.jpsonic.domain.SearchResult result = searchService.search(criteria);
@@ -877,7 +877,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
-        SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
+        HttpSearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
                 IndexType.ARTIST);
         com.tesshu.jpsonic.domain.SearchResult artists = searchService.search(criteria);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
@@ -926,7 +926,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
-        SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
+        HttpSearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
                 IndexType.ARTIST_ID3);
         com.tesshu.jpsonic.domain.SearchResult result = searchService.search(criteria);
         for (com.tesshu.jpsonic.domain.Artist artist : result.getArtists()) {

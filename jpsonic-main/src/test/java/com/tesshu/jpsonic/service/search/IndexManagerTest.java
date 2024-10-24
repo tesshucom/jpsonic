@@ -519,7 +519,7 @@ class IndexManagerTest {
         private IndexManager indexManager;
 
         @Autowired
-        private SearchCriteriaDirector director;
+        private HttpSearchCriteriaDirector director;
 
         @Autowired
         private MediaScannerService mediaScannerService;
@@ -585,15 +585,15 @@ class IndexManagerTest {
             int offset = 0;
             int count = Integer.MAX_VALUE;
 
-            final SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, false, musicFolders,
-                    IndexType.ARTIST);
-            final SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, false,
+            final HttpSearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, false,
+                    musicFolders, IndexType.ARTIST);
+            final HttpSearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, false,
                     musicFolders, IndexType.ALBUM);
-            final SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, false, musicFolders,
+            final HttpSearchCriteria criteriaSong = director.construct("Gaspard", offset, count, false, musicFolders,
                     IndexType.SONG);
-            final SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, false,
+            final HttpSearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, false,
                     musicFolders, IndexType.ARTIST_ID3);
-            final SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, false,
+            final HttpSearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, false,
                     musicFolders, IndexType.ALBUM_ID3);
 
             /* Delete DB record. */
