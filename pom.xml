@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>114.2.3</version>
+  <version>114.2.4</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -59,7 +59,7 @@
     <versions.jdom2>2.0.6.1</versions.jdom2>
     <versions.jetty>12.0.14</versions.jetty>
     <versions.jfreechart>1.5.5</versions.jfreechart>
-    <versions.junit-jupiter-api>5.11.2</versions.junit-jupiter-api>
+    <versions.junit-jupiter-api>5.11.3</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.2</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
@@ -80,10 +80,10 @@
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.3.4</versions.spring-boot>
-    <versions.spring-security>6.3.3</versions.spring-security>
-    <versions.spring-web>6.1.13</versions.spring-web>
+    <versions.spring-framework>6.1.14</versions.spring-framework>
+    <versions.spring-security>6.3.4</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
-    <versions.tika>2.9.2</versions.tika>
+    <versions.tika>3.0.0</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
@@ -99,13 +99,59 @@
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jcl</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${versions.spring-framework}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${versions.spring-framework}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
-        <version>${versions.spring-web}</version>
+        <version>${versions.spring-framework}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
-        <version>${versions.spring-web}</version>
+        <version>${versions.spring-framework}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
@@ -141,6 +187,12 @@
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
         <version>${versions.spring-security}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-test</artifactId>
+        <version>${versions.spring-security}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -632,12 +684,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.20.0</version>
+          <version>3.21.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.7.0</version>
+          <version>3.8.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -740,7 +792,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.4</version>
+          <version>4.8.6.5</version>
           <configuration>
             <plugins>
               <plugin>

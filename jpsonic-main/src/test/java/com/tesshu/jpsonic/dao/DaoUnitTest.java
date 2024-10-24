@@ -106,7 +106,6 @@ class DaoUnitTest {
 
         albumDao.starAlbum(album.getId(), USER_NAME);
         albumDao.unstarAlbum(album.getId(), USER_NAME);
-        albumDao.deleteAll();
         mediaFileDao.deleteMediaFile(file.getId());
     }
 
