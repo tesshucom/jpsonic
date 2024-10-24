@@ -26,7 +26,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 /**
  * Search criteria used in the Web or API search implementation
  */
-public class HttpSearchCriteria extends LuceneSearchCriteria {
+public class HttpSearchCriteria extends SearchCriteria {
 
     private final List<MusicFolder> musicFolders;
     private final IndexType indexType;

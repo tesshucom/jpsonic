@@ -28,7 +28,7 @@ package com.tesshu.jpsonic.service.search;
  * that have UPnP message analysis capabilities. The UPnP query for field search including complex compound statements
  * can be obtained with lucene query.
  */
-public class UPnPSearchCriteria extends LuceneSearchCriteria {
+public class UPnPSearchCriteria extends SearchCriteria {
 
     private IndexType indexType;
 
