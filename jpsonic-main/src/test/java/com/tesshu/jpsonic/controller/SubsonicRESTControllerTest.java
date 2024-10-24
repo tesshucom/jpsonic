@@ -76,7 +76,7 @@ import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
@@ -163,7 +163,7 @@ class SubsonicRESTControllerTest {
             final PlayQueueDao playQueueDao = mock(PlayQueueDao.class);
             mediaScannerService = mock(MediaScannerService.class);
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(AirsonicLocaleResolver.class);
-            final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
+            final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsService, musicFolderService, securityService, playerService,
                     mediaFileService, writableMediaFileService, lastFmService, musicIndexService, transcodingService,
                     downloadController, coverArtController, avatarController, userSettingsController, topController,

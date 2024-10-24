@@ -28,18 +28,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 @DependsOn({ "queryFactory", "settingsService" })
-public class SearchCriteriaDirector {
+public class HttpSearchCriteriaDirector {
 
     private final QueryFactory queryFactory;
 
-    public SearchCriteriaDirector(QueryFactory queryFactory) {
+    public HttpSearchCriteriaDirector(QueryFactory queryFactory) {
         super();
         this.queryFactory = queryFactory;
     }
 
-    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
+    public HttpSearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
             List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
+        HttpSearchCriteria criteria = new HttpSearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
                 indexType);
         criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
         return criteria;

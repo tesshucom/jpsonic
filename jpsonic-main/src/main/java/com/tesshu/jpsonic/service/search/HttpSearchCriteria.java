@@ -23,14 +23,17 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 
-public class SearchCriteria extends LuceneSearchCriteria {
+/**
+ * Search criteria used in the Web or API search implementation
+ */
+public class HttpSearchCriteria extends LuceneSearchCriteria {
 
     private final List<MusicFolder> musicFolders;
     private final IndexType indexType;
     private final boolean includeComposer;
 
-    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) {
+    HttpSearchCriteria(String searchInput, int offset, int count, boolean includeComposer,
+            List<MusicFolder> musicFolders, IndexType indexType) {
         super(searchInput, offset, count);
         this.musicFolders = musicFolders;
         this.indexType = indexType;
@@ -48,5 +51,4 @@ public class SearchCriteria extends LuceneSearchCriteria {
     public boolean isIncludeComposer() {
         return includeComposer;
     }
-
 }

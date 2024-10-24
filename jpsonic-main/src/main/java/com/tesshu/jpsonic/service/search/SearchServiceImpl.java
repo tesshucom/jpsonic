@@ -83,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public SearchResult search(SearchCriteria criteria) {
+    public SearchResult search(HttpSearchCriteria criteria) {
 
         SearchResult result = new SearchResult();
         int offset = criteria.getOffset();

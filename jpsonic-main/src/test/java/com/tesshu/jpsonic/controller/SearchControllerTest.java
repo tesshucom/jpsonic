@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -51,7 +51,7 @@ class SearchControllerTest {
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders.standaloneSetup(new SearchController(mock(SettingsService.class),
                 mock(MusicFolderService.class), mock(SecurityService.class), mock(PlayerService.class),
-                mock(SearchService.class), mock(SearchCriteriaDirector.class))).build();
+                mock(SearchService.class), mock(HttpSearchCriteriaDirector.class))).build();
     }
 
     @Test

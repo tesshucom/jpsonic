@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.service.search;
 
 /**
- * Criteria that abstracts field search of UPnP.
+ * Search criteria used in the UPnP search implementation
  *
  * A UPnP query structure analysis is always required for a UPnP search. Instances of this class are created by Builders
  * that have UPnP message analysis capabilities. The UPnP query for field search including complex compound statements

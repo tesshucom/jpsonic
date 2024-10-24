@@ -85,7 +85,7 @@ class SearchServiceTest {
         private IndexManager indexManager;
 
         @Autowired
-        private SearchCriteriaDirector director;
+        private HttpSearchCriteriaDirector director;
 
         @BeforeEach
         public void setup() {
@@ -118,8 +118,8 @@ class SearchServiceTest {
             /*
              * _ID3_ALBUMARTIST_ Sarah Walker/Nash Ensemble Should find any version of Lucene.
              */
-            SearchCriteria searchCriteria = director.construct("Sarah Walker", offset, count, false, allMusicFolders,
-                    IndexType.ALBUM);
+            HttpSearchCriteria searchCriteria = director.construct("Sarah Walker", offset, count, false,
+                    allMusicFolders, IndexType.ALBUM);
             SearchResult result = searchService.search(searchCriteria);
             assertEquals(1, result.getTotalHits(),
                     "(0) Specify '" + searchCriteria.getQuery() + "' as query, total Hits is");
@@ -878,7 +878,7 @@ class SearchServiceTest {
         private SearchService searchService;
 
         @Autowired
-        private SearchCriteriaDirector director;
+        private HttpSearchCriteriaDirector director;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -901,7 +901,8 @@ class SearchServiceTest {
             int count = Integer.MAX_VALUE;
             List<MusicFolder> folders = getMusicFolders();
 
-            SearchCriteria criteria = director.construct("will", offset, count, false, folders, IndexType.ARTIST_ID3);
+            HttpSearchCriteria criteria = director.construct("will", offset, count, false, folders,
+                    IndexType.ARTIST_ID3);
             SearchResult result = searchService.search(criteria);
             // Will hit because Airsonic's stopword is defined(#1235) => This case does not hit because it is a phrase
             // search rather than a term prefix match.
