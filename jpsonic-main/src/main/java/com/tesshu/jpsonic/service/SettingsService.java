@@ -1216,6 +1216,14 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
     }
 
+    public String getUPnPSearchMethod() {
+        return getString(SettingsConstants.UPnP.Search.UPNP_SEARCH_METHOD);
+    }
+
+    public void setUPnPSearchMethod(String s) {
+        setProperty(SettingsConstants.UPnP.Search.UPNP_SEARCH_METHOD, s);
+    }
+
     public boolean isSonosEnabled() {
         return getBoolean(SettingsConstants.Sonos.ENABLED);
     }

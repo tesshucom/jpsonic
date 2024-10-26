@@ -184,6 +184,14 @@ public class UPnPSearchCriteriaDirectorTest {
                     @interface MULTI_FOLDERS {
                     }
                 }
+
+                @interface searchMethod {
+                    @interface FileStructure {
+                    }
+
+                    @interface Id3 {
+                    }
+                }
             }
         }
 
@@ -194,8 +202,14 @@ public class UPnPSearchCriteriaDirectorTest {
 
         @interface Result {
             @interface Criteria {
-                @interface AssignableClass {
-                    @interface MediaFile {
+                @interface TargetType {
+                    @interface Song {
+                    }
+
+                    @interface ArtistId3 {
+                    }
+
+                    @interface AlbumId3 {
                     }
 
                     @interface Artist {
@@ -228,6 +242,7 @@ public class UPnPSearchCriteriaDirectorTest {
     }
 
     private SettingsService settingsService;
+    private UpnpProcessorUtil util;
     private MusicFolderService musicFolderService;
     private UPnPSearchCriteriaDirector director;
 
@@ -239,6 +254,7 @@ public class UPnPSearchCriteriaDirectorTest {
             IllegalArgumentException, InvocationTargetException {
         settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+        Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.ID3.name());
 
         List<MusicFolder> musicFolders = new ArrayList<>();
         musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now(), 1, false));
@@ -252,9 +268,9 @@ public class UPnPSearchCriteriaDirectorTest {
         path = path.trim();
         fid = fid.trim();
 
-        UpnpProcessorUtil util = new UpnpProcessorUtil(musicFolderService, mock(SecurityService.class), null);
-        director = new UPnPSearchCriteriaDirector(
-                new QueryFactory(settingsService, new AnalyzerFactory(settingsService)), util);
+        util = new UpnpProcessorUtil(musicFolderService, mock(SecurityService.class), settingsService, null);
+        director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(), util.getGuestFolders(),
+                new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
     }
 
     @Nested
@@ -264,8 +280,9 @@ public class UPnPSearchCriteriaDirectorTest {
         class OpDerivedTest {
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPerson
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+            @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
             @Test
             public void h01() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -276,8 +293,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+            @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
             @Test
             public void h02() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -288,8 +306,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Album
+            @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
             @Test
             public void h03() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -299,8 +318,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Album
+            @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
             @Test
             public void h04() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -310,8 +330,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
@@ -325,8 +346,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
             @Test
             public void h06() {
@@ -337,8 +359,9 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+            @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
             @Test
             public void h07() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -347,16 +370,62 @@ public class UPnPSearchCriteriaDirectorTest {
                 assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(" + fid + ")",
                         criteria.parsedQuery().toString());
             }
+
+            @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPerson
+            @DirectorDecisions.Conditions.Settings.searchMethod.FileStructure
+            @DirectorDecisions.Actions.construct
+            @DirectorDecisions.Result.Criteria.TargetType.Artist
+            @Test
+            public void h08() {
+                Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
+                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(), util.getGuestFolders(),
+                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+
+                UPnPSearchCriteria criteria = director.construct(0, 50,
+                        "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
+                assertEquals(IndexType.ARTIST, criteria.targetType());
+                assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(f:dummy)", criteria.parsedQuery().toString());
+            }
+
+            @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
+            @DirectorDecisions.Conditions.Settings.searchMethod.FileStructure
+            @DirectorDecisions.Actions.construct
+            @DirectorDecisions.Result.Criteria.TargetType.Album
+            @Test
+            public void h09() {
+                Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
+                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(), util.getGuestFolders(),
+                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+
+                UPnPSearchCriteria criteria = director.construct(0, 50,
+                        "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
+                assertEquals(IndexType.ALBUM, criteria.targetType());
+                assertEquals("+(((alb:\"test\"~1)^4.0)) +(f:dummy)", criteria.parsedQuery().toString());
+            }
         }
 
         @Nested
-        class OpEqTest {
+        class OpEqClassTest {
+
+            @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
+            @DirectorDecisions.Actions.construct
+            @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
+            @Test
+            public void h10() {
+                UPnPSearchCriteria criteria = director.construct(0, 50,
+                        "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
+                assertEquals(IndexType.ARTIST_ID3, criteria.targetType());
+                assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(" + fid + ")",
+                        criteria.parsedQuery().toString());
+            }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.Album
+            @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
             @Test
-            public void h08() {
+            public void h11() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
                 assertEquals(IndexType.ALBUM_ID3, criteria.targetType());
@@ -364,11 +433,12 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemMusicTrack
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
             @Test
-            public void h09() {
+            public void h12() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
@@ -376,11 +446,12 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBroadcast
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
             @Test
-            public void h10() {
+            public void h13() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
@@ -389,11 +460,12 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBook
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
             @Test
-            public void h11() {
+            public void h14() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
@@ -402,11 +474,12 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMovie
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
             @Test
-            public void h12() {
+            public void h15() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
@@ -415,11 +488,12 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemVideoBroadcast
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
             @Test
-            public void h13() {
+            public void h16() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
@@ -428,16 +502,49 @@ public class UPnPSearchCriteriaDirectorTest {
             }
 
             @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMusicVideoClip
+            @DirectorDecisions.Conditions.Settings.searchMethod.Id3
             @DirectorDecisions.Actions.construct
-            @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+            @DirectorDecisions.Result.Criteria.TargetType.Song
             @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
             @Test
-            public void h14() {
+            public void h17() {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
                 assertEquals(IndexType.SONG, criteria.targetType());
                 assertEquals("+(((tit:\"test\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
                         criteria.parsedQuery().toString());
+            }
+
+            @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+            @DirectorDecisions.Conditions.Settings.searchMethod.FileStructure
+            @DirectorDecisions.Actions.construct
+            @DirectorDecisions.Result.Criteria.TargetType.Artist
+            @Test
+            public void h18() {
+                Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
+                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(), util.getGuestFolders(),
+                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+
+                UPnPSearchCriteria criteria = director.construct(0, 50,
+                        "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
+                assertEquals(IndexType.ARTIST, criteria.targetType());
+                assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(f:dummy)", criteria.parsedQuery().toString());
+            }
+
+            @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+            @DirectorDecisions.Conditions.Settings.searchMethod.FileStructure
+            @DirectorDecisions.Actions.construct
+            @DirectorDecisions.Result.Criteria.TargetType.Album
+            @Test
+            public void h19() {
+                Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
+                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(), util.getGuestFolders(),
+                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+
+                UPnPSearchCriteria criteria = director.construct(0, 50,
+                        "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
+                assertEquals(IndexType.ALBUM, criteria.targetType());
+                assertEquals("+(((alb:\"test\"~1)^4.0)) +(f:dummy)", criteria.parsedQuery().toString());
             }
         }
     }
@@ -447,6 +554,7 @@ public class UPnPSearchCriteriaDirectorTest {
 
         // testAmbiguousCase
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -457,6 +565,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -467,6 +576,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -477,6 +587,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumPhotoAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -489,6 +600,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPlaylistContainer
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -500,6 +612,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -511,6 +624,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenreMusicGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -522,6 +636,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenreMovieGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -533,6 +648,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageSystem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -544,6 +660,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageVolume
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -555,6 +672,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageFolder
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -566,6 +684,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumPhotoAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -577,6 +696,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPlaylistContainer
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -588,6 +708,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -598,6 +719,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenreMusicGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -609,6 +731,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenreMovieGenre
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -620,6 +743,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageSystem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -631,6 +755,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageVolume
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -642,6 +767,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageFolder
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
         @DirectorDecisions.Result.IllegalArgument
         @Test
@@ -657,8 +783,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class BubbleUPnPTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void b01() {
             String searchQuery1 = "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"にほんごはむずかしい\")";
@@ -673,8 +800,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
         @Test
         public void b02() {
             String searchQuery2 = "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"いきものがかり\")";
@@ -688,8 +816,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void b03() {
             String searchQuery3 = "(upnp:class = \"object.container.album.musicAlbum\" and upnp:artist contains \"日本語テスト\")";
@@ -704,8 +833,9 @@ public class UPnPSearchCriteriaDirectorTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
         @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
@@ -724,8 +854,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
@@ -746,8 +877,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.FALSE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
@@ -767,8 +899,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
         @Test
         public void b07() {
@@ -786,8 +919,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class HiFiCastTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void h01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -801,8 +935,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class MediaMonkey4AndroidTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
         @Test
         public void m01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -815,8 +950,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void m02() {
             UPnPSearchCriteria criteria = director.construct(0, 50, """
@@ -832,8 +968,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.FALSE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void m03() {
             Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
@@ -849,8 +986,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void m04() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -876,8 +1014,9 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
         @DirectorDecisions.Conditions.Settings.searchComposer.FALSE
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void m05() {
             Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
@@ -905,8 +1044,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class AKConnectTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemMusicTrack
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void ak01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -917,8 +1057,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void ak02() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -928,8 +1069,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
         @Test
         public void ak03() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -943,8 +1085,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class Foobar2k4WinTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void f01() {
             UPnPSearchCriteria criteria = director.construct(0, 50, //
@@ -981,8 +1124,9 @@ public class UPnPSearchCriteriaDirectorTest {
     class KazooTest {
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
         @Test
         public void k01() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -992,8 +1136,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @DirectorDecisions.Result.Criteria.TargetType.ArtistId3
         @Test
         public void k02() {
             // This case is a query that doesn't make much sense to Jpsonic
@@ -1006,8 +1151,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void k03() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
@@ -1017,8 +1163,9 @@ public class UPnPSearchCriteriaDirectorTest {
         }
 
         @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Conditions.Settings.searchMethod.Id3
         @DirectorDecisions.Actions.construct
-        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void k04() {
             UPnPSearchCriteria criteria = director.construct(0, 50, //

@@ -170,7 +170,7 @@ public class SearchServiceImpl implements SearchService {
                     util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
                 }
                 albumResult.getItems().forEach(a -> result.getItems().add((T) a));
-            } else if (IndexType.SONG == indexType) {
+            } else {
                 ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);

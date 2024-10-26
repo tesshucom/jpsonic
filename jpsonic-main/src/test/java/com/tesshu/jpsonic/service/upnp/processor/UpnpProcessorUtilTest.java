@@ -21,11 +21,13 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,7 +40,7 @@ class UpnpProcessorUtilTest {
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
-        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
                 mock(JpsonicComparators.class));
     }
 
@@ -46,5 +48,13 @@ class UpnpProcessorUtilTest {
     void testGetAllMusicFolders() {
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
         assertNotNull(util.getGuestFolders());
+    }
+
+    @Test
+    void testGetUPnPSearchMethod() {
+        assertEquals(UPnPSearchMethod.FILE_STRUCTURE, util.getUPnPSearchMethod());
+
+        Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.ID3.name());
+        assertEquals(UPnPSearchMethod.ID3, util.getUPnPSearchMethod());
     }
 }
