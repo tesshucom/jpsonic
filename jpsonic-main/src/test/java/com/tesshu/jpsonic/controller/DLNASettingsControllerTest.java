@@ -52,6 +52,7 @@ import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.UPnPSubnet;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,6 +143,7 @@ class DLNASettingsControllerTest {
         command.setSubMenuItems(Collections.emptyList());
         command.setAlbumGenreSort(Sort.FREQUENCY);
         command.setSongGenreSort(Sort.FREQUENCY);
+        command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(playerService, Mockito.times(1)).updatePlayer(playerCaptor.capture());
@@ -243,6 +245,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
         }
 
         @Test
@@ -347,6 +350,7 @@ class DLNASettingsControllerTest {
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setSubMenuItemRowInfos(Collections.emptyMap());
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
@@ -387,6 +391,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(subMenuItems);
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
@@ -435,6 +440,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(subMenuItems);
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -487,6 +493,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(subMenuItems);
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -569,6 +576,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -593,6 +601,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
@@ -620,6 +629,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
@@ -647,6 +657,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -672,6 +683,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());

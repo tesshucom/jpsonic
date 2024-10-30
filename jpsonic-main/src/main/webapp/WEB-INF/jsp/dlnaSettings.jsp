@@ -24,6 +24,7 @@
 <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
 <%@ page import="com.tesshu.jpsonic.domain.MenuItemId" %>
 <%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
+<%@ page import="com.tesshu.jpsonic.service.search.UPnPSearchMethod" %>
 
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
@@ -413,6 +414,39 @@
                 </c:forEach>
             </tbody>
         </table>
+    </details>
+
+    <details ${isOpen}>
+
+        <summary class="jpsonic"><fmt:message key="dlnasettings.search"/></summary>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="dlnasettings.searchoutline"/>
+            </div>
+        </c:if>
+
+        <dl class="single">
+            <dt>
+                <fmt:message key="dlnasettings.searchmethod"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpsearchmethod"/></c:import>
+            </dt>
+            <dd>
+                <ul class="playerSettings">
+                    <c:forEach items="${UPnPSearchMethod.values()}" var="method">
+                        <c:set var="methodName">
+                            <fmt:message key="dlnasettings.searchmethod.${fn:toLowerCase(method)}"/>
+                        </c:set>
+                        <li>
+                            <input type="radio" id="radio-${method.name()}" name="searchMethod" value="${method}" ${method eq command.searchMethod ? 'checked' : ''}/>
+                            <label for="radio-${method.name()}">${methodName}</label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod${fn:toLowerCase(method)}"/></c:import>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </dd>
+        </dl>
+
     </details>
 
     <div class="submits">
