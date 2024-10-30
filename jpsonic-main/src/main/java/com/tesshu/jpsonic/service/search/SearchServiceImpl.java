@@ -52,7 +52,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -84,44 +83,44 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public SearchResult search(SearchCriteria criteria) {
+    public SearchResult search(HttpSearchCriteria criteria) {
 
         SearchResult result = new SearchResult();
-        int offset = criteria.getOffset();
-        int count = criteria.getCount();
+        int offset = criteria.offset();
+        int count = criteria.count();
         result.setOffset(offset);
 
         if (count <= 0) {
             return result;
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(criteria.getIndexType());
+        IndexSearcher searcher = indexManager.getSearcher(criteria.targetType());
         if (searcher == null) {
             return result;
         }
 
         try {
 
-            TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
+            TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
             int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
             for (int i = start; i < end; i++) {
-                util.addIfAnyMatch(result, criteria.getIndexType(),
+                util.addIfAnyMatch(result, criteria.targetType(),
                         searcher.storedFields().document(topDocs.scoreDocs[i].doc));
             }
 
             if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
-                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.getIndexType(),
-                        criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.targetType(),
+                        criteria.input(), criteria.offset(), criteria.count());
             }
 
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            indexManager.release(criteria.getIndexType(), searcher);
+            indexManager.release(criteria.targetType(), searcher);
         }
         return result;
     }
@@ -131,13 +130,13 @@ public class SearchServiceImpl implements SearchService {
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. #1585")
     public <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria) {
 
-        int offset = criteria.getOffset();
-        int count = criteria.getCount();
+        int offset = criteria.offset();
+        int count = criteria.count();
 
         ParamSearchResult<T> result = new ParamSearchResult<>();
         result.setOffset(offset);
 
-        IndexType indexType = searchableIndex(criteria);
+        IndexType indexType = criteria.targetType();
         if (count <= 0 || indexType == null) {
             return result;
         }
@@ -151,7 +150,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
+            TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
             int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
@@ -171,7 +170,7 @@ public class SearchServiceImpl implements SearchService {
                     util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
                 }
                 albumResult.getItems().forEach(a -> result.getItems().add((T) a));
-            } else if (IndexType.SONG == indexType) {
+            } else {
                 ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
@@ -192,20 +191,8 @@ public class SearchServiceImpl implements SearchService {
     private void writeUPnPSerchLog(IndexType indexType, UPnPSearchCriteria criteria) {
         if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
             LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
-                    criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                    criteria.input(), criteria.offset(), criteria.count());
         }
-    }
-
-    private @Nullable IndexType searchableIndex(UPnPSearchCriteria criteria) {
-        IndexType indexType = null;
-        if (Artist.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ARTIST_ID3;
-        } else if (Album.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ALBUM_ID3;
-        } else if (MediaFile.class == criteria.getAssignableClass()) {
-            indexType = IndexType.SONG;
-        }
-        return indexType;
     }
 
     /**

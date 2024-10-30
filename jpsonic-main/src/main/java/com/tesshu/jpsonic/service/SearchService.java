@@ -33,7 +33,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SearchResult;
-import com.tesshu.jpsonic.service.search.SearchCriteria;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 
 /**
@@ -55,7 +55,7 @@ public interface SearchService {
      *
      * @return search result
      */
-    SearchResult search(SearchCriteria criteria);
+    SearchResult search(HttpSearchCriteria criteria);
 
     /**
      * Perform a search that comply with the UPnP Service Template with UPnPCriteria. Criteria is built using a

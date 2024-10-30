@@ -25,6 +25,8 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,12 +34,14 @@ public class UpnpProcessorUtil {
 
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final SettingsService settingsService;
     private final JpsonicComparators comparators;
 
     public UpnpProcessorUtil(MusicFolderService musicFolderService, SecurityService securityService,
-            JpsonicComparators comparators) {
+            SettingsService settingsService, JpsonicComparators comparators) {
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.settingsService = settingsService;
         this.comparators = comparators;
     }
 
@@ -47,5 +51,9 @@ public class UpnpProcessorUtil {
 
     public boolean isSortAlbumsByYear(String artist) {
         return comparators.isSortAlbumsByYear(artist);
+    }
+
+    public UPnPSearchMethod getUPnPSearchMethod() {
+        return UPnPSearchMethod.of(settingsService.getUPnPSearchMethod());
     }
 }

@@ -55,6 +55,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -159,6 +160,9 @@ public class DLNASettingsController {
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
 
+        // Search
+        command.setSearchMethod(UPnPSearchMethod.of(settingsService.getUPnPSearchMethod()));
+
         // for view page control
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
@@ -205,6 +209,9 @@ public class DLNASettingsController {
         int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
                 ? DLNA_RANDOM_DEFAULT : command.getDlnaRandomMax();
         settingsService.setDlnaRandomMax(Math.min(randomMax, DLNA_RANDOM_LIMIT));
+
+        // Search
+        settingsService.setUPnPSearchMethod(command.getSearchMethod().name());
 
         settingsService.save();
 

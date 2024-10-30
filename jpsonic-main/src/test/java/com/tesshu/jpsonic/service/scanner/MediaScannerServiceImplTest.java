@@ -85,9 +85,9 @@ import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -824,7 +824,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private IndexManager indexManager;
         @Autowired
-        private SearchCriteriaDirector criteriaDirector;
+        private HttpSearchCriteriaDirector criteriaDirector;
         @Autowired
         private SearchService searchService;
 

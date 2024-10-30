@@ -47,9 +47,9 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteria;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -1116,7 +1116,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         private PlaylistService playlistService;
 
         @Autowired
-        private SearchCriteriaDirector director;
+        private HttpSearchCriteriaDirector director;
 
         @BeforeEach
         public void setup() {
@@ -1165,7 +1165,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Test
         void testGetMultiFolderChildren() throws IOException {
-            SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+            HttpSearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.ARTIST);
             SearchResult result = searchService.search(criteria);
             List<MediaFile> artists = mainController.getMultiFolderChildren(result.getMediaFiles());
@@ -1194,7 +1194,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Test
         void testGetChildrenOf() throws IOException {
-            SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+            HttpSearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.ARTIST);
             SearchResult result = searchService.search(criteria);
             List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true);
@@ -1220,7 +1220,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Test
         void testPlayQueueSort() throws IOException {
-            SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+            HttpSearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.SONG);
             SearchResult result = searchService.search(criteria);
             PlayQueue playQueue = new PlayQueue();

@@ -70,7 +70,7 @@ class RandomSongByGenreProcTest {
             factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
                     transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
                     mock(JpsonicComparators.class));
             proc = new RandomSongByGenreProc(settingsService, util, factory, searchService);
         }

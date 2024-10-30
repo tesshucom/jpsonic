@@ -23,17 +23,16 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.QueryFactory;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteriaDirector;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.contentdirectory.ContentDirectoryErrorCode;
@@ -228,17 +227,16 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         // General UPnP search
         int offset = (int) firstResult;
         int count = toCount(firstResult, maxResults, SEARCH_COUNT_MAX);
-        UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(queryFactory, util);
+        UPnPSearchMethod searchMethod = util.getUPnPSearchMethod();
+        List<MusicFolder> folders = util.getGuestFolders();
+        UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(searchMethod, folders, queryFactory);
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
-        if (Artist.class == criteria.getAssignableClass()) {
-            return artistProc.toBrowseResult(searchService.search(criteria));
-        } else if (Album.class == criteria.getAssignableClass()) {
-            return albumId3Proc.toBrowseResult(searchService.search(criteria));
-        } else if (MediaFile.class == criteria.getAssignableClass()) {
-            return mediaFileProc.toBrowseResult(searchService.search(criteria));
-        }
-
-        return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
+        return switch (criteria.targetType()) {
+        case ARTIST, ALBUM, SONG -> mediaFileProc.toBrowseResult(searchService.search(criteria));
+        case ALBUM_ID3 -> albumId3Proc.toBrowseResult(searchService.search(criteria));
+        case ARTIST_ID3 -> artistProc.toBrowseResult(searchService.search(criteria));
+        case GENRE, ALBUM_ID3_GENRE -> throw new AssertionError("Unreachable code.");
+        };
     }
 }

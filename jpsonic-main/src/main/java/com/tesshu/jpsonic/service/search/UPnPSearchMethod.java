@@ -14,21 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2016 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.service.search;
 
-import org.apache.lucene.search.Query;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-/**
- * Search criteria used in the UPnP search implementation
- *
- * @param input
- *            queries based on UPnP Search spec
- */
-public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType)
-        implements SearchCriteria {
+public enum UPnPSearchMethod {
+
+    FILE_STRUCTURE, ID3;
+
+    public static @NonNull UPnPSearchMethod of(String s) {
+        if (FILE_STRUCTURE.name().equals(s)) {
+            return FILE_STRUCTURE;
+        } else if (ID3.name().equals(s)) {
+            return ID3;
+        }
+        return FILE_STRUCTURE;
+    }
 }

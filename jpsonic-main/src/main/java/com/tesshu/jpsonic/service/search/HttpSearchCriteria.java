@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2016 Airsonic Authors
  * (C) 2018 tesshucom
  */
 
@@ -24,11 +22,11 @@ package com.tesshu.jpsonic.service.search;
 import org.apache.lucene.search.Query;
 
 /**
- * Search criteria used in the UPnP search implementation
+ * Search criteria used in the Web or API search implementation.
  *
  * @param input
- *            queries based on UPnP Search spec
+ *            User-entered phrase
  */
-public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType)
-        implements SearchCriteria {
+public record HttpSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType,
+        boolean includeComposer) implements SearchCriteria {
 }

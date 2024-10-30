@@ -29,6 +29,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
+import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
 public class DLNASettingsCommand extends SettingsPageCommons {
 
@@ -59,6 +60,9 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private Sort songGenreSort;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
+
+    // Search
+    private UPnPSearchMethod searchMethod;
 
     public boolean isDlnaEnabled() {
         return dlnaEnabled;
@@ -222,6 +226,14 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaGuestPublish(boolean dlnaGuestPublish) {
         this.dlnaGuestPublish = dlnaGuestPublish;
+    }
+
+    public UPnPSearchMethod getSearchMethod() {
+        return searchMethod;
+    }
+
+    public void setSearchMethod(UPnPSearchMethod searchMethod) {
+        this.searchMethod = searchMethod;
     }
 
     public record SubMenuItemRowInfo(MenuItem firstChild, int count) {
