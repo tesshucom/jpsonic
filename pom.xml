@@ -79,7 +79,7 @@
     <versions.postgresql>42.7.4</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
-    <versions.spring-boot>3.3.4</versions.spring-boot>
+    <versions.spring-boot>3.3.5</versions.spring-boot>
     <versions.spring-framework>6.2.0</versions.spring-framework>
     <versions.spring-security>6.3.4</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
