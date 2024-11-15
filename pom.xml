@@ -25,14 +25,14 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
-    <versions.HikariCP>6.0.0</versions.HikariCP>
+    <versions.HikariCP>6.1.0</versions.HikariCP>
 
     <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.7.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.48.1</versions.checker-qual>
-    <versions.checkstyle>10.18.2</versions.checkstyle>
+    <versions.checker-qual>3.48.2</versions.checker-qual>
+    <versions.checkstyle>10.20.1</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
@@ -46,9 +46,9 @@
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
     <versions.ecj>3.39.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
-    <versions.hsqldb>2.7.3</versions.hsqldb>
-    <versions.icu4j>75.1</versions.icu4j>
-    <versions.jackson>2.18.0</versions.jackson>
+    <versions.hsqldb>2.7.4</versions.hsqldb>
+    <versions.icu4j>76.1</versions.icu4j>
+    <versions.jackson>2.18.1</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -57,7 +57,7 @@
     <versions.java-jwt>4.4.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.14</versions.jetty>
+    <versions.jetty>12.0.15</versions.jetty>
     <versions.jfreechart>1.5.5</versions.jfreechart>
     <versions.junit-jupiter-api>5.11.3</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
@@ -67,7 +67,7 @@
     <versions.liquibase-core>4.29.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
-    <versions.logback>1.5.11</versions.logback>
+    <versions.logback>1.5.12</versions.logback>
     <versions.lucene>10.0.0</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.14.2</versions.mockito-junit-jupiter>
@@ -79,8 +79,8 @@
     <versions.postgresql>42.7.4</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
-    <versions.spring-boot>3.3.4</versions.spring-boot>
-    <versions.spring-framework>6.1.14</versions.spring-framework>
+    <versions.spring-boot>3.3.5</versions.spring-boot>
+    <versions.spring-framework>6.2.0</versions.spring-framework>
     <versions.spring-security>6.3.4</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.0.0</versions.tika>
@@ -679,7 +679,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.8.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -718,7 +718,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.6.0</version>
           <configuration>
             <configLocation>${project.basedir}/../jpsonic-main/checkstyle.xml</configLocation>
             <inputEncoding>UTF-8</inputEncoding>
@@ -746,7 +746,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.25.0</version>
+          <version>3.26.0</version>
           <dependencies>
             <dependency>
               <groupId>net.sourceforge.pmd</groupId>
@@ -792,7 +792,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.5</version>
+          <version>4.8.6.6</version>
           <configuration>
             <plugins>
               <plugin>
@@ -813,7 +813,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>10.0.4</version>
+          <version>11.1.0</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -838,7 +838,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.5.2</version>
           <configuration>
             <excludes>${test.excludes}</excludes>
           </configuration>
@@ -1012,7 +1012,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.17.1</version>
+        <version>2.18.0</version>
         <configuration>
           <rulesUri>file:///${main.basedir}/versions-ignored.xml</rulesUri>
         </configuration>
