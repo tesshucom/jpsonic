@@ -65,7 +65,7 @@
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
     <versions.liquibase-core>4.30.0</versions.liquibase-core>
-    <versions.liquibase-slf4j>5.0.0</versions.liquibase-slf4j>
+    <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.12</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
