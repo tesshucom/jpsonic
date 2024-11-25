@@ -61,6 +61,7 @@ public class DatabaseConfiguration {
     public static final int DS_MAXIMUM_POOLSIZE = 8;
     public static final long DS_MAX_LIFE_TIME = 1_800_000;
     public static final long DS_IDLE_TIMEOUT = 300_000;
+    public static final long DS_KEEP_ALIVE_TIME = 0;
 
     private final Environment environment;
 
@@ -109,6 +110,7 @@ public class DatabaseConfiguration {
         config.setMaximumPoolSize(DS_MAXIMUM_POOLSIZE);
         config.setMaxLifetime(DS_MAX_LIFE_TIME);
         config.setIdleTimeout(DS_IDLE_TIMEOUT);
+        config.setKeepaliveTime(DS_KEEP_ALIVE_TIME);
         return config;
     }
 

@@ -45,6 +45,7 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -66,6 +67,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 // Usually not desirable. But that's spring justice
 @SuppressWarnings({"PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException"})
+@DependsOn("liquibase")
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableMethodSecurity(securedEnabled = true)
