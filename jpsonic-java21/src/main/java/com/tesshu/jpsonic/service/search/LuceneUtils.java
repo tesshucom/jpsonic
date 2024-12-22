@@ -37,7 +37,7 @@ public class LuceneUtils {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 30;
+    private static final int INDEX_VERSION = 31;
 
     /**
      * Literal name of index top directory.
