@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>114.2.5</version>
+    <version>114.2.6</version>
   </parent>
   <artifactId>jpsonic-main</artifactId>
   <packaging>war</packaging>
@@ -316,12 +316,6 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.yaml</groupId>
-          <artifactId>snakeyaml</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.mattbertolini</groupId>
@@ -591,7 +585,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.1</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>
