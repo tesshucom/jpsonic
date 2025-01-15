@@ -31,9 +31,9 @@
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.7.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.48.3</versions.checker-qual>
-    <versions.checkstyle>10.21.0</versions.checkstyle>
-    <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
+    <versions.checker-qual>3.48.4</versions.checker-qual>
+    <versions.checkstyle>10.21.1</versions.checkstyle>
+    <versions.commons-beanutils>1.10.0</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M2</versions.commons-fileupload2-core>
@@ -67,16 +67,16 @@
     <versions.liquibase-core>4.30.0</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
-    <versions.logback>1.5.15</versions.logback>
+    <versions.logback>1.5.16</versions.logback>
     <versions.lucene>10.1.0</versions.lucene>
     <versions.maven-artifact>3.9.9</versions.maven-artifact>
-    <versions.mockito-junit-jupiter>5.14.2</versions.mockito-junit-jupiter>
-    <versions.moxy>4.0.4</versions.moxy>
+    <versions.mockito-junit-jupiter>5.15.2</versions.mockito-junit-jupiter>
+    <versions.moxy>4.0.5</versions.moxy>
     <versions.mysql-connector-j>9.1.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
-    <versions.postgresql>42.7.4</versions.postgresql>
+    <versions.postgresql>42.7.5</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.4.1</versions.spring-boot>
@@ -813,7 +813,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>11.1.1</version>
+          <version>12.0.0</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
