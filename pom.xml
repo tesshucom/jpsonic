@@ -32,7 +32,7 @@
     <versions.asm>9.7.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.48.4</versions.checker-qual>
-    <versions.checkstyle>10.21.0</versions.checkstyle>
+    <versions.checkstyle>10.21.1</versions.checkstyle>
     <versions.commons-beanutils>1.9.4</versions.commons-beanutils>
     <versions.commons-collections4>4.4</versions.commons-collections4>
     <versions.commons-configuration2>2.11.0</versions.commons-configuration2>
