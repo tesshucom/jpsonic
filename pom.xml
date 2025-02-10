@@ -76,7 +76,7 @@
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
-    <versions.postgresql>42.7.4</versions.postgresql>
+    <versions.postgresql>42.7.5</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.8.6</versions.spotbugs>
     <versions.spring-boot>3.4.1</versions.spring-boot>
@@ -1033,7 +1033,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
