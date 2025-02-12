@@ -83,7 +83,7 @@
     <versions.spring-framework>6.2.2</versions.spring-framework>
     <versions.spring-security>6.4.2</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
-    <versions.tika>3.0.0</versions.tika>
+    <versions.tika>3.1.0</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
