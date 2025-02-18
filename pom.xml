@@ -792,7 +792,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.6</version>
+          <version>4.9.1.0</version>
           <configuration>
             <plugins>
               <plugin>
@@ -813,7 +813,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>12.0.2</version>
+          <version>12.1.0</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -952,7 +952,7 @@
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.24.1</version>
+        <version>2.25.0</version>
         <configuration>
           <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
           <encoding>UTF-8</encoding>

@@ -142,7 +142,8 @@ public final class TranscodeInputStream extends InputStream {
 
         @Override
         public void run() {
-            try (in; out) {
+            try (in;
+                    out) {
                 IOUtils.copy(in, out);
             } catch (IOException e) {
                 trace("Ignored. Will happen if the remote player closes the stream.", e);

@@ -166,7 +166,8 @@ public class QueryFactory {
             Optional<Query> query = createFieldQuery(fieldName, queryString);
             query.ifPresent(q -> {
                 fieldQuerys.add(indexType.getBoosts().containsKey(fieldName)
-                        ? new BoostQuery(q, indexType.getBoosts().get(fieldName) * 2) : q, Occur.SHOULD);
+                        ? new BoostQuery(q, indexType.getBoosts().get(fieldName) * 2)
+                        : q, Occur.SHOULD);
             });
         }
 

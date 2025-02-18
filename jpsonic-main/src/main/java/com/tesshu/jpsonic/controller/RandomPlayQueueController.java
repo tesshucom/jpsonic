@@ -186,42 +186,42 @@ public class RandomPlayQueueController {
         // Handle the last played date filter
         Instant lastPlayed = now();
         switch (lastPlayedValue) {
-        case REQUEST_VALUE_ANY:
-            lastPlayed = null;
-            break;
-        case "1day":
-            lastPlayed = lastPlayed.minus(1, ChronoUnit.DAYS);
-            break;
-        case "1week":
-            lastPlayed = lastPlayed.minus(7, ChronoUnit.DAYS);
-            break;
-        case "1month":
-            lastPlayed = lastPlayed.minus(30, ChronoUnit.DAYS);
-            break;
-        case "3months":
-            lastPlayed = lastPlayed.minus(90, ChronoUnit.DAYS);
-            break;
-        case "6months":
-            lastPlayed = lastPlayed.minus(180, ChronoUnit.DAYS);
-            break;
-        case "1year":
-            lastPlayed = lastPlayed.minus(365, ChronoUnit.DAYS);
-            break;
-        default:
-            // none
-            break;
-        }
-        if (lastPlayed != null) {
-            switch (lastPlayedComp) {
-            case "lt":
-                maxLastPlayedDate = lastPlayed;
+            case REQUEST_VALUE_ANY:
+                lastPlayed = null;
                 break;
-            case "gt":
-                minLastPlayedDate = lastPlayed;
+            case "1day":
+                lastPlayed = lastPlayed.minus(1, ChronoUnit.DAYS);
+                break;
+            case "1week":
+                lastPlayed = lastPlayed.minus(7, ChronoUnit.DAYS);
+                break;
+            case "1month":
+                lastPlayed = lastPlayed.minus(30, ChronoUnit.DAYS);
+                break;
+            case "3months":
+                lastPlayed = lastPlayed.minus(90, ChronoUnit.DAYS);
+                break;
+            case "6months":
+                lastPlayed = lastPlayed.minus(180, ChronoUnit.DAYS);
+                break;
+            case "1year":
+                lastPlayed = lastPlayed.minus(365, ChronoUnit.DAYS);
                 break;
             default:
                 // none
                 break;
+        }
+        if (lastPlayed != null) {
+            switch (lastPlayedComp) {
+                case "lt":
+                    maxLastPlayedDate = lastPlayed;
+                    break;
+                case "gt":
+                    minLastPlayedDate = lastPlayed;
+                    break;
+                default:
+                    // none
+                    break;
             }
         }
         return new LastPlayed(minLastPlayedDate, maxLastPlayedDate);
@@ -251,25 +251,25 @@ public class RandomPlayQueueController {
         Integer maxAlbumRating = null;
         if (albumRatingValue != null) {
             switch (albumRatingComp) { // nullable
-            case "lt":
-                maxAlbumRating = albumRatingValue - 1;
-                break;
-            case "gt":
-                minAlbumRating = albumRatingValue + 1;
-                break;
-            case "le":
-                maxAlbumRating = albumRatingValue;
-                break;
-            case "ge":
-                minAlbumRating = albumRatingValue;
-                break;
-            case "eq":
-                minAlbumRating = albumRatingValue;
-                maxAlbumRating = albumRatingValue;
-                break;
-            default:
-                // none
-                break;
+                case "lt":
+                    maxAlbumRating = albumRatingValue - 1;
+                    break;
+                case "gt":
+                    minAlbumRating = albumRatingValue + 1;
+                    break;
+                case "le":
+                    maxAlbumRating = albumRatingValue;
+                    break;
+                case "ge":
+                    minAlbumRating = albumRatingValue;
+                    break;
+                case "eq":
+                    minAlbumRating = albumRatingValue;
+                    maxAlbumRating = albumRatingValue;
+                    break;
+                default:
+                    // none
+                    break;
             }
         }
         return new AlbumRating(minAlbumRating, maxAlbumRating);
@@ -299,25 +299,25 @@ public class RandomPlayQueueController {
         Integer maxPlayCount = null;
         if (playCountValue != null) {
             switch (playCountComp) { // nullable
-            case "lt":
-                maxPlayCount = playCountValue - 1;
-                break;
-            case "gt":
-                minPlayCount = playCountValue + 1;
-                break;
-            case "le":
-                maxPlayCount = playCountValue;
-                break;
-            case "ge":
-                minPlayCount = playCountValue;
-                break;
-            case "eq":
-                minPlayCount = playCountValue;
-                maxPlayCount = playCountValue;
-                break;
-            default:
-                // none
-                break;
+                case "lt":
+                    maxPlayCount = playCountValue - 1;
+                    break;
+                case "gt":
+                    minPlayCount = playCountValue + 1;
+                    break;
+                case "le":
+                    maxPlayCount = playCountValue;
+                    break;
+                case "ge":
+                    minPlayCount = playCountValue;
+                    break;
+                case "eq":
+                    minPlayCount = playCountValue;
+                    maxPlayCount = playCountValue;
+                    break;
+                default:
+                    // none
+                    break;
             }
         }
         return new PlayCount(minPlayCount, maxPlayCount);

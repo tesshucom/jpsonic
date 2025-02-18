@@ -254,40 +254,40 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         switch (complement) {
 
-        // artist
-        case "object.container.person":
-        case "object.container.person.musicArtist":
-            clazz = Artist.class;
-            break;
+            // artist
+            case "object.container.person":
+            case "object.container.person.musicArtist":
+                clazz = Artist.class;
+                break;
 
-        // album
-        case "object.container.album":
-        case "object.container.album.musicAlbum":
-            clazz = Album.class;
-            break;
+            // album
+            case "object.container.album":
+            case "object.container.album.musicAlbum":
+                clazz = Album.class;
+                break;
 
-        // song
-        case "object.item.audioItem.musicTrack":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            break;
+            // song
+            case "object.item.audioItem.musicTrack":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+                break;
 
-        // audio
-        case "object.item.audioItem":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
-            break;
+            // audio
+            case "object.item.audioItem":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+                break;
 
-        // video
-        case "object.item.videoItem":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
-            break;
+            // video
+            case "object.item.videoItem":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         if (isEmpty(clazz)) {
@@ -304,40 +304,40 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         switch (complement) {
 
-        // artist
-        case "object.container.person.musicArtist":
-            clazz = Artist.class;
-            break;
+            // artist
+            case "object.container.person.musicArtist":
+                clazz = Artist.class;
+                break;
 
-        // album
-        case "object.container.album.musicAlbum":
-            clazz = Album.class;
-            break;
+            // album
+            case "object.container.album.musicAlbum":
+                clazz = Album.class;
+                break;
 
-        // audio
-        case "object.item.audioItem.musicTrack":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            break;
-        case "object.item.audioItem.audioBroadcast":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
-            break;
-        case "object.item.audioItem.audioBook":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
-            break;
+            // audio
+            case "object.item.audioItem.musicTrack":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+                break;
+            case "object.item.audioItem.audioBroadcast":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+                break;
+            case "object.item.audioItem.audioBook":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+                break;
 
-        // video
-        case "object.item.videoItem.movie":
-        case "object.item.videoItem.videoBroadcast":
-        case "object.item.videoItem.musicVideoClip":
-            clazz = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
-            break;
+            // video
+            case "object.item.videoItem.movie":
+            case "object.item.videoItem.videoBroadcast":
+            case "object.item.videoItem.musicVideoClip":
+                clazz = MediaFile.class;
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         if (isEmpty(clazz)) {
@@ -424,43 +424,43 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private List<String> purseSearchFields(String upnpProp) {
         List<String> fieldName = new ArrayList<>();
         switch (upnpProp) {
-        case "dc:title" -> {
-            if (Album.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ALBUM);
-                fieldName.add(FieldNamesConstants.ALBUM_READING);
-            } else if (Artist.class == assignableClass) {
+            case "dc:title" -> {
+                if (Album.class == assignableClass) {
+                    fieldName.add(FieldNamesConstants.ALBUM);
+                    fieldName.add(FieldNamesConstants.ALBUM_READING);
+                } else if (Artist.class == assignableClass) {
+                    fieldName.add(FieldNamesConstants.ARTIST);
+                    fieldName.add(FieldNamesConstants.ARTIST_READING);
+                } else {
+                    fieldName.add(FieldNamesConstants.TITLE);
+                    fieldName.add(FieldNamesConstants.TITLE_READING);
+                }
+            }
+            case "upnp:artist", UPNP_PROP_ILLEGAL_ALBUM_ARTIST -> {
                 fieldName.add(FieldNamesConstants.ARTIST);
                 fieldName.add(FieldNamesConstants.ARTIST_READING);
-            } else {
-                fieldName.add(FieldNamesConstants.TITLE);
-                fieldName.add(FieldNamesConstants.TITLE_READING);
             }
-        }
-        case "upnp:artist", UPNP_PROP_ILLEGAL_ALBUM_ARTIST -> {
-            fieldName.add(FieldNamesConstants.ARTIST);
-            fieldName.add(FieldNamesConstants.ARTIST_READING);
-        }
-        case "dc:creator", "upnp:author" -> {
-            fieldName.add(FieldNamesConstants.COMPOSER);
-            fieldName.add(FieldNamesConstants.COMPOSER_READING);
-        }
-        case "upnp:genre" -> {
-            fieldName.add(FieldNamesConstants.GENRE);
-        }
-        case UPNP_PROP_ALBUM -> {
-            if (Album.class == assignableClass) {
-                // Currently unreachable.
-                // (Searching the Album field of an AudioItem is not common.
-                // Because it is common to search for the container title of an album or
-                // musicAlbum.)
-                // Therefore, Jpsonic does not have an "album" field for "song" search.
-                // (Increasing the number of fields leads to an increase in false searches)
-                fieldName.add(FieldNamesConstants.ALBUM);
-                fieldName.add(FieldNamesConstants.ALBUM_READING);
+            case "dc:creator", "upnp:author" -> {
+                fieldName.add(FieldNamesConstants.COMPOSER);
+                fieldName.add(FieldNamesConstants.COMPOSER_READING);
             }
-        }
-        default -> {
-        }
+            case "upnp:genre" -> {
+                fieldName.add(FieldNamesConstants.GENRE);
+            }
+            case UPNP_PROP_ALBUM -> {
+                if (Album.class == assignableClass) {
+                    // Currently unreachable.
+                    // (Searching the Album field of an AudioItem is not common.
+                    // Because it is common to search for the container title of an album or
+                    // musicAlbum.)
+                    // Therefore, Jpsonic does not have an "album" field for "song" search.
+                    // (Increasing the number of fields leads to an increase in false searches)
+                    fieldName.add(FieldNamesConstants.ALBUM);
+                    fieldName.add(FieldNamesConstants.ALBUM_READING);
+                }
+            }
+            default -> {
+            }
         }
         return fieldName;
     }

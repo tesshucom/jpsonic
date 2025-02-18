@@ -64,7 +64,6 @@ import org.apache.commons.lang3.math.NumberUtils;
  * A more intelligent substring. It attempts to cut off a string after a space, following predefined or user-supplied
  * lower and upper limits, useful for making short descriptions from long text. Can also strip HTML, or if not,
  * intelligently close any tags that were left open. It adds on a user-defined ending.
- *
  * <dl>
  * <dt>lower</dt>
  * <dd>Minimum length to truncate at. Required.</dd>
