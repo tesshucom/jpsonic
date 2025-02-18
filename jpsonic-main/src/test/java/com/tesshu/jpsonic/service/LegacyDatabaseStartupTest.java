@@ -77,7 +77,8 @@ class LegacyDatabaseStartupTest {
     }
 
     private static boolean copyFile(final Path toCopy, final Path destFile) {
-        try (OutputStream os = Files.newOutputStream(destFile); InputStream is = Files.newInputStream(toCopy)) {
+        try (OutputStream os = Files.newOutputStream(destFile);
+                InputStream is = Files.newInputStream(toCopy)) {
             return copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying file.", e);

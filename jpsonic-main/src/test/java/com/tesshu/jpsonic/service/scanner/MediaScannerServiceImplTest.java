@@ -395,7 +395,8 @@ class MediaScannerServiceImplTest {
      * Used if NIO2 fails
      */
     private boolean copy(Path in, Path out) {
-        try (InputStream is = Files.newInputStream(in); OutputStream os = Files.newOutputStream(out);) {
+        try (InputStream is = Files.newInputStream(in);
+                OutputStream os = Files.newOutputStream(out);) {
             byte[] buf = new byte[256];
             while (is.read(buf) != -1) {
                 os.write(buf);

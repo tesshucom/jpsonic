@@ -254,17 +254,17 @@ public class WritableMediaFileService {
 
     private void deleteMediafileIndex(MediaFile mediaFile) {
         switch (mediaFile.getMediaType()) {
-        case DIRECTORY:
-            indexManager.expungeArtist(mediaFile.getId());
-            break;
-        case ALBUM:
-            indexManager.expungeAlbum(mediaFile.getId());
-            break;
-        case MUSIC:
-            indexManager.expungeSong(mediaFile.getId());
-            break;
-        default:
-            break;
+            case DIRECTORY:
+                indexManager.expungeArtist(mediaFile.getId());
+                break;
+            case ALBUM:
+                indexManager.expungeAlbum(mediaFile.getId());
+                break;
+            case MUSIC:
+                indexManager.expungeSong(mediaFile.getId());
+                break;
+            default:
+                break;
         }
     }
 

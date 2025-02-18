@@ -181,15 +181,15 @@ class AnalyzerFactoryTest {
             Arrays.stream(IndexType.values()).flatMap(i -> i.getFields().stream()).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals(1, terms.size(), "remain : " + n);
-                    break;
+                    case FieldNamesConstants.FOLDER:
+                    case FieldNamesConstants.GENRE:
+                    case FieldNamesConstants.GENRE_KEY:
+                        assertEquals(1, terms.size(), "remain : " + n);
+                        break;
 
-                default:
-                    assertEquals(0, terms.size(), "removed : " + n);
-                    break;
+                    default:
+                        assertEquals(0, terms.size(), "removed : " + n);
+                        break;
                 }
             });
         }
@@ -464,22 +464,22 @@ class AnalyzerFactoryTest {
             Arrays.stream(IndexType.values()).flatMap(i -> i.getFields().stream()).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
-                // Do nothing
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE_KEY:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(query, terms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.GENRE:
-                    // Some character strings are replaced within the range that does not affect display
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(genreExpected, terms.get(0), "apply : " + n);
-                    break;
-                default:
-                    // Strings not relevant to the search are removed
-                    assertEquals(0, terms.size(), "apply : " + n);
-                    break;
+                    // Do nothing
+                    case FieldNamesConstants.FOLDER:
+                    case FieldNamesConstants.GENRE_KEY:
+                    case FieldNamesConstants.MEDIA_TYPE:
+                        assertEquals(1, terms.size(), "through : " + n);
+                        assertEquals(query, terms.get(0), "through : " + n);
+                        break;
+                    case FieldNamesConstants.GENRE:
+                        // Some character strings are replaced within the range that does not affect display
+                        assertEquals(1, terms.size(), "through : " + n);
+                        assertEquals(genreExpected, terms.get(0), "apply : " + n);
+                        break;
+                    default:
+                        // Strings not relevant to the search are removed
+                        assertEquals(0, terms.size(), "apply : " + n);
+                        break;
                 }
             });
         }
@@ -758,7 +758,7 @@ class AnalyzerFactoryTest {
     /**
      * Only the parts that operate differently are extracted between the analyzer with Japanese processing and the
      * analyzer without Japanese processing.
-     *
+     * <p>
      * The difference in these operations is not a defect, but a specification that is recognized as a characteristic of
      * the analyzer.
      */
@@ -785,7 +785,7 @@ class AnalyzerFactoryTest {
         /**
          * Whether or not some delimiters are judged as delimiters is different. It will not be a big problem in actual
          * use.
-         *
+         * <p>
          * If anything, Japanese Tokenizer enthusiastically separates words. This is because it is a language that is
          * highly dictionary-dependent.
          */
@@ -834,7 +834,7 @@ class AnalyzerFactoryTest {
         /**
          * The word boundaries are different. There is almost no problem in actual use, but you may be worried when
          * searching for artists who use underscores in the file path.
-         *
+         * <p>
          * The current behavior of StandardTokenizerFactory is Unicode loyal. The specifications for this behavior are
          * different from the old Lucene. It may behave differently from systems that use older libraries such as
          * Subsonic, or Japanese tokenizers.
@@ -881,7 +881,7 @@ class AnalyzerFactoryTest {
 
         /**
          * Whether single quotes are delimiters is different from JapaneseTokenizer. This is normal behavior.
-         *
+         * <p>
          * If anything, Japanese Tokenizer enthusiastically separates words. The Japanese probably don't care much about
          * these issues. But as shown in the example here, this is a very important issue for some particular languages.
          */

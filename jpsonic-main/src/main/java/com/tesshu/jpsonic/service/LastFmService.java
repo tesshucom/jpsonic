@@ -483,11 +483,8 @@ public class LastFmService {
         /*
          * This is mistagged for <a target='_blank' href="http://www.last.fm/music/The+Boomtown+Rats"
          * class="bbcode_artist">The Boomtown Rats</a>; it would help Last.fm if you could correct your tags. <a
-         * target='_blank' href="http://www.last.fm/music/+noredirect/Boomtown+Rats">Boomtown Rats on Last.fm</a>.
-         *
-         * -- or --
-         *
-         * Fix your tags to <a target='_blank' href="http://www.last.fm/music/The+Chemical+Brothers"
+         * target='_blank' href="http://www.last.fm/music/+noredirect/Boomtown+Rats">Boomtown Rats on Last.fm</a>.<p> --
+         * or --<p> Fix your tags to <a target='_blank' href="http://www.last.fm/music/The+Chemical+Brothers"
          * class="bbcode_artist">The Chemical Brothers</a> <a target='_blank'
          * href="http://www.last.fm/music/+noredirect/Chemical+Brothers">Chemical Brothers on Last.fm</a>.
          */

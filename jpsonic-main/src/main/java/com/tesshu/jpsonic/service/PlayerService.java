@@ -443,9 +443,9 @@ public class PlayerService implements ReadWriteLockSupport {
     private void createPlayer(Player player, boolean isInitTranscoding) {
         writeLock(playerLock);
         try {
-            UserSettings userSettings = securityService
-                    .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
-                            ? User.USERNAME_GUEST : player.getUsername());
+            UserSettings userSettings = securityService.getUserSettings(
+                    JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()) ? User.USERNAME_GUEST
+                            : player.getUsername());
             player.setTranscodeScheme(userSettings.getTranscodeScheme());
             playerDao.createPlayer(player);
             if (isInitTranscoding) {

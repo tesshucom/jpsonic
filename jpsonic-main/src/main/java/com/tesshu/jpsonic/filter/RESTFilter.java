@@ -39,7 +39,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 
 /**
  * Intercepts exceptions thrown by RESTController.
- *
+ * <p>
  * Also adds the CORS response header (http://enable-cors.org)
  *
  * @author Sindre Mehus
@@ -70,7 +70,8 @@ public class RESTFilter implements Filter {
         }
 
         SubsonicRESTController.ErrorCode code = t instanceof ServletRequestBindingException
-                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
+                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER
+                : SubsonicRESTController.ErrorCode.GENERIC;
         String msg = getErrorMessage(t);
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error in REST API: " + msg, t);

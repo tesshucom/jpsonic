@@ -120,15 +120,15 @@ public class MenuItemService {
                     .filter(subMenu -> subMenu.getParent() == topMenu.getId()).filter(MenuItem::isEnabled).count();
             if (enableCounts == 0) {
                 MenuItemId defaultSubMenuItemId = switch (topMenu.getId()) {
-                case FOLDER -> MenuItemId.MEDIA_FILE;
-                case ARTIST -> MenuItemId.ALBUM_ARTIST;
-                case ALBUM -> MenuItemId.ALBUM_ID3;
-                case GENRE -> MenuItemId.ALBUM_ID3_BY_GENRE;
-                case PODCAST -> MenuItemId.PODCAST_DEFALT;
-                case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
-                case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
-                case SHUFFLE -> MenuItemId.RANDOM_SONG;
-                default -> throw new IllegalArgumentException("Unexpected value: " + topMenu);
+                    case FOLDER -> MenuItemId.MEDIA_FILE;
+                    case ARTIST -> MenuItemId.ALBUM_ARTIST;
+                    case ALBUM -> MenuItemId.ALBUM_ID3;
+                    case GENRE -> MenuItemId.ALBUM_ID3_BY_GENRE;
+                    case PODCAST -> MenuItemId.PODCAST_DEFALT;
+                    case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
+                    case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
+                    case SHUFFLE -> MenuItemId.RANDOM_SONG;
+                    default -> throw new IllegalArgumentException("Unexpected value: " + topMenu);
                 };
                 subMenus.stream().filter(menuItem -> menuItem.getId() == defaultSubMenuItemId).findFirst()
                         .ifPresent(menuItem -> {
@@ -176,9 +176,9 @@ public class MenuItemService {
 
     public void resetMenuItem(ViewType viewType, ResetMode mode) {
         List<MenuItem> menuItems = switch (mode) {
-        case TOP_MENU -> menuItemDao.getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
-        case SUB_MENU -> menuItemDao.getSubMenuItems(viewType);
-        case ANY -> Collections.emptyList();
+            case TOP_MENU -> menuItemDao.getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
+            case SUB_MENU -> menuItemDao.getSubMenuItems(viewType);
+            case ANY -> Collections.emptyList();
         };
         menuItems.sort(Comparator.comparingInt(m -> m.getId().getDefaultOrder()));
         for (int i = 0; i < menuItems.size(); i++) {

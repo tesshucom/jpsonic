@@ -47,7 +47,7 @@ public interface SearchService {
 
     /**
      * Perform a multi-field search corresponding to SearchCriteria.
-     *
+     * <p>
      * It is the most popular search inherited from legacy servers and has been used from the Web and REST since ancient
      * times.
      *
@@ -83,7 +83,7 @@ public interface SearchService {
     /**
      * Returns random songs. The song returned by this list is limited to MesiaType=SONG. In other words, PODCAST,
      * AUDIOBOOK and VIDEO are not included.
-     *
+     * <p>
      * This method uses a very short-lived cache. This cache is not for long-running transactions like paging, but for
      * short-term repetitive calls.
      *
@@ -110,7 +110,7 @@ public interface SearchService {
     /**
      * Returns random songs. The song returned by this list is limited to MesiaType=SONG. In other words, PODCAST,
      * AUDIOBOOK and VIDEO are not included.
-     *
+     * <p>
      * This method uses a very short-lived cache. This cache is not for long-running transactions like paging, but for
      * short-term repetitive calls.
      *
@@ -156,7 +156,7 @@ public interface SearchService {
 
     /**
      * Returns random albums, using ID3 tag.
-     *
+     * <p>
      * Unlike getRandom Album Id3, this method uses a very short-lived. This cache is not for long-running transactions
      * like paging, but for short-term repetitive calls.
      *

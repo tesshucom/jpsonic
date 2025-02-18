@@ -78,7 +78,6 @@ public abstract class MetaDataParser {
     /**
      * Parses meta data for the given file. No guessing or reformatting is done.
      *
-     *
      * @param path
      *            The file to parse.
      *
