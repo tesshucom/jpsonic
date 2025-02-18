@@ -101,7 +101,9 @@ jobs:
           retention-days: 7
       - name: Verify with Maven on Win
         if: contains(matrix.os, 'windows-latest')
-        run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: mvn -DnvdApiKey=${{ env.NVD_API_KEY }} -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
   verify-Java21-or-later:
     needs: pre_job
