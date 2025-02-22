@@ -32,10 +32,10 @@ public class LuceneUtils {
 
     /**
      * Schema version of Airsonic index. It may be incremented in the following cases:
-     *
-     * - Incompatible update case in Lucene index implementation - When schema definition is changed due to modification
-     * of AnalyzerFactory, DocumentFactory or the class that they use.
-     *
+     * <p>
+     * - Incompatible update case in Lucene index implementation<br>
+     * - When schema definition is changed due to modification of AnalyzerFactory, DocumentFactory or the class that
+     * they use.
      */
     private static final int INDEX_VERSION = 29;
 

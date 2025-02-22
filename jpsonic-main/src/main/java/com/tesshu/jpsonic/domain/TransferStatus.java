@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.domain;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -47,7 +48,7 @@ public final class TransferStatus implements Serializable {
     private final AtomicLong bytesTotal;
     private final SampleHistory history;
     private final ReentrantLock historyLock = new ReentrantLock();
-    private boolean terminated;
+    private final AtomicBoolean terminated = new AtomicBoolean();
     private boolean active;
 
     public TransferStatus() {
@@ -155,13 +156,11 @@ public final class TransferStatus implements Serializable {
     }
 
     public void terminate() {
-        terminated = true;
+        terminated.set(true);
     }
 
     public boolean isTerminated() {
-        boolean result = terminated;
-        terminated = false;
-        return result;
+        return terminated.getAndSet(false);
     }
 
     public boolean isActive() {

@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
@@ -109,6 +110,7 @@ public class SettingsService implements ReadWriteLockSupport {
             "UseExternalPlayer", "OthersPlayingEnabled");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
+    private static final AtomicBoolean DEVELOPMENT_MODE = new AtomicBoolean();
 
     private static List<Theme> themes = Collections.synchronizedList(new ArrayList<>());
     private static List<Locale> locales = Collections.synchronizedList(new ArrayList<>());
@@ -121,7 +123,6 @@ public class SettingsService implements ReadWriteLockSupport {
     private final ApacheCommonsConfigurationService configurationService;
     private final UPnPSubnet uPnPSubnet;
 
-    private static boolean developmentMode;
     private static Path home;
     private Pattern excludePattern;
     private Locale locale;
@@ -136,11 +137,11 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     public static boolean isDevelopmentMode() {
-        return developmentMode;
+        return DEVELOPMENT_MODE.get();
     }
 
     public static void setDevelopmentMode(boolean b) {
-        developmentMode = b;
+        DEVELOPMENT_MODE.set(b);
     }
 
     private void removeObsoleteProperties() {

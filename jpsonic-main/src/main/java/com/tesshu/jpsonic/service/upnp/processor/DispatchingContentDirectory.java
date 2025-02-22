@@ -145,35 +145,35 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     @Override
     public UPnPContentProcessor<?, ?> findProcessor(ProcId id) {
         return switch (id) {
-        case ROOT -> rootProc;
-        case PLAYLIST -> playlistProc;
-        case MEDIA_FILE -> mediaFileProc;
-        case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
-        case ALBUM_ID3 -> albumId3Proc;
-        case ALBUM_ID3_BY_FOLDER -> albumId3ByFolderProc;
-        case ALBUM -> albumProc;
-        case ALBUM_BY_FOLDER -> albumByFolderProc;
-        case RECENT -> recentAlbumProc;
-        case RECENT_BY_FOLDER -> recentAlbumByFolderProc;
-        case RECENT_ID3 -> recentAlbumId3Proc;
-        case RECENT_ID3_BY_FOLDER -> recentAlbumId3ByFolderProc;
-        case ARTIST -> artistProc;
-        case ARTIST_BY_FOLDER -> artistByFolderProc;
-        case ALBUM_BY_GENRE -> albumByGenreProc;
-        case ALBUM_ID3_BY_GENRE -> albumId3ByGenreProc;
-        case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
-        case SONG_BY_GENRE -> songByGenreProc;
-        case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
-        case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;
-        case INDEX -> indexProc;
-        case INDEX_ID3 -> indexId3Proc;
-        case PODCAST -> podcastProc;
-        case RANDOM_ALBUM -> randomAlbumProc;
-        case RANDOM_SONG -> randomSongProcessor;
-        case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProc;
-        case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProc;
-        case RANDOM_SONG_BY_GENRE -> randomSongByGenreProc;
-        case RANDOM_SONG_BY_FOLDER_GENRE -> randomSongByFolderGenreProc;
+            case ROOT -> rootProc;
+            case PLAYLIST -> playlistProc;
+            case MEDIA_FILE -> mediaFileProc;
+            case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
+            case ALBUM_ID3 -> albumId3Proc;
+            case ALBUM_ID3_BY_FOLDER -> albumId3ByFolderProc;
+            case ALBUM -> albumProc;
+            case ALBUM_BY_FOLDER -> albumByFolderProc;
+            case RECENT -> recentAlbumProc;
+            case RECENT_BY_FOLDER -> recentAlbumByFolderProc;
+            case RECENT_ID3 -> recentAlbumId3Proc;
+            case RECENT_ID3_BY_FOLDER -> recentAlbumId3ByFolderProc;
+            case ARTIST -> artistProc;
+            case ARTIST_BY_FOLDER -> artistByFolderProc;
+            case ALBUM_BY_GENRE -> albumByGenreProc;
+            case ALBUM_ID3_BY_GENRE -> albumId3ByGenreProc;
+            case ALBUM_ID3_BY_FOLDER_GENRE -> albumId3ByFolderGenreProc;
+            case SONG_BY_GENRE -> songByGenreProc;
+            case SONG_BY_FOLDER_GENRE -> songByFolderGenreProc;
+            case AUDIOBOOK_BY_GENRE -> audiobookByGenreProc;
+            case INDEX -> indexProc;
+            case INDEX_ID3 -> indexId3Proc;
+            case PODCAST -> podcastProc;
+            case RANDOM_ALBUM -> randomAlbumProc;
+            case RANDOM_SONG -> randomSongProcessor;
+            case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProc;
+            case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProc;
+            case RANDOM_SONG_BY_GENRE -> randomSongByGenreProc;
+            case RANDOM_SONG_BY_FOLDER_GENRE -> randomSongByFolderGenreProc;
         };
     }
 
@@ -233,10 +233,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
         return switch (criteria.targetType()) {
-        case ARTIST, ALBUM, SONG -> mediaFileProc.toBrowseResult(searchService.search(criteria));
-        case ALBUM_ID3 -> albumId3Proc.toBrowseResult(searchService.search(criteria));
-        case ARTIST_ID3 -> artistProc.toBrowseResult(searchService.search(criteria));
-        case GENRE, ALBUM_ID3_GENRE -> throw new AssertionError("Unreachable code.");
+            case ARTIST, ALBUM, SONG -> mediaFileProc.toBrowseResult(searchService.search(criteria));
+            case ALBUM_ID3 -> albumId3Proc.toBrowseResult(searchService.search(criteria));
+            case ARTIST_ID3 -> artistProc.toBrowseResult(searchService.search(criteria));
+            case GENRE, ALBUM_ID3_GENRE -> throw new AssertionError("Unreachable code.");
         };
     }
 }

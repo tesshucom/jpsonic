@@ -931,10 +931,9 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     }
 
     /*
-     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.
-     *
-     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
-     * Copyright 2009 (C) Sindre Mehus
+     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.<p> <p>
+     * Copyright 2020 (C) tesshu.com<br> Based upon Airsonic, Copyright 2016 (C) Airsonic Authors<br> Based upon
+     * Subsonic, Copyright 2009 (C) Sindre Mehus
      */
     @Test
     void testCompareAlbums() {
@@ -977,10 +976,9 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     }
 
     /*
-     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.
-     *
-     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
-     * Copyright 2009 (C) Sindre Mehus
+     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.<p>
+     * Copyright 2020 (C) tesshu.com<br> Based upon Airsonic, Copyright 2016 (C) Airsonic Authors<br> Based upon
+     * Subsonic, Copyright 2009 (C) Sindre Mehus
      */
     @Test
     void testCompareDiscNumbers() {
@@ -1045,9 +1043,8 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     }
 
     /*
-     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.
-     *
-     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.<p> Copyright
+     * 2020 (C) tesshu.com<br> Based upon Airsonic, Copyright 2016 (C) Airsonic Authors<br> Based upon Subsonic,
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
@@ -1067,9 +1064,8 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     }
 
     /*
-     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.
-     *
-     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.<p> Copyright
+     * 2020 (C) tesshu.com<br> Based upon Airsonic, Copyright 2016 (C) Airsonic Authors<br> Based upon Subsonic,
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test

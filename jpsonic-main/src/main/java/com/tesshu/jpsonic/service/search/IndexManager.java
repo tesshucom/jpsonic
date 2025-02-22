@@ -87,7 +87,7 @@ import org.springframework.stereotype.Component;
 /**
  * Function class that is strongly linked to the lucene index implementation. Legacy has an implementation in
  * SearchService.
- *
+ * <p>
  * If the index CRUD and search functionality are in the same class, there is often a dependency conflict on the class
  * used. Although the interface of SearchService is left to maintain the legacy implementation, it is desirable that
  * methods of index operations other than search essentially use this class directly.
@@ -533,11 +533,9 @@ public class IndexManager implements ReadWriteLockSupport {
     }
 
     /**
-     * Get pre-parsed genre string from parsed genre string.
-     *
-     * The pre-analysis genre text refers to the non-normalized genre text stored in the database layer. The genre
-     * analysis includes tokenize processing. Therefore, the parsed genre string and the cardinal of the unedited genre
-     * string are n: n.
+     * Get pre-parsed genre string from parsed genre string. The pre-analysis genre text refers to the non-normalized
+     * genre text stored in the database layer. The genre analysis includes tokenize processing. Therefore, the parsed
+     * genre string and the cardinal of the unedited genre string are n: n.
      *
      * @param genres
      *            list of analyzed genres
@@ -767,19 +765,19 @@ public class IndexManager implements ReadWriteLockSupport {
         release(IndexType.ALBUM, albumSearcher);
 
         switch (criteria.sort()) {
-        case FREQUENCY -> {
-        }
-        case NAME -> {
-            result.sort(comparators.genreOrderByAlpha());
-        }
-        case ALBUM_COUNT -> {
-            result.sort(comparators.genreOrderByAlpha());
-            result.sort(comparators.genreOrder(true));
-        }
-        case SONG_COUNT -> {
-            result.sort(comparators.genreOrderByAlpha());
-            result.sort(comparators.genreOrder(false));
-        }
+            case FREQUENCY -> {
+            }
+            case NAME -> {
+                result.sort(comparators.genreOrderByAlpha());
+            }
+            case ALBUM_COUNT -> {
+                result.sort(comparators.genreOrderByAlpha());
+                result.sort(comparators.genreOrder(true));
+            }
+            case SONG_COUNT -> {
+                result.sort(comparators.genreOrderByAlpha());
+                result.sort(comparators.genreOrder(false));
+            }
         }
         return result;
     }

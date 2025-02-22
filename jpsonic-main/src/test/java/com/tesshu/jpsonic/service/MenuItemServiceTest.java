@@ -347,8 +347,9 @@ class MenuItemServiceTest {
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {
-                case MEDIA_FILE, ALBUM_ARTIST, ALBUM_ID3, ALBUM_ID3_BY_GENRE, PODCAST_DEFALT, PLAYLISTS_DEFALT, RECENTLY_ADDED_ALBUM, RANDOM_SONG -> true;
-                default -> false;
+                    case MEDIA_FILE, ALBUM_ARTIST, ALBUM_ID3, ALBUM_ID3_BY_GENRE, PODCAST_DEFALT, PLAYLISTS_DEFALT,
+                            RECENTLY_ADDED_ALBUM, RANDOM_SONG -> true;
+                    default -> false;
                 };
                 assertEquals(enabled, menuItem.isEnabled());
             });

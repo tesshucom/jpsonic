@@ -265,9 +265,9 @@ public class MediaFileDao {
                 offset, "count", count, "excludes", Stream.of(excludes).map(MediaType::name).toList());
         String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
         String order = switch (childOrder) {
-        case BY_ALPHA -> "media_file_order";
-        case BY_YEAR -> "year is null, year, media_file_order";
-        case BY_TRACK -> "disc_number is null, disc_number, track_number is null, track_number, media_file_order";
+            case BY_ALPHA -> "media_file_order";
+            case BY_YEAR -> "year is null, year, media_file_order";
+            case BY_TRACK -> "disc_number is null, disc_number, track_number is null, track_number, media_file_order";
         };
         return template.namedQuery("select " + QUERY_COLUMNS + """
                         ,

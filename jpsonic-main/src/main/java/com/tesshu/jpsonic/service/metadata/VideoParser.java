@@ -54,7 +54,6 @@ public class VideoParser extends MetaDataParser {
     /**
      * Parses meta data for the given music file. No guessing or reformatting is done.
      *
-     *
      * @param path
      *            The music file to parse.
      *

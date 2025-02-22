@@ -65,25 +65,25 @@ public class JapaneseReadingUtils {
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
-        case Character.SPACE_SEPARATOR:
-        case Character.LINE_SEPARATOR:
-        case Character.PARAGRAPH_SEPARATOR:
-        case Character.CONTROL:
-        case Character.FORMAT:
-        case Character.DASH_PUNCTUATION:
-        case Character.START_PUNCTUATION:
-        case Character.END_PUNCTUATION:
-        case Character.CONNECTOR_PUNCTUATION:
-        case Character.OTHER_PUNCTUATION:
-        case Character.MATH_SYMBOL:
-        case Character.CURRENCY_SYMBOL:
-        case Character.MODIFIER_SYMBOL:
-        case Character.OTHER_SYMBOL:
-        case Character.INITIAL_QUOTE_PUNCTUATION:
-        case Character.FINAL_QUOTE_PUNCTUATION:
-            return true;
-        default:
-            return false;
+            case Character.SPACE_SEPARATOR:
+            case Character.LINE_SEPARATOR:
+            case Character.PARAGRAPH_SEPARATOR:
+            case Character.CONTROL:
+            case Character.FORMAT:
+            case Character.DASH_PUNCTUATION:
+            case Character.START_PUNCTUATION:
+            case Character.END_PUNCTUATION:
+            case Character.CONNECTOR_PUNCTUATION:
+            case Character.OTHER_PUNCTUATION:
+            case Character.MATH_SYMBOL:
+            case Character.CURRENCY_SYMBOL:
+            case Character.MODIFIER_SYMBOL:
+            case Character.OTHER_SYMBOL:
+            case Character.INITIAL_QUOTE_PUNCTUATION:
+            case Character.FINAL_QUOTE_PUNCTUATION:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -337,28 +337,28 @@ public class JapaneseReadingUtils {
         final Tag level2 = Tag.of(token.getPartOfSpeechLevel2());
 
         switch (level1) {
-        case INTERJECTION:
-            return pron.concat(SPACE);
-        case ADVERB:
-            return pron.concat(SPACE);
-        case POSTPOSITIONAL_PARTICLE:
-            return switch (level2) {
-            case CONJUNCTIVE_PARTICLE, ADVERBIAL_PARTICLE -> pron.concat(SPACE);
-            case SENTENCE_ENDING_PARTICLE, MULTI_PARTICLE -> pron;
-            default -> SPACE.concat(pron).concat(SPACE);
-            };
-        case SYMBOL:
-            return switch (level2) {
-            case COMMA, PERIOD -> pron.concat(SPACE);
-            default -> pron;
-            };
-        case NOUN:
-            return switch (level2) {
-            case SUFFIX -> HYPHEN.concat(pron);
-            default -> pron;
-            };
-        default:
-            break;
+            case INTERJECTION:
+                return pron.concat(SPACE);
+            case ADVERB:
+                return pron.concat(SPACE);
+            case POSTPOSITIONAL_PARTICLE:
+                return switch (level2) {
+                    case CONJUNCTIVE_PARTICLE, ADVERBIAL_PARTICLE -> pron.concat(SPACE);
+                    case SENTENCE_ENDING_PARTICLE, MULTI_PARTICLE -> pron;
+                    default -> SPACE.concat(pron).concat(SPACE);
+                };
+            case SYMBOL:
+                return switch (level2) {
+                    case COMMA, PERIOD -> pron.concat(SPACE);
+                    default -> pron;
+                };
+            case NOUN:
+                return switch (level2) {
+                    case SUFFIX -> HYPHEN.concat(pron);
+                    default -> pron;
+                };
+            default:
+                break;
         }
         return pron;
     }

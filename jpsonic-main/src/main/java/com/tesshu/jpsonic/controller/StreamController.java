@@ -161,7 +161,8 @@ public class StreamController {
         applyContentType(response, isHls, parameters.getTranscoding(), file);
 
         final VideoTranscodingSettings videoTranscodingSettings = file.isVideo() || isHls
-                ? streamService.createVideoTranscodingSettings(file, request) : null;
+                ? streamService.createVideoTranscodingSettings(file, request)
+                : null;
 
         return new PrepareResponseResult(false, range, parameters.getExpectedLength(), videoTranscodingSettings);
     }

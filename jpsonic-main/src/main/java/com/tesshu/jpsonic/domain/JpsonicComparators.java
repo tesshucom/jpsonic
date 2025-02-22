@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This class provides Comparator for domain objects.
- *
+ * <p>
  * The sorting rules can be changed with some global options and are dynamic. Executed through this class whenever
  * domain objects in the system are sorted.
  */
@@ -135,22 +135,22 @@ public class JpsonicComparators {
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return (a, b) -> {
             switch (orderBy) {
-            case TRACK:
-                Integer trackA = a.getTrackNumber();
-                Integer trackB = b.getTrackNumber();
-                if (trackA == null) {
-                    trackA = 0;
-                }
-                if (trackB == null) {
-                    trackB = 0;
-                }
-                return trackA.compareTo(trackB);
-            case ARTIST:
-                return createCollator().compare(a.getArtistReading(), b.getArtistReading());
-            case ALBUM:
-                return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
-            default:
-                return 0;
+                case TRACK:
+                    Integer trackA = a.getTrackNumber();
+                    Integer trackB = b.getTrackNumber();
+                    if (trackA == null) {
+                        trackA = 0;
+                    }
+                    if (trackB == null) {
+                        trackB = 0;
+                    }
+                    return trackA.compareTo(trackB);
+                case ARTIST:
+                    return createCollator().compare(a.getArtistReading(), b.getArtistReading());
+                case ALBUM:
+                    return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
+                default:
+                    return 0;
             }
         };
     }

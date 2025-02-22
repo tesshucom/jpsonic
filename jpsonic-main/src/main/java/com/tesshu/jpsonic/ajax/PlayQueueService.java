@@ -145,8 +145,8 @@ public class PlayQueueService {
     public PlayQueueInfo toggleStartStop() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         switch (player.getPlayQueue().getStatus()) {
-        case STOPPED -> player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
-        case PLAYING -> player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
+            case STOPPED -> player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
+            case PLAYING -> player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
         }
         return createPlayQueueInfo(player);
     }

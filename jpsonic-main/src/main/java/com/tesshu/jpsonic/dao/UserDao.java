@@ -315,18 +315,18 @@ public class UserDao {
         List<?> roles = template.getJdbcTemplate().queryForList(sql, Integer.class, user.getUsername());
         roles.forEach(role -> {
             switch ((Integer) role) {
-            case ROLE_ID_ADMIN -> user.setAdminRole(true);
-            case ROLE_ID_DOWNLOAD -> user.setDownloadRole(true);
-            case ROLE_ID_UPLOAD -> user.setUploadRole(true);
-            case ROLE_ID_PLAYLIST -> user.setPlaylistRole(true);
-            case ROLE_ID_COVER_ART -> user.setCoverArtRole(true);
-            case ROLE_ID_COMMENT -> user.setCommentRole(true);
-            case ROLE_ID_PODCAST -> user.setPodcastRole(true);
-            case ROLE_ID_STREAM -> user.setStreamRole(true);
-            case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
-            case ROLE_ID_JUKEBOX -> LOG.info("Discontinued role: {}", role);
-            case ROLE_ID_SHARE -> user.setShareRole(true);
-            default -> LOG.warn("Unknown role: {}", role);
+                case ROLE_ID_ADMIN -> user.setAdminRole(true);
+                case ROLE_ID_DOWNLOAD -> user.setDownloadRole(true);
+                case ROLE_ID_UPLOAD -> user.setUploadRole(true);
+                case ROLE_ID_PLAYLIST -> user.setPlaylistRole(true);
+                case ROLE_ID_COVER_ART -> user.setCoverArtRole(true);
+                case ROLE_ID_COMMENT -> user.setCommentRole(true);
+                case ROLE_ID_PODCAST -> user.setPodcastRole(true);
+                case ROLE_ID_STREAM -> user.setStreamRole(true);
+                case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
+                case ROLE_ID_JUKEBOX -> LOG.info("Discontinued role: {}", role);
+                case ROLE_ID_SHARE -> user.setShareRole(true);
+                default -> LOG.warn("Unknown role: {}", role);
             }
         });
     }

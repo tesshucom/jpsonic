@@ -566,15 +566,11 @@ class SearchServiceTest {
 
         /*
          * There are 19 files in src/test/resources/MEDIAS/Search/SpecialGenre/ARTIST1/ALBUM_A. In FILE01 to FILE16,
-         * Special strings for Lucene syntax are stored as tag values ​​of Genre.
-         *
-         * Legacy can not search all these genres. (Strictly speaking, the genre field is not created at index
-         * creation.)
-         *
-         * // 3.x -> 8.x : Do the process more strictly.
-         *
-         * - Values ​​that can be cross-referenced with DB are stored in the index. - Search is also possible with
-         * user's readable value (file tag value). - However, there is an exception in parentheses.
+         * Special strings for Lucene syntax are stored as tag values ​​of Genre.<p> Legacy can not search all these
+         * genres. (Strictly speaking, the genre field is not created at index creation.) <p> // 3.x -> 8.x : Do the
+         * process more strictly. <p> - Values ​​that can be cross-referenced with DB are stored in the index.<br> -
+         * Search is also possible with user's readable value (file tag value).<br> - However, there is an exception in
+         * parentheses.
          */
         @Test
         void testQueryEscapeRequires() {
@@ -608,11 +604,8 @@ class SearchServiceTest {
             assertEquals("Query Escape Requires 4", songs.get(0).getTitle());
 
             /*
-             * // 3.x -> 8.x : Brackets ()
-             *
-             * Lucene can handle these. However, brackets are specially parsed before the index creation process.
-             *
-             * This string is never stored in the index. This is the only exception.
+             * // 3.x -> 8.x : Brackets ()<p> Lucene can handle these. However, brackets are specially parsed before the
+             * index creation process. <p>This string is never stored in the index. This is the only exception.
              */
             songs = searchService.getRandomSongs(simpleStringCriteria.apply(" (")); // space & bracket
             assertEquals(0, songs.size());
@@ -621,12 +614,9 @@ class SearchServiceTest {
             assertEquals(0, songs.size());
 
             /*
-             * // 3.x -> 8.x : Brackets {}[]
-             *
-             * Lucene can handle these. However, brackets are specially parsed before the index creation process.
-             *
-             * This can be done with a filter that performs the reverse process on the input values ​​when searching. As
-             * a result, the values ​​stored in the file can be retrieved by search.
+             * // 3.x -> 8.x : Brackets {}[]<p> Lucene can handle these. However, brackets are specially parsed before
+             * the index creation process.<p> This can be done with a filter that performs the reverse process on the
+             * input values ​​when searching. As a result, the values ​​stored in the file can be retrieved by search.
              */
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("{}"));
             assertEquals(1, songs.size()); // Searchable
@@ -710,9 +700,8 @@ class SearchServiceTest {
             // -(GENRE)- is registered as genre of FILE17.
 
             /*
-             * Search by genre string registered in file.
-             *
-             * The value stored in the index is different from legacy. Domain value is kept as it is.
+             * Search by genre string registered in file.<p> The value stored in the index is different from legacy.
+             * Domain value is kept as it is.
              */
             List<MediaFile> songs = searchService.getRandomSongs(simpleStringCriteria.apply("-(GENRE)-"));
             assertEquals(1, songs.size());
@@ -761,12 +750,8 @@ class SearchServiceTest {
         }
 
         /*
-         * Other special strings. (FILE19)
-         *
-         * {'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's
-         *
-         * Legacy stores with Analyze, so searchable characters are different.
-         *
+         * Other special strings. (FILE19)<p> {'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's<p> Legacy stores with Analyze, so
+         * searchable characters are different.
          */
         @Test
         void testOthers() {
@@ -799,9 +784,9 @@ class SearchServiceTest {
     /**
      * Test cases related to #1139. Confirming whether shuffle search can be performed correctly in MusicFolder
      * containing special strings.
-     *
+     * <p>
      * (Since the query of getRandomAlbums consists of folder paths only, this verification is easy to perform.)
-     *
+     * <p>
      * This test case is a FalsePattern for search, but there may be problems with the data flow prior to creating the
      * search index.
      */
@@ -864,7 +849,7 @@ class SearchServiceTest {
 
     /**
      * Test cases related to #1142. The filter is not properly applied when analyzing the query,
-     *
+     * <p>
      * In the process of hardening the Analyzer implementation, this problem is solved side by side.
      */
     @Nested
