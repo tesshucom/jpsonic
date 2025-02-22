@@ -31,11 +31,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * See
- *
+ * <p>
  * http://blogs.sourceallies.com/2014/04/customizing-csrf-protection-in-spring-security/
+ * <p>
  * https://docs.spring.io/spring-security/site/docs/current/reference/html/appendix-namespace.html#nsa-csrf
- *
- *
  */
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {

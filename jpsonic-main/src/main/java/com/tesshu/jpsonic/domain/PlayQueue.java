@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 
@@ -38,6 +39,8 @@ import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
  *
  * @author Sindre Mehus
  */
+@SuppressFBWarnings(value = { "AT_NONATOMIC_OPERATIONS_ON_SHARED_VARIABLE",
+        "AT_STALE_THREAD_WRITE_OF_PRIMITIVE" }, justification = "False positive. Guaranteed by locking.")
 @ThreadSafe(enableChecks = false)
 public class PlayQueue implements ReadWriteLockSupport {
 

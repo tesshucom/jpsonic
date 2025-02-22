@@ -29,7 +29,7 @@ import org.jupnp.support.model.container.Container;
 
 /**
  * An interface for representing a typical UPnP node tree with domain object.
- *
+ * <p>
  * Assume that rather than using redundant processors, any tree can be represented using a chain of entity operation
  * definitions up to three layers , including the root.
  *

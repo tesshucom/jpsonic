@@ -64,7 +64,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * A set of String library static methods. While extending String or StringBuffer would have been the nicest solution,
  * that is not possible, so a simple set of static methods seems the most workable.
- *
+ * <p>
  * Method ideas have so far been taken from the PHP4, Ruby and .NET languages.
  *
  * @author bayard@generationjava.com
@@ -85,19 +85,19 @@ public final class StringW {
         StringBuffer buffer = new StringBuffer(2 * sz);
         for (int i = 0; i < sz; i++) {
             switch (chrs[i]) {
-            case '[':
-            case ']':
-            case '?':
-            case '+':
-            case '*':
-            case '/':
-            case '.':
-            case '^':
-            case '$':
-                buffer.append("\\");
-                break;
-            default:
-                buffer.append(chrs[i]);
+                case '[':
+                case ']':
+                case '?':
+                case '+':
+                case '*':
+                case '/':
+                case '.':
+                case '^':
+                case '$':
+                    buffer.append("\\");
+                    break;
+                default:
+                    buffer.append(chrs[i]);
             }
         }
         return buffer.toString();

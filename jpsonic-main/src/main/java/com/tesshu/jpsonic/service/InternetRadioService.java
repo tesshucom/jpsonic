@@ -205,7 +205,7 @@ public class InternetRadioService {
 
     /**
      * Retrieve a list of sources for the given internet radio.
-     *
+     * <p>
      * This method caches the sources using the InternetRadio.getId method as a key, until clearInternetRadioSourceCache
      * is called.
      *
@@ -234,8 +234,8 @@ public class InternetRadioService {
     }
 
     /**
-     * Retrieve a list of sources from the given internet radio
-     *
+     * Retrieve a list of sources from the given internet radio.
+     * <p>
      * This method uses a default maximum limit of PLAYLIST_REMOTE_MAX_LENGTH sources.
      *
      * @param radio

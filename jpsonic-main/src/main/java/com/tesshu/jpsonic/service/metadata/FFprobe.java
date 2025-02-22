@@ -162,8 +162,10 @@ public class FFprobe {
         try {
             start = Instant.now().toEpochMilli();
             Process process = pb.start();
-            try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
-                    InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
+            try (InputStream is = process.getInputStream();
+                    OutputStream os = process.getOutputStream();
+                    InputStream es = process.getErrorStream();
+                    BufferedInputStream bis = new BufferedInputStream(is);) {
                 node = OBJECT_MAPPER.readTree(bis);
                 os.close();
                 es.close();
