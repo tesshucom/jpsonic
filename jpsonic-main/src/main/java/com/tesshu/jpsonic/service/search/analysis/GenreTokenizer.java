@@ -28,14 +28,9 @@ import org.apache.lucene.util.AttributeFactory;
 public class GenreTokenizer extends CharTokenizer {
 
     /*
-     * see http://id3.org/
-     *
-     * ; v2.2 (required)
-     *
-     * / v2.3 The slash is not a delimiter on this server. The generic genre template uses slashes in the genre name,
-     * which causes conflicting specifications.
-     *
-     * \0 v2.4 (Required for security)
+     * see http://id3.org/<p> ; v2.2 (required)<p> / v2.3 The slash is not a delimiter on this server. The generic genre
+     * template uses slashes in the genre name, which causes conflicting specifications.<p> \0 v2.4 (Required for
+     * security)
      */
     private static final int DELIM = ';' | '\0';
 

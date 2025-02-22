@@ -95,7 +95,8 @@ public class ScanLogController {
 
         @Nullable
         LocalDateTime selectedStartDate = isEmpty(reqStartDate)
-                ? scanLogs.isEmpty() ? null : scanLogs.get(0).getStartDate() : LocalDateTime.parse(reqStartDate);
+                ? scanLogs.isEmpty() ? null : scanLogs.get(0).getStartDate()
+                : LocalDateTime.parse(reqStartDate);
         if (selectedStartDate != null) {
             model.put("startDate", selectedStartDate);
         }
@@ -141,20 +142,20 @@ public class ScanLogController {
         final ScanEventType lastEventType = staticsDao
                 .getLastScanEventType(scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
         switch (lastEventType) {
-        case SUCCESS:
-        case FAILED:
-        case DESTROYED:
-        case CANCELED:
-        case FINISHED:
-            scanLog.setStatus(lastEventType.name());
-            break;
-        default:
-            if (lastStartDate.equals(scanLog.getStartDate()) && scannerStateService.isScanning()) {
-                scanLog.setStatus("SCANNING");
-            } else {
-                scanLog.setStatus(ScanEventType.UNKNOWN.name());
-            }
-            break;
+            case SUCCESS:
+            case FAILED:
+            case DESTROYED:
+            case CANCELED:
+            case FINISHED:
+                scanLog.setStatus(lastEventType.name());
+                break;
+            default:
+                if (lastStartDate.equals(scanLog.getStartDate()) && scannerStateService.isScanning()) {
+                    scanLog.setStatus("SCANNING");
+                } else {
+                    scanLog.setStatus(ScanEventType.UNKNOWN.name());
+                }
+                break;
         }
     }
 

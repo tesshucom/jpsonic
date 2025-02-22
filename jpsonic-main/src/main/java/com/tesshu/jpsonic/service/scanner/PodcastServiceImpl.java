@@ -816,8 +816,9 @@ public class PodcastServiceImpl implements PodcastService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
-        String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY : DateTimeFormatter
-                .ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()).format(episode.getPublishDate());
+        String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY
+                : DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                        .format(episode.getPublishDate());
         String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
                 + episode.getTitle();
         filename = filename.substring(0, Math.min(filename.length(), 146));

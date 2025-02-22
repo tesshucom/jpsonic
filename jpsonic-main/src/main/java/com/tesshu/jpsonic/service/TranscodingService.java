@@ -158,9 +158,9 @@ public class TranscodingService {
      */
     public void setTranscodingsForPlayer(@NonNull Player player, int... transcodingIds) {
         if (transcodingIds.length == 0) {
-            UserSettings userSettings = securityService
-                    .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
-                            ? User.USERNAME_GUEST : player.getUsername());
+            UserSettings userSettings = securityService.getUserSettings(
+                    JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()) ? User.USERNAME_GUEST
+                            : player.getUsername());
             player.setTranscodeScheme(userSettings.getTranscodeScheme());
             playerService.updatePlayer(player);
         }
@@ -705,28 +705,28 @@ public class TranscodingService {
             return;
         }
         Transcoding transcoding = switch (transcode) {
-        case MP3 -> new Transcoding(null, Transcodings.MP3.getName(),
-                "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
-                "ffmpeg -i %s -map 0:0 -b:a %bk ".concat(addTag ? "-id3v2_version 3 " : "").concat("-v 0 -f mp3 -"),
-                null, null, true);
-        case FLAC -> new Transcoding(null, Transcodings.FLAC.getName(), FORMAT_FLAC, FORMAT_FLAC,
-                "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -", null, null,
-                false);
-        case DSF -> new Transcoding(null, Transcodings.DSF.getName(), "dsf", FORMAT_FLAC,
-                "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -af \"lowpass=24000, volume=6dB\" -",
-                null, null, false);
-        case FLV -> new Transcoding(null, Transcodings.FLV.getName(), "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts",
-                "flv",
-                "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",
-                null, null, true);
-        case MKV -> new Transcoding(null, Transcodings.MKV.getName(), "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts",
-                "mkv",
-                "ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -",
-                null, null, true);
-        case MP4 -> new Transcoding(null, Transcodings.MP4.getName(), "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts",
-                "mp4",
-                "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
-                null, null, true);
+            case MP3 -> new Transcoding(null, Transcodings.MP3.getName(),
+                    "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
+                    "ffmpeg -i %s -map 0:0 -b:a %bk ".concat(addTag ? "-id3v2_version 3 " : "").concat("-v 0 -f mp3 -"),
+                    null, null, true);
+            case FLAC -> new Transcoding(null, Transcodings.FLAC.getName(), FORMAT_FLAC, FORMAT_FLAC,
+                    "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -", null, null,
+                    false);
+            case DSF -> new Transcoding(null, Transcodings.DSF.getName(), "dsf", FORMAT_FLAC,
+                    "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -af \"lowpass=24000, volume=6dB\" -",
+                    null, null, false);
+            case FLV -> new Transcoding(null, Transcodings.FLV.getName(),
+                    "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",
+                    null, null, true);
+            case MKV -> new Transcoding(null, Transcodings.MKV.getName(),
+                    "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "mkv",
+                    "ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -",
+                    null, null, true);
+            case MP4 -> new Transcoding(null, Transcodings.MP4.getName(),
+                    "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts", "mp4",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
+                    null, null, true);
         };
 
         // Newly created transcode

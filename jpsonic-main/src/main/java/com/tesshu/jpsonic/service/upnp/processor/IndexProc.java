@@ -132,19 +132,19 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
     @Override
     public void addChild(DIDLContent parent, MediaFile mediaFile) {
         switch (mediaFile.getMediaType()) {
-        case DIRECTORY -> {
-            int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
-            parent.addContainer(factory.toArtist(mediaFile, childCounts));
-        }
-        case ALBUM -> {
-            int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
-            parent.addContainer(factory.toAlbum(mediaFile, childCounts));
-        }
-        case MUSIC -> parent.addItem(factory.toMusicTrack(mediaFile));
-        case PODCAST, AUDIOBOOK, VIDEO -> {
-        }
-        default -> {
-        }
+            case DIRECTORY -> {
+                int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
+                parent.addContainer(factory.toArtist(mediaFile, childCounts));
+            }
+            case ALBUM -> {
+                int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
+                parent.addContainer(factory.toAlbum(mediaFile, childCounts));
+            }
+            case MUSIC -> parent.addItem(factory.toMusicTrack(mediaFile));
+            case PODCAST, AUDIOBOOK, VIDEO -> {
+            }
+            default -> {
+            }
         }
     }
 }

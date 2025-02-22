@@ -209,10 +209,10 @@ public class InternalHelpController {
 
     /**
      * Returns true if a locale string (e.g. en_US.UTF-8) appears to support UTF-8 correctly.
-     *
+     * <p>
      * Some systems use non-standard locales (e.g. en_US.utf8 instead of en_US.UTF-8) to specify Unicode support, which
      * are usually supported by the Glibc.
-     *
+     * <p>
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
     boolean doesLocaleSupportUtf8(String locale) {

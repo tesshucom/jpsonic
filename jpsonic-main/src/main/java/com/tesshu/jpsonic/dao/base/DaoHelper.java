@@ -50,9 +50,8 @@ public interface DaoHelper {
     DataSource getDataSource();
 
     /**
-     * Tries to perform a checkpoint against the database, if supported
-     *
-     * Database checkpoints will make sure that the database is written on the disk and optimize on-disk storage.
+     * Tries to perform a checkpoint against the database, if supported Database checkpoints will make sure that the
+     * database is written on the disk and optimize on-disk storage.
      */
     void checkpoint();
 }

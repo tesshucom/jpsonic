@@ -203,7 +203,8 @@ public class DLNASettingsController {
                 .collect(Collectors.toList());
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
         int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
-                ? DLNA_RANDOM_DEFAULT : command.getDlnaRandomMax();
+                ? DLNA_RANDOM_DEFAULT
+                : command.getDlnaRandomMax();
         settingsService.setDlnaRandomMax(Math.min(randomMax, DLNA_RANDOM_LIMIT));
 
         settingsService.save();

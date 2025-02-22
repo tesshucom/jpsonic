@@ -1420,11 +1420,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     private MediaType getMedyaType(MediaFile.MediaType mediaType) {
         return switch (mediaType) {
-        case MUSIC -> MediaType.MUSIC;
-        case PODCAST -> MediaType.PODCAST;
-        case AUDIOBOOK -> MediaType.AUDIOBOOK;
-        case VIDEO -> MediaType.VIDEO;
-        default -> null;
+            case MUSIC -> MediaType.MUSIC;
+            case PODCAST -> MediaType.PODCAST;
+            case AUDIOBOOK -> MediaType.AUDIOBOOK;
+            case VIDEO -> MediaType.VIDEO;
+            default -> null;
         };
     }
 

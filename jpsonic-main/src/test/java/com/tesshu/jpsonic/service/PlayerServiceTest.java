@@ -129,7 +129,6 @@ class PlayerServiceTest {
     }
 
     /**
-     *
      * @see PlayerDao#deleteOldPlayers(int)
      */
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP") // It's test code!
