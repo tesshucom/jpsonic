@@ -78,7 +78,7 @@
     <versions.pmd>7.2.0</versions.pmd>
     <versions.postgresql>42.7.5</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.9.2</versions.spotbugs>
+    <versions.spotbugs>4.9.3</versions.spotbugs>
     <versions.spring-boot>3.4.3</versions.spring-boot>
     <versions.spring-framework>6.2.3</versions.spring-framework>
     <versions.spring-security>6.4.3</versions.spring-security>
