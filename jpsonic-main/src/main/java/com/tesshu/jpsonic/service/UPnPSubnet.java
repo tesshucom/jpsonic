@@ -40,9 +40,10 @@ public class UPnPSubnet {
                         : InetAddress.getByName(url.getHost()).getHostAddress()).concat("/24");
                 subnetInfo = new SubnetUtils(cidrNotation).getInfo();
             } catch (MalformedURLException | UnknownHostException e) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Unable to get subnet from the dlna base lan URL.");
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Unable to get subnet from the dlna base lan URL.");
                 }
+                return false;
             }
         }
         return subnetInfo.isInRange(address);
