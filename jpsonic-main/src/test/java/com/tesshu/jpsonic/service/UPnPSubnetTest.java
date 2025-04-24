@@ -93,13 +93,22 @@ class UPnPSubnetTest {
         assertFalse(subnet.isInUPnPRange("dummy"));
     }
 
+    @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.InValid
+    @SubnetDecisions.Conditions.Address.NotInRange
+    @SubnetDecisions.Results.False
+    @Test
+    void c021() {
+        subnet.setDlnaBaseLANURL("http://sjhbfdkljhf.com");
+        assertFalse(subnet.isInUPnPRange("20.27.178.1"));
+    }
+
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.Valid
     @SubnetDecisions.Conditions.Address.NotInRange
     @SubnetDecisions.Results.False
     @Test
     void c03() {
-        subnet.setDlnaBaseLANURL("http://tesshu.com"); // 157.7.140.239
-        assertFalse(subnet.isInUPnPRange("157.7.141.1"));
+        subnet.setDlnaBaseLANURL("http://20.27.177.113");
+        assertFalse(subnet.isInUPnPRange("20.27.178.1"));
     }
 
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.Valid
@@ -107,8 +116,8 @@ class UPnPSubnetTest {
     @SubnetDecisions.Results.True
     @Test
     void c04() {
-        subnet.setDlnaBaseLANURL("http://tesshu.com");
-        assertTrue(subnet.isInUPnPRange("157.7.140.1"));
+        subnet.setDlnaBaseLANURL("http://20.27.177.113");
+        assertTrue(subnet.isInUPnPRange("20.27.177.1"));
     }
 
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithIp
