@@ -55,6 +55,7 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
@@ -95,10 +96,11 @@ public class InternalHelpController {
     private final TranscodingService transcodingService;
     private final Environment environment;
     private final StaticsDao staticsDao;
+    private final FFmpeg ffmpeg;
 
     public InternalHelpController(SettingsService settingsService, SecurityService securityService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
-            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao) {
+            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -108,6 +110,7 @@ public class InternalHelpController {
         this.transcodingService = transcodingService;
         this.environment = environment;
         this.staticsDao = staticsDao;
+        this.ffmpeg = ffmpeg;
     }
 
     @GetMapping
@@ -332,7 +335,13 @@ public class InternalHelpController {
 
     private void gatherTranscodingInfo(Map<String, Object> map) {
         map.put("fsFfprobeInfo", gatherStatisticsForTranscodingExecutable("ffprobe"));
-        map.put("fsFfmpegInfo", gatherStatisticsForTranscodingExecutable("ffmpeg"));
+        FileStatistics ffmpegStatistics = gatherStatisticsForTranscodingExecutable("ffmpeg");
+        map.put("fsFfmpegInfo", ffmpegStatistics);
+        String version = "Unknown";
+        if (ffmpegStatistics != null && ffmpegStatistics.isReadable() && ffmpegStatistics.isExecutable()) {
+            version = ffmpeg.getVersion();
+        }
+        map.put("ffmpegVersion", version);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
