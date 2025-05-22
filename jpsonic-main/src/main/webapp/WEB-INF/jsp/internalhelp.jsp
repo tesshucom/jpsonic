@@ -186,18 +186,20 @@
         </li>
     </ul>
     <dl>
-        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="FFprobe"/></fmt:message></dt>
         <dd>${model.fsFfprobeInfo.path}</dd>
-        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="FFprobe"/></fmt:message></dt>
         <dd>${model.fsFfprobeInfo.readable}</dd>
-        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="FFprobe"/></fmt:message></dt>
         <dd>${model.fsFfprobeInfo.executable}</dd>
-        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="FFmpeg"/></fmt:message></dt>
         <dd>${model.fsFfmpegInfo.path}</dd>
-        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="FFmpeg"/></fmt:message></dt>
         <dd>${model.fsFfmpegInfo.readable}</dd>
-        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="FFmpeg"/></fmt:message></dt>
         <dd>${model.fsFfmpegInfo.executable}</dd>
+        <dt><fmt:message key="internalhelp.tool.version"><fmt:param value="FFmpeg"/></fmt:message></dt>
+        <dd>${model.ffmpegVersion}</dd>
     </dl>
 </details>
 
