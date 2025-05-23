@@ -199,7 +199,7 @@
         <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="FFmpeg"/></fmt:message></dt>
         <dd>${model.fsFfmpegInfo.executable}</dd>
         <dt><fmt:message key="internalhelp.tool.version"><fmt:param value="FFmpeg"/></fmt:message></dt>
-        <dd>${model.ffmpegVersion}</dd>
+        <dd><pre>${model.ffmpegVersion}</pre></dd>
     </dl>
 </details>
 

@@ -23,8 +23,10 @@ package com.tesshu.jpsonic.controller;
 
 import static com.jsoftbiz.utils.OS.OS;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
@@ -45,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.StaticsDao;
@@ -333,6 +336,41 @@ public class InternalHelpController {
         map.put("fsMusicFolderStatistics", fsMusicFolderStatistics);
     }
 
+    String formatFFmpegVersion(String version) {
+        String fmt;
+        try (StringReader reader = new StringReader(version);
+                BufferedReader br = new BufferedReader(reader);) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                if (line.startsWith("ffmpeg version")) {
+                    sb.append(line.substring(0, line.indexOf("Copyright") - 1)).append("\n\s\s\s\s\s\s\s\s")
+                            .append(line.substring(line.indexOf("Copyright"))).append('\n');
+                } else if (line.startsWith("built with")) {
+                    sb.append("\s\s\s\s\s\s\s\s").append(line).append('\n');
+                } else if (line.startsWith("configuration:")) {
+                    sb.append('\n');
+                    Stream.of(line.split(" ")).forEach(s -> {
+                        if (s.startsWith("configuration:")) {
+                            sb.append(s);
+                        } else {
+                            sb.append("\s\s\s\s").append(s);
+                        }
+                        sb.append('\n');
+                    });
+                    sb.append('\n');
+                } else {
+                    sb.append(line).append('\n');
+                }
+                line = br.readLine();
+            }
+            fmt = sb.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return fmt;
+    }
+
     private void gatherTranscodingInfo(Map<String, Object> map) {
         map.put("fsFfprobeInfo", gatherStatisticsForTranscodingExecutable("ffprobe"));
         FileStatistics ffmpegStatistics = gatherStatisticsForTranscodingExecutable("ffmpeg");
@@ -341,7 +379,7 @@ public class InternalHelpController {
         if (ffmpegStatistics != null && ffmpegStatistics.isReadable() && ffmpegStatistics.isExecutable()) {
             version = ffmpeg.getVersion();
         }
-        map.put("ffmpegVersion", version);
+        map.put("ffmpegVersion", formatFFmpegVersion(version));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
