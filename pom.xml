@@ -32,7 +32,7 @@
     <versions.asm>9.8</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.49.3</versions.checker-qual>
-    <versions.checkstyle>10.23.1</versions.checkstyle>
+    <versions.checkstyle>10.24.0</versions.checkstyle>
     <versions.commons-beanutils>1.10.1</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
     <versions.commons-configuration2>2.12.0</versions.commons-configuration2>
@@ -47,7 +47,7 @@
     <versions.ecj>3.40.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
-    <versions.httpclient5>5.4.4</versions.httpclient5>
+    <versions.httpclient5>5.5</versions.httpclient5>
     <versions.icu4j>77.1</versions.icu4j>
     <versions.jackson>2.19.0</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
@@ -59,13 +59,13 @@
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
     <versions.jetty>12.0.21</versions.jetty>
-    <versions.jfreechart>1.5.5</versions.jfreechart>
+    <versions.jfreechart>1.5.6</versions.jfreechart>
     <versions.junit-jupiter-api>5.11.4</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.3</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
-    <versions.liquibase-core>4.31.1</versions.liquibase-core>
+    <versions.liquibase-core>4.32.0</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.18</versions.logback>
