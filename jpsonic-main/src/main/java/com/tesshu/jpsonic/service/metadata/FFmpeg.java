@@ -27,6 +27,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -35,6 +36,8 @@ import javax.imageio.ImageIO;
 
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -66,6 +69,38 @@ public class FFmpeg {
             return cmdFile.toString();
         }
         return null;
+    }
+
+    public @Nullable String getVersion() {
+
+        String cmdPath = getCommandPath();
+        if (isEmpty(cmdPath)) {
+            return null;
+        }
+
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command().add(cmdPath);
+        pb.command().add("-version");
+
+        String result = StringUtils.EMPTY;
+        try {
+            Process process = pb.start();
+            try (InputStream is = process.getInputStream();
+                    OutputStream os = process.getOutputStream();
+                    InputStream es = process.getErrorStream();
+                    BufferedInputStream bis = new BufferedInputStream(is);) {
+                result = IOUtils.toString(bis, StandardCharsets.UTF_8);
+                os.close();
+                es.close();
+            } finally {
+                process.destroy();
+            }
+        } catch (IOException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to read version: {}", e.getMessage());
+            }
+        }
+        return result;
     }
 
     public @Nullable BufferedImage createImage(@NonNull Path path, int width, int height, int offset) {

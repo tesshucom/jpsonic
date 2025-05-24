@@ -64,11 +64,118 @@ class InternalHelpControllerTest {
         mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
     }
 
+    @Test
+    void fmtTest() {
+
+        String version = """
+                ffmpeg version 6.1.2 Copyright (c) 2000-2024 the FFmpeg developers
+                built with gcc 14.2.0 (Alpine 14.2.0)
+                configuration: --prefix=/usr --disable-librtmp \
+                --disable-lzma --disable-static --disable-stripping \
+                --enable-avfilter --enable-gpl --enable-ladspa --enable-libaom \
+                --enable-libass --enable-libbluray --enable-libdav1d \
+                --enable-libdrm --enable-libfontconfig --enable-libfreetype \
+                --enable-libfribidi --enable-libharfbuzz --enable-libmp3lame \
+                --enable-libopenmpt --enable-libopus --enable-libplacebo \
+                --enable-libpulse --enable-librav1e --enable-librist \
+                --enable-libsoxr --enable-libsrt --enable-libssh --enable-libtheora \
+                --enable-libv4l2 --enable-libvidstab --enable-libvorbis --enable-libvpx \
+                --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb \
+                --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq \
+                --enable-lto=auto --enable-lv2 --enable-openssl --enable-pic \
+                --enable-postproc --enable-pthreads --enable-shared --enable-vaapi \
+                --enable-vdpau --enable-version3 --enable-vulkan --optflags=-O3 \
+                --enable-libjxl --enable-libsvtav1 --enable-libvpl
+                libavutil      58. 29.100 / 58. 29.100
+                libavcodec     60. 31.102 / 60. 31.102
+                libavformat    60. 16.100 / 60. 16.100
+                libavdevice    60.  3.100 / 60.  3.100
+                libavfilter     9. 12.100 /  9. 12.100
+                libswscale      7.  5.100 /  7.  5.100
+                libswresample   4. 12.100 /  4. 12.100
+                libpostproc    57.  3.100 / 57.  3.100
+                """;
+        InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null, null, null,
+                null);
+
+        assertEquals("""
+                ffmpeg version 6.1.2
+                        Copyright (c) 2000-2024 the FFmpeg developers
+                        built with gcc 14.2.0 (Alpine 14.2.0)
+
+                configuration:
+                    --prefix=/usr
+                    --disable-librtmp
+                    --disable-lzma
+                    --disable-static
+                    --disable-stripping
+                    --enable-avfilter
+                    --enable-gpl
+                    --enable-ladspa
+                    --enable-libaom
+                    --enable-libass
+                    --enable-libbluray
+                    --enable-libdav1d
+                    --enable-libdrm
+                    --enable-libfontconfig
+                    --enable-libfreetype
+                    --enable-libfribidi
+                    --enable-libharfbuzz
+                    --enable-libmp3lame
+                    --enable-libopenmpt
+                    --enable-libopus
+                    --enable-libplacebo
+                    --enable-libpulse
+                    --enable-librav1e
+                    --enable-librist
+                    --enable-libsoxr
+                    --enable-libsrt
+                    --enable-libssh
+                    --enable-libtheora
+                    --enable-libv4l2
+                    --enable-libvidstab
+                    --enable-libvorbis
+                    --enable-libvpx
+                    --enable-libwebp
+                    --enable-libx264
+                    --enable-libx265
+                    --enable-libxcb
+                    --enable-libxml2
+                    --enable-libxvid
+                    --enable-libzimg
+                    --enable-libzmq
+                    --enable-lto=auto
+                    --enable-lv2
+                    --enable-openssl
+                    --enable-pic
+                    --enable-postproc
+                    --enable-pthreads
+                    --enable-shared
+                    --enable-vaapi
+                    --enable-vdpau
+                    --enable-version3
+                    --enable-vulkan
+                    --optflags=-O3
+                    --enable-libjxl
+                    --enable-libsvtav1
+                    --enable-libvpl
+
+                libavutil      58. 29.100 / 58. 29.100
+                libavcodec     60. 31.102 / 60. 31.102
+                libavformat    60. 16.100 / 60. 16.100
+                libavdevice    60.  3.100 / 60.  3.100
+                libavfilter     9. 12.100 /  9. 12.100
+                libswscale      7.  5.100 /  7.  5.100
+                libswresample   4. 12.100 /  4. 12.100
+                libpostproc    57.  3.100 / 57.  3.100
+                """, controller.formatFFmpegVersion(version));
+    }
+
     @Nested
     class DoesLocaleSupportUtf8Test {
 
         private final InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null,
-                null, null);
+                null, null, null);
 
         @Test
         void testNull() {
