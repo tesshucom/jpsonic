@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +45,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.NoSuchMessageException;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
@@ -471,10 +470,10 @@ class MenuItemServiceTest {
                     (view_type, id, parent, name, enabled, menu_item_order)
                     values(?, ?, ?, ?, ?, ?);
                     """, ViewType.UPNP.value(), 130, MenuItemId.ROOT.value(), "dummy", true, 99);
-
-            assertThatExceptionOfType(NoSuchMessageException.class)
-                    .isThrownBy(() -> menuItemService.getTopMenuItems(ViewType.UPNP));
-
+            for (MenuItemWithDefaultName menuItem : menuItemService.getTopMenuItems(ViewType.UPNP)) {
+                assertNotNull(menuItem.getDefaultName());
+            }
+            menuItemService.ensureUPnPSubMenuEnabled();
             templateWrapper.update("""
                     delete from menu_item where id = 130
                     """);

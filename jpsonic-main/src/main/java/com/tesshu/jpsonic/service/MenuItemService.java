@@ -32,14 +32,18 @@ import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
 import jakarta.annotation.Resource;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MenuItemService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MenuItemService.class);
     private final SettingsService settingsService;
     private final MenuItemDao menuItemDao;
 
@@ -56,8 +60,15 @@ public class MenuItemService {
     String getItemName(MenuItemId id) {
         Locale locale = Locale.JAPAN.getLanguage().equals(settingsService.getLocale().getLanguage()) ? Locale.JAPAN
                 : Locale.US;
-        return menuItemSource.getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT), null,
-                locale);
+        try {
+            return menuItemSource.getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT),
+                    null, locale);
+        } catch (NoSuchMessageException e) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(e.getMessage());
+            }
+        }
+        return null;
     }
 
     public MenuItem getMenuItem(String id) {
@@ -85,7 +96,7 @@ public class MenuItemService {
         // To be modifiable
         return getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE).stream()
                 .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId())))
-                .collect(Collectors.toList());
+                .filter(miwdn -> miwdn.getDefaultName() != null).toList();
     }
 
     public int getChildSizeOf(ViewType viewType, MenuItemId id) {
@@ -128,9 +139,10 @@ public class MenuItemService {
                     case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
                     case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
                     case SHUFFLE -> MenuItemId.RANDOM_SONG;
-                    default -> throw new IllegalArgumentException("Unexpected value: " + topMenu);
+                    default -> MenuItemId.ANY;
                 };
-                subMenus.stream().filter(menuItem -> menuItem.getId() == defaultSubMenuItemId).findFirst()
+                subMenus.stream().filter(menuItem -> MenuItemId.ANY != defaultSubMenuItemId)
+                        .filter(menuItem -> menuItem.getId() == defaultSubMenuItemId).findFirst()
                         .ifPresent(menuItem -> {
                             menuItem.setEnabled(true);
                             menuItemDao.updateMenuItem(menuItem);
@@ -171,7 +183,7 @@ public class MenuItemService {
                         item.setName(defaultName);
                     }
                     return new MenuItemWithDefaultName(item, defaultName);
-                }).toList();
+                }).filter(miwdn -> miwdn.getDefaultName() != null).toList();
     }
 
     public void resetMenuItem(ViewType viewType, ResetMode mode) {
