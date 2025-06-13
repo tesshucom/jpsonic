@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -454,6 +455,28 @@ class MenuItemServiceTest {
             assertEquals(6,
                     menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
             assertEquals(subMenuItemsSize, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
+        }
+
+        /*
+         * #2660 This does not happen only in release versions, it is a glitch that can occur when sharing release and
+         * development branches. An exception occurs if a definition already exists for MenuItemId, the record exists in
+         * the DB, and the name is not defined in the message resource.
+         */
+        @Test
+        void testUnknownMessage() {
+            // Add a dummy menu
+            templateWrapper.update("""
+                    insert into menu_item
+                    (view_type, id, parent, name, enabled, menu_item_order)
+                    values(?, ?, ?, ?, ?, ?);
+                    """, ViewType.UPNP.value(), 130, MenuItemId.ROOT.value(), "dummy", true, 99);
+            for (MenuItemWithDefaultName menuItem : menuItemService.getTopMenuItems(ViewType.UPNP)) {
+                assertNotNull(menuItem.getDefaultName());
+            }
+            menuItemService.ensureUPnPSubMenuEnabled();
+            templateWrapper.update("""
+                    delete from menu_item where id = 130
+                    """);
         }
     }
 }
