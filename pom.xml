@@ -77,7 +77,7 @@
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
-    <versions.postgresql>42.7.6</versions.postgresql>
+    <versions.postgresql>42.7.7</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.3</versions.spotbugs>
     <versions.spring-boot>3.5.0</versions.spring-boot>
