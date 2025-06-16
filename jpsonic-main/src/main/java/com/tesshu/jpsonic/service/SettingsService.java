@@ -1183,6 +1183,22 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
     }
 
+    public boolean isDlnaEnabledFilteredIp() {
+        return getBoolean(SettingsConstants.UPnP.Basic.ENABLED_FILTERED_IP);
+    }
+
+    public void setDlnaEnabledFilteredIp(boolean b) {
+        setProperty(SettingsConstants.UPnP.Basic.ENABLED_FILTERED_IP, b);
+    }
+
+    public String getDlnaFilteredIp() {
+        return getString(SettingsConstants.UPnP.Basic.FILTERED_IP);
+    }
+
+    public void setDlnaFilteredIp(String s) {
+        setProperty(SettingsConstants.UPnP.Basic.FILTERED_IP, s);
+    }
+
     public String getUPnPAlbumGenreSort() {
         return getString(SettingsConstants.UPnP.Options.UPNP_ALBUM_GENRE_SORT);
     }

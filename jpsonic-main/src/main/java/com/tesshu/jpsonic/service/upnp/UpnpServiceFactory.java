@@ -49,7 +49,6 @@ import com.tesshu.jpsonic.service.upnp.processor.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.transport.JpsonicUpnpServiceConf;
 import org.jupnp.UpnpService;
 import org.jupnp.UpnpServiceConfiguration;
-import org.jupnp.UpnpServiceImpl;
 import org.jupnp.binding.annotations.AnnotationLocalServiceBinder;
 import org.jupnp.model.DefaultServiceManager;
 import org.jupnp.model.ValidationException;
@@ -106,7 +105,7 @@ public class UpnpServiceFactory {
     public UpnpService createUpnpService() {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService, asyncExecutorService,
                 registryMaintainerExecutor, SettingsService.getBrand(), versionService.getLocalVersion());
-        return new UpnpServiceImpl(conf);
+        return new UpnpServiceImpl(conf, settingsService.getDlnaFilteredIp());
     }
 
     @SuppressWarnings({ "PMD.UnusedAssignment" }) // [UnusedAssignment] (icon) false positive
