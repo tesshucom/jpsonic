@@ -324,7 +324,7 @@ public class UserDao {
                 case ROLE_ID_PODCAST -> user.setPodcastRole(true);
                 case ROLE_ID_STREAM -> user.setStreamRole(true);
                 case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
-                case ROLE_ID_JUKEBOX -> LOG.info("Discontinued role: {}", role);
+                case ROLE_ID_JUKEBOX -> LOG.trace("Discontinued role: {}", role);
                 case ROLE_ID_SHARE -> user.setShareRole(true);
                 default -> LOG.warn("Unknown role: {}", role);
             }
