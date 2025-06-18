@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,6 +80,8 @@ public class DLNASettingsController {
 
     private static final int DLNA_RANDOM_DEFAULT = 50;
     private static final int DLNA_RANDOM_LIMIT = 1999;
+    private static final Pattern IPV4_STR = Pattern
+            .compile("^(([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])\\.){3}([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])$");
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -130,6 +133,9 @@ public class DLNASettingsController {
                 .mapToInt(Transcoding::getId).toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
+        command.setDlnaDefaultFilteredIp(SettingsService.getDlnaDefaultFilteredIp());
+        command.setDlnaEnabledFilteredIp(settingsService.isDlnaEnabledFilteredIp());
+        command.setDlnaFilteredIp(settingsService.getDlnaFilteredIp());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
         // Menu settings
@@ -179,11 +185,14 @@ public class DLNASettingsController {
     public ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        final boolean isEnabledChanged = settingsService.isDlnaEnabled() != command.isDlnaEnabled();
-        final boolean isNameOrUrlChanged = !isEmpty(command.getDlnaServerName())
+        final boolean enabledChanged = settingsService.isDlnaEnabled() != command.isDlnaEnabled();
+        final boolean restartRequired = !isEmpty(command.getDlnaServerName())
                 && !command.getDlnaServerName().equals(settingsService.getDlnaServerName())
                 || !isEmpty(command.getDlnaBaseLANURL())
-                        && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL());
+                        && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL())
+                || command.isDlnaEnabledFilteredIp() != settingsService.isDlnaEnabledFilteredIp()
+                || !isEmpty(command.getDlnaFilteredIp())
+                        && !command.getDlnaFilteredIp().equals(settingsService.getDlnaFilteredIp());
 
         /*
          * Changes to property file
@@ -194,6 +203,10 @@ public class DLNASettingsController {
         settingsService
                 .setDlnaServerName(StringUtils.defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
         settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
+        settingsService.setDlnaEnabledFilteredIp(command.isDlnaEnabledFilteredIp());
+        String filteredIp = command.getDlnaFilteredIp();
+        settingsService.setDlnaFilteredIp(filteredIp != null && IPV4_STR.matcher(filteredIp).matches() ? filteredIp
+                : SettingsService.getDlnaDefaultFilteredIp());
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         // Display options / Access control
@@ -237,9 +250,9 @@ public class DLNASettingsController {
          * related to the contents that can be changed dynamically are changed.)
          */
 
-        if (isEnabledChanged) {
+        if (enabledChanged) {
             upnpService.setEnabled(command.isDlnaEnabled());
-        } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {
+        } else if (restartRequired && settingsService.isDlnaEnabled()) {
             upnpService.setEnabled(false);
             upnpService.setEnabled(true);
         }

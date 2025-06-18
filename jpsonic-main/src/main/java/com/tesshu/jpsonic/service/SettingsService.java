@@ -1183,6 +1183,10 @@ public class SettingsService implements ReadWriteLockSupport {
         setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
     }
 
+    public static String getDlnaDefaultFilteredIp() {
+        return SettingsConstants.UPnP.Basic.FILTERED_IP.defaultValue;
+    }
+
     public boolean isDlnaEnabledFilteredIp() {
         return getBoolean(SettingsConstants.UPnP.Basic.ENABLED_FILTERED_IP);
     }

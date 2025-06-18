@@ -105,7 +105,8 @@ public class UpnpServiceFactory {
     public UpnpService createUpnpService() {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService, asyncExecutorService,
                 registryMaintainerExecutor, SettingsService.getBrand(), versionService.getLocalVersion());
-        return new UpnpServiceImpl(conf, settingsService.getDlnaFilteredIp());
+        return new UpnpServiceImpl(conf,
+                settingsService.isDlnaEnabledFilteredIp() ? settingsService.getDlnaFilteredIp() : null);
     }
 
     @SuppressWarnings({ "PMD.UnusedAssignment" }) // [UnusedAssignment] (icon) false positive
