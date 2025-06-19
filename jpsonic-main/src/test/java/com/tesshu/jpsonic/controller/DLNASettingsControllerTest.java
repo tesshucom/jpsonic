@@ -517,6 +517,22 @@ class DLNASettingsControllerTest {
                 }
             }
 
+            @interface EnabledFilteredIpChanged {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface FilteredIpChanged {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
             @interface Command {
                 @interface DlnaEnabled {
                     @interface False {
@@ -550,9 +566,12 @@ class DLNASettingsControllerTest {
 
         private static final String DLNA_SERVER_NAME = "jpsonic";
         private static final String DLNA_BASE_LAN_URL = "url";
+        private static final String DLNA_FILTERED_IP = SettingsService.getDlnaDefaultFilteredIp();
 
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
         @MediaServerEnabledDecision.Results.Never
         // Never (Nothing has changed)
         @Test
@@ -577,6 +596,8 @@ class DLNASettingsControllerTest {
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
         @MediaServerEnabledDecision.Conditions.EnabledChanged.True
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
         @MediaServerEnabledDecision.Results.MediaServerEnabled.True
         @Test
         // Boot
@@ -604,6 +625,8 @@ class DLNASettingsControllerTest {
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
         @MediaServerEnabledDecision.Conditions.EnabledChanged.True
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
         @MediaServerEnabledDecision.Results.MediaServerEnabled.False
         @Test
         // Shutdown
@@ -631,6 +654,8 @@ class DLNASettingsControllerTest {
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.True
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
         @MediaServerEnabledDecision.Results.Never
         // Never (Do nothing if you change the name and URL while DLNA is stopped)
         @Test
@@ -656,6 +681,8 @@ class DLNASettingsControllerTest {
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.True
         @MediaServerEnabledDecision.Results.MediaServerEnabled.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
         @MediaServerEnabledDecision.Results.MediaServerEnabled.True
         // Reboot
         @Test
@@ -680,5 +707,138 @@ class DLNASettingsControllerTest {
             assertFalse(captor.getAllValues().get(0));
             assertTrue(captor.getAllValues().get(1));
         }
+
+        @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
+        @MediaServerEnabledDecision.Conditions.EnabledChanged.False
+        @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.True
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
+        @MediaServerEnabledDecision.Results.Never
+        // Never (Do nothing if you change the enabledFilteredIp while DLNA is stopped)
+        @Test
+        void m06() {
+
+            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+
+            DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setDlnaEnabled(false);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
+            command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setDlnaEnabledFilteredIp(false);
+            command.setDlnaFilteredIp(DLNA_FILTERED_IP);
+
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
+        }
+
+        @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
+        @MediaServerEnabledDecision.Conditions.EnabledChanged.False
+        @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Results.MediaServerEnabled.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.True
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.False
+        @MediaServerEnabledDecision.Results.MediaServerEnabled.True
+        // Reboot
+        @Test
+        void m07() {
+            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+
+            DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setDlnaEnabled(true);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
+            command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setDlnaEnabledFilteredIp(false);
+            command.setDlnaFilteredIp(DLNA_FILTERED_IP);
+
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(upnpService, Mockito.times(2)).setEnabled(Mockito.any(boolean.class));
+            assertFalse(captor.getAllValues().get(0));
+            assertTrue(captor.getAllValues().get(1));
+        }
+
+        @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
+        @MediaServerEnabledDecision.Conditions.EnabledChanged.False
+        @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.True
+        @MediaServerEnabledDecision.Results.Never
+        // Never (Do nothing if you change the filteredIp while DLNA is stopped)
+        @Test
+        void m08() {
+
+            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+
+            DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setDlnaEnabled(false);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
+            command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setDlnaEnabledFilteredIp(true);
+            command.setDlnaFilteredIp("123.456.7.8");
+
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
+        }
+
+        @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
+        @MediaServerEnabledDecision.Conditions.EnabledChanged.False
+        @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
+        @MediaServerEnabledDecision.Results.MediaServerEnabled.False
+        @MediaServerEnabledDecision.Conditions.EnabledFilteredIpChanged.False
+        @MediaServerEnabledDecision.Conditions.FilteredIpChanged.True
+        @MediaServerEnabledDecision.Results.MediaServerEnabled.True
+        // Reboot
+        @Test
+        void m09() {
+            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
+            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+
+            DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setDlnaEnabled(true);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
+            command.setSubMenuItems(Collections.emptyList());
+            command.setAlbumGenreSort(Sort.FREQUENCY);
+            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setDlnaEnabledFilteredIp(true);
+            command.setDlnaFilteredIp("123.456.7.8");
+
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(upnpService, Mockito.times(2)).setEnabled(Mockito.any(boolean.class));
+            assertFalse(captor.getAllValues().get(0));
+            assertTrue(captor.getAllValues().get(1));
+        }
+
     }
 }

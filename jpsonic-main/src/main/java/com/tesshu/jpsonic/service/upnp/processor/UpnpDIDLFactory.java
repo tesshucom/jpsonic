@@ -180,7 +180,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private String createStreamURI(MediaFile song, Player player) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/ext/stream")
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/stream")
                 .queryParam("id", song.getId()).queryParam("player", player.getId());
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
