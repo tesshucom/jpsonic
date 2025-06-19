@@ -577,6 +577,21 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUriWithFileExtensions() {
+        assertTrue(settingsService.isUriWithFileExtensions());
+    }
+
+    @Test
+    void testIsDlnaEnabledFilteredIp() {
+        assertTrue(settingsService.isDlnaEnabledFilteredIp());
+    }
+
+    @Test
+    void testGetDlnaFilteredIp() {
+        assertEquals("172.17.16.1", settingsService.getDlnaFilteredIp());
+    }
+
+    @Test
     void testGetUPnPAlbumGenreSort() {
         assertEquals("FREQUENCY", settingsService.getUPnPAlbumGenreSort());
     }
