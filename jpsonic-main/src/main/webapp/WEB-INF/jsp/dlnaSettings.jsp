@@ -47,6 +47,14 @@
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
         checkBitrateAvailability();
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('dlnaEnabledFilteredIp').onchange = function (e) {
+            $("#dlnaFilteredIp").prop('disabled', !e.target.checked);
+        };
+        $("#dlnaFilteredIp").prop('disabled', !${command.dlnaEnabledFilteredIp});
+    }, false);
+
 </script>
 </head>
 
@@ -126,6 +134,14 @@
                 <c:if test="${not command.transcodingSupported}">
                     <strong><fmt:message key="playersettings.notranscoder"/></strong>
                 </c:if>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="dlnaEnabledFilteredIp" id="dlnaEnabledFilteredIp"/>
+                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.filteredIp"/></label>
+                <input type="text" name="dlnaFilteredIp" id="dlnaFilteredIp"
+                        value="<c:out value='${command.dlnaFilteredIp}' escapeXml='true'/>" placeholder="${command.dlnaDefaultFilteredIp}"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="filteredIp"/></c:import>
             </dd>
             <dt></dt>
             <dd>

@@ -263,6 +263,10 @@ final class SettingsConstants {
             static final Pair<Boolean> ENABLED = Pair.of("DlnaEnabled", false);
             static final Pair<String> SERVER_NAME = Pair.of("DlnaServerName", "Jpsonic");
             static final Pair<String> BASE_LAN_URL = Pair.of("DlnaBaseLANURL", null);
+            static final Pair<Boolean> ENABLED_FILTERED_IP = Pair.of("DlnaEnabledFilteredIp", true);
+            // Initial value of the filter assuming the default gateway
+            @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+            static final Pair<String> FILTERED_IP = Pair.of("DlnaFilteredIp", "172.17.16.1");
             static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
 
             private Basic() {

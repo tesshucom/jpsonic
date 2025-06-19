@@ -43,6 +43,9 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds = new int[0];
     private boolean transcodingSupported;
+    private String dlnaDefaultFilteredIp;
+    private boolean dlnaEnabledFilteredIp;
+    private String dlnaFilteredIp;
     private boolean uriWithFileExtensions;
 
     // Menu settings
@@ -138,6 +141,30 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setTranscodingSupported(boolean transcodingSupported) {
         this.transcodingSupported = transcodingSupported;
+    }
+
+    public String getDlnaDefaultFilteredIp() {
+        return dlnaDefaultFilteredIp;
+    }
+
+    public void setDlnaDefaultFilteredIp(String dlnaDefaultFilteredIp) {
+        this.dlnaDefaultFilteredIp = dlnaDefaultFilteredIp;
+    }
+
+    public boolean isDlnaEnabledFilteredIp() {
+        return dlnaEnabledFilteredIp;
+    }
+
+    public void setDlnaEnabledFilteredIp(boolean dlnaEnabledFilteredIp) {
+        this.dlnaEnabledFilteredIp = dlnaEnabledFilteredIp;
+    }
+
+    public String getDlnaFilteredIp() {
+        return dlnaFilteredIp;
+    }
+
+    public void setDlnaFilteredIp(String dlnaFilteredIp) {
+        this.dlnaFilteredIp = dlnaFilteredIp;
     }
 
     public boolean isUriWithFileExtensions() {

@@ -36,7 +36,7 @@
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
     <versions.commons-configuration2>2.12.0</versions.commons-configuration2>
-    <versions.commons-fileupload2-core>2.0.0-M2</versions.commons-fileupload2-core>
+    <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.19.0</versions.commons-io>
     <versions.commons-lang>2.6</versions.commons-lang>
@@ -49,7 +49,7 @@
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5</versions.httpclient5>
     <versions.icu4j>77.1</versions.icu4j>
-    <versions.jackson>2.19.0</versions.jackson>
+    <versions.jackson>2.19.1</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -81,8 +81,8 @@
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.3</versions.spotbugs>
     <versions.spring-boot>3.5.0</versions.spring-boot>
-    <versions.spring-framework>6.2.7</versions.spring-framework>
-    <versions.spring-security>6.5.0</versions.spring-security>
+    <versions.spring-framework>6.2.8</versions.spring-framework>
+    <versions.spring-security>6.5.1</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.2.0</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
@@ -819,7 +819,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>12.1.1</version>
+          <version>12.1.3</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>

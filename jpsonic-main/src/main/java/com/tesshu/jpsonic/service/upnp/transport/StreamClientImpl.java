@@ -39,9 +39,8 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.ManagedHttpClientConnection;
-import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
-import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -50,8 +49,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.config.Registry;
-import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -90,10 +87,6 @@ public final class StreamClientImpl
         super();
         this.conf = conf;
 
-        Registry<ConnectionSocketFactory> socketFactory =
-                RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                        .build();
         Http1Config customHttpConfig = Http1Config.custom()
                 .setBufferSize(conf.bufferSize())
                 .build();
@@ -102,13 +95,17 @@ public final class StreamClientImpl
                 .http1Config(customHttpConfig)
                 .build();
 
-        manager = new PoolingHttpClientConnectionManager(socketFactory, connectionFactory);
-        manager.setDefaultMaxPerRoute(conf.defaultMaxPerRoute());
-        manager.setMaxTotal(conf.maxTotal());
-        manager.setDefaultConnectionConfig(ConnectionConfig.custom()
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
                 .setConnectTimeout(Timeout.ofSeconds(conf.getTimeoutSeconds()))
                 .setSocketTimeout(Timeout.ofSeconds(conf.socketTimeoutSeconds()))
-                .build());
+                .build();
+
+        manager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setConnectionFactory(connectionFactory)
+                .setDefaultConnectionConfig(connectionConfig)
+                .setMaxConnPerRoute(conf.defaultMaxPerRoute())
+                .setMaxConnTotal(conf.maxTotal())
+                .build();
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
                 .setConnectionManager(manager);
