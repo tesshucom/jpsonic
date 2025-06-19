@@ -746,6 +746,7 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -777,6 +778,7 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
@@ -812,6 +814,7 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
@@ -843,6 +846,7 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
+            command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
