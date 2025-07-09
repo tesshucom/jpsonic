@@ -40,7 +40,7 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.19.0</versions.commons-io>
     <versions.commons-lang>2.6</versions.commons-lang>
-    <versions.commons-lang3>3.17.0</versions.commons-lang3>
+    <versions.commons-lang3>3.18.0</versions.commons-lang3>
     <versions.commons-net>3.11.1</versions.commons-net>
     <versions.commons-text>1.13.1</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
@@ -58,14 +58,14 @@
     <versions.java-jwt>4.5.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.22</versions.jetty>
+    <versions.jetty>12.0.23</versions.jetty>
     <versions.jfreechart>1.5.6</versions.jfreechart>
-    <versions.junit-jupiter-api>5.13.2</versions.junit-jupiter-api>
+    <versions.junit-jupiter-api>5.13.3</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
     <versions.jupnp>3.0.3</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
-    <versions.liquibase-core>4.32.0</versions.liquibase-core>
+    <versions.liquibase-core>4.33.0</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
     <versions.log4j>2.22.1</versions.log4j>
     <versions.logback>1.5.18</versions.logback>
@@ -84,7 +84,7 @@
     <versions.spring-framework>6.2.8</versions.spring-framework>
     <versions.spring-security>6.5.1</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
-    <versions.tika>3.2.0</versions.tika>
+    <versions.tika>3.2.1</versions.tika>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
