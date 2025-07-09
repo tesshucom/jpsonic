@@ -85,6 +85,7 @@
     <versions.spring-security>6.5.1</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.2.1</versions.tika>
+    <versions.tomcat>10.1.43</versions.tomcat>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
@@ -649,6 +650,28 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-artifact</artifactId>
         <version>${versions.maven-artifact}</version>
+      </dependency>
+
+      <!-- Delete the following when Spring Boot is updated -->
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-annotations-api</artifactId>
+        <version>${versions.tomcat}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${versions.tomcat}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${versions.tomcat}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-jasper</artifactId>
+        <version>${versions.tomcat}</version>
       </dependency>
 
     </dependencies>
