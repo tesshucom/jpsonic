@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -54,7 +55,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.document.Document;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -111,30 +111,6 @@ public class SearchServiceUtilities {
 
     public final Function<Document, Integer> getId = d -> Integer
         .valueOf(d.get(FieldNamesConstants.ID));
-
-    public final Function<Class<?>, @Nullable IndexType> getIndexType = (assignableClass) -> {
-        IndexType indexType = null;
-        if (assignableClass.isAssignableFrom(Album.class)) {
-            indexType = IndexType.ALBUM_ID3;
-        } else if (assignableClass.isAssignableFrom(Artist.class)) {
-            indexType = IndexType.ARTIST_ID3;
-        } else if (assignableClass.isAssignableFrom(MediaFile.class)) {
-            indexType = IndexType.SONG;
-        }
-        return indexType;
-    };
-
-    public final Function<Class<?>, @Nullable String> getFieldName = (assignableClass) -> {
-        String fieldName = null;
-        if (assignableClass.isAssignableFrom(Album.class)) {
-            fieldName = FieldNamesConstants.ALBUM;
-        } else if (assignableClass.isAssignableFrom(Artist.class)) {
-            fieldName = FieldNamesConstants.ARTIST;
-        } else if (assignableClass.isAssignableFrom(MediaFile.class)) {
-            fieldName = FieldNamesConstants.TITLE;
-        }
-        return fieldName;
-    };
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,
             @Qualifier("genreCache") Ehcache genreCache,
@@ -206,61 +182,74 @@ public class SearchServiceUtilities {
 
     public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType,
             int subjectId) {
-        if (indexType == IndexType.ALBUM || indexType == IndexType.SONG) {
-            return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
-        } else if (indexType == IndexType.ALBUM_ID3) {
-            return addIgnoreNull(collection, albumDao.getAlbum(subjectId));
-        }
-        return false;
+        Object entity = getEntityByIndexType(indexType, subjectId);
+        return entity != null && addIgnoreNull(collection, entity);
     }
 
     public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType,
             int subjectId, Class<T> subjectClass) {
-        if (indexType == IndexType.SONG || indexType == IndexType.ALBUM
-                || indexType == IndexType.ARTIST) {
-            MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
-            addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
-        } else if (indexType == IndexType.ARTIST_ID3) {
-            Artist artist = artistDao.getArtist(subjectId);
-            addIgnoreNull(dist.getItems(), subjectClass.cast(artist));
-        } else if (indexType == IndexType.ALBUM_ID3) {
-            Album album = albumDao.getAlbum(subjectId);
-            addIgnoreNull(dist.getItems(), subjectClass.cast(album));
+        Object entity = getEntityByIndexType(indexType, subjectId);
+        if (entity != null) {
+            addIgnoreNull(dist.getItems(), subjectClass.cast(entity));
         }
+    }
+
+    private Object getEntityByIndexType(IndexType indexType, int subjectId) {
+        return switch (indexType) {
+        case SONG, ALBUM, ARTIST -> mediaFileService.getMediaFile(subjectId);
+        case ARTIST_ID3 -> artistDao.getArtist(subjectId);
+        case ALBUM_ID3 -> albumDao.getAlbum(subjectId);
+        default -> null;
+        };
     }
 
     public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType,
             Document subject) {
         int documentId = getId.apply(subject);
-        if (subjectIndexType == IndexType.ARTIST || subjectIndexType == IndexType.ALBUM
-                || subjectIndexType == IndexType.SONG) {
-            addMediaFileIfAnyMatch(dist.getMediaFiles(), documentId);
-        } else if (subjectIndexType == IndexType.ARTIST_ID3) {
-            addArtistId3IfAnyMatch(dist.getArtists(), documentId);
-        } else if (subjectIndexType == IndexType.ALBUM_ID3) {
-            addAlbumId3IfAnyMatch(dist.getAlbums(), documentId);
+        switch (subjectIndexType) {
+        case ARTIST, ALBUM, SONG -> addMediaFileIfAnyMatch(dist.getMediaFiles(), documentId);
+        case ARTIST_ID3 -> addArtistId3IfAnyMatch(dist.getArtists(), documentId);
+        case ALBUM_ID3 -> addAlbumId3IfAnyMatch(dist.getAlbums(), documentId);
+        default -> {
+        }
         }
     }
 
-    private String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+    private String createCacheKey(RandomCacheKey key, int cacheMax, List<MusicFolder> musicFolders,
             String... additional) {
         StringBuilder b = new StringBuilder();
-        b.append(key).append(',').append(casheMax).append('[');
-        musicFolders.forEach(m -> b.append(m.getId()).append(','));
+        b.append(key).append(',').append(cacheMax).append('[');
+        String musicFolderIds = musicFolders
+            .stream()
+            .map(m -> String.valueOf(m.getId()))
+            .collect(Collectors.joining(","));
+        b.append(musicFolderIds);
         if (!isEmpty(additional)) {
-            Arrays.asList(additional).forEach(s -> b.append(s).append(','));
+            String additionalStr = Arrays.stream(additional).collect(Collectors.joining(","));
+            if (!musicFolderIds.isEmpty()) {
+                b.append(',');
+            }
+            b.append(additionalStr);
         }
+
         b.append(']');
         return b.toString();
     }
 
     private String createCacheKey(GenreMasterCriteria criteria) {
         StringBuilder b = new StringBuilder();
-        b.append(criteria.scope().name()).append(',').append(criteria.sort().name()).append(',');
-        criteria.folders().forEach(folder -> b.append(folder.getId()).append(','));
-        b.append("],[");
-        Stream.of(criteria.types()).forEach(type -> b.append(type.name()).append(','));
-        b.append(']');
+        b.append(criteria.scope().name()).append(',').append(criteria.sort().name()).append(",[");
+        String folderIds = criteria
+            .folders()
+            .stream()
+            .map(folder -> String.valueOf(folder.getId()))
+            .collect(Collectors.joining(","));
+        b.append(folderIds).append("],[");
+        String mediaTypes = Stream
+            .of(criteria.types())
+            .map(Enum::name)
+            .collect(Collectors.joining(","));
+        b.append(mediaTypes).append(']');
         return b.toString();
     }
 

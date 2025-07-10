@@ -52,6 +52,7 @@ import org.mockito.Mockito;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class QueryFactoryTest {
 
+    private LuceneQueryBuilder queryBuilder;
     private QueryFactory queryFactory;
 
     private static final String SEPA = System.getProperty("file.separator");
@@ -76,7 +77,9 @@ class QueryFactoryTest {
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsService);
+        queryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsService);
+        queryFactory = new QueryFactory(settingsService, analyzerFactory);
     }
 
     @Nested
@@ -90,7 +93,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
             assertArrayEquals(notContainsComposer,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
@@ -102,7 +105,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
             assertArrayEquals(containsComposer,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
         }
@@ -118,7 +121,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
             assertArrayEquals(notRomanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
@@ -126,7 +129,7 @@ class QueryFactoryTest {
                 .when(settingsService.getIndexSchemeName())
                 .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
             assertArrayEquals(notRomanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
@@ -139,7 +142,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST_READING,
                     FieldNamesConstants.ARTIST_READING_ROMANIZED };
             assertArrayEquals(romanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
@@ -154,7 +157,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
             assertArrayEquals(notRomanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
@@ -162,7 +165,7 @@ class QueryFactoryTest {
                 .when(settingsService.getIndexSchemeName())
                 .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
             assertArrayEquals(notRomanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
@@ -178,7 +181,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER_READING, //
                     FieldNamesConstants.COMPOSER_READING_ROMANIZED };
             assertArrayEquals(romanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
         }
@@ -317,7 +320,7 @@ class QueryFactoryTest {
 
     @Order(5)
     @Test
-    void testGetRandomSongsByMusicFolder() {
+    void testGetRandomSongsByMusicFolder() throws IOException {
         Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS);
         assertEquals("+m:MUSIC +(f:" + PATH1 + ")", query.toString());
         query = queryFactory.getRandomSongs(MULTI_FOLDERS);
@@ -326,7 +329,7 @@ class QueryFactoryTest {
 
     @Order(6)
     @Test
-    void testGetRandomSongsByMusicFolderAndGenre() {
+    void testGetRandomSongsByMusicFolderAndGenre() throws IOException {
         Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS, "Rock & Roll", "Pop/Funk");
         assertEquals("+m:MUSIC +(f:" + PATH1 + ") +(g:Rock & Roll g:Pop/Funk)", query.toString());
         query = queryFactory.getRandomSongs(MULTI_FOLDERS, "Rock & Roll", "Pop/Funk");

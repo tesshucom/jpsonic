@@ -56,6 +56,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the SearchService interface providing various search
+ * capabilities over music data indexed with Lucene.
+ * 
+ * <p>
+ * This service handles executing Lucene queries, converting search results into
+ * domain entities, caching random search results, and managing pagination and
+ * filtering based on music folders, genres, artists, and media types.
+ * </p>
+ * 
+ * <p>
+ * Dependencies include:
+ * <ul>
+ * <li>Lucene utilities for search execution and query building</li>
+ * <li>Data access objects (DAOs) for Albums and MediaFiles</li>
+ * <li>Application-specific utilities and settings services</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * The service supports both standard web search criteria and UPnP search
+ * criteria, offering random selection capabilities with caching to optimize
+ * performance.
+ * </p>
+ * 
+ * <p>
+ * Exception handling ensures that IO and Lucene-related errors are logged
+ * without crashing the service, and resources such as IndexSearcher are
+ * properly released.
+ * </p>
+ * 
+ * @see SearchService
+ * @see QueryFactory
+ * @see IndexManager
+ */
 @Service
 public class SearchServiceImpl implements SearchService {
 
@@ -82,57 +117,70 @@ public class SearchServiceImpl implements SearchService {
         this.albumDao = albumDao;
     }
 
+    // Logs the search query if settings and log level allow it
+    private void logSearchQueryIfNeeded(HttpSearchCriteria criteria) {
+        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
+            LOG
+                .info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}",
+                        criteria.targetType(), criteria.input(), criteria.offset(),
+                        criteria.count());
+        }
+    }
+
     @Override
     public SearchResult search(HttpSearchCriteria criteria) {
-
         SearchResult result = new SearchResult();
         int offset = criteria.offset();
         int count = criteria.count();
         result.setOffset(offset);
 
+        // Return early if count is less than or equal to zero
         if (count <= 0) {
             return result;
         }
 
+        // Get the IndexSearcher for the given target type
         IndexSearcher searcher = indexManager.getSearcher(criteria.targetType());
         if (searcher == null) {
             return result;
         }
 
         try {
-
+            // Execute search with offset + count to allow paging
             TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
+
+            // Get the rounded total number of hits
             int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
+
+            // Calculate the result range (start to end) safely within bounds
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
+            // Add documents in the specified range to the result if they match
             for (int i = start; i < end; i++) {
                 util
                     .addIfAnyMatch(result, criteria.targetType(),
                             searcher.storedFields().document(topDocs.scoreDocs[i].doc));
             }
 
-            if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
-                LOG
-                    .info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}",
-                            criteria.targetType(), criteria.input(), criteria.offset(),
-                            criteria.count());
-            }
+            // Log the search query info if logging is enabled
+            logSearchQueryIfNeeded(criteria);
 
         } catch (IOException e) {
+            // Handle search failure
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
+            // Always release the searcher to avoid resource leaks
             indexManager.release(criteria.targetType(), searcher);
         }
+
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. #1585")
     public <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria) {
-
         int offset = criteria.offset();
         int count = criteria.count();
 
@@ -140,6 +188,8 @@ public class SearchServiceImpl implements SearchService {
         result.setOffset(offset);
 
         IndexType indexType = criteria.targetType();
+
+        // Early return if count is invalid or index type is null
         if (count <= 0 || indexType == null) {
             return result;
         }
@@ -149,50 +199,58 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
+        // Optionally log search info
         writeUPnPSerchLog(indexType, criteria);
 
         try {
-
+            // Execute Lucene search with enough results for paging
             TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
+
+            // Set total number of hits
             int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
+
+            // Calculate result bounds
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
+            // Dispatch by index type
             if (IndexType.ARTIST_ID3 == indexType) {
-                ParamSearchResult<Artist> artistResult = new ParamSearchResult<>();
-                for (int i = start; i < end; i++) {
-                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
-                    util
-                        .addIgnoreNull(artistResult, indexType, util.getId.apply(doc),
-                                Artist.class);
-                }
-                artistResult.getItems().forEach(a -> result.getItems().add((T) a));
+                processDocuments(searcher, topDocs, start, end, result, indexType, Artist.class);
             } else if (IndexType.ALBUM_ID3 == indexType) {
-                ParamSearchResult<Album> albumResult = new ParamSearchResult<>();
-                for (int i = start; i < end; i++) {
-                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
-                    util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
-                }
-                albumResult.getItems().forEach(a -> result.getItems().add((T) a));
+                processDocuments(searcher, topDocs, start, end, result, indexType, Album.class);
             } else {
-                ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
-                for (int i = start; i < end; i++) {
-                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
-                    util
-                        .addIgnoreNull(songResult, indexType, util.getId.apply(doc),
-                                MediaFile.class);
-                }
-                songResult.getItems().forEach(a -> result.getItems().add((T) a));
+                processDocuments(searcher, topDocs, start, end, result, indexType, MediaFile.class);
             }
 
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
+            // Always release resources
             indexManager.release(indexType, searcher);
         }
-        return result;
 
+        return result;
+    }
+
+    /**
+     * Generic method to extract documents, convert them to desired type, and add to
+     * result.
+     */
+    @SuppressWarnings("unchecked")
+    private <T, E> void processDocuments(IndexSearcher searcher, TopDocs topDocs, int start,
+            int end, ParamSearchResult<T> result, IndexType indexType, Class<E> clazz)
+            throws IOException {
+
+        ParamSearchResult<E> tempResult = new ParamSearchResult<>();
+
+        for (int i = start; i < end; i++) {
+            Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
+            util.addIgnoreNull(tempResult, indexType, util.getId.apply(doc), clazz);
+        }
+
+        // Add items to the original result (with casting)
+        tempResult.getItems().forEach(item -> result.getItems().add((T) item));
     }
 
     private void writeUPnPSerchLog(IndexType indexType, UPnPSearchCriteria criteria) {
@@ -206,95 +264,123 @@ public class SearchServiceImpl implements SearchService {
     /**
      * Common processing of random method.
      *
-     * @param count           Number of albums to return.
-     * @param id2ListCallBack Callback to get D from id and store it in List
+     * @param count            Number of albums to return.
+     * @param idToListCallback Callback to get D from id and store it in List
      */
     private <D> List<D> createRandomDocsList(int count, IndexSearcher searcher, Query query,
-            BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException {
+            BiConsumer<List<D>, Integer> idToListCallback) throws IOException {
 
-        List<Integer> docs = Arrays
+        // Get all matching document IDs from Lucene
+        List<Integer> docIds = Arrays
             .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
             .map(sd -> sd.doc)
             .collect(Collectors.toList());
 
         List<D> result = new ArrayList<>();
-        while (!docs.isEmpty() && result.size() < count) {
-            int randomPos = util.nextInt.apply(docs.size());
-            Document document = searcher.storedFields().document(docs.get(randomPos));
-            id2ListCallBack.accept(result, util.getId.apply(document));
-            docs.remove(randomPos);
+
+        // Randomly pick documents until the desired count is reached or list is
+        // exhausted
+        while (!docIds.isEmpty() && result.size() < count) {
+            int randomIndex = util.nextInt.apply(docIds.size());
+
+            // Fetch the document at the random position
+            Document document = searcher.storedFields().document(docIds.get(randomIndex));
+
+            // Convert the document ID and add to result via the callback
+            idToListCallback.accept(result, util.getId.apply(document));
+
+            // Remove selected doc to avoid duplicates
+            docIds.remove(randomIndex);
         }
 
         return result;
     }
 
     @Override
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
-
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+
+        // Return empty list if no searcher is available (e.g., on first startup)
         if (searcher == null) {
-            // At first start
             return Collections.emptyList();
         }
 
         try {
-
+            // Build query to fetch candidate songs for random selection
             Query query = queryFactory.getRandomSongs(criteria);
+
+            // Create a random list of MediaFile objects using the callback
             return createRandomDocsList(criteria.getCount(), searcher, query,
-                    (dist, id) -> util.addIgnoreNull(dist, IndexType.SONG, id));
+                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.SONG, id));
 
         } catch (IOException e) {
-            LOG.error("Failed to search or random songs.", e);
+            // Log any Lucene or IO-related failures
+            LOG.error("Failed to search for random songs.", e);
         } finally {
+            // Always release the searcher to prevent resource leaks
             indexManager.release(IndexType.SONG, searcher);
         }
+
+        // Return empty list if something went wrong
         return Collections.emptyList();
     }
 
     @Override
-    public List<MediaFile> getRandomSongs(int count, int offset, int casheMax,
+    public List<MediaFile> getRandomSongs(int count, int offset, int cacheMax,
             List<MusicFolder> musicFolders, String... genres) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids
+
+        // Callback to add a sublist of IDs (after offset & limit) to the result list
+        Consumer<List<Integer>> addSubsetToResult = ids -> ids
             .stream()
             .skip(offset)
             .limit(count)
             .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
-        util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
+
+        // Try to get cached IDs first
+        util.getCache(RandomCacheKey.SONG, cacheMax, musicFolders).ifPresent(addSubsetToResult);
+
         if (!result.isEmpty()) {
-            return result;
+            return result; // Return if cache hit
         }
 
+        // Get Lucene IndexSearcher for songs
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
         if (searcher == null) {
             return result;
         }
 
-        Query query = queryFactory.getRandomSongs(musicFolders, genres);
-
         try {
+            // Build query based on folders and genres
+            Query query = queryFactory.getRandomSongs(musicFolders, genres);
 
-            List<Integer> docs = Arrays
+            // Fetch all matching Lucene documents
+            List<Integer> docIds = Arrays
                 .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
+            // Select up to `cacheMax` unique random IDs
             List<Integer> ids = new ArrayList<>();
-            while (!docs.isEmpty() && ids.size() < casheMax) {
-                int randomPos = util.nextInt.apply(docs.size());
-                Document document = searcher.storedFields().document(docs.get(randomPos));
-                ids.add(util.getId.apply(document));
-                docs.remove(randomPos);
+            while (!docIds.isEmpty() && ids.size() < cacheMax) {
+                int randomIndex = util.nextInt.apply(docIds.size());
+                Document doc = searcher.storedFields().document(docIds.get(randomIndex));
+                ids.add(util.getId.apply(doc));
+                docIds.remove(randomIndex);
             }
 
-            util.putCache(RandomCacheKey.SONG, casheMax, musicFolders, ids);
+            // Store the randomly selected IDs in cache
+            util.putCache(RandomCacheKey.SONG, cacheMax, musicFolders, ids);
 
-            addSubToResult.accept(ids);
+            // Apply offset & limit, and add to result
+            addSubsetToResult.accept(ids);
 
         } catch (IOException e) {
             LOG.error("Failed to search for random songs.", e);
         } finally {
+            // Always release searcher to avoid resource leak
             indexManager.release(IndexType.SONG, searcher);
         }
 
@@ -303,131 +389,168 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset,
-            int casheMax, List<MusicFolder> musicFolders) {
+            int cacheMax, List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<MediaFile>> addSubToResult = (
-                files) -> files.stream().skip(offset).limit(count).forEach(result::add);
 
+        // Define logic to extract a sublist (offset + count) from the source list
+        Consumer<List<MediaFile>> addSubsetToResult = files -> files
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .forEach(result::add);
+
+        // Try retrieving from cache first
         util
-            .getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName())
-            .ifPresent(addSubToResult);
+            .getCache(RandomCacheKey.SONG_BY_ARTIST, cacheMax, musicFolders, artist.getName())
+            .ifPresent(addSubsetToResult);
+
         if (!result.isEmpty()) {
-            return result;
+            return result; // Return if cached result exists
         }
 
+        // Get random songs for the artist from the database
         List<MediaFile> songs = mediaFileDao
-            .getRandomSongsForAlbumArtist(casheMax, artist.getName(), musicFolders,
+            .getRandomSongsForAlbumArtist(cacheMax, artist.getName(), musicFolders,
                     (range, limit) -> {
-                        List<Integer> randoms = new ArrayList<>();
-                        while (randoms.size() < Math.min(limit, range)) {
-                            Integer random = util.nextInt.apply(range);
-                            if (!randoms.contains(random)) {
-                                randoms.add(random);
+                        // Generate a list of unique random integers within [0, range)
+                        List<Integer> randomIndices = new ArrayList<>();
+                        while (randomIndices.size() < Math.min(limit, range)) {
+                            int random = util.nextInt.apply(range);
+                            if (!randomIndices.contains(random)) {
+                                randomIndices.add(random);
                             }
                         }
-                        return randoms;
+                        return randomIndices;
                     });
 
+        // Cache the retrieved songs for future access
         util
-            .putCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, songs,
+            .putCache(RandomCacheKey.SONG_BY_ARTIST, cacheMax, musicFolders, songs,
                     artist.getName());
 
-        addSubToResult.accept(songs);
+        // Add the subset (offset + count) to the result
+        addSubsetToResult.accept(songs);
 
         return result;
-
     }
 
     @Override
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
-
+        // Get Lucene IndexSearcher for albums
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
+
+        // Return empty list if searcher is unavailable (e.g., index not ready)
         if (searcher == null) {
             return Collections.emptyList();
         }
 
-        Query query = queryFactory.getRandomAlbums(musicFolders);
-
         try {
+            // Create query to retrieve albums from the given folders
+            Query query = queryFactory.getRandomAlbums(musicFolders);
 
+            // Select random documents and convert them to MediaFile objects
             return createRandomDocsList(count, searcher, query,
-                    (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM, id));
+                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.ALBUM, id));
 
         } catch (IOException e) {
+            // Log error if Lucene search fails
             LOG.error("Failed to search for random albums.", e);
+
         } finally {
+            // Ensure resources are properly released
             indexManager.release(IndexType.ALBUM, searcher);
         }
+
+        // Fallback: return empty list if exception occurs
         return Collections.emptyList();
     }
 
     @Override
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
-
+        // Obtain IndexSearcher for ID3-based albums
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+
+        // Return empty list if index is not available
         if (searcher == null) {
             return Collections.emptyList();
         }
 
-        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
-
         try {
+            // Build query to search for random albums (ID3-based) within the given folders
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
 
+            // Fetch random album documents and convert them to Album entities
             return createRandomDocsList(count, searcher, query,
-                    (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM_ID3, id));
+                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.ALBUM_ID3, id));
 
         } catch (IOException e) {
-            LOG.error("Failed to search for random albums.", e);
+            // Log any IO or Lucene search error
+            LOG.error("Failed to search for random albums (ID3).", e);
+
         } finally {
+            // Ensure the IndexSearcher is always released
             indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
+
+        // Fallback in case of errors
         return Collections.emptyList();
     }
 
     @Override
-    public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax,
+    public List<Album> getRandomAlbumsId3(int count, int offset, int cacheMax,
             List<MusicFolder> musicFolders) {
-
         final List<Album> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids
+
+        // Callback to apply offset & limit and add to result
+        Consumer<List<Integer>> addSubsetToResult = ids -> ids
             .stream()
             .skip(offset)
             .limit(count)
             .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
-        util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
+
+        // Try loading from cache first
+        util.getCache(RandomCacheKey.ALBUM, cacheMax, musicFolders).ifPresent(addSubsetToResult);
+
         if (!result.isEmpty()) {
-            return result;
+            return result; // Return if cached data is available
         }
 
+        // Retrieve IndexSearcher for ALBUM_ID3 index
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (searcher == null) {
             return result;
         }
 
-        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
-
         try {
+            // Build Lucene query for albums
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
 
-            List<Integer> docs = Arrays
+            // Fetch all matching document IDs
+            List<Integer> docIds = Arrays
                 .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
-            List<Integer> ids = new ArrayList<>();
-            while (!docs.isEmpty() && ids.size() < casheMax) {
-                int randomPos = util.nextInt.apply(docs.size());
-                Document document = searcher.storedFields().document(docs.get(randomPos));
-                ids.add(util.getId.apply(document));
-                docs.remove(randomPos);
+            // Select up to `cacheMax` random IDs without duplicates
+            List<Integer> selectedIds = new ArrayList<>();
+            while (!docIds.isEmpty() && selectedIds.size() < cacheMax) {
+                int randomIndex = util.nextInt.apply(docIds.size());
+                Document document = searcher.storedFields().document(docIds.get(randomIndex));
+                selectedIds.add(util.getId.apply(document));
+                docIds.remove(randomIndex);
             }
 
-            util.putCache(RandomCacheKey.ALBUM, casheMax, musicFolders, ids);
+            // Cache the selected album IDs
+            util.putCache(RandomCacheKey.ALBUM, cacheMax, musicFolders, selectedIds);
 
-            addSubToResult.accept(ids);
+            // Apply offset and count to final result
+            addSubsetToResult.accept(selectedIds);
 
         } catch (IOException e) {
-            LOG.error("Failed to search for random albums.", e);
+            LOG.error("Failed to search for random albums (ID3).", e);
         } finally {
             indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
@@ -452,19 +575,25 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults) {
+        // Return empty list if maxResults is zero or negative
         if (maxResults <= 0) {
             return Collections.emptyList();
         }
+
+        // Try to get cached genres for the given criteria
         List<Genre> genres = util.getCache(criteria);
+
+        // If cache is empty, create genre master list and cache it
         if (genres.isEmpty()) {
             genres = indexManager.createGenreMaster(criteria);
             util.putCache(criteria, genres);
         }
-        return genres
-            .stream()
-            .skip(offset)
-            .limit(Math.min(genres.size() - offset, (int) maxResults))
-            .toList();
+
+        // Safely skip offset and limit results, making sure not to exceed list size
+        int start = (int) Math.min(offset, genres.size());
+        int limit = (int) Math.min(maxResults, genres.size() - start);
+
+        return genres.stream().skip(start).limit(limit).toList();
     }
 
     @Override
@@ -502,15 +631,22 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MediaFile> getSongsByGenres(String genres, int offset, int count,
             List<MusicFolder> musicFolders, MediaType... types) {
-        final List<MediaFile> result = new ArrayList<>();
+        // Return empty list if genres string is null or empty
         if (isEmpty(genres)) {
-            return result;
+            return Collections.emptyList();
         }
+
+        // Convert input genres string (already processed as a list) into pre-analyzed
+        // genre tokens
         List<String> preAnalyzedGenres = indexManager
             .toPreAnalyzedGenres(Arrays.asList(genres), true);
-        List<MediaType> targetTypes = types.length == 0
+
+        // Use provided media types or default to MUSIC and AUDIOBOOK
+        List<MediaType> targetTypes = (types.length == 0)
                 ? Arrays.asList(MediaType.MUSIC, MediaType.AUDIOBOOK)
                 : Arrays.asList(types);
+
+        // Delegate search to DAO
         return mediaFileDao
             .getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders, targetTypes);
     }

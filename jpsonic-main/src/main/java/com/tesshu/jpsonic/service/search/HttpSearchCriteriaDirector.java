@@ -27,6 +27,30 @@ import org.apache.lucene.search.Query;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+/**
+ * Director class for constructing search criteria from HTTP-based search
+ * requests.
+ * <p>
+ * This class primarily handles the interpretation of user input and delegates
+ * the creation of Lucene {@link Query} objects to the {@link QueryFactory}. By
+ * doing so, it separates the concerns of search criteria construction and query
+ * generation, promoting better modularity and maintainability.
+ * </p>
+ *
+ * <p>
+ * The {@code @DependsOn} annotation ensures that this component is initialized
+ * only after the {@code queryFactory} and {@code settingsService} beans have
+ * been fully initialized, maintaining correct dependency initialization order
+ * within the Spring container.
+ * </p>
+ *
+ * <p>
+ * Acting as an entry point to the search subsystem, this class builds
+ * {@link HttpSearchCriteria} objects by encapsulating the parsed query along
+ * with user-defined parameters such as offset, result count, composer
+ * inclusion, and target music folders.
+ * </p>
+ */
 @Component
 @DependsOn({ "queryFactory", "settingsService" })
 public class HttpSearchCriteriaDirector {
