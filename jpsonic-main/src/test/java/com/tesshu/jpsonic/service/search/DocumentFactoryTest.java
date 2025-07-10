@@ -326,10 +326,10 @@ class DocumentFactoryTest {
             song.setComposer(null);
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertNull(document.get(FieldNamesConstants.ARTIST));
             assertNull(document.get(FieldNamesConstants.ARTIST_READING));
@@ -347,10 +347,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("Composer");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("Artist", document.get(FieldNamesConstants.ARTIST));
             assertNull(document.get(FieldNamesConstants.ARTIST_READING));
@@ -365,10 +365,10 @@ class DocumentFactoryTest {
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -387,10 +387,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -408,10 +408,10 @@ class DocumentFactoryTest {
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -436,10 +436,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -467,10 +467,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -492,10 +492,10 @@ class DocumentFactoryTest {
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -517,10 +517,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("サッキョクシャ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));

@@ -26,6 +26,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -97,8 +98,7 @@ public final class AnalyzerFactory {
                     UTF_8)) {
             return WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
         } catch (IOException e) {
-            // Usually unreachable due to classpath resources
-            throw new IllegalArgumentException("Failed to get the stopword file.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -126,19 +126,14 @@ public final class AnalyzerFactory {
                     : JapaneseTokenizerFactory.class)
             .addTokenFilter(CJKWidthFilterFactory.class)
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
-            .addTokenFilter(LowerCaseFilterFactory.class) //
-            .addTokenFilter(StopFilterFactory.class, //
-                    "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WORDS, //
-                    "ignoreCase", "true")
+            .addTokenFilter(LowerCaseFilterFactory.class)
+            .addTokenFilter(StopFilterFactory.class, "words",
+                    isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WORDS, "ignoreCase", "true")
             .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "^\\_", //
-                    FILTER_ATTR_REPLACEMENT, "", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL) //
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\_$", //
-                    FILTER_ATTR_REPLACEMENT, "", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "^\\_",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\_$",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .build();
     }
 
@@ -152,8 +147,7 @@ public final class AnalyzerFactory {
         CharArraySet stopWords = loadWords(STOP_WORDS);
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
+            @SuppressWarnings({ "PMD.CloseResource", "resource" })
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -182,8 +176,7 @@ public final class AnalyzerFactory {
             private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
             private final Set<String> stopTagset = loadStopTags();
 
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
+            @SuppressWarnings({ "PMD.CloseResource", "resource" })
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -214,8 +207,7 @@ public final class AnalyzerFactory {
             private final Set<String> stopTagset = loadStopTags();
             private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
 
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
+            @SuppressWarnings({ "PMD.CloseResource", "resource" })
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -245,21 +237,20 @@ public final class AnalyzerFactory {
     private Analyzer createGenreAnalyzer() throws IOException {
         return CustomAnalyzer
             .builder()
-            .withTokenizer(GenreTokenizerFactory.class) //
+            .withTokenizer(GenreTokenizerFactory.class)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\(",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\(", FILTER_ATTR_REPLACEMENT, "", //
+                    FILTER_ATTR_PATTERN, "\\)$", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE,
+                    FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\)",
+                    FILTER_ATTR_REPLACEMENT, " ", //
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\)$", FILTER_ATTR_REPLACEMENT, "", //
+                    FILTER_ATTR_PATTERN, "\\{\\}", FILTER_ATTR_REPLACEMENT, "\\{ \\}",
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\)", FILTER_ATTR_REPLACEMENT, " ", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\{\\}", FILTER_ATTR_REPLACEMENT, "\\{ \\}", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]", //
+                    FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]",
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(CJKWidthFilterFactory.class) //
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
@@ -293,20 +284,17 @@ public final class AnalyzerFactory {
                     Analyzer artistReadingAnalyzer = createArtistReadingAnalyzer();
                     Analyzer romanizedAnalyzer = createRomanizedAnalyzer();
 
-                    Map<String, Analyzer> fieldAnalyzers = //
-                            LegacyMap
-                                .of(FieldNamesConstants.ARTIST, artistAnalyzer, //
-                                        FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
-                                        FieldNamesConstants.ARTIST_READING_ROMANIZED,
-                                        romanizedAnalyzer, //
-                                        FieldNamesConstants.COMPOSER, artistAnalyzer, //
-                                        FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
-                                        FieldNamesConstants.COMPOSER_READING_ROMANIZED,
-                                        romanizedAnalyzer, //
-                                        FieldNamesConstants.ALBUM_READING, readingAnalyzer, //
-                                        FieldNamesConstants.TITLE_READING, readingAnalyzer, //
-                                        FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
-                                        FieldNamesConstants.GENRE, createGenreAnalyzer());
+                    Map<String, Analyzer> fieldAnalyzers = LegacyMap
+                        .of(FieldNamesConstants.ARTIST, artistAnalyzer,
+                                FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer,
+                                FieldNamesConstants.ARTIST_READING_ROMANIZED, romanizedAnalyzer,
+                                FieldNamesConstants.COMPOSER, artistAnalyzer,
+                                FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer,
+                                FieldNamesConstants.COMPOSER_READING_ROMANIZED, romanizedAnalyzer,
+                                FieldNamesConstants.ALBUM_READING, readingAnalyzer,
+                                FieldNamesConstants.TITLE_READING, readingAnalyzer,
+                                FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(),
+                                FieldNamesConstants.GENRE, createGenreAnalyzer());
 
                     this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, fieldAnalyzers);
 

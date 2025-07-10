@@ -105,7 +105,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private static final String UPNP_CLASS_OP = "upnp:class";
     private static final String UPNP_STRING_OP_DERIVED = "derivedfrom";
 
-    private final UPnPSearchMethod searchMethod;
+    private final UPnPClassMapper classMapper;
     private final List<MusicFolder> folders;
     private final QueryFactory queryFactory;
     private final List<List<String>> enteredSearchFields = new ArrayList<>();
@@ -138,7 +138,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     public UPnPSearchCriteriaDirector(UPnPSearchMethod searchMethod, List<MusicFolder> folders,
             QueryFactory queryFactory) {
-        this.searchMethod = searchMethod;
+        this.classMapper = new UPnPClassMapper(searchMethod);
         this.folders = folders;
         this.queryFactory = queryFactory;
     }
@@ -147,12 +147,14 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         this.offset = offset;
         this.count = count;
         this.upnpSearchQuery = upnpSearchQuery;
+
         UPnPSearchCriteriaLexer lexer = new UPnPSearchCriteriaLexer(
                 CharStreams.fromString(upnpSearchQuery));
         CommonTokenStream stream = new CommonTokenStream(lexer);
         UPnPSearchCriteriaParser parser = new UPnPSearchCriteriaParser(stream);
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(this, parser.parse());
+
         return result;
     }
 
@@ -270,56 +272,24 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @SuppressWarnings("ArgumentSelectionDefectChecker")
     private IndexType purseDerivedfrom(String subject, String verb, String complement) {
+        IndexType indexType = classMapper.mapDerivedFrom(complement);
 
-        IndexType indexType = null;
+        if (isEmpty(indexType)) {
+            throw createIllegal("An unknown class was specified.", subject, verb, complement);
+        }
+
         switch (complement) {
-
-        // artist
-        case "object.container.person":
-        case "object.container.person.musicArtist":
-            indexType = switch (searchMethod) {
-            case FILE_STRUCTURE -> IndexType.ARTIST;
-            case ID3 -> IndexType.ARTIST_ID3;
-            };
-            break;
-
-        // album
-        case "object.container.album":
-        case "object.container.album.musicAlbum":
-            indexType = switch (searchMethod) {
-            case FILE_STRUCTURE -> IndexType.ALBUM;
-            case ID3 -> IndexType.ALBUM_ID3;
-            };
-            break;
-
-        // song
-        case "object.item.audioItem.musicTrack":
-            indexType = IndexType.SONG;
+        case "object.item.audioItem.musicTrack" ->
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            break;
-
-        // audio
-        case "object.item.audioItem":
-            indexType = IndexType.SONG;
+        case "object.item.audioItem" -> {
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(),
                     Occur.SHOULD);
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(),
                     Occur.SHOULD);
-            break;
-
-        // video
-        case "object.item.videoItem":
-            indexType = IndexType.SONG;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
-            break;
-
-        default:
-            break;
         }
-
-        if (isEmpty(indexType)) {
-            throw createIllegal("An unknown class was specified.", subject, verb, complement);
+        case "object.item.videoItem" ->
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
         }
 
         return indexType;
@@ -328,58 +298,24 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     @SuppressWarnings("ArgumentSelectionDefectChecker")
     private IndexType purseClass(String subject, String verb, String complement) {
 
-        IndexType indexType = null;
-
-        switch (complement) {
-
-        // artist
-        case "object.container.person.musicArtist":
-            indexType = switch (searchMethod) {
-            case FILE_STRUCTURE -> IndexType.ARTIST;
-            case ID3 -> IndexType.ARTIST_ID3;
-            };
-            break;
-
-        // album
-        case "object.container.album.musicAlbum":
-            indexType = switch (searchMethod) {
-            case FILE_STRUCTURE -> IndexType.ALBUM;
-            case ID3 -> IndexType.ALBUM_ID3;
-            };
-            break;
-
-        // audio
-        case "object.item.audioItem.musicTrack":
-            indexType = IndexType.SONG;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            break;
-        case "object.item.audioItem.audioBroadcast":
-            indexType = IndexType.SONG;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(),
-                    Occur.SHOULD);
-            break;
-        case "object.item.audioItem.audioBook":
-            indexType = IndexType.SONG;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(),
-                    Occur.SHOULD);
-            break;
-
-        // video
-        case "object.item.videoItem.movie":
-        case "object.item.videoItem.videoBroadcast":
-        case "object.item.videoItem.musicVideoClip":
-            indexType = IndexType.SONG;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
-            break;
-
-        default:
-            break;
-        }
+        IndexType indexType = classMapper.mapClass(complement);
 
         if (isEmpty(indexType)) {
             throw createIllegal(
                     "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
                     subject, verb, complement);
+        }
+
+        switch (complement) {
+        case "object.item.audioItem.musicTrack" ->
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+        case "object.item.audioItem.audioBroadcast" -> addMediaTypeQuery(
+                FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+        case "object.item.audioItem.audioBook" -> addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE,
+                MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+        case "object.item.videoItem.movie", "object.item.videoItem.videoBroadcast",
+                "object.item.videoItem.musicVideoClip" ->
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
         }
 
         return indexType;
