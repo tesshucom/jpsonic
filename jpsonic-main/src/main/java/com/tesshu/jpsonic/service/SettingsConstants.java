@@ -26,11 +26,13 @@ import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
 
 /**
- * Literals and initial values used for property keys in SettingsService. Most items are registered / changed from the
- * web settings page, with a few exceptions.
+ * Literals and initial values used for property keys in SettingsService. Most
+ * items are registered / changed from the web settings page, with a few
+ * exceptions.
  */
 /*
- * SettingsConstants and SettingsService need to be modified if the key used for the properties file changes.
+ * SettingsConstants and SettingsService need to be modified if the key used for
+ * the properties file changes.
  */
 @SuppressWarnings("PMD.ShortClassName")
 final class SettingsConstants {
@@ -59,8 +61,10 @@ final class SettingsConstants {
     static final class MusicFolder {
 
         static final class Scan {
-            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
-            static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair
+                .of("IgnoreFileTimestamps", false);
+            static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair
+                .of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
 
             private Scan() {
@@ -93,7 +97,8 @@ final class SettingsConstants {
 
         static final class Index {
             static final Pair<String> INDEX_STRING = Pair.of("IndexString", DEFAULT_INDEX_STRING);
-            static final Pair<String> IGNORED_ARTICLES = Pair.of("IgnoredArticles", "The El La Las Le Les");
+            static final Pair<String> IGNORED_ARTICLES = Pair
+                .of("IgnoredArticles", "The El La Las Le Les");
 
             private Index() {
             }
@@ -130,16 +135,18 @@ final class SettingsConstants {
         }
 
         static final class Extension {
-            static final Pair<String> MUSIC_FILE_TYPES = Pair.of("MusicFileTypes",
-                    "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd");
-            static final Pair<String> VIDEO_FILE_TYPES = Pair.of("VideoFileTypes",
-                    "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm");
-            static final Pair<String> COVER_ART_FILE_TYPES = Pair.of("CoverArtFileTypes2",
-                    "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
-            static final Pair<String> EXCLUDED_COVER_ART = Pair.of("ExcludedCoverArt",
-                    "AlbumArtSmall.jpg small.jpg large.jpg");
-            static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder",
-                    PlayerUtils.getDefaultPlaylistFolder());
+            static final Pair<String> MUSIC_FILE_TYPES = Pair
+                .of("MusicFileTypes",
+                        "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd");
+            static final Pair<String> VIDEO_FILE_TYPES = Pair
+                .of("VideoFileTypes", "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm");
+            static final Pair<String> COVER_ART_FILE_TYPES = Pair
+                .of("CoverArtFileTypes2",
+                        "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
+            static final Pair<String> EXCLUDED_COVER_ART = Pair
+                .of("ExcludedCoverArt", "AlbumArtSmall.jpg small.jpg large.jpg");
+            static final Pair<String> PLAYLIST_FOLDER = Pair
+                .of("PlaylistFolder", PlayerUtils.getDefaultPlaylistFolder());
             static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");
 
             private Extension() {
@@ -147,7 +154,8 @@ final class SettingsConstants {
         }
 
         static final class Welcome {
-            static final Pair<Boolean> GETTING_STARTED_ENABLED = Pair.of("GettingStartedEnabled", true);
+            static final Pair<Boolean> GETTING_STARTED_ENABLED = Pair
+                .of("GettingStartedEnabled", true);
             static final Pair<String> TITLE = Pair.of("WelcomeTitle", DEFAULT_WELCOME_TITLE);
             static final Pair<String> SUBTITLE = Pair.of("WelcomeSubtitle", null);
             static final Pair<String> MESSAGE = Pair.of("WelcomeMessage2", null);
@@ -190,8 +198,10 @@ final class SettingsConstants {
 
         static final class Ldap {
             static final Pair<Boolean> ENABLED = Pair.of("LdapEnabled", false);
-            static final Pair<String> URL = Pair.of("LdapUrl", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com");
-            static final Pair<String> SEARCH_FILTER = Pair.of("LdapSearchFilter", "(sAMAccountName={0})");
+            static final Pair<String> URL = Pair
+                .of("LdapUrl", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com");
+            static final Pair<String> SEARCH_FILTER = Pair
+                .of("LdapSearchFilter", "(sAMAccountName={0})");
             static final Pair<String> MANAGER_DN = Pair.of("LdapManagerDn", null);
             static final Pair<String> MANAGER_PASSWORD = Pair.of("LdapManagerPassword", null);
             static final Pair<Boolean> AUTO_SHADOWING = Pair.of("LdapAutoShadowing", false);
@@ -202,10 +212,10 @@ final class SettingsConstants {
 
         static final class Captcha {
             static final Pair<Boolean> ENABLED = Pair.of("CaptchaEnabled", false);
-            static final Pair<String> SITE_KEY = Pair.of("ReCaptchaSiteKey",
-                    "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
-            static final Pair<String> SECRET_KEY = Pair.of("ReCaptchaSecretKey",
-                    "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
+            static final Pair<String> SITE_KEY = Pair
+                .of("ReCaptchaSiteKey", "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
+            static final Pair<String> SECRET_KEY = Pair
+                .of("ReCaptchaSecretKey", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
 
             private Captcha() {
             }
@@ -222,10 +232,10 @@ final class SettingsConstants {
         }
 
         static final class Index {
-            static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
-                    IndexScheme.NATIVE_JAPANESE.name());
-            static final Pair<Boolean> FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS = Pair.of("ForceInternalValueInsteadOfTags",
-                    false);
+            static final Pair<String> INDEX_SCHEME_NAME = Pair
+                .of("IndexSchemeName", IndexScheme.NATIVE_JAPANESE.name());
+            static final Pair<Boolean> FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS = Pair
+                .of("ForceInternalValueInsteadOfTags", false);
             static final Pair<Boolean> IGNORE_FULL_WIDTH = Pair.of("IgnoreFullWidth", true);
             static final Pair<Boolean> DELETE_DIACRITIC = Pair.of("DeleteDiacritic", true);
 
@@ -244,10 +254,13 @@ final class SettingsConstants {
     }
 
     static final class Podcast {
-        static final Pair<String> FOLDER = Pair.of("PodcastFolder", PlayerUtils.getDefaultPodcastFolder());
+        static final Pair<String> FOLDER = Pair
+            .of("PodcastFolder", PlayerUtils.getDefaultPodcastFolder());
         static final Pair<Integer> UPDATE_INTERVAL = Pair.of("PodcastUpdateInterval", 24);
-        static final Pair<Integer> EPISODE_RETENTION_COUNT = Pair.of("PodcastEpisodeRetentionCount", 10);
-        static final Pair<Integer> EPISODE_DOWNLOAD_COUNT = Pair.of("PodcastEpisodeDownloadCount", 1);
+        static final Pair<Integer> EPISODE_RETENTION_COUNT = Pair
+            .of("PodcastEpisodeRetentionCount", 10);
+        static final Pair<Integer> EPISODE_DOWNLOAD_COUNT = Pair
+            .of("PodcastEpisodeDownloadCount", 1);
 
         private Podcast() {
         }
@@ -266,17 +279,18 @@ final class SettingsConstants {
             // Initial value of the filter assuming the default gateway
             @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
             static final Pair<String> FILTERED_IP = Pair.of("DlnaFilteredIp", "172.17.16.1");
-            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
+            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair
+                .of("UriWithFileExtensions", true);
 
             private Basic() {
             }
         }
 
         static final class Options {
-            static final Pair<String> UPNP_ALBUM_GENRE_SORT = Pair.of("UPnPAlbumGenreSort",
-                    GenreMasterCriteria.Sort.FREQUENCY.name());
-            static final Pair<String> UPNP_SONG_GENRE_SORT = Pair.of("UPnPSongGenreSort",
-                    GenreMasterCriteria.Sort.FREQUENCY.name());
+            static final Pair<String> UPNP_ALBUM_GENRE_SORT = Pair
+                .of("UPnPAlbumGenreSort", GenreMasterCriteria.Sort.FREQUENCY.name());
+            static final Pair<String> UPNP_SONG_GENRE_SORT = Pair
+                .of("UPnPSongGenreSort", GenreMasterCriteria.Sort.FREQUENCY.name());
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);
             static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", true);
 
@@ -294,18 +308,20 @@ final class SettingsConstants {
     }
 
     static final class Transcoding {
-        static final Pair<String> PREFERRED_FORMAT_SHEME_NAME = Pair.of("PreferredFormatShemeName",
-                PreferredFormatSheme.ANNOYMOUS.name());
+        static final Pair<String> PREFERRED_FORMAT_SHEME_NAME = Pair
+            .of("PreferredFormatShemeName", PreferredFormatSheme.ANNOYMOUS.name());
         static final Pair<String> PREFERRED_FORMAT = Pair.of("PreferredFormatSheme", "mp3");
-        static final Pair<String> HLS_COMMAND = Pair.of("HlsCommand3",
-                "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -");
+        static final Pair<String> HLS_COMMAND = Pair
+            .of("HlsCommand3",
+                    "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -");
 
         private Transcoding() {
         }
     }
 
     static final class Database {
-        static final Pair<String> TYPE = Pair.of("DatabaseConfigType", DataSourceConfigType.HOST.name());
+        static final Pair<String> TYPE = Pair
+            .of("DatabaseConfigType", DataSourceConfigType.HOST.name());
         static final Pair<String> EMBED_DRIVER = Pair.of("DatabaseConfigEmbedDriver", null);
         static final Pair<String> EMBED_URL = Pair.of("DatabaseConfigEmbedUrl", null);
         static final Pair<String> EMBED_USERNAME = Pair.of("DatabaseConfigEmbedUsername", null);

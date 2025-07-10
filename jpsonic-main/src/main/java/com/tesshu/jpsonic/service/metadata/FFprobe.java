@@ -52,8 +52,8 @@ public class FFprobe {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);
 
-    private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-show_format", "-show_streams", "-print_format",
-            "json" };
+    private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-show_format",
+            "-show_streams", "-print_format", "json" };
 
     private static final String CODEC_TYPE_VIDEO = "video";
 
@@ -66,10 +66,12 @@ public class FFprobe {
 
     enum FFmpegFieldKey {
 
-        ALBUM_ARTIST("album_artist"), ALBUM("album"), ARTIST("artist"), DISC_NO("disc"), GENRE("genre"),
-        MUSICBRAINZ_TRACK_ID("musicbrainz_trackid"), MUSICBRAINZ_RELEASEID("MusicBrainz Album Id"), TITLE("title"),
-        TRACK("track"), YEAR("date"), ARTIST_SORT("sort_artist"), ALBUM_SORT("sort_album"), TITLE_SORT("sort_name"),
-        ALBUM_ARTIST_SORT("sort_album_artist"), COMPOSER("composer"), COMPOSER_SORT("sort_composer");
+        ALBUM_ARTIST("album_artist"), ALBUM("album"), ARTIST("artist"), DISC_NO("disc"),
+        GENRE("genre"), MUSICBRAINZ_TRACK_ID("musicbrainz_trackid"),
+        MUSICBRAINZ_RELEASEID("MusicBrainz Album Id"), TITLE("title"), TRACK("track"), YEAR("date"),
+        ARTIST_SORT("sort_artist"), ALBUM_SORT("sort_album"), TITLE_SORT("sort_name"),
+        ALBUM_ARTIST_SORT("sort_album_artist"), COMPOSER("composer"),
+        COMPOSER_SORT("sort_composer");
 
         private final String value;
 
@@ -87,8 +89,9 @@ public class FFprobe {
     }
 
     private @Nullable String getCommandPath() {
-        Path cmdFile = Path.of(transcodingService.getTranscodeDirectory().toString(),
-                PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
+        Path cmdFile = Path
+            .of(transcodingService.getTranscodeDirectory().toString(),
+                    PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
         if (Files.exists(cmdFile)) {
             return cmdFile.toString();
         }
@@ -133,11 +136,14 @@ public class FFprobe {
         getField(tags, FFmpegFieldKey.ALBUM_ARTIST).ifPresent(result::setAlbumArtist);
         getField(tags, FFmpegFieldKey.ALBUM).ifPresent(result::setAlbumName);
         getField(tags, FFmpegFieldKey.ARTIST).ifPresent(result::setArtist);
-        getField(tags, FFmpegFieldKey.DISC_NO).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
+        getField(tags, FFmpegFieldKey.DISC_NO)
+            .ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
         getField(tags, FFmpegFieldKey.GENRE).ifPresent(result::setGenre);
         getField(tags, FFmpegFieldKey.TITLE).ifPresent(result::setTitle);
-        getField(tags, FFmpegFieldKey.TRACK).ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
-        getField(tags, FFmpegFieldKey.YEAR).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
+        getField(tags, FFmpegFieldKey.TRACK)
+            .ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(tags, FFmpegFieldKey.YEAR)
+            .ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
         getField(tags, FFmpegFieldKey.COMPOSER).ifPresent(result::setComposer);
 
         return result;
@@ -173,7 +179,8 @@ public class FFprobe {
                 process.destroy();
             }
         } catch (IOException e) {
-            // Exceptions to this class are self-explanatory, avoiding redundant trace output
+            // Exceptions to this class are self-explanatory, avoiding redundant trace
+            // output
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to execute ffprobe({}): {}", getShortPath(path), e.getMessage());
             }
@@ -185,7 +192,8 @@ public class FFprobe {
         return parse(node, result);
     }
 
-    MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
+    MetaData parse(@NonNull MediaFile mediaFile,
+            @Nullable Map<String, MP4ParseStatistics> statistics) {
         return parse(mediaFile.toPath(), (start) -> {
             if (!isEmpty(statistics) && statistics.containsKey(ParserUtils.getFolder(mediaFile))) {
                 long readtime = Instant.now().toEpochMilli() - start;

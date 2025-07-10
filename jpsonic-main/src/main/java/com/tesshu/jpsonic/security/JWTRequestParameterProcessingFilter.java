@@ -46,18 +46,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JWTRequestParameterProcessingFilter extends OncePerRequestFilter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JWTRequestParameterProcessingFilter.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(JWTRequestParameterProcessingFilter.class);
 
     private final AuthenticationManager authenticationManager;
     private final AuthenticationFailureHandler failureHandler;
 
-    protected JWTRequestParameterProcessingFilter(AuthenticationManager authenticationManager, String failureUrl) {
+    protected JWTRequestParameterProcessingFilter(AuthenticationManager authenticationManager,
+            String failureUrl) {
         super();
         this.authenticationManager = authenticationManager;
         failureHandler = new SimpleUrlAuthenticationFailureHandler(failureUrl);
     }
 
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    public Authentication attemptAuthentication(HttpServletRequest request,
+            HttpServletResponse response) {
         Optional<JWTAuthenticationToken> token = findToken(request);
         if (token.isPresent()) {
             return authenticationManager.authenticate(token.get());
@@ -68,15 +71,16 @@ public class JWTRequestParameterProcessingFilter extends OncePerRequestFilter {
     private static Optional<JWTAuthenticationToken> findToken(HttpServletRequest request) {
         String token = request.getParameter(JWTSecurityService.JWT_PARAM_NAME);
         if (!ObjectUtils.isEmpty(token)) {
-            return Optional.of(new JWTAuthenticationToken(AuthorityUtils.NO_AUTHORITIES, token,
-                    request.getRequestURI() + "?" + request.getQueryString()));
+            return Optional
+                .of(new JWTAuthenticationToken(AuthorityUtils.NO_AUTHORITIES, token,
+                        request.getRequestURI() + "?" + request.getQueryString()));
         }
         return Optional.empty();
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
         if (!findToken(request).isPresent()) {
             filterChain.doFilter(request, response);
             return;
@@ -119,7 +123,9 @@ public class JWTRequestParameterProcessingFilter extends OncePerRequestFilter {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
+            LOG
+                .debug("Authentication success. Updating SecurityContextHolder to contain: "
+                        + authResult);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
@@ -127,8 +133,9 @@ public class JWTRequestParameterProcessingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationException failed)
+            throws IOException, ServletException {
         SecurityContextHolder.clearContext();
 
         if (LOG.isDebugEnabled()) {

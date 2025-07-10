@@ -64,10 +64,11 @@ class ShareSettingsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         shareService = mock(ShareService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new ShareSettingsController(mock(SettingsService.class), mock(MusicFolderService.class),
-                        mock(SecurityService.class), shareService, mock(MediaFileService.class)))
-                .build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new ShareSettingsController(mock(SettingsService.class),
+                    mock(MusicFolderService.class), mock(SecurityService.class), shareService,
+                    mock(MediaFileService.class)))
+            .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -78,14 +79,19 @@ class ShareSettingsControllerTest {
         Instant now = now();
         Share share = new Share();
         share.setCreated(now);
-        Mockito.when(shareService.getSharesForUser(Mockito.any(User.class))).thenReturn(Arrays.asList(share));
-        Mockito.when(shareService.getSharedFiles(Mockito.anyInt(), Mockito.anyList()))
-                .thenReturn(Arrays.asList(new MediaFile()));
+        Mockito
+            .when(shareService.getSharesForUser(Mockito.any(User.class)))
+            .thenReturn(Arrays.asList(share));
+        Mockito
+            .when(shareService.getSharedFiles(Mockito.anyInt(), Mockito.anyList()))
+            .thenReturn(Arrays.asList(new MediaFile()));
 
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.SHARE_SETTINGS.value())
-                        .param(Attributes.Request.DELETE.value(), "false"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.SHARE_SETTINGS.value())
+                .param(Attributes.Request.DELETE.value(), "false"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("shareSettings", modelAndView.getViewName());
@@ -104,11 +110,15 @@ class ShareSettingsControllerTest {
         share.setExpires(expires);
         Instant lastVisited = now.plus(1, ChronoUnit.DAYS);
         share.setLastVisited(lastVisited);
-        Mockito.when(shareService.getSharesForUser(Mockito.any(User.class))).thenReturn(Arrays.asList(share));
+        Mockito
+            .when(shareService.getSharesForUser(Mockito.any(User.class)))
+            .thenReturn(Arrays.asList(share));
         result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.SHARE_SETTINGS.value())
-                        .param(Attributes.Request.DELETE.value(), "false"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.SHARE_SETTINGS.value())
+                .param(Attributes.Request.DELETE.value(), "false"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         model = (Map<String, Object>) result.getModelAndView().getModel().get("model");
         shareInfos = (List<ShareInfo>) model.get("shareInfos");
         assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()),
@@ -124,11 +134,13 @@ class ShareSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDoPost() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.SHARE_SETTINGS.value())
-                        .param(Attributes.Request.DELETE.value(), "false"))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.SHARE_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.SHARE_SETTINGS.value())
+                .param(Attributes.Request.DELETE.value(), "false"))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.SHARE_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 }

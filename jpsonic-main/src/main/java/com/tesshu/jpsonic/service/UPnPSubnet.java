@@ -20,7 +20,7 @@ public class UPnPSubnet {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPSubnet.class);
     private static final Pattern IP_ADDRESS_PATTERN = Pattern
-            .compile("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})");
+        .compile("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})");
     private String dlnaBaseLANURL;
     private SubnetInfo subnetInfo;
 
@@ -31,13 +31,16 @@ public class UPnPSubnet {
     }
 
     public boolean isInUPnPRange(final String address) {
-        if (isEmpty(address) || !IP_ADDRESS_PATTERN.matcher(address).matches() || isEmpty(dlnaBaseLANURL)) {
+        if (isEmpty(address) || !IP_ADDRESS_PATTERN.matcher(address).matches()
+                || isEmpty(dlnaBaseLANURL)) {
             return false;
         } else if (isEmpty(subnetInfo)) {
             try {
                 URL url = new URL(dlnaBaseLANURL);
-                String cidrNotation = (IP_ADDRESS_PATTERN.matcher(url.getHost()).matches() ? url.getHost()
-                        : InetAddress.getByName(url.getHost()).getHostAddress()).concat("/24");
+                String cidrNotation = (IP_ADDRESS_PATTERN.matcher(url.getHost()).matches()
+                        ? url.getHost()
+                        : InetAddress.getByName(url.getHost()).getHostAddress())
+                    .concat("/24");
                 subnetInfo = new SubnetUtils(cidrNotation).getInfo();
             } catch (MalformedURLException | UnknownHostException e) {
                 if (LOG.isWarnEnabled()) {

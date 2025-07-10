@@ -56,15 +56,17 @@ class TagServiceTest {
         mediaFileService = mock(MediaFileService.class);
         writableMediaFileService = mock(WritableMediaFileService.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
-        tagService = new TagService(metaDataParserFactory, mediaFileService, writableMediaFileService,
-                scannerStateService);
+        tagService = new TagService(metaDataParserFactory, mediaFileService,
+                writableMediaFileService, scannerStateService);
         parser = new MusicParser(mock(MusicFolderService.class));
     }
 
     @Test
     void testUpdateTags(@TempDir Path tempDir) throws URISyntaxException, IOException {
         Path org = Path
-                .of(TagServiceTest.class.getResource("/MEDIAS/Metadata/v2.3+v1.1/MusicCenter2.1.0JP.mp3").toURI());
+            .of(TagServiceTest.class
+                .getResource("/MEDIAS/Metadata/v2.3+v1.1/MusicCenter2.1.0JP.mp3")
+                .toURI());
         Path copy = Path.of(tempDir.toString(), org.getFileName().toString());
 
         try (OutputStream out = Files.newOutputStream(copy);) {
@@ -81,7 +83,9 @@ class TagServiceTest {
 
         Mockito.when(mediaFileService.getMediaFileStrict(mediaFile.getId())).thenReturn(mediaFile);
         Mockito.when(mediaFileService.getParent(mediaFile)).thenReturn(Optional.of(parent));
-        Mockito.when(metaDataParserFactory.getParser(Path.of(mediaFile.getPathString()))).thenReturn(parser);
+        Mockito
+            .when(metaDataParserFactory.getParser(Path.of(mediaFile.getPathString())))
+            .thenReturn(parser);
 
         Mockito.when(scannerStateService.isScanning()).thenReturn(false);
         String result = tagService.updateTags(0, "1", "artist", "album", "title", "2022", "genre");

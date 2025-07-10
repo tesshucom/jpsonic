@@ -132,7 +132,9 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.NotEmpty
         @EnabledOnOs(OS.WINDOWS)
         void c07() {
-            assertFalse(PathValidator.validateFolderPath("\\\\192.168.1.1/shared/testDirectory").isEmpty());
+            assertFalse(PathValidator
+                .validateFolderPath("\\\\192.168.1.1/shared/testDirectory")
+                .isEmpty());
             assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
 
@@ -141,7 +143,9 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.Empty
         @EnabledOnOs(OS.LINUX)
         void c08() {
-            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1/shared/testDirectory").isEmpty());
+            assertTrue(PathValidator
+                .validateFolderPath("\\\\192.168.1.1/shared/testDirectory")
+                .isEmpty());
             assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
     }

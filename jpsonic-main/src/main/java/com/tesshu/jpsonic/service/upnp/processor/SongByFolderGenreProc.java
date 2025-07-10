@@ -49,8 +49,8 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
     private final UpnpDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
 
-    public SongByFolderGenreProc(SettingsService settingsService, SearchService searchService, UpnpDIDLFactory factory,
-            FolderOrGenreLogic folderOrGenreLogic) {
+    public SongByFolderGenreProc(SettingsService settingsService, SearchService searchService,
+            UpnpDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
         super();
         this.settingsService = settingsService;
         this.searchService = searchService;
@@ -92,13 +92,21 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService.getSongsByGenres(genre.getName(), (int) offset, (int) count, asList(folder)).stream()
-                    .map(FGenreOrSong::new).toList();
+            return searchService
+                .getSongsByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
+                .stream()
+                .map(FGenreOrSong::new)
+                .toList();
         }
         MusicFolder folder = folderOrGenre.getFolder();
-        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(), TYPES);
-        return searchService.getGenres(criteria, offset, count).stream().map(genre -> new FolderGenre(folder, genre))
-                .map(FGenreOrSong::new).toList();
+        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(),
+                TYPES);
+        return searchService
+            .getGenres(criteria, offset, count)
+            .stream()
+            .map(genre -> new FolderGenre(folder, genre))
+            .map(FGenreOrSong::new)
+            .toList();
     }
 
     @Override
@@ -111,8 +119,9 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
         if (genreOrSong.isSong()) {
             parent.addItem(factory.toMusicTrack(genreOrSong.getSong()));
         } else {
-            deligate.addChild(parent, getProcId(), genreOrSong.getGenre(),
-                    genreOrSong.getGenre().genre().getSongCount());
+            deligate
+                .addChild(parent, getProcId(), genreOrSong.getGenre(),
+                        genreOrSong.getGenre().genre().getSongCount());
         }
     }
 }

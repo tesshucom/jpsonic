@@ -58,17 +58,20 @@ public class WMPProc {
     private static final String MS_QUERY_IMAGE_ITEM_ALL = "upnp:class derivedfrom \"object.item.imageItem\" and @refID exists false";
 
     /*
-     * Issued when displaying a right-click popup in WMP. No matter what you click on, artist, album, etc., it will ask
-     * for the ID of the first audio item in the container. Probably a preparatory movement for "play". You can play it
+     * Issued when displaying a right-click popup in WMP. No matter what you click
+     * on, artist, album, etc., it will ask for the ID of the first audio item in
+     * the container. Probably a preparatory movement for "play". You can play it
      * even if you ignore this message because it is only synchronized.
      */
-    private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern.compile("dc:title = \"[0-9]+\"");
+    private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern
+        .compile("dc:title = \"[0-9]+\"");
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
 
-    public WMPProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public WMPProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super();
         this.util = util;
         this.factory = factory;
@@ -79,8 +82,8 @@ public class WMPProc {
         return MS_FILTER_FOLDER_PATH.equals(filter) || MS_FILTER_ALL.equals(filter);
     }
 
-    public @Nullable BrowseResult getBrowseResult(@NonNull String query, @Nullable String filter, long count,
-            long offset) {
+    public @Nullable BrowseResult getBrowseResult(@NonNull String query, @Nullable String filter,
+            long count, long offset) {
         if (MS_FILTER_FOLDER_PATH.equals(filter)) {
             return getFolderPaths(query, filter, count, offset);
         } else if (MS_FILTER_ALL.equals(filter)) {
@@ -126,7 +129,8 @@ public class WMPProc {
         try {
             result = new DIDLParser().generate(content);
         } catch (Exception e) {
-            throw new ExecutionException("Unable to generate XML representation of content model.", e);
+            throw new ExecutionException("Unable to generate XML representation of content model.",
+                    e);
         }
         return new BrowseResult(result, count, totalMatches);
     }
@@ -141,9 +145,11 @@ public class WMPProc {
         DIDLContent parent = new DIDLContent();
         songs.forEach(song -> parent.addItem(createMusicTrack(song)));
         long total = mediaFileService.countSongs(folders);
-        if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != songs.size() || offset + songs.size() == total)) {
-            LOG.info("[audio] " + offset + "-" + (offset + songs.size()) + "/" + total + "("
-                    + Math.round((float) (offset + songs.size()) / (float) total * 100) + "%)");
+        if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != songs.size()
+                || offset + songs.size() == total)) {
+            LOG
+                .info("[audio] " + offset + "-" + (offset + songs.size()) + "/" + total + "("
+                        + Math.round((float) (offset + songs.size()) / (float) total * 100) + "%)");
         }
         try {
             return createBrowseResult(parent, (int) parent.getCount(), (int) total);
@@ -163,9 +169,12 @@ public class WMPProc {
         DIDLContent parent = new DIDLContent();
         videos.forEach(video -> parent.addItem(factory.toVideo(video)));
         long total = mediaFileService.countVideos(folders);
-        if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != videos.size() || offset + videos.size() == total)) {
-            LOG.info("[video] " + offset + "-" + (offset + videos.size()) + "/" + total + "("
-                    + Math.round((float) (offset + videos.size()) / (float) total * 100) + "%)");
+        if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != videos.size()
+                || offset + videos.size() == total)) {
+            LOG
+                .info("[video] " + offset + "-" + (offset + videos.size()) + "/" + total + "("
+                        + Math.round((float) (offset + videos.size()) / (float) total * 100)
+                        + "%)");
         }
         try {
             return createBrowseResult(parent, (int) parent.getCount(), (int) total);

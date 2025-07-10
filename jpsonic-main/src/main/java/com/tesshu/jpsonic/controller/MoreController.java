@@ -62,22 +62,26 @@ public class MoreController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUserStrict(request);
 
         String uploadDirectory = null;
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(user.getUsername());
         if (!musicFolders.isEmpty()) {
             uploadDirectory = Path.of(musicFolders.get(0).getPathString(), "Incoming").toString();
         }
 
         ModelAndView result = new ModelAndView();
-        result.addObject("model",
-                LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "genres", searchService.getGenres(false),
-                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders, "brand",
-                        SettingsService.getBrand()));
+        result
+            .addObject("model",
+                    LegacyMap
+                        .of("user", user, "uploadDirectory", uploadDirectory, "genres",
+                                searchService.getGenres(false), "currentYear",
+                                Calendar.getInstance().get(Calendar.YEAR), "musicFolders",
+                                musicFolders, "brand", SettingsService.getBrand()));
         return result;
     }
 }

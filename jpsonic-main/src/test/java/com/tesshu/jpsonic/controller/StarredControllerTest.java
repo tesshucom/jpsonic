@@ -48,16 +48,21 @@ class StarredControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new StarredController(mock(MusicFolderService.class),
-                mock(SecurityService.class), mock(PlayerService.class), mock(MediaFileDao.class),
-                mock(MediaFileService.class), mock(ViewAsListSelector.class))).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new StarredController(mock(MusicFolderService.class),
+                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(MediaFileDao.class), mock(MediaFileService.class),
+                    mock(ViewAsListSelector.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/starred.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/starred.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("starred", modelAndView.getViewName());

@@ -149,7 +149,8 @@ class WebFontUtilsTest {
     @Test
     @Order(3)
     void testFormatFontFamily() {
-        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, WebFontUtils.formatFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY,
+                WebFontUtils.formatFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY));
         String jpFontfamily = WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY;
         assertEquals(jpFontfamily, WebFontUtils.formatFontFamily(jpFontfamily));
         assertEquals("", WebFontUtils.formatFontFamily(null));
@@ -164,8 +165,10 @@ class WebFontUtilsTest {
         assertEquals("\"Comic Sans\"", WebFontUtils.formatFontFamily("Comic Sans"));
         assertEquals("\"Comic Sans\"", WebFontUtils.formatFontFamily("Comic\" Sans"));
         assertEquals("\"Comic Sans\"", WebFontUtils.formatFontFamily("C\\o\bm\fi\nc\" \rS\tans"));
-        assertEquals("Arial, \"Comic Sans\"", WebFontUtils.formatFontFamily("Arial,C\\o\bm\fi\nc\" \rS\tans"));
-        assertEquals("Arial, \"Comic Sans\"", WebFontUtils.formatFontFamily("Ari\"al,  Comi\"c Sans"));
+        assertEquals("Arial, \"Comic Sans\"",
+                WebFontUtils.formatFontFamily("Arial,C\\o\bm\fi\nc\" \rS\tans"));
+        assertEquals("Arial, \"Comic Sans\"",
+                WebFontUtils.formatFontFamily("Ari\"al,  Comi\"c Sans"));
     }
 
     @Test
@@ -187,7 +190,8 @@ class WebFontUtilsTest {
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.JP_EMBED.name(), to.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE + 1, to.getFontSize());
-        assertEquals(WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY, to.getFontFamily());
+        assertEquals(WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY,
+                to.getFontFamily());
 
         // Return to DEFAULT
         command.setFontScheme(FontScheme.DEFAULT);

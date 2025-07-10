@@ -74,8 +74,9 @@ class PlaylistProcTest {
         @BeforeEach
         public void setup() {
             SettingsService settingsService = mock(SettingsService.class);
-            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class), mock(MediaFileService.class),
-                    mock(PlayerService.class), mock(TranscodingService.class));
+            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
+                    mock(MediaFileService.class), mock(PlayerService.class),
+                    mock(TranscodingService.class));
             playlistService = mock(PlaylistService.class);
             proc = new PlaylistProc(factory, playlistService);
         }
@@ -91,7 +92,8 @@ class PlaylistProcTest {
             Playlist playlist2 = new Playlist(1, null, false, null, null, 0, 0, null, null, null);
             Playlist playlist3 = new Playlist(2, null, false, null, null, 0, 0, null, null, null);
             Playlist playlist4 = new Playlist(3, null, false, null, null, 0, 0, null, null, null);
-            when(playlistService.getAllPlaylists()).thenReturn(List.of(playlist1, playlist2, playlist3, playlist4));
+            when(playlistService.getAllPlaylists())
+                .thenReturn(List.of(playlist1, playlist2, playlist3, playlist4));
             assertEquals(1, proc.getDirectChildren(0, 1).size());
             assertEquals(0, proc.getDirectChildren(0, 1).get(0).getId());
             assertEquals(3, proc.getDirectChildren(1, 3).size());
@@ -143,8 +145,9 @@ class PlaylistProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
+                    true, now(), 1, false));
 
         @Autowired
         private PlaylistProc playlistProc;
@@ -193,16 +196,21 @@ class PlaylistProcTest {
 
             List<Album> albums = albumId3Proc.getDirectChildren(0, 100);
             assertEquals(61, albums.size());
-            List<MediaFile> files = albums.stream()
-                    .map(a -> mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, a.getArtist(), a.getName()).get(0))
-                    .collect(Collectors.toList());
+            List<MediaFile> files = albums
+                .stream()
+                .map(a -> mediaFileDao
+                    .getSongsForAlbum(0L, Integer.MAX_VALUE, a.getArtist(), a.getName())
+                    .get(0))
+                .collect(Collectors.toList());
             assertEquals(61, files.size());
-            playlistDao.setFilesInPlaylist(playlistProc.getDirectChildren(0, 1).get(0).getId(), files);
+            playlistDao
+                .setFilesInPlaylist(playlistProc.getDirectChildren(0, 1).get(0).getId(), files);
         }
 
         @Test
         void testCreateContainer() {
-            Playlist playlist = new Playlist(0, "admin", false, "testPlaylist", null, 99, 0, null, null, null);
+            Playlist playlist = new Playlist(0, "admin", false, "testPlaylist", null, 99, 0, null,
+                    null, null);
             Container container = playlistProc.createContainer(playlist);
             assertInstanceOf(PlaylistContainer.class, container);
             assertEquals("playlist/0", container.getId());
@@ -222,16 +230,25 @@ class PlaylistProcTest {
             Map<String, Playlist> c = LegacyMap.of();
 
             List<Playlist> items = playlistProc.getDirectChildren(0, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 10);
 
             items = playlistProc.getDirectChildren(10, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 20);
 
             items = playlistProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 31);
         }
 
@@ -245,16 +262,25 @@ class PlaylistProcTest {
             Map<Integer, MediaFile> c = LegacyMap.of();
 
             List<MediaFile> children = playlistProc.getChildren(playlists.get(0), 0, 20);
-            children.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getId()))
+                .forEach(m -> c.put(m.getId(), m));
             assertEquals(children.size(), 20);
 
             children = playlistProc.getChildren(playlists.get(0), 20, 20);
-            children.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getId()))
+                .forEach(m -> c.put(m.getId(), m));
             assertEquals(c.size(), 40);
 
             children = playlistProc.getChildren(playlists.get(0), 40, 100);
             assertEquals(21, children.size());
-            children.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getId()))
+                .forEach(m -> c.put(m.getId(), m));
             assertEquals(c.size(), 61);
         }
 

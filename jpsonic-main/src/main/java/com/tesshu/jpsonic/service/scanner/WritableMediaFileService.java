@@ -67,8 +67,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 
 /**
- * Class for writing MediaFile. Package-private methods will be used from the scanning thread. Public methods may be
- * used from outside the scanning thread, so concurrency will need to be taken care of.
+ * Class for writing MediaFile. Package-private methods will be used from the
+ * scanning thread. Public methods may be used from outside the scanning thread,
+ * so concurrency will need to be taken care of.
  */
 @Service
 public class WritableMediaFileService {
@@ -87,11 +88,12 @@ public class WritableMediaFileService {
     private final IndexManager indexManager;
     private final MusicIndexServiceImpl musicIndexService;
 
-    public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
-            MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
-            MusicParser musicParser, VideoParser videoParser, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils, IndexManager indexManager,
-            MusicIndexServiceImpl musicIndexService) {
+    public WritableMediaFileService(MediaFileDao mediaFileDao,
+            ScannerStateService scannerStateService, MediaFileService mediaFileService,
+            AlbumDao albumDao, MediaFileCache mediaFileCache, MusicParser musicParser,
+            VideoParser videoParser, SettingsService settingsService,
+            SecurityService securityService, JapaneseReadingUtils readingUtils,
+            IndexManager indexManager, MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -108,7 +110,8 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Logic that relies on this method needs to be rewritten since v111.7.0. It suggests imperfect workflow design.
+     * Logic that relies on this method needs to be rewritten since v111.7.0. It
+     * suggests imperfect workflow design.
      *
      * @deprecated Use the date logged should be used instead of now()
      */
@@ -118,7 +121,8 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Logic that relies on this method needs to be rewritten since v111.7.0. It suggests imperfect workflow design.
+     * Logic that relies on this method needs to be rewritten since v111.7.0. It
+     * suggests imperfect workflow design.
      *
      * @deprecated Use MediaFileService#getMediaFile if use the cache, otherwise use
      *             WritableMediaFileService#getMediaFile(Instant, Path)
@@ -130,9 +134,10 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Returns a Mediafile for the directory or file indicated by path. Logic using this method was used outside of the
-     * normal scan flow in legacy code. Therefore, special data may be created. In particular, the record lifecycle and
-     * format should be scrutinized.
+     * Returns a Mediafile for the directory or file indicated by path. Logic using
+     * this method was used outside of the normal scan flow in legacy code.
+     * Therefore, special data may be created. In particular, the record lifecycle
+     * and format should be scrutinized.
      */
     @Nullable
     MediaFile getMediaFile(@NonNull Instant scanDate, @Nullable Path path) {
@@ -154,21 +159,25 @@ public class WritableMediaFileService {
     }
 
     /*
-     * In Jpsonic, ChildrenLastUpdated is used to detect changes in related child data fields. The meaning depends on
-     * the MediaType: for ALBUM, it indicates a change in the album in the file structure. For MUSIC, AUDIOBOOK, MOVIE,
-     * it indicates a change in the album in the ID3.
+     * In Jpsonic, ChildrenLastUpdated is used to detect changes in related child
+     * data fields. The meaning depends on the MediaType: for ALBUM, it indicates a
+     * change in the album in the file structure. For MUSIC, AUDIOBOOK, MOVIE, it
+     * indicates a change in the album in the ID3.
      */
 
     private void updateAlbumChildrenLastUpdated(@NonNull MediaFile album) {
-        mediaFileDao.updateChildrenLastUpdated(album.getPathString(),
-                album.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : album.getChanged());
+        mediaFileDao
+            .updateChildrenLastUpdated(album.getPathString(),
+                    album.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : album.getChanged());
     }
 
     /*
-     * If there is a difference in the children, set ChildrenLastUpdated to FAR_FUTURE
+     * If there is a difference in the children, set ChildrenLastUpdated to
+     * FAR_FUTURE
      */
     private void updateSongChildrenLastUpdated(@NonNull MediaFile updated, @NonNull MediaFile old) {
-        if (!(updated.getMediaType() == MediaType.MUSIC || updated.getMediaType() == MediaType.AUDIOBOOK
+        if (!(updated.getMediaType() == MediaType.MUSIC
+                || updated.getMediaType() == MediaType.AUDIOBOOK
                 || updated.getMediaType() == MediaType.VIDEO)) {
             return;
         }
@@ -178,18 +187,20 @@ public class WritableMediaFileService {
                 && Objects.equals(updated.getAlbumArtist(), old.getAlbumArtist())
                 && Objects.equals(updated.getAlbumName(), old.getAlbumName())
                 && Objects.equals(updated.getYear(), old.getYear())
-                && Objects.equals(updated.getGenre(), old.getGenre())
-                && Objects.equals(updated.getMusicBrainzReleaseId(), old.getMusicBrainzReleaseId()))) {
+                && Objects.equals(updated.getGenre(), old.getGenre()) && Objects
+                    .equals(updated.getMusicBrainzReleaseId(), old.getMusicBrainzReleaseId()))) {
             mediaFileDao.updateChildrenLastUpdated(updated.getPathString(), FAR_FUTURE);
         }
     }
 
     /*
-     * If any children are deleted, set ChildrenLastUpdated of any existing children to FAR_FUTURE.
+     * If any children are deleted, set ChildrenLastUpdated of any existing children
+     * to FAR_FUTURE.
      */
     private void updateSongChildrenLastUpdated(@NonNull MediaFile parent) {
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            if (child.getMediaType() == MediaType.MUSIC || child.getMediaType() == MediaType.AUDIOBOOK
+            if (child.getMediaType() == MediaType.MUSIC
+                    || child.getMediaType() == MediaType.AUDIOBOOK
                     || child.getMediaType() == MediaType.VIDEO) {
                 mediaFileDao.updateChildrenLastUpdated(child.getPathString(), FAR_FUTURE);
             }
@@ -198,8 +209,10 @@ public class WritableMediaFileService {
 
     Optional<Path> updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
 
-        Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
-                .collect(Collectors.toMap(MediaFile::getPathString, mf -> mf));
+        Map<String, MediaFile> stored = mediaFileDao
+            .getChildrenOf(parent.getPathString())
+            .stream()
+            .collect(Collectors.toMap(MediaFile::getPathString, mf -> mf));
 
         LongAdder updateCount = new LongAdder();
         CoverArtDetector coverArtDetector = new CoverArtDetector(securityService, mediaFileService);
@@ -218,8 +231,9 @@ public class WritableMediaFileService {
                 createOrUpdateChild(child, childPath, scanDate).ifPresentOrElse(updated -> {
                     if (child != null) {
                         /*
-                         * Updates the ChildrenLastUpdated which is used to detect changes when updating ID3 Album
-                         * records. Note that this process does not include detecting changes to the Sort tag.
+                         * Updates the ChildrenLastUpdated which is used to detect changes when
+                         * updating ID3 Album records. Note that this process does not include
+                         * detecting changes to the Sort tag.
                          */
                         updateSongChildrenLastUpdated(updated, child);
                     }
@@ -241,10 +255,14 @@ public class WritableMediaFileService {
         }
 
         LongAdder deleteCount = new LongAdder();
-        stored.values().stream().filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0).forEach(m -> {
-            deleteMediafileIndex(m);
-            deleteCount.increment();
-        });
+        stored
+            .values()
+            .stream()
+            .filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0)
+            .forEach(m -> {
+                deleteMediafileIndex(m);
+                deleteCount.increment();
+            });
         if (deleteCount.intValue() > 0) {
             updateSongChildrenLastUpdated(parent);
         }
@@ -254,17 +272,17 @@ public class WritableMediaFileService {
 
     private void deleteMediafileIndex(MediaFile mediaFile) {
         switch (mediaFile.getMediaType()) {
-            case DIRECTORY:
-                indexManager.expungeArtist(mediaFile.getId());
-                break;
-            case ALBUM:
-                indexManager.expungeAlbum(mediaFile.getId());
-                break;
-            case MUSIC:
-                indexManager.expungeSong(mediaFile.getId());
-                break;
-            default:
-                break;
+        case DIRECTORY:
+            indexManager.expungeArtist(mediaFile.getId());
+            break;
+        case ALBUM:
+            indexManager.expungeAlbum(mediaFile.getId());
+            break;
+        case MUSIC:
+            indexManager.expungeSong(mediaFile.getId());
+            break;
+        default:
+            break;
         }
     }
 
@@ -272,10 +290,12 @@ public class WritableMediaFileService {
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")
     Optional<MediaFile> createOrUpdateChild(@Nullable MediaFile child, @NonNull Path childPath,
             @NonNull Instant scanDate) {
-        return child == null ? createMediaFile(scanDate, childPath) : checkLastModified(scanDate, child);
+        return child == null ? createMediaFile(scanDate, childPath)
+                : checkLastModified(scanDate, child);
     }
 
-    List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent, boolean fileOnly) {
+    List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent,
+            boolean fileOnly) {
 
         List<MediaFile> result = new ArrayList<>();
         if (!parent.isDirectory()) {
@@ -293,7 +313,8 @@ public class WritableMediaFileService {
         });
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            if (child.isDirectory() && !fileOnly && mediaFileService.includeMediaFile(child.toPath())) {
+            if (child.isDirectory() && !fileOnly
+                    && mediaFileService.includeMediaFile(child.toPath())) {
                 result.add(child);
             }
             if (child.isFile() && fileOnly && mediaFileService.includeMediaFile(child.toPath())) {
@@ -304,11 +325,14 @@ public class WritableMediaFileService {
         return result;
     }
 
-    Optional<MediaFile> checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
-        if (scanDate.equals(mediaFile.getLastScanned()) || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
+    Optional<MediaFile> checkLastModified(@NonNull Instant scanDate,
+            @NonNull final MediaFile mediaFile) {
+        if (scanDate.equals(mediaFile.getLastScanned())
+                || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
             return Optional.empty();
         } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+            if (settingsService.isIgnoreFileTimestamps()
+                    && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                 return Optional.empty();
             } else if (!settingsService.isIgnoreFileTimestamps()
                     && !mediaFile.getChanged().isBefore(getLastModified(mediaFile.toPath()))
@@ -412,7 +436,8 @@ public class WritableMediaFileService {
             to.setLastScanned(scanDate);
         }
 
-        String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
+        String format = StringUtils
+            .trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
         to.setFormat(format);
         try {
             to.setFileSize(Files.size(path));
@@ -422,7 +447,8 @@ public class WritableMediaFileService {
         to.setMediaType(getMediaType(to));
     }
 
-    private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to, @NonNull Instant scanDate) {
+    private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to,
+            @NonNull Instant scanDate) {
         if (!mediaFileService.isRoot(to)) {
             getFirstChildMediaFile(dirPath).ifPresentOrElse(firstChildPath -> {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
@@ -440,7 +466,10 @@ public class WritableMediaFileService {
 
     private Optional<Path> getFirstChildMediaFile(@NonNull Path parent) {
         try (Stream<Path> children = Files.list(parent)) {
-            return children.filter(Files::isRegularFile).filter(mediaFileService::includeMediaFile).findFirst();
+            return children
+                .filter(Files::isRegularFile)
+                .filter(mediaFileService::includeMediaFile)
+                .findFirst();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -466,8 +495,9 @@ public class WritableMediaFileService {
     MediaFile parseVideo(@NonNull Instant scanDate, MediaFile registered) {
         Path path = registered.toPath();
         /*
-         * See #1368.If we limit yourself to ffprobe, we can handle Sort and MusicBrainz. Currently, MP4 ... old
-         * QuickTime format specification range is used considering versatility. That is the lowest common multiple.
+         * See #1368.If we limit yourself to ffprobe, we can handle Sort and
+         * MusicBrainz. Currently, MP4 ... old QuickTime format specification range is
+         * used considering versatility. That is the lowest common multiple.
          */
         if (videoParser.isApplicable(path)) {
             MetaData metaData = videoParser.getMetaData(path);
@@ -506,8 +536,9 @@ public class WritableMediaFileService {
     }
 
     /*
-     * TODO To be fixed in v111.7.0 later #1925. Used for some tag updates. Note that it only updates the tags and does
-     * not take into account the completeness of the scan. Strictly speaking, processing equivalent to partial scan is
+     * TODO To be fixed in v111.7.0 later #1925. Used for some tag updates. Note
+     * that it only updates the tags and does not take into account the completeness
+     * of the scan. Strictly speaking, processing equivalent to partial scan is
      * required.
      */
     @Deprecated
@@ -536,7 +567,9 @@ public class WritableMediaFileService {
         Path dirPath = dir.toPath();
         mediaFileService.findCoverArt(dirPath).ifPresent(coverArtPath -> {
             mediaFileDao.updateCoverArtPath(dirPath.toString(), coverArtPath.toString());
-            albumDao.updateCoverArtPath(dir.getAlbumArtist(), dir.getAlbumName(), coverArtPath.toString());
+            albumDao
+                .updateCoverArtPath(dir.getAlbumArtist(), dir.getAlbumName(),
+                        coverArtPath.toString());
             mediaFileCache.remove(dirPath);
         });
     }
@@ -562,7 +595,8 @@ public class WritableMediaFileService {
         }
         Album album = albumDao.getAlbum(file.getAlbumArtist(), file.getAlbumName());
         if (album != null) {
-            albumDao.updatePlayCount(album.getArtist(), album.getName(), now, album.getPlayCount() + 1);
+            albumDao
+                .updatePlayCount(album.getArtist(), album.getName(), now, album.getPlayCount() + 1);
         }
     }
 
@@ -590,7 +624,8 @@ public class WritableMediaFileService {
         private Path coverArtAvailable;
         private Path firstCoverArtEmbeddable;
 
-        public CoverArtDetector(SecurityService securityService, MediaFileService mediaFileService) {
+        public CoverArtDetector(SecurityService securityService,
+                MediaFileService mediaFileService) {
             this.securityService = securityService;
             this.mediaFileService = mediaFileService;
         }
@@ -598,8 +633,9 @@ public class WritableMediaFileService {
         void setChildFilePath(Path childPath) {
             try {
                 if (coverArtAvailable == null && !securityService.isExcluded(childPath)
-                        && mediaFileService.isAvailableCoverArtPath(childPath,
-                                Files.readAttributes(childPath, BasicFileAttributes.class))) {
+                        && mediaFileService
+                            .isAvailableCoverArtPath(childPath,
+                                    Files.readAttributes(childPath, BasicFileAttributes.class))) {
                     coverArtAvailable = childPath;
                 }
             } catch (IOException e) {
@@ -608,13 +644,15 @@ public class WritableMediaFileService {
         }
 
         void setMediaFilePath(Path childPath) {
-            if (firstCoverArtEmbeddable == null && ParserUtils.isEmbeddedArtworkApplicable(childPath)) {
+            if (firstCoverArtEmbeddable == null
+                    && ParserUtils.isEmbeddedArtworkApplicable(childPath)) {
                 firstCoverArtEmbeddable = childPath;
             }
         }
 
         Optional<Path> getCoverArtAvailable() {
-            return Optional.ofNullable(ObjectUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
+            return Optional
+                .ofNullable(ObjectUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
         }
     }
 }

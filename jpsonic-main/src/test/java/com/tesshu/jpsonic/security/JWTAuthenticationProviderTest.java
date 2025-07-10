@@ -42,19 +42,27 @@ class JWTAuthenticationProviderTest {
     @Test
     void testRoughlyEqual() {
         assertFalse(JWTAuthenticationProvider.roughlyEqual(null, null));
-        assertThrows(IllegalArgumentException.class, () -> JWTAuthenticationProvider.roughlyEqual("A", null));
-        assertFalse(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy1.com/test1").toString(),
-                URI.create("http://dummy2.com/test2").toString()));
-        assertFalse(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy.com/test").toString(),
-                URI.create("http://dummy.com/test").toString()));
-        assertFalse(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy.com/test?A=dummy1").toString(),
-                URI.create("http://dummy.com/test?A=dummy2").toString()));
-        assertFalse(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy.com/test").toString(),
-                URI.create("http://dummy.com/test?A=dummy").toString()));
-        assertFalse(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy.com/test?A=dummy").toString(),
-                URI.create("http://dummy.com/test").toString()));
-        assertTrue(JWTAuthenticationProvider.roughlyEqual(URI.create("http://dummy.com/test").toString(),
-                URI.create("http://dummy.com/test?" + JWTSecurityService.JWT_PARAM_NAME + "=value").toString()));
+        assertThrows(IllegalArgumentException.class,
+                () -> JWTAuthenticationProvider.roughlyEqual("A", null));
+        assertFalse(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy1.com/test1").toString(),
+                    URI.create("http://dummy2.com/test2").toString()));
+        assertFalse(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy.com/test").toString(),
+                    URI.create("http://dummy.com/test").toString()));
+        assertFalse(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy.com/test?A=dummy1").toString(),
+                    URI.create("http://dummy.com/test?A=dummy2").toString()));
+        assertFalse(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy.com/test").toString(),
+                    URI.create("http://dummy.com/test?A=dummy").toString()));
+        assertFalse(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy.com/test?A=dummy").toString(),
+                    URI.create("http://dummy.com/test").toString()));
+        assertTrue(JWTAuthenticationProvider
+            .roughlyEqual(URI.create("http://dummy.com/test").toString(), URI
+                .create("http://dummy.com/test?" + JWTSecurityService.JWT_PARAM_NAME + "=value")
+                .toString()));
     }
 
     @Nested
@@ -63,9 +71,12 @@ class JWTAuthenticationProviderTest {
         @Test
         void testCheckNotNull() {
             Map<String, List<String>> m = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> JWTAuthenticationProvider.expectedJWTParam(null, m));
-            assertThrows(NullPointerException.class, () -> JWTAuthenticationProvider.expectedJWTParam(m, null));
-            assertThrows(NullPointerException.class, () -> JWTAuthenticationProvider.expectedJWTParam(null, null));
+            assertThrows(NullPointerException.class,
+                    () -> JWTAuthenticationProvider.expectedJWTParam(null, m));
+            assertThrows(NullPointerException.class,
+                    () -> JWTAuthenticationProvider.expectedJWTParam(m, null));
+            assertThrows(NullPointerException.class,
+                    () -> JWTAuthenticationProvider.expectedJWTParam(null, null));
             assertFalse(JWTAuthenticationProvider.expectedJWTParam(m, m));
         }
 

@@ -26,12 +26,14 @@ import org.jupnp.transport.spi.AbstractStreamClientConfiguration;
 import org.jupnp.transport.spi.StreamClientConfiguration;
 
 /**
- * Derived from org.fourthline.cling.transport.spi.AbstractStreamClientConfiguration.
+ * Derived from
+ * org.fourthline.cling.transport.spi.AbstractStreamClientConfiguration.
  * 
- * This class had been also copied to jupnp. However, since Jpsonic uses the Record class for
- * configuration, it has been replaced by interface. The method names and values of this interface
- * will not change in the future to eliminate confusion when matching property names in legacy code.
- * Overrides are only allowed for certain sealed Record classes. (Record class is immutable)
+ * This class had been also copied to jupnp. However, since Jpsonic uses the
+ * Record class for configuration, it has been replaced by interface. The method
+ * names and values of this interface will not change in the future to eliminate
+ * confusion when matching property names in legacy code. Overrides are only
+ * allowed for certain sealed Record classes. (Record class is immutable)
  * 
  * @see AbstractStreamClientConfiguration
  */

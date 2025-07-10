@@ -74,7 +74,8 @@ class RecentAlbumByFolderProcTest {
             folder.setMediaType(MediaType.DIRECTORY);
             folder.setPathString("pathString");
             when(util.getGuestFolders())
-                    .thenReturn(List.of(new MusicFolder(folder.getPathString(), "name1", true, null, false)));
+                .thenReturn(List
+                    .of(new MusicFolder(folder.getPathString(), "name1", true, null, false)));
         }
 
         @Test
@@ -82,29 +83,33 @@ class RecentAlbumByFolderProcTest {
             MediaFile album = new MediaFile();
             album.setMediaType(MediaType.ALBUM);
             assertTrue(processor.getChildren(album, 0, 0).isEmpty());
-            verify(mediaFileService, times(1)).getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
-                    any(ChildOrder.class), any(MediaType[].class));
-            verify(mediaFileService, never()).getNewestAlbums(anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, times(1))
+                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
+                        any(MediaType[].class));
+            verify(mediaFileService, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testFolderChildrenWithCountZero() {
             assertTrue(processor.getChildren(folder, 0, 0).isEmpty());
-            verify(mediaFileService, never()).getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
-                    any(ChildOrder.class), any(MediaType[].class));
-            verify(mediaFileService, never()).getNewestAlbums(anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, never())
+                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
+                        any(MediaType[].class));
+            verify(mediaFileService, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testFolderChildrenWithValidValue() {
-            when(mediaFileService.getAlbumCount(ArgumentMatchers.<MusicFolder> anyList())).thenReturn(1L);
+            when(mediaFileService.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList()))
+                .thenReturn(1L);
             assertTrue(processor.getChildren(folder, 0, 1).isEmpty());
-            verify(mediaFileService, never()).getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
-                    any(ChildOrder.class), any(MediaType[].class));
-            verify(mediaFileService, times(1)).getNewestAlbums(anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, never())
+                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
+                        any(MediaType[].class));
+            verify(mediaFileService, times(1))
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
     }
 }

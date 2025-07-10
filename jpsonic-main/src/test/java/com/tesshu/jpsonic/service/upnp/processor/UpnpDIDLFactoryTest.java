@@ -66,10 +66,14 @@ class UpnpDIDLFactoryTest {
         MediaFile song = new MediaFile();
         song.setFormat("flac");
         assertFalse(settingsService.isUriWithFileExtensions());
-        Mockito.when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt())).thenReturn(Collections.emptyList());
+        Mockito
+            .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
+            .thenReturn(Collections.emptyList());
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://192.168.1.1/ext/stream")
-                .queryParam("id", 0).queryParam("player", 0);
+        UriComponentsBuilder builder = UriComponentsBuilder
+            .fromHttpUrl("http://192.168.1.1/ext/stream")
+            .queryParam("id", 0)
+            .queryParam("player", 0);
         assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
 
         Mockito.when(settingsService.isUriWithFileExtensions()).thenReturn(true);
@@ -79,14 +83,18 @@ class UpnpDIDLFactoryTest {
         assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
         song.setFormat("flac");
         Transcoding transcoding = new Transcoding(0, "mp3", "flac", "mp3", null, null, null, true);
-        Mockito.when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt())).thenReturn(Arrays.asList(transcoding));
+        Mockito
+            .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
+            .thenReturn(Arrays.asList(transcoding));
         assertTrue(factory.createURIStringWithToken(builder, song).endsWith(".mp3"));
     }
 
     @Test
     void testToRes() {
         Player player = new Player();
-        Mockito.when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class))).thenReturn(player);
+        Mockito
+            .when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class)))
+            .thenReturn(player);
         Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("http://192.168.1.1");
         MediaFile song = new MediaFile();
         song.setFileSize(123L);

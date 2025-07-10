@@ -79,9 +79,11 @@ public class PlayQueueDao {
                 delete from play_queue
                 where username=?
                 """, playQueue.getUsername());
-        template.update("insert into play_queue(" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                playQueue.getUsername(), playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
-                playQueue.getChanged(), playQueue.getChangedBy());
+        template
+            .update("insert into play_queue(" + INSERT_COLUMNS + ") values ("
+                    + questionMarks(INSERT_COLUMNS) + ")", playQueue.getUsername(),
+                    playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
+                    playQueue.getChanged(), playQueue.getChangedBy());
         int id = template.queryForInt("select max(id) from play_queue", 0);
         playQueue.setId(id);
 
@@ -96,8 +98,8 @@ public class PlayQueueDao {
     private static class PlayQueueMapper implements RowMapper<SavedPlayQueue> {
         @Override
         public SavedPlayQueue mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new SavedPlayQueue(rs.getInt(1), rs.getString(2), null, rs.getInt(3), rs.getLong(4),
-                    nullableInstantOf(rs.getTimestamp(5)), rs.getString(6));
+            return new SavedPlayQueue(rs.getInt(1), rs.getString(2), null, rs.getInt(3),
+                    rs.getLong(4), nullableInstantOf(rs.getTimestamp(5)), rs.getString(6));
         }
     }
 }

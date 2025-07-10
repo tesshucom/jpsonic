@@ -20,14 +20,16 @@
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
 /**
- * An interface that represents a composite model made up of multiple domain models. Since UPnP does not use sessions,
- * the set of models used for summarization is represented by an ID.
+ * An interface that represents a composite model made up of multiple domain
+ * models. Since UPnP does not use sessions, the set of models used for
+ * summarization is represented by an ID.
  */
 public interface CompositeModel {
 
     /**
-     * The composite ID of the SubModels that make up the Model. This implementation class will need to provide a
-     * parsing method for ID and be able to recover the SubModel's ID.
+     * The composite ID of the SubModels that make up the Model. This implementation
+     * class will need to provide a parsing method for ID and be able to recover the
+     * SubModel's ID.
      */
     String createCompositeId();
 }

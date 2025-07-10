@@ -22,8 +22,8 @@
 package com.tesshu.jpsonic.service.search;
 
 /**
- * Enum that symbolizes the field name used for lucene index. This class is a division of what was once part of
- * SearchService and added functionality.
+ * Enum that symbolizes the field name used for lucene index. This class is a
+ * division of what was once part of SearchService and added functionality.
  */
 public final class FieldNamesConstants {
 
@@ -91,13 +91,14 @@ public final class FieldNamesConstants {
     public static final String TITLE = "tit";
 
     /**
-     * Jpsonic specific assistance field. Key field that holds the normalized string.
+     * Jpsonic specific assistance field. Key field that holds the normalized
+     * string.
      */
     public static final String GENRE_KEY = "gk";
 
     /**
-     * Jpsonic specific reading field. Parse rules are expected to correspond to breaks according to id3 and also to
-     * customary multi artists.
+     * Jpsonic specific reading field. Parse rules are expected to correspond to
+     * breaks according to id3 and also to customary multi artists.
      */
     public static final String ARTIST_READING = "artR";
 
@@ -110,12 +111,14 @@ public final class FieldNamesConstants {
     public static final String COMPOSER_READING = "cmpR";
 
     /**
-     * Jpsonic specific assistance field. Phonological fields where syllable breaks are not always guaranteed.
+     * Jpsonic specific assistance field. Phonological fields where syllable breaks
+     * are not always guaranteed.
      */
     public static final String ARTIST_READING_ROMANIZED = "artRR";
 
     /**
-     * Jpsonic specific assistance field. Phonological fields where syllable breaks are not always guaranteed.
+     * Jpsonic specific assistance field. Phonological fields where syllable breaks
+     * are not always guaranteed.
      */
     public static final String COMPOSER_READING_ROMANIZED = "cmpRR";
 

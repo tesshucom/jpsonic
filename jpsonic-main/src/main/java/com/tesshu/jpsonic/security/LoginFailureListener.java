@@ -51,7 +51,9 @@ public class LoginFailureListener implements ApplicationListener<ApplicationEven
         }
 
         if (LOG.isInfoEnabled()) {
-            LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
+            LOG
+                .info("Login failed from ["
+                        + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
         }
 
     }

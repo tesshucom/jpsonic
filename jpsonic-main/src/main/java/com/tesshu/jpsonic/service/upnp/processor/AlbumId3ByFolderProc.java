@@ -39,8 +39,8 @@ public class AlbumId3ByFolderProc extends DirectChildrenContentProc<FolderOrFAlb
     private final UpnpDIDLFactory factory;
     private final FolderOrAlbumLogic deligate;
 
-    public AlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao, UpnpDIDLFactory factory,
-            FolderOrAlbumLogic folderOrAlbumLogic) {
+    public AlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao,
+            UpnpDIDLFactory factory, FolderOrAlbumLogic folderOrAlbumLogic) {
         super();
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
@@ -78,12 +78,18 @@ public class AlbumId3ByFolderProc extends DirectChildrenContentProc<FolderOrFAlb
 
         if (folderOrAlbum.isFolderAlbum()) {
             Album album = folderOrAlbum.getFolderAlbum().album();
-            return mediaFileService.getSongsForAlbum(offset, count, album.getArtist(), album.getName()).stream()
-                    .map(AlbumOrSong::new).toList();
+            return mediaFileService
+                .getSongsForAlbum(offset, count, album.getArtist(), album.getName())
+                .stream()
+                .map(AlbumOrSong::new)
+                .toList();
         }
         return albumDao
-                .getAlphabeticalAlbums((int) offset, (int) count, false, true, Arrays.asList(folderOrAlbum.getFolder()))
-                .stream().map(AlbumOrSong::new).toList();
+            .getAlphabeticalAlbums((int) offset, (int) count, false, true,
+                    Arrays.asList(folderOrAlbum.getFolder()))
+            .stream()
+            .map(AlbumOrSong::new)
+            .toList();
     }
 
     @Override

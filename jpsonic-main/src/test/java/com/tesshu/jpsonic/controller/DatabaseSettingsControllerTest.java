@@ -46,16 +46,19 @@ class DatabaseSettingsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new DatabaseSettingsController(mock(SettingsService.class),
-                        mock(SecurityService.class), mock(ShareService.class), mock(OutlineHelpSelector.class)))
-                .build();
+            .standaloneSetup(new DatabaseSettingsController(mock(SettingsService.class),
+                    mock(SecurityService.class), mock(ShareService.class),
+                    mock(OutlineHelpSelector.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DATABASE_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.DATABASE_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

@@ -83,12 +83,11 @@ public class CoverArtService {
     /**
      * Downloads and saves the cover art at the given URL.
      *
-     * @param albumId
-     *            ID of the album in question.
-     * @param url
-     *            The image URL.
+     * @param albumId ID of the album in question.
+     * @param url     The image URL.
      *
-     * @return The error string if something goes wrong, <code>null</code> otherwise.
+     * @return The error string if something goes wrong, <code>null</code>
+     *         otherwise.
      */
     public String saveCoverArtImage(int albumId, String url) {
         try {
@@ -112,8 +111,8 @@ public class CoverArtService {
         // Check permissions.
         Path newCoverFile = Path.of(pathString, "cover." + suffix);
         if (!securityService.isWriteAllowed(newCoverFile)) {
-            throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(newCoverFile.toString())));
+            throw new ExecutionException(new GeneralSecurityException("Permission denied: "
+                    + StringEscapeUtils.escapeHtml4(newCoverFile.toString())));
         }
 
         // If file exists, create a backup.
@@ -121,8 +120,11 @@ public class CoverArtService {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
 
-            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(2))
-                    .setResponseTimeout(Timeout.ofSeconds(2)).build();
+            RequestConfig requestConfig = RequestConfig
+                .custom()
+                .setConnectionRequestTimeout(Timeout.ofSeconds(2))
+                .setResponseTimeout(Timeout.ofSeconds(2))
+                .build();
             HttpGet method = new HttpGet(URI.create(url));
             method.setConfig(requestConfig);
 
@@ -200,8 +202,9 @@ public class CoverArtService {
     private void backup(Path newCoverFile, Path backup) {
         if (Files.exists(newCoverFile)) {
             try {
-                Path path = Files.move(newCoverFile, backup, StandardCopyOption.REPLACE_EXISTING,
-                        StandardCopyOption.ATOMIC_MOVE);
+                Path path = Files
+                    .move(newCoverFile, backup, StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE);
                 if (path != null && LOG.isInfoEnabled()) {
                     LOG.info("Backed up old image file to " + path);
                 }

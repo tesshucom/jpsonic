@@ -75,7 +75,8 @@ class RecentAlbumId3ProcTest {
 
         @Test
         void testBrowseRoot() throws ExecutionException {
-            when(albumDao.getNewestAlbums(anyInt(), anyInt(), anyList())).thenReturn(List.of(new Album()));
+            when(albumDao.getNewestAlbums(anyInt(), anyInt(), anyList()))
+                .thenReturn(List.of(new Album()));
             when(albumDao.getAlbumCount(anyList())).thenReturn(99);
             BrowseResult result = proc.browseRoot(null, 0, 0);
             assertEquals(0, result.getCountLong());
@@ -93,14 +94,16 @@ class RecentAlbumId3ProcTest {
 
         @Test
         void testGetDirectChildren() {
-            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder> anyList())).thenReturn(50);
+            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(50);
 
             assertEquals(0, proc.getDirectChildren(0, 0).size());
-            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+            verify(albumDao, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
 
             clearInvocations(albumDao);
             assertEquals(0, proc.getDirectChildren(0, 1).size());
-            verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+            verify(albumDao, times(1))
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
@@ -113,8 +116,9 @@ class RecentAlbumId3ProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums",
+                    true, now(), 1, false));
 
         @Autowired
         private RecentAlbumId3Proc processor;

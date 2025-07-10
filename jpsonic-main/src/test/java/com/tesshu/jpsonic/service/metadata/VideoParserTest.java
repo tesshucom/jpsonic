@@ -41,7 +41,8 @@ class VideoParserTest {
     void setUp() {
         SettingsService settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Arrays.asList("mp4"));
-        parser = new VideoParser(settingsService, mock(MusicFolderService.class), mock(FFprobe.class));
+        parser = new VideoParser(settingsService, mock(MusicFolderService.class),
+                mock(FFprobe.class));
     }
 
     @Test

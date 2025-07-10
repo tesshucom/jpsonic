@@ -59,21 +59,29 @@ class MoreControllerTest {
         SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new MoreController(musicFolderService, mock(SecurityService.class), searchService))
-                .build();
+            .standaloneSetup(new MoreController(musicFolderService, mock(SecurityService.class),
+                    searchService))
+            .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
-        Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
+        Mockito
+            .when(playerService.getPlayer(Mockito.any(), Mockito.any()))
+            .thenReturn(new Player());
         List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
-                        "MEDIAS", true, now(), 1, false));
-        Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
+            .asList(new MusicFolder(1,
+                    Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
+                    "MEDIAS", true, now(), 1, false));
+        Mockito
+            .when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(musicFolders);
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequestInternal() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MORE.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.MORE.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

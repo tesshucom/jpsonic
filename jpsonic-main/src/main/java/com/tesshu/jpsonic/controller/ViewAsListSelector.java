@@ -39,8 +39,9 @@ public class ViewAsListSelector {
 
     public boolean isViewAsList(HttpServletRequest request, String username) {
         UserSettings userSettings = securityService.getUserSettings(username);
-        boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(),
-                userSettings.isViewAsList());
+        boolean viewAsList = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(),
+                    userSettings.isViewAsList());
         if (viewAsList != userSettings.isViewAsList()) {
             userSettings.setViewAsList(viewAsList);
             userSettings.setChanged(now());

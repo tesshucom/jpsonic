@@ -208,8 +208,8 @@ public final class TransferStatus implements Serializable {
 
     @Override
     public String toString() {
-        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: " + pathString
-                + ", terminated: " + terminated + ", active: " + isActive() + "]";
+        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: "
+                + pathString + ", terminated: " + terminated + ", active: " + isActive() + "]";
     }
 
     @SuppressWarnings("serial")

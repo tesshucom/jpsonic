@@ -31,7 +31,8 @@ public class ArtistInfo {
     private final ArtistBio artistBio;
     private final List<TopSong> topSongs;
 
-    public ArtistInfo(List<SimilarArtist> similarArtists, ArtistBio artistBio, List<TopSong> topSongs) {
+    public ArtistInfo(List<SimilarArtist> similarArtists, ArtistBio artistBio,
+            List<TopSong> topSongs) {
         this.similarArtists = similarArtists;
         this.artistBio = artistBio;
         this.topSongs = topSongs;

@@ -25,9 +25,7 @@ import org.jupnp.transport.spi.StreamServerConfiguration;
 /**
  * Default settings for the UPnP Server used by Jpsonic.
  */
-public record DefaultStreamServerConf(
-        int listenPort,
-        int tcpConnectionBacklog,
+public record DefaultStreamServerConf(int listenPort, int tcpConnectionBacklog,
         ServerClientTokens serverClientTokens) implements StreamServerConfiguration {
 
     public DefaultStreamServerConf(int listenPort, ServerClientTokens serverClientTokens) {

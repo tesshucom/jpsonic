@@ -27,13 +27,18 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 /**
  * Criteria used when generating Genre Master.
  */
-public record GenreMasterCriteria(List<MusicFolder> folders, Scope scope, Sort sort, MediaType... types) {
+public record GenreMasterCriteria(List<MusicFolder> folders, Scope scope, Sort sort,
+        MediaType... types) {
 
     public enum Scope {
         ALBUM, SONG;
 
         public static Scope of(String s) {
-            return Stream.of(values()).filter(scope -> scope.name().equals(s)).findFirst().orElse(ALBUM);
+            return Stream
+                .of(values())
+                .filter(scope -> scope.name().equals(s))
+                .findFirst()
+                .orElse(ALBUM);
         }
     }
 
@@ -41,7 +46,11 @@ public record GenreMasterCriteria(List<MusicFolder> folders, Scope scope, Sort s
         FREQUENCY, NAME, ALBUM_COUNT, SONG_COUNT;
 
         public static Sort of(String s) {
-            return Stream.of(values()).filter(sort -> sort.name().equals(s)).findFirst().orElse(FREQUENCY);
+            return Stream
+                .of(values())
+                .filter(sort -> sort.name().equals(s))
+                .findFirst()
+                .orElse(FREQUENCY);
         }
     }
 }

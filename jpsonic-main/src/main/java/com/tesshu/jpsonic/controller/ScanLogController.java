@@ -56,15 +56,16 @@ import org.springframework.web.servlet.ModelAndView;
 public class ScanLogController {
 
     private static final DateTimeFormatter DATE_AND_OPTIONAL_MILLI_TIME = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
+        .ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
 
     private final SecurityService securityService;
     private final ScannerStateService scannerStateService;
     private final StaticsDao staticsDao;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public ScanLogController(SecurityService securityService, ScannerStateService scannerStateService,
-            StaticsDao staticsDao, OutlineHelpSelector outlineHelpSelector) {
+    public ScanLogController(SecurityService securityService,
+            ScannerStateService scannerStateService, StaticsDao staticsDao,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.securityService = securityService;
         this.scannerStateService = scannerStateService;
@@ -80,12 +81,17 @@ public class ScanLogController {
         Map<String, Object> model = LegacyMap.of();
 
         model.put("brand", SettingsService.getBrand());
-        model.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+        model
+            .put("admin", securityService
+                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
 
         model.put("scanning", scannerStateService.isScanning());
 
-        List<ScanLogVO> scanLogs = staticsDao.getScanLog(ScanLogType.SCAN_ALL).stream().map(ScanLogVO::new)
-                .collect(Collectors.toList());
+        List<ScanLogVO> scanLogs = staticsDao
+            .getScanLog(ScanLogType.SCAN_ALL)
+            .stream()
+            .map(ScanLogVO::new)
+            .collect(Collectors.toList());
 
         if (!scanLogs.isEmpty()) {
             LocalDateTime lastStartDate = scanLogs.get(0).getStartDate();
@@ -102,7 +108,9 @@ public class ScanLogController {
         }
 
         User user = securityService.getCurrentUserStrict(request);
-        model.put("showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        model
+            .put("showOutlineHelp",
+                    outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         if (userSettings.isShowScannedCount() != Boolean.parseBoolean(reqShowCount)) {
@@ -126,13 +134,17 @@ public class ScanLogController {
         return new ModelAndView("scanLog", "model", model);
     }
 
-    private List<ScanEventVO> createScanEvents(@NonNull LocalDateTime selectedStartDate, boolean showScannedCount) {
+    private List<ScanEventVO> createScanEvents(@NonNull LocalDateTime selectedStartDate,
+            boolean showScannedCount) {
         @SuppressWarnings("deprecation")
         List<ScanEventVO> scanEvents = staticsDao
-                .getScanEvents(selectedStartDate.atZone(ZoneOffset.systemDefault()).toInstant()).stream()
-                .filter(scanEvent -> showScannedCount || scanEvent.getType() != ScanEventType.SCANNED_COUNT
-                        && scanEvent.getType() != ScanEventType.PARSED_COUNT)
-                .map(ScanEventVO::new).collect(Collectors.toList());
+            .getScanEvents(selectedStartDate.atZone(ZoneOffset.systemDefault()).toInstant())
+            .stream()
+            .filter(scanEvent -> showScannedCount
+                    || scanEvent.getType() != ScanEventType.SCANNED_COUNT
+                            && scanEvent.getType() != ScanEventType.PARSED_COUNT)
+            .map(ScanEventVO::new)
+            .collect(Collectors.toList());
         setDurations(selectedStartDate, scanEvents);
         return scanEvents;
     }
@@ -140,22 +152,23 @@ public class ScanLogController {
     @SuppressWarnings("deprecation")
     private void setStatus(@NonNull LocalDateTime lastStartDate, ScanLogVO scanLog) {
         final ScanEventType lastEventType = staticsDao
-                .getLastScanEventType(scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
+            .getLastScanEventType(
+                    scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
         switch (lastEventType) {
-            case SUCCESS:
-            case FAILED:
-            case DESTROYED:
-            case CANCELED:
-            case FINISHED:
-                scanLog.setStatus(lastEventType.name());
-                break;
-            default:
-                if (lastStartDate.equals(scanLog.getStartDate()) && scannerStateService.isScanning()) {
-                    scanLog.setStatus("SCANNING");
-                } else {
-                    scanLog.setStatus(ScanEventType.UNKNOWN.name());
-                }
-                break;
+        case SUCCESS:
+        case FAILED:
+        case DESTROYED:
+        case CANCELED:
+        case FINISHED:
+            scanLog.setStatus(lastEventType.name());
+            break;
+        default:
+            if (lastStartDate.equals(scanLog.getStartDate()) && scannerStateService.isScanning()) {
+                scanLog.setStatus("SCANNING");
+            } else {
+                scanLog.setStatus(ScanEventType.UNKNOWN.name());
+            }
+            break;
         }
     }
 
@@ -164,13 +177,17 @@ public class ScanLogController {
         if (scanEvents.isEmpty()) {
             return;
         }
-        scanEvents.get(0).setDuration(getDurationString(startDate, scanEvents.get(0).getExecuted()));
+        scanEvents
+            .get(0)
+            .setDuration(getDurationString(startDate, scanEvents.get(0).getExecuted()));
         for (int i = 0; i < scanEvents.size(); i++) {
             if (scanEvents.get(i).getDuration() != null) {
                 continue;
             }
-            scanEvents.get(i).setDuration(
-                    getDurationString(scanEvents.get(i - 1).getExecuted(), scanEvents.get(i).getExecuted()));
+            scanEvents
+                .get(i)
+                .setDuration(getDurationString(scanEvents.get(i - 1).getExecuted(),
+                        scanEvents.get(i).getExecuted()));
         }
     }
 
@@ -189,7 +206,8 @@ public class ScanLogController {
 
         ScanLogVO(@NonNull ScanLog scanLog) {
             super();
-            this.startDate = LocalDateTime.ofInstant(scanLog.getStartDate(), ZoneId.systemDefault());
+            this.startDate = LocalDateTime
+                .ofInstant(scanLog.getStartDate(), ZoneId.systemDefault());
             this.startDateStr = DATE_AND_OPTIONAL_MILLI_TIME.format(startDate);
             this.type = scanLog.getType();
         }
@@ -228,7 +246,8 @@ public class ScanLogController {
 
         public ScanEventVO(@NonNull ScanEvent scanEvent) {
             super();
-            this.executed = LocalDateTime.ofInstant(scanEvent.getExecuted(), ZoneId.systemDefault());
+            this.executed = LocalDateTime
+                .ofInstant(scanEvent.getExecuted(), ZoneId.systemDefault());
             this.executedStr = DATE_AND_OPTIONAL_MILLI_TIME.format(executed);
             this.type = scanEvent.getType();
             this.maxMemory = scanEvent.getMaxMemory();

@@ -52,15 +52,16 @@ public class StaticsDao {
             """;
 
     private final TemplateWrapper template;
-    private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs,
-            int rowNum) -> new ScanLog(nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
-    private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> new ScanEvent(
-            nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
-            ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getInt(7),
-            rs.getString(8));
+    private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs, int rowNum) -> new ScanLog(
+            nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
+    private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs,
+            int rowNum) -> new ScanEvent(nullableInstantOf(rs.getTimestamp(1)),
+                    nullableInstantOf(rs.getTimestamp(2)), ScanEventType.of(rs.getString(3)),
+                    rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getInt(7), rs.getString(8));
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs,
-            int rowNum) -> new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
-                    rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getLong(7), rs.getLong(8));
+            int rowNum) -> new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)),
+                    rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6),
+                    rs.getLong(7), rs.getLong(8));
 
     public StaticsDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -111,20 +112,23 @@ public class StaticsDao {
                 delete from scan_log
                 where type <> ? and start_date < ?
                 """, ScanLogType.SCAN_ALL.name(), retention);
-        template.update("""
-                delete from scan_event
-                where (type=? or type=? or type=?)
-                """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
-                ScanEventType.FOLDER_UPDATE.name());
+        template
+            .update("""
+                    delete from scan_event
+                    where (type=? or type=? or type=?)
+                    """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
+                    ScanEventType.FOLDER_UPDATE.name());
     }
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
-        template.update("""
-                insert into scan_event (%s)
-                values(?, ?, ?, ?, ?, ?, ?, ?)
-                """.formatted(EVENT_QUERY_COLUMNS), scanEvent.getStartDate(), scanEvent.getExecuted(),
-                scanEvent.getType().name(), scanEvent.getMaxMemory(), scanEvent.getTotalMemory(),
-                scanEvent.getFreeMemory(), scanEvent.getMaxThread(), scanEvent.getComment());
+        template
+            .update("""
+                    insert into scan_event (%s)
+                    values(?, ?, ?, ?, ?, ?, ?, ?)
+                    """.formatted(EVENT_QUERY_COLUMNS), scanEvent.getStartDate(),
+                    scanEvent.getExecuted(), scanEvent.getType().name(), scanEvent.getMaxMemory(),
+                    scanEvent.getTotalMemory(), scanEvent.getFreeMemory(), scanEvent.getMaxThread(),
+                    scanEvent.getComment());
     }
 
     public void deleteOtherThanLatest() {
@@ -141,11 +145,12 @@ public class StaticsDao {
                 delete from scan_log
                 where type <> ?
                 """, ScanLogType.SCAN_ALL.name());
-        template.update("""
-                delete from scan_event
-                where (type=? or type=? or type=?)
-                """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
-                ScanEventType.FOLDER_UPDATE.name());
+        template
+            .update("""
+                    delete from scan_event
+                    where (type=? or type=? or type=?)
+                    """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
+                    ScanEventType.FOLDER_UPDATE.name());
     }
 
     public List<MediaLibraryStatistics> getRecentMediaLibraryStatistics() {
@@ -170,9 +175,11 @@ public class StaticsDao {
     }
 
     public boolean isfolderChangedSinceLastScan() {
-        Map<String, Object> args = LegacyMap.of("folderChanges", Arrays.asList(ScanEventType.FOLDER_CREATE.name(),
-                ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name()), "scanAll",
-                ScanLogType.SCAN_ALL.name());
+        Map<String, Object> args = LegacyMap
+            .of("folderChanges", Arrays
+                .asList(ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
+                        ScanEventType.FOLDER_UPDATE.name()),
+                    "scanAll", ScanLogType.SCAN_ALL.name());
         return template.namedQueryForInt("""
                 select count(*)
                 from scan_event events
@@ -227,12 +234,13 @@ public class StaticsDao {
                 from media_file
                 """;
         RowMapper<MediaLibraryStatistics> mapper = (ResultSet rs, int rowNum) -> {
-            return new MediaLibraryStatistics(scanDate, rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4),
-                    rs.getInt(5), rs.getLong(6), rs.getLong(7));
+            return new MediaLibraryStatistics(scanDate, rs.getInt(1), rs.getInt(2), rs.getInt(3),
+                    rs.getInt(4), rs.getInt(5), rs.getLong(6), rs.getLong(7));
         };
-        Map<String, Object> args = Map.of("folder", folder.getPathString(), "directory",
-                MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "music",
-                MediaFile.MediaType.MUSIC.name(), "video", MediaFile.MediaType.VIDEO.name());
+        Map<String, Object> args = Map
+            .of("folder", folder.getPathString(), "directory", MediaFile.MediaType.DIRECTORY.name(),
+                    "album", MediaFile.MediaType.ALBUM.name(), "music",
+                    MediaFile.MediaType.MUSIC.name(), "video", MediaFile.MediaType.VIDEO.name());
         return template.namedQuery(query, mapper, args).get(0);
     }
 
@@ -244,8 +252,10 @@ public class StaticsDao {
                         total_size, total_duration)
                 values (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        template.update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
-                stats.getSongCount(), stats.getVideoCount(), stats.getTotalSize(), stats.getTotalDuration());
+        template
+            .update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(),
+                    stats.getAlbumCount(), stats.getSongCount(), stats.getVideoCount(),
+                    stats.getTotalSize(), stats.getTotalDuration());
     }
 
     public List<ScanEvent> getScanEvents(@NonNull Instant scanDate) {
@@ -273,10 +283,12 @@ public class StaticsDao {
 
     public List<ScanEvent> getLastScanAllStatuses() {
         @SuppressWarnings("deprecation")
-        Map<String, Object> args = LegacyMap.of("eventTypes",
-                Arrays.asList(ScanEventType.SUCCESS.name(), ScanEventType.FINISHED.name(),
-                        ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()),
-                "logType", ScanLogType.SCAN_ALL.name());
+        Map<String, Object> args = LegacyMap
+            .of("eventTypes",
+                    Arrays
+                        .asList(ScanEventType.SUCCESS.name(), ScanEventType.FINISHED.name(),
+                                ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()),
+                    "logType", ScanLogType.SCAN_ALL.name());
         String sql = "select " + prefix(EVENT_QUERY_COLUMNS, "event") + """
                 from scan_event event
                 join

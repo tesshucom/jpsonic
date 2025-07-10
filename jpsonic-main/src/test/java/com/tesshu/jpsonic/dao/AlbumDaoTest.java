@@ -91,20 +91,30 @@ class AlbumDaoTest {
 
         private String getJoin(ArgumentCaptor<String> queryCaptor) {
             String query = queryCaptor.getValue();
-            return query.replaceAll("\n", "").replaceAll("^.*from\salbum", "").replaceAll("where.*$", "").trim();
+            return query
+                .replaceAll("\n", "")
+                .replaceAll("^.*from\salbum", "")
+                .replaceAll("where.*$", "")
+                .trim();
         }
 
         private String getOrderBy(ArgumentCaptor<String> queryCaptor) {
             String query = queryCaptor.getValue();
-            return query.replaceAll("\n", "").replaceAll("^.*order\sby", "").replaceAll("limit.*$", "").trim();
+            return query
+                .replaceAll("\n", "")
+                .replaceAll("^.*order\sby", "")
+                .replaceAll("limit.*$", "")
+                .trim();
         }
 
         @SuppressWarnings("unchecked")
         private ArgumentCaptor<String> getQuery(boolean byArtist, boolean ignoreCase) {
             ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
-            Mockito.when(
-                    templateWrapper.namedQuery(queryCaptor.capture(), Mockito.any(RowMapper.class), Mockito.anyMap()))
-                    .thenReturn(Collections.emptyList());
+            Mockito
+                .when(templateWrapper
+                    .namedQuery(queryCaptor.capture(), Mockito.any(RowMapper.class),
+                            Mockito.anyMap()))
+                .thenReturn(Collections.emptyList());
             albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, byArtist, ignoreCase, folders);
             return queryCaptor;
         }
@@ -114,7 +124,8 @@ class AlbumDaoTest {
         @Test
         void c00() {
             ArgumentCaptor<String> query = getQuery(true, true);
-            assertEquals("left join artist on artist.present and artist.name = album.artist", getJoin(query));
+            assertEquals("left join artist on artist.present and artist.name = album.artist",
+                    getJoin(query));
             assertEquals("artist_order, album_order", getOrderBy(query));
         }
 
@@ -123,7 +134,8 @@ class AlbumDaoTest {
         @Test
         void c01() {
             ArgumentCaptor<String> query = getQuery(true, false);
-            assertEquals("left join artist on artist.present and artist.name = album.artist", getJoin(query));
+            assertEquals("left join artist on artist.present and artist.name = album.artist",
+                    getJoin(query));
             assertEquals("artist.reading, album.name_reading", getOrderBy(query));
         }
 
@@ -160,7 +172,7 @@ class AlbumDaoTest {
         private SettingsService settingsService;
 
         private final List<MusicFolder> folders = List
-                .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 0, false));
+            .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 0, false));
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -177,9 +189,11 @@ class AlbumDaoTest {
 
             // Checking registered data
             assertEquals(4, albumDao.getAlbumCount(folders));
-            List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folders);
+            List<Album> albums = albumDao
+                .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folders);
             assertEquals(4, albums.size());
-            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", albums.get(0).getName());
+            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                    albums.get(0).getName());
             assertEquals("_ID3_ALBUM_ Ravel - Chamber Music With Voice", albums.get(1).getName());
             assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getName());
             assertEquals("Complete Piano Works", albums.get(3).getName());
@@ -188,12 +202,14 @@ class AlbumDaoTest {
             albumDao.starAlbum(albums.get(0).getId(), ADMIN_NAME);
             Thread.sleep(200);
             albumDao.starAlbum(albums.get(2).getId(), ADMIN_NAME);
-            List<Album> starred = albumDao.getStarredAlbums(0, Integer.MAX_VALUE, ADMIN_NAME, folders);
+            List<Album> starred = albumDao
+                .getStarredAlbums(0, Integer.MAX_VALUE, ADMIN_NAME, folders);
             assertEquals(2, starred.size());
 
             // Note that the order is 'created desc'
             assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", starred.get(0).getName());
-            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.get(1).getName());
+            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                    starred.get(1).getName());
 
             // Run a scan
             TestCaseUtils.execScan(mediaScannerService);
@@ -202,7 +218,8 @@ class AlbumDaoTest {
             starred = albumDao.getStarredAlbums(0, Integer.MAX_VALUE, ADMIN_NAME, folders);
             assertEquals(2, starred.size());
             assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", starred.get(0).getName());
-            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.get(1).getName());
+            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                    starred.get(1).getName());
 
             // Scan with IgnoreFileTimestamps enabled
             settingsService.setIgnoreFileTimestamps(true);
@@ -213,12 +230,14 @@ class AlbumDaoTest {
             starred = albumDao.getStarredAlbums(0, Integer.MAX_VALUE, ADMIN_NAME, folders);
             assertEquals(2, starred.size());
             assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", starred.get(0).getName());
-            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.get(1).getName());
+            assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                    starred.get(1).getName());
         }
     }
 
     /*
-     * Even if the timestamp is ignored when scanning, it is confirmed that Created does not change.
+     * Even if the timestamp is ignored when scanning, it is confirmed that Created
+     * does not change.
      */
     @Nested
     class CreatedPersistenceTest extends AbstractNeedsScan {
@@ -231,7 +250,7 @@ class AlbumDaoTest {
         private SettingsService settingsService;
 
         private final List<MusicFolder> folders = List
-                .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 0, false));
+            .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 0, false));
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -266,9 +285,10 @@ class AlbumDaoTest {
             TestCaseUtils.execScan(mediaScannerService);
 
             /*
-             * Nothing changes. album#created comes from file#changed. (The Newest in ID3 indicates the most recent
-             * Change. This has been the case since legacy servers.) Therefore, regardless of the scan logic, this value
-             * will not change unless the file is changed.
+             * Nothing changes. album#created comes from file#changed. (The Newest in ID3
+             * indicates the most recent Change. This has been the case since legacy
+             * servers.) Therefore, regardless of the scan logic, this value will not change
+             * unless the file is changed.
              */
             List<Album> fullScanedAlbums = albumDao.getNewestAlbums(0, Integer.MAX_VALUE, folders);
             assertEquals(4, fullScanedAlbums.size());

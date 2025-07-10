@@ -119,7 +119,8 @@ public class TemplateWrapper {
 
     public List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
         long t = System.nanoTime();
-        List<String> result = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), String.class);
+        List<String> result = getNamedParameterJdbcTemplate()
+            .queryForList(sql, castArgs(args), String.class);
         writeLog(sql, t);
         return result;
     }
@@ -127,23 +128,31 @@ public class TemplateWrapper {
     public Integer queryForInt(String sql, Integer defaultValue, Object... args) {
         long t = System.nanoTime();
         List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
-        Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+        Integer result = list.isEmpty() ? defaultValue
+                : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
     }
 
     public Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
         long t = System.nanoTime();
-        List<Integer> list = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), Integer.class);
-        Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+        List<Integer> list = getNamedParameterJdbcTemplate()
+            .queryForList(sql, castArgs(args), Integer.class);
+        Integer result = list.isEmpty() ? defaultValue
+                : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
     }
 
     public Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
         long startTimeNano = System.nanoTime();
-        Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, castArgs(args)).stream()
-                .filter(Objects::nonNull).findFirst().map(Timestamp::toInstant).orElse(defaultValue);
+        Instant result = getJdbcTemplate()
+            .queryForList(sql, Timestamp.class, castArgs(args))
+            .stream()
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(Timestamp::toInstant)
+            .orElse(defaultValue);
         writeLog(sql, startTimeNano);
         return result;
     }
@@ -152,7 +161,8 @@ public class TemplateWrapper {
     protected Long queryForLong(String sql, Long defaultValue, Object... args) {
         long t = System.nanoTime();
         List<Long> list = getJdbcTemplate().queryForList(sql, Long.class, castArgs(args));
-        Long result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+        Long result = list.isEmpty() ? defaultValue
+                : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
     }
@@ -169,7 +179,11 @@ public class TemplateWrapper {
 
     static @Nullable Object[] castArgs(@Nullable Object... args) {
         return args == null ? null
-                : Stream.of(args).map(TemplateWrapper::castArg).collect(Collectors.toList()).toArray();
+                : Stream
+                    .of(args)
+                    .map(TemplateWrapper::castArg)
+                    .collect(Collectors.toList())
+                    .toArray();
     }
 
     @SuppressWarnings("PMD.UseConcurrentHashMap") // Explicit use of null

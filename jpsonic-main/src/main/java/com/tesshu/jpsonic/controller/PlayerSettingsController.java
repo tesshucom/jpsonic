@@ -69,8 +69,9 @@ public class PlayerSettingsController {
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PlayerSettingsController(SettingsService settingsService, SecurityService securityService,
-            PlayerService playerService, TranscodingService transcodingService, ShareService shareService,
+    public PlayerSettingsController(SettingsService settingsService,
+            SecurityService securityService, PlayerService playerService,
+            TranscodingService transcodingService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
@@ -101,7 +102,8 @@ public class PlayerSettingsController {
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
         Player player = null;
-        Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
+        Integer playerId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ID.value());
         if (playerId != null) {
             player = playerService.getPlayerById(playerId);
         } else if (!players.isEmpty()) {
@@ -115,17 +117,25 @@ public class PlayerSettingsController {
             command.setType(player.getType());
             command.setIpAddress(player.getIpAddress());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
-            command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
+            command
+                .setAnonymous(
+                        JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             UserSettings userSettings = securityService.getUserSettings(player.getUsername());
             command.setMaxBitrate(userSettings.getTranscodeScheme());
             command.setTranscodeScheme(player.getTranscodeScheme());
-            command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(player).stream()
-                    .mapToInt(Transcoding::getId).toArray());
+            command
+                .setActiveTranscodingIds(transcodingService
+                    .getTranscodingsForPlayer(player)
+                    .stream()
+                    .mapToInt(Transcoding::getId)
+                    .toArray());
             command.setDynamicIp(player.isDynamicIp());
             if (player.getLastSeen() != null) {
-                command.setLastSeen(ZonedDateTime.ofInstant(player.getLastSeen(), ZoneId.systemDefault()));
+                command
+                    .setLastSeen(
+                            ZonedDateTime.ofInstant(player.getLastSeen(), ZoneId.systemDefault()));
             }
         }
 
@@ -135,13 +145,15 @@ public class PlayerSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
             RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
         if (player == null) {
@@ -158,7 +170,8 @@ public class PlayerSettingsController {
 
             // for view page control
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.PLAYER_ID.value(), player.getId());
+            redirectAttributes
+                .addFlashAttribute(Attributes.Redirect.PLAYER_ID.value(), player.getId());
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
@@ -181,14 +194,17 @@ public class PlayerSettingsController {
         return authorizedPlayers;
     }
 
-    private void deleteOrClone(HttpServletRequest request, Model model) throws ServletRequestBindingException {
+    private void deleteOrClone(HttpServletRequest request, Model model)
+            throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
-            Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
+            Integer delete = ServletRequestUtils
+                .getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {
                 playerService.removePlayerById(delete);
             }
         } else if (request.getParameter(Attributes.Request.CLONE.value()) != null) {
-            Integer clone = ServletRequestUtils.getIntParameter(request, Attributes.Request.CLONE.value());
+            Integer clone = ServletRequestUtils
+                .getIntParameter(request, Attributes.Request.CLONE.value());
             if (clone != null) {
                 Player clonedPlayer = playerService.clonePlayer(clone);
                 model.addAttribute(Attributes.Redirect.PLAYER_ID.value(), clonedPlayer.getId());

@@ -76,12 +76,14 @@ class RandomSongByArtistProcTest {
         @BeforeEach
         public void setup() {
             util = mock(UpnpProcessorUtil.class);
-            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class), mock(MediaFileService.class),
-                    mock(PlayerService.class), mock(TranscodingService.class));
+            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
+                    mock(MediaFileService.class), mock(PlayerService.class),
+                    mock(TranscodingService.class));
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
             settingsService = mock(SettingsService.class);
-            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService, settingsService);
+            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,
+                    settingsService);
         }
 
         @Test
@@ -123,8 +125,8 @@ class RandomSongByArtistProcTest {
         @Test
         void testGetChildren() {
             assertEquals(0, proc.getChildren(new Artist(), 0, 0).size());
-            verify(searchService, times(1)).getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(),
-                    anyList());
+            verify(searchService, times(1))
+                .getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(), anyList());
         }
 
         @Test
@@ -139,7 +141,8 @@ class RandomSongByArtistProcTest {
             assertEquals(0, content.getContainers().size());
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService, settingsService);
+            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,
+                    settingsService);
 
             when(factory.toMusicTrack(song)).thenReturn(new MusicTrack());
             proc.addChild(content, song);
@@ -153,8 +156,9 @@ class RandomSongByArtistProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
+                    true, now(), 1, false));
 
         @Autowired
         private RandomSongByArtistProc randomSongByArtistProc;
@@ -178,16 +182,25 @@ class RandomSongByArtistProcTest {
             Map<String, Artist> c = LegacyMap.of();
 
             List<Artist> items = randomSongByArtistProc.getDirectChildren(0, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 10);
 
             items = randomSongByArtistProc.getDirectChildren(10, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 20);
 
             items = randomSongByArtistProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 31);
         }
 
@@ -203,7 +216,10 @@ class RandomSongByArtistProcTest {
 
             Map<String, MediaFile> c = LegacyMap.of();
             List<MediaFile> children = randomSongByArtistProc.getChildren(artists.get(0), 0, 10);
-            children.stream().filter(m -> !c.containsKey(m.getArtist())).forEach(m -> c.put(m.getArtist(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getArtist()))
+                .forEach(m -> c.put(m.getArtist(), m));
             assertEquals(c.size(), 1);
         }
 

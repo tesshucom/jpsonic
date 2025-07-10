@@ -57,7 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parses meta data from audio files using the Jaudiotagger library (http://www.jthink.net/jaudiotagger/)
+ * Parses meta data from audio files using the Jaudiotagger library
+ * (http://www.jthink.net/jaudiotagger/)
  *
  * @author Sindre Mehus
  */
@@ -74,18 +75,19 @@ public final class ParserUtils {
     // RA: Not published in document
     // RM: Not published in document
     // DFF: Headers can be read, but tags cannot be read
-    private static final List<String> IMG_APPLICABLES = Arrays.asList(SupportedFileFormat.OGG.getFilesuffix(), //
-            SupportedFileFormat.OGA.getFilesuffix(), //
-            SupportedFileFormat.FLAC.getFilesuffix(), //
-            SupportedFileFormat.MP3.getFilesuffix(), //
-            SupportedFileFormat.M4A.getFilesuffix(), //
-            SupportedFileFormat.M4B.getFilesuffix(), //
-            SupportedFileFormat.WAV.getFilesuffix(), // Depends on chunk format
-            SupportedFileFormat.WMA.getFilesuffix(), //
-            SupportedFileFormat.AIF.getFilesuffix(), //
-            SupportedFileFormat.AIFC.getFilesuffix(), //
-            SupportedFileFormat.AIFF.getFilesuffix(), //
-            SupportedFileFormat.DSF.getFilesuffix()); //
+    private static final List<String> IMG_APPLICABLES = Arrays
+        .asList(SupportedFileFormat.OGG.getFilesuffix(), //
+                SupportedFileFormat.OGA.getFilesuffix(), //
+                SupportedFileFormat.FLAC.getFilesuffix(), //
+                SupportedFileFormat.MP3.getFilesuffix(), //
+                SupportedFileFormat.M4A.getFilesuffix(), //
+                SupportedFileFormat.M4B.getFilesuffix(), //
+                SupportedFileFormat.WAV.getFilesuffix(), // Depends on chunk format
+                SupportedFileFormat.WMA.getFilesuffix(), //
+                SupportedFileFormat.AIF.getFilesuffix(), //
+                SupportedFileFormat.AIFC.getFilesuffix(), //
+                SupportedFileFormat.AIFF.getFilesuffix(), //
+                SupportedFileFormat.DSF.getFilesuffix()); //
 
     static {
         try {
@@ -108,8 +110,8 @@ public final class ParserUtils {
     }
 
     /**
-     * Sometimes the genre is returned as "(17)" or "(17)Rock", instead of "Rock". This method maps the genre ID to the
-     * corresponding text.
+     * Sometimes the genre is returned as "(17)" or "(17)Rock", instead of "Rock".
+     * This method maps the genre ID to the corresponding text.
      */
     static String mapGenre(String genre) {
         if (genre == null) {
@@ -182,8 +184,8 @@ public final class ParserUtils {
     }
 
     /**
-     * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
-     * actually embedded.
+     * Returns whether the embedded artwork is in an available format. There is no
+     * guarantee that the artwork is actually embedded.
      */
     public static boolean isEmbeddedArtworkApplicable(Path path) {
         if (Files.isDirectory(path)) {
@@ -212,7 +214,9 @@ public final class ParserUtils {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to read cover art: " + getShortPath(path), e);
             } else if (LOG.isWarnEnabled()) {
-                LOG.warn("Unable to read cover art in " + getShortPath(path) + ": [{}]", e.getMessage().trim());
+                LOG
+                    .warn("Unable to read cover art in " + getShortPath(path) + ": [{}]",
+                            e.getMessage().trim());
             }
             return Optional.empty();
         }

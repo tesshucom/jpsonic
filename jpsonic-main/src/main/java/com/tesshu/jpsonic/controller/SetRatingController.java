@@ -57,16 +57,19 @@ public class SetRatingController {
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        Integer rating = ServletRequestUtils.getIntParameter(request, Attributes.Request.RATING.value());
+    protected ModelAndView handleRequestInternal(HttpServletRequest request)
+            throws ServletRequestBindingException {
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
+        Integer rating = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.RATING.value());
         if (rating != null && rating == 0) {
             rating = null;
         }
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
         String username = securityService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
-        return new ModelAndView(
-                new RedirectView(ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id));
+        return new ModelAndView(new RedirectView(
+                ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id));
     }
 }

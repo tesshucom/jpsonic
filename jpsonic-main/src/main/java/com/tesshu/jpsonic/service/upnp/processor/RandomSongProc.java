@@ -34,8 +34,9 @@ public class RandomSongProc extends MediaFileByFolderProc implements CountLimitP
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            SearchService searchService, SettingsService settingsService) {
+    public RandomSongProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, SearchService searchService,
+            SettingsService settingsService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.searchService = searchService;

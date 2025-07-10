@@ -49,8 +49,8 @@ class FFmpegTest {
 
     @BeforeEach
     void setUp() {
-        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null);
+        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class),
+                null, null, null, null);
         ffmpeg = new FFmpeg(transcodingService);
     }
 

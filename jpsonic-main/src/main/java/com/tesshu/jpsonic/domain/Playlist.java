@@ -43,8 +43,9 @@ public class Playlist {
     public Playlist() {
     }
 
-    public Playlist(int id, String username, boolean shared, String name, String comment, int fileCount,
-            int durationSeconds, Instant created, Instant changed, String importedFrom) {
+    public Playlist(int id, String username, boolean shared, String name, String comment,
+            int fileCount, int durationSeconds, Instant created, Instant changed,
+            String importedFrom) {
         this.id = id;
         this.username = username;
         this.shared = shared;

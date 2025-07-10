@@ -38,7 +38,8 @@ public final class PathValidator {
     }
 
     /**
-     * Returns a path string pointing to the music, playlist, and podcast folders, if acceptable. otherwise empty.
+     * Returns a path string pointing to the music, playlist, and podcast folders,
+     * if acceptable. otherwise empty.
      */
     public static Optional<String> validateFolderPath(String folderPath) {
         if (StringUtils.trimToNull(folderPath) == null) {
@@ -47,7 +48,8 @@ public final class PathValidator {
         if (!isNoTraversal(folderPath)) {
             return Optional.empty();
         }
-        if ((!PlayerUtils.isWindows() || !folderPath.startsWith("\\\\")) && folderPath.charAt(0) == '\\') {
+        if ((!PlayerUtils.isWindows() || !folderPath.startsWith("\\\\"))
+                && folderPath.charAt(0) == '\\') {
             return Optional.empty();
         }
         try {

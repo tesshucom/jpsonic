@@ -72,8 +72,9 @@ public class InternetRadioDao {
 
     public void createInternetRadio(InternetRadio radio) {
         String sql = "insert into internet_radio (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?)";
-        template.update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
-                radio.getChanged());
+        template
+            .update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(),
+                    radio.isEnabled(), radio.getChanged());
         if (LOG.isInfoEnabled()) {
             LOG.info("Created internet radio station " + radio.getName());
         }
@@ -96,15 +97,16 @@ public class InternetRadioDao {
                 set name=?, stream_url=?, homepage_url=?, enabled=?, changed=?
                 where id=?
                 """;
-        template.update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
-                radio.getChanged(), radio.getId());
+        template
+            .update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(),
+                    radio.isEnabled(), radio.getChanged(), radio.getId());
     }
 
     private static class InternetRadioRowMapper implements RowMapper<InternetRadio> {
         @Override
         public InternetRadio mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new InternetRadio(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getBoolean(5),
-                    nullableInstantOf(rs.getTimestamp(6)));
+            return new InternetRadio(rs.getInt(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getBoolean(5), nullableInstantOf(rs.getTimestamp(6)));
         }
     }
 }

@@ -89,7 +89,7 @@ public class UPnPService {
                     createService();
                     if (0 < SettingsService.getDefaultUPnPPort()) {
                         infoIfEnabled("Successfully started UPnP service on port %s!"
-                                .formatted(SettingsService.getDefaultUPnPPort()));
+                            .formatted(SettingsService.getDefaultUPnPPort()));
                     } else {
                         infoIfEnabled("Starting UPnP service - Done!");
                     }
@@ -145,8 +145,9 @@ public class UPnPService {
             start();
             try {
                 deligate.getRegistry().addDevice(upnpServiceFactory.createServerDevice());
-                infoIfEnabled("Enabling UPnP media server [%s](%s)".formatted(settingsService.getDlnaServerName(),
-                        settingsService.getDlnaBaseLANURL()));
+                infoIfEnabled("Enabling UPnP media server [%s](%s)"
+                    .formatted(settingsService.getDlnaServerName(),
+                            settingsService.getDlnaBaseLANURL()));
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);
                 errorIfEnabled("Failed to start UPnP media server.", e);

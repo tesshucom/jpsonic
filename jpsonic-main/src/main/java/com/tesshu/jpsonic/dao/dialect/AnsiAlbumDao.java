@@ -47,12 +47,14 @@ public class AnsiAlbumDao implements DialectAlbumDao {
     }
 
     @Override
-    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres, List<MusicFolder> folders) {
+    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres,
+            List<MusicFolder> folders) {
         if (genres.isEmpty() || folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(folders), "genres", genres, "count",
-                count, "offset", offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(folders), "genres", genres, "count", count,
+                    "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from album
                 where present and folder_id in (:folders) and genre in (:genres)

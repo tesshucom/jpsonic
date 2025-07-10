@@ -36,8 +36,8 @@ public class RandomSongByGenreProc extends SongByGenreProc implements CountLimit
     private final UpnpDIDLFactory factory;
     private final SearchService searchService;
 
-    public RandomSongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            SearchService searchService) {
+    public RandomSongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util,
+            UpnpDIDLFactory factory, SearchService searchService) {
         super(settingsService, util, factory, searchService);
         this.settingsService = settingsService;
         this.util = util;
@@ -60,7 +60,8 @@ public class RandomSongByGenreProc extends SongByGenreProc implements CountLimit
         int offset = (int) firstResult;
         int max = getChildSizeOf(genre);
         int count = toCount(firstResult, maxResults, max);
-        return searchService.getRandomSongs(count, offset, max, util.getGuestFolders(), genre.getName());
+        return searchService
+            .getRandomSongs(count, offset, max, util.getGuestFolders(), genre.getName());
     }
 
     @Override

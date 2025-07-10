@@ -73,15 +73,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Class that defines the conversion of domain objects to DIDL objects. Note that when a Container is defined, a
- * specific ProcId is specified. This means that the structure of some data tree nodes is effectively shared across
+ * Class that defines the conversion of domain objects to DIDL objects. Note
+ * that when a Container is defined, a specific ProcId is specified. This means
+ * that the structure of some data tree nodes is effectively shared across
  * multiple ContentProcessors.
  */
 @Component
 public class UpnpDIDLFactory implements CoverArtPresentation {
 
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
-            .withInitial(() -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
+        .withInitial(
+                () -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
     private static final String SUB_DIR_EXT = "/ext/";
 
     private final SettingsService settingsService;
@@ -91,7 +93,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     private final TranscodingService transcodingService;
 
     public UpnpDIDLFactory(SettingsService settingsService, JWTSecurityService jwtSecurityService,
-            MediaFileService mediaFileService, PlayerService playerService, TranscodingService transcodingService) {
+            MediaFileService mediaFileService, PlayerService playerService,
+            TranscodingService transcodingService) {
         this.settingsService = settingsService;
         this.jwtSecurityService = jwtSecurityService;
         this.mediaFileService = mediaFileService;
@@ -134,54 +137,61 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private Property<URI> toArtistArt(@NonNull MediaFile artist) {
-        URI uri = createURIWithToken(
-                UriComponentsBuilder.fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-                        .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
+        URI uri = createURIWithToken(UriComponentsBuilder
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", artist.getId())
+            .queryParam("size", CoverArtScheme.LARGE.getSize()));
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toArtistArt(Artist artist) {
         URI uri = createURIWithToken(UriComponentsBuilder
-                .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-                .queryParam("id", createCoverArtKey(artist)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", createCoverArtKey(artist))
+            .queryParam("size", CoverArtScheme.LARGE.getSize()));
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(@NonNull MediaFile album) {
         URI uri = createURIWithToken(UriComponentsBuilder
-                .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value()).queryParam("id", album.getId())
-                .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", album.getId())
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(Album album) {
-        URI uri = createURIWithToken(
-                UriComponentsBuilder.fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-                        .queryParam("id", createCoverArtKey(album))
-                        .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+        URI uri = createURIWithToken(UriComponentsBuilder
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", createCoverArtKey(album))
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPodcastArt(PodcastChannel channel) {
-        URI uri = createURIWithToken(
-                UriComponentsBuilder.fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-                        .queryParam("id", createCoverArtKey(channel))
-                        .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+        URI uri = createURIWithToken(UriComponentsBuilder
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", createCoverArtKey(channel))
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPlaylistArt(Playlist playlist) {
-        URI uri = addJWTToken(
-                UriComponentsBuilder.fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-                        .queryParam("id", createCoverArtKey(playlist))
-                        .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize())).build().encode()
-                                .toUri();
+        URI uri = addJWTToken(UriComponentsBuilder
+            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
+            .queryParam("id", createCoverArtKey(playlist))
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()))
+            .build()
+            .encode()
+            .toUri();
         return new ALBUM_ART_URI(uri);
     }
 
     private String createStreamURI(MediaFile song, Player player) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/stream")
-                .queryParam("id", song.getId()).queryParam("player", player.getId());
+        UriComponentsBuilder builder = UriComponentsBuilder
+            .fromUriString(getBaseUrl() + "/ext/stream")
+            .queryParam("id", song.getId())
+            .queryParam("player", player.getId());
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }
@@ -262,7 +272,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         MusicArtist container = new MusicArtist();
         container.setTitle(artist.getName());
         container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + artist.getId());
-        mediaFileService.getParent(artist).ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
+        mediaFileService
+            .getParent(artist)
+            .ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
         artist.getCoverArtPath().ifPresent(path -> container.addProperty(toArtistArt(artist)));
         container.setChildCount(childCount);
         return container;
@@ -295,7 +307,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     public MusicAlbum toAlbum(MediaFile album, int childCount) {
         MusicAlbum container = new MusicAlbum();
         container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.getId());
-        mediaFileService.getParent(album).ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
+        mediaFileService
+            .getParent(album)
+            .ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
         container.setChildCount(childCount);
         container.setTitle(album.getName());
         container.addProperty(toPerson(album.getArtist()));
@@ -346,7 +360,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     public MusicAlbum toAlbum(FolderGenreAlbum composite, int childCount) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.ALBUM_ID3_BY_FOLDER_GENRE.getValue() + ProcId.CID_SEPA + composite.createCompositeId());
+        container
+            .setId(ProcId.ALBUM_ID3_BY_FOLDER_GENRE.getValue() + ProcId.CID_SEPA
+                    + composite.createCompositeId());
         container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
         container.setTitle(composite.album().getName());
         container.setChildCount(childCount);
@@ -360,7 +376,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     public MusicAlbum toAlbumWithGenre(GenreAlbum composite, int childCount) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.ALBUM_ID3_BY_GENRE.getValue() + ProcId.CID_SEPA + composite.createCompositeId());
+        container
+            .setId(ProcId.ALBUM_ID3_BY_GENRE.getValue() + ProcId.CID_SEPA
+                    + composite.createCompositeId());
         container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
         container.setTitle(composite.album().getName());
         container.setChildCount(childCount);

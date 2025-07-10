@@ -64,8 +64,9 @@ import org.springframework.stereotype.Service;
         "SSD_DO_NOT_USE_INSTANCE_LOCK_ON_SHARED_STATIC_DATA" }, justification = "Literal value for which OS is assumed. / False positives for objects stored in immutable maps")
 @Service
 /*
- * [DefaultPackage] A remnant of legacy, some methods are implemented in package private. This is intended not to be
- * used by other than Service. Little bad practices. Design improvements can be made by resolving Godclass.
+ * [DefaultPackage] A remnant of legacy, some methods are implemented in package
+ * private. This is intended not to be used by other than Service. Little bad
+ * practices. Design improvements can be made by resolving Godclass.
  */
 public class SettingsService implements ReadWriteLockSupport {
 
@@ -89,25 +90,32 @@ public class SettingsService implements ReadWriteLockSupport {
     private static final String CONSECUTIVE_WHITESPACE = "\\s+";
 
     // Array of obsolete keys. Used to clean property file.
-    private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort",
-            "PortForwardingLocalPort", "DownsamplingCommand", "DownsamplingCommand2", "DownsamplingCommand3",
-            "DownsamplingCommand4", "AutoCoverBatch", "MusicMask", "VideoMask", "CoverArtMask, HlsCommand",
-            "HlsCommand2", "JukeboxCommand", "CoverArtFileTypes", "UrlRedirectCustomHost", "CoverArtLimit",
-            "StreamPort", "PortForwardingEnabled", "RewriteUrl", "UrlRedirectCustomUrl", "UrlRedirectContextPath",
-            "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
-            "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
-            "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
-            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
-            "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
-            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum", "BufferSize",
-            "DlnaIndexVisible", "DlnaIndexId3Visible", "DlnaFolderVisible", "DlnaArtistVisible",
-            "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
-            "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
-            "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
-            "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus", "PublishPodcast",
-            "UseRemovingTrackFromId3Title", "UseCleanUp", "RedundantFolderCheck", "UseCopyOfAsciiUnprintable",
-            "UseExternalPlayer", "OthersPlayingEnabled");
+    private static final List<String> OBSOLETE_KEYS = Arrays
+        .asList("PortForwardingPublicPort", "PortForwardingLocalPort", "DownsamplingCommand",
+                "DownsamplingCommand2", "DownsamplingCommand3", "DownsamplingCommand4",
+                "AutoCoverBatch", "MusicMask", "VideoMask", "CoverArtMask, HlsCommand",
+                "HlsCommand2", "JukeboxCommand", "CoverArtFileTypes", "UrlRedirectCustomHost",
+                "CoverArtLimit", "StreamPort", "PortForwardingEnabled", "RewriteUrl",
+                "UrlRedirectCustomUrl", "UrlRedirectContextPath", "UrlRedirectFrom",
+                "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
+                "database.varchar.maxlength", "database.config.type",
+                "database.config.embed.driver", "database.config.embed.url",
+                "database.config.embed.username", "database.config.embed.password",
+                "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox",
+                "AnonymousTranscoding", "UseSonos", "SearchMethodLegacy", "SearchMethodChanged",
+                "FastCacheEnabled", "UseRefresh", "ShowRefresh", "VerboseLogStart",
+                "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
+                "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName",
+                "IgnoreFileTimestampsForEachAlbum", "BufferSize", "DlnaIndexVisible",
+                "DlnaIndexId3Visible", "DlnaFolderVisible", "DlnaArtistVisible",
+                "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible",
+                "DlnaAlbumByGenreVisible", "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible",
+                "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible", "DlnaRandomAlbumVisible",
+                "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
+                "DlnaPodcastVisible", "DlnaGenreCountVisible", "ShowServerLog", "ShowStatus",
+                "PublishPodcast", "UseRemovingTrackFromId3Title", "UseCleanUp",
+                "RedundantFolderCheck", "UseCopyOfAsciiUnprintable", "UseExternalPlayer",
+                "OthersPlayingEnabled");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
     private static final AtomicBoolean DEVELOPMENT_MODE = new AtomicBoolean();
@@ -127,9 +135,11 @@ public class SettingsService implements ReadWriteLockSupport {
     private Pattern excludePattern;
     private Locale locale;
 
-    // getDlnaBaseLANURL is effectively final.(not declared final in order to be injected in the test)
+    // getDlnaBaseLANURL is effectively final.(not declared final in order to be
+    // injected in the test)
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
-    public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
+    public SettingsService(ApacheCommonsConfigurationService configurationService,
+            UPnPSubnet uPnPSubnet) {
         super();
         this.configurationService = configurationService;
         this.uPnPSubnet = uPnPSubnet;
@@ -156,7 +166,8 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     private static void ensureDirectoryPresent(Path home) {
-        if (!Files.exists(home) && !Files.isDirectory(home) && FileUtil.createDirectories(home) == null) {
+        if (!Files.exists(home) && !Files.isDirectory(home)
+                && FileUtil.createDirectories(home) == null) {
             throw new IllegalStateException("""
                     The directory %s does not exist. \
                     Please create it and make it writable. \
@@ -193,7 +204,10 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     public static boolean isScanOnBoot() {
-        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(Boolean::parseBoolean).orElse(false);
+        return Optional
+            .ofNullable(System.getProperty("jpsonic.scan.onboot"))
+            .map(Boolean::parseBoolean)
+            .orElse(false);
     }
 
     private static String getFileSystemAppName() {
@@ -206,7 +220,8 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getDefaultJDBCPath() + ";sql.enforce_size=false;sql.regular_names=false";
+        return "jdbc:hsqldb:file:" + getDefaultJDBCPath()
+                + ";sql.enforce_size=false;sql.regular_names=false";
     }
 
     public static String getDBScript() {
@@ -226,8 +241,10 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     public static int getDefaultUPnPPort() {
-        return Optional.ofNullable(System.getProperty(ENV_UPNP_PORT.key)).map(Integer::parseInt)
-                .orElse(ENV_UPNP_PORT.defaultValue);
+        return Optional
+            .ofNullable(System.getProperty(ENV_UPNP_PORT.key))
+            .map(Integer::parseInt)
+            .orElse(ENV_UPNP_PORT.defaultValue);
     }
 
     public static Path getLogFile() {
@@ -306,14 +323,16 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     /**
-     * Returns the number of days between automatic index creation, of -1 if automatic index creation is disabled.
+     * Returns the number of days between automatic index creation, of -1 if
+     * automatic index creation is disabled.
      */
     public int getIndexCreationInterval() {
         return getInt(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL);
     }
 
     /**
-     * Sets the number of days between automatic index creation, of -1 if automatic index creation is disabled.
+     * Sets the number of days between automatic index creation, of -1 if automatic
+     * index creation is disabled.
      */
     public void setIndexCreationInterval(int days) {
         setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL, days);
@@ -337,9 +356,11 @@ public class SettingsService implements ReadWriteLockSupport {
         return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (excludePattern) Intentional allocation to clear cache
+    @SuppressWarnings("PMD.NullAssignment") // (excludePattern) Intentional allocation to clear
+                                            // cache
     private void compileExcludePattern() {
-        if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
+        if (getExcludePatternString() != null
+                && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());
         } else {
             excludePattern = null;
@@ -418,7 +439,8 @@ public class SettingsService implements ReadWriteLockSupport {
         writeLock(localeLock);
         try {
             this.locale = null;
-            setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
+            setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE,
+                    locale.getLanguage());
             setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
             setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
         } finally {
@@ -434,8 +456,9 @@ public class SettingsService implements ReadWriteLockSupport {
     @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Returns an immutable list without unnecessary copying.")
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
     /*
-     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached [CognitiveComplexity] #1020 Remove them
-     * as they now contain unnecessary processing.
+     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached
+     * [CognitiveComplexity] #1020 Remove them as they now contain unnecessary
+     * processing.
      */
     public static List<Theme> getAvailableThemes() {
         if (!themes.isEmpty()) {
@@ -508,7 +531,8 @@ public class SettingsService implements ReadWriteLockSupport {
         readLock(ignoredArticlesLock);
         try {
             if (ignoredArticles.isEmpty() && !isEmpty(getIgnoredArticles())) {
-                ignoredArticles.addAll(Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE)));
+                ignoredArticles
+                    .addAll(Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE)));
             }
             return ignoredArticles;
         } finally {
@@ -651,7 +675,9 @@ public class SettingsService implements ReadWriteLockSupport {
         readLock(musicFileTypesLock);
         try {
             if (musicFileTypes.isEmpty() && !isEmpty(getDefaultMusicFileTypes())) {
-                musicFileTypes.addAll(Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE)));
+                musicFileTypes
+                    .addAll(Arrays
+                        .asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return musicFileTypes;
         } finally {
@@ -686,7 +712,8 @@ public class SettingsService implements ReadWriteLockSupport {
         readLock(videoFileTypesLock);
         try {
             if (videoFileTypes.isEmpty()) {
-                videoFileTypes.addAll(Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE)));
+                videoFileTypes
+                    .addAll(Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return videoFileTypes;
         } finally {
@@ -721,7 +748,8 @@ public class SettingsService implements ReadWriteLockSupport {
         readLock(coverArtFileTypesLock);
         try {
             if (coverArtFileTypes.isEmpty() && !isEmpty(getCoverArtFileTypes())) {
-                coverArtFileTypes.addAll(Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE)));
+                coverArtFileTypes
+                    .addAll(Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return coverArtFileTypes;
         } finally {
@@ -756,7 +784,9 @@ public class SettingsService implements ReadWriteLockSupport {
         readLock(excludedCoverArtsLock);
         try {
             if (excludedCoverArts.isEmpty()) {
-                excludedCoverArts.addAll(Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE)));
+                excludedCoverArts
+                    .addAll(Arrays
+                        .asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE)));
             }
             return excludedCoverArts;
         } finally {
@@ -1105,14 +1135,16 @@ public class SettingsService implements ReadWriteLockSupport {
     }
 
     /**
-     * Returns the number of hours between Podcast updates, of -1 if automatic updates are disabled.
+     * Returns the number of hours between Podcast updates, of -1 if automatic
+     * updates are disabled.
      */
     public int getPodcastUpdateInterval() {
         return getInt(SettingsConstants.Podcast.UPDATE_INTERVAL);
     }
 
     /**
-     * Sets the number of hours between Podcast updates, of -1 if automatic updates are disabled.
+     * Sets the number of hours between Podcast updates, of -1 if automatic updates
+     * are disabled.
      */
     public void setPodcastUpdateInterval(int i) {
         setProperty(SettingsConstants.Podcast.UPDATE_INTERVAL, i);
@@ -1347,8 +1379,10 @@ public class SettingsService implements ReadWriteLockSupport {
         setDatabaseConfigEmbedUrl(SettingsConstants.Database.EMBED_URL.defaultValue);
         setDatabaseConfigEmbedUsername(SettingsConstants.Database.EMBED_USERNAME.defaultValue);
         setDatabaseConfigJNDIName(SettingsConstants.Database.JNDI_NAME.defaultValue);
-        setDatabaseMysqlVarcharMaxlength(SettingsConstants.Database.MYSQL_VARCHAR_MAXLENGTH.defaultValue);
+        setDatabaseMysqlVarcharMaxlength(
+                SettingsConstants.Database.MYSQL_VARCHAR_MAXLENGTH.defaultValue);
         setDatabaseUsertableQuote(SettingsConstants.Database.USERTABLE_QUOTE.defaultValue);
-        setDatabaseConfigType(DataSourceConfigType.of(SettingsConstants.Database.TYPE.defaultValue));
+        setDatabaseConfigType(
+                DataSourceConfigType.of(SettingsConstants.Database.TYPE.defaultValue));
     }
 }

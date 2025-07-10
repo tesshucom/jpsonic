@@ -59,27 +59,34 @@ class PlaylistsControllerTest {
         playlist.setCreated(now);
         List<Playlist> playlists = Arrays.asList(playlist);
         PlaylistService playlistService = mock(PlaylistService.class);
-        Mockito.when(playlistService.getReadablePlaylistsForUser(Mockito.any())).thenReturn(playlists);
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new PlaylistsController(mock(SecurityService.class), playlistService, mock(ViewAsListSelector.class)))
-                .build();
+        Mockito
+            .when(playlistService.getReadablePlaylistsForUser(Mockito.any()))
+            .thenReturn(playlists);
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new PlaylistsController(mock(SecurityService.class), playlistService,
+                    mock(ViewAsListSelector.class)))
+            .build();
     }
 
     @SuppressWarnings("unchecked")
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/playlists.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/playlists.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playlists", modelAndView.getViewName());
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        List<PlaylistsController.Playlist> playlists = (List<PlaylistsController.Playlist>) model.get("playlists");
+        List<PlaylistsController.Playlist> playlists = (List<PlaylistsController.Playlist>) model
+            .get("playlists");
         assertEquals(1, playlists.size());
 
         assertEquals(now, playlists.get(0).getCreated());
-        assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()), playlists.get(0).getCreatedDateTime());
+        assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()),
+                playlists.get(0).getCreatedDateTime());
     }
 }

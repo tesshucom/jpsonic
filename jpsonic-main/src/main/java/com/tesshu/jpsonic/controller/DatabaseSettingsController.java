@@ -48,8 +48,9 @@ public class DatabaseSettingsController {
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public DatabaseSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+    public DatabaseSettingsController(SettingsService settingsService,
+            SecurityService securityService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -78,7 +79,8 @@ public class DatabaseSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUserStrict(request);
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
@@ -100,7 +102,8 @@ public class DatabaseSettingsController {
             }
 
             if (command.getConfigType() != DataSourceConfigType.HOST) {
-                settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
+                settingsService
+                    .setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
                 settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);

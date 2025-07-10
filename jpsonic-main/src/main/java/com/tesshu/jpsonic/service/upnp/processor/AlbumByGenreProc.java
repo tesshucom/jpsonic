@@ -35,16 +35,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
-            .toArray(size -> new MediaType[size]);
+    private static final MediaType[] EXCLUDED_TYPES = Stream
+        .of(MediaType.PODCAST, MediaType.VIDEO)
+        .toArray(size -> new MediaType[size]);
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final SearchService searchService;
     private final MediaFileService mediaFileService;
 
-    public AlbumByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            SearchService searchService) {
+    public AlbumByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, SearchService searchService) {
         super();
         this.util = util;
         this.factory = factory;
@@ -74,13 +75,18 @@ public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService.getGenres(false).stream().filter(genre -> genre.getName().equals(id)).findFirst()
-                .orElse(null);
+        return searchService
+            .getGenres(false)
+            .stream()
+            .filter(genre -> genre.getName().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long count) {
-        return searchService.getAlbumsByGenres(item.getName(), (int) offset, (int) count, util.getGuestFolders());
+        return searchService
+            .getAlbumsByGenres(item.getName(), (int) offset, (int) count, util.getGuestFolders());
     }
 
     @Override
@@ -90,6 +96,8 @@ public class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile
 
     @Override
     public void addChild(DIDLContent parent, MediaFile album) {
-        parent.addContainer(factory.toAlbum(album, mediaFileService.getChildSizeOf(album, EXCLUDED_TYPES)));
+        parent
+            .addContainer(
+                    factory.toAlbum(album, mediaFileService.getChildSizeOf(album, EXCLUDED_TYPES)));
     }
 }

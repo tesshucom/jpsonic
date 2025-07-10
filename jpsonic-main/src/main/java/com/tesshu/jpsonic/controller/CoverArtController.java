@@ -108,8 +108,9 @@ public class CoverArtController implements CoverArtPresentation {
     private final List<Path> writingCache = Collections.synchronizedList(new ArrayList<>());
     private final ReentrantLock writingCacheLock = new ReentrantLock();
 
-    public CoverArtController(MediaFileService mediaFileService, FFmpeg ffmpeg, PlaylistService playlistService,
-            PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao, FontLoader fontLoader) {
+    public CoverArtController(MediaFileService mediaFileService, FFmpeg ffmpeg,
+            PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao,
+            AlbumDao albumDao, FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
         this.ffmpeg = ffmpeg;
@@ -148,7 +149,8 @@ public class CoverArtController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
-        Integer size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value());
+        Integer size = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SIZE.value());
         if (coverArtRequest == null) {
             sendFallback(size, response);
             return;
@@ -173,7 +175,9 @@ public class CoverArtController implements CoverArtPresentation {
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Sending fallback as an exception was encountered during normal cover art processing", e);
+                LOG
+                    .debug("Sending fallback as an exception was encountered during normal cover art processing",
+                            e);
             }
             sendFallback(size, response);
         }
@@ -212,7 +216,8 @@ public class CoverArtController implements CoverArtPresentation {
     private PlaylistCoverArtRequest createPlaylistCoverArtRequest(int id) {
         Playlist playlist = playlistService.getPlaylist(id);
         return playlist == null ? null
-                : new PlaylistCoverArtRequest(this, fontLoader, mediaFileService, playlistService, playlist);
+                : new PlaylistCoverArtRequest(this, fontLoader, mediaFileService, playlistService,
+                        playlist);
     }
 
     private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
@@ -229,14 +234,16 @@ public class CoverArtController implements CoverArtPresentation {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+            int offset = ServletRequestUtils
+                .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
             return new VideoCoverArtRequest(this, fontLoader, mediaFile, offset);
         }
         return new MediaFileCoverArtRequest(this, fontLoader, mediaFileService, mediaFile);
     }
 
     private void sendImage(Path path, HttpServletResponse response) throws ExecutionException {
-        response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(path.toString())));
+        response
+            .setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(path.toString())));
         try (InputStream in = Files.newInputStream(path)) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
@@ -263,7 +270,8 @@ public class CoverArtController implements CoverArtPresentation {
         }
     }
 
-    void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
+    void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response)
+            throws ExecutionException {
         Path path = coverArtRequest.getCoverArt();
         Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(path);
         response.setContentType(imageInputStreamWithType.getRight());
@@ -285,14 +293,16 @@ public class CoverArtController implements CoverArtPresentation {
             }
             waitingTime += 200;
             if (waitingTime > 5_000) {
-                throw new ExecutionException(new InterruptedException("Coverart cache write wait exceeded 5 seconds"));
+                throw new ExecutionException(
+                        new InterruptedException("Coverart cache write wait exceeded 5 seconds"));
             }
         }
     }
 
     private boolean isCacheExist(Path cache, CoverArtRequest request) throws ExecutionException {
         try {
-            if (Files.exists(cache) && request.lastModified() <= Files.getLastModifiedTime(cache).toMillis()) {
+            if (Files.exists(cache)
+                    && request.lastModified() <= Files.getLastModifiedTime(cache).toMillis()) {
                 return true;
             }
         } catch (IOException e) {
@@ -326,8 +336,9 @@ public class CoverArtController implements CoverArtPresentation {
     @SuppressFBWarnings(value = "WEAK_MESSAGE_DIGEST_MD5", justification = "It has nothing to do with security. The chances of a collision are also low enough")
     private Path getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
         String encoding = request.getCoverArt() == null ? "png" : "jpeg";
-        Path cachePath = Path.of(getImageCacheDirectory(size).toString(),
-                DigestUtils.md5Hex(request.getKey()) + "." + encoding);
+        Path cachePath = Path
+            .of(getImageCacheDirectory(size).toString(),
+                    DigestUtils.md5Hex(request.getKey()) + "." + encoding);
 
         // Use cache if enabled (It's already created)
         if (isCacheExist(cachePath, request)) {
@@ -364,8 +375,8 @@ public class CoverArtController implements CoverArtPresentation {
     }
 
     /**
-     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
-     * returned.
+     * Returns an input stream to the image in the given file. If the file is an
+     * audio file, the embedded album art is returned.
      */
     @NonNull
     InputStream getImageInputStream(Path path) throws ExecutionException {
@@ -373,13 +384,15 @@ public class CoverArtController implements CoverArtPresentation {
     }
 
     /**
-     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
-     * returned. In addition returns the mime type
+     * Returns an input stream to the image in the given file. If the file is an
+     * audio file, the embedded album art is returned. In addition returns the mime
+     * type
      */
     @SuppressWarnings("PMD.CloseResource")
     /*
-     * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
-     * calling this method auto-closes the resource after this method completes.
+     * False positive. This method is an intermediate function used internally by
+     * createImage, sendUnscaled. The methods calling this method auto-closes the
+     * resource after this method completes.
      */
     @NonNull
     Pair<InputStream, String> getImageInputStreamWithType(Path path) throws ExecutionException {
@@ -393,9 +406,11 @@ public class CoverArtController implements CoverArtPresentation {
             }
             Path fileName = path.getFileName();
             if (fileName == null) {
-                throw new IllegalArgumentException("Image cannot be read: The root path was specified");
+                throw new IllegalArgumentException(
+                        "Image cannot be read: The root path was specified");
             }
-            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(fileName.toString()));
+            String mimeType = StringUtil
+                .getMimeType(FilenameUtils.getExtension(fileName.toString()));
             return Pair.of(is, mimeType);
         }
 
@@ -409,13 +424,15 @@ public class CoverArtController implements CoverArtPresentation {
     }
 
     @Nullable
-    BufferedImage getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) {
+    BufferedImage getImageInputStreamForVideo(MediaFile mediaFile, int width, int height,
+            int offset) {
         return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
     @NonNull
     Path getImageCacheDirectory(int size) {
-        Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
+        Path dir = Path
+            .of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
         FileUtil.createDirectories(dir);
         return dir;
     }
@@ -427,7 +444,8 @@ public class CoverArtController implements CoverArtPresentation {
         int h = image.getHeight();
         BufferedImage thumb = image;
 
-        // For optimal results, use step by step bilinear resampling - halfing the size at each step.
+        // For optimal results, use step by step bilinear resampling - halfing the size
+        // at each step.
         do {
             w /= 2;
             h /= 2;
@@ -440,7 +458,9 @@ public class CoverArtController implements CoverArtPresentation {
 
             BufferedImage temp = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = temp.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2
+                .setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2.drawImage(thumb, 0, 0, temp.getWidth(), temp.getHeight(), null);
             g2.dispose();
 
@@ -456,7 +476,8 @@ public class CoverArtController implements CoverArtPresentation {
         protected final FontLoader fontLoader;
         protected Path coverArt;
 
-        private CoverArtRequest(CoverArtController controller, FontLoader fontLoader, String coverArtPath) {
+        private CoverArtRequest(CoverArtController controller, FontLoader fontLoader,
+                String coverArtPath) {
             this.controller = controller;
             this.fontLoader = fontLoader;
             if (coverArtPath != null) {
@@ -495,7 +516,8 @@ public class CoverArtController implements CoverArtPresentation {
                 } catch (ExecutionException e) {
                     Throwable cause = e.getCause();
                     if (cause instanceof IOException) {
-                        warnLog("Empty embeded image or Non-existent file? :" + coverArt + ": {}", e.getMessage());
+                        warnLog("Empty embeded image or Non-existent file? :" + coverArt + ": {}",
+                                e.getMessage());
                     } else {
                         warnLog("Failed to process cover art: {}", coverArt.toString());
                         ConcurrentUtils.handleCauseUnchecked(e);
@@ -509,8 +531,8 @@ public class CoverArtController implements CoverArtPresentation {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
             float fontSize = (height - height * 0.02f) * 0.1f;
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height,
-                    fontLoader.getFont(fontSize));
+            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width,
+                    height, fontLoader.getFont(fontSize));
             autoCover.paintCover();
             graphics.dispose();
             return image;
@@ -532,12 +554,14 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return artist.getCoverArtPath() == null ? createCoverArtKey(artist) : artist.getCoverArtPath();
+            return artist.getCoverArtPath() == null ? createCoverArtKey(artist)
+                    : artist.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt == null ? artist.getLastScanned().toEpochMilli() : getLastModified(coverArt);
+            return coverArt == null ? artist.getLastScanned().toEpochMilli()
+                    : getLastModified(coverArt);
         }
 
         @Override
@@ -562,12 +586,14 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return album.getCoverArtPath() == null ? createCoverArtKey(album) : album.getCoverArtPath();
+            return album.getCoverArtPath() == null ? createCoverArtKey(album)
+                    : album.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt == null ? album.getLastScanned().toEpochMilli() : getLastModified(coverArt);
+            return coverArt == null ? album.getLastScanned().toEpochMilli()
+                    : getLastModified(coverArt);
         }
 
         @Override
@@ -588,8 +614,9 @@ public class CoverArtController implements CoverArtPresentation {
         private final PlaylistService playlistService;
         private final Playlist playlist;
 
-        PlaylistCoverArtRequest(CoverArtController controller, FontLoader fontLoader, MediaFileService mediaFileService,
-                PlaylistService playlistService, Playlist playlist) {
+        PlaylistCoverArtRequest(CoverArtController controller, FontLoader fontLoader,
+                MediaFileService mediaFileService, PlaylistService playlistService,
+                Playlist playlist) {
             super(controller, fontLoader, null);
             this.mediaFileService = mediaFileService;
             this.playlistService = playlistService;
@@ -623,21 +650,30 @@ public class CoverArtController implements CoverArtPresentation {
                 return createAutoCover(size, size);
             }
             if (albums.size() < IMAGE_COMPOSITES_THRESHOLD) {
-                return new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, albums.get(0))
-                        .createImage(size);
+                return new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                        albums.get(0))
+                    .createImage(size);
             }
 
             BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
 
             int half = size / 2;
-            graphics.drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, albums.get(0))
+            graphics
+                .drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                        albums.get(0))
                     .createImage(half), null, 0, 0);
-            graphics.drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, albums.get(1))
+            graphics
+                .drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                        albums.get(1))
                     .createImage(half), null, half, 0);
-            graphics.drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, albums.get(2))
+            graphics
+                .drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                        albums.get(2))
                     .createImage(half), null, 0, half);
-            graphics.drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, albums.get(3))
+            graphics
+                .drawImage(new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                        albums.get(3))
                     .createImage(half), null, half, half);
             graphics.dispose();
             return image;
@@ -659,7 +695,8 @@ public class CoverArtController implements CoverArtPresentation {
 
         private final PodcastChannel channel;
 
-        PodcastCoverArtRequest(CoverArtController controller, FontLoader fontLoader, PodcastChannel channel) {
+        PodcastCoverArtRequest(CoverArtController controller, FontLoader fontLoader,
+                PodcastChannel channel) {
             super(controller, fontLoader, null);
             this.channel = channel;
         }
@@ -722,7 +759,8 @@ public class CoverArtController implements CoverArtPresentation {
         private final MediaFile mediaFile;
         private final int offset;
 
-        VideoCoverArtRequest(CoverArtController controller, FontLoader fontLoader, MediaFile mediaFile, int offset) {
+        VideoCoverArtRequest(CoverArtController controller, FontLoader fontLoader,
+                MediaFile mediaFile, int offset) {
             super(controller, fontLoader, mediaFile.getCoverArtPathString());
             this.mediaFile = mediaFile;
             this.offset = offset;
@@ -733,7 +771,8 @@ public class CoverArtController implements CoverArtPresentation {
             int height = size;
             int width = height * 16 / 9;
 
-            BufferedImage result = controller.getImageInputStreamForVideo(mediaFile, width, height, offset);
+            BufferedImage result = controller
+                .getImageInputStreamForVideo(mediaFile, width, height, offset);
             if (result != null) {
                 return result;
             }
@@ -774,7 +813,8 @@ public class CoverArtController implements CoverArtPresentation {
         private final Color color;
         private final Font font;
 
-        AutoCover(Graphics2D graphics, String key, String artist, String album, int width, int height, Font font) {
+        AutoCover(Graphics2D graphics, String key, String artist, String album, int width,
+                int height, Font font) {
             this.graphics = graphics;
             this.artist = artist;
             this.album = album;
@@ -789,14 +829,19 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         public void paintCover() {
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            graphics
+                .setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics
+                .setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             graphics.setPaint(color);
             graphics.fillRect(0, 0, width, height);
 
             int y = height * 2 / 3;
-            graphics.setPaint(new GradientPaint(0, y, new Color(82, 82, 82), 0, height, Color.BLACK));
+            graphics
+                .setPaint(new GradientPaint(0, y, new Color(82, 82, 82), 0, height, Color.BLACK));
             graphics.fillRect(0, y, width, height / 3);
 
             graphics.setPaint(Color.WHITE);

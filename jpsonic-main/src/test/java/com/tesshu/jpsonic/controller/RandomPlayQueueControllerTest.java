@@ -59,8 +59,9 @@ class RandomPlayQueueControllerTest {
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         player.setPlayQueue(new PlayQueue());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
-        controller = new RandomPlayQueueController(mock(MusicFolderService.class), mock(SecurityService.class),
-                playerService, mock(MediaFileService.class), mock(IndexManager.class));
+        controller = new RandomPlayQueueController(mock(MusicFolderService.class),
+                mock(SecurityService.class), playerService, mock(MediaFileService.class),
+                mock(IndexManager.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -68,13 +69,15 @@ class RandomPlayQueueControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDoSubmitAction() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.RANDOM_PLAYQUEUE.value())
-                        .param(Attributes.Request.SIZE.value(), Integer.toString(24))
-                        .param(Attributes.Request.MUSIC_FOLDER_ID.value(), Integer.toString(0))
-                        .param(Attributes.Request.NameConstants.LAST_PLAYED_VALUE, "any")
-                        .param(Attributes.Request.NameConstants.LAST_PLAYED_COMP, "lt")
-                        .param(Attributes.Request.NameConstants.YEAR, "any"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.RANDOM_PLAYQUEUE.value())
+                .param(Attributes.Request.SIZE.value(), Integer.toString(24))
+                .param(Attributes.Request.MUSIC_FOLDER_ID.value(), Integer.toString(0))
+                .param(Attributes.Request.NameConstants.LAST_PLAYED_VALUE, "any")
+                .param(Attributes.Request.NameConstants.LAST_PLAYED_COMP, "lt")
+                .param(Attributes.Request.NameConstants.YEAR, "any"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

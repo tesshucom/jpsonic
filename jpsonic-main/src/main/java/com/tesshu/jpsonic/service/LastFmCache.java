@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Based on {@link FileSystemCache}, but properly closes files and enforces time-to-live (by ignoring HTTP header
- * directives).
+ * Based on {@link FileSystemCache}, but properly closes files and enforces
+ * time-to-live (by ignoring HTTP header directives).
  *
  * @author Sindre Mehus
  */
@@ -90,7 +90,8 @@ public final class LastFmCache extends Cache {
             Path metaFile = getMetaFile(cacheEntryName);
             Properties properties = new Properties();
 
-            // Note: Ignore the given expirationDate, since Last.fm sets it to just one day ahead.
+            // Note: Ignore the given expirationDate, since Last.fm sets it to just one day
+            // ahead.
             properties.setProperty("expiration-date", Long.toString(getExpirationDate()));
 
             try (OutputStream metaOut = Files.newOutputStream(metaFile)) {

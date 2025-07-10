@@ -41,13 +41,19 @@ class StringUtilBaseTest {
     void testFormatBytes() {
         Locale locale = Locale.ENGLISH;
         assertEquals("918 B", StringUtilBase.formatBytes(918, locale), "Error in formatBytes().");
-        assertEquals("1023 B", StringUtilBase.formatBytes(1_023, locale), "Error in formatBytes().");
+        assertEquals("1023 B", StringUtilBase.formatBytes(1_023, locale),
+                "Error in formatBytes().");
         assertEquals("1 KB", StringUtilBase.formatBytes(1_024, locale), "Error in formatBytes().");
-        assertEquals("96 KB", StringUtilBase.formatBytes(98_765, locale), "Error in formatBytes().");
-        assertEquals("1024 KB", StringUtilBase.formatBytes(1_048_575, locale), "Error in formatBytes().");
-        assertEquals("1.2 MB", StringUtilBase.formatBytes(1_238_476, locale), "Error in formatBytes().");
-        assertEquals("3.50 GB", StringUtilBase.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
-        assertEquals("410.00 TB", StringUtilBase.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
+        assertEquals("96 KB", StringUtilBase.formatBytes(98_765, locale),
+                "Error in formatBytes().");
+        assertEquals("1024 KB", StringUtilBase.formatBytes(1_048_575, locale),
+                "Error in formatBytes().");
+        assertEquals("1.2 MB", StringUtilBase.formatBytes(1_238_476, locale),
+                "Error in formatBytes().");
+        assertEquals("3.50 GB", StringUtilBase.formatBytes(3_758_096_384L, locale),
+                "Error in formatBytes().");
+        assertEquals("410.00 TB", StringUtilBase.formatBytes(450_799_767_388_160L, locale),
+                "Error in formatBytes().");
         assertEquals("4413.43 TB", StringUtilBase.formatBytes(4_852_617_603_375_432L, locale),
                 "Error in formatBytes().");
 
@@ -55,11 +61,16 @@ class StringUtilBaseTest {
         assertEquals("918 B", StringUtilBase.formatBytes(918, locale), "Error in formatBytes().");
         assertEquals("1023 B", StringUtilBase.formatBytes(1023, locale), "Error in formatBytes().");
         assertEquals("1 KB", StringUtilBase.formatBytes(1024, locale), "Error in formatBytes().");
-        assertEquals("96 KB", StringUtilBase.formatBytes(98_765, locale), "Error in formatBytes().");
-        assertEquals("1024 KB", StringUtilBase.formatBytes(1_048_575, locale), "Error in formatBytes().");
-        assertEquals("1,2 MB", StringUtilBase.formatBytes(1_238_476, locale), "Error in formatBytes().");
-        assertEquals("3,50 GB", StringUtilBase.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
-        assertEquals("410,00 TB", StringUtilBase.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
+        assertEquals("96 KB", StringUtilBase.formatBytes(98_765, locale),
+                "Error in formatBytes().");
+        assertEquals("1024 KB", StringUtilBase.formatBytes(1_048_575, locale),
+                "Error in formatBytes().");
+        assertEquals("1,2 MB", StringUtilBase.formatBytes(1_238_476, locale),
+                "Error in formatBytes().");
+        assertEquals("3,50 GB", StringUtilBase.formatBytes(3_758_096_384L, locale),
+                "Error in formatBytes().");
+        assertEquals("410,00 TB", StringUtilBase.formatBytes(450_799_767_388_160L, locale),
+                "Error in formatBytes().");
         assertEquals("4413,43 TB", StringUtilBase.formatBytes(4_852_617_603_375_432L, locale),
                 "Error in formatBytes().");
     }
@@ -75,7 +86,8 @@ class StringUtilBaseTest {
     }
 
     private boolean doTestUtf8Hex(String s) throws DecoderException {
-        assertEquals(s, StringUtilBase.utf8HexDecode(StringUtilBase.utf8HexEncode(s)), "Error in utf8hex.");
+        assertEquals(s, StringUtilBase.utf8HexDecode(StringUtilBase.utf8HexEncode(s)),
+                "Error in utf8hex.");
         return true;
     }
 }

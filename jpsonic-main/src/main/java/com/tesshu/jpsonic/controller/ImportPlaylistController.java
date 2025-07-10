@@ -55,7 +55,8 @@ public class ImportPlaylistController {
     private final SecurityService securityService;
     private final PlaylistService playlistService;
 
-    public ImportPlaylistController(SecurityService securityService, PlaylistService playlistService) {
+    public ImportPlaylistController(SecurityService securityService,
+            PlaylistService playlistService) {
         super();
         this.securityService = securityService;
         this.playlistService = playlistService;
@@ -63,8 +64,9 @@ public class ImportPlaylistController {
 
     private void playListSizeCheck(DiskFileItem item) throws ExecutionException {
         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
-            throw new ExecutionException(new IOException(
-                    "The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
+            throw new ExecutionException(
+                    new IOException("The playlist file is too large. Max file size is "
+                            + MAX_PLAYLIST_SIZE_MB + " MB."));
         }
     }
 
@@ -79,13 +81,15 @@ public class ImportPlaylistController {
                 JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
                 List<DiskFileItem> items = upload.parseRequest(request);
                 for (DiskFileItem item : items) {
-                    if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
+                    if (FIELD_NAME_FILE.equals(item.getFieldName())
+                            && !StringUtils.isBlank(item.getName())) {
                         playListSizeCheck(item);
                         String playlistName = FilenameUtils.getBaseName(item.getName());
                         String fileName = FilenameUtils.getName(item.getName());
                         String username = securityService.getCurrentUsername(request);
-                        Playlist playlist = playlistService.importPlaylist(username, playlistName, fileName,
-                                item.getInputStream(), null);
+                        Playlist playlist = playlistService
+                            .importPlaylist(username, playlistName, fileName, item.getInputStream(),
+                                    null);
                         map.put("playlist", playlist);
                     }
                 }

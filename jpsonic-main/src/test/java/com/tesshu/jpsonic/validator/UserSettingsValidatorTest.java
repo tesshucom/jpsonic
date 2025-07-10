@@ -38,8 +38,8 @@ class UserSettingsValidatorTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        validator = new UserSettingsValidator(mock(SecurityService.class), mock(SettingsService.class),
-                mock(MockHttpServletRequest.class));
+        validator = new UserSettingsValidator(mock(SecurityService.class),
+                mock(SettingsService.class), mock(MockHttpServletRequest.class));
     }
 
     @Test

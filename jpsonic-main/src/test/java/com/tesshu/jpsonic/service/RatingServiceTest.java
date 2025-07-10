@@ -53,9 +53,14 @@ class RatingServiceTest {
 
     @Test
     void testGetHighestRatedAlbums() throws IOException, URISyntaxException {
-        Path albumPath = Path.of(RatingServiceTest.class.getResource("/MEDIAS/Music/_DIR_ Sixteen Horsepower").toURI());
-        Mockito.when(ratingDao.getHighestRatedAlbums(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyList()))
-                .thenReturn(Arrays.asList(albumPath.toString()));
+        Path albumPath = Path
+            .of(RatingServiceTest.class
+                .getResource("/MEDIAS/Music/_DIR_ Sixteen Horsepower")
+                .toURI());
+        Mockito
+            .when(ratingDao
+                .getHighestRatedAlbums(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyList()))
+            .thenReturn(Arrays.asList(albumPath.toString()));
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
         MediaFile album = new MediaFile();
         album.setPathString(albumPath.toString());
@@ -63,7 +68,8 @@ class RatingServiceTest {
 
         MusicFolder musicFolder = new MusicFolder("path", "Music", true, now(), false);
         List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
-        List<MediaFile> highestRatedAlbums = ratingService.getHighestRatedAlbums(0, 0, musicFolders);
+        List<MediaFile> highestRatedAlbums = ratingService
+            .getHighestRatedAlbums(0, 0, musicFolders);
         assertEquals(1, highestRatedAlbums.size());
         assertEquals(albumPath.toString(), highestRatedAlbums.get(0).getPathString());
     }

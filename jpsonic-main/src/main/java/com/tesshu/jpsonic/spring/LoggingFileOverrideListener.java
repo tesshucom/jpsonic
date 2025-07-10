@@ -32,13 +32,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
-public class LoggingFileOverrideListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+public class LoggingFileOverrideListener
+        implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         @SuppressWarnings("rawtypes")
-        PropertySource ps = new MapPropertySource("LogFileLocationPS",
-                Collections.singletonMap(LogFile.FILE_NAME_PROPERTY, SettingsService.getLogFile().toString()));
+        PropertySource ps = new MapPropertySource("LogFileLocationPS", Collections
+            .singletonMap(LogFile.FILE_NAME_PROPERTY, SettingsService.getLogFile().toString()));
         event.getEnvironment().getPropertySources().addLast(ps);
     }
 

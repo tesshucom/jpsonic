@@ -51,10 +51,19 @@ public class GettingStartedController {
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
         GettingStartedCommand command = new GettingStartedCommand();
-        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
-                .findFirst().ifPresent(locale -> command
-                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
-        command.setLocales(settingsService.getAvailableLocales().stream().map(Locale::getDisplayName)
+        settingsService
+            .getAvailableLocales()
+            .stream()
+            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .findFirst()
+            .ifPresent(locale -> command
+                .setLocaleIndex(
+                        String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command
+            .setLocales(settingsService
+                .getAvailableLocales()
+                .stream()
+                .map(Locale::getDisplayName)
                 .collect(Collectors.toList()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         model.addAttribute("runningAsRoot", "root".equals(System.getProperty("user.name")));
@@ -71,7 +80,8 @@ public class GettingStartedController {
     }
 
     @PostMapping
-    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GettingStartedCommand command,
+    protected ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) GettingStartedCommand command,
             RedirectAttributes redirectAttributes) {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = settingsService.getAvailableLocales().get(localeIndex);

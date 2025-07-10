@@ -64,9 +64,12 @@ public class ShareDao {
 
     @Transactional
     public void createShare(Share share) {
-        String sql = "insert into share (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")";
-        template.update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
-                share.getExpires(), share.getLastVisited(), share.getVisitCount());
+        String sql = "insert into share (" + INSERT_COLUMNS + ") values ("
+                + questionMarks(INSERT_COLUMNS) + ")";
+        template
+            .update(sql, share.getName(), share.getDescription(), share.getUsername(),
+                    share.getCreated(), share.getExpires(), share.getLastVisited(),
+                    share.getVisitCount());
         Integer id = template.queryForInt("select max(id) from share", null);
         if (id != null) {
             share.setId(id);
@@ -101,8 +104,10 @@ public class ShareDao {
                         expires=?, last_visited=?, visit_count=?
                 where id=?
                 """;
-        template.update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
-                share.getExpires(), share.getLastVisited(), share.getVisitCount(), share.getId());
+        template
+            .update(sql, share.getName(), share.getDescription(), share.getUsername(),
+                    share.getCreated(), share.getExpires(), share.getLastVisited(),
+                    share.getVisitCount(), share.getId());
     }
 
     public void createSharedFiles(int shareId, String... paths) {
@@ -119,7 +124,8 @@ public class ShareDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("shareId", shareId, "folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap
+            .of("shareId", shareId, "folders", MusicFolder.toPathList(musicFolders));
         return template.namedQuery("""
                 select share_file.path
                 from share_file, media_file

@@ -88,7 +88,9 @@ public class UserSettingsValidator implements Validator {
             } else if (command.isLdapAuthenticated() && !settingsService.isLdapEnabled()) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.ldapdisabled");
             } else if (command.isLdapAuthenticated() && password != null) {
-                errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
+                errors
+                    .rejectValue(REJECTED_FIELD_PASSWORD,
+                            "usersettings.passwordnotsupportedforldap");
             }
         }
     }

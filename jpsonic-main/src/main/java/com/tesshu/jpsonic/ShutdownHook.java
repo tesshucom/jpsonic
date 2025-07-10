@@ -31,9 +31,10 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
 /**
- * Hook to control the shutdown order. ContextClosedEvent -> Stop presentation layer(including UPnP) -> Change stream
- * transfer status/playQueue status -> Safe cancellation of pooling tasks -> @PreDestroy of this class -> If the profile
- * is 'legacy' LegacyHsqlDaoHelper#onDestroy
+ * Hook to control the shutdown order. ContextClosedEvent -> Stop presentation
+ * layer(including UPnP) -> Change stream transfer status/playQueue status ->
+ * Safe cancellation of pooling tasks -> @PreDestroy of this class -> If the
+ * profile is 'legacy' LegacyHsqlDaoHelper#onDestroy
  */
 @Component
 @DependsOn({ "shortExecutor", "podcastDownloadExecutor", "podcastRefreshExecutor", "scanExecutor" })
@@ -49,15 +50,19 @@ public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
     }
 
     /*
-     * The Transfer Status check is done when working with most streams. However, many of these processes are
-     * overcrowded processes. If any of these processes are already running and then perform a shutdown, the Spring
-     * mechanism may not be able to handle interrupts well. If can't interrupt beautifully, we may experience some
-     * non-fatal side effects.
+     * The Transfer Status check is done when working with most streams. However,
+     * many of these processes are overcrowded processes. If any of these processes
+     * are already running and then perform a shutdown, the Spring mechanism may not
+     * be able to handle interrupts well. If can't interrupt beautifully, we may
+     * experience some non-fatal side effects.
      */
     @Override
     public void onApplicationEvent(ContextClosedEvent event) {
-        statusService.getAllStreamStatuses().stream().filter(TransferStatus::isActive)
-                .forEach(TransferStatus::terminate);
+        statusService
+            .getAllStreamStatuses()
+            .stream()
+            .filter(TransferStatus::isActive)
+            .forEach(TransferStatus::terminate);
         if (LOG.isInfoEnabled()) {
             LOG.info("Changed the status of all active streams to 'terminate'.");
         }

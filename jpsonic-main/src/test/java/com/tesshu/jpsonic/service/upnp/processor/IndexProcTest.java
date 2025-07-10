@@ -98,9 +98,10 @@ class IndexProcTest {
             map.put(musicIndex, 99);
 
             when(musicIndexService.getMusicFolderContentCounts(anyList()))
-                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+                .thenReturn(new MusicFolderContent.Counts(map, 0));
             assertNull(proc.createContainer(new IndexOrSong(musicIndex)));
-            verify(factory, times(1)).toMusicIndex(any(ProcId.class), any(MusicIndex.class), anyInt());
+            verify(factory, times(1))
+                .toMusicIndex(any(ProcId.class), any(MusicIndex.class), anyInt());
         }
 
         @Test
@@ -127,14 +128,16 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
-                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+            when(musicIndexService
+                .getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
+                .thenReturn(new MusicFolderContent.Counts(map, 0));
 
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList(),
-                    any(new MediaType[0].getClass()));
-            verify(mediaFileService, times(1)).getDirectChildFiles(anyList(), anyLong(), anyLong(),
-                    any(new MediaType[0].getClass()));
+            verify(musicIndexService, times(1))
+                .getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass()));
+            verify(mediaFileService, times(1))
+                .getDirectChildFiles(anyList(), anyLong(), anyLong(),
+                        any(new MediaType[0].getClass()));
         }
 
         @Test
@@ -142,8 +145,9 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
-                    .thenReturn(new MusicFolderContent.Counts(map, 1));
+            when(musicIndexService
+                .getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
+                .thenReturn(new MusicFolderContent.Counts(map, 1));
             assertEquals(2, proc.getDirectChildrenCount());
         }
 
@@ -152,8 +156,9 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
-                    .thenReturn(new MusicFolderContent.Counts(map, 1));
+            when(musicIndexService
+                .getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
+                .thenReturn(new MusicFolderContent.Counts(map, 1));
 
             IndexOrSong indexOrSong = proc.getDirectChild("A");
             assertEquals(musicIndex, indexOrSong.getMusicIndex());
@@ -170,13 +175,16 @@ class IndexProcTest {
         void testGetChildren() {
             MediaFile song = new MediaFile();
             assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(song), 0, 100));
-            verify(mediaFileService, never()).getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
-                    any(MediaType.class));
+            verify(mediaFileService, never())
+                .getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
+                        any(MediaType.class));
 
             MusicIndex musicIndex = new MusicIndex("A");
-            assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(musicIndex), 0, 100));
-            verify(mediaFileService, times(1)).getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
-                    any(new MediaType[0].getClass()));
+            assertEquals(Collections.emptyList(),
+                    proc.getChildren(new IndexOrSong(musicIndex), 0, 100));
+            verify(mediaFileService, times(1))
+                .getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
+                        any(new MediaType[0].getClass()));
         }
 
         @Test
@@ -186,8 +194,9 @@ class IndexProcTest {
 
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
-                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+            when(musicIndexService
+                .getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
+                .thenReturn(new MusicFolderContent.Counts(map, 0));
             assertEquals(99, proc.getChildSizeOf(new IndexOrSong(musicIndex)));
 
             assertEquals(0, proc.getChildSizeOf(new IndexOrSong(new MediaFile())));
@@ -260,8 +269,9 @@ class IndexProcTest {
     @Order(2)
     class IntegrationTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+        private final List<MusicFolder> musicFolders = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
+                    true, now(), 1, false));
 
         @Autowired
         private IndexProc indexProc;
@@ -398,8 +408,13 @@ class IndexProcTest {
 
         @Test
         void testGetChildren() {
-            List<String> artistNames = indexProc.getDirectChildren(0, 100).stream().filter(IndexOrSong::isMusicIndex)
-                    .flatMap(m -> indexProc.getChildren(m, 0, 100).stream()).map(MediaFile::getName).toList();
+            List<String> artistNames = indexProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(IndexOrSong::isMusicIndex)
+                .flatMap(m -> indexProc.getChildren(m, 0, 100).stream())
+                .map(MediaFile::getName)
+                .toList();
             assertEquals(INDEX_LIST, artistNames);
 
             List<IndexOrSong> items = indexProc.getDirectChildren(0, 100);
@@ -463,39 +478,51 @@ class IndexProcTest {
             MediaFile artist = artists.get(0);
             assertEquals("10", artist.getName());
 
-            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA,
-                    MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO);
+            List<MediaFile> albums = mediaFileService
+                .getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA, MediaType.PODCAST,
+                        MediaType.AUDIOBOOK, MediaType.VIDEO);
             assertEquals(31, albums.size());
 
             assertTrue(UpnpProcessorTestUtils
-                    .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
+                .validateJPSonicNaturalList(
+                        albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
         }
 
         @Test
         void testSongs() {
 
-            List<IndexOrSong> indexes = indexProc.getDirectChildren(0, 100).stream().filter(IndexOrSong::isMusicIndex)
-                    .filter(a -> "#".equals(a.getMusicIndex().getIndex())).collect(Collectors.toList());
+            List<IndexOrSong> indexes = indexProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(IndexOrSong::isMusicIndex)
+                .filter(a -> "#".equals(a.getMusicIndex().getIndex()))
+                .collect(Collectors.toList());
             assertEquals(1, indexes.size());
 
             MusicIndex index = indexes.get(0).getMusicIndex();
             assertEquals("#", index.getIndex());
 
-            List<MediaFile> artists = indexProc.getChildren(indexes.get(0), 0, Integer.MAX_VALUE).stream()
-                    .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = indexProc
+                .getChildren(indexes.get(0), 0, Integer.MAX_VALUE)
+                .stream()
+                .filter(a -> "20".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
 
             MediaFile artist = artists.get(0);
             assertEquals("20", artist.getName());
 
-            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA,
-                    MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO);
+            List<MediaFile> albums = mediaFileService
+                .getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA, MediaType.PODCAST,
+                        MediaType.AUDIOBOOK, MediaType.VIDEO);
             assertEquals(1, albums.size());
 
             MediaFile album = albums.get(0);
-            assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
+            assertEquals("ALBUM", album.getName()); // the case where album name is different
+                                                    // between file and id3
 
-            List<MediaFile> songs = mediaFileService.getChildrenOf(album, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
+            List<MediaFile> songs = mediaFileService
+                .getChildrenOf(album, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, songs.size());
 
             MediaFile song = songs.get(0);

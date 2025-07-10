@@ -53,13 +53,17 @@ class MP4ParserTest {
 
     @BeforeEach
     void setUp() {
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null, null);
+        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
+                null);
         parser = new MP4Parser(new FFprobe(transcodingService));
     }
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
-        Path file = Path.of(MP4ParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
+        Path file = Path
+            .of(MP4ParserTest.class
+                .getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4")
+                .toURI());
         mediaFile.setPathString(file.toString());
         mediaFile.setFileSize(Files.size(file));
         return mediaFile;
@@ -96,14 +100,18 @@ class MP4ParserTest {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
         long threshold = parser.getThreshold(mediaFile, statistics);
-        assertEquals(MP4ParseStatistics.CMD_LEAD_TIME_DEFAULT * MP4ParseStatistics.TIKA_BPMS_DEFAULT, threshold);
+        assertEquals(
+                MP4ParseStatistics.CMD_LEAD_TIME_DEFAULT * MP4ParseStatistics.TIKA_BPMS_DEFAULT,
+                threshold);
     }
 
     @Test
     @Order(2)
-    void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
+    void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
+            throws URISyntaxException, IOException {
 
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null, null) {
+        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
+                null) {
 
             @Override
             public @NonNull Path getTranscodeDirectory() {
@@ -166,7 +174,8 @@ class MP4ParserTest {
 
     @Test
     @Order(5)
-    void testGetRawMetaData(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
+    void testGetRawMetaData(@TempDir Path emptytranscodeDir)
+            throws URISyntaxException, IOException {
 
         transcodingService = mock(TranscodingService.class);
         Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
@@ -179,7 +188,8 @@ class MP4ParserTest {
         Mockito.clearInvocations(transcodingService);
 
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
-        assertThat(parser.getThreshold(mediaFile, statistics), greaterThan(mediaFile.getFileSize()));
+        assertThat(parser.getThreshold(mediaFile, statistics),
+                greaterThan(mediaFile.getFileSize()));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is not used for small files
         Mockito.verify(transcodingService, Mockito.never()).getTranscodeDirectory();
@@ -189,7 +199,8 @@ class MP4ParserTest {
         s.addTikaLeadTime(1000, 1_000_000_000);
         s.addTikaLeadTime(1000, 1_000_000_000);
         statistics.putIfAbsent("root", s);
-        assertThat(mediaFile.getFileSize(), greaterThan(parser.getThreshold(mediaFile, statistics)));
+        assertThat(mediaFile.getFileSize(),
+                greaterThan(parser.getThreshold(mediaFile, statistics)));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is used for big files
         Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();

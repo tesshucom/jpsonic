@@ -30,7 +30,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 /**
- * Parses meta data by guessing artist, album and song title based on the path of the file.
+ * Parses meta data by guessing artist, album and song title based on the path
+ * of the file.
  *
  * @author Sindre Mehus
  */
@@ -48,8 +49,7 @@ public class DefaultParser extends MetaDataParser {
     /**
      * Parses meta data for the given file.
      *
-     * @param path
-     *            The file to parse.
+     * @param path The file to parse.
      *
      * @return Meta data for the file.
      */
@@ -67,18 +67,18 @@ public class DefaultParser extends MetaDataParser {
     /**
      * Updates the given file with the given meta data. This method has no effect.
      *
-     * @param file
-     *            The file to update.
-     * @param metaData
-     *            The new meta data.
+     * @param file     The file to update.
+     * @param metaData The new meta data.
      */
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
-        // Nothing is currently done. It seems that it is only implemented in JaudiotaggerParser...
+        // Nothing is currently done. It seems that it is only implemented in
+        // JaudiotaggerParser...
     }
 
     /**
-     * Returns whether this parser supports tag editing (using the {@link #setMetaData} method).
+     * Returns whether this parser supports tag editing (using the
+     * {@link #setMetaData} method).
      *
      * @return Always false.
      */
@@ -95,8 +95,7 @@ public class DefaultParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param path
-     *            The file in question.
+     * @param path The file in question.
      *
      * @return Whether this parser is applicable to the given file.
      */

@@ -39,15 +39,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFile> {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
-            .toArray(size -> new MediaType[size]);
+    private static final MediaType[] EXCLUDED_TYPES = Stream
+        .of(MediaType.PODCAST, MediaType.VIDEO)
+        .toArray(size -> new MediaType[size]);
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
 
-    public MediaFileProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public MediaFileProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super();
         this.util = util;
         this.factory = factory;
@@ -63,9 +65,9 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
     public Container createContainer(MediaFile entity) {
         int childSize = getChildSizeOf(entity);
         return switch (entity.getMediaType()) {
-            case ALBUM -> factory.toAlbum(entity, childSize);
-            case DIRECTORY -> factory.toArtist(entity, childSize);
-            default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
+        case ALBUM -> factory.toAlbum(entity, childSize);
+        case DIRECTORY -> factory.toArtist(entity, childSize);
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
         };
     }
 
@@ -84,7 +86,8 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        return mediaFileService.getChildrenOf(util.getGuestFolders(), offset, count, EXCLUDED_TYPES);
+        return mediaFileService
+            .getChildrenOf(util.getGuestFolders(), offset, count, EXCLUDED_TYPES);
     }
 
     @Override

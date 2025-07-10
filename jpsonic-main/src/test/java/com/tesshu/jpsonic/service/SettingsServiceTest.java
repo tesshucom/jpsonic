@@ -57,8 +57,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.AvoidInstantiatingObjectsInLoops",
-        "PMD.AvoidUsingHardCodedIP" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
+        "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidUsingHardCodedIP" })
 class SettingsServiceTest {
 
     @Autowired
@@ -113,8 +113,8 @@ class SettingsServiceTest {
                 assertEquals(dummyParam, result);
                 method.invoke(settingsService, defaultValue);
                 settingsService.save();
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
                 throw new ExecutionException(e);
             }
         }
@@ -132,7 +132,8 @@ class SettingsServiceTest {
                 String setterName = method.getName();
                 String getterName = setterName.replaceAll("^set", "is");
                 Method getter = settingsService.getClass().getMethod(getterName, new Class<?>[0]);
-                boolean defaultValue = Boolean.parseBoolean(getter.invoke(settingsService).toString());
+                boolean defaultValue = Boolean
+                    .parseBoolean(getter.invoke(settingsService).toString());
                 boolean dummyParam = !defaultValue;
                 assertNotEquals(defaultValue, dummyParam);
                 method.invoke(settingsService, dummyParam);
@@ -141,8 +142,8 @@ class SettingsServiceTest {
                 assertEquals(dummyParam, result);
                 method.invoke(settingsService, defaultValue);
                 settingsService.save();
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
                 throw new ExecutionException(e);
             }
         }
@@ -169,8 +170,8 @@ class SettingsServiceTest {
                 assertEquals(dummyParam, result);
                 method.invoke(settingsService, defaultValue);
                 settingsService.save();
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
                 throw new ExecutionException(e);
             }
         }
@@ -196,8 +197,8 @@ class SettingsServiceTest {
                 assertEquals(dummyParam, result);
                 method.invoke(settingsService, defaultValue);
                 settingsService.save();
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
                 throw new ExecutionException(e);
             }
         }
@@ -309,7 +310,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetMusicFileTypes() {
-        assertEquals("mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd",
+        assertEquals(
+                "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd",
                 settingsService.getMusicFileTypes());
     }
 
@@ -321,7 +323,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetVideoFileTypes() {
-        assertEquals("flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm", settingsService.getVideoFileTypes());
+        assertEquals("flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm",
+                settingsService.getVideoFileTypes());
     }
 
     @Test
@@ -344,7 +347,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetExcludedCoverArts() {
-        assertEquals("AlbumArtSmall.jpg small.jpg large.jpg", settingsService.getExcludedCoverArts());
+        assertEquals("AlbumArtSmall.jpg small.jpg large.jpg",
+                settingsService.getExcludedCoverArts());
     }
 
     @Test
@@ -380,17 +384,20 @@ class SettingsServiceTest {
 
     @Test
     void testGetIndexCreationInterval() {
-        assertEquals(1, settingsService.getIndexCreationInterval(), "Wrong default index creation interval.");
+        assertEquals(1, settingsService.getIndexCreationInterval(),
+                "Wrong default index creation interval.");
     }
 
     @Test
     void testGetIndexCreationHour() {
-        assertEquals(3, settingsService.getIndexCreationHour(), "Wrong default index creation hour.");
+        assertEquals(3, settingsService.getIndexCreationHour(),
+                "Wrong default index creation hour.");
     }
 
     @Test
     void testGetPodcastUpdateInterval() {
-        assertEquals(24, settingsService.getPodcastUpdateInterval(), "Wrong default Podcast update interval.");
+        assertEquals(24, settingsService.getPodcastUpdateInterval(),
+                "Wrong default Podcast update interval.");
     }
 
     @Test
@@ -407,7 +414,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetPodcastFolder() {
-        assertTrue(settingsService.getPodcastFolder().endsWith("Podcast"), "Wrong default Podcast folder.");
+        assertTrue(settingsService.getPodcastFolder().endsWith("Podcast"),
+                "Wrong default Podcast folder.");
     }
 
     @Test
@@ -427,7 +435,8 @@ class SettingsServiceTest {
 
     @Test
     void testPreferredFormatShemeName() {
-        assertEquals(PreferredFormatSheme.ANNOYMOUS.name(), settingsService.getPreferredFormatShemeName());
+        assertEquals(PreferredFormatSheme.ANNOYMOUS.name(),
+                settingsService.getPreferredFormatShemeName());
     }
 
     @Test
@@ -449,8 +458,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetLdapUrl() {
-        assertEquals("ldap://host.domain.com:389/cn=Users,dc=domain,dc=com", settingsService.getLdapUrl(),
-                "Wrong default LDAP URL.");
+        assertEquals("ldap://host.domain.com:389/cn=Users,dc=domain,dc=com",
+                settingsService.getLdapUrl(), "Wrong default LDAP URL.");
     }
 
     @Test
@@ -466,7 +475,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetLdapManagerPassword() {
-        assertNull(settingsService.getLdapManagerPassword(), "Wrong default LDAP manager password.");
+        assertNull(settingsService.getLdapManagerPassword(),
+                "Wrong default LDAP manager password.");
     }
 
     @Test

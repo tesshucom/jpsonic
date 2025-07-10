@@ -27,7 +27,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
- * DAO helper class which creates the data source, and updates the database schema.
+ * DAO helper class which creates the data source, and updates the database
+ * schema.
  *
  * @author Sindre Mehus
  */
@@ -50,8 +51,9 @@ public interface DaoHelper {
     DataSource getDataSource();
 
     /**
-     * Tries to perform a checkpoint against the database, if supported Database checkpoints will make sure that the
-     * database is written on the disk and optimize on-disk storage.
+     * Tries to perform a checkpoint against the database, if supported Database
+     * checkpoints will make sure that the database is written on the disk and
+     * optimize on-disk storage.
      */
     void checkpoint();
 }

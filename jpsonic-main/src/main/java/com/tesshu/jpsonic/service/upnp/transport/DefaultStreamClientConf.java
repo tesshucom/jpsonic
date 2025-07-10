@@ -22,15 +22,11 @@ package com.tesshu.jpsonic.service.upnp.transport;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Default settings for the UPnP Client used by Jpsonic.
- * It will be mainly used for device searches.
+ * Default settings for the UPnP Client used by Jpsonic. It will be mainly used
+ * for device searches.
  */
-public record DefaultStreamClientConf(
-        ExecutorService executorService, 
-        int defaultMaxPerRoute,
-        int maxTotal,
-        int bufferSize,
-        int socketTimeoutSeconds) implements ClingStreamClientConf {
+public record DefaultStreamClientConf(ExecutorService executorService, int defaultMaxPerRoute,
+        int maxTotal, int bufferSize, int socketTimeoutSeconds) implements ClingStreamClientConf {
 
     public DefaultStreamClientConf(ExecutorService executorService) {
         this(executorService, 2, 20, 8094, 10);

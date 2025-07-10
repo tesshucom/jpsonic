@@ -29,7 +29,8 @@ import com.tesshu.jpsonic.util.connector.api.MediaType;
 public class MediaTypeDeserializer extends JsonDeserializer<Object> {
 
     @Override
-    public MediaType deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public MediaType deserialize(JsonParser parser, DeserializationContext context)
+            throws IOException {
         return MediaType.fromValue(parser.getText());
     }
 }

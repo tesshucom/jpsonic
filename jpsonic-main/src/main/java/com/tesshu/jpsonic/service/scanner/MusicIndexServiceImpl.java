@@ -65,7 +65,8 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         this.readingUtils = readingUtils;
     }
 
-    private <T extends Indexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> indexables) {
+    private <T extends Indexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(
+            List<T> indexables) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, List<T>> iaMap = new TreeMap<>(comparator);
         indexables.forEach(indexable -> {
@@ -79,16 +80,19 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     }
 
     @Override
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders, MediaType... excludes) {
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders,
+            MediaType... excludes) {
         List<MediaFile> dirs = mediaFileService.getIndexedDirs(folders);
         SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(dirs);
-        List<MediaFile> singleSongs = mediaFileService.getDirectChildFiles(folders, 0, Integer.MAX_VALUE, excludes);
+        List<MediaFile> singleSongs = mediaFileService
+            .getDirectChildFiles(folders, 0, Integer.MAX_VALUE, excludes);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
     @Override
     public SortedMap<MusicIndex, List<Artist>> getIndexedId3Artists(List<MusicFolder> folders) {
-        List<Artist> indexedArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        List<Artist> indexedArtists = artistDao
+            .getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         return createIndexedArtistMap(indexedArtists);
     }
 
@@ -97,8 +101,10 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         List<MediaFile> result = new ArrayList<>();
         settingsService.getShortcutsAsArray().forEach(shortcuts -> {
             musicFolders.forEach(musicFolder -> {
-                MediaFile shortcut = mediaFileService.getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
-                if (shortcut != null && !mediaFileService.getChildrenOf(shortcut, true, true).isEmpty()
+                MediaFile shortcut = mediaFileService
+                    .getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
+                if (shortcut != null
+                        && !mediaFileService.getChildrenOf(shortcut, true, true).isEmpty()
                         && !result.contains(shortcut)) {
                     result.add(shortcut);
                 }
@@ -125,19 +131,27 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     public Counts getMusicFolderContentCounts(List<MusicFolder> folders, MediaType... excludes) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, Integer> indexCounts = new TreeMap<>(comparator);
-        mediaFileService.getMudicIndexCounts(folders).forEach(indexWithCount -> indexCounts
-                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.directoryCount()));
+        mediaFileService
+            .getMudicIndexCounts(folders)
+            .forEach(indexWithCount -> indexCounts
+                .put(getParser().getIndex(indexWithCount.index()),
+                        indexWithCount.directoryCount()));
         MediaType[] singleSongCountsExcludes = Stream
-                .concat(Stream.of(excludes), Stream.of(MediaType.DIRECTORY, MediaType.ALBUM)).distinct()
-                .toArray(size -> new MediaType[size]);
-        return new Counts(indexCounts, mediaFileService.getChildSizeOf(folders, singleSongCountsExcludes));
+            .concat(Stream.of(excludes), Stream.of(MediaType.DIRECTORY, MediaType.ALBUM))
+            .distinct()
+            .toArray(size -> new MediaType[size]);
+        return new Counts(indexCounts,
+                mediaFileService.getChildSizeOf(folders, singleSongCountsExcludes));
     }
 
     @Override
     public SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, Integer> result = new TreeMap<>(comparator);
-        artistDao.getMudicIndexCounts(folders).stream().forEach(indexWithCount -> result
+        artistDao
+            .getMudicIndexCounts(folders)
+            .stream()
+            .forEach(indexWithCount -> result
                 .put(getParser().getIndex(indexWithCount.index()), indexWithCount.artistCount()));
         return result;
     }
@@ -156,12 +170,14 @@ public class MusicIndexServiceImpl implements MusicIndexService {
             List<MusicIndex> result = new ArrayList<>();
             Stream.of(expr.replaceAll("\\s+", " ").split(" ")).forEach(token -> {
                 int separatorIndex = token.indexOf('(');
-                MusicIndex index = new MusicIndex(separatorIndex == -1 ? token : token.substring(0, separatorIndex));
+                MusicIndex index = new MusicIndex(
+                        separatorIndex == -1 ? token : token.substring(0, separatorIndex));
                 if (separatorIndex == -1) {
                     index.addPrefix(token);
                 } else {
-                    Stream.of(token.substring(separatorIndex + 1, token.length() - 1).split(""))
-                            .forEach(index::addPrefix);
+                    Stream
+                        .of(token.substring(separatorIndex + 1, token.length() - 1).split(""))
+                        .forEach(index::addPrefix);
                 }
                 result.add(index);
             });
@@ -174,17 +190,25 @@ public class MusicIndexServiceImpl implements MusicIndexService {
 
         MusicIndex getIndex(Indexable indexable) {
             String indexableName = readingUtils.createIndexableName(indexable);
-            return indexes.stream()
-                    .filter(musicIndex -> musicIndex.getPrefixes().stream()
-                            .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix)).findFirst()
-                            .isPresent())
-                    .findFirst().orElse(MusicIndex.OTHER);
+            return indexes
+                .stream()
+                .filter(musicIndex -> musicIndex
+                    .getPrefixes()
+                    .stream()
+                    .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix))
+                    .findFirst()
+                    .isPresent())
+                .findFirst()
+                .orElse(MusicIndex.OTHER);
         }
 
         @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
         private MusicIndex getIndex(String index) {
-            return indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index)).findFirst()
-                    .orElse(MusicIndex.OTHER);
+            return indexes
+                .stream()
+                .filter(musicIndex -> musicIndex.getIndex().equals(index))
+                .findFirst()
+                .orElse(MusicIndex.OTHER);
         }
     }
 

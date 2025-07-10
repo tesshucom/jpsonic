@@ -68,21 +68,23 @@ public class MusicParser extends MetaDataParser {
     // M4P: Not supported by ffmpeg
     // RA: Not published in document
     // RM: Not published in document
-    private static final List<String> APPLICABLES = Arrays.asList(SupportedFileFormat.OGG.getFilesuffix(), //
-            SupportedFileFormat.OGA.getFilesuffix(), //
-            SupportedFileFormat.FLAC.getFilesuffix(), //
-            SupportedFileFormat.MP3.getFilesuffix(), //
-            SupportedFileFormat.M4A.getFilesuffix(), //
-            SupportedFileFormat.M4B.getFilesuffix(), //
-            SupportedFileFormat.WAV.getFilesuffix(), //
-            SupportedFileFormat.WMA.getFilesuffix(), //
-            SupportedFileFormat.AIF.getFilesuffix(), //
-            SupportedFileFormat.AIFC.getFilesuffix(), //
-            SupportedFileFormat.AIFF.getFilesuffix(), //
-            SupportedFileFormat.DSF.getFilesuffix(), //
-            SupportedFileFormat.DFF.getFilesuffix()); //
+    private static final List<String> APPLICABLES = Arrays
+        .asList(SupportedFileFormat.OGG.getFilesuffix(), //
+                SupportedFileFormat.OGA.getFilesuffix(), //
+                SupportedFileFormat.FLAC.getFilesuffix(), //
+                SupportedFileFormat.MP3.getFilesuffix(), //
+                SupportedFileFormat.M4A.getFilesuffix(), //
+                SupportedFileFormat.M4B.getFilesuffix(), //
+                SupportedFileFormat.WAV.getFilesuffix(), //
+                SupportedFileFormat.WMA.getFilesuffix(), //
+                SupportedFileFormat.AIF.getFilesuffix(), //
+                SupportedFileFormat.AIFC.getFilesuffix(), //
+                SupportedFileFormat.AIFF.getFilesuffix(), //
+                SupportedFileFormat.DSF.getFilesuffix(), //
+                SupportedFileFormat.DFF.getFilesuffix()); //
 
-    private static final List<String> NOT_EDITABLES = Arrays.asList(SupportedFileFormat.DFF.getFilesuffix());
+    private static final List<String> NOT_EDITABLES = Arrays
+        .asList(SupportedFileFormat.DFF.getFilesuffix());
 
     private final MusicFolderService musicFolderService;
 
@@ -103,9 +105,9 @@ public class MusicParser extends MetaDataParser {
             return Optional.ofNullable(trimToNull(tag.getFirst(fieldKey)));
         } catch (KeyNotFoundException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn(
-                        "The tag could not be read due to an unexpected format. Please let the developer know: {}({}) in [{}]",
-                        audioFile.getFile().getName(), tag.getClass(), fieldKey);
+                LOG
+                    .warn("The tag could not be read due to an unexpected format. Please let the developer know: {}({}) in [{}]",
+                            audioFile.getFile().getName(), tag.getClass(), fieldKey);
             }
             return Optional.empty();
         }
@@ -128,7 +130,9 @@ public class MusicParser extends MetaDataParser {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to read file: " + FileUtil.getShortPath(path), e);
             } else if (LOG.isWarnEnabled()) {
-                LOG.warn("Unable to read " + FileUtil.getShortPath(path) + ": [{}]", e.getMessage().trim());
+                LOG
+                    .warn("Unable to read " + FileUtil.getShortPath(path) + ": [{}]",
+                            e.getMessage().trim());
             }
             return metaData;
         }
@@ -151,12 +155,17 @@ public class MusicParser extends MetaDataParser {
         getField(af, tag, FieldKey.ALBUM_ARTIST).ifPresent(metaData::setAlbumArtist);
         getField(af, tag, FieldKey.ALBUM).ifPresent(metaData::setAlbumName);
         getField(af, tag, FieldKey.ARTIST).ifPresent(metaData::setArtist);
-        getField(af, tag, FieldKey.DISC_NO).ifPresent(s -> metaData.setDiscNumber(ParserUtils.parseInt(s)));
-        getField(af, tag, FieldKey.GENRE).ifPresent(s -> metaData.setGenre(ParserUtils.mapGenre(s)));
-        getField(af, tag, FieldKey.MUSICBRAINZ_TRACK_ID).ifPresent(metaData::setMusicBrainzRecordingId);
-        getField(af, tag, FieldKey.MUSICBRAINZ_RELEASEID).ifPresent(metaData::setMusicBrainzReleaseId);
+        getField(af, tag, FieldKey.DISC_NO)
+            .ifPresent(s -> metaData.setDiscNumber(ParserUtils.parseInt(s)));
+        getField(af, tag, FieldKey.GENRE)
+            .ifPresent(s -> metaData.setGenre(ParserUtils.mapGenre(s)));
+        getField(af, tag, FieldKey.MUSICBRAINZ_TRACK_ID)
+            .ifPresent(metaData::setMusicBrainzRecordingId);
+        getField(af, tag, FieldKey.MUSICBRAINZ_RELEASEID)
+            .ifPresent(metaData::setMusicBrainzReleaseId);
         getField(af, tag, FieldKey.TITLE).ifPresent(metaData::setTitle);
-        getField(af, tag, FieldKey.TRACK).ifPresent(s -> metaData.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(af, tag, FieldKey.TRACK)
+            .ifPresent(s -> metaData.setTrackNumber(ParserUtils.parseTrackNumber(s)));
         getField(af, tag, FieldKey.YEAR).ifPresent(s -> metaData.setYear(ParserUtils.parseYear(s)));
         getField(af, tag, FieldKey.ARTIST_SORT).ifPresent(metaData::setArtistSort);
         getField(af, tag, FieldKey.ALBUM_SORT).ifPresent(metaData::setAlbumSort);
@@ -211,9 +220,10 @@ public class MusicParser extends MetaDataParser {
 
             audioFile.commit();
 
-        } catch (IOException | CannotWriteException | KeyNotFoundException | TagException | CannotReadException
-                | ReadOnlyFileException | InvalidAudioFrameException e) {
-            throw new CompletionException("Failed to update tags for file: " + file.getPathString(), e);
+        } catch (IOException | CannotWriteException | KeyNotFoundException | TagException
+                | CannotReadException | ReadOnlyFileException | InvalidAudioFrameException e) {
+            throw new CompletionException("Failed to update tags for file: " + file.getPathString(),
+                    e);
         }
     }
 

@@ -45,23 +45,29 @@ public class JpsonicComparatorsTestUtils {
     /*
      * Dictionary order that Japanese feel natural.
      */
-    public static final List<String> JPSONIC_NATURAL_LIST = Collections.unmodifiableList(
-            Arrays.asList("10", "20", "50", "60", "70", "98", "99", "abcde", "abcいうえおあ", "abc亜伊鵜絵尾", "ＢＣＤＥＡ", "ĆḊÉÁḂ",
-                    "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ",
-                    "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
+    public static final List<String> JPSONIC_NATURAL_LIST = Collections
+        .unmodifiableList(Arrays
+            .asList("10", "20", "50", "60", "70", "98", "99", "abcde", "abcいうえおあ", "abc亜伊鵜絵尾",
+                    "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19",
+                    "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬",
+                    "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
 
     /*
      * Expected sequence number.
      */
     private static final List<String> ALPHA_NUM_LIST = Collections
-            .unmodifiableList(Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime",
-                    "30X Radonius", "40X Radonius", "200X Radonius", "1000X Radonius Maximus", "Allegia 6R Clasteron",
-                    "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron", "Allegia 500 Clasteron",
-                    "Alpha 2", "Alpha 2A", "Alpha 2A-900", "Alpha 2A-8000", "Alpha 100", "Alpha 200",
-                    "Callisto Morphamax", "Callisto Morphamax 500", "Callisto Morphamax 600", "Callisto Morphamax 700",
-                    "Callisto Morphamax 5000", "Callisto Morphamax 6000 SE", "Callisto Morphamax 6000 SE2",
-                    "Callisto Morphamax 7000", "Xiph Xlater 5", "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58",
-                    "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000"));
+        .unmodifiableList(Arrays
+            .asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime",
+                    "30X Radonius", "40X Radonius", "200X Radonius", "1000X Radonius Maximus",
+                    "Allegia 6R Clasteron", "Allegia 50B Clasteron", "Allegia 50 Clasteron",
+                    "Allegia 51 Clasteron", "Allegia 500 Clasteron", "Alpha 2", "Alpha 2A",
+                    "Alpha 2A-900", "Alpha 2A-8000", "Alpha 100", "Alpha 200", "Callisto Morphamax",
+                    "Callisto Morphamax 500", "Callisto Morphamax 600", "Callisto Morphamax 700",
+                    "Callisto Morphamax 5000", "Callisto Morphamax 6000 SE",
+                    "Callisto Morphamax 6000 SE2", "Callisto Morphamax 7000", "Xiph Xlater 5",
+                    "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58", "Xiph Xlater 300",
+                    "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000",
+                    "Xiph Xlater 10000"));
 
     private final Function<String, MediaFile> toMediaArtist = (name) -> {
         MediaFile file = new MediaFile();
@@ -87,7 +93,8 @@ public class JpsonicComparatorsTestUtils {
         return file;
     };
 
-    private final BiFunction<String, Integer, Genre> toGenre = (name, count) -> new Genre(name, count, count);
+    private final BiFunction<String, Integer, Genre> toGenre = (name, count) -> new Genre(name,
+            count, count);
 
     private final Function<String, Playlist> toPlaylist = (name) -> {
         Playlist playlist = new Playlist();
@@ -205,7 +212,8 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), albums.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), albums.get(i).getName(), "(" + i + ") -> ");
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), albums.get(i).getName(),
+                        "(" + i + ") -> ");
             }
         }
     }
@@ -224,7 +232,8 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), artists.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName(), "(" + i + ") -> ");
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName(),
+                        "(" + i + ") -> ");
             }
         }
     }
@@ -233,7 +242,8 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), genres.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), genres.get(i).getName(), "(" + i + ") -> ");
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), genres.get(i).getName(),
+                        "(" + i + ") -> ");
             }
         }
     }
@@ -242,7 +252,8 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), files.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), files.get(i).getName(), "(" + i + ") -> ");
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), files.get(i).getName(),
+                        "(" + i + ") -> ");
             }
         }
     }
@@ -251,7 +262,8 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), playlists.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), playlists.get(i).getName(), "(" + i + ") -> ");
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), playlists.get(i).getName(),
+                        "(" + i + ") -> ");
             }
         }
     }
@@ -296,7 +308,9 @@ public class JpsonicComparatorsTestUtils {
     public List<MediaFile> createReversedMediaSongs() {
         List<MediaFile> songs = new ArrayList<>();
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
-            songs.add(toMediaSong.apply(JPSONIC_NATURAL_LIST.get(i), JPSONIC_NATURAL_LIST.size() - i));
+            songs
+                .add(toMediaSong
+                    .apply(JPSONIC_NATURAL_LIST.get(i), JPSONIC_NATURAL_LIST.size() - i));
         }
         reverse(songs);
         return songs;
@@ -309,7 +323,10 @@ public class JpsonicComparatorsTestUtils {
     }
 
     public List<MediaFile> createReversedMediArtists() {
-        List<MediaFile> artists = JPSONIC_NATURAL_LIST.stream().map(toMediaArtist).collect(toList());
+        List<MediaFile> artists = JPSONIC_NATURAL_LIST
+            .stream()
+            .map(toMediaArtist)
+            .collect(toList());
         reverse(artists);
         return artists;
     }

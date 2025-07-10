@@ -99,26 +99,33 @@ public final class DaoUtils {
     @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
     private static RowMapper<MediaFile> createMediaFileRowMapper() {
         return (rs, num) -> new MediaFile(rs.getInt(1), rs.getString(2), rs.getString(3),
-                MediaFile.MediaType.valueOf(rs.getString(4)), rs.getString(5), rs.getString(6), rs.getString(7),
-                rs.getString(8), rs.getString(9), rs.getInt(10) == 0 ? null : rs.getInt(10),
-                rs.getInt(11) == 0 ? null : rs.getInt(11), rs.getInt(12) == 0 ? null : rs.getInt(12), rs.getString(13),
-                rs.getInt(14) == 0 ? null : rs.getInt(14), rs.getBoolean(15), rs.getInt(16) == 0 ? null : rs.getInt(16),
-                rs.getLong(17) == 0 ? null : rs.getLong(17), rs.getInt(18) == 0 ? null : rs.getInt(18),
-                rs.getInt(19) == 0 ? null : rs.getInt(19), rs.getString(20), rs.getString(21), rs.getInt(22),
-                nullableInstantOf(rs.getTimestamp(23)), rs.getString(24), nullableInstantOf(rs.getTimestamp(25)),
-                nullableInstantOf(rs.getTimestamp(26)), nullableInstantOf(rs.getTimestamp(27)),
-                nullableInstantOf(rs.getTimestamp(28)), rs.getBoolean(29), rs.getInt(30), rs.getString(31),
-                rs.getString(32), rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36),
-                rs.getString(37), rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41),
-                rs.getString(42), rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46),
-                rs.getString(47));
+                MediaFile.MediaType.valueOf(rs.getString(4)), rs.getString(5), rs.getString(6),
+                rs.getString(7), rs.getString(8), rs.getString(9),
+                rs.getInt(10) == 0 ? null : rs.getInt(10),
+                rs.getInt(11) == 0 ? null : rs.getInt(11),
+                rs.getInt(12) == 0 ? null : rs.getInt(12), rs.getString(13),
+                rs.getInt(14) == 0 ? null : rs.getInt(14), rs.getBoolean(15),
+                rs.getInt(16) == 0 ? null : rs.getInt(16),
+                rs.getLong(17) == 0 ? null : rs.getLong(17),
+                rs.getInt(18) == 0 ? null : rs.getInt(18),
+                rs.getInt(19) == 0 ? null : rs.getInt(19), rs.getString(20), rs.getString(21),
+                rs.getInt(22), nullableInstantOf(rs.getTimestamp(23)), rs.getString(24),
+                nullableInstantOf(rs.getTimestamp(25)), nullableInstantOf(rs.getTimestamp(26)),
+                nullableInstantOf(rs.getTimestamp(27)), nullableInstantOf(rs.getTimestamp(28)),
+                rs.getBoolean(29), rs.getInt(30), rs.getString(31), rs.getString(32),
+                rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36),
+                rs.getString(37), rs.getString(38), rs.getString(39), rs.getString(40),
+                rs.getString(41), rs.getString(42), rs.getString(43), rs.getString(44),
+                rs.getString(45), rs.getInt(46), rs.getString(47));
     }
 
     private static RowMapper<Album> createAlbumRowMapper() {
-        return (rs, num) -> new Album(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5),
-                rs.getInt(6), rs.getString(7), rs.getInt(8) == 0 ? null : rs.getInt(8), rs.getString(9), rs.getInt(10),
-                nullableInstantOf(rs.getTimestamp(11)), rs.getString(12), nullableInstantOf(rs.getTimestamp(13)),
-                nullableInstantOf(rs.getTimestamp(14)), rs.getBoolean(15), rs.getInt(16), rs.getString(17),
-                rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22));
+        return (rs, num) -> new Album(rs.getInt(1), rs.getString(2), rs.getString(3),
+                rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getString(7),
+                rs.getInt(8) == 0 ? null : rs.getInt(8), rs.getString(9), rs.getInt(10),
+                nullableInstantOf(rs.getTimestamp(11)), rs.getString(12),
+                nullableInstantOf(rs.getTimestamp(13)), nullableInstantOf(rs.getTimestamp(14)),
+                rs.getBoolean(15), rs.getInt(16), rs.getString(17), rs.getString(18),
+                rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22));
     }
 }

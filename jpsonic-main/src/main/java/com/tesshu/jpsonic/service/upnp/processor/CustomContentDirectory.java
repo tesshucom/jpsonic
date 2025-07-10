@@ -44,12 +44,14 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         try {
             return new BrowseResult(new DIDLParser().generate(content), count, totalMatches);
         } catch (Exception e) {
-            throw new ExecutionException("Unable to generate XML representation of content model.", e);
+            throw new ExecutionException("Unable to generate XML representation of content model.",
+                    e);
         }
     }
 
     @Override
-    public abstract BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
-            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException;
+    public abstract BrowseResult search(String containerId, String searchCriteria, String filter,
+            long firstResult, long maxResults, SortCriterion[] orderBy)
+            throws ContentDirectoryException;
 
 }

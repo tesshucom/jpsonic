@@ -33,7 +33,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides services for "audioscrobbling", which is the process of registering what songs are played at website.
+ * Provides services for "audioscrobbling", which is the process of registering
+ * what songs are played at website.
  */
 @Service
 @DependsOn({ "settingsService", "shortExecutor" })
@@ -45,23 +46,20 @@ public class AudioScrobblerService {
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
 
-    public AudioScrobblerService(SecurityService securityService, @Qualifier("shortExecutor") Executor shortExecutor) {
+    public AudioScrobblerService(SecurityService securityService,
+            @Qualifier("shortExecutor") Executor shortExecutor) {
         this.securityService = securityService;
         this.shortExecutor = shortExecutor;
     }
 
     /**
-     * Registers the given media file at audio scrobble service. This method returns immediately, the actual
-     * registration is done by separate threads.
+     * Registers the given media file at audio scrobble service. This method returns
+     * immediately, the actual registration is done by separate threads.
      *
-     * @param mediaFile
-     *            The media file to register.
-     * @param username
-     *            The user which played the music file.
-     * @param submission
-     *            Whether this is a submission or a now playing notification.
-     * @param time
-     *            Event time, or {@code null} to use current time.
+     * @param mediaFile  The media file to register.
+     * @param username   The user which played the music file.
+     * @param submission Whether this is a submission or a now playing notification.
+     * @param time       Event time, or {@code null} to use current time.
      */
     public void register(MediaFile mediaFile, String username, boolean submission, Instant time) {
         if (mediaFile == null || mediaFile.isVideo()) {
@@ -74,16 +72,18 @@ public class AudioScrobblerService {
             if (lastFMScrobbler == null) {
                 lastFMScrobbler = new LastFMScrobbler();
             }
-            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
-                    submission, time, shortExecutor);
+            lastFMScrobbler
+                .register(mediaFile, userSettings.getLastFmUsername(),
+                        userSettings.getLastFmPassword(), submission, time, shortExecutor);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
             if (listenBrainzScrobbler == null) {
                 listenBrainzScrobbler = new ListenBrainzScrobbler();
             }
-            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
-                    shortExecutor);
+            listenBrainzScrobbler
+                .register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
+                        shortExecutor);
         }
     }
 

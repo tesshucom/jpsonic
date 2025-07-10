@@ -55,9 +55,10 @@ class PlaylistServiceTest {
     public void setup() {
         deligate = mock(com.tesshu.jpsonic.service.PlaylistService.class);
         playerService = mock(PlayerService.class);
-        playlistService = new PlaylistService(mock(MusicFolderService.class), mock(SecurityService.class),
-                mock(MediaFileService.class), deligate, mock(MediaFileDao.class), playerService,
-                mock(AirsonicLocaleResolver.class), AjaxMockUtils.mock(AjaxHelper.class));
+        playlistService = new PlaylistService(mock(MusicFolderService.class),
+                mock(SecurityService.class), mock(MediaFileService.class), deligate,
+                mock(MediaFileDao.class), playerService, mock(AirsonicLocaleResolver.class),
+                AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test
@@ -81,8 +82,10 @@ class PlaylistServiceTest {
 
         playlistService.createEmptyPlaylist();
         // yyyy-MM-dd HH:mm
-        assertTrue(Pattern.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$")
-                .matcher(captor.getValue().getName()).matches());
+        assertTrue(Pattern
+            .compile("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$")
+            .matcher(captor.getValue().getName())
+            .matches());
     }
 
     @Test
@@ -96,8 +99,10 @@ class PlaylistServiceTest {
 
         playlistService.createPlaylistForPlayQueue();
         // yyyy-MM-dd HH:mm
-        assertTrue(Pattern.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$")
-                .matcher(captor.getValue().getName()).matches());
+        assertTrue(Pattern
+            .compile("^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$")
+            .matcher(captor.getValue().getName())
+            .matches());
     }
 
     @Test

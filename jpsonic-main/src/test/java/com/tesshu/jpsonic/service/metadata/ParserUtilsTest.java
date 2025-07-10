@@ -112,26 +112,38 @@ class ParserUtilsTest {
     @Test
     void isEmbeddedArtworkApplicableTest() throws URISyntaxException {
 
-        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata")));
+        assertFalse(ParserUtils
+            .isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata")));
 
         // (Data formats for which no test resources currently exist are omitted)
-        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
         // oga
-        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
-        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
-        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(
+                    createPath("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
         // m4b
-        assertTrue(
-                ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
-        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
-        assertTrue(
-                ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(
+                    createPath("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(
+                    createPath("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(
+                    createPath("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
         // aifc
         // aiff
-        assertTrue(
-                ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
+        assertTrue(ParserUtils
+            .isEmbeddedArtworkApplicable(
+                    createPath("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
 
-        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
+        assertFalse(ParserUtils
+            .isEmbeddedArtworkApplicable(createPath("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
     }
 
     @Nested
@@ -141,7 +153,8 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Empty
         @Test
         void c01() throws URISyntaxException {
-            Optional<Artwork> artwork = ParserUtils.getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata"));
+            Optional<Artwork> artwork = ParserUtils
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -151,7 +164,7 @@ class ParserUtilsTest {
         @Test
         void c02() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -162,7 +175,7 @@ class ParserUtilsTest {
         @Test
         void c03() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/testV25.wav"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/testV25.wav"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -174,7 +187,7 @@ class ParserUtilsTest {
         @Test
         void c04() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -186,7 +199,7 @@ class ParserUtilsTest {
         @Test
         void c05() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -199,7 +212,7 @@ class ParserUtilsTest {
         @Test
         void c06() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -213,7 +226,8 @@ class ParserUtilsTest {
         @Test
         void c07() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test-with-coverart.wav"));
+                .getEmbeddedArtwork(
+                        createPath("/MEDIAS/Metadata/tagger3/tagged/test-with-coverart.wav"));
             assertFalse(artwork.isEmpty());
         }
 
@@ -226,7 +240,7 @@ class ParserUtilsTest {
         @Test
         void c08() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -240,7 +254,7 @@ class ParserUtilsTest {
         @Test
         void c09() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test_rm_img.flac"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test_rm_img.flac"));
             assertTrue(artwork.isEmpty());
         }
 
@@ -254,7 +268,7 @@ class ParserUtilsTest {
         @Test
         void c10() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+                .getEmbeddedArtwork(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
             assertFalse(artwork.isEmpty());
         }
     }

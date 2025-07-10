@@ -26,8 +26,9 @@ import com.tesshu.jpsonic.domain.TransferStatus;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides AJAX-enabled services for retrieving the status of ongoing transfers. This class is used by the DWR
- * framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the status of ongoing
+ * transfers. This class is used by the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -48,8 +49,9 @@ public class TransferService {
      */
     public UploadInfo getUploadInfo() {
 
-        TransferStatus status = (TransferStatus) ajaxHelper.getSession()
-                .getAttribute(Attributes.Session.UPLOAD_STATUS.value());
+        TransferStatus status = (TransferStatus) ajaxHelper
+            .getSession()
+            .getAttribute(Attributes.Session.UPLOAD_STATUS.value());
 
         if (status != null) {
             return new UploadInfo(status.getBytesTransfered(), status.getBytesTotal());

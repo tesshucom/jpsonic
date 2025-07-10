@@ -38,8 +38,8 @@ public class RecentAlbumId3ByFolderProc extends AlbumId3ByFolderProc implements 
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
 
-    public RecentAlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao, UpnpDIDLFactory factory,
-            FolderOrAlbumLogic folderOrAlbumLogic) {
+    public RecentAlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao,
+            UpnpDIDLFactory factory, FolderOrAlbumLogic folderOrAlbumLogic) {
         super(mediaFileService, albumDao, factory, folderOrAlbumLogic);
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
@@ -51,11 +51,15 @@ public class RecentAlbumId3ByFolderProc extends AlbumId3ByFolderProc implements 
     }
 
     @Override
-    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long firstResult, long maxResults) {
+    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long firstResult,
+            long maxResults) {
         if (folderOrAlbum.isFolderAlbum()) {
             Album album = folderOrAlbum.getFolderAlbum().album();
-            return mediaFileService.getSongsForAlbum(firstResult, maxResults, album.getArtist(), album.getName())
-                    .stream().map(AlbumOrSong::new).toList();
+            return mediaFileService
+                .getSongsForAlbum(firstResult, maxResults, album.getArtist(), album.getName())
+                .stream()
+                .map(AlbumOrSong::new)
+                .toList();
         }
         int offset = (int) firstResult;
         MusicFolder folder = folderOrAlbum.getFolder();
@@ -64,7 +68,10 @@ public class RecentAlbumId3ByFolderProc extends AlbumId3ByFolderProc implements 
         if (count == 0) {
             return Collections.emptyList();
         }
-        return albumDao.getNewestAlbums(offset, count, List.of(folderOrAlbum.getFolder())).stream()
-                .map(AlbumOrSong::new).toList();
+        return albumDao
+            .getNewestAlbums(offset, count, List.of(folderOrAlbum.getFolder()))
+            .stream()
+            .map(AlbumOrSong::new)
+            .toList();
     }
 }

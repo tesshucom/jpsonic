@@ -96,9 +96,14 @@ public class HelpController {
             map.put("logEntries", latestLogEntries);
             map.put("logFile", logFile);
             try {
-                LocalDateTime localDateTime = Files.getLastModifiedTime(logFile).toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
-                map.put("lastModified", localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                LocalDateTime localDateTime = Files
+                    .getLastModifiedTime(logFile)
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+                map
+                    .put("lastModified", localDateTime
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -108,8 +113,11 @@ public class HelpController {
 
     private static List<String> getLatestLogEntries(Path logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
-        try (ReversedLinesFileReader reader = ReversedLinesFileReader.builder().setPath(logFile)
-                .setCharset(Charset.defaultCharset()).get()) {
+        try (ReversedLinesFileReader reader = ReversedLinesFileReader
+            .builder()
+            .setPath(logFile)
+            .setCharset(Charset.defaultCharset())
+            .get()) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (lines.size() >= LOG_LINES_TO_SHOW) {
                     break;

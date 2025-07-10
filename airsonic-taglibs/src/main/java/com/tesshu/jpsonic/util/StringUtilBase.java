@@ -47,7 +47,8 @@ public final class StringUtilBase {
     }
 
     /**
-     * Converts a byte-count to a formatted string suitable for display to the user. For instance:
+     * Converts a byte-count to a formatted string suitable for display to the user.
+     * For instance:
      * <ul>
      * <li><code>format(918)</code> returns <em>"918 B"</em>.</li>
      * <li><code>format(98765)</code> returns <em>"96 KB"</em>.</li>
@@ -55,35 +56,37 @@ public final class StringUtilBase {
      * </ul>
      * This method assumes that 1 KB is 1024 bytes.
      *
-     * @param byteCount
-     *            The number of bytes.
-     * @param locale
-     *            The locale used for formatting.
+     * @param byteCount The number of bytes.
+     * @param locale    The locale used for formatting.
      *
      * @return The formatted string.
      */
     public static String formatBytes(long byteCount, Locale locale) {
         // More than 1 TB?
         if (byteCount >= BINARY_1KB * 1024 * 1024 * 1024) {
-            NumberFormat teraByteFormat = new DecimalFormat("0.00 TB", new DecimalFormatSymbols(locale));
+            NumberFormat teraByteFormat = new DecimalFormat("0.00 TB",
+                    new DecimalFormatSymbols(locale));
             return teraByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024 * 1024));
         }
 
         // More than 1 GB?
         if (byteCount >= BINARY_1KB * 1024 * 1024) {
-            NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB", new DecimalFormatSymbols(locale));
+            NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB",
+                    new DecimalFormatSymbols(locale));
             return gigaByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024));
         }
 
         // More than 1 MB?
         if (byteCount >= BINARY_1KB * 1024) {
-            NumberFormat megaByteFormat = new DecimalFormat("0.0 MB", new DecimalFormatSymbols(locale));
+            NumberFormat megaByteFormat = new DecimalFormat("0.0 MB",
+                    new DecimalFormatSymbols(locale));
             return megaByteFormat.format(byteCount / ((double) 1024 * 1024));
         }
 
         // More than 1 KB?
         if (byteCount >= BINARY_1KB) {
-            NumberFormat kiloByteFormat = new DecimalFormat("0 KB", new DecimalFormatSymbols(locale));
+            NumberFormat kiloByteFormat = new DecimalFormat("0 KB",
+                    new DecimalFormatSymbols(locale));
             return kiloByteFormat.format((double) byteCount / 1024);
         }
 
@@ -91,10 +94,10 @@ public final class StringUtilBase {
     }
 
     /**
-     * Encodes the given string by using the hexadecimal representation of its UTF-8 bytes.
+     * Encodes the given string by using the hexadecimal representation of its UTF-8
+     * bytes.
      *
-     * @param s
-     *            The string to encode.
+     * @param s The string to encode.
      *
      * @return The encoded string.
      */
@@ -108,15 +111,14 @@ public final class StringUtilBase {
     }
 
     /**
-     * Decodes the given string by using the hexadecimal representation of its UTF-8 bytes.
+     * Decodes the given string by using the hexadecimal representation of its UTF-8
+     * bytes.
      *
-     * @param s
-     *            The string to decode.
+     * @param s The string to decode.
      *
      * @return The decoded string.
      *
-     * @throws DecoderException
-     *             If an error occurs.
+     * @throws DecoderException If an error occurs.
      */
     public static @Nullable String utf8HexDecode(String s) throws DecoderException {
         if (s == null) {

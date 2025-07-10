@@ -67,8 +67,9 @@ public class ShareSettingsController {
     private final ShareService shareService;
     private final MediaFileService mediaFileService;
 
-    public ShareSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, ShareService shareService, MediaFileService mediaFileService) {
+    public ShareSettingsController(SettingsService settingsService,
+            MusicFolderService musicFolderService, SecurityService securityService,
+            ShareService shareService, MediaFileService mediaFileService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -79,10 +80,13 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        model.addAttribute("model",
-                LegacyMap.of("shareInfos", getShareInfos(request), "user",
-                        securityService.getCurrentUserStrict(request), "useRadio", settingsService.isUseRadio(),
-                        "shareCount", shareService.getAllShares().size()));
+        model
+            .addAttribute("model",
+                    LegacyMap
+                        .of("shareInfos", getShareInfos(request), "user",
+                                securityService.getCurrentUserStrict(request), "useRadio",
+                                settingsService.isUseRadio(), "shareCount",
+                                shareService.getAllShares().size()));
         return "shareSettings";
     }
 
@@ -113,8 +117,8 @@ public class ShareSettingsController {
             }
         }
 
-        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.DELETE_EXPIRED.value(), false);
+        boolean deleteExpired = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
             Instant now = now();
             for (Share share : shareService.getSharesForUser(user)) {
@@ -130,14 +134,16 @@ public class ShareSettingsController {
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
         User user = securityService.getCurrentUserStrict(request);
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(user.getUsername());
 
         for (Share share : shareService.getSharesForUser(user)) {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);
             if (!files.isEmpty()) {
                 MediaFile file = files.get(0);
-                result.add(new ShareInfo(shareService.getShareUrl(request, share), new ShareVO(share),
-                        file.isDirectory() ? file : mediaFileService.getParentOf(file)));
+                result
+                    .add(new ShareInfo(shareService.getShareUrl(request, share), new ShareVO(share),
+                            file.isDirectory() ? file : mediaFileService.getParentOf(file)));
             }
         }
         return result;
@@ -182,8 +188,9 @@ public class ShareSettingsController {
     public static class ShareVO extends Share {
 
         public ShareVO(Share share) {
-            super(share.getId(), share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
-                    share.getExpires(), share.getLastVisited(), share.getVisitCount());
+            super(share.getId(), share.getName(), share.getDescription(), share.getUsername(),
+                    share.getCreated(), share.getExpires(), share.getLastVisited(),
+                    share.getVisitCount());
         }
 
         public ZonedDateTime getCreatedWithZone() {
@@ -191,11 +198,13 @@ public class ShareSettingsController {
         }
 
         public ZonedDateTime getExpiresWithZone() {
-            return getExpires() == null ? null : ZonedDateTime.ofInstant(getExpires(), ZoneId.systemDefault());
+            return getExpires() == null ? null
+                    : ZonedDateTime.ofInstant(getExpires(), ZoneId.systemDefault());
         }
 
         public ZonedDateTime getLastVisitedWithZone() {
-            return getLastVisited() == null ? null : ZonedDateTime.ofInstant(getLastVisited(), ZoneId.systemDefault());
+            return getLastVisited() == null ? null
+                    : ZonedDateTime.ofInstant(getLastVisited(), ZoneId.systemDefault());
         }
     }
 }
