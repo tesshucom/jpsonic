@@ -53,8 +53,9 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 class AlbumId3ProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-            new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true,
+                now(), 1, false));
 
     @Autowired
     private SettingsService settingsService;
@@ -103,18 +104,21 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
 
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
+                        items.get(i).getName());
             }
 
             items = proc.getDirectChildren(10, 10);
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
+                        items.get(i).getName());
             }
 
             items = proc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
+                        items.get(i).getName());
             }
         }
 
@@ -126,18 +130,21 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
 
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
+                        items.get(i).getName());
             }
 
             items = proc.getDirectChildren(10, 10);
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
+                        items.get(i).getName());
             }
 
             items = proc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
             for (int i = 0; i < items.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
+                        items.get(i).getName());
             }
         }
     }
@@ -192,7 +199,10 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
         DIDLContent content = new DIDLContent();
         assertEquals(0, content.getContainers().size());
         Album album = proc.getDirectChildren(0, 1).get(0);
-        proc.getChildren(album, 0, Integer.MAX_VALUE).stream().forEach(song -> proc.addChild(content, song));
+        proc
+            .getChildren(album, 0, Integer.MAX_VALUE)
+            .stream()
+            .forEach(song -> proc.addChild(content, song));
         assertEquals(31, content.getItems().size());
     }
 

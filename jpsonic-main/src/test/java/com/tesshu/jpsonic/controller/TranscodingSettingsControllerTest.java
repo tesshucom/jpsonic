@@ -66,25 +66,32 @@ class TranscodingSettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
-        Mockito.when(settingsService.getPreferredFormatShemeName()).thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+        Mockito
+            .when(settingsService.getPreferredFormatShemeName())
+            .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
         SecurityService securityService = mock(SecurityService.class);
         transcodingDao = mock(TranscodingDao.class);
-        transcodingService = new TranscodingService(settingsService, securityService, transcodingDao,
-                mock(PlayerService.class), null);
-        controller = new TranscodingSettingsController(settingsService, securityService, transcodingService,
-                mock(ShareService.class), mock(OutlineHelpSelector.class));
+        transcodingService = new TranscodingService(settingsService, securityService,
+                transcodingDao, mock(PlayerService.class), null);
+        controller = new TranscodingSettingsController(settingsService, securityService,
+                transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @WithMockUser(username = "admin")
     @Test
     void testDoGet() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/transcodingSettings.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.view().name("transcodingSettings")).andReturn();
+        MvcResult mvcResult = mockMvc
+            .perform(MockMvcRequestBuilders.get("/transcodingSettings.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.view().name("transcodingSettings"))
+            .andReturn();
         Assertions.assertNotNull(mvcResult);
         @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) mvcResult.getModelAndView().getModel().get("model");
+        Map<String, Object> model = (Map<String, Object>) mvcResult
+            .getModelAndView()
+            .getModel()
+            .get("model");
         assertEquals(10, model.size());
         assertEquals(settingsService.getHlsCommand(), model.get("hlsCommand"));
         assertFalse((Boolean) model.get("isOpenDetailSetting"));
@@ -122,13 +129,17 @@ class TranscodingSettingsControllerTest {
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.setParameter("restoredNames", new String[0]);
         controller.doPost(req, mock(RedirectAttributes.class));
-        Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.any(Transcoding.class));
+        Mockito
+            .verify(transcodingDao, Mockito.never())
+            .createTranscoding(Mockito.any(Transcoding.class));
 
         req.setParameter("restoredNames", Transcodings.MP3.getName(), Transcodings.MP4.getName());
         ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
         Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
         controller.doPost(req, mock(RedirectAttributes.class));
-        Mockito.verify(transcodingDao, Mockito.times(2)).createTranscoding(Mockito.any(Transcoding.class));
+        Mockito
+            .verify(transcodingDao, Mockito.times(2))
+            .createTranscoding(Mockito.any(Transcoding.class));
         assertEquals(2, transcodingCaptor.getAllValues().size());
         assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getAllValues().get(0).getName());
         assertEquals(Transcodings.MP4.getName(), transcodingCaptor.getAllValues().get(1).getName());
@@ -221,11 +232,18 @@ class TranscodingSettingsControllerTest {
         private MockHttpServletRequest createRequest() {
             MockHttpServletRequest req = new MockHttpServletRequest();
             transcodingService.getAllTranscodings().stream().forEach(t -> {
-                req.setParameter(Attributes.Request.NAME.value() + "[" + t.getId() + "]", t.getName());
-                req.setParameter(Attributes.Request.SOURCE_FORMATS.value() + "[" + t.getId() + "]",
-                        t.getSourceFormats());
-                req.setParameter(Attributes.Request.TARGET_FORMAT.value() + "[" + t.getId() + "]", t.getTargetFormat());
-                req.setParameter(Attributes.Request.STEP1.value() + "[" + t.getId() + "]", t.getStep1());
+                req
+                    .setParameter(Attributes.Request.NAME.value() + "[" + t.getId() + "]",
+                            t.getName());
+                req
+                    .setParameter(Attributes.Request.SOURCE_FORMATS.value() + "[" + t.getId() + "]",
+                            t.getSourceFormats());
+                req
+                    .setParameter(Attributes.Request.TARGET_FORMAT.value() + "[" + t.getId() + "]",
+                            t.getTargetFormat());
+                req
+                    .setParameter(Attributes.Request.STEP1.value() + "[" + t.getId() + "]",
+                            t.getStep1());
                 req.setParameter(Attributes.Request.STEP2.value() + "[" + t.getId() + "]", "");
             });
             return req;
@@ -234,7 +252,10 @@ class TranscodingSettingsControllerTest {
         private String getRedirectError(HttpServletRequest req) throws ExecutionException {
             RedirectAttributes attributes = Mockito.mock(RedirectAttributes.class);
             ArgumentCaptor<Object> errorCaptor = ArgumentCaptor.forClass(Object.class);
-            Mockito.doReturn(attributes).when(attributes).addFlashAttribute(Mockito.anyString(), errorCaptor.capture());
+            Mockito
+                .doReturn(attributes)
+                .when(attributes)
+                .addFlashAttribute(Mockito.anyString(), errorCaptor.capture());
             controller.doPost(req, attributes);
             Object o = errorCaptor.getValue();
             if (o instanceof Boolean) {
@@ -280,7 +301,9 @@ class TranscodingSettingsControllerTest {
         void c03() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             transcodingService.getAllTranscodings().stream().findFirst().ifPresent(t -> {
-                req.setParameter(Attributes.Request.SOURCE_FORMATS.value() + "[" + t.getId() + "]", "");
+                req
+                    .setParameter(Attributes.Request.SOURCE_FORMATS.value() + "[" + t.getId() + "]",
+                            "");
             });
             assertEquals("transcodingsettings.nosourceformat", getRedirectError(req));
         }
@@ -295,7 +318,9 @@ class TranscodingSettingsControllerTest {
         void c04() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             transcodingService.getAllTranscodings().stream().findFirst().ifPresent(t -> {
-                req.setParameter(Attributes.Request.TARGET_FORMAT.value() + "[" + t.getId() + "]", "");
+                req
+                    .setParameter(Attributes.Request.TARGET_FORMAT.value() + "[" + t.getId() + "]",
+                            "");
             });
             assertEquals("transcodingsettings.notargetformat", getRedirectError(req));
         }

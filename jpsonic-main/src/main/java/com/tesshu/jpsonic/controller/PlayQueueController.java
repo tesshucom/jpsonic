@@ -59,15 +59,17 @@ public class PlayQueueController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
-        return new ModelAndView("playQueue", "model", LegacyMap.of("user", user, "player", player, "players",
-                playerService.getPlayersForUserAndClientId(user.getUsername(), null), "userSettings", userSettings,
-                "coverArtSize", CoverArtScheme.SMALL.getSize(), "useCast", settingsService.isUseCast()));
+        return new ModelAndView("playQueue", "model", LegacyMap
+            .of("user", user, "player", player, "players",
+                    playerService.getPlayersForUserAndClientId(user.getUsername(), null),
+                    "userSettings", userSettings, "coverArtSize", CoverArtScheme.SMALL.getSize(),
+                    "useCast", settingsService.isUseCast()));
     }
 }

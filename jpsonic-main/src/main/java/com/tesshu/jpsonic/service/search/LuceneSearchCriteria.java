@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.service.search;
 import org.apache.lucene.search.Query;
 
 /**
- * Abstract class that holds Lucene queries. Objects representing subclass search criteria must properly return parsed
- * Lucene queries.
+ * Abstract class that holds Lucene queries. Objects representing subclass
+ * search criteria must properly return parsed Lucene queries.
  */
 public class LuceneSearchCriteria {
 

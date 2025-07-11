@@ -44,7 +44,8 @@ public class VideoParser extends MetaDataParser {
     private final MusicFolderService musicFolderService;
     private final FFprobe ffprobe;
 
-    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService, FFprobe ffprobe) {
+    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService,
+            FFprobe ffprobe) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -52,10 +53,10 @@ public class VideoParser extends MetaDataParser {
     }
 
     /**
-     * Parses meta data for the given music file. No guessing or reformatting is done.
+     * Parses meta data for the given music file. No guessing or reformatting is
+     * done.
      *
-     * @param path
-     *            The music file to parse.
+     * @param path The music file to parse.
      *
      * @return Meta data for the file.
      */
@@ -69,11 +70,13 @@ public class VideoParser extends MetaDataParser {
      */
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
-        throw new IllegalArgumentException("setMetaData() not supported in " + getClass().getSimpleName());
+        throw new IllegalArgumentException(
+                "setMetaData() not supported in " + getClass().getSimpleName());
     }
 
     /**
-     * Returns whether this parser supports tag editing (using the {@link #setMetaData} method).
+     * Returns whether this parser supports tag editing (using the
+     * {@link #setMetaData} method).
      *
      * @return Always false.
      */
@@ -101,7 +104,9 @@ public class VideoParser extends MetaDataParser {
             return false;
         }
         String format = extension.toLowerCase(Locale.ENGLISH);
-        return settingsService.getVideoFileTypesAsArray().stream()
-                .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
+        return settingsService
+            .getVideoFileTypesAsArray()
+            .stream()
+            .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
     }
 }

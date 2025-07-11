@@ -55,13 +55,17 @@ class InternalHelpControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     void testOkForAdmins() throws Exception {
-        mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
+        mockMvc
+            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {
-        mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
+        mockMvc
+            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -95,8 +99,8 @@ class InternalHelpControllerTest {
                 libswresample   4. 12.100 /  4. 12.100
                 libpostproc    57.  3.100 / 57.  3.100
                 """;
-        InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null, null, null,
-                null);
+        InternalHelpController controller = new InternalHelpController(null, null, null, null, null,
+                null, null, null, null);
 
         assertEquals("""
                 ffmpeg version 6.1.2
@@ -174,8 +178,8 @@ class InternalHelpControllerTest {
     @Nested
     class DoesLocaleSupportUtf8Test {
 
-        private final InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null,
-                null, null, null);
+        private final InternalHelpController controller = new InternalHelpController(null, null,
+                null, null, null, null, null, null, null);
 
         @Test
         void testNull() {
@@ -198,7 +202,8 @@ class InternalHelpControllerTest {
     class FileStatisticsTest {
         @Test
         void testSetFromPath() throws URISyntaxException {
-            Path path = Path.of(InternalHelpControllerTest.class.getResource("/MEDIAS/Music").toURI());
+            Path path = Path
+                .of(InternalHelpControllerTest.class.getResource("/MEDIAS/Music").toURI());
             FileStatistics fileStatistics = new FileStatistics();
             fileStatistics.setFromPath(path);
             assertEquals("Music", fileStatistics.getName());

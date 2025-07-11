@@ -61,8 +61,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides version-related services, including functionality for determining whether a newer version of Jpsonic is
- * available.
+ * Provides version-related services, including functionality for determining
+ * whether a newer version of Jpsonic is available.
  *
  * @author Sindre Mehus
  */
@@ -71,7 +71,7 @@ public class VersionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
-            .withInitial(() -> DateTimeFormatter.ofPattern("yyyyMMdd"));
+        .withInitial(() -> DateTimeFormatter.ofPattern("yyyyMMdd"));
     private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
@@ -99,8 +99,10 @@ public class VersionService {
     @PostConstruct
     public void init() {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Starting Jpsonic " + getLocalVersion() + " (" + getLocalBuildNumber() + "), Java: "
-                    + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
+            LOG
+                .info("Starting Jpsonic " + getLocalVersion() + " (" + getLocalBuildNumber()
+                        + "), Java: " + System.getProperty("java.version") + ", OS: "
+                        + System.getProperty("os.name"));
         }
     }
 
@@ -124,8 +126,8 @@ public class VersionService {
     /**
      * Returns the version number for the latest available Jpsonic final version.
      *
-     * @return The version number for the latest available Jpsonic final version, or <code>null</code> if the version
-     *         number can't be resolved.
+     * @return The version number for the latest available Jpsonic final version, or
+     *         <code>null</code> if the version number can't be resolved.
      */
     public Version getLatestFinalVersion() {
         refreshLatestVersion();
@@ -135,8 +137,8 @@ public class VersionService {
     /**
      * Returns the version number for the latest available Jpsonic beta version.
      *
-     * @return The version number for the latest available Jpsonic beta version, or <code>null</code> if the version
-     *         number can't be resolved.
+     * @return The version number for the latest available Jpsonic beta version, or
+     *         <code>null</code> if the version number can't be resolved.
      */
     public Version getLatestBetaVersion() {
         refreshLatestVersion();
@@ -146,8 +148,8 @@ public class VersionService {
     /**
      * Returns the build date for the locally installed Jpsonic version.
      *
-     * @return The build date for the locally installed Jpsonic version, or <code>null</code> if the build date can't be
-     *         resolved.
+     * @return The build date for the locally installed Jpsonic version, or
+     *         <code>null</code> if the build date can't be resolved.
      */
     public LocalDate getLocalBuildDate() {
         localBuildDateLock.lock();
@@ -176,8 +178,8 @@ public class VersionService {
     /**
      * Returns the build number for the locally installed Jpsonic version.
      *
-     * @return The build number for the locally installed Jpsonic version, or <code>null</code> if the build number
-     *         can't be resolved.
+     * @return The build number for the locally installed Jpsonic version, or
+     *         <code>null</code> if the build number can't be resolved.
      */
     public String getLocalBuildNumber() {
         localBuildNumberLock.lock();
@@ -226,14 +228,14 @@ public class VersionService {
     /**
      * Reads the first line from the resource with the given name.
      *
-     * @param resourceName
-     *            The resource name.
+     * @param resourceName The resource name.
      *
      * @return The first line of the resource.
      */
     private String readLineFromResource(@NonNull String resourceName) {
         try (InputStream in = VersionService.class.getResourceAsStream(resourceName)) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(in, StandardCharsets.UTF_8))) {
                 return reader.readLine();
             } catch (IOException x) {
                 return null;
@@ -273,8 +275,11 @@ public class VersionService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(10))
-                    .setResponseTimeout(Timeout.ofSeconds(10)).build();
+            RequestConfig requestConfig = RequestConfig
+                .custom()
+                .setConnectionRequestTimeout(Timeout.ofSeconds(10))
+                .setResponseTimeout(Timeout.ofSeconds(10))
+                .build();
             HttpGet method = new HttpGet(URI.create(VERSION_URL + "?v=" + getLocalVersion()));
             method.setConfig(requestConfig);
             String content;
@@ -305,9 +310,16 @@ public class VersionService {
 
             Predicate<Version> finalVersionPredicate = version -> !version.isPreview();
 
-            Optional<Version> betaV = unsortedTags.stream().map(convertToVersion).max(Comparator.naturalOrder());
-            Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder())
-                    .filter(finalVersionPredicate).findFirst();
+            Optional<Version> betaV = unsortedTags
+                .stream()
+                .map(convertToVersion)
+                .max(Comparator.naturalOrder());
+            Optional<Version> finalV = unsortedTags
+                .stream()
+                .map(convertToVersion)
+                .sorted(Comparator.reverseOrder())
+                .filter(finalVersionPredicate)
+                .findFirst();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Got {} for beta version", betaV);
                 LOG.debug("Got {} for final version", finalV);

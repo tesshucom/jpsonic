@@ -63,10 +63,12 @@ import org.springframework.stereotype.Component;
 /**
  * Termination used by SearchService.
  * <p>
- * Since SearchService operates as a proxy for storage (DB) using lucene, there are many redundant descriptions
- * different from essential data processing. This class is a transfer class for saving those redundant descriptions.
+ * Since SearchService operates as a proxy for storage (DB) using lucene, there
+ * are many redundant descriptions different from essential data processing.
+ * This class is a transfer class for saving those redundant descriptions.
  * <p>
- * Exception handling is not termination, so do not include exception handling in this class.
+ * Exception handling is not termination, so do not include exception handling
+ * in this class.
  */
 @Component
 public class SearchServiceUtilities {
@@ -94,8 +96,9 @@ public class SearchServiceUtilities {
     private Random random;
 
     /*
-     * Search by id only. Although there is no influence at present, mediaFileService has a caching mechanism. Service
-     * is used instead of Dao until you are sure you need to use mediaFileDao.
+     * Search by id only. Although there is no influence at present,
+     * mediaFileService has a caching mechanism. Service is used instead of Dao
+     * until you are sure you need to use mediaFileDao.
      */
     private final MediaFileService mediaFileService;
 
@@ -106,7 +109,8 @@ public class SearchServiceUtilities {
     // NumericUtils.floatToSortableInt(i);
     public final Function<Long, Integer> round = Long::intValue;
 
-    public final Function<Document, Integer> getId = d -> Integer.valueOf(d.get(FieldNamesConstants.ID));
+    public final Function<Document, Integer> getId = d -> Integer
+        .valueOf(d.get(FieldNamesConstants.ID));
 
     public final Function<Class<?>, @Nullable IndexType> getIndexType = (assignableClass) -> {
         IndexType indexType = null;
@@ -132,7 +136,8 @@ public class SearchServiceUtilities {
         return fieldName;
     };
 
-    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("genreCache") Ehcache genreCache,
+    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,
+            @Qualifier("genreCache") Ehcache genreCache,
             @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
@@ -194,11 +199,13 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public final boolean addIgnoreNull(@SuppressWarnings("rawtypes") Collection collection, Object object) {
+    public final boolean addIgnoreNull(@SuppressWarnings("rawtypes") Collection collection,
+            Object object) {
         return CollectionUtils.addIgnoreNull(collection, object);
     }
 
-    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType, int subjectId) {
+    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType,
+            int subjectId) {
         if (indexType == IndexType.ALBUM || indexType == IndexType.SONG) {
             return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
         } else if (indexType == IndexType.ALBUM_ID3) {
@@ -207,9 +214,10 @@ public class SearchServiceUtilities {
         return false;
     }
 
-    public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType, int subjectId,
-            Class<T> subjectClass) {
-        if (indexType == IndexType.SONG || indexType == IndexType.ALBUM || indexType == IndexType.ARTIST) {
+    public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType,
+            int subjectId, Class<T> subjectClass) {
+        if (indexType == IndexType.SONG || indexType == IndexType.ALBUM
+                || indexType == IndexType.ARTIST) {
             MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
         } else if (indexType == IndexType.ARTIST_ID3) {
@@ -221,7 +229,8 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType, Document subject) {
+    public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType,
+            Document subject) {
         int documentId = getId.apply(subject);
         if (subjectIndexType == IndexType.ARTIST || subjectIndexType == IndexType.ALBUM
                 || subjectIndexType == IndexType.SONG) {
@@ -256,8 +265,8 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
-            String... additional) {
+    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax,
+            List<MusicFolder> musicFolders, String... additional) {
         List<MediaFile> mediaFiles = null;
         Element element;
         randomCacheLock.lock();
@@ -273,7 +282,8 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders) {
+    public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax,
+            List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
         Element element;
         randomCacheLock.lock();
@@ -293,7 +303,8 @@ public class SearchServiceUtilities {
         genreCacheLock.lock();
         try {
             Element element = genreCache.get(createCacheKey(criteria));
-            return isEmpty(element) ? Collections.emptyList() : (List<Genre>) element.getObjectValue();
+            return isEmpty(element) ? Collections.emptyList()
+                    : (List<Genre>) element.getObjectValue();
         } finally {
             genreCacheLock.unlock();
         }
@@ -304,7 +315,8 @@ public class SearchServiceUtilities {
         genreCacheLock.lock();
         try {
             Element element = genreCache.get(criteria.name());
-            return isEmpty(element) ? Collections.emptyList() : (List<Genre>) element.getObjectValue();
+            return isEmpty(element) ? Collections.emptyList()
+                    : (List<Genre>) element.getObjectValue();
         } finally {
             genreCacheLock.unlock();
         }
@@ -321,7 +333,8 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+            List<Integer> value) {
         randomCacheLock.lock();
         try {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
@@ -330,11 +343,12 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value,
-            String... additional) {
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+            List<MediaFile> value, String... additional) {
         randomCacheLock.lock();
         try {
-            randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
+            randomCache
+                .put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
         } finally {
             randomCacheLock.unlock();
         }

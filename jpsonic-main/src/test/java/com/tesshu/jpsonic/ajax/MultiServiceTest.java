@@ -66,7 +66,8 @@ class MultiServiceTest extends AbstractNeedsScan {
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = Arrays
-                    .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1,
+                        false));
         }
         return musicFolders;
     }
@@ -74,8 +75,8 @@ class MultiServiceTest extends AbstractNeedsScan {
     @BeforeEach
     public void setup() {
         populateDatabaseOnlyOnce();
-        multiService = new MultiService(musicFolderService, securityService, mediaFileService, lastFmService,
-                airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
+        multiService = new MultiService(musicFolderService, securityService, mediaFileService,
+                lastFmService, airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test

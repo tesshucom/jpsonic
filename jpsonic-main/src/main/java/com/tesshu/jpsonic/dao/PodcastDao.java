@@ -70,8 +70,9 @@ public class PodcastDao {
     public int createChannel(PodcastChannel channel) {
         String sql = "insert into podcast_channel (" + CHANNEL_INSERT_COLUMNS + ") values ("
                 + questionMarks(CHANNEL_INSERT_COLUMNS) + ")";
-        template.update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
-                channel.getStatus().name(), channel.getErrorMessage());
+        template
+            .update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(),
+                    channel.getImageUrl(), channel.getStatus().name(), channel.getErrorMessage());
         return template.queryForInt("select max(id) from podcast_channel", -1);
     }
 
@@ -94,8 +95,10 @@ public class PodcastDao {
                 set url=?, title=?, description=?, image_url=?, status=?, error_message=?
                 where id=?
                 """;
-        template.update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
-                channel.getStatus().name(), channel.getErrorMessage(), channel.getId());
+        template
+            .update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(),
+                    channel.getImageUrl(), channel.getStatus().name(), channel.getErrorMessage(),
+                    channel.getId());
     }
 
     public void deleteChannel(int id) {
@@ -109,9 +112,11 @@ public class PodcastDao {
     public void createEpisode(PodcastEpisode episode) {
         String sql = "insert into podcast_episode (" + EPISODE_INSERT_COLUMNS + ") values ("
                 + questionMarks(EPISODE_INSERT_COLUMNS) + ")";
-        template.update(sql, episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
-                episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
-                episode.getBytesDownloaded(), episode.getStatus().name(), episode.getErrorMessage());
+        template
+            .update(sql, episode.getChannelId(), episode.getUrl(), episode.getPath(),
+                    episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
+                    episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
+                    episode.getStatus().name(), episode.getErrorMessage());
     }
 
     public List<PodcastEpisode> getEpisodes(int channelId) {
@@ -153,9 +158,11 @@ public class PodcastDao {
                         bytes_total=?, bytes_downloaded=?, status=?, error_message=?
                 where id=?
                 """;
-        return template.update(sql, episode.getUrl(), episode.getPath(), episode.getTitle(), episode.getDescription(),
-                episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
-                episode.getStatus().name(), episode.getErrorMessage(), episode.getId());
+        return template
+            .update(sql, episode.getUrl(), episode.getPath(), episode.getTitle(),
+                    episode.getDescription(), episode.getPublishDate(), episode.getDuration(),
+                    episode.getBytesTotal(), episode.getBytesDownloaded(),
+                    episode.getStatus().name(), episode.getErrorMessage(), episode.getId());
     }
 
     public void deleteEpisode(int id) {
@@ -169,17 +176,19 @@ public class PodcastDao {
     private static class PodcastChannelRowMapper implements RowMapper<PodcastChannel> {
         @Override
         public PodcastChannel mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new PodcastChannel(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                    PodcastStatus.valueOf(rs.getString(6)), rs.getString(7));
+            return new PodcastChannel(rs.getInt(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getString(5), PodcastStatus.valueOf(rs.getString(6)),
+                    rs.getString(7));
         }
     }
 
     private static class PodcastEpisodeRowMapper implements RowMapper<PodcastEpisode> {
         @Override
         public PodcastEpisode mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new PodcastEpisode(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                    rs.getString(6), nullableInstantOf(rs.getTimestamp(7)), rs.getString(8), (Long) rs.getObject(9),
-                    (Long) rs.getObject(10), PodcastStatus.valueOf(rs.getString(11)), rs.getString(12));
+            return new PodcastEpisode(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4),
+                    rs.getString(5), rs.getString(6), nullableInstantOf(rs.getTimestamp(7)),
+                    rs.getString(8), (Long) rs.getObject(9), (Long) rs.getObject(10),
+                    PodcastStatus.valueOf(rs.getString(11)), rs.getString(12));
         }
     }
 }

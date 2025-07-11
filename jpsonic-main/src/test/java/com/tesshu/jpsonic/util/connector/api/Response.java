@@ -25,12 +25,14 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Response", propOrder = { "musicFolders", "indexes", "directory", "genres", "artists", "artist",
-        "album", "song", "videos", "videoInfo", "nowPlaying", "searchResult", "searchResult2", "searchResult3",
-        "playlists", "playlist", "jukeboxStatus", "jukeboxPlaylist", "license", "users", "user", "chatMessages",
-        "albumList", "albumList2", "randomSongs", "songsByGenre", "lyrics", "podcasts", "newestPodcasts",
-        "internetRadioStations", "bookmarks", "playQueue", "shares", "starred", "starred2", "albumInfo", "artistInfo",
-        "artistInfo2", "similarSongs", "similarSongs2", "topSongs", "scanStatus", "error" })
+@XmlType(name = "Response", propOrder = { "musicFolders", "indexes", "directory", "genres",
+        "artists", "artist", "album", "song", "videos", "videoInfo", "nowPlaying", "searchResult",
+        "searchResult2", "searchResult3", "playlists", "playlist", "jukeboxStatus",
+        "jukeboxPlaylist", "license", "users", "user", "chatMessages", "albumList", "albumList2",
+        "randomSongs", "songsByGenre", "lyrics", "podcasts", "newestPodcasts",
+        "internetRadioStations", "bookmarks", "playQueue", "shares", "starred", "starred2",
+        "albumInfo", "artistInfo", "artistInfo2", "similarSongs", "similarSongs2", "topSongs",
+        "scanStatus", "error" })
 public class Response {
 
     protected MusicFolders musicFolders;

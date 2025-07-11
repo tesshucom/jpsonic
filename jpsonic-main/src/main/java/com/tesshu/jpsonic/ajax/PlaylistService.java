@@ -49,8 +49,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
 /**
- * Provides AJAX-enabled services for manipulating playlists. This class is used by the DWR framework
- * (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for manipulating playlists. This class is used
+ * by the DWR framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -69,8 +69,8 @@ public class PlaylistService {
     public PlaylistService(MusicFolderService musicFolderService, SecurityService securityService,
             MediaFileService mediaFileService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
-            MediaFileDao mediaFileDao, PlayerService playerService, AirsonicLocaleResolver airsonicLocaleResolver,
-            AjaxHelper ajaxHelper) {
+            MediaFileDao mediaFileDao, PlayerService playerService,
+            AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
@@ -100,8 +100,9 @@ public class PlaylistService {
         Playlist playlist = deligate.getPlaylist(id);
 
         /*
-         * If you want to use java.time with DWR, you can do it by registering custom outbound converter. (However,
-         * there is no such necessity now. If the fields not used in the code below are intentionally nulled)
+         * If you want to use java.time with DWR, you can do it by registering custom
+         * outbound converter. (However, there is no such necessity now. If the fields
+         * not used in the code below are intentionally nulled)
          */
         if (playlist != null) {
             playlist.setCreated(null);
@@ -126,7 +127,9 @@ public class PlaylistService {
 
     public List<Playlist> createEmptyPlaylist() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
 
         Instant now = now();
         Playlist playlist = new Playlist();
@@ -142,7 +145,9 @@ public class PlaylistService {
 
     public int createPlaylistForPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
 
         Instant now = now();
         Playlist playlist = new Playlist();
@@ -172,13 +177,17 @@ public class PlaylistService {
         playlist.setChanged(now);
         playlist.setShared(false);
 
-        ResourceBundle bundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle", locale);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+        ResourceBundle bundle = ResourceBundle
+            .getBundle("com.tesshu.jpsonic.i18n.ResourceBundle", locale);
+        DateTimeFormatter formatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
         playlist.setName(bundle.getString("top.starred") + " " + formatter.format(now));
 
         deligate.createPlaylist(playlist);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
-        List<MediaFile> songs = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
+        List<MediaFile> songs = mediaFileDao
+            .getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         deligate.setFilesInPlaylist(playlist.getId(), songs);
 
         return playlist.getId();
@@ -199,9 +208,10 @@ public class PlaylistService {
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
         List<PlaylistInfo.Entry> result = new ArrayList<>();
         for (MediaFile file : files) {
-            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(),
-                    file.getAlbumName(), file.getGenre(), file.getDurationString(), file.getStarredDate() != null,
-                    file.isPresent()));
+            result
+                .add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(),
+                        file.getComposer(), file.getAlbumName(), file.getGenre(),
+                        file.getDurationString(), file.getStarredDate() != null, file.isPresent()));
         }
 
         return result;

@@ -95,11 +95,13 @@ public class StatusChartController extends AbstractChartController {
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UselessParentheses" })
     @Override
     @GetMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         String type = request.getParameter(Attributes.Request.TYPE.value());
         List<TransferStatus> statuses = getStatuses(type);
 
-        int index = ServletRequestUtils.getIntParameter(request, Attributes.Request.INDEX.value(), 0);
+        int index = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.INDEX.value(), 0);
         if (index < 0 || index >= statuses.size()) {
             return null;
         }
@@ -118,10 +120,14 @@ public class StatusChartController extends AbstractChartController {
                 TransferStatus.Sample sample = history.get(i);
 
                 long elapsedTimeMilis = sample.getTimestamp() - previous.getTimestamp();
-                long bytesStreamed = Math.max(0L, sample.getBytesTransfered() - previous.getBytesTransfered());
+                long bytesStreamed = Math
+                    .max(0L, sample.getBytesTransfered() - previous.getBytesTransfered());
 
                 double kbps = (8.0 * bytesStreamed / 1024.0) / (elapsedTimeMilis / 1000.0);
-                series.addOrUpdate(new Millisecond(Date.from(Instant.ofEpochMilli(sample.getTimestamp()))), kbps);
+                series
+                    .addOrUpdate(
+                            new Millisecond(Date.from(Instant.ofEpochMilli(sample.getTimestamp()))),
+                            kbps);
 
                 previous = sample;
             }
@@ -151,7 +157,8 @@ public class StatusChartController extends AbstractChartController {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(series);
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, false, false, false);
+        JFreeChart chart = ChartFactory
+            .createTimeSeriesChart(null, null, null, dataset, false, false, false);
         StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
         Font font = fontLoader.getFont(12F);
         theme.setExtraLargeFont(font);
@@ -177,7 +184,9 @@ public class StatusChartController extends AbstractChartController {
         XYItemRenderer renderer = plot.getRendererForDataset(dataset);
         Color stColor = getStroke(request);
         renderer.setSeriesPaint(0, stColor);
-        renderer.setSeriesStroke(0, new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+        renderer
+            .setSeriesStroke(0,
+                    new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
 
         ValueAxis domainAxis = plot.getDomainAxis();
         domainAxis.setRange(new DateRange(from, to));
@@ -192,7 +201,8 @@ public class StatusChartController extends AbstractChartController {
         rangeAxis.setAxisLinePaint(fgColor);
 
         try {
-            ChartUtils.writeChartAsPNG(response.getOutputStream(), chart, IMAGE_WIDTH, IMAGE_HEIGHT);
+            ChartUtils
+                .writeChartAsPNG(response.getOutputStream(), chart, IMAGE_WIDTH, IMAGE_HEIGHT);
         } catch (IOException e) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Client may have closed the Stream.", e);

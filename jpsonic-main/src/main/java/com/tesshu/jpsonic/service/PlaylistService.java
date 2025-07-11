@@ -58,7 +58,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides services for loading and saving playlists to and from persistent storage.
+ * Provides services for loading and saving playlists to and from persistent
+ * storage.
  *
  * @author Sindre Mehus
  *
@@ -79,9 +80,10 @@ public class PlaylistService {
     private final List<PlaylistImportHandler> importHandlers;
     private final JpsonicComparators comparators;
 
-    public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao, SecurityService securityService,
-            SettingsService settingsService, List<PlaylistExportHandler> exportHandlers,
-            List<PlaylistImportHandler> importHandlers, JpsonicComparators comparators) {
+    public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao,
+            SecurityService securityService, SettingsService settingsService,
+            List<PlaylistExportHandler> exportHandlers, List<PlaylistImportHandler> importHandlers,
+            JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
         this.securityService = securityService;
@@ -201,18 +203,22 @@ public class PlaylistService {
         playlistDao.updatePlaylist(playlist);
     }
 
-    public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
-            Playlist existingPlaylist) throws ExecutionException {
+    public Playlist importPlaylist(String username, String playlistName, String fileName,
+            InputStream inputStream, Playlist existingPlaylist) throws ExecutionException {
 
         SpecificPlaylist inputSpecificPlaylist;
         try {
-            inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
+            inputSpecificPlaylist = SpecificPlaylistFactory
+                .getInstance()
+                .readFrom(inputStream, "UTF-8");
         } catch (IOException e) {
             throw new ExecutionException("Unsupported playlist " + fileName, e);
         }
         PlaylistImportHandler importHandler = getImportHandler(inputSpecificPlaylist);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Using " + importHandler.getClass().getSimpleName() + " playlist import handler");
+            LOG
+                .debug("Using " + importHandler.getClass().getSimpleName()
+                        + " playlist import handler");
         }
 
         Pair<List<MediaFile>, List<String>> result = importHandler.handle(inputSpecificPlaylist);
@@ -248,15 +254,17 @@ public class PlaylistService {
     }
 
     public String getExportPlaylistExtension() {
-        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance()
-                .findProviderById(EXPORT_PLAYLIST_FORMAT);
+        SpecificPlaylistProvider provider = SpecificPlaylistFactory
+            .getInstance()
+            .findProviderById(EXPORT_PLAYLIST_FORMAT);
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/SpecificPlaylist#writeTo
     public void exportPlaylist(int id, OutputStream out) throws ExecutionException {
-        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance()
-                .findProviderById(EXPORT_PLAYLIST_FORMAT);
+        SpecificPlaylistProvider provider = SpecificPlaylistFactory
+            .getInstance()
+            .findProviderById(EXPORT_PLAYLIST_FORMAT);
         PlaylistExportHandler handler = getExportHandler(provider);
         try {
             SpecificPlaylist specificPlaylist = handler.handle(id, provider);
@@ -267,14 +275,22 @@ public class PlaylistService {
     }
 
     private PlaylistImportHandler getImportHandler(SpecificPlaylist playlist) {
-        return importHandlers.stream().filter(handler -> handler.canHandle(playlist.getClass())).findFirst()
-                .orElseThrow(() -> new RuntimeException("No import handler for " + playlist.getClass().getName()));
+        return importHandlers
+            .stream()
+            .filter(handler -> handler.canHandle(playlist.getClass()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException(
+                    "No import handler for " + playlist.getClass().getName()));
 
     }
 
     private PlaylistExportHandler getExportHandler(SpecificPlaylistProvider provider) {
-        return exportHandlers.stream().filter(handler -> handler.canHandle(provider.getClass())).findFirst()
-                .orElseThrow(() -> new RuntimeException("No export handler for " + provider.getClass().getName()));
+        return exportHandlers
+            .stream()
+            .filter(handler -> handler.canHandle(provider.getClass()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException(
+                    "No export handler for " + provider.getClass().getName()));
     }
 
     public void importPlaylists() {
@@ -310,7 +326,8 @@ public class PlaylistService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ExecutionException) Not reusable
-    private void importPlaylistIfUpdated(Path file, List<Playlist> allPlaylists) throws ExecutionException {
+    private void importPlaylistIfUpdated(Path file, List<Playlist> allPlaylists)
+            throws ExecutionException {
 
         Path fileName = file.getFileName();
         if (fileName == null) {
@@ -322,7 +339,9 @@ public class PlaylistService {
             if (fileName.toString().equals(playlist.getImportedFrom())) {
                 existingPlaylist = playlist;
                 try {
-                    if (Files.getLastModifiedTime(file).toMillis() <= playlist.getChanged().toEpochMilli()) {
+                    if (Files.getLastModifiedTime(file).toMillis() <= playlist
+                        .getChanged()
+                        .toEpochMilli()) {
                         // Already imported and not changed since.
                         return;
                     }
@@ -332,10 +351,13 @@ public class PlaylistService {
             }
         }
         try (InputStream in = Files.newInputStream(file)) {
-            // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
-            // a specific account to use for auto-imported playlists, so use the first admin account
-            importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName.toString()),
-                    fileName.toString(), in, existingPlaylist);
+            // With the transition away from a hardcoded admin account to Admin Roles, there
+            // is no longer
+            // a specific account to use for auto-imported playlists, so use the first admin
+            // account
+            importPlaylist(securityService.getAdminUsername(),
+                    FilenameUtils.getBaseName(fileName.toString()), fileName.toString(), in,
+                    existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }

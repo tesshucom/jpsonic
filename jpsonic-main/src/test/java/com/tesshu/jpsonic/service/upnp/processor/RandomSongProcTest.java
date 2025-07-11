@@ -58,15 +58,19 @@ class RandomSongProcTest {
         BrowseResult result = proc.browseRoot(null, 0, 0);
         assertEquals(0, result.getCount().getValue());
         Mockito.verify(settingsService, Mockito.times(2)).getDlnaRandomMax();
-        Mockito.verify(searchService, Mockito.times(1)).getRandomSongs(Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+        Mockito
+            .verify(searchService, Mockito.times(1))
+            .getRandomSongs(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, 100).size());
-        Mockito.verify(searchService, Mockito.times(1)).getRandomSongs(Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+        Mockito
+            .verify(searchService, Mockito.times(1))
+            .getRandomSongs(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test

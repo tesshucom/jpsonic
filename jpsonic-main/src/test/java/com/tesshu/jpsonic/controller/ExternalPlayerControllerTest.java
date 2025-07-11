@@ -61,8 +61,11 @@ class ExternalPlayerControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         shareService = mock(ShareService.class);
         jwtSecurityService = mock(JWTSecurityService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new ExternalPlayerController(musicFolderService,
-                mock(PlayerService.class), shareService, mock(MediaFileService.class), jwtSecurityService)).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(
+                    new ExternalPlayerController(musicFolderService, mock(PlayerService.class),
+                            shareService, mock(MediaFileService.class), jwtSecurityService))
+            .build();
     }
 
     @Test
@@ -79,28 +82,37 @@ class ExternalPlayerControllerTest {
         Mockito.when(shareService.getShareByName(Mockito.anyString())).thenReturn(share);
 
         MediaFile mediaFile = new MediaFile();
-        Path path = Path.of(ExternalPlayerControllerTest.class.getResource(
-                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+        Path path = Path
+            .of(ExternalPlayerControllerTest.class
+                .getResource(
+                        "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
                 .toURI());
         mediaFile.setPathString(path.toString());
         List<MediaFile> mediaFiles = Arrays.asList(mediaFile);
 
         MusicFolder folder = new MusicFolder("", "", true, expires, false);
         List<MusicFolder> folders = Arrays.asList(folder);
-        Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(folders);
+        Mockito
+            .when(musicFolderService.getMusicFoldersForUser(Mockito.anyString()))
+            .thenReturn(folders);
         Mockito.when(shareService.getSharedFiles(shareId, folders)).thenReturn(mediaFiles);
 
         UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
         UriComponents components = mock(UriComponents.class);
         Mockito.when(builder.build()).thenReturn(components);
-        Mockito.when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class),
-                Mockito.nullable(Instant.class))).thenReturn(builder);
+        Mockito
+            .when(jwtSecurityService
+                .addJWTToken(Mockito.any(UriComponentsBuilder.class),
+                        Mockito.nullable(Instant.class)))
+            .thenReturn(builder);
 
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/ext/share/AAaaA")
-                        .param(Attributes.Request.USER_NAME.value(), "admin")
-                        .param(Attributes.Request.FORCE_CUSTOM.value(), Boolean.toString(false)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/ext/share/AAaaA")
+                .param(Attributes.Request.USER_NAME.value(), "admin")
+                .param(Attributes.Request.FORCE_CUSTOM.value(), Boolean.toString(false)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
     }
 }

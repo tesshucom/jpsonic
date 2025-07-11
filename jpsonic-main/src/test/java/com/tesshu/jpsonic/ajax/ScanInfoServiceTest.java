@@ -54,7 +54,8 @@ class ScanInfoServiceTest {
         PlayStatus playStatus = new PlayStatus(file, player, now());
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
         scannerProcedureService = mock(ScannerProcedureService.class);
-        scanInfoService = new ScanInfoService(mock(ScannerStateService.class), scannerProcedureService);
+        scanInfoService = new ScanInfoService(mock(ScannerStateService.class),
+                scannerProcedureService);
     }
 
     @Test

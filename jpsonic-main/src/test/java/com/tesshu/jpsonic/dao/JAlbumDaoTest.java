@@ -37,7 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, now(), 1, false));
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, now(), 1,
+                false));
 
     @Autowired
     private AlbumDao albumDao;
@@ -56,9 +57,13 @@ class JAlbumDaoTest extends AbstractNeedsScan {
 
     @Test
     void testGetAlphabeticalAlbums() {
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, MUSIC_FOLDERS);
-        List<String> names = albums.stream().map(Album::getName).filter(name -> !"☆彡ALBUM".equals(name))
-                .collect(Collectors.toList());
+        List<Album> albums = albumDao
+            .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, MUSIC_FOLDERS);
+        List<String> names = albums
+            .stream()
+            .map(Album::getName)
+            .filter(name -> !"☆彡ALBUM".equals(name))
+            .collect(Collectors.toList());
         assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));
     }
 

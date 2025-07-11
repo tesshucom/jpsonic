@@ -31,7 +31,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Special Dao Helper with additional features for managing the legacy embedded HSQL database.
+ * Special Dao Helper with additional features for managing the legacy embedded
+ * HSQL database.
  */
 public class LegacyHsqlDaoHelper extends GenericDaoHelper {
 
@@ -43,8 +44,10 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
 
     @Override
     public void checkpoint() {
-        // HSQLDB (at least version 1) does not handle automatic checkpoints very well by default.
-        // This makes sure the temporary log is actually written to more persistent storage.
+        // HSQLDB (at least version 1) does not handle automatic checkpoints very well
+        // by default.
+        // This makes sure the temporary log is actually written to more persistent
+        // storage.
         if (LOG.isDebugEnabled()) {
             LOG.debug("Database checkpoint in progress...");
         }
@@ -55,8 +58,8 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
     }
 
     /**
-     * Shutdown the embedded HSQLDB database. After this has run, the database cannot be accessed again from the same
-     * DataSource.
+     * Shutdown the embedded HSQLDB database. After this has run, the database
+     * cannot be accessed again from the same DataSource.
      */
     private void shutdownHsqldbDatabase() {
         try {

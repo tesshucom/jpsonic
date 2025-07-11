@@ -35,8 +35,9 @@ public class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomAlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            AlbumDao albumDao, SearchService searchService, SettingsService settingsService) {
+    public RandomAlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, AlbumDao albumDao, SearchService searchService,
+            SettingsService settingsService) {
         super(util, factory, mediaFileService, albumDao);
         this.util = util;
         this.searchService = searchService;

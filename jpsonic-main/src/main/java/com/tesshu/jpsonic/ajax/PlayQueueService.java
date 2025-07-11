@@ -69,8 +69,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
- * Provides AJAX-enabled services for manipulating the play queue of a player. This class is used by the DWR framework
- * (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for manipulating the play queue of a player.
+ * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -96,10 +96,11 @@ public class PlayQueueService {
     private final AjaxHelper ajaxHelper;
 
     public PlayQueueService(MusicFolderService musicFolderService, SecurityService securityService,
-            PlayerService playerService, JpsonicComparators comparators, MediaFileService mediaFileService,
-            LastFmService lastFmService, SearchService searchService, RatingService ratingService,
-            PodcastService podcastService, PlaylistService playlistService, MediaFileDao mediaFileDao,
-            PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
+            PlayerService playerService, JpsonicComparators comparators,
+            MediaFileService mediaFileService, LastFmService lastFmService,
+            SearchService searchService, RatingService ratingService, PodcastService podcastService,
+            PlaylistService playlistService, MediaFileDao mediaFileDao, PlayQueueDao playQueueDao,
+            InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
             InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
@@ -145,8 +146,8 @@ public class PlayQueueService {
     public PlayQueueInfo toggleStartStop() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         switch (player.getPlayQueue().getStatus()) {
-            case STOPPED -> player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
-            case PLAYING -> player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
+        case STOPPED -> player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
+        case PLAYING -> player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
         }
         return createPlayQueueInfo(player);
     }
@@ -166,19 +167,22 @@ public class PlayQueueService {
         PlayQueue playQueue = player.getPlayQueue();
         playQueue.setInternetRadio(null);
         if (playQueue.getRandomSearchCriteria() != null) {
-            playQueue.addFiles(true,
-                    mediaFileService.getRandomSongs(playQueue.getRandomSearchCriteria(), resolveUsername()));
+            playQueue
+                .addFiles(true, mediaFileService
+                    .getRandomSongs(playQueue.getRandomSearchCriteria(), resolveUsername()));
         }
         return createPlayQueueInfo(player);
     }
 
-    public void savePlayQueue(int currentSongIndex, long positionMillis) throws ServletRequestBindingException {
+    public void savePlayQueue(int currentSongIndex, long positionMillis)
+            throws ServletRequestBindingException {
         Player player = resolvePlayer();
         PlayQueue playQueue = player.getPlayQueue();
         List<Integer> ids = MediaFile.toIdList(playQueue.getFiles());
-        Integer currentId = currentSongIndex == -1 ? null : playQueue.getFile(currentSongIndex).getId();
-        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, resolveUsername(), ids, currentId, positionMillis,
-                now(), "Jpsonic");
+        Integer currentId = currentSongIndex == -1 ? null
+                : playQueue.getFile(currentSongIndex).getId();
+        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, resolveUsername(), ids, currentId,
+                positionMillis, now(), "Jpsonic");
         playQueueDao.savePlayQueue(savedPlayQueue);
     }
 
@@ -201,7 +205,8 @@ public class PlayQueueService {
         PlayQueueInfo playQueueInfo = createPlayQueueInfo(player);
         Integer currentId = savedPlayQueue.getCurrentMediaFileId();
         int currentIndex = -1;
-        long positionMillis = savedPlayQueue.getPositionMillis() == null ? 0L : savedPlayQueue.getPositionMillis();
+        long positionMillis = savedPlayQueue.getPositionMillis() == null ? 0L
+                : savedPlayQueue.getPositionMillis();
         if (currentId != null) {
             MediaFile current = mediaFileService.getMediaFile(currentId);
             currentIndex = playQueue.getFiles().indexOf(current);
@@ -223,7 +228,9 @@ public class PlayQueueService {
 
         final List<MediaFile> songs = new ArrayList<>();
         if (mediaFile.isFile()) {
-            boolean queueFollowingSongs = securityService.getUserSettings(resolveUsername()).isQueueFollowingSongs();
+            boolean queueFollowingSongs = securityService
+                .getUserSettings(resolveUsername())
+                .isQueueFollowingSongs();
             if (queueFollowingSongs) {
                 mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
                     List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false);
@@ -242,7 +249,8 @@ public class PlayQueueService {
     }
 
     /*
-     * Start playing at this index in the list of radio streams, or play whole radio playlist if {@code null}.
+     * Start playing at this index in the list of radio streams, or play whole radio
+     * playlist if {@code null}.
      */
     public PlayQueueInfo playInternetRadio(int id, Integer startIndex)
             throws ServletRequestBindingException, ExecutionException {
@@ -267,8 +275,11 @@ public class PlayQueueService {
     /*
      * Start playing at this index, or play whole playlist if {@code null}.
      */
-    public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws ServletRequestBindingException {
-        boolean queueFollowingSongs = securityService.getUserSettings(resolveUsername()).isQueueFollowingSongs();
+    public PlayQueueInfo playPlaylist(int id, Integer startIndex)
+            throws ServletRequestBindingException {
+        boolean queueFollowingSongs = securityService
+            .getUserSettings(resolveUsername())
+            .isQueueFollowingSongs();
 
         List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
         if (!files.isEmpty() && startIndex != null) {
@@ -290,11 +301,15 @@ public class PlayQueueService {
     /*
      * Start playing at this index, or play all top songs if {@code null}.
      */
-    public PlayQueueInfo playTopSong(int id, Integer startIndex) throws ServletRequestBindingException {
+    public PlayQueueInfo playTopSong(int id, Integer startIndex)
+            throws ServletRequestBindingException {
         String username = resolveUsername();
-        boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
+        boolean queueFollowingSongs = securityService
+            .getUserSettings(username)
+            .isQueueFollowingSongs();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
-        List<MediaFile> files = lastFmService.getTopSongs(mediaFileService.getMediaFileStrict(id), 50, musicFolders);
+        List<MediaFile> files = lastFmService
+            .getTopSongs(mediaFileService.getMediaFileStrict(id), 50, musicFolders);
         if (!files.isEmpty() && startIndex != null) {
             if (queueFollowingSongs) {
                 files = files.subList(startIndex, files.size());
@@ -326,13 +341,16 @@ public class PlayQueueService {
         PodcastEpisode episode = podcastService.getEpisodeStrict(id, false);
         List<PodcastEpisode> allEpisodes = podcastService.getEpisodes(episode.getChannelId());
         List<MediaFile> files = new ArrayList<>();
-        boolean queueFollowingSongs = securityService.getUserSettings(resolveUsername()).isQueueFollowingSongs();
+        boolean queueFollowingSongs = securityService
+            .getUserSettings(resolveUsername())
+            .isQueueFollowingSongs();
 
         for (PodcastEpisode ep : allEpisodes) {
             if (ep.getStatus() == PodcastStatus.COMPLETED) {
                 MediaFile mediaFile = mediaFileService.getMediaFile(ep.getMediaFileId());
                 if (mediaFile != null && mediaFile.isPresent()
-                        && (ep.getId().equals(episode.getId()) || queueFollowingSongs && !files.isEmpty())) {
+                        && (ep.getId().equals(episode.getId())
+                                || queueFollowingSongs && !files.isEmpty())) {
                     files.add(mediaFile);
                 }
             }
@@ -341,11 +359,16 @@ public class PlayQueueService {
         return doPlay(player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playNewestPodcastEpisode(Integer startIndex) throws ServletRequestBindingException {
+    public PlayQueueInfo playNewestPodcastEpisode(Integer startIndex)
+            throws ServletRequestBindingException {
         List<PodcastEpisode> episodes = podcastService.getNewestEpisodes(10);
-        List<MediaFile> files = episodes.stream()
-                .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId())).collect(Collectors.toList());
-        boolean queueFollowingSongs = securityService.getUserSettings(resolveUsername()).isQueueFollowingSongs();
+        List<MediaFile> files = episodes
+            .stream()
+            .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId()))
+            .collect(Collectors.toList());
+        boolean queueFollowingSongs = securityService
+            .getUserSettings(resolveUsername())
+            .isQueueFollowingSongs();
 
         if (!files.isEmpty() && startIndex != null) {
             if (queueFollowingSongs) {
@@ -362,17 +385,19 @@ public class PlayQueueService {
     public PlayQueueInfo playStarred() throws ServletRequestBindingException {
         String username = resolveUsername();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
-        List<MediaFile> files = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
+        List<MediaFile> files = mediaFileDao
+            .getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         Player player = resolvePlayer();
         return doPlay(player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre, String decade)
-            throws ServletRequestBindingException {
+    public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre,
+            String decade) throws ServletRequestBindingException {
         String username = resolveUsername();
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
-                selectedMusicFolder == null ? null : selectedMusicFolder.getId());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username,
+                    selectedMusicFolder == null ? null : selectedMusicFolder.getId());
         List<MediaFile> albums;
         if ("highest".equals(albumListType)) {
             albums = ratingService.getHighestRatedAlbums(offset, count, musicFolders);
@@ -391,7 +416,8 @@ public class PlayQueueService {
         } else if ("decade".equals(albumListType)) {
             int fromYear = Integer.parseInt(decade);
             int toYear = fromYear + 9;
-            albums = mediaFileService.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
+            albums = mediaFileService
+                .getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
         } else if ("genre".equals(albumListType)) {
             albums = searchService.getAlbumsByGenres(genre, offset, count, musicFolders);
         } else {
@@ -436,7 +462,8 @@ public class PlayQueueService {
 
     public PlayQueueInfo playSimilar(int id, int count) throws ServletRequestBindingException {
         MediaFile artist = mediaFileService.getMediaFileStrict(id);
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(resolveUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(resolveUsername());
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = resolvePlayer();
         player.getPlayQueue().addFiles(false, similarSongs);
@@ -454,11 +481,12 @@ public class PlayQueueService {
     }
 
     /**
-     * TODO This method should be moved to a real PlayQueueService not dedicated to Ajax DWR.
+     * TODO This method should be moved to a real PlayQueueService not dedicated to
+     * Ajax DWR.
      *
-     * @param addAtIndex
-     *            if not null, insert the media files at the specified index otherwise, append the media files at the
-     *            end of the play queue
+     * @param addAtIndex if not null, insert the media files at the specified index
+     *                   otherwise, append the media files at the end of the play
+     *                   queue
      */
     public PlayQueue addMediaFilesToPlayQueue(PlayQueue playQueue, int[] ids, Integer addAtIndex) {
         List<MediaFile> files = new ArrayList<>(ids.length);
@@ -478,17 +506,19 @@ public class PlayQueueService {
     }
 
     /*
-     * if not null, insert the media files at the specified index otherwise, append the media files at the end of the
-     * play queue
+     * if not null, insert the media files at the specified index otherwise, append
+     * the media files at the end of the play queue
      */
-    public PlayQueueInfo doAdd(int[] ids, Integer addAtIndex) throws ServletRequestBindingException {
+    public PlayQueueInfo doAdd(int[] ids, Integer addAtIndex)
+            throws ServletRequestBindingException {
         Player player = resolvePlayer();
         addMediaFilesToPlayQueue(player.getPlayQueue(), ids, addAtIndex);
         return createPlayQueueInfo(player);
     }
 
     /**
-     * TODO This method should be moved to a real PlayQueueService not dedicated to Ajax DWR.
+     * TODO This method should be moved to a real PlayQueueService not dedicated to
+     * Ajax DWR.
      */
     public PlayQueue resetPlayQueue(PlayQueue playQueue, int[] ids) {
         MediaFile currentFile = playQueue.getCurrentFile();
@@ -533,8 +563,8 @@ public class PlayQueueService {
         return createPlayQueueInfo(player);
     }
 
-    public PlayQueueInfo doRemove(HttpServletRequest request, HttpServletResponse response, int index)
-            throws ServletRequestBindingException {
+    public PlayQueueInfo doRemove(HttpServletRequest request, HttpServletResponse response,
+            int index) throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().removeFileAt(index);
         return createPlayQueueInfo(player);
@@ -604,11 +634,12 @@ public class PlayQueueService {
 
     private PlayQueueInfo createPlayQueueInfo(Player player) {
         PlayQueue playQueue = player.getPlayQueue();
-        List<PlayQueueInfo.Entry> entries = playQueue.isInternetRadioEnabled() ? convertInternetRadio(player)
+        List<PlayQueueInfo.Entry> entries = playQueue.isInternetRadioEnabled()
+                ? convertInternetRadio(player)
                 : convertMediaFileList(player);
         boolean isStopEnabled = playQueue.getStatus() == PlayQueue.Status.PLAYING;
-        return new PlayQueueInfo(entries, isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isShuffleRadioEnabled(),
-                playQueue.isInternetRadioEnabled());
+        return new PlayQueueInfo(entries, isStopEnabled, playQueue.isRepeatEnabled(),
+                playQueue.isShuffleRadioEnabled(), playQueue.isInternetRadioEnabled());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
@@ -626,17 +657,20 @@ public class PlayQueueService {
             String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
 
             String remoteStreamUrl = jwtSecurityService
-                    .addJWTToken(url + "ext/stream?player=" + player.getId() + "&id=" + file.getId());
+                .addJWTToken(url + "ext/stream?player=" + player.getId() + "&id=" + file.getId());
             String remoteCoverArtUrl = jwtSecurityService
-                    .addJWTToken(url + "ext/" + ViewName.COVER_ART.value() + "?id=" + file.getId());
+                .addJWTToken(url + "ext/" + ViewName.COVER_ART.value() + "?id=" + file.getId());
 
             String format = file.getFormat();
-            boolean starred = mediaFileService.getMediaFileStarredDate(file.getId(), resolveUsername()) != null;
-            entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(),
-                    file.getComposer(), file.getAlbumName(), file.getGenre(), file.getYear(), formatBitRate(file),
-                    file.getDurationSeconds(), file.getDurationString(), format, formatContentType(format),
-                    formatFileSize(file.getFileSize(), locale), starred, albumUrl, streamUrl, remoteStreamUrl,
-                    coverArtUrl, remoteCoverArtUrl));
+            boolean starred = mediaFileService
+                .getMediaFileStarredDate(file.getId(), resolveUsername()) != null;
+            entries
+                .add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(),
+                        file.getArtist(), file.getComposer(), file.getAlbumName(), file.getGenre(),
+                        file.getYear(), formatBitRate(file), file.getDurationSeconds(),
+                        file.getDurationString(), format, formatContentType(format),
+                        formatFileSize(file.getFileSize(), locale), starred, albumUrl, streamUrl,
+                        remoteStreamUrl, coverArtUrl, remoteCoverArtUrl));
         }
 
         return entries;
@@ -652,32 +686,34 @@ public class PlayQueueService {
         final String radioName = radio.getName();
 
         List<PlayQueueInfo.Entry> entries = new ArrayList<>();
-        for (InternetRadioSource streamSource : internetRadioService.getInternetRadioSources(radio)) {
+        for (InternetRadioSource streamSource : internetRadioService
+            .getInternetRadioSources(radio)) {
             // Fake entry id so that the source can be selected in the UI
             int streamId = -(1 + entries.size());
             Integer streamTrackNumber = entries.size();
             String streamUrl = streamSource.getStreamUrl();
-            entries.add(new PlayQueueInfo.Entry(streamId, // Entry id
-                    streamTrackNumber, // Track number
-                    streamUrl, // Track title (use radio stream URL for now)
-                    "", // Track artist
-                    "", // Track composer
-                    radioName, // Album name (use radio name)
-                    "Internet Radio", // Genre
-                    0, // Year
-                    "", // Bit rate
-                    0, // Duration
-                    "", // Duration (as string)
-                    "", // Format
-                    "", // Content Type
-                    "", // File size
-                    false, // Starred
-                    radioHomepageUrl, // Album URL (use radio home page URL)
-                    streamUrl, // Stream URL
-                    streamUrl, // Remote stream URL
-                    null, // Cover art URL
-                    null // Remote cover art URL
-            ));
+            entries
+                .add(new PlayQueueInfo.Entry(streamId, // Entry id
+                        streamTrackNumber, // Track number
+                        streamUrl, // Track title (use radio stream URL for now)
+                        "", // Track artist
+                        "", // Track composer
+                        radioName, // Album name (use radio name)
+                        "Internet Radio", // Genre
+                        0, // Year
+                        "", // Bit rate
+                        0, // Duration
+                        "", // Duration (as string)
+                        "", // Format
+                        "", // Content Type
+                        "", // File size
+                        false, // Starred
+                        radioHomepageUrl, // Album URL (use radio home page URL)
+                        streamUrl, // Stream URL
+                        streamUrl, // Remote stream URL
+                        null, // Cover art URL
+                        null // Remote cover art URL
+                ));
         }
 
         return entries;
@@ -709,7 +745,8 @@ public class PlayQueueService {
     }
 
     private Player resolvePlayer() throws ServletRequestBindingException {
-        return playerService.getPlayer(ajaxHelper.getHttpServletRequest(), ajaxHelper.getHttpServletResponse());
+        return playerService
+            .getPlayer(ajaxHelper.getHttpServletRequest(), ajaxHelper.getHttpServletResponse());
     }
 
     private String resolveBaseUrl() {

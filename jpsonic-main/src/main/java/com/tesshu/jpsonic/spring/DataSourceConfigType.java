@@ -37,9 +37,11 @@ public enum DataSourceConfigType {
     public static DataSourceConfigType of(String name) {
         if (name == null) {
             return HOST;
-        } else if (HOST.name().compareToIgnoreCase(name) == 0 || LEGACY.name().compareToIgnoreCase(name) == 0) {
+        } else if (HOST.name().compareToIgnoreCase(name) == 0
+                || LEGACY.name().compareToIgnoreCase(name) == 0) {
             return HOST;
-        } else if (URL.name().compareToIgnoreCase(name) == 0 || EMBED.name().compareToIgnoreCase(name) == 0) {
+        } else if (URL.name().compareToIgnoreCase(name) == 0
+                || EMBED.name().compareToIgnoreCase(name) == 0) {
             return URL;
         } else if (JNDI.name().compareToIgnoreCase(name) == 0) {
             return JNDI;

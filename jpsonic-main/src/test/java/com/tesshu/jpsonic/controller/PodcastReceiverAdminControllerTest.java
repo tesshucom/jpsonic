@@ -60,10 +60,12 @@ class PodcastReceiverAdminControllerTest {
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/podcastReceiverAdmin.view"))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_CHANNELS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/podcastReceiverAdmin.view"))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_CHANNELS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -86,15 +88,17 @@ class PodcastReceiverAdminControllerTest {
         @Test
         void testDownload() throws ServletRequestBindingException {
             int episodeId = 99;
-            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null, null, null, null,
-                    null, PodcastStatus.NEW, null);
+            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null,
+                    null, null, null, null, PodcastStatus.NEW, null);
             Mockito.when(podcastService.getEpisode(episodeId, false)).thenReturn(episode);
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
-            Mockito.when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
-                    .thenReturn(Integer.toString(episodeId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
+                .thenReturn(Integer.toString(episodeId));
             int channelId = 1;
-            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
-                    .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                .thenReturn(Integer.toString(channelId));
 
             controller.get(req);
             Mockito.verify(podcastService, Mockito.times(1)).downloadEpisode(episode);
@@ -104,14 +108,16 @@ class PodcastReceiverAdminControllerTest {
         void testDeleteChannel() throws ServletRequestBindingException {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             int channelId = 99;
-            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
-                    .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                .thenReturn(Integer.toString(channelId));
 
             controller.get(req);
             Mockito.verify(podcastService, Mockito.never()).deleteChannel(channelId);
 
-            Mockito.when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
-                    .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
+                .thenReturn(Integer.toString(channelId));
             controller.get(req);
             Mockito.verify(podcastService, Mockito.times(1)).deleteChannel(channelId);
         }
@@ -120,10 +126,12 @@ class PodcastReceiverAdminControllerTest {
         void testDeleteEpisode() throws ServletRequestBindingException {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             int episodeId = 99;
-            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
-                    .thenReturn(Integer.toString(episodeId));
-            Mockito.when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
-                    .thenReturn(Integer.toString(episodeId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                .thenReturn(Integer.toString(episodeId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
+                .thenReturn(Integer.toString(episodeId));
             controller.get(req);
             Mockito.verify(podcastService, Mockito.times(1)).deleteEpisode(episodeId, true);
         }
@@ -132,14 +140,17 @@ class PodcastReceiverAdminControllerTest {
         void testReflesh() throws ServletRequestBindingException {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             int channelId = 99;
-            Mockito.when(req.getParameter(Attributes.Request.REFRESH.value())).thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.REFRESH.value()))
+                .thenReturn(Integer.toString(channelId));
             controller.get(req);
             Mockito.verify(podcastService, Mockito.times(1)).refreshAllChannels(true);
             Mockito.verify(podcastService, Mockito.never()).refreshChannel(channelId, true);
             Mockito.clearInvocations(podcastService);
 
-            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
-                    .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                .thenReturn(Integer.toString(channelId));
             controller.get(req);
             Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(true);
             Mockito.verify(podcastService, Mockito.times(1)).refreshChannel(channelId, true);
@@ -151,19 +162,25 @@ class PodcastReceiverAdminControllerTest {
             String url = "http://boo.foo";
             Mockito.when(req.getParameter(Attributes.Request.ADD.value())).thenReturn(url);
             int episodeId = 99;
-            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null, null, null, null,
-                    null, PodcastStatus.NEW, null);
+            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null,
+                    null, null, null, null, PodcastStatus.NEW, null);
             Mockito.when(podcastService.getEpisode(episodeId, false)).thenReturn(episode);
-            Mockito.when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
-                    .thenReturn(Integer.toString(episodeId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
+                .thenReturn(Integer.toString(episodeId));
             int channelId = 99;
-            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
-                    .thenReturn(Integer.toString(channelId));
-            Mockito.when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
-                    .thenReturn(Integer.toString(channelId));
-            Mockito.when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
-                    .thenReturn(Integer.toString(episodeId));
-            Mockito.when(req.getParameter(Attributes.Request.REFRESH.value())).thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
+                .thenReturn(Integer.toString(channelId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
+                .thenReturn(Integer.toString(episodeId));
+            Mockito
+                .when(req.getParameter(Attributes.Request.REFRESH.value()))
+                .thenReturn(Integer.toString(channelId));
 
             Mockito.when(scannerStateService.isScanning()).thenReturn(true);
             controller.get(req);

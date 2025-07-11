@@ -133,8 +133,8 @@ class PodcastDaoTest {
     @Test
     void testCreateEpisode() {
         int channelId = createChannel();
-        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
-                now(), "12:34", null, null, PodcastStatus.NEW, null);
+        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title",
+                "description", now(), "12:34", null, null, PodcastStatus.NEW, null);
         podcastDao.createEpisode(episode);
 
         PodcastEpisode newEpisode = podcastDao.getEpisodes(channelId).get(0);
@@ -147,8 +147,8 @@ class PodcastDaoTest {
         assertNull(podcastDao.getEpisode(23), "Error in getEpisode()");
 
         int channelId = createChannel();
-        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
-                now(), "12:34", 3_276_213L, 2_341_234L, PodcastStatus.NEW, "error");
+        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title",
+                "description", now(), "12:34", 3_276_213L, 2_341_234L, PodcastStatus.NEW, "error");
         podcastDao.createEpisode(episode);
 
         int episodeId = podcastDao.getEpisodes(channelId).get(0).getId();
@@ -159,14 +159,14 @@ class PodcastDaoTest {
     @Test
     void testGetEpisodes() {
         int channelId = createChannel();
-        PodcastEpisode a = new PodcastEpisode(null, channelId, "a", null, null, null, now().plus(3, ChronoUnit.DAYS),
-                null, null, null, PodcastStatus.NEW, null);
-        PodcastEpisode b = new PodcastEpisode(null, channelId, "b", null, null, null, now().plus(1, ChronoUnit.DAYS),
-                null, null, null, PodcastStatus.NEW, "error");
-        PodcastEpisode c = new PodcastEpisode(null, channelId, "c", null, null, null, now().plus(2, ChronoUnit.DAYS),
-                null, null, null, PodcastStatus.NEW, null);
-        PodcastEpisode d = new PodcastEpisode(null, channelId, "c", null, null, null, null, null, null, null,
-                PodcastStatus.NEW, "");
+        PodcastEpisode a = new PodcastEpisode(null, channelId, "a", null, null, null,
+                now().plus(3, ChronoUnit.DAYS), null, null, null, PodcastStatus.NEW, null);
+        PodcastEpisode b = new PodcastEpisode(null, channelId, "b", null, null, null,
+                now().plus(1, ChronoUnit.DAYS), null, null, null, PodcastStatus.NEW, "error");
+        PodcastEpisode c = new PodcastEpisode(null, channelId, "c", null, null, null,
+                now().plus(2, ChronoUnit.DAYS), null, null, null, PodcastStatus.NEW, null);
+        PodcastEpisode d = new PodcastEpisode(null, channelId, "c", null, null, null, null, null,
+                null, null, PodcastStatus.NEW, "");
         podcastDao.createEpisode(a);
         podcastDao.createEpisode(b);
         podcastDao.createEpisode(c);
@@ -183,8 +183,8 @@ class PodcastDaoTest {
     @Test
     void testUpdateEpisode() {
         int channelId = createChannel();
-        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
-                null, PodcastStatus.NEW, null);
+        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null,
+                null, null, null, null, PodcastStatus.NEW, null);
         podcastDao.createEpisode(episode);
         episode = podcastDao.getEpisodes(channelId).get(0);
 
@@ -211,8 +211,8 @@ class PodcastDaoTest {
 
         assertEquals(0, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
-        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
-                null, PodcastStatus.NEW, null);
+        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null,
+                null, null, null, null, PodcastStatus.NEW, null);
 
         podcastDao.createEpisode(episode);
         assertEquals(1, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
@@ -230,8 +230,8 @@ class PodcastDaoTest {
     @Test
     void testCascadingDelete() {
         int channelId = createChannel();
-        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
-                null, PodcastStatus.NEW, null);
+        PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null,
+                null, null, null, null, PodcastStatus.NEW, null);
         podcastDao.createEpisode(episode);
         podcastDao.createEpisode(episode);
         assertEquals(2, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
@@ -264,7 +264,8 @@ class PodcastDaoTest {
         assertEquals(expected.getPublishDate(), actual.getPublishDate(), "Wrong date.");
         assertEquals(expected.getDuration(), actual.getDuration(), "Wrong duration.");
         assertEquals(expected.getBytesTotal(), actual.getBytesTotal(), "Wrong bytes total.");
-        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(), "Wrong bytes downloaded.");
+        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(),
+                "Wrong bytes downloaded.");
         assertSame(expected.getStatus(), actual.getStatus(), "Wrong status.");
         assertEquals(expected.getErrorMessage(), actual.getErrorMessage(), "Wrong error message.");
     }

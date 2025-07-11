@@ -32,7 +32,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
- * Locale resolver implementation which returns the locale selected in the settings.
+ * Locale resolver implementation which returns the locale selected in the
+ * settings.
  *
  * @author Sindre Mehus
  */
@@ -43,7 +44,8 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     private final SecurityService securityService;
     private final SettingsService settingsService;
 
-    public AirsonicLocaleResolver(SecurityService securityService, SettingsService settingsService) {
+    public AirsonicLocaleResolver(SecurityService securityService,
+            SettingsService settingsService) {
         super();
         this.securityService = securityService;
         this.settingsService = settingsService;
@@ -52,8 +54,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     /**
      * Resolve the current locale via the given request.
      *
-     * @param request
-     *            Request to be used for resolution.
+     * @param request Request to be used for resolution.
      *
      * @return The current locale.
      */
@@ -98,6 +99,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
 
     @Override
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-        throw new UnsupportedOperationException("Cannot change locale - use a different locale resolution strategy");
+        throw new UnsupportedOperationException(
+                "Cannot change locale - use a different locale resolution strategy");
     }
 }

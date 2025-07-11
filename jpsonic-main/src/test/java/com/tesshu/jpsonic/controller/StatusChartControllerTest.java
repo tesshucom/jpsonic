@@ -42,14 +42,18 @@ class StatusChartControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new StatusChartController(mock(StatusService.class), mock(FontLoader.class))).build();
+            .standaloneSetup(
+                    new StatusChartController(mock(StatusService.class), mock(FontLoader.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/statusChart.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/statusChart.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
     }
 }

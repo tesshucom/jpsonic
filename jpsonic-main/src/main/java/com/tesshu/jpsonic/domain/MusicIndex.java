@@ -29,18 +29,19 @@ import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * A music index is a mapping from an index string to a list of prefixes. A complete index consists of a list of
- * <code>MusicIndex</code> instances.
+ * A music index is a mapping from an index string to a list of prefixes. A
+ * complete index consists of a list of <code>MusicIndex</code> instances.
  * <p/>
  * <p/>
- * For a normal alphabetical index, such a mapping would typically be <em>"A" -&gt; ["A"]</em>. The index can also be
- * used to group less frequently used letters, such as <em>"X-&Aring;" -&gt; ["X", "Y", "Z", "&AElig;", "&Oslash;",
- * "&Aring;"]</em>, or to make multiple indexes for frequently used letters, such as <em>"SA" -&gt; ["SA"]</em> and
- * <em>"SO" -&gt; ["SO"]</em>
+ * For a normal alphabetical index, such a mapping would typically be <em>"A"
+ * -&gt; ["A"]</em>. The index can also be used to group less frequently used
+ * letters, such as <em>"X-&Aring;" -&gt; ["X", "Y", "Z", "&AElig;", "&Oslash;",
+ * "&Aring;"]</em>, or to make multiple indexes for frequently used letters,
+ * such as <em>"SA" -&gt; ["SA"]</em> and <em>"SO" -&gt; ["SO"]</em>
  * <p/>
  * <p/>
- * Clicking on an index in the user interface will typically bring up a list of all music files that are categorized
- * under that index.
+ * Clicking on an index in the user interface will typically bring up a list of
+ * all music files that are categorized under that index.
  *
  * @author Sindre Mehus
  */
@@ -55,18 +56,17 @@ public class MusicIndex implements Serializable {
     /**
      * Creates a new index with the given index string.
      *
-     * @param index
-     *            The index string, e.g., "A" or "The".
+     * @param index The index string, e.g., "A" or "The".
      */
     public MusicIndex(@NonNull String index) {
         this.index = index;
     }
 
     /**
-     * Adds a prefix to this index. Music files that starts with this prefix will be categorized under this index entry.
+     * Adds a prefix to this index. Music files that starts with this prefix will be
+     * categorized under this index entry.
      *
-     * @param prefix
-     *            The prefix.
+     * @param prefix The prefix.
      */
     public void addPrefix(String prefix) {
         prefixes.add(prefix);
@@ -93,11 +93,10 @@ public class MusicIndex implements Serializable {
     /**
      * Returns whether this object is equal to another one.
      *
-     * @param o
-     *            Object to compare to.
+     * @param o Object to compare to.
      *
-     * @return <code>true</code> if, and only if, the other object is a <code>MusicIndex</code> with the same index name
-     *         as this one.
+     * @return <code>true</code> if, and only if, the other object is a
+     *         <code>MusicIndex</code> with the same index name as this one.
      */
     @Override
     public boolean equals(Object o) {

@@ -81,14 +81,19 @@ class AlbumId3ByFolderGenreProcTest {
         when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-                .fromUriString(settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", "99").queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class))).thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
+            .fromUriString(
+                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .queryParam("id", "99")
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
+        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
+            .thenReturn(dummyCoverArtbuilder);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+                mock(MediaFileService.class), mock(PlayerService.class),
+                mock(TranscodingService.class));
         searchService = mock(SearchService.class);
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
-        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService, albumDao, deligate);
+        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService,
+                albumDao, deligate);
     }
 
     @Test
@@ -100,13 +105,15 @@ class AlbumId3ByFolderGenreProcTest {
     void testCreateContainer() {
         UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
-        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService, albumDao, deligate);
+        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService,
+                albumDao, deligate);
 
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrGenre = new FolderOrFGenre(folder);
         proc.createContainer(folderOrGenre);
         verify(factory, never()).toGenre(any(ProcId.class), any(FolderGenre.class), anyInt());
-        verify(factory, times(1)).toMusicFolder(any(ProcId.class), any(MusicFolder.class), anyInt());
+        verify(factory, times(1))
+            .toMusicFolder(any(ProcId.class), any(MusicFolder.class), anyInt());
         clearInvocations(factory);
 
         folderOrGenre = new FolderOrFGenre(new FolderGenre(folder, new Genre("genre", 0, 0)));
@@ -120,13 +127,15 @@ class AlbumId3ByFolderGenreProcTest {
         MusicFolder folder0 = new MusicFolder(0, null, null, false, null, null, false);
         when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0));
         proc.getDirectChildren(0, Integer.MAX_VALUE);
-        verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, times(1))
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(searchService);
 
         MusicFolder folder1 = new MusicFolder(0, null, null, false, null, null, false);
         when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0, folder1));
         proc.getDirectChildren(0, Integer.MAX_VALUE);
-        verify(searchService, never()).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, never())
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
     }
 
     @Test
@@ -149,14 +158,16 @@ class AlbumId3ByFolderGenreProcTest {
         when(util.getGuestFolders()).thenReturn(Arrays.asList(folder));
         Genre genre = new Genre("genre", 0, 0);
         when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
-                .thenReturn(Arrays.asList(genre));
+            .thenReturn(Arrays.asList(genre));
         FolderGenre folderGenre = new FolderGenre(folder, genre);
         proc.getDirectChild(folderGenre.createCompositeId());
-        verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, times(1))
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(searchService);
 
         proc.getDirectChild(Integer.toString(folder.getId()));
-        verify(searchService, never()).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, never())
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
     }
 
     @Test
@@ -164,15 +175,17 @@ class AlbumId3ByFolderGenreProcTest {
         MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
         FolderOrFGenre folderOrFGenre = new FolderOrFGenre(folder);
         proc.getChildren(folderOrFGenre, 0, Integer.MAX_VALUE);
-        verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, times(1))
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(searchService);
 
         Genre genre = new Genre("genre", 0, 0);
         FolderGenre folderGenre = new FolderGenre(folder, genre);
         folderOrFGenre = new FolderOrFGenre(folderGenre);
         proc.getChildren(folderOrFGenre, 0, Integer.MAX_VALUE);
-        verify(searchService, times(1)).getAlbumId3sByGenres(anyString(), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(searchService, times(1))
+            .getAlbumId3sByGenres(anyString(), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
@@ -222,28 +235,32 @@ class AlbumId3ByFolderGenreProcTest {
         when(util.getGuestFolders()).thenReturn(Arrays.asList(folder));
         Genre genre = new Genre("genre", 0, 0);
         when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
-                .thenReturn(Arrays.asList(genre));
+            .thenReturn(Arrays.asList(genre));
         Album album = new Album();
         album.setId(0);
         when(albumDao.getAlbum(anyInt())).thenReturn(album);
         FolderGenreAlbum fgAlbum = new FolderGenreAlbum(folder, genre, album);
         proc.browseLeaf(fgAlbum.createCompositeId(), null, 0, Integer.MAX_VALUE);
         verify(albumDao, times(1)).getAlbum(anyInt());
-        verify(searchService, times(1)).getChildrenOf(anyString(), any(Album.class), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList(), any(MediaType[].class));
-        verify(searchService, times(1)).getChildSizeOf(anyString(), any(Album.class),
-                ArgumentMatchers.<MusicFolder> anyList(), any(MediaType[].class));
+        verify(searchService, times(1))
+            .getChildrenOf(anyString(), any(Album.class), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList(), any(MediaType[].class));
+        verify(searchService, times(1))
+            .getChildSizeOf(anyString(), any(Album.class), ArgumentMatchers.<MusicFolder>anyList(),
+                    any(MediaType[].class));
         clearInvocations(albumDao, searchService);
 
         // Browse Genre
         FolderGenre folderGenre = new FolderGenre(folder, genre);
         proc.browseLeaf(folderGenre.createCompositeId(), null, 0, Integer.MAX_VALUE);
-        verify(searchService, times(1)).getAlbumId3sByGenres(anyString(), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(searchService, times(1))
+            .getAlbumId3sByGenres(anyString(), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
         clearInvocations(searchService);
 
         // Browse Folder
         proc.browseLeaf(Integer.toString(folder.getId()), null, 0, Integer.MAX_VALUE);
-        verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+        verify(searchService, times(1))
+            .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
     }
 }

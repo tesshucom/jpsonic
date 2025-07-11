@@ -70,8 +70,8 @@ public class MainController {
     private final ViewAsListSelector viewSelector;
 
     public MainController(SettingsService settingsService, SecurityService securityService,
-            JpsonicComparators jpsonicComparator, RatingService ratingService, MediaFileService mediaFileService,
-            ViewAsListSelector viewSelector) {
+            JpsonicComparators jpsonicComparator, RatingService ratingService,
+            MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -129,7 +129,10 @@ public class MainController {
         map.put("files", children.stream().filter(MediaFile::isFile).collect(Collectors.toList()));
 
         // subDirs
-        final List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());
+        final List<MediaFile> subDirs = children
+            .stream()
+            .filter(f -> !f.isFile())
+            .collect(Collectors.toList());
         map.put("subDirs", subDirs);
 
         final UserSettings userSettings = securityService.getUserSettings(username);
@@ -139,14 +142,17 @@ public class MainController {
         if (dir.isAlbum()) {
             if (userSettings.isShowSibling()) {
                 List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
-                thereIsMoreSiblingAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
+                thereIsMoreSiblingAlbums = trimToSize(isShowAll, siblingAlbums,
+                        userPaginationPreference);
                 map.put("siblingAlbums", siblingAlbums);
             }
             map.put("artist", guessArtist(children));
             map.put("album", guessAlbum(children));
             map.put("musicBrainzReleaseId", guessMusicBrainzReleaseId(children));
         }
-        map.put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs, userPaginationPreference));
+        map
+            .put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs,
+                    userPaginationPreference));
 
         // others
         map.put("user", securityService.getCurrentUserStrict(request));
@@ -182,12 +188,14 @@ public class MainController {
 
     private void putLastPlayed(Map<String, Object> map, MediaFile dir) {
         if (dir.getLastPlayed() != null) {
-            map.put("lastPlayed", ZonedDateTime.ofInstant(dir.getLastPlayed(), ZoneId.systemDefault()));
+            map
+                .put("lastPlayed",
+                        ZonedDateTime.ofInstant(dir.getLastPlayed(), ZoneId.systemDefault()));
         }
     }
 
-    private boolean getThereIsMore(boolean thereIsMoreSiblingAlbums, boolean isShowAll, List<MediaFile> subDirs,
-            int userPaginationPreference) {
+    private boolean getThereIsMore(boolean thereIsMoreSiblingAlbums, boolean isShowAll,
+            List<MediaFile> subDirs, int userPaginationPreference) {
         boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         return (thereIsMoreSubDirs || thereIsMoreSiblingAlbums) && !isShowAll;
     }
@@ -244,13 +252,15 @@ public class MainController {
 
     private List<MediaFile> getMediaFiles(HttpServletRequest request) {
         List<MediaFile> mediaFiles = new ArrayList<>();
-        for (String path : ServletRequestUtils.getStringParameters(request, Attributes.Request.PATH.value())) {
+        for (String path : ServletRequestUtils
+            .getStringParameters(request, Attributes.Request.PATH.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
             }
         }
-        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value())) {
+        for (int id : ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(id);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
@@ -322,7 +332,10 @@ public class MainController {
         MediaFile parent = mediaFileService.getParentOf(dir);
         if (!mediaFileService.isRoot(parent)) {
             List<MediaFile> siblings = mediaFileService.getChildrenOf(parent, false, true);
-            result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir))
+            result
+                .addAll(siblings
+                    .stream()
+                    .filter(sibling -> sibling.isAlbum() && !sibling.equals(dir))
                     .collect(Collectors.toList()));
         }
         return result;

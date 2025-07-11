@@ -80,8 +80,9 @@ public class HomeController {
     private final MusicIndexService musicIndexService;
 
     public HomeController(SettingsService settingsService, SecurityService securityService,
-            MusicFolderService musicFolderService, ScannerStateService scannerStateService, RatingService ratingService,
-            MediaFileService mediaFileService, SearchService searchService, MusicIndexService musicIndexService) {
+            MusicFolderService musicFolderService, ScannerStateService scannerStateService,
+            RatingService ratingService, MediaFileService mediaFileService,
+            SearchService searchService, MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -94,7 +95,8 @@ public class HomeController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request)
+            throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUserStrict(request);
         if (user.isAdminRole() && settingsService.isGettingStartedEnabled()) {
@@ -102,67 +104,71 @@ public class HomeController {
         }
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
         AlbumListType listType = AlbumListType
-                .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
+            .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
         }
 
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(user.getUsername());
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername(),
-                selectedMusicFolder == null ? null : selectedMusicFolder.getId());
+        MusicFolder selectedMusicFolder = securityService
+            .getSelectedMusicFolder(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(user.getUsername(),
+                    selectedMusicFolder == null ? null : selectedMusicFolder.getId());
 
         Map<String, Object> map = LegacyMap.of();
         List<Album> albums = Collections.emptyList();
         switch (listType) {
-            case HIGHEST:
-                albums = getHighestRated(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case FREQUENT:
-                albums = getMostFrequent(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case RECENT:
-                albums = getMostRecent(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case NEWEST:
-                albums = getNewest(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case STARRED:
-                albums = getStarred(listOffset, LIST_SIZE, user.getUsername(), musicFolders);
-                break;
-            case RANDOM:
-                albums = getRandom(LIST_SIZE, musicFolders);
-                break;
-            case ALPHABETICAL:
-                albums = getAlphabetical(listOffset, LIST_SIZE, true, musicFolders);
-                break;
-            case DECADE:
-                List<Integer> decades = createDecades();
-                map.put("decades", decades);
-                int decade = getIntParameter(request, Attributes.Request.DECADE.value(), decades.get(0));
-                map.put("decade", decade);
-                albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
-                break;
-            case GENRE:
-                List<Genre> genres = searchService.getGenres(true);
-                map.put("genres", genres);
-                if (!genres.isEmpty()) {
-                    String genre = getStringParameter(request, Attributes.Request.GENRE.value(),
-                            genres.get(0).getName());
-                    map.put("genre", genre);
-                    albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
-                }
-                break;
-            case INDEX:
-                MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders);
-                map.put("indexedArtists", musicFolderContent.getIndexedArtists());
-                map.put("singleSongs", musicFolderContent.getSingleSongs());
-                map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
-                map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
-                map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
-                break;
-            default:
-                break;
+        case HIGHEST:
+            albums = getHighestRated(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case FREQUENT:
+            albums = getMostFrequent(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case RECENT:
+            albums = getMostRecent(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case NEWEST:
+            albums = getNewest(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case STARRED:
+            albums = getStarred(listOffset, LIST_SIZE, user.getUsername(), musicFolders);
+            break;
+        case RANDOM:
+            albums = getRandom(LIST_SIZE, musicFolders);
+            break;
+        case ALPHABETICAL:
+            albums = getAlphabetical(listOffset, LIST_SIZE, true, musicFolders);
+            break;
+        case DECADE:
+            List<Integer> decades = createDecades();
+            map.put("decades", decades);
+            int decade = getIntParameter(request, Attributes.Request.DECADE.value(),
+                    decades.get(0));
+            map.put("decade", decade);
+            albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
+            break;
+        case GENRE:
+            List<Genre> genres = searchService.getGenres(true);
+            map.put("genres", genres);
+            if (!genres.isEmpty()) {
+                String genre = getStringParameter(request, Attributes.Request.GENRE.value(),
+                        genres.get(0).getName());
+                map.put("genre", genre);
+                albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
+            }
+            break;
+        case INDEX:
+            MusicFolderContent musicFolderContent = musicIndexService
+                .getMusicFolderContent(musicFolders);
+            map.put("indexedArtists", musicFolderContent.getIndexedArtists());
+            map.put("singleSongs", musicFolderContent.getSingleSongs());
+            map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
+            map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
+            map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
+            break;
+        default:
+            break;
         }
 
         map.put("user", user);
@@ -187,7 +193,8 @@ public class HomeController {
 
     private List<Album> getHighestRated(int offset, int count, List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile mediaFile : ratingService.getHighestRatedAlbums(offset, count, musicFolders)) {
+        for (MediaFile mediaFile : ratingService
+            .getHighestRatedAlbums(offset, count, musicFolders)) {
             Album album = createAlbum(mediaFile);
             album.setRating((int) Math.round(ratingService.getAverageRating(mediaFile) * 10.0D));
             result.add(album);
@@ -197,7 +204,8 @@ public class HomeController {
 
     private List<Album> getMostFrequent(int offset, int count, List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile mediaFile : mediaFileService.getMostFrequentlyPlayedAlbums(offset, count, musicFolders)) {
+        for (MediaFile mediaFile : mediaFileService
+            .getMostFrequentlyPlayedAlbums(offset, count, musicFolders)) {
             Album album = createAlbum(mediaFile);
             album.setPlayCount(mediaFile.getPlayCount());
             result.add(album);
@@ -207,10 +215,13 @@ public class HomeController {
 
     private List<Album> getMostRecent(int offset, int count, List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile mediaFile : mediaFileService.getMostRecentlyPlayedAlbums(offset, count, musicFolders)) {
+        for (MediaFile mediaFile : mediaFileService
+            .getMostRecentlyPlayedAlbums(offset, count, musicFolders)) {
             Album album = createAlbum(mediaFile);
             if (mediaFile.getLastPlayed() != null) {
-                album.setLastPlayed(ZonedDateTime.ofInstant(mediaFile.getLastPlayed(), ZoneId.systemDefault()));
+                album
+                    .setLastPlayed(ZonedDateTime
+                        .ofInstant(mediaFile.getLastPlayed(), ZoneId.systemDefault()));
             }
             result.add(album);
         }
@@ -227,9 +238,11 @@ public class HomeController {
         return result;
     }
 
-    private List<Album> getStarred(int offset, int count, String username, List<MusicFolder> musicFolders) {
+    private List<Album> getStarred(int offset, int count, String username,
+            List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : mediaFileService.getStarredAlbums(offset, count, username, musicFolders)) {
+        for (MediaFile file : mediaFileService
+            .getStarredAlbums(offset, count, username, musicFolders)) {
             result.add(createAlbum(file));
         }
         return result;
@@ -243,17 +256,21 @@ public class HomeController {
         return result;
     }
 
-    private List<Album> getAlphabetical(int offset, int count, boolean byArtist, List<MusicFolder> musicFolders) {
+    private List<Album> getAlphabetical(int offset, int count, boolean byArtist,
+            List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : mediaFileService.getAlphabeticalAlbums(offset, count, byArtist, musicFolders)) {
+        for (MediaFile file : mediaFileService
+            .getAlphabeticalAlbums(offset, count, byArtist, musicFolders)) {
             result.add(createAlbum(file));
         }
         return result;
     }
 
-    private List<Album> getByYear(int offset, int count, int fromYear, int toYear, List<MusicFolder> musicFolders) {
+    private List<Album> getByYear(int offset, int count, int fromYear, int toYear,
+            List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : mediaFileService.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders)) {
+        for (MediaFile file : mediaFileService
+            .getAlbumsByYear(offset, count, fromYear, toYear, musicFolders)) {
             Album album = createAlbum(file);
             album.setYear(file.getYear());
             result.add(album);
@@ -270,7 +287,8 @@ public class HomeController {
         return result;
     }
 
-    private List<Album> getByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
+    private List<Album> getByGenre(int offset, int count, String genre,
+            List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
         for (MediaFile file : searchService.getAlbumsByGenres(genre, offset, count, musicFolders)) {
             result.add(createAlbum(file));

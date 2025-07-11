@@ -35,7 +35,8 @@ public class RecentAlbumByFolderProc extends MediaFileByFolderProc implements Co
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
 
-    public RecentAlbumByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public RecentAlbumByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.mediaFileService = mediaFileService;
@@ -52,8 +53,12 @@ public class RecentAlbumByFolderProc extends MediaFileByFolderProc implements Co
             return super.getChildren(mediaFile, (int) firstResult, (int) maxResults);
         }
         int offset = (int) firstResult;
-        MusicFolder folder = util.getGuestFolders().stream()
-                .filter(f -> f.getPathString().equals(mediaFile.getPathString())).findFirst().orElseGet(null);
+        MusicFolder folder = util
+            .getGuestFolders()
+            .stream()
+            .filter(f -> f.getPathString().equals(mediaFile.getPathString()))
+            .findFirst()
+            .orElseGet(null);
         int albumCount = (int) mediaFileService.getAlbumCount(List.of(folder));
         int count = toCount(firstResult, maxResults, Math.min(albumCount, RECENT_COUNT));
         if (count == 0) {

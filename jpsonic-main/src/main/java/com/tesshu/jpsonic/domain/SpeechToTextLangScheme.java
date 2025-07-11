@@ -20,7 +20,8 @@
 package com.tesshu.jpsonic.domain;
 
 /**
- * Enumeration of language methods of speech recognition engine used on web pages.
+ * Enumeration of language methods of speech recognition engine used on web
+ * pages.
  */
 public enum SpeechToTextLangScheme {
 
@@ -30,13 +31,14 @@ public enum SpeechToTextLangScheme {
     DEFAULT,
 
     /*
-     * Unspecified explicitly. (For the browser's Javascript speech recognition engine, unspecified means the browser
-     * agent's language.)
+     * Unspecified explicitly. (For the browser's Javascript speech recognition
+     * engine, unspecified means the browser agent's language.)
      */
     // UNSPECIFIED,
 
     /**
-     * Explicit specification by code. https://cloud.google.com/speech-to-text/docs/languages
+     * Explicit specification by code.
+     * https://cloud.google.com/speech-to-text/docs/languages
      */
     BCP47;
 

@@ -68,8 +68,9 @@ public class MusicFolderSettingsController {
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderServiceImpl musicFolderService,
-            SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService,
+    public MusicFolderSettingsController(SettingsService settingsService,
+            MusicFolderServiceImpl musicFolderService, SecurityService securityService,
+            MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
@@ -86,7 +87,8 @@ public class MusicFolderSettingsController {
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_CANCEL, required = false) String scanCancel,
             @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
             @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Integer id,
-            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast,
+            Model model) {
         if (!ObjectUtils.isEmpty(scanNow)) {
             musicFolderService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
@@ -105,8 +107,12 @@ public class MusicFolderSettingsController {
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
         // Specify folder
-        command.setMusicFolders(musicFolderService.getAllMusicFolders(true, true).stream()
-                .map(MusicFolderSettingsCommand.MusicFolderInfo::new).toList());
+        command
+            .setMusicFolders(musicFolderService
+                .getAllMusicFolders(true, true)
+                .stream()
+                .map(MusicFolderSettingsCommand.MusicFolderInfo::new)
+                .toList());
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
 
         // Run a scan
@@ -125,7 +131,8 @@ public class MusicFolderSettingsController {
         command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUserStrict(request);
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
@@ -140,10 +147,12 @@ public class MusicFolderSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
+    protected ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        final ModelAndView result = new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+        final ModelAndView result = new ModelAndView(
+                new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
         if (mediaScannerService.isScanning()) {
             return result;
         }
@@ -151,17 +160,21 @@ public class MusicFolderSettingsController {
         Instant executed = now();
 
         // Specify folder
-        for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
+        for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command
+            .getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {
                 musicFolderService.deleteMusicFolder(executed, musicFolderInfo.getId());
             } else {
                 toMusicFolder(musicFolderInfo)
-                        .ifPresent(folder -> musicFolderService.updateMusicFolder(executed, folder));
+                    .ifPresent(folder -> musicFolderService.updateMusicFolder(executed, folder));
             }
         }
         toMusicFolder(command.getNewMusicFolder()).ifPresent(newFolder -> {
-            if (musicFolderService.getAllMusicFolders(false, true).stream()
-                    .noneMatch(oldFolder -> oldFolder.getPathString().equals(newFolder.getPathString()))) {
+            if (musicFolderService
+                .getAllMusicFolders(false, true)
+                .stream()
+                .noneMatch(
+                        oldFolder -> oldFolder.getPathString().equals(newFolder.getPathString()))) {
                 musicFolderService.createMusicFolder(executed, newFolder);
             }
         });
@@ -185,14 +198,18 @@ public class MusicFolderSettingsController {
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
-        Optional<String> validated = PathValidator.validateFolderPath(StringUtils.trimToNull(info.getPath()));
+        Optional<String> validated = PathValidator
+            .validateFolderPath(StringUtils.trimToNull(info.getPath()));
         if (validated.isEmpty()) {
             return Optional.empty();
         }
 
         Path newPath = Path.of(validated.get());
-        if (musicFolderService.getAllMusicFolders(true, true).stream().anyMatch(old -> !old.toPath().equals(newPath)
-                && (old.toPath().startsWith(newPath) || newPath.startsWith(old.toPath())))) {
+        if (musicFolderService
+            .getAllMusicFolders(true, true)
+            .stream()
+            .anyMatch(old -> !old.toPath().equals(newPath)
+                    && (old.toPath().startsWith(newPath) || newPath.startsWith(old.toPath())))) {
             return Optional.empty();
         }
 
@@ -200,7 +217,8 @@ public class MusicFolderSettingsController {
         if (name == null) {
             name = newPath.getFileName().toString();
         }
-        return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now(),
-                info.getFolderOrder(), false));
+        return Optional
+            .of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now(),
+                    info.getFolderOrder(), false));
     }
 }

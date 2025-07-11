@@ -72,11 +72,16 @@ public class JWTSecurityService {
     static String createToken(String jwtKey, String path, Instant expireDate) {
         UriComponents components = UriComponentsBuilder.fromUriString(path).build();
         String query = components.getQuery();
-        String claim = components.getPath() + (StringUtils.isBlank(query) ? "" : "?" + components.getQuery());
+        String claim = components.getPath()
+                + (StringUtils.isBlank(query) ? "" : "?" + components.getQuery());
         if (LOG.isDebugEnabled()) {
             LOG.debug("Creating token with claim " + claim);
         }
-        return JWT.create().withClaim(CLAIM_PATH, claim).withExpiresAt(expireDate).sign(getAlgorithm(jwtKey));
+        return JWT
+            .create()
+            .withClaim(CLAIM_PATH, claim)
+            .withExpiresAt(expireDate)
+            .sign(getAlgorithm(jwtKey));
     }
 
     public String addJWTToken(String uri) {
@@ -97,11 +102,14 @@ public class JWTSecurityService {
         Algorithm algorithm = getAlgorithm(jwtKey);
         JWTVerifier verifier = JWT.require(algorithm).withClaimPresence(CLAIM_PATH).build();
         try {
-            DecodedJWT decoded = verifier.verify(
-                    token.split("\\.").length == WITH_FILE_EXTENSION ? FilenameUtils.removeExtension(token) : token);
+            DecodedJWT decoded = verifier
+                .verify(token.split("\\.").length == WITH_FILE_EXTENSION
+                        ? FilenameUtils.removeExtension(token)
+                        : token);
             return verifier.verify(decoded);
         } catch (TokenExpiredException e) {
-            throw new com.tesshu.jpsonic.security.TokenExpiredException("The token has expired.", e);
+            throw new com.tesshu.jpsonic.security.TokenExpiredException("The token has expired.",
+                    e);
         } catch (SignatureVerificationException e) {
             throw new com.tesshu.jpsonic.security.SignatureVerificationException(
                     "The token's signature resulted invalid.", e);

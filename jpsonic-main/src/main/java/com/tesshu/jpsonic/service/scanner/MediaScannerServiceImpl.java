@@ -41,7 +41,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
- * Class where the main flow of scanning is handled. Thread control for scanning is done only in this class.
+ * Class where the main flow of scanning is handled. Thread control for scanning
+ * is done only in this class.
  */
 @Service("mediaScannerService")
 @DependsOn("scanExecutor")
@@ -58,8 +59,9 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private final ReentrantLock cancelLock = new ReentrantLock();
 
-    public MediaScannerServiceImpl(SettingsService settingsService, ScannerStateServiceImpl scannerState,
-            ScannerProcedureService procedure, ExpungeService expungeService, StaticsDao staticsDao,
+    public MediaScannerServiceImpl(SettingsService settingsService,
+            ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
+            ExpungeService expungeService, StaticsDao staticsDao,
             @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
@@ -121,9 +123,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     boolean isOptionalProcessSkippable() {
         MutableBoolean skippable = new MutableBoolean(!settingsService.isIgnoreFileTimestamps());
         if (skippable.isTrue()) {
-            getLastScanEventType(false).ifPresentOrElse(
-                    type -> skippable.setValue(ScanEventType.SUCCESS.compareTo(type) == 0),
-                    () -> skippable.setValue(false));
+            getLastScanEventType(false)
+                .ifPresentOrElse(
+                        type -> skippable.setValue(ScanEventType.SUCCESS.compareTo(type) == 0),
+                        () -> skippable.setValue(false));
         }
         if (skippable.isTrue()) {
             skippable.setValue(!staticsDao.isfolderChangedSinceLastScan());
@@ -181,7 +184,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
         procedure.updateOrderOfArtistId3(scanDate, skippable && !refleshedArtistId3);
 
-        procedure.updateAlbumCounts(scanDate, skippable && !refleshedAlbumId3 && !refleshedArtistId3);
+        procedure
+            .updateAlbumCounts(scanDate, skippable && !refleshedAlbumId3 && !refleshedArtistId3);
 
         procedure.updateGenreMaster(scanDate);
 

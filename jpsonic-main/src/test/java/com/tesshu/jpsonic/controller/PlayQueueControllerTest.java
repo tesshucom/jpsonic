@@ -46,15 +46,19 @@ class PlayQueueControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new PlayQueueController(mock(SettingsService.class),
-                mock(SecurityService.class), mock(PlayerService.class))).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new PlayQueueController(mock(SettingsService.class),
+                    mock(SecurityService.class), mock(PlayerService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequestInternal() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PLAY_QUEUE.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.PLAY_QUEUE.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playQueue", modelAndView.getViewName());

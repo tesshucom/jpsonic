@@ -59,8 +59,13 @@ public class FolderOrAlbumLogic {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
-            return albumDao.getAlphabeticalAlbums((int) offset, (int) count, false, true, List.of(folders.get(0)))
-                    .stream().map(album -> new FolderAlbum(folder, album)).map(FolderOrFAlbum::new).toList();
+            return albumDao
+                .getAlphabeticalAlbums((int) offset, (int) count, false, true,
+                        List.of(folders.get(0)))
+                .stream()
+                .map(album -> new FolderAlbum(folder, album))
+                .map(FolderOrFAlbum::new)
+                .toList();
         }
         return folders.stream().skip(offset).limit(count).map(FolderOrFAlbum::new).toList();
     }
@@ -74,8 +79,12 @@ public class FolderOrAlbumLogic {
     }
 
     private @Nullable MusicFolder getFolder(int folderId) {
-        return util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId).findFirst()
-                .orElseGet(null);
+        return util
+            .getGuestFolders()
+            .stream()
+            .filter(musicFolder -> musicFolder.getId() == folderId)
+            .findFirst()
+            .orElseGet(null);
     }
 
     public FolderOrFAlbum getDirectChild(String id) {

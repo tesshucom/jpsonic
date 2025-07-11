@@ -54,13 +54,15 @@ public final class ComplementaryFilter extends TokenFilter {
 
     private Reader getReafer(Class<?> clazz) {
         if (stopwards != null) {
-            return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
+            return IOUtils
+                .getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
         }
         return null;
     }
 
     public enum Mode {
-        STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");
+        STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"),
+        HIRA_KATA_ONLY("hko");
 
         private final String v;
 
@@ -78,7 +80,8 @@ public final class ComplementaryFilter extends TokenFilter {
 
     }
 
-    public ComplementaryFilter(@NonNull TokenStream in, @NonNull Mode mode, @Nullable String stopwards) {
+    public ComplementaryFilter(@NonNull TokenStream in, @NonNull Mode mode,
+            @Nullable String stopwards) {
         super(in);
         this.mode = mode;
         this.stopwards = stopwards;
@@ -94,14 +97,18 @@ public final class ComplementaryFilter extends TokenFilter {
             readerLock.lock();
             try {
                 try (Reader reader = getReafer(getClass())) {
-                    CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
+                    CharArraySet stops = WordlistLoader
+                        .getWordSet(reader, "#", new CharArraySet(16, true));
                     StringBuilder sb = new StringBuilder();
                     stops.forEach(s -> {
                         sb.append((char[]) s).append('|');
                     });
-                    onlyStopWords = Pattern.compile("^(" + sb.toString().replaceAll("^\\||\\|$", "") + ")*$");
+                    onlyStopWords = Pattern
+                        .compile("^(" + sb.toString().replaceAll("^\\||\\|$", "") + ")*$");
                 } catch (IOException e) {
-                    LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
+                    LoggerFactory
+                        .getLogger(ComplementaryFilter.class)
+                        .error("Initialization error.", e);
                 }
                 STOPWORD_LOADED.set(true);
             } finally {
@@ -126,7 +133,8 @@ public final class ComplementaryFilter extends TokenFilter {
     private boolean isHiraKataOnly(String str) {
         return !isEmpty(str) && Stream.of(str.split(EMPTY)).allMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b);
+            return Character.UnicodeBlock.HIRAGANA.equals(b)
+                    || Character.UnicodeBlock.KATAKANA.equals(b);
         });
     }
 

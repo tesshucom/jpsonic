@@ -34,7 +34,8 @@ public class RecentAlbumProc extends MediaFileByFolderProc implements CountLimit
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
 
-    public RecentAlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public RecentAlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.mediaFileService = mediaFileService;

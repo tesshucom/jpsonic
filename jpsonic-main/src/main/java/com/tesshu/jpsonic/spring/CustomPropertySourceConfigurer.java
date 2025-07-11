@@ -44,7 +44,8 @@ public class CustomPropertySourceConfigurer
         ImmutableConfiguration snapshot = configurationService.getImmutableSnapshot();
 
         @SuppressWarnings("rawtypes")
-        PropertySource ps = new CommonsConfigurationPropertySource("jpsonic-pre-init-configs", snapshot);
+        PropertySource ps = new CommonsConfigurationPropertySource("jpsonic-pre-init-configs",
+                snapshot);
 
         ctx.getEnvironment().getPropertySources().addLast(ps);
 
@@ -55,8 +56,9 @@ public class CustomPropertySourceConfigurer
         String rawType = ctx.getEnvironment().getProperty(DATASOURCE_CONFIG_TYPE);
         DataSourceConfigType dataSourceConfigType = DataSourceConfigType.of(rawType);
         String dataSourceTypeProfile = StringUtils.lowerCase(dataSourceConfigType.name());
-        List<String> existingProfiles = Stream.of(ctx.getEnvironment().getActiveProfiles())
-                .collect(Collectors.toList());
+        List<String> existingProfiles = Stream
+            .of(ctx.getEnvironment().getActiveProfiles())
+            .collect(Collectors.toList());
         existingProfiles.add(dataSourceTypeProfile);
         ctx.getEnvironment().setActiveProfiles(existingProfiles.toArray(new String[0]));
     }

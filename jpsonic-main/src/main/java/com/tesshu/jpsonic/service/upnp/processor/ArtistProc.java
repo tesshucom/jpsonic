@@ -41,7 +41,8 @@ public class ArtistProc extends DirectChildrenContentProc<Artist, Album> {
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
 
-    public ArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao, AlbumDao albumDao) {
+    public ArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
+            AlbumDao albumDao) {
         super();
         this.util = util;
         this.factory = factory;
@@ -76,8 +77,9 @@ public class ArtistProc extends DirectChildrenContentProc<Artist, Album> {
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long count) {
-        return albumDao.getAlbumsForArtist(offset, count, artist.getName(), util.isSortAlbumsByYear(artist.getName()),
-                util.getGuestFolders());
+        return albumDao
+            .getAlbumsForArtist(offset, count, artist.getName(),
+                    util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders());
     }
 
     @Override

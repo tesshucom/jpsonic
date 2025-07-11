@@ -46,18 +46,25 @@ class IndexTypeTest {
         assertEquals(7, IndexType.SONG.getBoosts().size());
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.COMPOSER_READING_ROMANIZED),
                 IndexType.SONG.getBoosts().get(FieldNamesConstants.COMPOSER_READING));
-        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.COMPOSER_READING) < IndexType.SONG.getBoosts()
+        assertTrue(IndexType.SONG
+            .getBoosts()
+            .get(FieldNamesConstants.COMPOSER_READING) < IndexType.SONG
+                .getBoosts()
                 .get(FieldNamesConstants.ARTIST));
-        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST) < IndexType.SONG.getBoosts()
-                .get(FieldNamesConstants.ARTIST_READING));
+        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST) < IndexType.SONG
+            .getBoosts()
+            .get(FieldNamesConstants.ARTIST_READING));
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING),
                 IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
                 IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING));
-        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING) < IndexType.SONG.getBoosts()
-                .get(FieldNamesConstants.TITLE));
-        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.TITLE) < IndexType.SONG.getBoosts()
-                .get(FieldNamesConstants.TITLE_READING));
+        assertTrue(
+                IndexType.SONG.getBoosts().get(FieldNamesConstants.ARTIST_READING) < IndexType.SONG
+                    .getBoosts()
+                    .get(FieldNamesConstants.TITLE));
+        assertTrue(IndexType.SONG.getBoosts().get(FieldNamesConstants.TITLE) < IndexType.SONG
+            .getBoosts()
+            .get(FieldNamesConstants.TITLE_READING));
     }
 
     @Test
@@ -68,10 +75,14 @@ class IndexTypeTest {
                 IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
         assertEquals(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
                 IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ARTIST_READING));
-        assertTrue(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ARTIST_READING) < IndexType.ALBUM.getBoosts()
+        assertTrue(IndexType.ALBUM
+            .getBoosts()
+            .get(FieldNamesConstants.ARTIST_READING) < IndexType.ALBUM
+                .getBoosts()
                 .get(FieldNamesConstants.ALBUM));
-        assertTrue(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ALBUM) < IndexType.ALBUM.getBoosts()
-                .get(FieldNamesConstants.ALBUM_READING));
+        assertTrue(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ALBUM) < IndexType.ALBUM
+            .getBoosts()
+            .get(FieldNamesConstants.ALBUM_READING));
     }
 
     @Test
@@ -80,12 +91,18 @@ class IndexTypeTest {
         assertEquals(4, IndexType.ALBUM_ID3.getBoosts().size());
         assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING),
                 IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
-        assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
+        assertEquals(
+                IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
                 IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING));
-        assertTrue(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING) < IndexType.ALBUM_ID3
-                .getBoosts().get(FieldNamesConstants.ALBUM));
-        assertTrue(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ALBUM) < IndexType.ALBUM_ID3.getBoosts()
-                .get(FieldNamesConstants.ALBUM_READING));
+        assertTrue(IndexType.ALBUM_ID3
+            .getBoosts()
+            .get(FieldNamesConstants.ARTIST_READING) < IndexType.ALBUM_ID3
+                .getBoosts()
+                .get(FieldNamesConstants.ALBUM));
+        assertTrue(
+                IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ALBUM) < IndexType.ALBUM_ID3
+                    .getBoosts()
+                    .get(FieldNamesConstants.ALBUM_READING));
     }
 
     @Test
@@ -100,7 +117,8 @@ class IndexTypeTest {
     @Order(6)
     void testArtistId3Boosts() {
         assertEquals(2, IndexType.ARTIST_ID3.getBoosts().size());
-        assertEquals(IndexType.ARTIST_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
+        assertEquals(
+                IndexType.ARTIST_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED),
                 IndexType.ARTIST_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING));
     }
 

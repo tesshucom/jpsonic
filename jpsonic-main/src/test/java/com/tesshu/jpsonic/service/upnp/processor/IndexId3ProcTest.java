@@ -41,7 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 class IndexId3ProcTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1, false));
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1,
+                false));
 
     @Autowired
     private ArtistDao artistDao;
@@ -218,7 +219,10 @@ class IndexId3ProcTest extends AbstractNeedsScan {
         assertEquals(0, content.getContainers().size());
 
         MusicIndex index = proc.getDirectChild("A");
-        proc.getChildren(index, 0, Integer.MAX_VALUE).stream().forEach(artist -> proc.addChild(content, artist));
+        proc
+            .getChildren(index, 0, Integer.MAX_VALUE)
+            .stream()
+            .forEach(artist -> proc.addChild(content, artist));
         assertEquals(3, content.getContainers().size());
     }
 }

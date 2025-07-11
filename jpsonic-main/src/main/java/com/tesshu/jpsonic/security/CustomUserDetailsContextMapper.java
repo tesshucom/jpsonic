@@ -65,7 +65,8 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
     private final SecurityService securityService;
     private final SettingsService settingsService;
 
-    public CustomUserDetailsContextMapper(SecurityService securityService, SettingsService settingsService) {
+    public CustomUserDetailsContextMapper(SecurityService securityService,
+            SettingsService settingsService) {
         super();
         this.securityService = securityService;
         this.settingsService = settingsService;
@@ -106,7 +107,8 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         return essence.createUserDetails();
     }
 
-    private LdapUserDetailsImpl.Essence createEssence(DirContextOperations ctx, String dn, String userName) {
+    private LdapUserDetailsImpl.Essence createEssence(DirContextOperations ctx, String dn,
+            String userName) {
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
 
@@ -126,7 +128,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         // Check for PPolicy data
 
         PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx
-                .getObjectAttribute(PasswordPolicyControl.OID);
+            .getObjectAttribute(PasswordPolicyControl.OID);
 
         if (ppolicy != null) {
             essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
@@ -144,10 +146,10 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
     }
 
     /**
-     * Extension point to allow customized creation of the user's password from the attribute stored in the directory.
+     * Extension point to allow customized creation of the user's password from the
+     * attribute stored in the directory.
      *
-     * @param passwordValue
-     *            the value of the password attribute
+     * @param passwordValue the value of the password attribute
      *
      * @return a String representation of the password.
      */

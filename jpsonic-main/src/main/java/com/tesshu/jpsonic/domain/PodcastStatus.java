@@ -22,7 +22,8 @@
 package com.tesshu.jpsonic.domain;
 
 /**
- * Enumeration of statuses for {@link PodcastChannel} and {@link PodcastEpisode}.
+ * Enumeration of statuses for {@link PodcastChannel} and
+ * {@link PodcastEpisode}.
  *
  * @author Sindre Mehus
  */

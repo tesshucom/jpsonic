@@ -55,18 +55,21 @@ class PlaylistControllerTest {
         playlist.setCreated(now());
         Mockito.when(playlistService.getPlaylist(PLAYLIST_ID)).thenReturn(playlist);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new PlaylistController(mock(SecurityService.class), playlistService, mock(PlayerService.class)))
-                .build();
+            .standaloneSetup(new PlaylistController(mock(SecurityService.class), playlistService,
+                    mock(PlayerService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/playlist.view")
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/playlist.view")
                 .param(Attributes.Request.ID.value(), Integer.toString(PLAYLIST_ID)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playlist", modelAndView.getViewName());

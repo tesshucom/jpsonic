@@ -67,12 +67,16 @@ class AlbumId3ByFolderProcTest {
         Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-                .fromUriString(settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", "99").queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        Mockito.when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
-                .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
+            .fromUriString(
+                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .queryParam("id", "99")
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
+        Mockito
+            .when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
+            .thenReturn(dummyCoverArtbuilder);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+                mock(MediaFileService.class), mock(PlayerService.class),
+                mock(TranscodingService.class));
         FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
         proc = new AlbumId3ByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
     }
@@ -93,19 +97,23 @@ class AlbumId3ByFolderProcTest {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         assertEquals(0, proc.getChildren(folderOrAlbum, 0, 2).size());
-        Mockito.verify(mediaFileService, Mockito.times(1)).getSongsForAlbum(anyLong(), anyLong(), anyString(),
-                anyString());
+        Mockito
+            .verify(mediaFileService, Mockito.times(1))
+            .getSongsForAlbum(anyLong(), anyLong(), anyString(), anyString());
     }
 
     @Test
     void testGetChildrenWithFolder() {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        Mockito.when(albumDao.getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
-                .thenReturn(List.of(new Album()));
+        Mockito
+            .when(albumDao
+                .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
+            .thenReturn(List.of(new Album()));
         FolderOrFAlbum folderOrArtist = new FolderOrFAlbum(folder);
         assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
-        Mockito.verify(albumDao, Mockito.times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
-                anyList());
+        Mockito
+            .verify(albumDao, Mockito.times(1))
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
     }
 
     @Test

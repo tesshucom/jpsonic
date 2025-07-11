@@ -40,8 +40,8 @@ public class PlayQueueInfo {
     private int startPlayerAt;
     private long startPlayerAtPosition; // millis
 
-    public PlayQueueInfo(List<Entry> entries, boolean stopEnabled, boolean repeatEnabled, boolean shuffleRadioEnabled,
-            boolean internetRadioEnabled) {
+    public PlayQueueInfo(List<Entry> entries, boolean stopEnabled, boolean repeatEnabled,
+            boolean shuffleRadioEnabled, boolean internetRadioEnabled) {
         this.entries = entries;
         this.stopEnabled = stopEnabled;
         this.repeatEnabled = repeatEnabled;
@@ -130,10 +130,11 @@ public class PlayQueueInfo {
         private final String coverArtUrl;
         private final String remoteCoverArtUrl;
 
-        public Entry(int id, Integer trackNumber, String title, String artist, String composer, String album,
-                String genre, Integer year, String bitRate, Integer duration, String durationAsString, String format,
-                String contentType, String fileSize, boolean starred, String albumUrl, String streamUrl,
-                String remoteStreamUrl, String coverArtUrl, String remoteCoverArtUrl) {
+        public Entry(int id, Integer trackNumber, String title, String artist, String composer,
+                String album, String genre, Integer year, String bitRate, Integer duration,
+                String durationAsString, String format, String contentType, String fileSize,
+                boolean starred, String albumUrl, String streamUrl, String remoteStreamUrl,
+                String coverArtUrl, String remoteCoverArtUrl) {
 
             this.id = id;
             this.trackNumber = trackNumber;

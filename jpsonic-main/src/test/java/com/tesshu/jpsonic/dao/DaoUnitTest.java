@@ -40,9 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Unit tests for Dao methods without coverage since 112.2.1(#2334). With the end of Java 11 support, Dao's SQL will be
- * rewritten using Text Blocks. These test cases are created to ensure that there are no errors during the work. Note
- * that no logic is mentioned, nor is it used in integration test cases.
+ * Unit tests for Dao methods without coverage since 112.2.1(#2334). With the
+ * end of Java 11 support, Dao's SQL will be rewritten using Text Blocks. These
+ * test cases are created to ensure that there are no errors during the work.
+ * Note that no logic is mentioned, nor is it used in integration test cases.
  */
 @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
 @SpringBootTest
@@ -185,7 +186,8 @@ class DaoUnitTest {
     @Test
     void testPlaylistDao() {
         Instant now = PlayerUtils.now();
-        Playlist playlist = new Playlist(0, USER_NAME, false, "playlistName", null, 0, 0, now, now, null);
+        Playlist playlist = new Playlist(0, USER_NAME, false, "playlistName", null, 0, 0, now, now,
+                null);
         playlistDao.createPlaylist(playlist);
         playlistDao.addPlaylistUser(playlist.getId(), USER_NAME);
         playlistDao.deletePlaylistUser(playlist.getId(), USER_NAME);

@@ -57,8 +57,9 @@ class FolderOrArtistLogicTest {
     public void setup() {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(mock(SettingsService.class), mock(JWTSecurityService.class),
-                mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(mock(SettingsService.class),
+                mock(JWTSecurityService.class), mock(MediaFileService.class),
+                mock(PlayerService.class), mock(TranscodingService.class));
         logic = new FolderOrArtistLogic(util, factory, artistDao);
     }
 
@@ -67,7 +68,8 @@ class FolderOrArtistLogicTest {
         MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
         FolderOrFArtist folderOrArtist = new FolderOrFArtist(folder);
         Mockito.when(artistDao.getArtistsCount(anyList())).thenReturn(100);
-        Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
+        Container container = logic
+            .createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
         assertInstanceOf(StorageFolder.class, container);
         assertEquals("rsbfar/99", container.getId());
         assertEquals("rsbfar", container.getParentID());
@@ -83,7 +85,8 @@ class FolderOrArtistLogicTest {
         artist.setId(999);
         artist.setName("Artist");
         artist.setAlbumCount(20);
-        Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
+        Container container = logic
+            .createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
         assertInstanceOf(MusicArtist.class, container);
         assertEquals("rsbfar/far:99;999", container.getId());
         assertEquals("rsbfar", container.getParentID());
@@ -103,13 +106,17 @@ class FolderOrArtistLogicTest {
         assertEquals(2, logic.getDirectChildren(1, 4).size());
         assertEquals(2, logic.getDirectChildren(1, 2).size());
         List<FolderOrFArtist> folderOrArtists = logic.getDirectChildren(0, 4);
-        Mockito.verify(artistDao, Mockito.never()).getAlphabetialArtists(anyInt(), anyInt(), anyList());
+        Mockito
+            .verify(artistDao, Mockito.never())
+            .getAlphabetialArtists(anyInt(), anyInt(), anyList());
         folderOrArtists.forEach(folder -> assertFalse(folder.isFolderArtist()));
 
         folders = List.of(folder1);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(0, logic.getDirectChildren(0, 4).size());
-        Mockito.verify(artistDao, Mockito.times(1)).getAlphabetialArtists(anyInt(), anyInt(), anyList());
+        Mockito
+            .verify(artistDao, Mockito.times(1))
+            .getAlphabetialArtists(anyInt(), anyInt(), anyList());
     }
 
     @Test

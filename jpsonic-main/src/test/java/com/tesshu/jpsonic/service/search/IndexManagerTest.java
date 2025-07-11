@@ -73,7 +73,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.UseUtilityClass" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
+        "PMD.UseUtilityClass" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexManagerTest {
 
@@ -131,7 +132,8 @@ class IndexManagerTest {
     }
 
     /*
-     * The implementation is poor and difficult to assert. This is a coverage test for later fix.
+     * The implementation is poor and difficult to assert. This is a coverage test
+     * for later fix.
      */
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Nested
@@ -145,12 +147,12 @@ class IndexManagerTest {
         public void setup() {
             settingsService = Mockito.mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null, Mockito.mock(Ehcache.class), null,
-                    null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(null, null,
+                    Mockito.mock(Ehcache.class), null, null);
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
-            indexManager = new IndexManager(null, null, queryFactory, utils, comparators, settingsService, null, null,
-                    null);
+            indexManager = new IndexManager(null, null, queryFactory, utils, comparators,
+                    settingsService, null, null, null);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -224,7 +226,8 @@ class IndexManagerTest {
     }
 
     /*
-     * The implementation is poor and difficult to assert. This is a coverage test for later fix.
+     * The implementation is poor and difficult to assert. This is a coverage test
+     * for later fix.
      */
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Nested
@@ -234,7 +237,8 @@ class IndexManagerTest {
         private IndexManager indexManager;
 
         private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 1, false));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true,
+                    now(), 1, false));
 
         private static boolean populated;
 
@@ -255,7 +259,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c00() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.NAME);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
+                    Sort.NAME);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -278,7 +283,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.AlbumCount
         @Test
         void c01() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.ALBUM_COUNT);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
+                    Sort.ALBUM_COUNT);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("GENRE_D", genres.get(0).getName());
@@ -315,7 +321,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
         @Test
         void c02() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.SONG_COUNT);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
+                    Sort.SONG_COUNT);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -352,8 +359,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c03() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.NAME,
-                    MediaType.MUSIC);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
+                    Sort.NAME, MediaType.MUSIC);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(13, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -375,8 +382,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
         @Test
         void c04() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.SONG_COUNT,
-                    MediaType.MUSIC);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
+                    Sort.SONG_COUNT, MediaType.MUSIC);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(13, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -411,8 +418,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c05() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.NAME, MediaType.MUSIC,
-                    MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
+                    Sort.NAME, MediaType.MUSIC, MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(15, genres.size());
             assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -436,13 +443,14 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
         @Test
         void c06() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM, Sort.FREQUENCY,
-                    MediaType.MUSIC, MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
+                    Sort.FREQUENCY, MediaType.MUSIC, MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             for (int i = 0; i < genres.size(); i++) {
                 if (i < 3) {
-                    assertTrue("GENRE_D".equals(genres.get(i).getName()) || "GENRE_K".equals(genres.get(i).getName())
+                    assertTrue("GENRE_D".equals(genres.get(i).getName())
+                            || "GENRE_K".equals(genres.get(i).getName())
                             || "GENRE_L".equals(genres.get(i).getName()));
                     assertEquals(2, genres.get(i).getAlbumCount());
                 } else {
@@ -455,15 +463,18 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
         @Test
         void c07() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG, Sort.FREQUENCY,
-                    MediaType.MUSIC, MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
+                    Sort.FREQUENCY, MediaType.MUSIC, MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(15, genres.size());
             for (int i = 0; i < genres.size(); i++) {
                 if (i < 6) {
-                    assertTrue("GENRE_A".equals(genres.get(i).getName()) || "GENRE_D".equals(genres.get(i).getName())
-                            || "GENRE_E".equals(genres.get(i).getName()) || "GENRE_F".equals(genres.get(i).getName())
-                            || "GENRE_K".equals(genres.get(i).getName()) || "GENRE_L".equals(genres.get(i).getName()));
+                    assertTrue("GENRE_A".equals(genres.get(i).getName())
+                            || "GENRE_D".equals(genres.get(i).getName())
+                            || "GENRE_E".equals(genres.get(i).getName())
+                            || "GENRE_F".equals(genres.get(i).getName())
+                            || "GENRE_K".equals(genres.get(i).getName())
+                            || "GENRE_L".equals(genres.get(i).getName()));
                     assertEquals(2, genres.get(i).getSongCount());
                 } else {
                     assertEquals(1, genres.get(i).getSongCount());
@@ -482,7 +493,8 @@ class IndexManagerTest {
         public void setup() {
             SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
-            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, null);
+            indexManager = new IndexManager(null, null, null, null, null, settingsService, null,
+                    artistDao, null);
         }
 
         @AfterEach
@@ -538,7 +550,8 @@ class IndexManagerTest {
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
                 musicFolders = Arrays
-                        .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
+                    .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(),
+                            1, false));
             }
             return musicFolders;
         }
@@ -551,14 +564,17 @@ class IndexManagerTest {
 
                 // #1842 Airsonic does not implement Rating expunge
 
-                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true,
-                        getMusicFolders());
+                List<MediaFile> albums = mediaFileDao
+                    .getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, getMusicFolders());
                 assertEquals(4, albums.size());
 
                 albums.forEach(m -> ratingDao.setRatingForUser(USER_NAME, m, 1));
                 assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders));
-                int ratingsCount = template.getJdbcTemplate().queryForObject(
-                        "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
+                int ratingsCount = template
+                    .getJdbcTemplate()
+                    .queryForObject(
+                            "select count(*) from user_rating where user_rating.username = ?",
+                            Integer.class, USER_NAME);
                 assertEquals(4, ratingsCount, "Because explicitly registered 4 Ratings.");
 
                 // Register a dummy rate (reproduce old path data by moving files)
@@ -568,9 +584,13 @@ class IndexManagerTest {
 
                 assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                         "Because the SELECT condition only references real paths.");
-                ratingsCount = template.getJdbcTemplate().queryForObject(
-                        "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
-                assertEquals(5, ratingsCount, "Because counted directly, including non-existent paths.");
+                ratingsCount = template
+                    .getJdbcTemplate()
+                    .queryForObject(
+                            "select count(*) from user_rating where user_rating.username = ?",
+                            Integer.class, USER_NAME);
+                assertEquals(5, ratingsCount,
+                        "Because counted directly, including non-existent paths.");
 
                 return true;
             });
@@ -584,16 +604,18 @@ class IndexManagerTest {
             int offset = 0;
             int count = Integer.MAX_VALUE;
 
-            final SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, false, musicFolders,
-                    IndexType.ARTIST);
-            final SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, false,
-                    musicFolders, IndexType.ALBUM);
-            final SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, false, musicFolders,
-                    IndexType.SONG);
-            final SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, false,
-                    musicFolders, IndexType.ARTIST_ID3);
-            final SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, false,
-                    musicFolders, IndexType.ALBUM_ID3);
+            final SearchCriteria criteriaArtist = director
+                .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST);
+            final SearchCriteria criteriaAlbum = director
+                .construct("Complete Piano Works", offset, count, false, musicFolders,
+                        IndexType.ALBUM);
+            final SearchCriteria criteriaSong = director
+                .construct("Gaspard", offset, count, false, musicFolders, IndexType.SONG);
+            final SearchCriteria criteriaArtistId3 = director
+                .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST_ID3);
+            final SearchCriteria criteriaAlbumId3 = director
+                .construct("Complete Piano Works", offset, count, false, musicFolders,
+                        IndexType.ALBUM_ID3);
 
             /* Delete DB record. */
 
@@ -613,7 +635,8 @@ class IndexManagerTest {
             // album
             result = searchService.search(criteriaAlbum);
             assertEquals(1, result.getMediaFiles().size());
-            assertEquals("_DIR_ Ravel - Complete Piano Works", result.getMediaFiles().get(0).getName());
+            assertEquals("_DIR_ Ravel - Complete Piano Works",
+                    result.getMediaFiles().get(0).getName());
 
             candidates = mediaFileDao.getAlbumExpungeCandidates();
             assertEquals(0, candidates.size());
@@ -626,10 +649,14 @@ class IndexManagerTest {
             // song
             result = searchService.search(criteriaSong);
             assertEquals(2, result.getMediaFiles().size());
-            if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
-                assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
-            } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
-                assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
+            if ("01 - Gaspard de la Nuit - i. Ondine"
+                .equals(result.getMediaFiles().get(0).getName())) {
+                assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet",
+                        result.getMediaFiles().get(1).getName());
+            } else if ("02 - Gaspard de la Nuit - ii. Le Gibet"
+                .equals(result.getMediaFiles().get(0).getName())) {
+                assertEquals("01 - Gaspard de la Nuit - i. Ondine",
+                        result.getMediaFiles().get(1).getName());
             } else {
                 Assertions.fail("Search results are not correct.");
             }
@@ -677,8 +704,10 @@ class IndexManagerTest {
             // See this#setup
             assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                     "Because one album has been deleted.");
-            int ratingsCount = template.getJdbcTemplate().queryForObject(
-                    "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
+            int ratingsCount = template
+                .getJdbcTemplate()
+                .queryForObject("select count(*) from user_rating where user_rating.username = ?",
+                        Integer.class, USER_NAME);
             assertEquals(3, ratingsCount, "Will be removed, including oldPath");
         }
 

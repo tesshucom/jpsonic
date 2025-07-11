@@ -43,14 +43,18 @@ class PlayStatusTest {
     }
 
     /*
-     * this class cannot be fully tested due to the design. However, rigor is not required and is not a big deal in most
-     * cases. Ubuntu may calculate slightly shorter in some cases
+     * this class cannot be fully tested due to the design. However, rigor is not
+     * required and is not a big deal in most cases. Ubuntu may calculate slightly
+     * shorter in some cases
      */
     @DisabledOnOs(OS.LINUX)
     @Test
     void testGetMinutesAgo() {
-        assertEquals(5L, new PlayStatus(null, null, now().plus(5, ChronoUnit.MINUTES)).getMinutesAgo());
-        assertEquals(60L, new PlayStatus(null, null, now().plus(1, ChronoUnit.HOURS)).getMinutesAgo());
-        assertEquals(1440L, new PlayStatus(null, null, now().plus(1, ChronoUnit.DAYS)).getMinutesAgo());
+        assertEquals(5L,
+                new PlayStatus(null, null, now().plus(5, ChronoUnit.MINUTES)).getMinutesAgo());
+        assertEquals(60L,
+                new PlayStatus(null, null, now().plus(1, ChronoUnit.HOURS)).getMinutesAgo());
+        assertEquals(1440L,
+                new PlayStatus(null, null, now().plus(1, ChronoUnit.DAYS)).getMinutesAgo());
     }
 }

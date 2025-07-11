@@ -71,11 +71,12 @@ class RandomSongByFolderArtistProcTest {
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
             settingsService = mock(SettingsService.class);
-            UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
-                    mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
+            UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+                    mock(JWTSecurityService.class), mock(MediaFileService.class),
+                    mock(PlayerService.class), mock(TranscodingService.class));
             folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);
-            proc = new RandomSongByFolderArtistProc(util, factory, artistDao, searchService, settingsService,
-                    folderOrArtistProc);
+            proc = new RandomSongByFolderArtistProc(util, factory, artistDao, searchService,
+                    settingsService, folderOrArtistProc);
         }
 
         @Test
@@ -94,18 +95,22 @@ class RandomSongByFolderArtistProcTest {
             FolderOrFArtist folderOrArtist = new FolderOrFArtist(new FolderArtist(folder, artist));
 
             assertEquals(0, proc.getChildren(folderOrArtist, 0, 2).size());
-            Mockito.verify(searchService, Mockito.times(1)).getRandomSongsByArtist(any(Artist.class), anyInt(),
-                    anyInt(), anyInt(), anyList());
+            Mockito
+                .verify(searchService, Mockito.times(1))
+                .getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(), anyList());
         }
 
         @Test
         void testGetChildrenWithFolder() {
             MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-            Mockito.when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), anyList()))
-                    .thenReturn(List.of(new Artist()));
+            Mockito
+                .when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), anyList()))
+                .thenReturn(List.of(new Artist()));
             FolderOrFArtist folderOrArtist = new FolderOrFArtist(folder);
             assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
-            Mockito.verify(artistDao, Mockito.times(1)).getAlphabetialArtists(anyInt(), anyInt(), anyList());
+            Mockito
+                .verify(artistDao, Mockito.times(1))
+                .getAlphabetialArtists(anyInt(), anyInt(), anyList());
         }
 
         @Test
@@ -126,8 +131,8 @@ class RandomSongByFolderArtistProcTest {
             MediaFile song = new MediaFile();
             artistOrSong = new FArtistOrSong(song);
 
-            proc = new RandomSongByFolderArtistProc(util, mock(UpnpDIDLFactory.class), artistDao, searchService,
-                    settingsService, folderOrArtistProc);
+            proc = new RandomSongByFolderArtistProc(util, mock(UpnpDIDLFactory.class), artistDao,
+                    searchService, settingsService, folderOrArtistProc);
             assertEquals(0, content.getItems().size());
             proc.addChild(content, artistOrSong);
             assertEquals(1, content.getItems().size());
@@ -137,8 +142,9 @@ class RandomSongByFolderArtistProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
+                    true, now(), 1, false));
 
         @Autowired
         private RandomSongByFolderArtistProc proc;
@@ -175,8 +181,9 @@ class RandomSongByFolderArtistProcTest {
             assertEquals("20", folderOrArtists.get(1).getFolderArtist().artist().getName());
             assertEquals("30", folderOrArtists.get(2).getFolderArtist().artist().getName());
 
-            List<FArtistOrSong> songs = proc.getChildren(new FolderOrFArtist(folderOrArtists.get(0).getFolderArtist()),
-                    0, Integer.MAX_VALUE);
+            List<FArtistOrSong> songs = proc
+                .getChildren(new FolderOrFArtist(folderOrArtists.get(0).getFolderArtist()), 0,
+                        Integer.MAX_VALUE);
             assertEquals(31, songs.size());
         }
 

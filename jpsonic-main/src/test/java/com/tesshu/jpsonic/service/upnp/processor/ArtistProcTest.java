@@ -50,8 +50,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 class ArtistProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-            new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true,
+                now(), 1, false));
 
     @Autowired
     private ArtistProc proc;
@@ -98,18 +99,21 @@ class ArtistProcTest extends AbstractNeedsScan {
     void testGetDirectChildren() {
         List<Artist> items = proc.getDirectChildren(0, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
+                    items.get(i).getName());
         }
 
         items = proc.getDirectChildren(10, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
+                    items.get(i).getName());
         }
 
         items = proc.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
+                    items.get(i).getName());
         }
     }
 
@@ -142,19 +146,22 @@ class ArtistProcTest extends AbstractNeedsScan {
             List<Album> children = proc.getChildren(artists.get(0), 0, 10);
             for (int i = 0; i < children.size(); i++) {
                 if (0 != i) {
-                    assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
+                    assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
+                            children.get(i).getName());
                 }
             }
 
             children = proc.getChildren(artists.get(0), 10, 10);
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
+                        children.get(i).getName());
             }
 
             children = proc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
+                        children.get(i).getName());
             }
         }
 
@@ -164,7 +171,8 @@ class ArtistProcTest extends AbstractNeedsScan {
         @Test
         void testGetChildrenByYear() {
             settingsService.setSortAlbumsByYear(true);
-            List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
+            List<String> reversedByYear = new ArrayList<>(
+                    UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
 
             List<Artist> artists = proc.getDirectChildren(0, 1);
@@ -196,8 +204,11 @@ class ArtistProcTest extends AbstractNeedsScan {
          */
         @Test
         void testSongs() {
-            List<Artist> artists = proc.getDirectChildren(0, Integer.MAX_VALUE).stream()
-                    .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+            List<Artist> artists = proc
+                .getDirectChildren(0, Integer.MAX_VALUE)
+                .stream()
+                .filter(a -> "20".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
 
             Artist artist = artists.get(0);
@@ -207,7 +218,8 @@ class ArtistProcTest extends AbstractNeedsScan {
             assertEquals(1, albums.size());
 
             Album album = albums.get(0);
-            assertEquals("AlBum!", album.getName()); // the case where album name is different between file and id3
+            assertEquals("AlBum!", album.getName()); // the case where album name is different
+                                                     // between file and id3
 
             List<MediaFile> songs = albumId3Proc.getChildren(album, 0, Integer.MAX_VALUE);
             assertEquals(1, songs.size());
@@ -230,7 +242,10 @@ class ArtistProcTest extends AbstractNeedsScan {
         DIDLContent content = new DIDLContent();
         assertEquals(0, content.getContainers().size());
         Artist artist = proc.getDirectChildren(0, 1).get(0);
-        proc.getChildren(artist, 0, Integer.MAX_VALUE).stream().forEach(album -> proc.addChild(content, album));
+        proc
+            .getChildren(artist, 0, Integer.MAX_VALUE)
+            .stream()
+            .forEach(album -> proc.addChild(content, album));
         assertEquals(31, content.getContainers().size());
     }
 
@@ -240,16 +255,18 @@ class ArtistProcTest extends AbstractNeedsScan {
         ParamSearchResult<Artist> searchResult = new ParamSearchResult<>();
         searchResult.getItems().add(artist);
         BrowseResult browseResult = proc.toBrowseResult(searchResult);
-        assertEquals("""
-                <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
-                xmlns:dc="http://purl.org/dc/elements/1.1/" \
-                xmlns:sec="http://www.sec.co.kr/" \
-                xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
-                <container childCount="31" id="artist/0" parentID="artist" restricted="1" searchable="0">\
-                <dc:title>10</dc:title>\
-                <upnp:class>object.container.person.musicArtist</upnp:class>\
-                </container>\
-                </DIDL-Lite>\
-                """, browseResult.getResult());
+        assertEquals(
+                """
+                        <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
+                        xmlns:dc="http://purl.org/dc/elements/1.1/" \
+                        xmlns:sec="http://www.sec.co.kr/" \
+                        xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                        <container childCount="31" id="artist/0" parentID="artist" restricted="1" searchable="0">\
+                        <dc:title>10</dc:title>\
+                        <upnp:class>object.container.person.musicArtist</upnp:class>\
+                        </container>\
+                        </DIDL-Lite>\
+                        """,
+                browseResult.getResult());
     }
 }

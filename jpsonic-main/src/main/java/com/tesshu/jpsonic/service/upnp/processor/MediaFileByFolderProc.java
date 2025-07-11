@@ -37,15 +37,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileByFolderProc extends MediaFileProc {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
-            .toArray(size -> new MediaType[size]);
+    private static final MediaType[] EXCLUDED_TYPES = Stream
+        .of(MediaType.PODCAST, MediaType.VIDEO)
+        .toArray(size -> new MediaType[size]);
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
 
-    public MediaFileByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public MediaFileByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.factory = factory;
@@ -61,10 +63,11 @@ public class MediaFileByFolderProc extends MediaFileProc {
     public Container createContainer(MediaFile entity) {
         int childSize = getChildSizeOf(entity);
         return switch (entity.getMediaType()) {
-            case ALBUM -> factory.toAlbum(entity, childSize);
-            case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
+        case ALBUM -> factory.toAlbum(entity, childSize);
+        case DIRECTORY ->
+            isEmpty(entity.getArtist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
                     : factory.toArtist(entity, childSize);
-            default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
         };
     }
 
@@ -77,8 +80,12 @@ public class MediaFileByFolderProc extends MediaFileProc {
             MediaFile folder = mediaFileService.getMediaFileStrict(folders.get(0).getPathString());
             return getChildren(folder, offset, count);
         }
-        return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
-                .toList();
+        return folders
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+            .toList();
     }
 
     @Override

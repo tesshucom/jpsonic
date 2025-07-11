@@ -112,13 +112,16 @@ class PlayQueueServiceTest {
         when(player.getPlayQueue()).thenReturn(playQueue);
         when(playerService.getPlayerById(player.getId())).thenReturn(player);
         when(playerService.getPlayerById(0)).thenReturn(player);
-        when(playerService.getPlayer(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(player);
+        when(playerService.getPlayer(any(HttpServletRequest.class), any(HttpServletResponse.class)))
+            .thenReturn(player);
         podcastService = mock(PodcastService.class);
-        when(podcastService.getEpisodeStrict(anyInt(), anyBoolean())).thenReturn(mock(PodcastEpisode.class));
+        when(podcastService.getEpisodeStrict(anyInt(), anyBoolean()))
+            .thenReturn(mock(PodcastEpisode.class));
         when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
         mediaFileService = mock(MediaFileService.class);
         securityService = mock(SecurityService.class);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class))).thenReturn(ServiceMockUtils.ADMIN_NAME);
+        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+            .thenReturn(ServiceMockUtils.ADMIN_NAME);
         playQueueDao = mock(PlayQueueDao.class);
         internetRadioDao = mock(InternetRadioDao.class);
         internetRadioService = mock(InternetRadioService.class);
@@ -129,10 +132,10 @@ class PlayQueueServiceTest {
         searchService = mock(SearchService.class);
         ajaxHelper = AjaxMockUtils.mock(AjaxHelper.class);
         comparators = mock(JpsonicComparators.class);
-        playQueueService = new PlayQueueService(mock(MusicFolderService.class), securityService, playerService,
-                comparators, mediaFileService, lastFmService, searchService, ratingService, podcastService,
-                playlistService, mediaFileDao, playQueueDao, internetRadioDao, mock(JWTSecurityService.class),
-                internetRadioService, ajaxHelper);
+        playQueueService = new PlayQueueService(mock(MusicFolderService.class), securityService,
+                playerService, comparators, mediaFileService, lastFmService, searchService,
+                ratingService, podcastService, playlistService, mediaFileDao, playQueueDao,
+                internetRadioDao, mock(JWTSecurityService.class), internetRadioService, ajaxHelper);
     }
 
     @Test
@@ -203,12 +206,14 @@ class PlayQueueServiceTest {
     @Test
     void testReloadSearchCriteria() throws ServletRequestBindingException {
         playQueueService.reloadSearchCriteria();
-        verify(player.getPlayQueue(), never()).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
+        verify(player.getPlayQueue(), never())
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null);
         when(player.getPlayQueue().getRandomSearchCriteria()).thenReturn(criteria);
         playQueueService.reloadSearchCriteria();
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
     }
 
     @Test
@@ -234,23 +239,24 @@ class PlayQueueServiceTest {
 
         MediaFile file = new MediaFile();
         file.setId(99);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class))).thenReturn(ServiceMockUtils.ADMIN_NAME);
-        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME, List.of(file.getId()), null,
-                null, PlayerUtils.now(), "");
+        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+            .thenReturn(ServiceMockUtils.ADMIN_NAME);
+        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME,
+                List.of(file.getId()), null, null, PlayerUtils.now(), "");
         when(playQueueDao.getPlayQueue(ServiceMockUtils.ADMIN_NAME)).thenReturn(savedPlayQueue);
         playQueueService.loadPlayQueue();
 
         when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
         playQueueService.loadPlayQueue();
 
-        savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME, List.of(file.getId()), null, 0L,
-                PlayerUtils.now(), "");
+        savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME, List.of(file.getId()),
+                null, 0L, PlayerUtils.now(), "");
         when(playQueueDao.getPlayQueue(ServiceMockUtils.ADMIN_NAME)).thenReturn(savedPlayQueue);
         playQueueService.loadPlayQueue();
 
         int currentId = file.getId();
-        savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME, List.of(file.getId()), currentId, 0L,
-                PlayerUtils.now(), "");
+        savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME, List.of(file.getId()),
+                currentId, 0L, PlayerUtils.now(), "");
         when(playQueueDao.getPlayQueue(ServiceMockUtils.ADMIN_NAME)).thenReturn(savedPlayQueue);
 
         when(player.getPlayQueue().getFiles()).thenReturn(Collections.emptyList());
@@ -313,7 +319,8 @@ class PlayQueueServiceTest {
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void c02() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile song = new MediaFile();
             song.setId(0);
@@ -327,7 +334,8 @@ class PlayQueueServiceTest {
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void c03() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile parent = new MediaFile();
             parent.setId(0);
@@ -361,26 +369,28 @@ class PlayQueueServiceTest {
         when(player.getPlayQueue().isInternetRadioEnabled()).thenReturn(true);
 
         assertThatExceptionOfType(ExecutionException.class)
-                .isThrownBy(() -> playQueueService.playInternetRadio(0, null))
-                .withCause(new IOException("Radio is not enabled"));
+            .isThrownBy(() -> playQueueService.playInternetRadio(0, null))
+            .withCause(new IOException("Radio is not enabled"));
         verify(internetRadioDao, times(1)).getInternetRadioById(anyInt());
         verify(internetRadioService, never()).clearInternetRadioSourceCache(anyInt());
 
         clearInvocations(internetRadioDao);
-        InternetRadio radio = new InternetRadio(0, "inabled", "http://inabled.com", "http://inabled.com", false,
-                PlayerUtils.now());
+        InternetRadio radio = new InternetRadio(0, "inabled", "http://inabled.com",
+                "http://inabled.com", false, PlayerUtils.now());
         when(internetRadioDao.getInternetRadioById(radio.getId())).thenReturn(radio);
         assertThatExceptionOfType(ExecutionException.class)
-                .isThrownBy(() -> playQueueService.playInternetRadio(0, null))
-                .withCause(new IOException("Radio is not enabled"));
+            .isThrownBy(() -> playQueueService.playInternetRadio(0, null))
+            .withCause(new IOException("Radio is not enabled"));
         verify(internetRadioDao, times(1)).getInternetRadioById(anyInt());
         verify(internetRadioService, never()).clearInternetRadioSourceCache(radio.getId());
 
         clearInvocations(internetRadioDao);
-        radio = new InternetRadio(0, "enabled", "http://enabled.com", "http://enabled.com", true, PlayerUtils.now());
+        radio = new InternetRadio(0, "enabled", "http://enabled.com", "http://enabled.com", true,
+                PlayerUtils.now());
         when(internetRadioDao.getInternetRadioById(radio.getId())).thenReturn(radio);
         when(player.getPlayQueue().getInternetRadio()).thenReturn(radio);
-        InternetRadioSource radioSource = new InternetRadioSource("http://enabled.com/radioStreamUrl");
+        InternetRadioSource radioSource = new InternetRadioSource(
+                "http://enabled.com/radioStreamUrl");
         when(internetRadioService.getInternetRadioSources(radio)).thenReturn(List.of(radioSource));
 
         playQueueService.playInternetRadio(0, null);
@@ -399,10 +409,13 @@ class PlayQueueServiceTest {
         List<MediaFile> files = new ArrayList<>();
         files.add(file);
         when(playlistService.getFilesInPlaylist(anyInt(), anyBoolean())).thenReturn(files);
-        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean())).thenReturn(files);
+        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean()))
+            .thenReturn(files);
         playQueueService.addPlaylist(0);
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
-        verify(player.getPlayQueue(), never()).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
+        verify(player.getPlayQueue(), never())
+            .addFilesAt(ArgumentMatchers.<MediaFile>anyIterable(), anyInt());
         assertEquals(0, player.getPlayQueue().length());
 
         // Present
@@ -411,10 +424,13 @@ class PlayQueueServiceTest {
         files = new ArrayList<>();
         files.add(file);
         when(playlistService.getFilesInPlaylist(anyInt(), anyBoolean())).thenReturn(files);
-        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean())).thenReturn(files);
+        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean()))
+            .thenReturn(files);
         playQueueService.addPlaylist(0);
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
-        verify(player.getPlayQueue(), never()).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
+        verify(player.getPlayQueue(), never())
+            .addFilesAt(ArgumentMatchers.<MediaFile>anyIterable(), anyInt());
         assertEquals(0, player.getPlayQueue().length());
     }
 
@@ -455,8 +471,10 @@ class PlayQueueServiceTest {
         file.setPresent(false);
         List<MediaFile> files = new ArrayList<>();
         files.add(file);
-        when(lastFmService.getTopSongs(nullable(MediaFile.class), anyInt(), ArgumentMatchers.<MusicFolder> anyList()))
-                .thenReturn(files);
+        when(lastFmService
+            .getTopSongs(nullable(MediaFile.class), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList()))
+            .thenReturn(files);
         playQueueService.playTopSong(0, null);
 
         // Present
@@ -464,8 +482,10 @@ class PlayQueueServiceTest {
         file.setPresent(true);
         files = new ArrayList<>();
         files.add(file);
-        when(lastFmService.getTopSongs(nullable(MediaFile.class), anyInt(), ArgumentMatchers.<MusicFolder> anyList()))
-                .thenReturn(files);
+        when(lastFmService
+            .getTopSongs(nullable(MediaFile.class), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList()))
+            .thenReturn(files);
         playQueueService.playTopSong(0, null);
 
         // Present with StartIndex
@@ -487,8 +507,8 @@ class PlayQueueServiceTest {
         playQueueService.playPodcastChannel(episodeId);
 
         // Not COMPLETED
-        PodcastEpisode episode = new PodcastEpisode(episodeId, null, null, null, null, null, null, null, null, null,
-                null, null);
+        PodcastEpisode episode = new PodcastEpisode(episodeId, null, null, null, null, null, null,
+                null, null, null, null, null);
         MediaFile file = new MediaFile();
         file.setId(mediafileId);
         when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
@@ -516,8 +536,8 @@ class PlayQueueServiceTest {
         playQueueService.playPodcastEpisode(episodeId);
 
         // Not COMPLETED
-        PodcastEpisode episode = new PodcastEpisode(episodeId, channelId, null, null, null, null, null, null, null,
-                null, null, null);
+        PodcastEpisode episode = new PodcastEpisode(episodeId, channelId, null, null, null, null,
+                null, null, null, null, null, null);
         MediaFile file = new MediaFile();
         file.setId(mediafileId);
         when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
@@ -550,8 +570,8 @@ class PlayQueueServiceTest {
         playQueueService.playNewestPodcastEpisode(null);
 
         // Not COMPLETED (It doesn't seem to be reflected)
-        PodcastEpisode episode = new PodcastEpisode(episodeId, null, null, null, null, null, null, null, null, null,
-                null, null);
+        PodcastEpisode episode = new PodcastEpisode(episodeId, null, null, null, null, null, null,
+                null, null, null, null, null);
         MediaFile file = new MediaFile();
         file.setId(mediafileId);
         when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
@@ -572,73 +592,92 @@ class PlayQueueServiceTest {
     @Test
     void testPlayStarred() throws ServletRequestBindingException {
         playQueueService.playStarred();
-        verify(mediaFileDao, times(1)).getStarredFiles(anyInt(), anyInt(), anyString(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileDao, times(1))
+            .getStarredFiles(anyInt(), anyInt(), anyString(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
     void testPlayShuffle() throws ServletRequestBindingException {
         // Empty
         playQueueService.playShuffle(null, 0, 0, null, null);
-        verify(ratingService, never()).getHighestRatedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getMostFrequentlyPlayedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getStarredAlbums(anyInt(), anyInt(), nullable(String.class),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(searchService, never()).getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(mediaFileService, never()).getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
-        verify(searchService, never()).getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(ratingService, never())
+            .getHighestRatedAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getMostFrequentlyPlayedAlbums(anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getStarredAlbums(anyInt(), anyInt(), nullable(String.class),
+                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(searchService, never())
+            .getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileService, never())
+            .getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(searchService, never())
+            .getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("highest", 0, 0, null, null);
-        verify(ratingService, times(1)).getHighestRatedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(ratingService, times(1))
+            .getHighestRatedAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("frequent", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getMostFrequentlyPlayedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getMostFrequentlyPlayedAlbums(anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("recent", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("newest", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getNewestAlbums(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("starred", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getStarredAlbums(anyInt(), anyInt(), nullable(String.class),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getStarredAlbums(anyInt(), anyInt(), nullable(String.class),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("random", 0, 0, null, null);
-        verify(searchService, times(1)).getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+        verify(searchService, times(1))
+            .getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("alphabetical", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("decade", 0, 0, null, "2010");
-        verify(mediaFileService, times(1)).getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("genre", 0, 0, "Rock", null);
-        verify(searchService, times(1)).getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(searchService, times(1))
+            .getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
 
         // Extract Albums
-        verify(mediaFileService, never()).getChildrenWithoutSortOf(any(MediaFile.class), anyBoolean(), anyBoolean());
+        verify(mediaFileService, never())
+            .getChildrenWithoutSortOf(any(MediaFile.class), anyBoolean(), anyBoolean());
         MediaFile album = new MediaFile();
-        when(ratingService.getHighestRatedAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList()))
-                .thenReturn(List.of(album));
+        when(ratingService
+            .getHighestRatedAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList()))
+            .thenReturn(List.of(album));
         playQueueService.playShuffle("highest", 0, 0, null, null);
-        verify(mediaFileService, times(1)).getChildrenWithoutSortOf(any(MediaFile.class), anyBoolean(), anyBoolean());
+        verify(mediaFileService, times(1))
+            .getChildrenWithoutSortOf(any(MediaFile.class), anyBoolean(), anyBoolean());
     }
 
     @Test
@@ -655,20 +694,23 @@ class PlayQueueServiceTest {
     @Test
     void testPlaySimilar() throws ServletRequestBindingException {
         playQueueService.playSimilar(0, Integer.MAX_VALUE);
-        verify(lastFmService, times(1)).getSimilarSongs(nullable(MediaFile.class), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(lastFmService, times(1))
+            .getSimilarSongs(nullable(MediaFile.class), anyInt(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
     void testAdd() throws ServletRequestBindingException {
         playQueueService.add(0);
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
     }
 
     @Test
     void testAddAt() throws ServletRequestBindingException {
         playQueueService.addAt(0, 0);
-        verify(player.getPlayQueue(), times(1)).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
+        verify(player.getPlayQueue(), times(1))
+            .addFilesAt(ArgumentMatchers.<MediaFile>anyIterable(), anyInt());
     }
 
     @Test
@@ -676,23 +718,29 @@ class PlayQueueServiceTest {
         MediaFile song = new MediaFile();
         song.setId(99);
         when(mediaFileService.getMediaFileStrict(song.getId())).thenReturn(song);
-        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean())).thenReturn(List.of(song));
+        when(mediaFileService.getDescendantsOf(any(MediaFile.class), anyBoolean()))
+            .thenReturn(List.of(song));
 
-        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, null);
-        verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile> anyList());
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
+        playQueueService
+            .addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, null);
+        verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile>anyList());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
 
         // With Index
         clearInvocations(player.getPlayQueue(), mediaFileService);
-        playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, 0);
-        verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile> anyList());
-        verify(player.getPlayQueue(), times(1)).addFilesAt(ArgumentMatchers.<MediaFile> anyIterable(), anyInt());
+        playQueueService
+            .addMediaFilesToPlayQueue(player.getPlayQueue(), new int[] { song.getId() }, 0);
+        verify(mediaFileService, times(1)).removeVideoFiles(ArgumentMatchers.<MediaFile>anyList());
+        verify(player.getPlayQueue(), times(1))
+            .addFilesAt(ArgumentMatchers.<MediaFile>anyIterable(), anyInt());
     }
 
     @Test
     void testResetPlayQueue() {
         playQueueService.resetPlayQueue(player.getPlayQueue(), new int[] { 0 });
-        verify(player.getPlayQueue(), times(1)).addFiles(anyBoolean(), ArgumentMatchers.<MediaFile> anyIterable());
+        verify(player.getPlayQueue(), times(1))
+            .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
         verify(player.getPlayQueue(), times(1)).setIndex(anyInt());
         verify(player.getPlayQueue(), times(1)).setStatus(nullable(Status.class));
     }
@@ -728,14 +776,16 @@ class PlayQueueServiceTest {
         verify(mediaFileDao, times(1)).starMediaFile(anyInt(), nullable(String.class));
 
         // UnStar
-        when(mediaFileDao.getMediaFileStarredDate(anyInt(), nullable(String.class))).thenReturn(PlayerUtils.now());
+        when(mediaFileDao.getMediaFileStarredDate(anyInt(), nullable(String.class)))
+            .thenReturn(PlayerUtils.now());
         playQueueService.toggleStar(index);
         verify(mediaFileDao, times(1)).unstarMediaFile(anyInt(), nullable(String.class));
     }
 
     @Test
     void testDoRemove() throws ServletRequestBindingException {
-        playQueueService.doRemove(ajaxHelper.getHttpServletRequest(), ajaxHelper.getHttpServletResponse(), 0);
+        playQueueService
+            .doRemove(ajaxHelper.getHttpServletRequest(), ajaxHelper.getHttpServletResponse(), 0);
         verify(player.getPlayQueue(), times(1)).removeFileAt(0);
     }
 
@@ -766,20 +816,23 @@ class PlayQueueServiceTest {
     @Test
     void testToggleRepeat() throws ServletRequestBindingException {
         playQueueService.toggleRepeat();
-        verify(player.getPlayQueue(), never()).setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+        verify(player.getPlayQueue(), never())
+            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         clearInvocations(player.getPlayQueue());
         when(player.getPlayQueue().isRepeatEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
-        verify(player.getPlayQueue(), never()).setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+        verify(player.getPlayQueue(), never())
+            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         // ShuffleRadioEnabled
         clearInvocations(player.getPlayQueue());
         when(player.getPlayQueue().isShuffleRadioEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
-        verify(player.getPlayQueue(), times(1)).setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+        verify(player.getPlayQueue(), times(1))
+            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
     }
 

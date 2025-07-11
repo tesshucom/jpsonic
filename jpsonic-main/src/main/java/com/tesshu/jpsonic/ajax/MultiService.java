@@ -75,7 +75,8 @@ public class MultiService {
 
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
+                : airsonicLocaleResolver.resolveLocale(request);
 
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(mediaFileId);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
@@ -96,8 +97,10 @@ public class MultiService {
         List<MediaFile> files = lastFmService.getTopSongs(mediaFile, limit, musicFolders);
         mediaFileService.populateStarredDate(files, username);
         for (MediaFile file : files) {
-            result.add(new TopSong(file.getId(), file.getTitle(), file.getArtist(), file.getAlbumName(),
-                    file.getDurationString(), file.getStarredDate() != null));
+            result
+                .add(new TopSong(file.getId(), file.getTitle(), file.getArtist(),
+                        file.getAlbumName(), file.getDurationString(),
+                        file.getStarredDate() != null));
         }
         return result;
     }
@@ -109,7 +112,8 @@ public class MultiService {
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         MediaFile artist = mediaFileService.getMediaFile(mediaFileId);
-        List<MediaFile> similarArtists = lastFmService.getSimilarArtists(artist, limit, false, musicFolders);
+        List<MediaFile> similarArtists = lastFmService
+            .getSimilarArtists(artist, limit, false, musicFolders);
         SimilarArtist[] result = new SimilarArtist[similarArtists.size()];
         for (int i = 0; i < result.length; i++) {
             MediaFile similarArtist = similarArtists.get(i);

@@ -33,8 +33,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Configurable filter for setting HTTP response headers. Can be used, for instance, to set cache control directives for
- * certain resources.
+ * Configurable filter for setting HTTP response headers. Can be used, for
+ * instance, to set cache control directives for certain resources.
  *
  * @author Sindre Mehus
  */

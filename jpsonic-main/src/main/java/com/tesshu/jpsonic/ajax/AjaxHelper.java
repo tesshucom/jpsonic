@@ -24,7 +24,8 @@ import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Helper class to loosely couple dependencies on the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Helper class to loosely couple dependencies on the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  */
 @Component
 public class AjaxHelper {

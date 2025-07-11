@@ -27,14 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adapter class for injecting ExecutorService into DefaultUpnpServiceConfiguration.
+ * Adapter class for injecting ExecutorService into
+ * DefaultUpnpServiceConfiguration.
  * 
- * The inserted ExecutorService is assumed to be an ExecutorService generated via Spring Boot.
+ * The inserted ExecutorService is assumed to be an ExecutorService generated
+ * via Spring Boot.
  */
 public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfiguration {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(UpnpServiceConfigurationAdapter.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(UpnpServiceConfigurationAdapter.class);
 
     private final ExecutorService defaultExecutorService;
     private final ExecutorService asyncExecutorService;
@@ -49,7 +51,8 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     }
 
     public UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor,
+            int streamListenPort) {
         super(streamListenPort);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
@@ -57,7 +60,8 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     }
 
     public UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor,
+            int streamListenPort, int multicastResponsePort) {
         super(streamListenPort, multicastResponsePort);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
@@ -65,7 +69,8 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, boolean checkRuntime) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor,
+            boolean checkRuntime) {
         super(checkRuntime);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
@@ -73,8 +78,8 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort,
-            boolean checkRuntime) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor,
+            int streamListenPort, int multicastResponsePort, boolean checkRuntime) {
         super(streamListenPort, multicastResponsePort, checkRuntime);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
@@ -87,9 +92,10 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     }
 
     /**
-     * The use of standard ExecutorService will be avoided in order to meet requirements such as
-     * shutsown being linked to the application lifecycle and shutdown flow, ensuring logging of
-     * UncaughtExceptions, and not accessing the SecurityManager.
+     * The use of standard ExecutorService will be avoided in order to meet
+     * requirements such as shutsown being linked to the application lifecycle and
+     * shutdown flow, ensuring logging of UncaughtExceptions, and not accessing the
+     * SecurityManager.
      */
     @Deprecated
     @Override

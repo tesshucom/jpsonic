@@ -65,10 +65,11 @@ public class PlaylistController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             return new ModelAndView(new RedirectView("notFound"));
@@ -80,12 +81,16 @@ public class PlaylistController {
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playlist", "model",
-                LegacyMap.of("playlist", playlist, "created",
-                        ZonedDateTime.ofInstant(playlist.getCreated(), ZoneId.systemDefault()), "user", user,
-                        "visibility", userSettings.getMainVisibility(), "player", player, "editAllowed",
-                        username.equals(playlist.getUsername()) || securityService.isAdmin(username), "coverArtSize",
-                        CoverArtScheme.LARGE.getSize(), "partyMode", userSettings.isPartyModeEnabled(), "simpleDisplay",
-                        userSettings.isSimpleDisplay()));
+                LegacyMap
+                    .of("playlist", playlist, "created",
+                            ZonedDateTime.ofInstant(playlist.getCreated(), ZoneId.systemDefault()),
+                            "user", user, "visibility", userSettings.getMainVisibility(), "player",
+                            player, "editAllowed",
+                            username.equals(playlist.getUsername())
+                                    || securityService.isAdmin(username),
+                            "coverArtSize", CoverArtScheme.LARGE.getSize(), "partyMode",
+                            userSettings.isPartyModeEnabled(), "simpleDisplay",
+                            userSettings.isSimpleDisplay()));
     }
 
 }

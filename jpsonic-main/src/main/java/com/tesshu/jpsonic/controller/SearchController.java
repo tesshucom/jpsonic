@@ -67,8 +67,8 @@ public class SearchController {
     private final SearchCriteriaDirector director;
 
     public SearchController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService, SearchService searchService,
-            SearchCriteriaDirector director) {
+            SecurityService securityService, PlayerService playerService,
+            SearchService searchService, SearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -101,7 +101,8 @@ public class SearchController {
         command.setGenreVisible(userSettings.getMainVisibility().isGenreVisible());
         command.setSimpleDisplay(userSettings.isSimpleDisplay());
 
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(user.getUsername());
         String query = StringUtils.trimToNull(command.getQuery());
 
         if (query != null) {
@@ -111,16 +112,18 @@ public class SearchController {
             boolean includeComposer = settingsService.isSearchComposer()
                     || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
-                    IndexType.ARTIST);
+            SearchCriteria criteria = director
+                .construct(query, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
             SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());
 
-            criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+            criteria = director
+                .construct(query, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
             SearchResult albums = searchService.search(criteria);
             command.setAlbums(albums.getMediaFiles());
 
-            criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.SONG);
+            criteria = director
+                .construct(query, offset, count, includeComposer, musicFolders, IndexType.SONG);
             SearchResult songs = searchService.search(criteria);
             command.setSongs(songs.getMediaFiles());
 

@@ -46,8 +46,10 @@ class AccessDeniedControllerTest {
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.ACCESS_DENIED.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.ACCESS_DENIED.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

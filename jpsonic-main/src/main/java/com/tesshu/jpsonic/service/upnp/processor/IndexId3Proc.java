@@ -37,8 +37,8 @@ public class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> 
     private final MusicIndexService musicIndexService;
     private final ArtistDao artistDao;
 
-    public IndexId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MusicIndexService musicIndexService,
-            ArtistDao artistDao) {
+    public IndexId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MusicIndexService musicIndexService, ArtistDao artistDao) {
         super();
         this.util = util;
         this.factory = factory;
@@ -58,8 +58,13 @@ public class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> 
 
     @Override
     public List<MusicIndex> getDirectChildren(long offset, long count) {
-        return musicIndexService.getIndexedId3ArtistCounts(util.getGuestFolders()).keySet().stream().skip(offset)
-                .limit(count).toList();
+        return musicIndexService
+            .getIndexedId3ArtistCounts(util.getGuestFolders())
+            .keySet()
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .toList();
     }
 
     @Override
@@ -69,8 +74,13 @@ public class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> 
 
     @Override
     public MusicIndex getDirectChild(String id) {
-        return musicIndexService.getIndexedId3ArtistCounts(util.getGuestFolders()).keySet().stream()
-                .filter(i -> i.getIndex().equals(id)).findFirst().get();
+        return musicIndexService
+            .getIndexedId3ArtistCounts(util.getGuestFolders())
+            .keySet()
+            .stream()
+            .filter(i -> i.getIndex().equals(id))
+            .findFirst()
+            .get();
     }
 
     @Override

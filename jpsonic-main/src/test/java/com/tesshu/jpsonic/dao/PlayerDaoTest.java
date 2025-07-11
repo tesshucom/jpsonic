@@ -206,7 +206,8 @@ class PlayerDaoTest {
         assertEquals(expected.getIpAddress(), actual.getIpAddress(), "Wrong IP address.");
         assertEquals(expected.isDynamicIp(), actual.isDynamicIp(), "Wrong dynamic IP.");
         assertEquals(expected.getLastSeen(), actual.getLastSeen(), "Wrong last seen.");
-        assertEquals(expected.getTranscodeScheme(), actual.getTranscodeScheme(), "Wrong transcode scheme.");
+        assertEquals(expected.getTranscodeScheme(), actual.getTranscodeScheme(),
+                "Wrong transcode scheme.");
     }
 
     @Test
@@ -247,8 +248,9 @@ class PlayerDaoTest {
         player.setLastSeen(now());
         playerDao.createPlayer(player);
         assertEquals(1, playerDao.getAllPlayers().size());
-        templateWrapper.getJdbcTemplate().update("update player set technology = ? where id = ?", "EXTERNAL",
-                player.getId());
+        templateWrapper
+            .getJdbcTemplate()
+            .update("update player set technology = ? where id = ?", "EXTERNAL", player.getId());
         playerDao.deleteOldPlayers(60);
 
         player.setName("name");
@@ -256,8 +258,10 @@ class PlayerDaoTest {
         player.setLastSeen(now());
         playerDao.createPlayer(player);
         assertEquals(1, playerDao.getAllPlayers().size());
-        templateWrapper.getJdbcTemplate().update("update player set technology = ? where id = ?",
-                "EXTERNAL_WITH_PLAYLIST", player.getId());
+        templateWrapper
+            .getJdbcTemplate()
+            .update("update player set technology = ? where id = ?", "EXTERNAL_WITH_PLAYLIST",
+                    player.getId());
         playerDao.deleteOldPlayers(60);
     }
 }

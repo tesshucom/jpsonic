@@ -43,8 +43,9 @@ class AvatarServiceTest {
     @BeforeEach
     public void setup() {
         AvatarDao avatarDao = mock(AvatarDao.class);
-        Mockito.when(avatarDao.getCustomAvatar(Mockito.anyString()))
-                .thenReturn(new Avatar(0, null, null, null, 0, 0, null));
+        Mockito
+            .when(avatarDao.getCustomAvatar(Mockito.anyString()))
+            .thenReturn(new Avatar(0, null, null, null, 0, 0, null));
         avatarService = new AvatarService(avatarDao);
     }
 
@@ -59,7 +60,7 @@ class AvatarServiceTest {
     @Test
     void testCreateAvatarResized() throws IOException {
         try (InputStream inputStream = AvatarServiceTest.class
-                .getResourceAsStream("/org/airsonic/player/dao/schema/avatar01.png")) {
+            .getResourceAsStream("/org/airsonic/player/dao/schema/avatar01.png")) {
             String fileName = "avatar01.png";
             long size = 2_117;
             boolean resized = avatarService.createAvatar(fileName, inputStream, size, fileName);
@@ -70,7 +71,7 @@ class AvatarServiceTest {
     @Test
     void testCreateAvatarNotResized() throws IOException {
         try (InputStream inputStream = AvatarServiceTest.class
-                .getResourceAsStream("/org/airsonic/player/dao/schema/Vinyl.png")) {
+            .getResourceAsStream("/org/airsonic/player/dao/schema/Vinyl.png")) {
             String fileName = "Vinyl.png";
             long size = 2_058;
             boolean resized = avatarService.createAvatar(fileName, inputStream, size, fileName);

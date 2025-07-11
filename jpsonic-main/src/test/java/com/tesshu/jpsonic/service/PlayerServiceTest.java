@@ -83,8 +83,8 @@ class PlayerServiceTest {
         transcodings.add(inactiveTranscoding);
         when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        playerService = new PlayerService(playerDao, null, new SecurityService(userDao, null, musicFolderService),
-                transcodingService);
+        playerService = new PlayerService(playerDao, null,
+                new SecurityService(userDao, null, musicFolderService), transcodingService);
     }
 
     @Test
@@ -157,8 +157,8 @@ class PlayerServiceTest {
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.anyList());
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True.LastSeen.Today
@@ -173,8 +173,10 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
-                    .thenReturn(Arrays.asList(playerWithIp, dummy));
+            when(playerDao
+                .getPlayersForUserAndClientId(Mockito.nullable(String.class),
+                        Mockito.nullable(String.class)))
+                .thenReturn(Arrays.asList(playerWithIp, dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -187,8 +189,8 @@ class PlayerServiceTest {
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.anyList());
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True.LastSeen.Old
@@ -202,8 +204,10 @@ class PlayerServiceTest {
             old.setTime(Date.from(dummy.getLastSeen()));
             old.add(Calendar.DATE, -2);
             dummy.setLastSeen(old.getTime().toInstant());
-            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
-                    .thenReturn(Arrays.asList(dummy));
+            when(playerDao
+                .getPlayersForUserAndClientId(Mockito.nullable(String.class),
+                        Mockito.nullable(String.class)))
+                .thenReturn(Arrays.asList(dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
@@ -218,8 +222,8 @@ class PlayerServiceTest {
 
             verify(playerDao, times(1)).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.anyList());
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.False
@@ -231,8 +235,10 @@ class PlayerServiceTest {
             Calendar today = Calendar.getInstance();
             today.setTime(Date.from(now()));
 
-            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
-                    .thenReturn(Collections.emptyList());
+            when(playerDao
+                .getPlayersForUserAndClientId(Mockito.nullable(String.class),
+                        Mockito.nullable(String.class)))
+                .thenReturn(Collections.emptyList());
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -249,8 +255,8 @@ class PlayerServiceTest {
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.anyList());
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True
@@ -266,8 +272,10 @@ class PlayerServiceTest {
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(now());
-            when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class), Mockito.nullable(String.class)))
-                    .thenReturn(Arrays.asList(dummy, playerWithIp));
+            when(playerDao
+                .getPlayersForUserAndClientId(Mockito.nullable(String.class),
+                        Mockito.nullable(String.class)))
+                .thenReturn(Arrays.asList(dummy, playerWithIp));
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setRemoteAddr(PLAYER_IP);
@@ -284,8 +292,8 @@ class PlayerServiceTest {
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.anyList());
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.anyList());
         }
 
     }
@@ -300,9 +308,12 @@ class PlayerServiceTest {
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
             @SuppressWarnings("unchecked")
-            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    transcodingsCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor
+                .forClass(List.class);
+            Mockito
+                .doNothing()
+                .when(transcodingService)
+                .setTranscodingsForPlayer(Mockito.any(Player.class), transcodingsCaptor.capture());
 
             playerService.createPlayer(player);
 
@@ -317,17 +328,20 @@ class PlayerServiceTest {
         void testGuestPlayer() {
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
-            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    transcodingsCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor
+                .forClass(List.class);
+            Mockito
+                .doNothing()
+                .when(transcodingService)
+                .setTranscodingsForPlayer(Mockito.any(Player.class), transcodingsCaptor.capture());
 
             playerService.getGuestPlayer(null);
 
             Player createdPlayer = playerCaptor.getValue();
             assertEquals(User.USERNAME_GUEST, createdPlayer.getUsername());
             assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
-            verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    Mockito.any(List.class));
+            verify(transcodingService, Mockito.never())
+                .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.any(List.class));
         }
 
         @SuppressWarnings("unchecked")
@@ -338,9 +352,12 @@ class PlayerServiceTest {
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
-            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    transcodingsCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor
+                .forClass(List.class);
+            Mockito
+                .doNothing()
+                .when(transcodingService)
+                .setTranscodingsForPlayer(Mockito.any(Player.class), transcodingsCaptor.capture());
 
             playerService.createPlayer(player);
 
@@ -363,9 +380,12 @@ class PlayerServiceTest {
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
             @SuppressWarnings("unchecked")
-            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
-                    transcodingsCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor
+                .forClass(List.class);
+            Mockito
+                .doNothing()
+                .when(transcodingService)
+                .setTranscodingsForPlayer(Mockito.any(Player.class), transcodingsCaptor.capture());
 
             playerService.createPlayer(player);
 
@@ -395,7 +415,7 @@ class PlayerServiceTest {
             assertEquals("Jpsonic UPnP Player", player.getClientId());
 
             when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
-                    .thenReturn(List.of(player));
+                .thenReturn(List.of(player));
             player = playerService.getUPnPPlayer();
             assertEquals("Jpsonic UPnP Player", player.getClientId());
         }
@@ -410,7 +430,7 @@ class PlayerServiceTest {
             Instant daysAgo = player.getLastSeen().minus(100, ChronoUnit.DAYS);
             player.setLastSeen(daysAgo);
             when(playerDao.getPlayersForUserAndClientId(player.getUsername(), player.getClientId()))
-                    .thenReturn(List.of(player));
+                .thenReturn(List.of(player));
             player = playerService.getUPnPPlayer();
             assertFalse(player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now()));
         }

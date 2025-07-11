@@ -75,8 +75,9 @@ class AlbumByFolderProcTest {
         void testWithSingleFolder() {
             when(util.getGuestFolders()).thenReturn(List.of(folder1));
             assertEquals(0, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
-            verify(mediaFileService, times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                    ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, times(1))
+                .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                        ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
@@ -103,14 +104,16 @@ class AlbumByFolderProcTest {
         void testWithSingleFolder() {
             when(util.getGuestFolders()).thenReturn(List.of(folder1));
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(mediaFileService, times(1)).getAlbumCount(ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, times(1))
+                .getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testMultiFolder() {
             when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2));
             assertEquals(2, proc.getDirectChildrenCount());
-            verify(mediaFileService, never()).getAlbumCount(ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, never())
+                .getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
         }
     }
 }

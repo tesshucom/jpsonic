@@ -33,7 +33,8 @@ public class AlbumByFolderProc extends MediaFileByFolderProc {
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
 
-    public AlbumByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public AlbumByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.mediaFileService = mediaFileService;
@@ -52,8 +53,12 @@ public class AlbumByFolderProc extends MediaFileByFolderProc {
         } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
             return mediaFileService.getAlphabeticalAlbums((int) offset, (int) count, true, folders);
         }
-        return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
-                .toList();
+        return folders
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+            .toList();
     }
 
     @Override

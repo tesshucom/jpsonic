@@ -49,21 +49,28 @@ class SearchControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new SearchController(mock(SettingsService.class),
-                mock(MusicFolderService.class), mock(SecurityService.class), mock(PlayerService.class),
-                mock(SearchService.class), mock(SearchCriteriaDirector.class))).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new SearchController(mock(SettingsService.class),
+                    mock(MusicFolderService.class), mock(SecurityService.class),
+                    mock(PlayerService.class), mock(SearchService.class),
+                    mock(SearchCriteriaDirector.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDisplayForm() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/search.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/search.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("search", modelAndView.getViewName());
 
-        SearchCommand command = (SearchCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+        SearchCommand command = (SearchCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
     }
 
@@ -73,8 +80,11 @@ class SearchControllerTest {
 
         SearchCommand command = new SearchCommand();
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/search.view").flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/search.view")
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

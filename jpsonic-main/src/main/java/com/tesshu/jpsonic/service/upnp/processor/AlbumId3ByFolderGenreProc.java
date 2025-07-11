@@ -45,7 +45,8 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrFGAlbum> {
+public class AlbumId3ByFolderGenreProc
+        extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrFGAlbum> {
 
     private static final Scope SCOPE = GenreMasterCriteria.Scope.ALBUM;
     private static final MediaType[] TYPES = { MediaType.MUSIC };
@@ -57,8 +58,9 @@ public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderO
     private final AlbumDao albumDao;
     private final FolderOrGenreLogic deligate;
 
-    public AlbumId3ByFolderGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, SettingsService settingsService,
-            SearchService searchService, AlbumDao albumDao, FolderOrGenreLogic folderOrGenreLogic) {
+    public AlbumId3ByFolderGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            SettingsService settingsService, SearchService searchService, AlbumDao albumDao,
+            FolderOrGenreLogic folderOrGenreLogic) {
         super();
         this.util = util;
         this.factory = factory;
@@ -98,18 +100,27 @@ public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderO
     }
 
     @Override
-    public List<FGenreOrFGAlbum> getChildren(FolderOrFGenre folderOrGenre, long offset, long count) {
+    public List<FGenreOrFGAlbum> getChildren(FolderOrFGenre folderOrGenre, long offset,
+            long count) {
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService.getAlbumId3sByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
-                    .stream().map(album -> new FolderGenreAlbum(folder, genre, album)).map(FGenreOrFGAlbum::new)
-                    .toList();
+            return searchService
+                .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
+                .stream()
+                .map(album -> new FolderGenreAlbum(folder, genre, album))
+                .map(FGenreOrFGAlbum::new)
+                .toList();
         }
         MusicFolder folder = folderOrGenre.getFolder();
-        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(), TYPES);
-        return searchService.getGenres(criteria, offset, count).stream().map(genre -> new FolderGenre(folder, genre))
-                .map(FGenreOrFGAlbum::new).toList();
+        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(),
+                TYPES);
+        return searchService
+            .getGenres(criteria, offset, count)
+            .stream()
+            .map(genre -> new FolderGenre(folder, genre))
+            .map(FGenreOrFGAlbum::new)
+            .toList();
     }
 
     @Override
@@ -130,19 +141,25 @@ public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderO
         if (genreOrAlbum.isAlbum()) {
             addChild(parent, genreOrAlbum.getAlbum(), TYPES);
         } else {
-            deligate.addChild(parent, getProcId(), genreOrAlbum.getGenre(),
-                    genreOrAlbum.getGenre().genre().getAlbumCount());
+            deligate
+                .addChild(parent, getProcId(), genreOrAlbum.getGenre(),
+                        genreOrAlbum.getGenre().genre().getAlbumCount());
         }
     }
 
-    private BrowseResult browseFilteredAlbum(String fgaId, long offset, long maxLength) throws ExecutionException {
+    private BrowseResult browseFilteredAlbum(String fgaId, long offset, long maxLength)
+            throws ExecutionException {
         int folderId = FolderGenreAlbum.parseFolderId(fgaId);
-        MusicFolder folder = util.getGuestFolders().stream().filter(f -> f.getId() == folderId).findFirst()
-                .orElseGet(null);
+        MusicFolder folder = util
+            .getGuestFolders()
+            .stream()
+            .filter(f -> f.getId() == folderId)
+            .findFirst()
+            .orElseGet(null);
         Album album = albumDao.getAlbum(FolderGenreAlbum.parseAlbumId(fgaId));
         String genre = FolderGenreAlbum.parseGenreName(fgaId);
-        List<MediaFile> songs = searchService.getChildrenOf(genre, album, (int) offset, (int) maxLength, asList(folder),
-                TYPES);
+        List<MediaFile> songs = searchService
+            .getChildrenOf(genre, album, (int) offset, (int) maxLength, asList(folder), TYPES);
         int childSize = searchService.getChildSizeOf(genre, album, asList(folder), TYPES);
         DIDLContent parent = new DIDLContent();
         songs.stream().forEach(song -> parent.addItem(factory.toMusicTrack(song)));
@@ -150,7 +167,8 @@ public class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderO
     }
 
     @Override
-    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
+    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength)
+            throws ExecutionException {
         if (FolderGenreAlbum.isCompositeId(id)) {
             return browseFilteredAlbum(id, offset, maxLength);
         }

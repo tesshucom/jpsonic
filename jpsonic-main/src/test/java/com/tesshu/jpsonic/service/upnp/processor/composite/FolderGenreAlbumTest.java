@@ -81,6 +81,7 @@ class FolderGenreAlbumTest {
         Album album = new Album();
         album.setId(88);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
-        assertEquals("GENRE", FolderGenreAlbum.parseGenreName(folderGenreAlbum.createCompositeId()));
+        assertEquals("GENRE",
+                FolderGenreAlbum.parseGenreName(folderGenreAlbum.createCompositeId()));
     }
 }

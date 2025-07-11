@@ -34,7 +34,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ThemeResolver;
 
 /**
- * Theme resolver implementation which returns the theme selected in the settings.
+ * Theme resolver implementation which returns the theme selected in the
+ * settings.
  *
  * @author Sindre Mehus
  */
@@ -55,8 +56,7 @@ public class CustomThemeResolver implements ThemeResolver {
     /**
      * Resolve the current theme name via the given request.
      *
-     * @param request
-     *            Request to be used for resolution
+     * @param request Request to be used for resolution
      *
      * @return The current theme name
      */
@@ -98,14 +98,17 @@ public class CustomThemeResolver implements ThemeResolver {
     /**
      * Returns whether the theme with the given ID exists.
      *
-     * @param themeId
-     *            The theme ID.
+     * @param themeId The theme ID.
      *
      * @return Whether the theme with the given ID exists.
      */
     private boolean themeExists(String themeId) {
         if (themeIds == null) {
-            themeIds = SettingsService.getAvailableThemes().stream().map(Theme::getId).collect(Collectors.toSet());
+            themeIds = SettingsService
+                .getAvailableThemes()
+                .stream()
+                .map(Theme::getId)
+                .collect(Collectors.toSet());
         }
         return themeIds.contains(themeId);
     }
@@ -113,18 +116,18 @@ public class CustomThemeResolver implements ThemeResolver {
     /**
      * Set the current theme name to the given one. This method is not supported.
      *
-     * @param request
-     *            Request to be used for theme name modification
-     * @param response
-     *            Response to be used for theme name modification
-     * @param themeName
-     *            The new theme name
+     * @param request   Request to be used for theme name modification
+     * @param response  Response to be used for theme name modification
+     * @param themeName The new theme name
      *
-     * @throws UnsupportedOperationException
-     *             If the ThemeResolver implementation does not support dynamic changing of the theme
+     * @throws UnsupportedOperationException If the ThemeResolver implementation
+     *                                       does not support dynamic changing of
+     *                                       the theme
      */
     @Override
-    public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
-        throw new UnsupportedOperationException("Cannot change theme - use a different theme resolution strategy");
+    public void setThemeName(HttpServletRequest request, HttpServletResponse response,
+            String themeName) {
+        throw new UnsupportedOperationException(
+                "Cannot change theme - use a different theme resolution strategy");
     }
 }

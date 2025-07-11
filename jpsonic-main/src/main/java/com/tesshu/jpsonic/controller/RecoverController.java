@@ -80,7 +80,7 @@ public class RecoverController {
 
         Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils
-                .trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
+            .trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
         map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
         User user = recoverService.getUserByUsernameOrEmail(usernameOrEmail);
         String errorMsg = validateParam(request, user);
@@ -110,7 +110,8 @@ public class RecoverController {
 
     private String validateParam(HttpServletRequest request, User user) {
 
-        String captchaResponseToken = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
+        String captchaResponseToken = request
+            .getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
         boolean isCaptchaFailed = !recoverService.validateCaptcha(captchaResponseToken);
 
         if (isCaptchaFailed) {

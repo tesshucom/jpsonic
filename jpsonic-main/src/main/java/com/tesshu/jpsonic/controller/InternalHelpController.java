@@ -103,7 +103,8 @@ public class InternalHelpController {
 
     public InternalHelpController(SettingsService settingsService, SecurityService securityService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
-            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
+            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao,
+            FFmpeg ffmpeg) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -121,7 +122,9 @@ public class InternalHelpController {
         Map<String, Object> map = LegacyMap.of();
 
         map.put("brand", SettingsService.getBrand());
-        map.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+        map
+            .put("admin", securityService
+                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
 
         // Gather internal information
         gatherPlatfomInfo(request, map);
@@ -152,8 +155,11 @@ public class InternalHelpController {
     }
 
     private String guessGCName() {
-        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(MemoryManagerMXBean::getName)
-                .toList();
+        List<String> names = ManagementFactory
+            .getGarbageCollectorMXBeans()
+            .stream()
+            .map(MemoryManagerMXBean::getName)
+            .toList();
         if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
             return "Z GC";
         } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {
@@ -171,21 +177,28 @@ public class InternalHelpController {
         List<MediaLibraryStatistics> stats = staticsDao.getRecentMediaLibraryStatistics();
         List<StatsVO> result = new ArrayList<>();
         folders.forEach(folder -> {
-            stats.stream().filter(stat -> stat.getFolderId() == folder.getId()).findFirst().ifPresent(stat -> {
-                StatsVO vo = new StatsVO(LocalDateTime.ofInstant(stat.getExecuted(), ZoneId.systemDefault()),
-                        folder.getName(), stat.getArtistCount(), stat.getAlbumCount(), stat.getSongCount(),
-                        stat.getVideoCount(), StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
-                        FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
-                result.add(vo);
-            });
+            stats
+                .stream()
+                .filter(stat -> stat.getFolderId() == folder.getId())
+                .findFirst()
+                .ifPresent(stat -> {
+                    StatsVO vo = new StatsVO(
+                            LocalDateTime.ofInstant(stat.getExecuted(), ZoneId.systemDefault()),
+                            folder.getName(), stat.getArtistCount(), stat.getAlbumCount(),
+                            stat.getSongCount(), stat.getVideoCount(),
+                            StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
+                            FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
+                    result.add(vo);
+                });
         });
         map.put("stats", result);
     }
 
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
     /*
-     * [CloseResource] False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once
-     * all threads have finished using it. Use release instead of close for reuse. No explicit close is done here.
+     * [CloseResource] False positive. SearcherManager inherits Closeable but
+     * ensures each searcher is closed only once all threads have finished using it.
+     * Use release instead of close for reuse. No explicit close is done here.
      * [AvoidInstantiatingObjectsInLoops] (IndexStatistics) Not reusable
      */
     private void gatherIndexInfo(Map<String, Object> map) {
@@ -214,15 +227,19 @@ public class InternalHelpController {
     }
 
     /**
-     * Returns true if a locale string (e.g. en_US.UTF-8) appears to support UTF-8 correctly.
+     * Returns true if a locale string (e.g. en_US.UTF-8) appears to support UTF-8
+     * correctly.
      * <p>
-     * Some systems use non-standard locales (e.g. en_US.utf8 instead of en_US.UTF-8) to specify Unicode support, which
-     * are usually supported by the Glibc.
+     * Some systems use non-standard locales (e.g. en_US.utf8 instead of
+     * en_US.UTF-8) to specify Unicode support, which are usually supported by the
+     * Glibc.
      * <p>
-     * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
+     * See:
+     * https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
     boolean doesLocaleSupportUtf8(String locale) {
-        return locale != null && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
+        return locale != null
+                && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
     }
 
     private void gatherLocaleInfo(Map<String, Object> map) {
@@ -237,10 +254,14 @@ public class InternalHelpController {
         map.put("localeDefaultCharset", Charset.defaultCharset().toString());
         map.put("localeDefaultZoneOffset", ZoneOffset.systemDefault());
 
-        map.put("localeFileEncodingSupportsUtf8", doesLocaleSupportUtf8(System.getProperty("file.encoding")));
+        map
+            .put("localeFileEncodingSupportsUtf8",
+                    doesLocaleSupportUtf8(System.getProperty("file.encoding")));
         map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LANG")));
         map.put("localeLcAllSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LC_ALL")));
-        map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
+        map
+            .put("localeDefaultCharsetSupportsUtf8",
+                    doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
     @SuppressFBWarnings(value = { "CRLF_INJECTION_LOGS",
@@ -267,7 +288,9 @@ public class InternalHelpController {
                     String tableName = resultSet.getString("TABLE_NAME");
                     String tableType = resultSet.getString("TABLE_TYPE");
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
+                        LOG
+                            .debug("Got database table {}, schema {}, type {}", tableName,
+                                    tableSchema, tableType);
                     }
                     if (!TABLE_TYPE_TABLE.equalsIgnoreCase(tableType)) {
                         continue; // Table type
@@ -276,8 +299,9 @@ public class InternalHelpController {
                     if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) {
                         continue; // Table schema
                     }
-                    Long tableCount = daoHelper.getJdbcTemplate()
-                            .queryForObject("SELECT count(*) FROM %s".formatted(tableName), Long.class);
+                    Long tableCount = daoHelper
+                        .getJdbcTemplate()
+                        .queryForObject("SELECT count(*) FROM %s".formatted(tableName), Long.class);
                     dbTableCount.put(tableName, tableCount);
                 }
                 map.put("dbTableCount", dbTableCount);
@@ -295,8 +319,12 @@ public class InternalHelpController {
         if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))) {
             map.put("dbIsLegacy", true);
             Path dbDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "db");
-            map.put("dbDirectorySizeBytes", Files.exists(dbDirectory) ? FileUtil.sizeOfDirectory(dbDirectory) : 0);
-            map.put("dbDirectorySize", FileUtil.byteCountToDisplaySize((long) map.get("dbDirectorySizeBytes")));
+            map
+                .put("dbDirectorySizeBytes",
+                        Files.exists(dbDirectory) ? FileUtil.sizeOfDirectory(dbDirectory) : 0);
+            map
+                .put("dbDirectorySize",
+                        FileUtil.byteCountToDisplaySize((long) map.get("dbDirectorySizeBytes")));
             Path dbLogFile = Path.of(dbDirectory.toString(), "airsonic.log");
             try {
                 map.put("dbLogSizeBytes", Files.exists(dbLogFile) ? Files.size(dbLogFile) : 0);
@@ -344,8 +372,11 @@ public class InternalHelpController {
             String line = br.readLine();
             while (line != null) {
                 if (line.startsWith("ffmpeg version")) {
-                    sb.append(line.substring(0, line.indexOf("Copyright") - 1)).append("\n\s\s\s\s\s\s\s\s")
-                            .append(line.substring(line.indexOf("Copyright"))).append('\n');
+                    sb
+                        .append(line.substring(0, line.indexOf("Copyright") - 1))
+                        .append("\n\s\s\s\s\s\s\s\s")
+                        .append(line.substring(line.indexOf("Copyright")))
+                        .append('\n');
                 } else if (line.startsWith("built with")) {
                     sb.append("\s\s\s\s\s\s\s\s").append(line).append('\n');
                 } else if (line.startsWith("configuration:")) {
@@ -376,7 +407,8 @@ public class InternalHelpController {
         FileStatistics ffmpegStatistics = gatherStatisticsForTranscodingExecutable("ffmpeg");
         map.put("fsFfmpegInfo", ffmpegStatistics);
         String version = "Unknown";
-        if (ffmpegStatistics != null && ffmpegStatistics.isReadable() && ffmpegStatistics.isExecutable()) {
+        if (ffmpegStatistics != null && ffmpegStatistics.isReadable()
+                && ffmpegStatistics.isExecutable()) {
             version = ffmpeg.getVersion();
         }
         map.put("ffmpegVersion", formatFFmpegVersion(version));
@@ -403,7 +435,8 @@ public class InternalHelpController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForTranscodingExecutable(String executableName) {
         for (String name : Arrays.asList(executableName, "%s.exe".formatted(executableName))) {
-            Path executableLocation = Path.of(transcodingService.getTranscodeDirectory().toString(), name);
+            Path executableLocation = Path
+                .of(transcodingService.getTranscodeDirectory().toString(), name);
             if (Files.exists(executableLocation)) {
                 return executableLocation;
             }
@@ -528,11 +561,17 @@ public class InternalHelpController {
             this.setPath(path.toString());
             try {
                 FileStore store = Files.getFileStore(path);
-                this.setFreeFilesystemSizeBytes(FileUtil.byteCountToDisplaySize(store.getUsableSpace()));
-                this.setTotalFilesystemSizeBytes(FileUtil.byteCountToDisplaySize(store.getTotalSpace()));
+                this
+                    .setFreeFilesystemSizeBytes(
+                            FileUtil.byteCountToDisplaySize(store.getUsableSpace()));
+                this
+                    .setTotalFilesystemSizeBytes(
+                            FileUtil.byteCountToDisplaySize(store.getTotalSpace()));
             } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Could not get directory size because path cannot be accessed.: " + path, e.getMessage());
+                    LOG
+                        .warn("Could not get directory size because path cannot be accessed.: "
+                                + path, e.getMessage());
                 }
             }
             this.setReadable(Files.isReadable(path));
@@ -552,8 +591,8 @@ public class InternalHelpController {
         private final String size;
         private final String duration;
 
-        public StatsVO(LocalDateTime executed, String folderName, int artistCount, int albumCount, int songCount,
-                int videoCount, String size, String duration) {
+        public StatsVO(LocalDateTime executed, String folderName, int artistCount, int albumCount,
+                int songCount, int videoCount, String size, String duration) {
             super();
             this.executed = executed;
             this.folderName = folderName;

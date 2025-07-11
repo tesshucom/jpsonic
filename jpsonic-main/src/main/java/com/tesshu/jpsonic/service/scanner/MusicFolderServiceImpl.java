@@ -40,7 +40,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * The class containing MusicFolder-related methods extracted from the legacy server's SettingsService.
+ * The class containing MusicFolder-related methods extracted from the legacy
+ * server's SettingsService.
  */
 @Service("musicFolderService")
 @DependsOn("scannerStateService")
@@ -68,14 +69,18 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
     }
 
     @Override
-    public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
+    public List<MusicFolder> getAllMusicFolders(boolean includeDisabled,
+            boolean includeNonExisting) {
         readLock(cacheLock);
         try {
             if (cachedMusicFolders == null) {
                 cachedMusicFolders = musicFolderDao.getAllMusicFolders();
             }
-            return cachedMusicFolders.stream().filter(folder -> includeDisabled || folder.isEnabled())
-                    .filter(folder -> includeNonExisting || Files.exists(folder.toPath())).collect(Collectors.toList());
+            return cachedMusicFolders
+                .stream()
+                .filter(folder -> includeDisabled || folder.isEnabled())
+                .filter(folder -> includeNonExisting || Files.exists(folder.toPath()))
+                .collect(Collectors.toList());
         } finally {
             readUnlock(cacheLock);
         }
@@ -103,13 +108,15 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
     }
 
     @Override
-    public List<MusicFolder> getMusicFoldersForUser(@NonNull String username, @Nullable Integer selectedMusicFolderId) {
+    public List<MusicFolder> getMusicFoldersForUser(@NonNull String username,
+            @Nullable Integer selectedMusicFolderId) {
         List<MusicFolder> allowed = getMusicFoldersForUser(username);
         if (selectedMusicFolderId == null) {
             return allowed;
         }
         MusicFolder selected = getMusicFolderById(selectedMusicFolderId);
-        return allowed.contains(selected) ? Collections.singletonList(selected) : Collections.emptyList();
+        return allowed.contains(selected) ? Collections.singletonList(selected)
+                : Collections.emptyList();
     }
 
     @Override
@@ -125,7 +132,11 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
 
     @Override
     public @Nullable MusicFolder getMusicFolderById(int id) {
-        return getAllMusicFolders().stream().filter(folder -> folder.getId().equals(id)).findFirst().orElse(null);
+        return getAllMusicFolders()
+            .stream()
+            .filter(folder -> folder.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     public void createMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
@@ -185,7 +196,8 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
         }
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache
+    @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear
+                                            // cache
     public void clearMusicFolderCache() {
         writeLock(cacheLock);
         try {

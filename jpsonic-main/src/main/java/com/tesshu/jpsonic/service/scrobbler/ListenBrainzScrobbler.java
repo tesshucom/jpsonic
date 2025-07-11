@@ -75,19 +75,16 @@ public class ListenBrainzScrobbler {
     }
 
     /**
-     * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is
-     * done by a separate task.
+     * Registers the given media file at listenbrainz.org. This method returns
+     * immediately, the actual registration is done by a separate task.
      *
-     * @param mediaFile
-     *            The media file to register.
-     * @param token
-     *            The token to authentication user on ListenBrainz.
-     * @param submission
-     *            Whether this is a submission or a now playing notification.
-     * @param time
-     *            Event time, or {@code null} to use current time.
+     * @param mediaFile  The media file to register.
+     * @param token      The token to authentication user on ListenBrainz.
+     * @param submission Whether this is a submission or a now playing notification.
+     * @param time       Event time, or {@code null} to use current time.
      */
-    public void register(MediaFile mediaFile, String token, boolean submission, Instant time, Executor executor) {
+    public void register(MediaFile mediaFile, String token, boolean submission, Instant time,
+            Executor executor) {
 
         registrationLock.lock();
         try {
@@ -98,11 +95,13 @@ public class ListenBrainzScrobbler {
             }
 
             if (queue.size() >= MAX_PENDING_REGISTRATION) {
-                writeWarn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
+                writeWarn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle()
+                        + "'");
                 return;
             }
 
-            RegistrationData registrationData = new RegistrationData(mediaFile, token, submission, time);
+            RegistrationData registrationData = new RegistrationData(mediaFile, token, submission,
+                    time);
             try {
                 queue.put(registrationData);
             } catch (InterruptedException e) {
@@ -114,11 +113,10 @@ public class ListenBrainzScrobbler {
     }
 
     /**
-     * Scrobbles the given song data at listenbrainz.org, using the protocol defined at
-     * https://listenbrainz.readthedocs.io/en/latest/dev/api.html.
+     * Scrobbles the given song data at listenbrainz.org, using the protocol defined
+     * at https://listenbrainz.readthedocs.io/en/latest/dev/api.html.
      *
-     * @param registrationData
-     *            Registration data for the song.
+     * @param registrationData Registration data for the song.
      */
     protected static void scrobble(RegistrationData registrationData) throws ExecutionException {
         if (registrationData == null || registrationData.getToken() == null) {
@@ -127,13 +125,16 @@ public class ListenBrainzScrobbler {
 
         if (submit(registrationData)) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
-                        + " for song '" + registrationData.getTitle() + "'" + " at ListenBrainz: "
-                        + registrationData.getTime());
+                LOG
+                    .info("Successfully registered "
+                            + (registrationData.isSubmission() ? "submission" : "now playing")
+                            + " for song '" + registrationData.getTitle() + "'"
+                            + " at ListenBrainz: " + registrationData.getTime());
             }
         } else {
             if (LOG.isWarnEnabled()) {
-                writeWarn("Failed to scrobble song '" + registrationData.getTitle() + "' at ListenBrainz.");
+                writeWarn("Failed to scrobble song '" + registrationData.getTitle()
+                        + "' at ListenBrainz.");
             }
         }
     }
@@ -143,8 +144,10 @@ public class ListenBrainzScrobbler {
      */
     static boolean submit(RegistrationData registrationData) throws ExecutionException {
         Map<String, Object> additionalInfo = LegacyMap.of();
-        additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.getMusicBrainzReleaseId());
-        additionalInfo.computeIfAbsent("recording_mbid", k -> registrationData.getMusicBrainzRecordingId());
+        additionalInfo
+            .computeIfAbsent("release_mbid", k -> registrationData.getMusicBrainzReleaseId());
+        additionalInfo
+            .computeIfAbsent("recording_mbid", k -> registrationData.getMusicBrainzRecordingId());
         additionalInfo.computeIfAbsent("tracknumber", k -> registrationData.getTrackNumber());
 
         Map<String, Object> trackMetadata = LegacyMap.of();
@@ -180,11 +183,12 @@ public class ListenBrainzScrobbler {
             throw new ExecutionException("Error when writing Json", e);
         }
 
-        return executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens", registrationData.getToken(),
-                json);
+        return executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens",
+                registrationData.getToken(), json);
     }
 
-    private static boolean executeJsonPostRequest(String url, String token, String json) throws ExecutionException {
+    private static boolean executeJsonPostRequest(String url, String token, String json)
+            throws ExecutionException {
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(json, Charset.forName(StringUtil.ENCODING_UTF8)));
         request.setHeader("Authorization", "token " + token);
@@ -195,7 +199,8 @@ public class ListenBrainzScrobbler {
     private static boolean executeRequest(HttpUriRequest request) throws ExecutionException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             String result = client.execute(request, new BasicHttpClientResponseHandler());
-            // In the original code, submission success/failure determination is not implemented.
+            // In the original code, submission success/failure determination is not
+            // implemented.
             // return e.g. "{\"status\": \"ok\"}".equals(result);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Successful submission communication - {}", result);
@@ -271,24 +276,25 @@ public class ListenBrainzScrobbler {
             try {
                 queue.put(registrationData);
                 if (LOG.isInfoEnabled()) {
-                    LOG.info(
-                            "ListenBrainz registration for '" + registrationData.getTitle()
-                                    + "' encountered network error. Will try again later. In queue: " + queue.size(),
-                            cause);
+                    LOG
+                        .info("ListenBrainz registration for '" + registrationData.getTitle()
+                                + "' encountered network error. Will try again later. In queue: "
+                                + queue.size(), cause);
                 }
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error(
-                            "Failed to reschedule ListenBrainz registration for '" + registrationData.getTitle() + "'.",
-                            cause);
+                    LOG
+                        .error("Failed to reschedule ListenBrainz registration for '"
+                                + registrationData.getTitle() + "'.", cause);
                 }
             }
             try {
                 Thread.sleep(60L * 1000L); // Wait 60 seconds.
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to sleep after ListenBrainz registration failure for '"
-                            + registrationData.getTitle() + "': " + x.toString());
+                    LOG
+                        .error("Failed to sleep after ListenBrainz registration failure for '"
+                                + registrationData.getTitle() + "': " + x.toString());
                 }
             }
         }
@@ -306,7 +312,8 @@ public class ListenBrainzScrobbler {
         private final Instant time;
         public boolean submission;
 
-        public RegistrationData(MediaFile mediaFile, String token, boolean submission, Instant time) {
+        public RegistrationData(MediaFile mediaFile, String token, boolean submission,
+                Instant time) {
             super();
             this.token = token;
             this.artist = mediaFile.getArtist();
@@ -315,7 +322,8 @@ public class ListenBrainzScrobbler {
             this.musicBrainzReleaseId = mediaFile.getMusicBrainzReleaseId();
             this.musicBrainzRecordingId = mediaFile.getMusicBrainzRecordingId();
             this.trackNumber = mediaFile.getTrackNumber();
-            // reg.duration = mediaFile.getDurationSeconds() == null ? 0 : mediaFile.getDurationSeconds();
+            // reg.duration = mediaFile.getDurationSeconds() == null ? 0 :
+            // mediaFile.getDurationSeconds();
             this.time = time == null ? now() : time;
             this.submission = submission;
         }

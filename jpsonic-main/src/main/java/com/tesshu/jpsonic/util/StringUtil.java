@@ -62,22 +62,29 @@ public final class StringUtil {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static final String MP4 = "audio/mp4";
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
-    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*", "|" };
+    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*",
+            "|" };
     private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
-            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" }, { "aac", MP4 },
-            { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" }, { "wav", "audio/x-wav" },
-            { "wma", "audio/x-ms-wma" }, { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
+            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" },
+            { "aac", MP4 }, { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" },
+            { "wav", "audio/x-wav" }, { "wma", "audio/x-ms-wma" },
+            { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
             { "shn", "audio/x-shn" },
-            { "dsf", Optional.ofNullable(System.getProperty(ENV_MIME_DSF.key)).orElse(ENV_MIME_DSF.defaultValue) },
-            { "dff", Optional.ofNullable(System.getProperty(ENV_MIME_DFF.key)).orElse(ENV_MIME_DFF.defaultValue) },
+            { "dsf", Optional
+                .ofNullable(System.getProperty(ENV_MIME_DSF.key))
+                .orElse(ENV_MIME_DSF.defaultValue) },
+            { "dff", Optional
+                .ofNullable(System.getProperty(ENV_MIME_DFF.key))
+                .orElse(ENV_MIME_DFF.defaultValue) },
 
-            { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
-            { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
-            { "mov", "video/quicktime" }, { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" }, { "divx", "video/divx" },
+            { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" },
+            { "mpeg", "video/mpeg" }, { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" },
+            { "mkv", "video/x-matroska" }, { "mov", "video/quicktime" },
+            { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" }, { "divx", "video/divx" },
             { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" }, { "webm", "video/webm" },
 
-            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" }, { "png", "image/png" },
-            { "bmp", "image/bmp" }, };
+            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
+            { "png", "image/png" }, { "bmp", "image/bmp" }, };
 
     /**
      * Disallow external instantiation.
@@ -88,11 +95,10 @@ public final class StringUtil {
     /**
      * Returns the proper MIME type for the given suffix.
      *
-     * @param suffix
-     *            The suffix, e.g., "mp3" or ".mp3".
+     * @param suffix The suffix, e.g., "mp3" or ".mp3".
      *
-     * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is found,
-     *         <code>application/octet-stream</code> is returned.
+     * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is
+     *         found, <code>application/octet-stream</code> is returned.
      */
     public static String getMimeType(String suffix) {
         for (String[] typeAndValue : MIME_TYPES) {
@@ -140,7 +146,8 @@ public final class StringUtil {
         long seconds = sec;
         long hours = seconds == 0 ? 0 : seconds / 3600;
         seconds -= hours * 3600;
-        return String.format("%d:%s%s", hours, seconds < 600 ? "0" : "", formatDurationMSS(seconds));
+        return String
+            .format("%d:%s%s", hours, seconds < 600 ? "0" : "", formatDurationMSS(seconds));
     }
 
     /**
@@ -154,13 +161,12 @@ public final class StringUtil {
     }
 
     /**
-     * Splits the input string. White space is interpreted as separator token. Double quotes are interpreted as grouping
-     * operator. <br/>
-     * For instance, the input <code>"u2 rem "greatest hits""</code> will return an array with three elements:
-     * <code>{"u2", "rem", "greatest hits"}</code>
+     * Splits the input string. White space is interpreted as separator token.
+     * Double quotes are interpreted as grouping operator. <br/>
+     * For instance, the input <code>"u2 rem "greatest hits""</code> will return an
+     * array with three elements: <code>{"u2", "rem", "greatest hits"}</code>
      *
-     * @param input
-     *            The input string.
+     * @param input The input string.
      *
      * @return Array of elements.
      */
@@ -183,19 +189,19 @@ public final class StringUtil {
     }
 
     /**
-     * Reads lines from the given input stream. All lines are trimmed. Empty lines and lines starting with "#" are
-     * skipped. The input stream is always closed by this method.
+     * Reads lines from the given input stream. All lines are trimmed. Empty lines
+     * and lines starting with "#" are skipped. The input stream is always closed by
+     * this method.
      *
-     * @param in
-     *            The input stream to read from.
+     * @param in The input stream to read from.
      *
      * @return Array of lines.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
     public static List<String> readLines(@NonNull InputStream in) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 String trimed = line.trim();
@@ -208,15 +214,14 @@ public final class StringUtil {
     }
 
     /**
-     * Converts the given string of whitespace-separated integers to an <code>int</code> array.
+     * Converts the given string of whitespace-separated integers to an
+     * <code>int</code> array.
      *
-     * @param s
-     *            String consisting of integers separated by whitespace.
+     * @param s String consisting of integers separated by whitespace.
      *
      * @return The corresponding array of ints.
      *
-     * @throws NumberFormatException
-     *             If string contains non-parseable text.
+     * @throws NumberFormatException If string contains non-parseable text.
      */
     public static @NonNull int[] parseInts(String s) {
         if (s == null) {
@@ -229,8 +234,8 @@ public final class StringUtil {
     /**
      * Parses a locale from the given string.
      *
-     * @param s
-     *            The locale string. Should be formatted as per the documentation in {@link Locale#toString()}.
+     * @param s The locale string. Should be formatted as per the documentation in
+     *          {@link Locale#toString()}.
      *
      * @return The locale.
      */
@@ -285,8 +290,7 @@ public final class StringUtil {
      * <p/>
      * will return "url-primer.html".
      *
-     * @param url
-     *            The URL in question.
+     * @param url The URL in question.
      *
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
@@ -310,10 +314,10 @@ public final class StringUtil {
     }
 
     /**
-     * Makes a given filename safe by replacing special characters like slashes ("/" and "\") with dashes ("-").
+     * Makes a given filename safe by replacing special characters like slashes ("/"
+     * and "\") with dashes ("-").
      *
-     * @param filename
-     *            The filename in question.
+     * @param filename The filename in question.
      *
      * @return The filename with special characters replaced by underscores.
      */

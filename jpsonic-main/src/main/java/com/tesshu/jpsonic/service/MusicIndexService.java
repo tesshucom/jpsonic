@@ -41,7 +41,8 @@ public interface MusicIndexService {
     /**
      * @since v113.0.0
      */
-    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders, MediaType... excludes);
+    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders,
+            MediaType... excludes);
 
     /**
      * @since v113.0.0

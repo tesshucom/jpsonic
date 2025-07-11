@@ -52,14 +52,16 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases", "PMD.TooManyStaticImports" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases",
+        "PMD.TooManyStaticImports" })
 class PlayQueueTest {
 
     private JpsonicComparators jpsonicComparators;
 
     @BeforeEach
     public void setup() {
-        jpsonicComparators = new JpsonicComparators(mock(SettingsService.class), mock(JapaneseReadingUtils.class));
+        jpsonicComparators = new JpsonicComparators(mock(SettingsService.class),
+                mock(JapaneseReadingUtils.class));
     }
 
     @Test
@@ -202,7 +204,9 @@ class PlayQueueTest {
     void testAddFilesAt() {
         PlayQueue playQueue = createPlaylist(0);
 
-        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
+        playQueue
+            .addFilesAt(Arrays
+                .asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
         assertPlaylistEquals(playQueue, 0, "A", "B", "C");
 
         playQueue.addFilesAt(Arrays.asList(new TestMediaFile("D"), new TestMediaFile("E")), 1);
@@ -231,7 +235,8 @@ class PlayQueueTest {
 
         MetricRegistry metrics = new MetricRegistry();
         List<Future<Integer>> futures = new ArrayList<>();
-        Timer globalTimer = metrics.timer(MetricRegistry.name(PlayQueueTest.class, "PlayQueue#setIndex"));
+        Timer globalTimer = metrics
+            .timer(MetricRegistry.name(PlayQueueTest.class, "PlayQueue#setIndex"));
 
         String[] songs = new String[threadsCount];
         for (int i = 0; i < songs.length; i++) {
@@ -262,8 +267,10 @@ class PlayQueueTest {
         }).sum());
         executor.shutdown();
 
-        ConsoleReporter.Builder builder = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS);
+        ConsoleReporter.Builder builder = ConsoleReporter
+            .forRegistry(metrics)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.MILLISECONDS);
         try (ConsoleReporter reporter = builder.build()) {
             // to be none
         }

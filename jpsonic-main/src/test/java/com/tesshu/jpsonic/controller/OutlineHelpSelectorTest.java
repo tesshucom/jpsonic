@@ -41,6 +41,7 @@ class OutlineHelpSelectorTest {
 
     @Test
     void testIsShowOutlineHelp() throws Exception {
-        assertFalse(outlineHelpSelector.isShowOutlineHelp(new MockHttpServletRequest(), ServiceMockUtils.ADMIN_NAME));
+        assertFalse(outlineHelpSelector
+            .isShowOutlineHelp(new MockHttpServletRequest(), ServiceMockUtils.ADMIN_NAME));
     }
 }

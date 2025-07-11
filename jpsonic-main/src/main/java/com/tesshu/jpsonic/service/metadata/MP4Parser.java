@@ -59,7 +59,8 @@ public class MP4Parser {
         tikaParser = new org.apache.tika.parser.mp4.MP4Parser();
     }
 
-    long getThreshold(@NonNull MediaFile mediaFile, Map<String, @NonNull MP4ParseStatistics> statistics) {
+    long getThreshold(@NonNull MediaFile mediaFile,
+            Map<String, @NonNull MP4ParseStatistics> statistics) {
         String folder = ParserUtils.getFolder(mediaFile);
         if (!statistics.containsKey(folder)) {
             statistics.putIfAbsent(folder, new MP4ParseStatistics());
@@ -71,7 +72,8 @@ public class MP4Parser {
         return Optional.ofNullable(trimToNull(metadata.get(fieldKey)));
     }
 
-    MetaData parseWithFFProbe(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
+    MetaData parseWithFFProbe(@NonNull MediaFile mediaFile,
+            @Nullable Map<String, MP4ParseStatistics> statistics) {
         return ffprobe.parse(mediaFile, statistics);
     }
 
@@ -89,30 +91,38 @@ public class MP4Parser {
             tikaParser.parse(bid, handler, metadata, ps);
         } catch (IOException | SAXException | TikaException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to parse the tag({}): {}", getShortPath(mediaFile.toPath()), e.getMessage());
+                LOG
+                    .warn("Failed to parse the tag({}): {}", getShortPath(mediaFile.toPath()),
+                            e.getMessage());
             }
             return result;
         }
 
         long readtime = Instant.now().toEpochMilli() - current;
-        statistics.get(ParserUtils.getFolder(mediaFile)).addTikaLeadTime(mediaFile.getFileSize(), readtime);
+        statistics
+            .get(ParserUtils.getFolder(mediaFile))
+            .addTikaLeadTime(mediaFile.getFileSize(), readtime);
 
-        getField(metadata, TIFF.IMAGE_LENGTH.getName()).ifPresent(s -> result.setHeight(ParserUtils.parseInt(s)));
-        getField(metadata, TIFF.IMAGE_WIDTH.getName()).ifPresent(s -> result.setWidth(ParserUtils.parseInt(s)));
+        getField(metadata, TIFF.IMAGE_LENGTH.getName())
+            .ifPresent(s -> result.setHeight(ParserUtils.parseInt(s)));
+        getField(metadata, TIFF.IMAGE_WIDTH.getName())
+            .ifPresent(s -> result.setWidth(ParserUtils.parseInt(s)));
         getField(metadata, XMPDM.DURATION.getName())
-                .ifPresent(s -> result.setDurationSeconds(ParserUtils.parseDoubleToInt(s)));
+            .ifPresent(s -> result.setDurationSeconds(ParserUtils.parseDoubleToInt(s)));
         getField(metadata, XMPDM.ALBUM_ARTIST.getName()).ifPresent(result::setAlbumArtist);
         getField(metadata, XMPDM.ALBUM.getName()).ifPresent(result::setAlbumName);
         getField(metadata, XMPDM.ARTIST.getName()).ifPresent(result::setArtist);
         if (isEmpty(result.getArtist())) {
             getField(metadata, DublinCore.CREATOR.getName()).ifPresent(result::setArtist);
         }
-        getField(metadata, XMPDM.DISC_NUMBER.getName()).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
+        getField(metadata, XMPDM.DISC_NUMBER.getName())
+            .ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
         getField(metadata, XMPDM.GENRE.getName()).ifPresent(result::setGenre);
         getField(metadata, DublinCore.TITLE.getName()).ifPresent(result::setTitle);
         getField(metadata, XMPDM.TRACK_NUMBER.getName())
-                .ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
-        getField(metadata, XMPDM.RELEASE_DATE.getName()).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
+            .ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(metadata, XMPDM.RELEASE_DATE.getName())
+            .ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
         getField(metadata, XMPDM.COMPOSER.getName()).ifPresent(result::setComposer);
 
         return result;
@@ -122,7 +132,8 @@ public class MP4Parser {
         return parseWithFFProbe(mediaFile, null);
     }
 
-    public MetaData getRawMetaData(@NonNull MediaFile mediaFile, @NonNull Map<String, MP4ParseStatistics> statistics) {
+    public MetaData getRawMetaData(@NonNull MediaFile mediaFile,
+            @NonNull Map<String, MP4ParseStatistics> statistics) {
         if (mediaFile.getFileSize() > getThreshold(mediaFile, statistics)) {
             return parseWithFFProbe(mediaFile, statistics);
         }

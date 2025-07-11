@@ -53,10 +53,11 @@ public final class Album implements Orderable {
     public Album() {
     }
 
-    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
-            String coverArtPath, Integer year, String genre, int playCount, Instant lastPlayed, String comment,
-            Instant created, Instant lastScanned, boolean present, Integer folderId, String musicBrainzReleaseId,
-            String artistSort, String nameSort, String artistReading, String nameReading, int order) {
+    public Album(int id, String path, String name, String artist, int songCount,
+            int durationSeconds, String coverArtPath, Integer year, String genre, int playCount,
+            Instant lastPlayed, String comment, Instant created, Instant lastScanned,
+            boolean present, Integer folderId, String musicBrainzReleaseId, String artistSort,
+            String nameSort, String artistReading, String nameReading, int order) {
         this.id = id;
         this.path = path;
         this.name = name;

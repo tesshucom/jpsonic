@@ -60,11 +60,16 @@ class VideoPlayerControllerTest {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFileStrict(file.getId())).thenReturn(file);
         Mockito.when(mediaFileService.getParentOf(file)).thenReturn(dir);
-        Mockito.doNothing().when(mediaFileService).populateStarredDate(Mockito.any(MediaFile.class), Mockito.any());
+        Mockito
+            .doNothing()
+            .when(mediaFileService)
+            .populateStarredDate(Mockito.any(MediaFile.class), Mockito.any());
 
         SecurityService securityService = mock(SecurityService.class);
         Mockito.when(securityService.isInPodcastFolder(Mockito.any())).thenReturn(true);
-        Mockito.when(securityService.isFolderAccessAllowed(dir, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
+        Mockito
+            .when(securityService.isFolderAccessAllowed(dir, ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(true);
 
         PlayerService playerService = Mockito.mock(PlayerService.class);
         Player player = new Player();
@@ -74,16 +79,21 @@ class VideoPlayerControllerTest {
         Mockito.when(playerService.getPlayerById(0)).thenReturn(player);
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new VideoPlayerController(mock(SettingsService.class),
-                securityService, mediaFileService, playerService)).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new VideoPlayerController(mock(SettingsService.class), securityService,
+                    mediaFileService, playerService))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/videoPlayer.view").param(Attributes.Request.ID.value(), "0"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/videoPlayer.view")
+                .param(Attributes.Request.ID.value(), "0"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("videoPlayer", modelAndView.getViewName());

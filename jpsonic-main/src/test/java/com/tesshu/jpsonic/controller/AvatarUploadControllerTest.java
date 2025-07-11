@@ -35,7 +35,8 @@ class AvatarUploadControllerTest {
 
     @BeforeEach
     public void setup() {
-        controller = new AvatarUploadController(mock(SecurityService.class), mock(AvatarService.class));
+        controller = new AvatarUploadController(mock(SecurityService.class),
+                mock(AvatarService.class));
     }
 
     @Test

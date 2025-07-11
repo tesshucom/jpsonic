@@ -152,36 +152,43 @@ class RootProcTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildren() {
-        List<MenuItem> children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.FOLDER), 0,
-                Integer.MAX_VALUE);
+        List<MenuItem> children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.FOLDER), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.MEDIA_FILE, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.ARTIST), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.ARTIST), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.ALBUM_ARTIST, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.ALBUM), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.ALBUM), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.ALBUM_ID3, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.GENRE), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.GENRE), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.PODCAST), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.PODCAST), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.PODCAST_DEFALT, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.PLAYLISTS), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.PLAYLISTS), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.PLAYLISTS_DEFALT, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.RECENTLY), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.RECENTLY), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, children.get(0).getId());
 
-        children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.SHUFFLE), 0, Integer.MAX_VALUE);
+        children = proc
+            .getChildren(menuItemService.getMenuItem(MenuItemId.SHUFFLE), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
         assertEquals(MenuItemId.RANDOM_SONG, children.get(0).getId());
     }
@@ -203,8 +210,9 @@ class RootProcTest extends AbstractNeedsScan {
 
         @Test
         void testSingleSubMenues() throws ExecutionException {
-            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
-                    Integer.MAX_VALUE);
+            BrowseResult result = proc
+                .browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
+                        Integer.MAX_VALUE);
             assertEquals(0L, result.getCount().getValue());
         }
 
@@ -214,13 +222,16 @@ class RootProcTest extends AbstractNeedsScan {
             assertTrue(sub1.isEnabled());
             MenuItem sub2 = menuItemService.getMenuItem(MenuItemId.INDEX);
             assertFalse(sub2.isEnabled());
-            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
-                    Integer.MAX_VALUE);
+            BrowseResult result = proc
+                .browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
+                        Integer.MAX_VALUE);
             assertEquals(0L, result.getCount().getValue());
 
             sub2.setEnabled(true);
             menuItemService.updateMenuItem(sub2);
-            result = proc.browseLeaf(Integer.toString(MenuItemId.FOLDER.value()), null, 0, Integer.MAX_VALUE);
+            result = proc
+                .browseLeaf(Integer.toString(MenuItemId.FOLDER.value()), null, 0,
+                        Integer.MAX_VALUE);
             assertEquals(2L, result.getCount().getValue());
 
             sub2.setEnabled(false);

@@ -53,8 +53,8 @@ import org.jupnp.model.message.UpnpMessage.BodyType;
 import org.jupnp.model.message.UpnpRequest;
 import org.jupnp.model.message.UpnpRequest.Method;
 
-@SuppressWarnings({"PMD.TooManyStaticImports", "PMD.JUnitTestsShouldIncludeAssert",
-    "PMD.AvoidDuplicateLiterals", "PMD.AvoidCatchingGenericException"})
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.JUnitTestsShouldIncludeAssert",
+        "PMD.AvoidDuplicateLiterals", "PMD.AvoidCatchingGenericException" })
 @TestInstance(Lifecycle.PER_CLASS)
 class StreamClientImplTest {
 
@@ -104,9 +104,9 @@ class StreamClientImplTest {
             when(operation.getURI()).thenReturn(URI.create("https://github.com/jpsonic/jpsonic"));
             UpnpHeaders upnpHeaders = new UpnpHeaders();
             when(message.getHeaders()).thenReturn(upnpHeaders);
-            
+
             HttpUriRequestBase request = streamClient.createRequest(message);
-            
+
             assertEquals("GET", request.getMethod());
             assertEquals("HTTP/1.0", request.getVersion().toString());
         }
@@ -122,9 +122,9 @@ class StreamClientImplTest {
             when(message.getHeaders()).thenReturn(upnpHeaders);
             when(message.getBodyType()).thenReturn(BodyType.STRING);
             when(message.getBodyString()).thenReturn("test");
-            
+
             HttpUriRequestBase request = streamClient.createRequest(message);
-            
+
             assertEquals("POST", request.getMethod());
             assertEquals("HTTP/1.0", request.getVersion().toString());
         }
@@ -137,12 +137,12 @@ class StreamClientImplTest {
             when(message.getOperation()).thenReturn(operation);
 
             assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> streamClient.createRequest(message));
+                .isThrownBy(() -> streamClient.createRequest(message));
         }
     }
 
     @Test
-    void testCreateCallable() throws URISyntaxException  {
+    void testCreateCallable() throws URISyntaxException {
         StreamRequestMessage message = mock(StreamRequestMessage.class);
         HttpUriRequestBase request = mock(HttpUriRequestBase.class);
         when(request.getUri()).thenReturn(URI.create("https://github.com/jpsonic/jpsonic"));

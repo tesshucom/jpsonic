@@ -68,7 +68,8 @@ class LegacyDatabaseStartupTest {
     public static void beforeAll() throws IOException {
         Path dbDirectory = Path.of(System.getProperty("jpsonic.home"), "/db");
         FileUtil.createDirectories(dbDirectory);
-        copyResourcesRecursively(LegacyDatabaseStartupTest.class.getResource("/db/pre-liquibase/db"), dbDirectory);
+        copyResourcesRecursively(
+                LegacyDatabaseStartupTest.class.getResource("/db/pre-liquibase/db"), dbDirectory);
     }
 
     @Test
@@ -112,14 +113,15 @@ class LegacyDatabaseStartupTest {
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    private static boolean copyJarResourcesRecursively(final Path destDir, final JarURLConnection jarConnection)
-            throws IOException {
+    private static boolean copyJarResourcesRecursively(final Path destDir,
+            final JarURLConnection jarConnection) throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                 final JarEntry entry = e.nextElement();
                 if (entry.getName().startsWith(jarConnection.getEntryName())) {
-                    final String filename = StringUtils.removeStart(entry.getName(), //
-                            jarConnection.getEntryName());
+                    final String filename = StringUtils
+                        .removeStart(entry.getName(), //
+                                jarConnection.getEntryName());
 
                     final Path f = Path.of(destDir.toString(), filename);
                     if (entry.isDirectory()) {

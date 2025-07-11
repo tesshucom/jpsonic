@@ -57,8 +57,8 @@ public class ShareService {
     private final MediaFileService mediaFileService;
     private final JWTSecurityService jwtSecurityService;
 
-    public ShareService(ShareDao shareDao, SecurityService securityService, MediaFileService mediaFileService,
-            JWTSecurityService jwtSecurityService) {
+    public ShareService(ShareDao shareDao, SecurityService securityService,
+            MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
         super();
         this.shareDao = shareDao;
         this.securityService = securityService;
@@ -108,7 +108,9 @@ public class ShareService {
     public Share createShare(HttpServletRequest request, List<MediaFile> files) {
 
         Share share = new Share();
-        share.setName(RandomStringUtils.random(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        share
+            .setName(RandomStringUtils
+                .random(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
         share.setCreated(now());
         share.setUsername(securityService.getCurrentUsername(request));
         share.setExpires(now().plus(365, ChronoUnit.DAYS));
@@ -133,7 +135,9 @@ public class ShareService {
 
     public String getShareUrl(HttpServletRequest request, Share share) {
         String shareUrl = NetworkUtils.getBaseUrl(request) + "ext/share/" + share.getName();
-        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(shareUrl), share.getExpires()).build()
-                .toUriString();
+        return jwtSecurityService
+            .addJWTToken(UriComponentsBuilder.fromUriString(shareUrl), share.getExpires())
+            .build()
+            .toUriString();
     }
 }

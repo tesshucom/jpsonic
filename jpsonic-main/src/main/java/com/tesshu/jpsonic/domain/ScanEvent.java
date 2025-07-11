@@ -36,8 +36,9 @@ public class ScanEvent {
     private int maxThread;
     private String comment;
 
-    public ScanEvent(@NonNull Instant startDate, @NonNull Instant executed, @NonNull ScanEventType type,
-            @Nullable Long maxMemory, @Nullable Long totalMemory, @Nullable Long freeMemory, @Nullable Integer maxThread, @Nullable String comment) {
+    public ScanEvent(@NonNull Instant startDate, @NonNull Instant executed,
+            @NonNull ScanEventType type, @Nullable Long maxMemory, @Nullable Long totalMemory,
+            @Nullable Long freeMemory, @Nullable Integer maxThread, @Nullable String comment) {
         super();
         this.startDate = startDate;
         this.executed = executed;
@@ -114,50 +115,30 @@ public class ScanEvent {
     }
 
     public enum ScanEventType {
-        SUCCESS,
-        FAILED,
-        DESTROYED,
-        CANCELED,
+        SUCCESS, FAILED, DESTROYED, CANCELED,
 
         UNKNOWN,
 
-        FOLDER_CREATE,
-        FOLDER_DELETE,
-        FOLDER_UPDATE,
+        FOLDER_CREATE, FOLDER_DELETE, FOLDER_UPDATE,
 
-        BEFORE_SCAN,
-        MUSIC_FOLDER_CHECK,
-        PARSE_FILE_STRUCTURE,
-        SCANNED_COUNT,
-        PARSE_VIDEO,
-        PARSE_PODCAST,
-        CLEAN_UP_FILE_STRUCTURE,
-        PARSE_ALBUM,
-        UPDATE_SORT_OF_ALBUM,
-        UPDATE_ORDER_OF_ALBUM,
-        UPDATE_SORT_OF_ARTIST,
-        UPDATE_ORDER_OF_ARTIST,
-        UPDATE_ORDER_OF_SONG,
-        REFRESH_ALBUM_ID3,
-        UPDATE_ORDER_OF_ALBUM_ID3,
-        REFRESH_ARTIST_ID3,
-        UPDATE_ORDER_OF_ARTIST_ID3,
-        UPDATE_ALBUM_COUNTS,
-        UPDATE_GENRE_MASTER,
-        RUN_STATS,
-        IMPORT_PLAYLISTS,
-        CHECKPOINT,
-        AFTER_SCAN,
+        BEFORE_SCAN, MUSIC_FOLDER_CHECK, PARSE_FILE_STRUCTURE, SCANNED_COUNT, PARSE_VIDEO,
+        PARSE_PODCAST, CLEAN_UP_FILE_STRUCTURE, PARSE_ALBUM, UPDATE_SORT_OF_ALBUM,
+        UPDATE_ORDER_OF_ALBUM, UPDATE_SORT_OF_ARTIST, UPDATE_ORDER_OF_ARTIST, UPDATE_ORDER_OF_SONG,
+        REFRESH_ALBUM_ID3, UPDATE_ORDER_OF_ALBUM_ID3, REFRESH_ARTIST_ID3,
+        UPDATE_ORDER_OF_ARTIST_ID3, UPDATE_ALBUM_COUNTS, UPDATE_GENRE_MASTER, RUN_STATS,
+        IMPORT_PLAYLISTS, CHECKPOINT, AFTER_SCAN,
 
         // Obsolete reserved word. don't use
         @Deprecated
-        FINISHED,
-        @Deprecated
+        FINISHED, @Deprecated
         PARSED_COUNT;
 
         public static ScanEventType of(String name) {
-            return Stream.of(values()).filter(t -> t.name().equals(name)).findFirst()
-                    .orElse(UNKNOWN);
+            return Stream
+                .of(values())
+                .filter(t -> t.name().equals(name))
+                .findFirst()
+                .orElse(UNKNOWN);
         }
     }
 }

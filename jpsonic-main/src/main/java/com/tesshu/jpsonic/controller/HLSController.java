@@ -100,7 +100,8 @@ public class HLSController {
 
         Integer duration = mediaFile.getDurationSeconds();
         if (duration == null || duration == 0) {
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown duration for media file: " + id);
+            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Unknown duration for media file: " + id);
             return;
         }
 
@@ -111,8 +112,9 @@ public class HLSController {
             if (bitRates.size() > SINGLE_ELEMENT) {
                 generateVariantPlaylist(request, id, player, bitRates, writer);
             } else {
-                generateNormalPlaylist(request, id, player, bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null,
-                        duration, writer);
+                generateNormalPlaylist(request, id, player,
+                        bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null, duration,
+                        writer);
             }
         }
     }
@@ -129,7 +131,8 @@ public class HLSController {
     }
 
     /**
-     * Parses a string containing the bitrate and an optional width/height, e.g., 1200@640x480
+     * Parses a string containing the bitrate and an optional width/height, e.g.,
+     * 1200@640x480
      */
     protected Pair<Integer, Dimension> parseBitRate(String bitRate) {
 
@@ -161,10 +164,11 @@ public class HLSController {
         for (Pair<Integer, Dimension> bitRate : bitRates) {
             Integer kbps = bitRate.getLeft();
             println(writer, "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
-            UriComponentsBuilder url = UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
-                    .queryParam(Attributes.Request.ID.value(), id)
-                    .queryParam(Attributes.Request.PLAYER.value(), player.getId())
-                    .queryParam(Attributes.Request.BITRATE.value(), kbps);
+            UriComponentsBuilder url = UriComponentsBuilder
+                .fromUriString(contextPath + "ext/hls/hls.m3u8")
+                .queryParam(Attributes.Request.ID.value(), id)
+                .queryParam(Attributes.Request.PLAYER.value(), player.getId())
+                .queryParam(Attributes.Request.BITRATE.value(), kbps);
             jwtSecurityService.addJWTToken(url);
             println(writer, url.toUriString());
             Dimension dimension = bitRate.getRight();
@@ -185,7 +189,8 @@ public class HLSController {
         for (int i = 0; i < totalDuration / SEGMENT_DURATION; i++) {
             int offset = i * SEGMENT_DURATION;
             writer.println("#EXTINF:" + SEGMENT_DURATION + ",");
-            println(writer, createStreamUrl(request, player, id, offset, SEGMENT_DURATION, bitRate));
+            println(writer,
+                    createStreamUrl(request, player, id, offset, SEGMENT_DURATION, bitRate));
         }
 
         int remainder = totalDuration % SEGMENT_DURATION;
@@ -197,10 +202,10 @@ public class HLSController {
         writer.println("#EXT-X-ENDLIST");
     }
 
-    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration,
-            Pair<Integer, Dimension> bitRate) {
+    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset,
+            int duration, Pair<Integer, Dimension> bitRate) {
         UriComponentsBuilder builder = UriComponentsBuilder
-                .fromUriString(getContextPath(request) + "ext/stream/stream.ts");
+            .fromUriString(getContextPath(request) + "ext/stream/stream.ts");
         builder.queryParam(Attributes.Request.ID.value(), id);
         builder.queryParam(Attributes.Request.HLS.value(), "true");
         builder.queryParam(Attributes.Request.TIME_OFFSET.value(), offset);

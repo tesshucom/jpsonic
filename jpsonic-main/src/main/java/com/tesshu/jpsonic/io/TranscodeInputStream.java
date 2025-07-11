@@ -41,8 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Subclass of {@link InputStream} which provides on-the-fly transcoding. Instances of <code>TranscodeInputStream</code>
- * can be chained together, for instance to convert from OGG to WAV to MP3.
+ * Subclass of {@link InputStream} which provides on-the-fly transcoding.
+ * Instances of <code>TranscodeInputStream</code> can be chained together, for
+ * instance to convert from OGG to WAV to MP3.
  *
  * @author Sindre Mehus
  */
@@ -58,22 +59,19 @@ public final class TranscodeInputStream extends InputStream {
     private final @Nullable AtomicReference<Path> tmpFile;
 
     /**
-     * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null, data from it
-     * is copied to the command.
+     * Creates a transcoded input stream by executing an external process. If
+     * <code>in</code> is not null, data from it is copied to the command.
      *
-     * @param processBuilder
-     *            Used to create the external process.
-     * @param in
-     *            Data to feed to the process. May be {@code null}.
-     * @param tmpFile
-     *            Temporary file to delete when this stream is closed. May be {@code null}.
+     * @param processBuilder Used to create the external process.
+     * @param in             Data to feed to the process. May be {@code null}.
+     * @param tmpFile        Temporary file to delete when this stream is closed.
+     *                       May be {@code null}.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
     @SuppressWarnings("PMD.NullAssignment")
-    public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable Path tmpFile,
-            Executor executor) throws IOException {
+    public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in,
+            @Nullable Path tmpFile, Executor executor) throws IOException {
         super();
         this.executor = executor;
         this.tmpFile = isEmpty(tmpFile) ? null : new AtomicReference<>(tmpFile);
@@ -142,8 +140,7 @@ public final class TranscodeInputStream extends InputStream {
 
         @Override
         public void run() {
-            try (in;
-                    out) {
+            try (in; out) {
                 IOUtils.copy(in, out);
             } catch (IOException e) {
                 trace("Ignored. Will happen if the remote player closes the stream.", e);
@@ -191,8 +188,9 @@ public final class TranscodeInputStream extends InputStream {
     }
 
     /*
-     * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down for a
-     * very long time. Therefore, it will retry and delete it as soon as possible.
+     * If it fails, will be removed when the VM is shut down, but once started, this
+     * product will not shut down for a very long time. Therefore, it will retry and
+     * delete it as soon as possible.
      */
     static class DeleteTmpFileTask implements Runnable {
 

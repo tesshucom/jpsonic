@@ -36,19 +36,24 @@ class CacheElementTest {
 
     @Test
     void testCreateId() {
-        long ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
-        long actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        long ecpected = CacheElement
+            .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        long actual = CacheElement
+            .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         assertEquals(ecpected, actual);
 
         ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         actual = CacheElement.createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         assertNotEquals(ecpected, actual);
 
-        ecpected = CacheElement.createId(237_462_763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
-        actual = CacheElement.createId(28_374_922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        ecpected = CacheElement
+            .createId(237_462_763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        actual = CacheElement
+            .createId(28_374_922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         assertNotEquals(ecpected, actual);
 
-        ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla");
+        ecpected = CacheElement
+            .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla");
         actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         assertNotEquals(ecpected, actual);
     }

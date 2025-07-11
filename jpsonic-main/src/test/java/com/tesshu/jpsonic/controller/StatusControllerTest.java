@@ -50,14 +50,18 @@ class StatusControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new StatusController(mock(SecurityService.class), mock(StatusService.class))).build();
+            .standaloneSetup(
+                    new StatusController(mock(SecurityService.class), mock(StatusService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/status.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/status.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
@@ -67,11 +71,14 @@ class StatusControllerTest {
     @Test
     void testTransferStatusHolderGetPath() throws URISyntaxException {
         TransferStatus status = new TransferStatus();
-        Path path = Path.of(StatusControllerTest.class.getResource(
-                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+        Path path = Path
+            .of(StatusControllerTest.class
+                .getResource(
+                        "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
                 .toURI());
         status.setPathString(path.toString());
-        TransferStatusHolder holder = new TransferStatusHolder(status, false, false, false, 0, null);
+        TransferStatusHolder holder = new TransferStatusHolder(status, false, false, false, 0,
+                null);
         assertEquals(FileUtil.getShortPath(path), holder.getPath());
     }
 }

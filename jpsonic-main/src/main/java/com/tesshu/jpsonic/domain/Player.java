@@ -26,8 +26,8 @@ import java.time.Instant;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Represens a remote player. A player has a unique ID, a user-defined name, a logged-on user, miscellaneous
- * identifiers, and an associated playlist.
+ * Represens a remote player. A player has a unique ID, a user-defined name, a
+ * logged-on user, miscellaneous identifiers, and an associated playlist.
  *
  * @author Sindre Mehus
  */
@@ -56,8 +56,7 @@ public class Player {
     /**
      * Sets the player ID.
      *
-     * @param id
-     *            The player ID.
+     * @param id The player ID.
      */
     public void setId(Integer id) {
         this.id = id;
@@ -75,15 +74,15 @@ public class Player {
     /**
      * Sets the user-defined player name.
      *
-     * @param name
-     *            The user-defined player name.
+     * @param name The user-defined player name.
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Returns the third-party client ID (used if this player is managed over the Airsonic REST API).
+     * Returns the third-party client ID (used if this player is managed over the
+     * Airsonic REST API).
      *
      * @return The client ID.
      */
@@ -92,10 +91,10 @@ public class Player {
     }
 
     /**
-     * Sets the third-party client ID (used if this player is managed over the Airsonic REST API).
+     * Sets the third-party client ID (used if this player is managed over the
+     * Airsonic REST API).
      *
-     * @param clientId
-     *            The client ID.
+     * @param clientId The client ID.
      */
     public void setClientId(String clientId) {
         this.clientId = clientId;
@@ -113,8 +112,7 @@ public class Player {
     /**
      * Sets the player type, e.g., WinAmp, iTunes.
      *
-     * @param type
-     *            The player type.
+     * @param type The player type.
      */
     public void setType(String type) {
         this.type = type;
@@ -132,8 +130,7 @@ public class Player {
     /**
      * Sets the logged-in username.
      *
-     * @param username
-     *            The logged-in username.
+     * @param username The logged-in username.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -151,8 +148,7 @@ public class Player {
     /**
      * Sets the time when the player was last seen.
      *
-     * @param lastSeen
-     *            The time when the player was last seen.
+     * @param lastSeen The time when the player was last seen.
      */
     public void setLastSeen(Instant lastSeen) {
         this.lastSeen = lastSeen;
@@ -170,8 +166,7 @@ public class Player {
     /**
      * Sets the transcode scheme.
      *
-     * @param transcodeScheme
-     *            The transcode scheme.
+     * @param transcodeScheme The transcode scheme.
      */
     public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
         this.transcodeScheme = transcodeScheme;
@@ -189,8 +184,7 @@ public class Player {
     /**
      * Sets the IP address of the player.
      *
-     * @param ipAddress
-     *            The IP address of the player.
+     * @param ipAddress The IP address of the player.
      */
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
@@ -208,8 +202,7 @@ public class Player {
     /**
      * Sets whether this player has a dynamic IP address.
      *
-     * @param dynamicIp
-     *            Whether this player has a dynamic IP address.
+     * @param dynamicIp Whether this player has a dynamic IP address.
      */
     public void setDynamicIp(boolean dynamicIp) {
         this.dynamicIp = dynamicIp;
@@ -227,8 +220,7 @@ public class Player {
     /**
      * Sets the player's playlist.
      *
-     * @param playQueue
-     *            The player's playlist.
+     * @param playQueue The player's playlist.
      */
     public void setPlayQueue(PlayQueue playQueue) {
         this.playQueue = playQueue;

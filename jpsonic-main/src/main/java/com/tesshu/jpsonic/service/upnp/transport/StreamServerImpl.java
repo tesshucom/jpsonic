@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Concrete class for stream server using vanilla HttpServer.
  * 
- * Jpsonic supports both tomcat and jetty.
- * This class doesn't depend on any of those server-libs.
+ * Jpsonic supports both tomcat and jetty. This class doesn't depend on any of
+ * those server-libs.
  */
 public final class StreamServerImpl implements StreamServer<DefaultStreamServerConf> {
 
@@ -118,8 +118,8 @@ public final class StreamServerImpl implements StreamServer<DefaultStreamServerC
 
     private static boolean isAcceptable(RequestInfo requestInfo) {
         return switch (requestInfo.method) {
-            case GET, POST, SUBSCRIBE, UNSUBSCRIBE -> true;
-            case MSEARCH, NOTIFY, UNKNOWN  -> false;
+        case GET, POST, SUBSCRIBE, UNSUBSCRIBE -> true;
+        case MSEARCH, NOTIFY, UNKNOWN -> false;
         };
     }
 

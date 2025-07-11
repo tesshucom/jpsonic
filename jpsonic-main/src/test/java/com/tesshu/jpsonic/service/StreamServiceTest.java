@@ -75,9 +75,9 @@ class StreamServiceTest {
         securityService = mock(SecurityService.class);
         settingsService = mock(SettingsService.class);
         mediaFileService = mock(MediaFileService.class);
-        streamService = new StreamService(statusService, playlistService, securityService, settingsService,
-                mock(TranscodingService.class), null, mediaFileService, mock(WritableMediaFileService.class), null,
-                null);
+        streamService = new StreamService(statusService, playlistService, securityService,
+                settingsService, mock(TranscodingService.class), null, mediaFileService,
+                mock(WritableMediaFileService.class), null, null);
     }
 
     @Test
@@ -197,8 +197,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c3() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
@@ -212,8 +213,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Mp3
         @Test
         void c4() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
@@ -228,8 +230,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c5() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
@@ -244,8 +247,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c6() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
@@ -261,8 +265,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c7() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertNull(streamService.getFormat(request, player, false));
@@ -275,8 +280,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Mp3
         @Test
         void c8() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
@@ -290,8 +296,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c9() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
@@ -305,8 +312,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c10() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
@@ -322,8 +330,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c11() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
@@ -338,8 +347,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c12() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.REQUEST_ONLY.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.REQUEST_ONLY.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
@@ -353,8 +363,9 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c13() {
-            Mockito.when(settingsService.getPreferredFormatShemeName())
-                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito
+                .when(settingsService.getPreferredFormatShemeName())
+                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
             Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
@@ -393,7 +404,8 @@ class StreamServiceTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter(Attributes.Request.MAX_BIT_RATE.value(), "320");
 
-        VideoTranscodingSettings settings = streamService.createVideoTranscodingSettings(video, request);
+        VideoTranscodingSettings settings = streamService
+            .createVideoTranscodingSettings(video, request);
         assertEquals(300, settings.getWidth());
         assertEquals(200, settings.getHeight());
         assertEquals(2_147_483_647, settings.getDuration());
@@ -453,9 +465,10 @@ class StreamServiceTest {
         assertNotNull(streamService.getRequestedVideoSize("1000x1000"));
     }
 
-    private boolean doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
-            int expectedWidth, int expectedHeight) {
-        Dimension dimension = streamService.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
+    private boolean doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight,
+            Integer maxBitRate, int expectedWidth, int expectedHeight) {
+        Dimension dimension = streamService
+            .getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals(expectedWidth, dimension.width, "Wrong width.");
         assertEquals(expectedHeight, dimension.height, "Wrong height.");
         return true;
@@ -564,7 +577,8 @@ class StreamServiceTest {
         song.setPathString("path");
         playQueue.addFiles(false, song);
         player.setPlayQueue(playQueue);
-        try (InputStream inputStream = streamService.createInputStream(player, null, null, null, null)) {
+        try (InputStream inputStream = streamService
+            .createInputStream(player, null, null, null, null)) {
             assertNotNull(inputStream);
             assertTrue(inputStream instanceof PlayQueueInputStream);
         }
@@ -578,7 +592,8 @@ class StreamServiceTest {
         byte[] bytes = { 0, 0, 0 };
         streamService.sendDummyDelayed(bytes, baos);
         assertTrue(Arrays.equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, bytes));
-        assertTrue(Arrays.equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
+        assertTrue(Arrays
+            .equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
     }
 
     @Test
@@ -589,7 +604,8 @@ class StreamServiceTest {
         byte[] bytes = { 0, 0, 0 };
         streamService.sendDummy(bytes, baos, bytes.length);
         assertTrue(Arrays.equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, bytes));
-        assertTrue(Arrays.equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
+        assertTrue(Arrays
+            .equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
     }
 
     @Test
@@ -599,14 +615,22 @@ class StreamServiceTest {
         TransferStatus status = new TransferStatus();
         status.setBytesTransfered(100);
         streamService.removeStreamStatus(user, null);
-        Mockito.verify(securityService, Mockito.never()).updateUserByteCounts(Mockito.any(User.class),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong());
-        Mockito.verify(statusService, Mockito.never()).removeStreamStatus(Mockito.any(TransferStatus.class));
+        Mockito
+            .verify(securityService, Mockito.never())
+            .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
+                    Mockito.anyLong());
+        Mockito
+            .verify(statusService, Mockito.never())
+            .removeStreamStatus(Mockito.any(TransferStatus.class));
 
         Mockito.clearInvocations(securityService, statusService);
         streamService.removeStreamStatus(user, status);
-        Mockito.verify(securityService, Mockito.times(1)).updateUserByteCounts(Mockito.any(User.class),
-                Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong());
-        Mockito.verify(statusService, Mockito.times(1)).removeStreamStatus(Mockito.any(TransferStatus.class));
+        Mockito
+            .verify(securityService, Mockito.times(1))
+            .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
+                    Mockito.anyLong());
+        Mockito
+            .verify(statusService, Mockito.times(1))
+            .removeStreamStatus(Mockito.any(TransferStatus.class));
     }
 }

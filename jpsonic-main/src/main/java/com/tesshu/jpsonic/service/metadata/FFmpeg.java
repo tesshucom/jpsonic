@@ -63,8 +63,9 @@ public class FFmpeg {
     }
 
     private @Nullable String getCommandPath() {
-        Path cmdFile = Path.of(transcodingService.getTranscodeDirectory().toString(),
-                PlayerUtils.isWindows() ? "ffmpeg.exe" : "ffmpeg");
+        Path cmdFile = Path
+            .of(transcodingService.getTranscodeDirectory().toString(),
+                    PlayerUtils.isWindows() ? "ffmpeg.exe" : "ffmpeg");
         if (Files.exists(cmdFile)) {
             return cmdFile.toString();
         }
@@ -103,7 +104,8 @@ public class FFmpeg {
         return result;
     }
 
-    public @Nullable BufferedImage createImage(@NonNull Path path, int width, int height, int offset) {
+    public @Nullable BufferedImage createImage(@NonNull Path path, int width, int height,
+            int offset) {
 
         String cmdPath = getCommandPath();
         if (isEmpty(cmdPath)) {
@@ -115,10 +117,14 @@ public class FFmpeg {
         pb.command().add("-i");
         pb.command().add(path.toString());
         String options = offset < 1 ? THUMBNAIL_OPTIONS : SEEKED_OPTIONS;
-        Stream.of(options.split(" ")).forEach(c -> pb.command().add(c //
-                .replaceAll("%w", Integer.toString(width)) //
-                .replaceAll("%h", Integer.toString(height)) //
-                .replaceAll("%o", Integer.toString(offset))));
+        Stream
+            .of(options.split(" "))
+            .forEach(c -> pb
+                .command()
+                .add(c //
+                    .replaceAll("%w", Integer.toString(width)) //
+                    .replaceAll("%h", Integer.toString(height)) //
+                    .replaceAll("%o", Integer.toString(offset))));
         pb.command().add("-");
 
         BufferedImage result;

@@ -114,10 +114,13 @@ public class DocumentFactory {
     }
 
     private void applyFieldFolderId(@NonNull Document doc, @NonNull Integer value) {
-        doc.add(new StoredField(FieldNamesConstants.FOLDER_ID, Integer.toString(value), TYPE_ID_NO_STORE));
+        doc
+            .add(new StoredField(FieldNamesConstants.FOLDER_ID, Integer.toString(value),
+                    TYPE_ID_NO_STORE));
     }
 
-    private void applyFieldKey(@NonNull Document doc, @NonNull String field, @NonNull String value) {
+    private void applyFieldKey(@NonNull Document doc, @NonNull String field,
+            @NonNull String value) {
         doc.add(new StoredField(field, value, TYPE_KEY));
     }
 
@@ -130,11 +133,13 @@ public class DocumentFactory {
     }
 
     private List<Field> createFields(@NonNull String fieldName, @Nullable String value) {
-        return Arrays.asList(new TextField(fieldName, value, Store.NO),
-                new SortedDocValuesField(fieldName, new BytesRef(value)));
+        return Arrays
+            .asList(new TextField(fieldName, value, Store.NO),
+                    new SortedDocValuesField(fieldName, new BytesRef(value)));
     }
 
-    private void applyFieldValue(@NonNull Document doc, @NonNull String fieldName, @Nullable String value) {
+    private void applyFieldValue(@NonNull Document doc, @NonNull String fieldName,
+            @Nullable String value) {
         if (isEmpty(value)) {
             return;
         }
@@ -152,7 +157,8 @@ public class DocumentFactory {
         doc.add(new TextField(fieldName, value, Store.YES));
     }
 
-    private void applyFieldYear(@NonNull Document doc, @NonNull String fieldName, @Nullable Integer value) {
+    private void applyFieldYear(@NonNull Document doc, @NonNull String fieldName,
+            @Nullable Integer value) {
         if (isEmpty(value)) {
             return;
         }
@@ -187,8 +193,7 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile
-     *            target of document
+     * @param mediaFile target of document
      *
      * @return document
      *
@@ -198,10 +203,12 @@ public class DocumentFactory {
         Document doc = new Document();
         applyFieldId(doc, mediaFile.getId());
         applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+                mediaFile.getArtistReading());
         applyGenre(doc, mediaFile.getGenre());
         applyFieldValue(doc, ALBUM, mediaFile.getAlbumName());
-        applyFieldValue(doc, ALBUM_READING, defaultIfEmpty(mediaFile.getAlbumSort(), mediaFile.getAlbumReading()));
+        applyFieldValue(doc, ALBUM_READING,
+                defaultIfEmpty(mediaFile.getAlbumSort(), mediaFile.getAlbumReading()));
         applyFieldFolderPath(doc, mediaFile.getFolder());
         return doc;
     }
@@ -209,8 +216,7 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile
-     *            target of document
+     * @param mediaFile target of document
      *
      * @return document
      *
@@ -220,7 +226,8 @@ public class DocumentFactory {
         Document doc = new Document();
         applyFieldId(doc, mediaFile.getId());
         applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+                mediaFile.getArtistReading());
         applyFieldFolderPath(doc, mediaFile.getFolder());
         return doc;
     }
@@ -228,8 +235,7 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param album
-     *            target of document
+     * @param album target of document
      *
      * @return document
      *
@@ -239,10 +245,12 @@ public class DocumentFactory {
         Document doc = new Document();
         applyFieldId(doc, album.getId());
         applyFieldValue(doc, ARTIST, album.getArtist());
-        acceptArtistReading(doc, album.getArtist(), album.getArtistSort(), album.getArtistReading());
+        acceptArtistReading(doc, album.getArtist(), album.getArtistSort(),
+                album.getArtistReading());
         applyGenre(doc, album.getGenre());
         applyFieldValue(doc, ALBUM, album.getName());
-        applyFieldValue(doc, ALBUM_READING, defaultIfEmpty(album.getNameSort(), album.getNameReading()));
+        applyFieldValue(doc, ALBUM_READING,
+                defaultIfEmpty(album.getNameSort(), album.getNameReading()));
         applyFieldFolderId(doc, album.getFolderId());
         return doc;
     }
@@ -250,10 +258,8 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param artist
-     *            target of document
-     * @param musicFolder
-     *            target folder exists
+     * @param artist      target of document
+     * @param musicFolder target folder exists
      *
      * @return document
      *
@@ -271,8 +277,7 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile
-     *            target of document
+     * @param mediaFile target of document
      *
      * @return document
      *
@@ -285,7 +290,8 @@ public class DocumentFactory {
         applyFieldValue(doc, TITLE, mediaFile.getTitle());
         applyFieldValue(doc, TITLE_READING, mediaFile.getTitle());
         applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+                mediaFile.getArtistReading());
         applyFieldValue(doc, COMPOSER, mediaFile.getComposer());
         acceptComposerReading(doc, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
                 mediaFile.getComposerSort());
@@ -311,7 +317,8 @@ public class DocumentFactory {
         return doc;
     }
 
-    void acceptReading(Document doc, String field, String romanizedfield, String value, String sort, String reading) {
+    void acceptReading(Document doc, String field, String romanizedfield, String value, String sort,
+            String reading) {
         if (isEmpty(value)) {
             return;
         }
@@ -322,7 +329,8 @@ public class DocumentFactory {
             IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
             boolean isJapaneseName = Stream.of(value.split(EMPTY)).anyMatch(s -> {
                 Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-                return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+                return Character.UnicodeBlock.HIRAGANA.equals(b)
+                        || Character.UnicodeBlock.KATAKANA.equals(b)
                         || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b);
             });
 
@@ -331,11 +339,14 @@ public class DocumentFactory {
             } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
                 applyFieldValue(doc, field, result);
                 if (isJapaneseName) {
-                    applyFieldValue(doc, romanizedfield, readingUtils.removePunctuationFromJapaneseReading(
-                            settingsService.isForceInternalValueInsteadOfTags() ? reading : result));
+                    applyFieldValue(doc, romanizedfield, readingUtils
+                        .removePunctuationFromJapaneseReading(
+                                settingsService.isForceInternalValueInsteadOfTags() ? reading
+                                        : result));
                 }
             } else {
-                applyFieldValue(doc, field, readingUtils.removePunctuationFromJapaneseReading(result));
+                applyFieldValue(doc, field,
+                        readingUtils.removePunctuationFromJapaneseReading(result));
             }
         }
     }

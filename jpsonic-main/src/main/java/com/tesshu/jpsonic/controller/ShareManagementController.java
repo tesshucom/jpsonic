@@ -58,8 +58,9 @@ public class ShareManagementController {
     private final PlayerService playerService;
     private final PlaylistService playlistService;
 
-    public ShareManagementController(MediaFileService mediaFileService, SecurityService securityService,
-            ShareService shareService, PlayerService playerService, PlaylistService playlistService) {
+    public ShareManagementController(MediaFileService mediaFileService,
+            SecurityService securityService, ShareService shareService, PlayerService playerService,
+            PlaylistService playlistService) {
         super();
         this.mediaFileService = mediaFileService;
         this.securityService = securityService;
@@ -69,7 +70,8 @@ public class ShareManagementController {
     }
 
     @GetMapping
-    public ModelAndView createShare(HttpServletRequest request) throws ServletRequestBindingException {
+    public ModelAndView createShare(HttpServletRequest request)
+            throws ServletRequestBindingException {
 
         List<MediaFile> files = getMediaFiles(request);
         MediaFile dir = null;
@@ -87,24 +89,32 @@ public class ShareManagementController {
             shareService.updateShare(share);
         }
 
-        return new ModelAndView("createShare", "model", LegacyMap.of("dir", dir, "user",
-                securityService.getCurrentUserStrict(request), "playUrl", shareService.getShareUrl(request, share)));
+        return new ModelAndView("createShare", "model",
+                LegacyMap
+                    .of("dir", dir, "user", securityService.getCurrentUserStrict(request),
+                            "playUrl", shareService.getShareUrl(request, share)));
     }
 
-    private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
+    private String getDescription(HttpServletRequest request)
+            throws ServletRequestBindingException {
+        Integer playlistId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.PLAYLIST.value());
         return playlistId == null ? null : playlistService.getPlaylistStrict(playlistId).getName();
     }
 
-    private List<MediaFile> getMediaFiles(HttpServletRequest request) throws ServletRequestBindingException {
+    private List<MediaFile> getMediaFiles(HttpServletRequest request)
+            throws ServletRequestBindingException {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
-        Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
-        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
+        Integer playerId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.PLAYER.value());
+        Integer playlistId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.PLAYLIST.value());
 
         List<MediaFile> result = new ArrayList<>();
         if (id != null) {
             MediaFile album = mediaFileService.getMediaFile(id);
-            int[] indexes = ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
+            int[] indexes = ServletRequestUtils
+                .getIntParameters(request, Attributes.Request.I.value());
             if (indexes.length == 0) {
                 return Arrays.asList(album);
             }

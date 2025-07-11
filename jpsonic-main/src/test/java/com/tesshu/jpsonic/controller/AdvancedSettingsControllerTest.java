@@ -60,43 +60,52 @@ class AdvancedSettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         controller = new AdvancedSettingsController(settingsService, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class), mock(ScannerStateService.class));
+                mock(ShareService.class), mock(OutlineHelpSelector.class),
+                mock(ScannerStateService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testPost() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.ADVANCED_SETTINGS.value())
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.ADVANCED_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.ADVANCED_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.ADVANCED_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -140,14 +149,17 @@ class AdvancedSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testChangeIndexScheme() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         assertFalse(command.isForceInternalValueInsteadOfTags());
@@ -156,43 +168,60 @@ class AdvancedSettingsControllerTest {
         assertEquals(IndexScheme.NATIVE_JAPANESE, command.getIndexScheme());
         assertFalse(settingsService.isIgnoreFileTimestamps());
 
-        ArgumentCaptor<Boolean> forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService)
-                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        ArgumentCaptor<Boolean> forceInternalValueInsteadOfTags = ArgumentCaptor
+            .forClass(Boolean.class);
+        Mockito
+            .doNothing()
+            .when(settingsService)
+            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
 
-        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+        Mockito
+            .when(settingsService.getIndexSchemeName())
+            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
         command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertFalse(forceInternalValueInsteadOfTags.getValue());
 
         Mockito.clearInvocations(settingsService);
         forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService)
-                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        Mockito
+            .doNothing()
+            .when(settingsService)
+            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
         command.setIndexScheme(IndexScheme.ROMANIZED_JAPANESE);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(forceInternalValueInsteadOfTags.getValue());
 
         Mockito.clearInvocations(settingsService);
         forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService)
-                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
-        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        Mockito
+            .doNothing()
+            .when(settingsService)
+            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        Mockito
+            .when(settingsService.getIndexSchemeName())
+            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
         command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(1)).setForceInternalValueInsteadOfTags(Mockito.anyBoolean());
+        Mockito
+            .verify(settingsService, Mockito.times(1))
+            .setForceInternalValueInsteadOfTags(Mockito.anyBoolean());
 
         command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
 
         Mockito.clearInvocations(settingsService);
-        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        Mockito
+            .when(settingsService.getIndexSchemeName())
+            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
         assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
         command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
 
         Mockito.clearInvocations(settingsService);
-        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        Mockito
+            .when(settingsService.getIndexSchemeName())
+            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
         command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
     }

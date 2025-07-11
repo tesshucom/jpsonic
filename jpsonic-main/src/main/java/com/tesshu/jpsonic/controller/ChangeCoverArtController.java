@@ -51,17 +51,19 @@ public class ChangeCoverArtController {
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
 
-    public ChangeCoverArtController(SecurityService securityService, MediaFileService mediaFileService) {
+    public ChangeCoverArtController(SecurityService securityService,
+            MediaFileService mediaFileService) {
         super();
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFileStrict(id);
 
         String artist = request.getParameter(Attributes.Request.ARTIST.value());
@@ -75,10 +77,10 @@ public class ChangeCoverArtController {
 
         String username = securityService.getCurrentUsernameStrict(request);
         UserSettings userSettings = securityService.getUserSettings(username);
-        return new ModelAndView("changeCoverArt", "model",
-                LegacyMap.of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
-                        "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir, "selectedMusicFolder",
-                        securityService.getSelectedMusicFolder(username)));
+        return new ModelAndView("changeCoverArt", "model", LegacyMap
+            .of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
+                    "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir,
+                    "selectedMusicFolder", securityService.getSelectedMusicFolder(username)));
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {

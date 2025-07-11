@@ -22,8 +22,8 @@
 package com.tesshu.jpsonic.domain;
 
 /**
- * Enumeration of cover art schemes. Each value contains a size, which indicates how big the scaled covert art images
- * should be.
+ * Enumeration of cover art schemes. Each value contains a size, which indicates
+ * how big the scaled covert art images should be.
  *
  * @author Sindre Mehus
  */

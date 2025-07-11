@@ -62,11 +62,12 @@ public class PlaylistsController {
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.domain.Playlist> playlists = playlistService
-                .getReadablePlaylistsForUser(user.getUsername());
-        model.addAttribute("model",
-                LegacyMap.of("playlists", playlists.stream().map(Playlist::new).collect(Collectors.toList()),
-                        "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
-                        CoverArtScheme.MEDIUM.getSize()));
+            .getReadablePlaylistsForUser(user.getUsername());
+        model
+            .addAttribute("model", LegacyMap
+                .of("playlists", playlists.stream().map(Playlist::new).collect(Collectors.toList()),
+                        "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                        "coverArtSize", CoverArtScheme.MEDIUM.getSize()));
         return "playlists";
     }
 

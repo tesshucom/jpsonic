@@ -25,14 +25,17 @@ package com.tesshu.jpsonic.domain;
 public enum IndexScheme {
 
     /**
-     * An English / Japanese index for users whose native language is Japanese. In addition to English, sorting with
-     * Japanese phonological analysis and creation of normalized indexes etc will be supported.
+     * An English / Japanese index for users whose native language is Japanese. In
+     * addition to English, sorting with Japanese phonological analysis and creation
+     * of normalized indexes etc will be supported.
      */
     NATIVE_JAPANESE,
 
     /**
-     * An alphabet index that can treat Japanese, for users whose native language is not Japanese. It guarantees the
-     * same quality of processing as NATIVE_JAPANESE, but the read analysis uses Romaji Japanese instead of Japanese.
+     * An alphabet index that can treat Japanese, for users whose native language is
+     * not Japanese. It guarantees the same quality of processing as
+     * NATIVE_JAPANESE, but the read analysis uses Romaji Japanese instead of
+     * Japanese.
      */
     ROMANIZED_JAPANESE,
 

@@ -51,20 +51,21 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Performs authentication based on credentials being present in the HTTP request parameters. Also checks API versions
- * and license information.
+ * Performs authentication based on credentials being present in the HTTP
+ * request parameters. Also checks API versions and license information.
  * <p/>
- * The username should be set in parameter "u", and the password should be set in parameter "p". The REST protocol
- * version should be set in parameter "v".
+ * The username should be set in parameter "u", and the password should be set
+ * in parameter "p". The REST protocol version should be set in parameter "v".
  * <p/>
- * The password can either be in plain text or be UTF-8 hexencoded preceded by "enc:".
+ * The password can either be in plain text or be UTF-8 hexencoded preceded by
+ * "enc:".
  *
  * @author Sindre Mehus
  */
 public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
 
-    private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher("/rest/.+",
-            null);
+    private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher(
+            "/rest/.+", null);
 
     private final JAXBWriter jaxbWriter = new JAXBWriter(null);
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
@@ -73,7 +74,8 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
     private SecurityService securityService;
     private ApplicationEventPublisher eventPublisher;
 
-    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    protected boolean requiresAuthentication(HttpServletRequest request,
+            HttpServletResponse response) {
         return REQUIRES_AUTHENTICATION_REQUEST_MATCHER.matches(request);
     }
 
@@ -83,23 +85,25 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         if (!requiresAuthentication(request, response)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String username = StringUtils.trimToNull(request.getParameter(Attributes.Request.U.value()));
-        String password = decrypt(StringUtils.trimToNull(request.getParameter(Attributes.Request.P.value())));
+        String username = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.U.value()));
+        String password = decrypt(
+                StringUtils.trimToNull(request.getParameter(Attributes.Request.P.value())));
         String salt = StringUtils.trimToNull(request.getParameter(Attributes.Request.S.value()));
         String token = StringUtils.trimToNull(request.getParameter(Attributes.Request.T.value()));
         String version = StringUtils.trimToNull(request.getParameter(Attributes.Request.V.value()));
         String client = StringUtils.trimToNull(request.getParameter(Attributes.Request.C.value()));
 
-        SubsonicRESTController.ErrorCode errorCode = getErrorCode(request, username, password, salt, token, version,
-                client);
+        SubsonicRESTController.ErrorCode errorCode = getErrorCode(request, username, password, salt,
+                token, version, client);
         if (errorCode == null) {
             filterChain.doFilter(request, response);
         } else {
@@ -108,14 +112,16 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
         }
     }
 
-    private SubsonicRESTController.ErrorCode getErrorCode(HttpServletRequest httpRequest, String username,
-            String password, String salt, String token, String version, String client) {
+    private SubsonicRESTController.ErrorCode getErrorCode(HttpServletRequest httpRequest,
+            String username, String password, String salt, String token, String version,
+            String client) {
         SubsonicRESTController.ErrorCode errorCode = null;
         // The username and credentials parameters are not required if the user
         // was previously authenticated, for example using Basic Auth.
         boolean passwordOrTokenPresent = password != null || salt != null && token != null;
         Authentication previousAuth = SecurityContextHolder.getContext().getAuthentication();
-        boolean missingCredentials = previousAuth == null && (username == null || !passwordOrTokenPresent);
+        boolean missingCredentials = previousAuth == null
+                && (username == null || !passwordOrTokenPresent);
         if (missingCredentials || version == null || client == null) {
             errorCode = SubsonicRESTController.ErrorCode.MISSING_PARAMETER;
         }
@@ -142,8 +148,9 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username,
-            final String password, String salt, String token, Authentication previousAuth) {
+    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest,
+            String username, final String password, String salt, String token,
+            Authentication previousAuth) {
 
         // Previously authenticated and username not overridden?
         if (username == null && previousAuth != null) {
@@ -166,14 +173,16 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
         }
 
         if (pass != null) {
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, pass);
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+                    username, pass);
             authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
             try {
                 Authentication authResult = authenticationManager.authenticate(authRequest);
                 SecurityContextHolder.getContext().setAuthentication(authResult);
                 return null;
             } catch (AuthenticationException x) {
-                eventPublisher.publishEvent(new AuthenticationFailureBadCredentialsEvent(authRequest, x));
+                eventPublisher
+                    .publishEvent(new AuthenticationFailureBadCredentialsEvent(authRequest, x));
                 return SubsonicRESTController.ErrorCode.NOT_AUTHENTICATED;
             }
         }

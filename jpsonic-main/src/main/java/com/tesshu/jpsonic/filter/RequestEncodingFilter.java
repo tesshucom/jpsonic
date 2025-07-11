@@ -32,8 +32,9 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Configurable filter for setting the character encoding to use for the HTTP request. Typically used to set UTF-8
- * encoding when reading request parameters with non-Latin content.
+ * Configurable filter for setting the character encoding to use for the HTTP
+ * request. Typically used to set UTF-8 encoding when reading request parameters
+ * with non-Latin content.
  *
  * @author Sindre Mehus
  */
