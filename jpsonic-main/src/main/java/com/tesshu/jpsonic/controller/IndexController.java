@@ -52,15 +52,18 @@ public class IndexController {
     }
 
     @PostMapping
-    public ModelAndView post(HttpServletRequest request, @RequestParam("mainView") String mainView) {
+    public ModelAndView post(HttpServletRequest request,
+            @RequestParam("mainView") String mainView) {
         Map<String, Object> model = createModel(request);
         model.put("mainView", mainView);
         return new ModelAndView("index", "model", model);
     }
 
     private Map<String, Object> createModel(HttpServletRequest request) {
-        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
-        return LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
-                userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
+        UserSettings userSettings = securityService
+            .getUserSettings(securityService.getCurrentUsernameStrict(request));
+        return LegacyMap
+            .of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
+                    userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
     }
 }

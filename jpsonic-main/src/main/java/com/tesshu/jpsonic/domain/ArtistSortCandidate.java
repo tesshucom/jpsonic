@@ -31,7 +31,8 @@ public final class ArtistSortCandidate extends SortCandidate implements Indexabl
     private TargetField targetField;
     private String musicIndex;
 
-    public ArtistSortCandidate(String name, String sort, int targetId, String targetType, int targetField) {
+    public ArtistSortCandidate(String name, String sort, int targetId, String targetType,
+            int targetField) {
         super(name, sort, targetId);
         this.targetField = TargetField.of(targetField);
         this.targetType = MediaType.valueOf(targetType);

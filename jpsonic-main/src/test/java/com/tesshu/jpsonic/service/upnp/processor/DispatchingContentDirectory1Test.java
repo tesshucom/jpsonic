@@ -59,10 +59,14 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() throws URISyntaxException, InterruptedException {
-        musicFolders = Arrays.asList(new MusicFolder(1,
-                Path.of(DispatchingContentDirectory1Test.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI())
+        musicFolders = Arrays
+            .asList(new MusicFolder(1,
+                    Path
+                        .of(DispatchingContentDirectory1Test.class
+                            .getResource("/MEDIAS/Sort/Pagination/Artists")
+                            .toURI())
                         .toString(),
-                "Artists", true, now(), 1, false));
+                    "Artists", true, now(), 1, false));
         settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
         settingsService.save();
         populateDatabaseOnlyOnce();
@@ -82,7 +86,8 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
                 (upnp:class = "object.container.person.musicArtist" \
                 and dc:title contains "はるなつあきふゆ")\
                 """;
-        BrowseResult result = contentDirectory.search(null, query, null, 0, Integer.MAX_VALUE, null);
+        BrowseResult result = contentDirectory
+            .search(null, query, null, 0, Integer.MAX_VALUE, null);
         assertEquals(1, result.getCount().getValue());
         assertEquals(1, result.getTotalMatches().getValue());
 
@@ -113,8 +118,10 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
         assertEquals(61, result.getTotalMatches().getValue());
 
         // ID3
-        // Like Subsonic and Airsonic, the correction is based on the Artist/Album/Song three-level
-        // management. Therefore, if a tag is missing, the same result as the File Structure will be
+        // Like Subsonic and Airsonic, the correction is based on the Artist/Album/Song
+        // three-level
+        // management. Therefore, if a tag is missing, the same result as the File
+        // Structure will be
         // returned, preventing missing results.
         settingsService.setUPnPSearchMethod(UPnPSearchMethod.ID3.name());
         query = """

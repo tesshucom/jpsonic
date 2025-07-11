@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides AJAX-enabled services for retrieving song lyrics from chartlyrics.com.
+ * Provides AJAX-enabled services for retrieving song lyrics from
+ * chartlyrics.com.
  * <p/>
  * See http://www.chartlyrics.com/api.aspx for details.
  * <p/>
@@ -65,10 +66,8 @@ public class LyricsService {
     /**
      * Returns lyrics for the given song and artist.
      *
-     * @param artist
-     *            The artist.
-     * @param song
-     *            The song.
+     * @param artist The artist.
+     * @param song   The song.
      *
      * @return The lyrics, never <code>null</code> .
      */
@@ -119,8 +118,11 @@ public class LyricsService {
     }
 
     private String executeGetRequest(String url) throws IOException {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(15))
-                .setResponseTimeout(Timeout.ofSeconds(15)).build();
+        RequestConfig requestConfig = RequestConfig
+            .custom()
+            .setConnectionRequestTimeout(Timeout.ofSeconds(15))
+            .setResponseTimeout(Timeout.ofSeconds(15))
+            .build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {

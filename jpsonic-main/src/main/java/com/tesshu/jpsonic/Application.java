@@ -62,7 +62,8 @@ import org.springframework.util.ReflectionUtils;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-        MultipartAutoConfiguration.class, LiquibaseAutoConfiguration.class }, scanBasePackages = "com.tesshu.jpsonic")
+        MultipartAutoConfiguration.class,
+        LiquibaseAutoConfiguration.class }, scanBasePackages = "com.tesshu.jpsonic")
 @EnableScheduling
 public class Application extends SpringBootServletInitializer
         implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
@@ -76,7 +77,8 @@ public class Application extends SpringBootServletInitializer
      */
     @Bean
     public ServletRegistrationBean<Servlet> dwrServletRegistrationBean() {
-        ServletRegistrationBean<Servlet> servlet = new ServletRegistrationBean<>(new DwrServlet(), "/dwr/*");
+        ServletRegistrationBean<Servlet> servlet = new ServletRegistrationBean<>(new DwrServlet(),
+                "/dwr/*");
         servlet.addInitParameter("crossDomainSessionSecurity", "false");
         return servlet;
     }
@@ -146,8 +148,9 @@ public class Application extends SpringBootServletInitializer
     public FilterRegistrationBean<Filter> cacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(cacheFilter());
-        registration.addUrlPatterns("/fonts/*", "/icons/*", "/script/*", "/scss/*", "/style/*", "/dwr/*",
-                "/" + ViewName.COVER_ART.value());
+        registration
+            .addUrlPatterns("/fonts/*", "/icons/*", "/script/*", "/scss/*", "/style/*", "/dwr/*",
+                    "/" + ViewName.COVER_ART.value());
         registration.addInitParameter("Cache-Control", "max-age=36000");
         registration.setName("CacheFilter");
         registration.setOrder(5);
@@ -163,10 +166,11 @@ public class Application extends SpringBootServletInitializer
     public FilterRegistrationBean<Filter> noCacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(noCacheFilter());
-        registration.addUrlPatterns("/" + ViewName.STATUS_CHART.value(), "/" + ViewName.USER_CHART.value(),
-                "/" + ViewName.PLAY_QUEUE.value(), "/" + ViewName.PODCAST_CHANNELS.value(),
-                "/" + ViewName.PODCAST_CHANNEL.value(), "/" + ViewName.HELP.value(), "/" + ViewName.TOP.value(),
-                "/" + ViewName.HOME.value());
+        registration
+            .addUrlPatterns("/" + ViewName.STATUS_CHART.value(), "/" + ViewName.USER_CHART.value(),
+                    "/" + ViewName.PLAY_QUEUE.value(), "/" + ViewName.PODCAST_CHANNELS.value(),
+                    "/" + ViewName.PODCAST_CHANNEL.value(), "/" + ViewName.HELP.value(),
+                    "/" + ViewName.TOP.value(), "/" + ViewName.HOME.value());
         registration.addInitParameter("Cache-Control", "no-cache, post-check=0, pre-check=0");
         registration.addInitParameter("Pragma", "no-cache");
         registration.addInitParameter("Expires", "Thu, 01 Dec 1994 16:00:00 GMT");
@@ -190,15 +194,20 @@ public class Application extends SpringBootServletInitializer
     }
 
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
-        application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
-            if (event.getApplicationContext().getEnvironment()
+        application
+            .application()
+            .addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
+                if (event
+                    .getApplicationContext()
+                    .getEnvironment()
                     .acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))) {
-                LegacyHsqlUtil.checkHsqldbDatabaseVersion();
-            }
-        });
+                    LegacyHsqlUtil.checkHsqldbDatabaseVersion();
+                }
+            });
 
         // Customize the application or call application.sources(...) to add sources
-        // Since our example is itself a @Configuration class (via @SpringBootApplication)
+        // Since our example is itself a @Configuration class (via
+        // @SpringBootApplication)
         // we actually don't need to override this method.
         return application.sources(Application.class).web(WebApplicationType.SERVLET);
     }
@@ -230,7 +239,9 @@ public class Application extends SpringBootServletInitializer
         Class<?> factoryClass = null;
         Class<?> helperClass = null;
         try {
-            factoryClass = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
+            factoryClass = Class
+                .forName(
+                        "org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
             helperClass = Class.forName("com.tesshu.jpsonic.TomcatApplicationHelper");
         } catch (NoClassDefFoundError | ClassNotFoundException e) {
             if (LOG.isDebugEnabled()) {
@@ -240,7 +251,8 @@ public class Application extends SpringBootServletInitializer
         if (factoryClass == null) {
             try {
                 factoryClass = Class
-                        .forName("org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory");
+                    .forName(
+                            "org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory");
                 helperClass = Class.forName("com.tesshu.jpsonic.JettyApplicationHelper");
             } catch (NoClassDefFoundError | ClassNotFoundException e) {
                 if (LOG.isDebugEnabled()) {
@@ -249,7 +261,8 @@ public class Application extends SpringBootServletInitializer
             }
         }
         if (factoryClass == null || helperClass == null) {
-            throw new IllegalArgumentException("Unreachable code: There should be a class according to the profile.");
+            throw new IllegalArgumentException(
+                    "Unreachable code: There should be a class according to the profile.");
         }
 
         invokeHelper(helperClass, factoryClass, factoryClass.cast(container));

@@ -9,10 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Callbacks used for test classes that rely on the local resource directory (home directory) to use property files,
- * local databases, search indexes, etc. It is necessary for testing highly coupled processes. On the other hand, the
- * cost is high, so if this callback is used for unit testing, it is necessary to consider whether it can be replaced
- * with a mock.
+ * Callbacks used for test classes that rely on the local resource directory
+ * (home directory) to use property files, local databases, search indexes, etc.
+ * It is necessary for testing highly coupled processes. On the other hand, the
+ * cost is high, so if this callback is used for unit testing, it is necessary
+ * to consider whether it can be replaced with a mock.
  */
 @Integration
 public class NeedsHome implements BeforeAllCallback {
@@ -24,9 +25,10 @@ public class NeedsHome implements BeforeAllCallback {
         System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
         try {
             /*
-             * Atomic is not guaranteed for file operations. Especially on Windows, you may have problems with case of
-             * Junit continuous exec. This is a technical topic when doing integration testing with Junit, and it's a
-             * separate topic from the integrity of artifact.
+             * Atomic is not guaranteed for file operations. Especially on Windows, you may
+             * have problems with case of Junit continuous exec. This is a technical topic
+             * when doing integration testing with Junit, and it's a separate topic from the
+             * integrity of artifact.
              */
             TestCaseUtils.cleanJpsonicHomeForTest();
         } catch (IOException e) {

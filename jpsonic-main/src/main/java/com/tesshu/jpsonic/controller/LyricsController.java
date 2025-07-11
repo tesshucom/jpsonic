@@ -40,7 +40,8 @@ public class LyricsController {
     @GetMapping
     protected ModelAndView get(HttpServletRequest request) {
         return new ModelAndView("lyrics", "model",
-                LegacyMap.of("artist", request.getParameter(Attributes.Request.ARTIST.value()), "song",
-                        request.getParameter(Attributes.Request.SONG.value())));
+                LegacyMap
+                    .of("artist", request.getParameter(Attributes.Request.ARTIST.value()), "song",
+                            request.getParameter(Attributes.Request.SONG.value())));
     }
 }

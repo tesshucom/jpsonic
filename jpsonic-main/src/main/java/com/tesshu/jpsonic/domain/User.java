@@ -50,8 +50,8 @@ public class User {
     private boolean streamRole;
     private boolean shareRole;
 
-    public User(String username, String password, String email, boolean ldapAuthenticated, long bytesStreamed,
-            long bytesDownloaded, long bytesUploaded) {
+    public User(String username, String password, String email, boolean ldapAuthenticated,
+            long bytesStreamed, long bytesDownloaded, long bytesUploaded) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -197,7 +197,8 @@ public class User {
         this.shareRole = shareRole;
     }
 
-    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
+    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it
+                                             // as it is.
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(username);

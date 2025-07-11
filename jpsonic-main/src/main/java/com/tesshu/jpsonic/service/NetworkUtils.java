@@ -98,7 +98,8 @@ public final class NetworkUtils {
         URI proxyHost = new URI("ignored://" + xForardedHost);
         String host = proxyHost.getHost();
         int port = proxyHost.getPort();
-        return new URI(scheme, null, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
+        return new URI(scheme, null, host, port, URL_PATH_HELPER.getContextPath(request), null,
+                null);
     }
 
     private static boolean isValidXForwardedHost(String xForardedHost) {
@@ -112,7 +113,8 @@ public final class NetworkUtils {
             String scheme = url.getProtocol();
             int port = url.getPort();
             String userInfo = url.getUserInfo();
-            return new URI(scheme, userInfo, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
+            return new URI(scheme, userInfo, host, port, URL_PATH_HELPER.getContextPath(request),
+                    null, null);
         } catch (MalformedURLException | URISyntaxException e) {
             throw new ExecutionException("URL analysis failed.", e);
         }

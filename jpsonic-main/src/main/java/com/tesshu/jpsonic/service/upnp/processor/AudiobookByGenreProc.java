@@ -42,8 +42,8 @@ public class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, Media
     private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public AudiobookByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            SearchService searchService) {
+    public AudiobookByGenreProc(SettingsService settingsService, UpnpProcessorUtil util,
+            UpnpDIDLFactory factory, SearchService searchService) {
         super();
         this.settingsService = settingsService;
         this.util = util;
@@ -78,14 +78,19 @@ public class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, Media
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService.getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE).stream()
-                .filter(genre -> genre.getName().equals(id)).findFirst().orElse(null);
+        return searchService
+            .getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE)
+            .stream()
+            .filter(genre -> genre.getName().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getGuestFolders(),
-                MediaType.AUDIOBOOK);
+        return searchService
+            .getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
+                    util.getGuestFolders(), MediaType.AUDIOBOOK);
     }
 
     @Override

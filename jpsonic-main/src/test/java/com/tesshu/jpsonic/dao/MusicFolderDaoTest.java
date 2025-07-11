@@ -82,19 +82,24 @@ class MusicFolderDaoTest {
 
     @Test
     void testDeleteMusicFolder() {
-        assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
+        assertEquals(0, musicFolderDao.getAllMusicFolders().size(),
+                "Wrong number of music folders.");
 
         musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now(), false));
-        assertEquals(1, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
+        assertEquals(1, musicFolderDao.getAllMusicFolders().size(),
+                "Wrong number of music folders.");
 
         musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now(), false));
-        assertEquals(2, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
+        assertEquals(2, musicFolderDao.getAllMusicFolders().size(),
+                "Wrong number of music folders.");
 
         musicFolderDao.deleteMusicFolder(musicFolderDao.getAllMusicFolders().get(0).getId());
-        assertEquals(1, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
+        assertEquals(1, musicFolderDao.getAllMusicFolders().size(),
+                "Wrong number of music folders.");
 
         musicFolderDao.deleteMusicFolder(musicFolderDao.getAllMusicFolders().get(0).getId());
-        assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
+        assertEquals(0, musicFolderDao.getAllMusicFolders().size(),
+                "Wrong number of music folders.");
     }
 
     private void assertMusicFolderEquals(MusicFolder expected, MusicFolder actual) {

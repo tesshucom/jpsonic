@@ -67,12 +67,12 @@ class AlbumByGenreProcTest {
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         PlayerService playerService = mock(PlayerService.class);
         TranscodingService transcodingService = mock(TranscodingService.class);
-        factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
-                transcodingService);
+        factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+                playerService, transcodingService);
         mediaFileService = mock(MediaFileService.class);
         searchService = mock(SearchService.class);
-        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
-                mock(JpsonicComparators.class));
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+                settingsService, mock(JpsonicComparators.class));
         proc = new AlbumByGenreProc(util, factory, mediaFileService, searchService);
     }
 
@@ -96,7 +96,8 @@ class AlbumByGenreProcTest {
     void testGetChildren() {
         Genre genre = new Genre("English/Japanese", 50, 100);
         assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-        verify(searchService, times(1)).getAlbumsByGenres(anyString(), anyInt(), anyInt(), anyList());
+        verify(searchService, times(1))
+            .getAlbumsByGenres(anyString(), anyInt(), anyInt(), anyList());
     }
 
     @Test

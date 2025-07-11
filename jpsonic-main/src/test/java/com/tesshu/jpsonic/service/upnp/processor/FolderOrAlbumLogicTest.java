@@ -66,12 +66,16 @@ class FolderOrAlbumLogicTest {
         Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-                .fromUriString(settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", "99").queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        Mockito.when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
-                .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
+            .fromUriString(
+                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .queryParam("id", "99")
+            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
+        Mockito
+            .when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
+            .thenReturn(dummyCoverArtbuilder);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+                mock(MediaFileService.class), mock(PlayerService.class),
+                mock(TranscodingService.class));
         logic = new FolderOrAlbumLogic(util, factory, albumDao);
 
     }
@@ -117,15 +121,17 @@ class FolderOrAlbumLogicTest {
         assertEquals(2, logic.getDirectChildren(1, 4).size());
         assertEquals(2, logic.getDirectChildren(1, 2).size());
         List<FolderOrFAlbum> folderOrAlbums = logic.getDirectChildren(0, 4);
-        Mockito.verify(albumDao, Mockito.never()).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
-                anyList());
+        Mockito
+            .verify(albumDao, Mockito.never())
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
         folderOrAlbums.forEach(folder -> assertFalse(folder.isFolderAlbum()));
 
         folders = List.of(folder1);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(0, logic.getDirectChildren(0, 4).size());
-        Mockito.verify(albumDao, Mockito.times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(),
-                anyList());
+        Mockito
+            .verify(albumDao, Mockito.times(1))
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
     }
 
     @Test

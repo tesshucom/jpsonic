@@ -60,9 +60,9 @@ public class AdvancedSettingsController {
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
 
-    public AdvancedSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService) {
+    public AdvancedSettingsController(SettingsService settingsService,
+            SecurityService securityService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -107,7 +107,9 @@ public class AdvancedSettingsController {
 
         // Danger Zone
         command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
-        command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
+        command
+            .setForceInternalValueInsteadOfTags(
+                    settingsService.isForceInternalValueInsteadOfTags());
         command.setSortAlphanum(settingsService.isSortAlphanum());
         command.setSortStrict(settingsService.isSortStrict());
         command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
@@ -117,7 +119,8 @@ public class AdvancedSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUserStrict(request);
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(scannerStateService.isScanning());
@@ -127,7 +130,8 @@ public class AdvancedSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
+    protected ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         // Bandwidth control
@@ -210,7 +214,8 @@ public class AdvancedSettingsController {
             settingsService.setDeleteDiacritic(true);
             settingsService.setIgnoreFullWidth(true);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
-            settingsService.setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
+            settingsService
+                .setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
             settingsService.setDeleteDiacritic(false);
             settingsService.setIgnoreFullWidth(true);
         } else {

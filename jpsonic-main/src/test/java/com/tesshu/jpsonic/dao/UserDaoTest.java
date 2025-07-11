@@ -71,7 +71,8 @@ class UserDaoTest {
 
     @Test
     void testCreateUser() {
-        User user = new User("sindre", "secret", "sindre@activeobjects.no", false, 1000L, 2000L, 3000L);
+        User user = new User("sindre", "secret", "sindre@activeobjects.no", false, 1000L, 2000L,
+                3000L);
         user.setAdminRole(true);
         user.setCommentRole(true);
         user.setCoverArtRole(true);
@@ -98,8 +99,9 @@ class UserDaoTest {
 
         user.setAdminRole(true);
         int beforeSize = userDao.getAllUsers().size();
-        Assertions.assertThrows(RuntimeException.class, () -> userDao.createUser(user),
-                "It was expected for createUser to throw an exception");
+        Assertions
+            .assertThrows(RuntimeException.class, () -> userDao.createUser(user),
+                    "It was expected for createUser to throw an exception");
         assertEquals(beforeSize, userDao.getAllUsers().size());
     }
 
@@ -151,7 +153,8 @@ class UserDaoTest {
         assertUserEquals(user, newUser);
 
         assertNull(userDao.getUserByName("sindre2", true), "Error in getUserByName().");
-        Assertions.assertNotNull(userDao.getUserByName("sindre ", true), "Error in getUserByName().");
+        Assertions
+            .assertNotNull(userDao.getUserByName("sindre ", true), "Error in getUserByName().");
         assertNull(userDao.getUserByName("bente", true), "Error in getUserByName().");
         assertNull(userDao.getUserByName("", true), "Error in getUserByName().");
         assertNull(userDao.getUserByName(null, true), "Error in getUserByName().");
@@ -198,7 +201,9 @@ class UserDaoTest {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null);
         UserSettings userSettings = mockService.getUserSettings("sindre");
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> userDao.updateUserSettings(userSettings));
+        Assertions
+            .assertThrows(DataIntegrityViolationException.class,
+                    () -> userDao.updateUserSettings(userSettings));
     }
 
     @Test
@@ -213,7 +218,8 @@ class UserDaoTest {
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
         assertNull(userSettings.getLocale(), "Error in getUserSettings().");
         assertNull(userSettings.getThemeId(), "Error in getUserSettings().");
-        assertFalse(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isFinalVersionNotificationEnabled(),
+                "Error in getUserSettings().");
         assertFalse(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isCloseDrawer(), "Error in getUserSettings().");
@@ -222,11 +228,15 @@ class UserDaoTest {
         assertNull(userSettings.getLastFmPassword(), "Error in getUserSettings().");
         assertFalse(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
         assertNull(userSettings.getListenBrainzToken(), "Error in getUserSettings().");
-        Assertions.assertSame(TranscodeScheme.OFF, userSettings.getTranscodeScheme(), "Error in getUserSettings().");
+        Assertions
+            .assertSame(TranscodeScheme.OFF, userSettings.getTranscodeScheme(),
+                    "Error in getUserSettings().");
         assertEquals(-1, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertFalse(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
-        Assertions.assertSame(AvatarScheme.NONE, userSettings.getAvatarScheme(), "Error in getUserSettings().");
+        Assertions
+            .assertSame(AvatarScheme.NONE, userSettings.getAvatarScheme(),
+                    "Error in getUserSettings().");
         assertEquals(101, userSettings.getSystemAvatarId(), "Error in getUserSettings().");
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(40, userSettings.getPaginationSize(), "Error in getUserSettings().");
@@ -263,19 +273,27 @@ class UserDaoTest {
         userDao.updateUserSettings(settings);
         userSettings = userDao.getUserSettings("sindre");
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
-        assertEquals(Locale.SIMPLIFIED_CHINESE, userSettings.getLocale(), "Error in getUserSettings().");
-        assertFalse(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertEquals(Locale.SIMPLIFIED_CHINESE, userSettings.getLocale(),
+                "Error in getUserSettings().");
+        assertFalse(userSettings.isFinalVersionNotificationEnabled(),
+                "Error in getUserSettings().");
         assertTrue(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isCloseDrawer(), "Error in getUserSettings().");
         assertEquals("midnight", userSettings.getThemeId(), "Error in getUserSettings().");
-        assertTrue(userSettings.getMainVisibility().isBitRateVisible(), "Error in getUserSettings().");
-        assertTrue(userSettings.getPlaylistVisibility().isYearVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getMainVisibility().isBitRateVisible(),
+                "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isYearVisible(),
+                "Error in getUserSettings().");
 
-        assertTrue(userSettings.getMainVisibility().isComposerVisible(), "Error in getUserSettings().");
-        assertTrue(userSettings.getMainVisibility().isGenreVisible(), "Error in getUserSettings().");
-        assertTrue(userSettings.getPlaylistVisibility().isComposerVisible(), "Error in getUserSettings().");
-        assertTrue(userSettings.getPlaylistVisibility().isGenreVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getMainVisibility().isComposerVisible(),
+                "Error in getUserSettings().");
+        assertTrue(userSettings.getMainVisibility().isGenreVisible(),
+                "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isComposerVisible(),
+                "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isGenreVisible(),
+                "Error in getUserSettings().");
 
         assertTrue(userSettings.isLastFmEnabled(), "Error in getUserSettings().");
         assertEquals("last_user", userSettings.getLastFmUsername(), "Error in getUserSettings().");
@@ -283,14 +301,18 @@ class UserDaoTest {
         assertTrue(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
         assertEquals("01234567-89ab-cdef-0123-456789abcdef", userSettings.getListenBrainzToken(),
                 "Error in getUserSettings().");
-        Assertions.assertSame(TranscodeScheme.MAX_256, userSettings.getTranscodeScheme(),
-                "Error in getUserSettings().");
+        Assertions
+            .assertSame(TranscodeScheme.MAX_256, userSettings.getTranscodeScheme(),
+                    "Error in getUserSettings().");
         assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
-        Assertions.assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(), "Error in getUserSettings().");
+        Assertions
+            .assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(),
+                    "Error in getUserSettings().");
         assertEquals(102, userSettings.getSystemAvatarId(), "Error in getUserSettings().");
-        assertEquals(Instant.ofEpochMilli(9412L), userSettings.getChanged(), "Error in getUserSettings().");
+        assertEquals(Instant.ofEpochMilli(9412L), userSettings.getChanged(),
+                "Error in getUserSettings().");
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(120, userSettings.getPaginationSize(), "Error in getUserSettings().");
 
@@ -302,10 +324,14 @@ class UserDaoTest {
         assertEquals(expected.getUsername(), actual.getUsername(), "Wrong name.");
         assertEquals(expected.getPassword(), actual.getPassword(), "Wrong password.");
         assertEquals(expected.getEmail(), actual.getEmail(), "Wrong email.");
-        assertEquals(expected.isLdapAuthenticated(), actual.isLdapAuthenticated(), "Wrong LDAP auth.");
-        assertEquals(expected.getBytesStreamed(), actual.getBytesStreamed(), "Wrong bytes streamed.");
-        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(), "Wrong bytes downloaded.");
-        assertEquals(expected.getBytesUploaded(), actual.getBytesUploaded(), "Wrong bytes uploaded.");
+        assertEquals(expected.isLdapAuthenticated(), actual.isLdapAuthenticated(),
+                "Wrong LDAP auth.");
+        assertEquals(expected.getBytesStreamed(), actual.getBytesStreamed(),
+                "Wrong bytes streamed.");
+        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(),
+                "Wrong bytes downloaded.");
+        assertEquals(expected.getBytesUploaded(), actual.getBytesUploaded(),
+                "Wrong bytes uploaded.");
         assertEquals(expected.isAdminRole(), actual.isAdminRole(), "Wrong admin role.");
         assertEquals(expected.isCommentRole(), actual.isCommentRole(), "Wrong comment role.");
         assertEquals(expected.isCoverArtRole(), actual.isCoverArtRole(), "Wrong cover art role.");

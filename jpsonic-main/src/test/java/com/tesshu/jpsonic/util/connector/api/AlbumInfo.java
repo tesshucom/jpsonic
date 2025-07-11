@@ -24,8 +24,8 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AlbumInfo", propOrder = { "notes", "musicBrainzId", "lastFmUrl", "smallImageUrl", "mediumImageUrl",
-        "largeImageUrl" })
+@XmlType(name = "AlbumInfo", propOrder = { "notes", "musicBrainzId", "lastFmUrl", "smallImageUrl",
+        "mediumImageUrl", "largeImageUrl" })
 public class AlbumInfo {
 
     protected String notes;

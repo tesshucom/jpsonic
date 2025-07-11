@@ -47,7 +47,8 @@ public class ExportPlayListController {
     private final PlaylistService playlistService;
     private final SecurityService securityService;
 
-    public ExportPlayListController(PlaylistService playlistService, SecurityService securityService) {
+    public ExportPlayListController(PlaylistService playlistService,
+            SecurityService securityService) {
         super();
         this.playlistService = playlistService;
         this.securityService = securityService;
@@ -57,7 +58,8 @@ public class ExportPlayListController {
     public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, ExecutionException {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (!playlistService.isReadAllowed(playlist, securityService.getCurrentUsername(request))) {
             try {
@@ -69,8 +71,9 @@ public class ExportPlayListController {
         }
 
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition",
-                "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
+        response
+            .setHeader("Content-Disposition", "attachment; filename=\""
+                    + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
         try {
             playlistService.exportPlaylist(id, response.getOutputStream());
         } catch (IOException e) {

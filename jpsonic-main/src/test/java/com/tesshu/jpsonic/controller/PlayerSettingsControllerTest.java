@@ -70,24 +70,29 @@ class PlayerSettingsControllerTest {
         TranscodingDao transcodingDao = mock(TranscodingDao.class);
         List<Transcoding> allTranscodings = transcodingDao.getAllTranscodings();
         TranscodingService transcodingService = mock(TranscodingService.class);
-        Mockito.when(transcodingService.getTranscodingsForPlayer(Mockito.any())).thenReturn(allTranscodings);
-        PlayerSettingsController controller = new PlayerSettingsController(mock(SettingsService.class),
-                mock(SecurityService.class), playerService, transcodingService, mock(ShareService.class),
-                mock(OutlineHelpSelector.class));
+        Mockito
+            .when(transcodingService.getTranscodingsForPlayer(Mockito.any()))
+            .thenReturn(allTranscodings);
+        PlayerSettingsController controller = new PlayerSettingsController(
+                mock(SettingsService.class), mock(SecurityService.class), playerService,
+                transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDisplayForm() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PLAYER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.PLAYER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playerSettings", modelAndView.getViewName());
 
-        PlayerSettingsCommand command = (PlayerSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PlayerSettingsCommand command = (PlayerSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
     }
 
@@ -95,27 +100,33 @@ class PlayerSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDoSubmitAction() throws Exception {
 
-        Player player = playerService.getPlayer(new MockHttpServletRequest(), new MockHttpServletResponse());
+        Player player = playerService
+            .getPlayer(new MockHttpServletRequest(), new MockHttpServletResponse());
 
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.PLAYER_SETTINGS.value())
-                        .param(Attributes.Request.ID.value(), Integer.toString(player.getId())))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.PLAYER_SETTINGS.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(player.getId())))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playerSettings", modelAndView.getViewName());
 
-        PlayerSettingsCommand command = (PlayerSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PlayerSettingsCommand command = (PlayerSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.PLAYER_SETTINGS.value())
-                        .param(Attributes.Request.ID.value(), Integer.toString(player.getId()))
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PLAYER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.PLAYER_SETTINGS.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(player.getId()))
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PLAYER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 }

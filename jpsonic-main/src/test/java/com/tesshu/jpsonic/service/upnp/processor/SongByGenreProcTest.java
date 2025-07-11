@@ -82,11 +82,11 @@ class SongByGenreProcTest {
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
-                    transcodingService);
+            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+                    playerService, transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
-                    mock(JpsonicComparators.class));
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class),
+                    mock(SecurityService.class), settingsService, mock(JpsonicComparators.class));
             proc = new SongByGenreProc(settingsService, util, factory, searchService);
         }
 
@@ -109,7 +109,8 @@ class SongByGenreProcTest {
         @Test
         void testGetDirectChildren() {
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+            verify(searchService, times(1))
+                .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         }
 
         @Test
@@ -122,7 +123,7 @@ class SongByGenreProcTest {
         void testGetDirectChild() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
-                    .thenReturn(List.of(genre));
+                .thenReturn(List.of(genre));
             assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
             assertNull(proc.getDirectChild("None"));
         }
@@ -131,7 +132,8 @@ class SongByGenreProcTest {
         void testGetChildren() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-            verify(searchService, times(1)).getSongsByGenres(anyString(), anyInt(), anyInt(), anyList());
+            verify(searchService, times(1))
+                .getSongsByGenres(anyString(), anyInt(), anyInt(), anyList());
         }
 
         @Test
@@ -157,8 +159,9 @@ class SongByGenreProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
+                    true, now(), 1, false));
 
         @Autowired
         private SongByGenreProc songByGenreProc;
@@ -188,16 +191,25 @@ class SongByGenreProcTest {
             Map<String, Genre> c = LegacyMap.of();
 
             List<Genre> items = songByGenreProc.getDirectChildren(0, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 10);
 
             items = songByGenreProc.getDirectChildren(10, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 20);
 
             items = songByGenreProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 31);
 
         }
@@ -212,16 +224,25 @@ class SongByGenreProcTest {
             Map<String, MediaFile> c = LegacyMap.of();
 
             List<MediaFile> children = songByGenreProc.getChildren(artists.get(0), 0, 10);
-            children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getGenre()))
+                .forEach(m -> c.put(m.getGenre(), m));
             assertEquals(c.size(), 10);
 
             children = songByGenreProc.getChildren(artists.get(0), 10, 10);
-            children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getGenre()))
+                .forEach(m -> c.put(m.getGenre(), m));
             assertEquals(c.size(), 20);
 
             children = songByGenreProc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
-            children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
+            children
+                .stream()
+                .filter(m -> !c.containsKey(m.getGenre()))
+                .forEach(m -> c.put(m.getGenre(), m));
             assertEquals(c.size(), 31);
 
         }

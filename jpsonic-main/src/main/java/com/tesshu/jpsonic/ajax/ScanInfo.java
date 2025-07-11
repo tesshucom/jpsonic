@@ -35,7 +35,8 @@ public class ScanInfo {
     private String phaseName;
     private int thread;
 
-    public ScanInfo(boolean scanning, int scanningCount, int phase, int phaseMax, String phaseName, int thread) {
+    public ScanInfo(boolean scanning, int scanningCount, int phase, int phaseMax, String phaseName,
+            int thread) {
         super();
         this.scanning = scanning;
         this.scanningCount = scanningCount;

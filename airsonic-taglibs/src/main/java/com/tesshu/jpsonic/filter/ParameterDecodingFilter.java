@@ -43,8 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Servlet filter which decodes HTTP request parameters. If a parameter name ends with "Utf8Hex" ({@link #PARAM_SUFFIX})
- * , the corresponding parameter value is assumed to be the hexadecimal representation of the UTF-8 bytes of the value.
+ * Servlet filter which decodes HTTP request parameters. If a parameter name
+ * ends with "Utf8Hex" ({@link #PARAM_SUFFIX}) , the corresponding parameter
+ * value is assumed to be the hexadecimal representation of the UTF-8 bytes of
+ * the value.
  * <p/>
  * Used to support request parameter values of any character encoding.
  *
@@ -59,7 +61,8 @@ public class ParameterDecodingFilter implements Filter {
             throws IOException, ServletException {
 
         // Wrap request in decoder.
-        ServletRequest decodedRequest = new DecodingServletRequestWrapper((HttpServletRequest) request);
+        ServletRequest decodedRequest = new DecodingServletRequestWrapper(
+                (HttpServletRequest) request);
 
         // Pass the request/response on
         chain.doFilter(decodedRequest, response);
@@ -77,7 +80,8 @@ public class ParameterDecodingFilter implements Filter {
 
     private static class DecodingServletRequestWrapper extends HttpServletRequestWrapper {
 
-        private static final Logger LOG = LoggerFactory.getLogger(DecodingServletRequestWrapper.class);
+        private static final Logger LOG = LoggerFactory
+            .getLogger(DecodingServletRequestWrapper.class);
 
         public DecodingServletRequestWrapper(HttpServletRequest servletRequest) {
             super(servletRequest);

@@ -76,10 +76,11 @@ public class StreamService {
     // Used to perform transcoding in subthreads (Priority changes)
     private final AsyncTaskExecutor shortExecutor;
 
-    public StreamService(StatusService statusService, PlaylistService playlistService, SecurityService securityService,
-            SettingsService settingsService, TranscodingService transcodingService,
-            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, SearchService searchService,
+    public StreamService(StatusService statusService, PlaylistService playlistService,
+            SecurityService securityService, SettingsService settingsService,
+            TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            SearchService searchService,
             @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
@@ -95,32 +96,40 @@ public class StreamService {
     }
 
     /**
-     * create a separate play queue (in order to support multiple parallel Podcast streams).
+     * create a separate play queue (in order to support multiple parallel Podcast
+     * streams).
      */
-    public void setUpPlayQueue(HttpServletRequest request, HttpServletResponse response, Player player,
-            Integer playlistId) {
+    public void setUpPlayQueue(HttpServletRequest request, HttpServletResponse response,
+            Player player, Integer playlistId) {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(false, playlistService.getFilesInPlaylist(playlistId));
         player.setPlayQueue(playQueue);
         PlayerUtils.setContentLength(response, playQueue.length());
         if (LOG.isInfoEnabled()) {
-            LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
+            LOG
+                .info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(),
+                        playlistId);
         }
     }
 
     /**
-     * Returns the 'format'. The 'format' here is equivalent to the parameter'format' of stream method on Subsonic API.
-     * This 'format' has a significant impact on the transcoding results of subsequent processing. (#1187). On legacy
-     * servers, This 'format' is always null for non-REST requests. As a result, this can be rephrased as "some
-     * transcoding specifications differ depending on the protocol used". In Jpsonic, PreferredFormatSheme allows to set
-     * the default value of 'format' for requests other than Rest (UPnP, Share, Browser etc) to other than null.
+     * Returns the 'format'. The 'format' here is equivalent to the
+     * parameter'format' of stream method on Subsonic API. This 'format' has a
+     * significant impact on the transcoding results of subsequent processing.
+     * (#1187). On legacy servers, This 'format' is always null for non-REST
+     * requests. As a result, this can be rephrased as "some transcoding
+     * specifications differ depending on the protocol used". In Jpsonic,
+     * PreferredFormatSheme allows to set the default value of 'format' for requests
+     * other than Rest (UPnP, Share, Browser etc) to other than null.
      */
     public @Nullable String getFormat(HttpServletRequest request, Player player, Boolean isRest) {
         String format = request.getParameter(Attributes.Request.FORMAT.value());
-        PreferredFormatSheme sheme = PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName());
+        PreferredFormatSheme sheme = PreferredFormatSheme
+            .of(settingsService.getPreferredFormatShemeName());
         if (sheme == PreferredFormatSheme.ANNOYMOUS
                 && JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
-                || sheme == PreferredFormatSheme.OTHER_THAN_REQUEST && (isRest == null || !isRest)) {
+                || sheme == PreferredFormatSheme.OTHER_THAN_REQUEST
+                        && (isRest == null || !isRest)) {
             return StringUtils.defaultIfEmpty(format, settingsService.getPreferredFormat());
         }
         return format;
@@ -128,7 +137,8 @@ public class StreamService {
 
     @SuppressFBWarnings(value = {
             "PT_ABSOLUTE_PATH_TRAVERSAL" }, justification = "Has been verified in subsequent processing.")
-    public MediaFile getSingleFile(HttpServletRequest request) throws ServletRequestBindingException {
+    public MediaFile getSingleFile(HttpServletRequest request)
+            throws ServletRequestBindingException {
         String path = request.getParameter(Attributes.Request.PATH.value());
         if (path != null) {
             return mediaFileService.getMediaFile(path);
@@ -140,18 +150,20 @@ public class StreamService {
         return null;
     }
 
-    public VideoTranscodingSettings createVideoTranscodingSettings(MediaFile file, HttpServletRequest request)
-            throws ServletRequestBindingException {
+    public VideoTranscodingSettings createVideoTranscodingSettings(MediaFile file,
+            HttpServletRequest request) throws ServletRequestBindingException {
         Integer existingWidth = file.getWidth();
         Integer existingHeight = file.getHeight();
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
         int timeOffset = getIntParameter(request, Attributes.Request.TIME_OFFSET.value(), 0);
         Integer ds = file.getDurationSeconds();
         int defaultDuration = ds == null ? Integer.MAX_VALUE : ds - timeOffset;
-        int duration = getIntParameter(request, Attributes.Request.DURATION.value(), defaultDuration);
+        int duration = getIntParameter(request, Attributes.Request.DURATION.value(),
+                defaultDuration);
         boolean hls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
 
-        Dimension dim = getRequestedVideoSize(request.getParameter(Attributes.Request.SIZE.value()));
+        Dimension dim = getRequestedVideoSize(
+                request.getParameter(Attributes.Request.SIZE.value()));
         if (dim == null) {
             dim = getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         }
@@ -177,7 +189,8 @@ public class StreamService {
     }
 
     @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
-    protected Dimension getSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate) {
+    protected Dimension getSuitableVideoSize(Integer existingWidth, Integer existingHeight,
+            Integer maxBitRate) {
         if (maxBitRate == null) {
             return new Dimension(400, 224);
         }
@@ -208,22 +221,27 @@ public class StreamService {
         return new Dimension(even(w), even(h));
     }
 
-    // Make sure width and height are multiples of two, as some versions of ffmpeg require it.
+    // Make sure width and height are multiples of two, as some versions of ffmpeg
+    // require it.
     private int even(int size) {
         return size + (size % 2);
     }
 
     public void closeAllStreamFor(Player player, boolean isPodcast, boolean isSingleFile) {
         if (!isPodcast && !isSingleFile) {
-            statusService.getStreamStatusesForPlayer(player).stream().filter(TransferStatus::isActive)
-                    .forEach(TransferStatus::terminate);
+            statusService
+                .getStreamStatusesForPlayer(player)
+                .stream()
+                .filter(TransferStatus::isActive)
+                .forEach(TransferStatus::terminate);
         }
     }
 
-    public InputStream createInputStream(Player player, TransferStatus status, Integer maxBitRate, String format,
-            VideoTranscodingSettings videoTranscodingSettings) {
-        return new PlayQueueInputStream(player, status, maxBitRate, format, videoTranscodingSettings,
-                transcodingService, audioScrobblerService, writableMediaFileService, searchService, shortExecutor);
+    public InputStream createInputStream(Player player, TransferStatus status, Integer maxBitRate,
+            String format, VideoTranscodingSettings videoTranscodingSettings) {
+        return new PlayQueueInputStream(player, status, maxBitRate, format,
+                videoTranscodingSettings, transcodingService, audioScrobblerService,
+                writableMediaFileService, searchService, shortExecutor);
     }
 
     /**

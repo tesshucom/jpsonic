@@ -39,17 +39,19 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.web.util.UrlUtils;
 
 /**
- * Creates a URL with optional query parameters. Similar to 'c:url', but you may specify which character encoding to use
- * for the URL query parameters. If no encoding is specified, the following steps are performed:
+ * Creates a URL with optional query parameters. Similar to 'c:url', but you may
+ * specify which character encoding to use for the URL query parameters. If no
+ * encoding is specified, the following steps are performed:
  * <ul>
- * <li>Parameter values are encoded as the hexadecimal representation of the UTF-8 bytes of the original string.</li>
+ * <li>Parameter values are encoded as the hexadecimal representation of the
+ * UTF-8 bytes of the original string.</li>
  * <li>Parameter names are prepended with the suffix "Utf8Hex"</li>
- * <li>Note: Nothing is done with the parameter name or value if the value only contains ASCII alphanumeric
- * characters.</li>
+ * <li>Note: Nothing is done with the parameter name or value if the value only
+ * contains ASCII alphanumeric characters.</li>
  * </ul>
  * <p/>
- * (The problem with c:url is that is uses the same encoding as the http response, but most(?) servlet container assumes
- * that ISO-8859-1 is used.)
+ * (The problem with c:url is that is uses the same encoding as the http
+ * response, but most(?) servlet container assumes that ISO-8859-1 is used.)
  *
  * @author Sindre Mehus
  */
@@ -94,7 +96,8 @@ public class UrlTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
-    public static String resolveUrl(String url, String context, PageContext pageContext) throws JspException {
+    public static String resolveUrl(String url, String context, PageContext pageContext)
+            throws JspException {
         // don't touch absolute URLs
         if (UrlUtils.isAbsoluteUrl(url)) {
             return url;

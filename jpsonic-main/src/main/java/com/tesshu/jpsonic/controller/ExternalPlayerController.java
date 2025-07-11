@@ -75,8 +75,9 @@ public class ExternalPlayerController {
     private final MediaFileService mediaFileService;
     private final JWTSecurityService jwtSecurityService;
 
-    public ExternalPlayerController(MusicFolderService musicFolderService, PlayerService playerService,
-            ShareService shareService, MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
+    public ExternalPlayerController(MusicFolderService musicFolderService,
+            PlayerService playerService, ShareService shareService,
+            MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
         super();
         this.musicFolderService = musicFolderService;
         this.playerService = playerService;
@@ -87,8 +88,8 @@ public class ExternalPlayerController {
 
     @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
         String shareName = ControllerUtils.extractMatched(request);
         if (LOG.isDebugEnabled()) {
@@ -124,7 +125,8 @@ public class ExternalPlayerController {
                 LegacyMap.of("share", share, "songs", getSongs(request, share, player)));
     }
 
-    private List<MediaFileWithUrlInfo> getSongs(HttpServletRequest request, Share share, Player player) {
+    private List<MediaFileWithUrlInfo> getSongs(HttpServletRequest request, Share share,
+            Player player) {
         Instant expires = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JWTAuthenticationToken) {
@@ -135,14 +137,19 @@ public class ExternalPlayerController {
 
         List<MediaFileWithUrlInfo> result = new ArrayList<>();
 
-        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(player.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(player.getUsername());
 
         if (share != null) {
             for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {
                 if (file.exists()) {
                     if (file.isDirectory()) {
-                        List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false);
-                        result.addAll(childrenOf.stream().map(mf -> addUrlInfo(request, player, mf, finalExpires))
+                        List<MediaFile> childrenOf = mediaFileService
+                            .getChildrenOf(file, true, false);
+                        result
+                            .addAll(childrenOf
+                                .stream()
+                                .map(mf -> addUrlInfo(request, player, mf, finalExpires))
                                 .collect(Collectors.toList()));
                     } else {
                         result.add(addUrlInfo(request, player, file, finalExpires));
@@ -153,20 +160,28 @@ public class ExternalPlayerController {
         return result;
     }
 
-    public MediaFileWithUrlInfo addUrlInfo(HttpServletRequest request, Player player, MediaFile mediaFile,
-            Instant expires) {
+    public MediaFileWithUrlInfo addUrlInfo(HttpServletRequest request, Player player,
+            MediaFile mediaFile, Instant expires) {
         String prefix = "ext";
         String streamUrl = jwtSecurityService
-                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
+            .addJWTToken(
+                    UriComponentsBuilder
+                        .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
                         .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                         .queryParam(Attributes.Request.PLAYER.value(), player.getId())
-                        .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE), expires)
-                .build().toUriString();
+                        .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE),
+                    expires)
+            .build()
+            .toUriString();
 
-        String coverArtUrl = jwtSecurityService.addJWTToken(UriComponentsBuilder
-                .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
+        String coverArtUrl = jwtSecurityService
+            .addJWTToken(UriComponentsBuilder
+                .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/"
+                        + ViewName.COVER_ART.value())
                 .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
-                .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires).build().toUriString();
+                .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires)
+            .build()
+            .toUriString();
         return new MediaFileWithUrlInfo(mediaFile, coverArtUrl, streamUrl);
     }
 }

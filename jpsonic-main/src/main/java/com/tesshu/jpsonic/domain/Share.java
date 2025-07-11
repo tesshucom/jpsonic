@@ -26,7 +26,8 @@ import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * A collection of media files that is shared with someone, and accessible via a direct URL.
+ * A collection of media files that is shared with someone, and accessible via a
+ * direct URL.
  *
  * @author Sindre Mehus
  */
@@ -44,8 +45,8 @@ public class Share {
     public Share() {
     }
 
-    public Share(int id, String name, String description, String username, Instant created, Instant expires,
-            Instant lastVisited, int visitCount) {
+    public Share(int id, String name, String description, String username, Instant created,
+            Instant expires, Instant lastVisited, int visitCount) {
         this.id = id;
         this.name = name;
         this.description = description;

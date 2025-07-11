@@ -79,10 +79,8 @@ public class AvatarDao {
     /**
      * Sets the custom avatar for the given user.
      *
-     * @param avatar
-     *            The avatar, or <code>null</code> to remove the avatar.
-     * @param username
-     *            The username.
+     * @param avatar   The avatar, or <code>null</code> to remove the avatar.
+     * @param username The username.
      */
     public void setCustomAvatar(Avatar avatar, String username) {
         String sql = """
@@ -92,19 +90,19 @@ public class AvatarDao {
         template.update(sql, username);
 
         if (avatar != null) {
-            template.update(
-                    "insert into custom_avatar(" + INSERT_COLUMNS + ", username) values("
-                            + questionMarks(INSERT_COLUMNS) + ", ?)",
-                    avatar.getName(), avatar.getCreatedDate(), avatar.getMimeType(), avatar.getWidth(),
-                    avatar.getHeight(), avatar.getData(), username);
+            template
+                .update("insert into custom_avatar(" + INSERT_COLUMNS + ", username) values("
+                        + questionMarks(INSERT_COLUMNS) + ", ?)", avatar.getName(),
+                        avatar.getCreatedDate(), avatar.getMimeType(), avatar.getWidth(),
+                        avatar.getHeight(), avatar.getData(), username);
         }
     }
 
     private static class AvatarRowMapper implements RowMapper<Avatar> {
         @Override
         public Avatar mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Avatar(rs.getInt(1), rs.getString(2), nullableInstantOf(rs.getTimestamp(3)), rs.getString(4),
-                    rs.getInt(5), rs.getInt(6), rs.getBytes(7));
+            return new Avatar(rs.getInt(1), rs.getString(2), nullableInstantOf(rs.getTimestamp(3)),
+                    rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getBytes(7));
         }
     }
 

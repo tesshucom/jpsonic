@@ -54,7 +54,8 @@ public class AvatarController {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         Avatar avatar = getAvatar(request);
 
         if (avatar == null) {
@@ -77,8 +78,8 @@ public class AvatarController {
             return null;
         }
 
-        boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(),
-                false);
+        boolean forceCustom = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(), false);
         UserSettings userSettings = securityService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
             return avatarService.getCustomAvatar(username);

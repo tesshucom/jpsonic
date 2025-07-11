@@ -37,10 +37,10 @@ class ConcurrentUtilsTest {
     @Test
     void testHandleCauseUnchecked() {
 
-        assertThrows(StackOverflowError.class,
-                () -> ConcurrentUtils.handleCauseUnchecked(new ExecutionException(new StackOverflowError())));
-        assertThrows(IllegalArgumentException.class,
-                () -> ConcurrentUtils.handleCauseUnchecked(new ExecutionException(new IllegalArgumentException())));
+        assertThrows(StackOverflowError.class, () -> ConcurrentUtils
+            .handleCauseUnchecked(new ExecutionException(new StackOverflowError())));
+        assertThrows(IllegalArgumentException.class, () -> ConcurrentUtils
+            .handleCauseUnchecked(new ExecutionException(new IllegalArgumentException())));
 
         ConcurrentUtils.handleCauseUnchecked(new ExecutionException(new ClassNotFoundException()));
 

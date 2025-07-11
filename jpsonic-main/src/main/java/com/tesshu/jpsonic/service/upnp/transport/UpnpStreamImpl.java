@@ -48,8 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Concrete class for HTTP request/response procedures.
- * Based on {@link HttpExchangeUpnpStream}.
+ * Concrete class for HTTP request/response procedures. Based on
+ * {@link HttpExchangeUpnpStream}.
  */
 public final class UpnpStreamImpl extends UpnpStream {
 
@@ -79,8 +79,10 @@ public final class UpnpStreamImpl extends UpnpStream {
                 httpExchange.getRequestURI());
 
         // Protocol
-        requestMessage.getOperation().setHttpMinorVersion(
-                "HTTP/1.1".equals(httpExchange.getProtocol().toUpperCase(Locale.ROOT)) ? 1 : 0);
+        requestMessage
+            .getOperation()
+            .setHttpMinorVersion(
+                    "HTTP/1.1".equals(httpExchange.getProtocol().toUpperCase(Locale.ROOT)) ? 1 : 0);
 
         // Connection wrapper
         requestMessage.setConnection(new UpnpStreamConnection(httpExchange));
@@ -129,8 +131,9 @@ public final class UpnpStreamImpl extends UpnpStream {
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, -1);
         } else {
             // set our own server token
-            responseMessage.getHeaders().set(UpnpHeader.Type.SERVER.getHttpName(),
-                    tokens.getHttpToken());
+            responseMessage
+                .getHeaders()
+                .set(UpnpHeader.Type.SERVER.getHttpName(), tokens.getHttpToken());
             traceIfEnabled("Preparing HTTP response message: %s".formatted(responseMessage));
 
             // Headers
@@ -140,11 +143,11 @@ public final class UpnpStreamImpl extends UpnpStream {
             byte[] responseBodyBytes = getBodyBytesOf(responseMessage);
             int contentLength = responseBodyBytes.length == 0 ? -1 : responseBodyBytes.length;
             traceIfEnabled("Sending HTTP response message: %s with content length: %s"
-                    .formatted(responseMessage, contentLength));
+                .formatted(responseMessage, contentLength));
 
             // StatusCode
-            httpExchange.sendResponseHeaders(responseMessage.getOperation().getStatusCode(),
-                    contentLength);
+            httpExchange
+                .sendResponseHeaders(responseMessage.getOperation().getStatusCode(), contentLength);
 
             if (contentLength > 0) {
                 traceIfEnabled("Response message has body, writing bytes to stream...");
@@ -164,7 +167,7 @@ public final class UpnpStreamImpl extends UpnpStream {
         try (httpExchange) {
 
             traceIfEnabled("Processing HTTP request: %s %s"
-                    .formatted(httpExchange.getRequestMethod(), httpExchange.getRequestURI()));
+                .formatted(httpExchange.getRequestMethod(), httpExchange.getRequestURI()));
 
             StreamRequestMessage requestMessage = createRequestMessage();
             StreamResponseMessage responseMessage = doProcess(requestMessage);

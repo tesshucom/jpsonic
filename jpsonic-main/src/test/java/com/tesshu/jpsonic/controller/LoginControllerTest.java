@@ -100,11 +100,12 @@ import org.springframework.web.util.pattern.PathPattern;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class LoginControllerTest {
 
-    private final List<Class<?>> loggingClasses = List.of(AuthorizationFilter.class, FilterChainProxy.class,
-            CsrfFilter.class, LogoutFilter.class, HttpSessionRequestCache.class,
-            RequestMatcherDelegatingAuthorizationManager.class, HttpSessionSecurityContextRepository.class,
-            AnonymousAuthenticationFilter.class, ExceptionTranslationFilter.class, AuthorizationFilter.class,
-            GlobalSecurityConfig.class);
+    private final List<Class<?>> loggingClasses = List
+        .of(AuthorizationFilter.class, FilterChainProxy.class, CsrfFilter.class, LogoutFilter.class,
+                HttpSessionRequestCache.class, RequestMatcherDelegatingAuthorizationManager.class,
+                HttpSessionSecurityContextRepository.class, AnonymousAuthenticationFilter.class,
+                ExceptionTranslationFilter.class, AuthorizationFilter.class,
+                GlobalSecurityConfig.class);
 
     void setLogLevel(Level logLevel) {
         loggingClasses.forEach(clazz -> TestCaseUtils.setLogLevel(clazz, logLevel));
@@ -120,14 +121,17 @@ class LoginControllerTest {
         @BeforeEach
         void setup() throws ExecutionException {
             mockMvc = MockMvcBuilders
-                    .standaloneSetup(new LoginController(mock(SettingsService.class), mock(SecurityService.class)))
-                    .build();
+                .standaloneSetup(new LoginController(mock(SettingsService.class),
+                        mock(SecurityService.class)))
+                .build();
         }
 
         @Test
         void testGet() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/login.view"))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/login.view"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals("login", modelAndView.getViewName());
@@ -148,7 +152,10 @@ class LoginControllerTest {
 
         @BeforeEach
         void setup() throws ExecutionException {
-            mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+            mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .build();
         }
 
         @AfterEach
@@ -177,7 +184,8 @@ class LoginControllerTest {
 
         @Test
         @Order(3)
-        @WithMockUser(username = "admin", password = "pass", authorities = { "SETTINGS", "DOWNLOAD", "SHARE" })
+        @WithMockUser(username = "admin", password = "pass", authorities = { "SETTINGS", "DOWNLOAD",
+                "SHARE" })
         void testWithMockUser() throws Exception {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertEquals(UsernamePasswordAuthenticationToken.class, auth.getClass());
@@ -200,17 +208,25 @@ class LoginControllerTest {
         @Order(5)
         void testPathPattern() throws Exception {
             assertNotNull(webApplicationContext.getBean(LoginController.class));
-            Map<String, RequestMappingHandlerMapping> matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-                    webApplicationContext, RequestMappingHandlerMapping.class, true, false);
+            Map<String, RequestMappingHandlerMapping> matchingBeans = BeanFactoryUtils
+                .beansOfTypeIncludingAncestors(webApplicationContext,
+                        RequestMappingHandlerMapping.class, true, false);
             List<HandlerMapping> handlers = new ArrayList<>(matchingBeans.values());
             AnnotationAwareOrderComparator.sort(handlers);
-            Map<RequestMappingInfo, HandlerMethod> handlerMethods = matchingBeans.get("requestMappingHandlerMapping")
-                    .getHandlerMethods();
+            Map<RequestMappingInfo, HandlerMethod> handlerMethods = matchingBeans
+                .get("requestMappingHandlerMapping")
+                .getHandlerMethods();
 
-            List<PathPattern> loginPathPatterns = handlerMethods.keySet().stream()
-                    .map(RequestMappingInfo::getPathPatternsCondition).map(PathPatternsRequestCondition::getPatterns)
-                    .filter(pathPattern -> StringUtils.containsIgnoreCase(pathPattern.toString(), "login"))
-                    .flatMap(Collection::stream).sorted().toList();
+            List<PathPattern> loginPathPatterns = handlerMethods
+                .keySet()
+                .stream()
+                .map(RequestMappingInfo::getPathPatternsCondition)
+                .map(PathPatternsRequestCondition::getPatterns)
+                .filter(pathPattern -> StringUtils
+                    .containsIgnoreCase(pathPattern.toString(), "login"))
+                .flatMap(Collection::stream)
+                .sorted()
+                .toList();
 
             assertEquals(2, loginPathPatterns.size());
             assertEquals("/login.view", loginPathPatterns.get(0).getPatternString());
@@ -244,8 +260,10 @@ class LoginControllerTest {
         @Order(7)
         void testAnonymousGet() throws Exception {
             setLogLevel(Level.TRACE);
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/login.view"))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/login.view"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals("login", modelAndView.getViewName());

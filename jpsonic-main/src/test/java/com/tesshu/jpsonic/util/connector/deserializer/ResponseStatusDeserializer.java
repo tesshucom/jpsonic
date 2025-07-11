@@ -28,7 +28,8 @@ import com.tesshu.jpsonic.util.connector.api.ResponseStatus;
 
 public class ResponseStatusDeserializer extends JsonDeserializer<Object> {
     @Override
-    public ResponseStatus deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public ResponseStatus deserialize(JsonParser parser, DeserializationContext context)
+            throws IOException {
         return ResponseStatus.fromValue(parser.getText());
     }
 

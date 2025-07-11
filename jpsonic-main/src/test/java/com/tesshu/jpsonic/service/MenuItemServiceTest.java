@@ -75,7 +75,8 @@ class MenuItemServiceTest {
 
     @Test
     void testGetTopMenuItems() {
-        List<MenuItem> menuItems = menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
+        List<MenuItem> menuItems = menuItemService
+            .getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
         assertEquals(menuItemService.getTopMenuItemCount(ViewType.UPNP), menuItems.size());
         assertEquals("Folder", menuItems.get(0).getName());
         assertEquals("Album Artist", menuItems.get(1).getName());
@@ -112,27 +113,30 @@ class MenuItemServiceTest {
 
     @Test
     void testGetChildlenOf() {
-        List<MenuItem> menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0,
-                Integer.MAX_VALUE);
+        List<MenuItem> menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals("Simple List", menuItems.get(0).getName());
         assertEquals("By Folder", menuItems.get(1).getName());
         assertEquals("With Index", menuItems.get(2).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals("Simple List", menuItems.get(0).getName());
         assertEquals("By Folder", menuItems.get(1).getName());
         assertEquals("With Index", menuItems.get(2).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
         assertEquals(4, menuItems.size());
         assertEquals("Simple List(ID3)", menuItems.get(0).getName());
         assertEquals("By Folder(ID3)", menuItems.get(1).getName());
         assertEquals("Simple List(FileStructure)", menuItems.get(2).getName());
         assertEquals("By Folder(FileStructure)", menuItems.get(3).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());
         assertEquals("By Album", menuItems.get(0).getName());
         assertEquals("By Folder&Album", menuItems.get(1).getName());
@@ -141,22 +145,26 @@ class MenuItemServiceTest {
         assertEquals("Audiobook", menuItems.get(4).getName());
         assertEquals("Subsonic Style", menuItems.get(5).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals("Channels List", menuItems.get(0).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals("Simple List", menuItems.get(0).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
         assertEquals(4, menuItems.size());
         assertEquals("Added Albums", menuItems.get(0).getName());
         assertEquals("Added Albums By Folder", menuItems.get(1).getName());
         assertEquals("Tagged Albums", menuItems.get(2).getName());
         assertEquals("Tagged Albums By Folder", menuItems.get(3).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemService
+            .getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());
         assertEquals("Music", menuItems.get(0).getName());
         assertEquals("Music By Artist", menuItems.get(1).getName());
@@ -195,20 +203,29 @@ class MenuItemServiceTest {
         @Test
         void testDoNothing() {
             int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
-            int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(MenuItem::isEnabled).count();
+            int enabledSubMenuCount = (int) menuItemService
+                .getSubMenuItems(ViewType.UPNP)
+                .stream()
+                .filter(MenuItem::isEnabled)
+                .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
             menuItemService.ensureUPnPSubMenuEnabled();
-            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(MenuItem::isEnabled).count();
+            enabledSubMenuCount = (int) menuItemService
+                .getSubMenuItems(ViewType.UPNP)
+                .stream()
+                .filter(MenuItem::isEnabled)
+                .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
 
         @Test
         void testEnsureUPnPSubMenuEnabled() {
             int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
-            int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(MenuItem::isEnabled).count();
+            int enabledSubMenuCount = (int) menuItemService
+                .getSubMenuItems(ViewType.UPNP)
+                .stream()
+                .filter(MenuItem::isEnabled)
+                .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
 
             menuItemService.getSubMenuItems(ViewType.UPNP).stream().forEach(menuItem -> {
@@ -216,13 +233,19 @@ class MenuItemServiceTest {
                 menuItemService.updateMenuItem(menuItem);
             });
 
-            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(MenuItem::isEnabled).count();
+            enabledSubMenuCount = (int) menuItemService
+                .getSubMenuItems(ViewType.UPNP)
+                .stream()
+                .filter(MenuItem::isEnabled)
+                .count();
             assertEquals(0, enabledSubMenuCount);
 
             menuItemService.ensureUPnPSubMenuEnabled();
-            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(MenuItem::isEnabled).count();
+            enabledSubMenuCount = (int) menuItemService
+                .getSubMenuItems(ViewType.UPNP)
+                .stream()
+                .filter(MenuItem::isEnabled)
+                .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
     }
@@ -230,32 +253,51 @@ class MenuItemServiceTest {
     @Test
     void testUpdateMenuItems() {
         List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
-        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), Assertions::fail);
-        int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                .filter(MenuItem::isEnabled).count();
+        topMenuItems
+            .stream()
+            .filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER)
+            .findFirst()
+            .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), Assertions::fail);
+        int enabledSubMenuCount = (int) menuItemService
+            .getSubMenuItems(ViewType.UPNP)
+            .stream()
+            .filter(MenuItem::isEnabled)
+            .count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
-        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresent(menuItem -> menuItem.setEnabled(false));
+        topMenuItems
+            .stream()
+            .filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER)
+            .findFirst()
+            .ifPresent(menuItem -> menuItem.setEnabled(false));
 
         List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
         subMenuItems.stream().forEach(menuItem -> menuItem.setEnabled(false));
 
-        menuItemService.updateMenuItems(Stream.concat(topMenuItems.stream(), subMenuItems.stream()));
+        menuItemService
+            .updateMenuItems(Stream.concat(topMenuItems.stream(), subMenuItems.stream()));
 
         topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
-        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresentOrElse(menuItem -> assertFalse(menuItem.isEnabled()), Assertions::fail);
-        enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream().filter(MenuItem::isEnabled)
-                .count();
+        topMenuItems
+            .stream()
+            .filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER)
+            .findFirst()
+            .ifPresentOrElse(menuItem -> assertFalse(menuItem.isEnabled()), Assertions::fail);
+        enabledSubMenuCount = (int) menuItemService
+            .getSubMenuItems(ViewType.UPNP)
+            .stream()
+            .filter(MenuItem::isEnabled)
+            .count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
 
         // tearDown
-        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresentOrElse(menuItem -> {
-                    menuItem.setEnabled(true);
-                    menuItemService.updateMenuItem(menuItem);
-                }, Assertions::fail);
+        topMenuItems
+            .stream()
+            .filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER)
+            .findFirst()
+            .ifPresentOrElse(menuItem -> {
+                menuItem.setEnabled(true);
+                menuItemService.updateMenuItem(menuItem);
+            }, Assertions::fail);
     }
 
     @Nested
@@ -263,7 +305,8 @@ class MenuItemServiceTest {
 
         @Test
         void testUpdateMenuItemOrder() {
-            List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+            List<MenuItemWithDefaultName> topMenuItems = menuItemService
+                .getTopMenuItems(ViewType.UPNP);
             assertEquals(MenuItemId.FOLDER, topMenuItems.get(0).getId());
             assertEquals(MenuItemId.ARTIST, topMenuItems.get(1).getId());
             assertEquals(MenuItemId.ALBUM, topMenuItems.get(2).getId());
@@ -290,7 +333,8 @@ class MenuItemServiceTest {
 
         @Test
         void testFirstItem() {
-            List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+            List<MenuItemWithDefaultName> topMenuItems = menuItemService
+                .getTopMenuItems(ViewType.UPNP);
             assertEquals(MenuItemId.FOLDER, topMenuItems.get(0).getId());
             assertEquals(MenuItemId.ARTIST, topMenuItems.get(1).getId());
             assertEquals(MenuItemId.ALBUM, topMenuItems.get(2).getId());
@@ -348,9 +392,10 @@ class MenuItemServiceTest {
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {
-                    case MEDIA_FILE, ALBUM_ARTIST, ALBUM_ID3, ALBUM_ID3_BY_GENRE, PODCAST_DEFALT, PLAYLISTS_DEFALT,
-                            RECENTLY_ADDED_ALBUM, RANDOM_SONG -> true;
-                    default -> false;
+                case MEDIA_FILE, ALBUM_ARTIST, ALBUM_ID3, ALBUM_ID3_BY_GENRE, PODCAST_DEFALT,
+                        PLAYLISTS_DEFALT, RECENTLY_ADDED_ALBUM, RANDOM_SONG ->
+                    true;
+                default -> false;
                 };
                 assertEquals(enabled, menuItem.isEnabled());
             });
@@ -372,9 +417,10 @@ class MenuItemServiceTest {
     }
 
     /**
-     * This case will not occur in the latest version of Jpsonic. This case would occur if a new menu was added to the
-     * latest version of the database and then the Jpsonic was launched with an older version. (When viewed from a
-     * previous version of Jpsonic, there are menus with unknown IDs.)
+     * This case will not occur in the latest version of Jpsonic. This case would
+     * occur if a new menu was added to the latest version of the database and then
+     * the Jpsonic was launched with an older version. (When viewed from a previous
+     * version of Jpsonic, there are menus with unknown IDs.)
      */
     @Nested
     class UnknownMenuTest {
@@ -385,8 +431,12 @@ class MenuItemServiceTest {
             assertEquals(8, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
             assertEquals(8, menuItemService.getTopMenuItemCount(ViewType.UPNP));
 
-            assertEquals(8, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
-            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8,
+                    menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8,
+                    menuItemService
+                        .getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE)
+                        .size());
             assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP).size());
 
             // Add a dummy sub menu
@@ -400,8 +450,12 @@ class MenuItemServiceTest {
             assertEquals(9, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
             assertEquals(8, menuItemService.getTopMenuItemCount(ViewType.UPNP));
 
-            assertEquals(9, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
-            assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(9,
+                    menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8,
+                    menuItemService
+                        .getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE)
+                        .size());
             assertEquals(8, menuItemService.getTopMenuItems(ViewType.UPNP).size());
 
             templateWrapper.update("""
@@ -409,7 +463,8 @@ class MenuItemServiceTest {
                     """);
 
             assertEquals(8, menuItemDao.getTopMenuIds(ViewType.UPNP).size());
-            assertEquals(8, menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
+            assertEquals(8,
+                    menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).size());
         }
 
         @Test
@@ -418,11 +473,14 @@ class MenuItemServiceTest {
             assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
             assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
 
-            int genreSize = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
-                    .size();
+            int genreSize = menuItemDao
+                .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                .size();
             assertEquals(6, genreSize);
             assertEquals(genreSize,
-                    menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+                    menuItemService
+                        .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                        .size());
 
             int subMenuItemsSize = menuItemDao.getSubMenuItems(ViewType.UPNP).size();
             assertEquals(28, subMenuItemsSize);
@@ -441,9 +499,13 @@ class MenuItemServiceTest {
             assertEquals(1, menuItemService.getChildSizeOf(ViewType.UPNP, MenuItemId.GENRE));
 
             assertEquals(7,
-                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+                    menuItemDao
+                        .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                        .size());
             assertEquals(6,
-                    menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+                    menuItemService
+                        .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                        .size());
 
             assertEquals(subMenuItemsSize + 1, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
             assertEquals(subMenuItemsSize, menuItemService.getSubMenuItems(ViewType.UPNP).size());
@@ -453,14 +515,17 @@ class MenuItemServiceTest {
                     """);
             assertEquals(1, menuItemDao.getChildIds(ViewType.UPNP, MenuItemId.GENRE).size());
             assertEquals(6,
-                    menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE).size());
+                    menuItemDao
+                        .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE)
+                        .size());
             assertEquals(subMenuItemsSize, menuItemDao.getSubMenuItems(ViewType.UPNP).size());
         }
 
         /*
-         * #2660 This does not happen only in release versions, it is a glitch that can occur when sharing release and
-         * development branches. An exception occurs if a definition already exists for MenuItemId, the record exists in
-         * the DB, and the name is not defined in the message resource.
+         * #2660 This does not happen only in release versions, it is a glitch that can
+         * occur when sharing release and development branches. An exception occurs if a
+         * definition already exists for MenuItemId, the record exists in the DB, and
+         * the name is not defined in the message resource.
          */
         @Test
         void testUnknownMessage() {
@@ -470,7 +535,8 @@ class MenuItemServiceTest {
                     (view_type, id, parent, name, enabled, menu_item_order)
                     values(?, ?, ?, ?, ?, ?);
                     """, ViewType.UPNP.value(), 130, MenuItemId.ROOT.value(), "dummy", true, 99);
-            for (MenuItemWithDefaultName menuItem : menuItemService.getTopMenuItems(ViewType.UPNP)) {
+            for (MenuItemWithDefaultName menuItem : menuItemService
+                .getTopMenuItems(ViewType.UPNP)) {
                 assertNotNull(menuItem.getDefaultName());
             }
             menuItemService.ensureUPnPSubMenuEnabled();

@@ -55,14 +55,16 @@ public class SetMusicFileInfoController {
 
     @PostMapping
     protected ModelAndView post(HttpServletRequest request) throws ServletRequestBindingException {
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         String action = request.getParameter(Attributes.Request.ACTION.value());
 
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
 
         if ("comment".equals(action)) {
-            mediaFile.setComment(
-                    StringEscapeUtils.escapeHtml4(request.getParameter(Attributes.Request.COMMENT.value())));
+            mediaFile
+                .setComment(StringEscapeUtils
+                    .escapeHtml4(request.getParameter(Attributes.Request.COMMENT.value())));
             writableMediaFileService.updateComment(mediaFile);
         } else if ("resetLastScanned".equals(action)) {
             writableMediaFileService.resetLastScanned(mediaFile);

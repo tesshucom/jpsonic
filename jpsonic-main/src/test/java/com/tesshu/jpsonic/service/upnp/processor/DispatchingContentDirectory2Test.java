@@ -60,9 +60,10 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() throws URISyntaxException, InterruptedException {
-        musicFolders = Arrays.asList(new MusicFolder(1,
-                Path.of(DispatchingContentDirectory2Test.class.getResource("/MEDIAS/Music").toURI()).toString(),
-                "Music", true, now(), 1, false));
+        musicFolders = Arrays
+            .asList(new MusicFolder(1, Path
+                .of(DispatchingContentDirectory2Test.class.getResource("/MEDIAS/Music").toURI())
+                .toString(), "Music", true, now(), 1, false));
         settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
         settingsService.save();
         populateDatabaseOnlyOnce();
@@ -78,11 +79,13 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
                 (upnp:class = "object.container.person.musicArtist" \
                 and dc:title contains "_ID3_ARTIST_ Céline Frisch: Café Zimmermann")\
                 """;
-        BrowseResult result = contentDirectory.search(null, query, null, 0, Integer.MAX_VALUE, null);
+        BrowseResult result = contentDirectory
+            .search(null, query, null, 0, Integer.MAX_VALUE, null);
         assertEquals(0, result.getCount().getValue());
         assertEquals(0, result.getTotalMatches().getValue());
 
-        // As with Subsonic/Airsonic, if there is a tag, it will be corrected. Therefore, it is
+        // As with Subsonic/Airsonic, if there is a tag, it will be corrected.
+        // Therefore, it is
         // possible to search by tag. (That's the specification.)
         query = """
                 (upnp:class = "object.container.album.musicAlbum") \
@@ -111,7 +114,8 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
         assertEquals(1, result.getTotalMatches().getValue());
 
         // ID3
-        // Unlike Subsonic and Airsonic, Jpsonic allows searching by tag even if your music lib
+        // Unlike Subsonic and Airsonic, Jpsonic allows searching by tag even if your
+        // music lib
         // does not have a three-layer structure.
         settingsService.setUPnPSearchMethod(UPnPSearchMethod.ID3.name());
         settingsService.save();

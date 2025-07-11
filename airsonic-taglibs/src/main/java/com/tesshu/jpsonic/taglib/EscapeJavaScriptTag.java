@@ -29,15 +29,16 @@ import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import org.apache.commons.text.StringEscapeUtils;
 
 /**
- * Escapes the characters in a <code>String</code> using JavaScript String rules.
+ * Escapes the characters in a <code>String</code> using JavaScript String
+ * rules.
  * <p/>
- * Escapes any values it finds into their JavaScript String form. Deals correctly with quotes and control-chars (tab,
- * backslash, cr, ff, etc.)
+ * Escapes any values it finds into their JavaScript String form. Deals
+ * correctly with quotes and control-chars (tab, backslash, cr, ff, etc.)
  * <p/>
  * So a tab becomes the characters <code>'\\'</code> and <code>'t'</code>.
  * <p/>
- * The only difference between Java strings and JavaScript strings is that in JavaScript, a single quote must be
- * escaped.
+ * The only difference between Java strings and JavaScript strings is that in
+ * JavaScript, a single quote must be escaped.
  * <p/>
  * Example:
  *

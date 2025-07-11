@@ -41,7 +41,8 @@ class AlbumProcTest {
     @BeforeEach
     public void setup() {
         mediaFileService = mock(MediaFileService.class);
-        proc = new AlbumProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class), mediaFileService);
+        proc = new AlbumProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class),
+                mediaFileService);
     }
 
     @Test
@@ -52,13 +53,14 @@ class AlbumProcTest {
     @Test
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
-        verify(mediaFileService, times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1))
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                    ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
     void testGetDirectChildrenCount() {
         assertEquals(0, proc.getDirectChildrenCount());
-        verify(mediaFileService, times(1)).getAlbumCount(ArgumentMatchers.<MusicFolder> anyList());
+        verify(mediaFileService, times(1)).getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
     }
 }

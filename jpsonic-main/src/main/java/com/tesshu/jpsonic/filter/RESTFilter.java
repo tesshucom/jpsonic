@@ -63,7 +63,8 @@ public class RESTFilter implements Filter {
         }
     }
 
-    private void handleException(final Throwable x, HttpServletRequest request, HttpServletResponse response) {
+    private void handleException(final Throwable x, HttpServletRequest request,
+            HttpServletResponse response) {
         Throwable t = x;
         if (t instanceof ServletException && t.getCause() != null) {
             t = t.getCause();

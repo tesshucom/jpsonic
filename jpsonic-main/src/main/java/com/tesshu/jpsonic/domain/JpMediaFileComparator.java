@@ -106,14 +106,17 @@ class JpMediaFileComparator implements MediaFileComparator {
     }
 
     int compareDirectory(MediaFile o1, MediaFile o2) {
-        if (o1.isAlbum() && o2.isAlbum() && !isEmpty(o1.getAlbumReading()) && !isEmpty(o2.getAlbumReading())) {
+        if (o1.isAlbum() && o2.isAlbum() && !isEmpty(o1.getAlbumReading())
+                && !isEmpty(o2.getAlbumReading())) {
             return comparator.compare(o1.getAlbumReading(), o2.getAlbumReading());
         }
-        return comparator.compare(Objects.toString(o1.getArtistReading(), EMPTY),
-                Objects.toString(o2.getArtistReading(), EMPTY));
+        return comparator
+            .compare(Objects.toString(o1.getArtistReading(), EMPTY),
+                    Objects.toString(o2.getArtistReading(), EMPTY));
     }
 
-    <T extends Comparable<T>> int nullSafeCompare(@Nullable T a, @Nullable T b, boolean nullIsSmaller) {
+    <T extends Comparable<T>> int nullSafeCompare(@Nullable T a, @Nullable T b,
+            boolean nullIsSmaller) {
         if (a == null && b == null) {
             return 0;
         }

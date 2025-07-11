@@ -26,19 +26,22 @@ import jakarta.xml.bind.annotation.XmlElementDecl;
 import jakarta.xml.bind.annotation.XmlRegistry;
 
 /**
- * This object contains factory methods for each Java content interface and Java element interface generated in the
- * com.tesshu.jpsonic.util.connector.api package.
+ * This object contains factory methods for each Java content interface and Java
+ * element interface generated in the com.tesshu.jpsonic.util.connector.api
+ * package.
  * <p>
- * An ObjectFactory allows you to programatically construct new instances of the Java representation for XML content.
- * The Java representation of XML content can consist of schema derived interfaces and classes representing the binding
- * of schema type definitions, element declarations and model groups. Factory methods for each of these are provided in
- * this class.
+ * An ObjectFactory allows you to programatically construct new instances of the
+ * Java representation for XML content. The Java representation of XML content
+ * can consist of schema derived interfaces and classes representing the binding
+ * of schema type definitions, element declarations and model groups. Factory
+ * methods for each of these are provided in this class.
  */
 @XmlRegistry
 public class ObjectFactory {
 
     @SuppressWarnings("PMD.FieldNamingConventions") // XJC Naming Conventions
-    private static final QName _SubsonicResponse_QNAME = new QName("http://subsonic.org/restapi", "subsonic-response");
+    private static final QName _SubsonicResponse_QNAME = new QName("http://subsonic.org/restapi",
+            "subsonic-response");
 
     /**
      * Create an instance of {@link Response }
@@ -477,10 +480,10 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Response }{@code >}
      *
-     * @param value
-     *            Java instance representing xml element's value.
+     * @param value Java instance representing xml element's value.
      *
-     * @return the new instance of {@link JAXBElement }{@code <}{@link Response }{@code >}
+     * @return the new instance of {@link JAXBElement }{@code <}{@link Response
+     *         }{@code >}
      */
     @XmlElementDecl(namespace = "http://subsonic.org/restapi", name = "subsonic-response")
     public JAXBElement<Response> createSubsonicResponse(Response value) {

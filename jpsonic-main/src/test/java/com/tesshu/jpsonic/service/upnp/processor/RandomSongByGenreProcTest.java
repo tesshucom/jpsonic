@@ -67,11 +67,11 @@ class RandomSongByGenreProcTest {
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
-                    transcodingService);
+            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+                    playerService, transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
-                    mock(JpsonicComparators.class));
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class),
+                    mock(SecurityService.class), settingsService, mock(JpsonicComparators.class));
             proc = new RandomSongByGenreProc(settingsService, util, factory, searchService);
         }
 
@@ -95,8 +95,9 @@ class RandomSongByGenreProcTest {
         void testGetChildren() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-            verify(searchService, times(1)).getRandomSongs(anyInt(), anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList(), any(String[].class));
+            verify(searchService, times(1))
+                .getRandomSongs(anyInt(), anyInt(), anyInt(),
+                        ArgumentMatchers.<MusicFolder>anyList(), any(String[].class));
         }
 
         @Test

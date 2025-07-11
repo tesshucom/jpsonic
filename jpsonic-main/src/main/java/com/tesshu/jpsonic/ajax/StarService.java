@@ -40,7 +40,8 @@ public class StarService {
     private final MediaFileDao mediaFileDao;
     private final AjaxHelper ajaxHelper;
 
-    public StarService(SecurityService securityService, MediaFileDao mediaFileDao, AjaxHelper ajaxHelper) {
+    public StarService(SecurityService securityService, MediaFileDao mediaFileDao,
+            AjaxHelper ajaxHelper) {
         super();
         this.securityService = securityService;
         this.mediaFileDao = mediaFileDao;

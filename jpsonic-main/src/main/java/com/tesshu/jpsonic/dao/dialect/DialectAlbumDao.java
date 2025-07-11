@@ -26,5 +26,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 
 public interface DialectAlbumDao {
 
-    List<Album> getAlbumsByGenre(int offset, int count, List<String> genres, List<MusicFolder> folders);
+    List<Album> getAlbumsByGenre(int offset, int count, List<String> genres,
+            List<MusicFolder> folders);
 }

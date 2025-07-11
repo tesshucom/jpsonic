@@ -49,15 +49,18 @@ class UserChartControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserChartController(mock(SecurityService.class), fontLoader))
-                .build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new UserChartController(mock(SecurityService.class), fontLoader))
+            .build();
     }
 
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_CHART.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_CHART.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
     }
 }

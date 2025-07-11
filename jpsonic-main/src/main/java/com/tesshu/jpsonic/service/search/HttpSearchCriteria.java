@@ -24,9 +24,8 @@ import org.apache.lucene.search.Query;
 /**
  * Search criteria used in the Web or API search implementation.
  *
- * @param input
- *            User-entered phrase
+ * @param input User-entered phrase
  */
-public record HttpSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType,
-        boolean includeComposer) implements SearchCriteria {
+public record HttpSearchCriteria(String input, Query parsedQuery, int offset, int count,
+        IndexType targetType, boolean includeComposer) implements SearchCriteria {
 }

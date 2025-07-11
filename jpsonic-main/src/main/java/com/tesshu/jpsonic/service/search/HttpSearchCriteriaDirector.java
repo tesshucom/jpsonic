@@ -38,9 +38,12 @@ public class HttpSearchCriteriaDirector {
         this.queryFactory = queryFactory;
     }
 
-    public HttpSearchCriteria construct(String input, int offset, int count, boolean includeComposer,
-            List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        Query parsedQuery = queryFactory.searchByPhrase(input, includeComposer, musicFolders, indexType);
-        return new HttpSearchCriteria(input, parsedQuery, offset, count, indexType, includeComposer);
+    public HttpSearchCriteria construct(String input, int offset, int count,
+            boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType)
+            throws IOException {
+        Query parsedQuery = queryFactory
+            .searchByPhrase(input, includeComposer, musicFolders, indexType);
+        return new HttpSearchCriteria(input, parsedQuery, offset, count, indexType,
+                includeComposer);
     }
 }

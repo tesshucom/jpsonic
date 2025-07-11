@@ -114,9 +114,11 @@ public class PlaylistDao {
 
     @Transactional
     public void createPlaylist(Playlist playlist) {
-        template.update("insert into playlist(" + INSERT_COLUMNS + ") values(" + questionMarks(INSERT_COLUMNS) + ")",
-                playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), 0, 0,
-                playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());
+        template
+            .update("insert into playlist(" + INSERT_COLUMNS + ") values("
+                    + questionMarks(INSERT_COLUMNS) + ")", playlist.getUsername(),
+                    playlist.isShared(), playlist.getName(), playlist.getComment(), 0, 0,
+                    playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());
 
         int id = template.queryForInt("select max(id) from playlist", 0);
         playlist.setId(id);
@@ -180,12 +182,13 @@ public class PlaylistDao {
     }
 
     public void updatePlaylist(Playlist playlist) {
-        template.update("""
-                update playlist
-                set username=?, is_public=?, name=?, comment=?, changed=?, imported_from=?
-                where id=?
-                """, playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), now(),
-                playlist.getImportedFrom(), playlist.getId());
+        template
+            .update("""
+                    update playlist
+                    set username=?, is_public=?, name=?, comment=?, changed=?, imported_from=?
+                    where id=?
+                    """, playlist.getUsername(), playlist.isShared(), playlist.getName(),
+                    playlist.getComment(), now(), playlist.getImportedFrom(), playlist.getId());
     }
 
     public int getCountAll() {
@@ -198,9 +201,10 @@ public class PlaylistDao {
     private static class PlaylistMapper implements RowMapper<Playlist> {
         @Override
         public Playlist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Playlist(rs.getInt(1), rs.getString(2), rs.getBoolean(3), rs.getString(4), rs.getString(5),
-                    rs.getInt(6), rs.getInt(7), nullableInstantOf(rs.getTimestamp(8)),
-                    nullableInstantOf(rs.getTimestamp(9)), rs.getString(10));
+            return new Playlist(rs.getInt(1), rs.getString(2), rs.getBoolean(3), rs.getString(4),
+                    rs.getString(5), rs.getInt(6), rs.getInt(7),
+                    nullableInstantOf(rs.getTimestamp(8)), nullableInstantOf(rs.getTimestamp(9)),
+                    rs.getString(10));
         }
     }
 }

@@ -29,7 +29,8 @@ public class MusicFolderContent {
     private final SortedMap<MusicIndex, List<MediaFile>> indexedArtists;
     private final List<MediaFile> singleSongs;
 
-    public MusicFolderContent(SortedMap<MusicIndex, List<MediaFile>> indexedArtists, List<MediaFile> singleSongs) {
+    public MusicFolderContent(SortedMap<MusicIndex, List<MediaFile>> indexedArtists,
+            List<MediaFile> singleSongs) {
         this.indexedArtists = indexedArtists;
         this.singleSongs = singleSongs;
     }

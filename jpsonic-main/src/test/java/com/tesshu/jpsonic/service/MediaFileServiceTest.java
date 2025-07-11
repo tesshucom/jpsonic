@@ -54,13 +54,17 @@ class MediaFileServiceTest {
         SettingsService settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         mediaFileDao = mock(MediaFileDao.class);
-        mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
+        mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
+                securityService, mock(MediaFileCache.class), mediaFileDao,
+                mock(JpsonicComparators.class));
 
-        Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
+        Mockito
+            .when(settingsService.getVideoFileTypesAsArray())
+            .thenReturn(Collections.emptyList());
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));
-        Mockito.when(settingsService.getExcludedCoverArtsAsArray())
-                .thenReturn(Arrays.asList("AlbumArtSmall.jpg", "small.jpg", "large.jpg"));
+        Mockito
+            .when(settingsService.getExcludedCoverArtsAsArray())
+            .thenReturn(Arrays.asList("AlbumArtSmall.jpg", "small.jpg", "large.jpg"));
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 
@@ -114,7 +118,8 @@ class MediaFileServiceTest {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
-            // coverArt(Since it depends on NIO, it is OS dependent. That's the specification.)
+            // coverArt(Since it depends on NIO, it is OS dependent. That's the
+            // specification.)
             Path parent = createPath("/MEDIAS/Metadata/coverart");
             Path firstChild = createPath("/MEDIAS/Metadata/coverart/album.gif");
             assertEquals(firstChild, mediaFileService.findCoverArt(parent).get());
@@ -122,7 +127,8 @@ class MediaFileServiceTest {
             // coverArt
             Path containsEmbeddedFormats = createPath("/MEDIAS/Metadata/v2.4");
             Path embeddedFormat = createPath("/MEDIAS/Metadata/v2.4/Mp3tag2.9.7.mp3");
-            assertEquals(embeddedFormat, mediaFileService.findCoverArt(containsEmbeddedFormats).get());
+            assertEquals(embeddedFormat,
+                    mediaFileService.findCoverArt(containsEmbeddedFormats).get());
 
             // empty
             Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
@@ -133,20 +139,28 @@ class MediaFileServiceTest {
     @Test
     void testGetGenresString() {
         List<String> genres = Collections.emptyList();
-        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        Mockito
+            .when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class)))
+            .thenReturn(genres);
         MediaFile album = new MediaFile();
         assertNull(mediaFileService.getID3AlbumGenresString(album));
 
         genres = Arrays.asList("GenreA");
-        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        Mockito
+            .when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class)))
+            .thenReturn(genres);
         assertEquals("GenreA", mediaFileService.getID3AlbumGenresString(album));
 
         genres = Arrays.asList("GenreA", "GenreB");
-        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        Mockito
+            .when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class)))
+            .thenReturn(genres);
         assertEquals("GenreA;GenreB", mediaFileService.getID3AlbumGenresString(album));
 
         genres = Arrays.asList("GenreA", "GenreA;GenreB");
-        Mockito.when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class))).thenReturn(genres);
+        Mockito
+            .when(mediaFileDao.getID3AlbumGenres(Mockito.any(MediaFile.class)))
+            .thenReturn(genres);
         assertEquals("GenreA;GenreA;GenreB", mediaFileService.getID3AlbumGenresString(album));
     }
 }

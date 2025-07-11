@@ -47,17 +47,19 @@ class ShareManagementControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new ShareManagementController(mock(MediaFileService.class), mock(SecurityService.class),
-                                mock(ShareService.class), mock(PlayerService.class), mock(PlaylistService.class)))
-                .build();
+            .standaloneSetup(new ShareManagementController(mock(MediaFileService.class),
+                    mock(SecurityService.class), mock(ShareService.class),
+                    mock(PlayerService.class), mock(PlaylistService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/createShare.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/createShare.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

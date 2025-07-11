@@ -89,13 +89,19 @@ class InternetRadioDaoTest {
     @Test
     void testDeleteInternetRadio() {
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
+        internetRadioDao
+            .createInternetRadio(
+                    new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
+        internetRadioDao
+            .createInternetRadio(
+                    new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
         assertEquals(2, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        internetRadioDao
+            .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        internetRadioDao
+            .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
     }
 

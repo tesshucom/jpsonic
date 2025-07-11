@@ -46,17 +46,20 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+    public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders,
+            boolean withPodcast) {
         return deligate.getChangedId3Artists(count, folders, withPodcast);
     }
 
     @Override
-    public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+    public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders,
+            boolean withPodcast) {
         return deligate.getUnregisteredId3Artists(count, folders, withPodcast);
     }
 
     @Override
-    public List<MediaFile> getChangedId3Albums(final int count, List<MusicFolder> musicFolders, boolean withPodcast) {
+    public List<MediaFile> getChangedId3Albums(final int count, List<MusicFolder> musicFolders,
+            boolean withPodcast) {
         return deligate.getChangedId3Albums(count, musicFolders, withPodcast);
     }
 
@@ -77,9 +80,11 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
+    public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist,
+            List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
-        return deligate.getRandomSongsForAlbumArtist(limit, albumArtist, musicFolders, randomCallback);
+        return deligate
+            .getRandomSongsForAlbumArtist(limit, albumArtist, musicFolders, randomCallback);
     }
 
     @Override
@@ -88,7 +93,8 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+    public List<ArtistSortCandidate> getSortCandidatePersons(
+            @NonNull List<DuplicateSort> duplicates) {
         return deligate.getSortCandidatePersons(duplicates);
     }
 
@@ -108,8 +114,8 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count, List<MusicFolder> musicFolders,
-            List<MediaType> types) {
+    public List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count,
+            List<MusicFolder> musicFolders, List<MediaType> types) {
         return deligate.getSongsByGenre(genres, offset, count, musicFolders, types);
     }
 }

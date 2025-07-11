@@ -68,7 +68,11 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
             }
             if (mediaFile == null) {
                 StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
-                errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
+                errorMsg
+                    .append(track
+                        .getStringContainers()
+                        .stream()
+                        .map(StringContainer::getText)
                         .collect(Collectors.joining(",")));
                 errors.add(errorMsg.toString());
             } else {
@@ -82,7 +86,8 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
         if (sc instanceof Location location) {
             try {
                 if (sc.getText() != null) {
-                    MediaFile mediaFile = mediaFileService.getMediaFile(Path.of(location.getText()));
+                    MediaFile mediaFile = mediaFileService
+                        .getMediaFile(Path.of(location.getText()));
                     if (mediaFile == null) {
                         return mediaFile;
                     }

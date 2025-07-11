@@ -45,7 +45,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Controller for the page used to administrate the set of internet radio/tv stations.
+ * Controller for the page used to administrate the set of internet radio/tv
+ * stations.
  *
  * @author Sindre Mehus
  */
@@ -56,14 +57,16 @@ public class InternetRadioSettingsController {
     private final SettingsService settingsService;
     private final InternetRadioService internetRadioService;
 
-    public InternetRadioSettingsController(SettingsService settingsService, InternetRadioService internetRadioService) {
+    public InternetRadioSettingsController(SettingsService settingsService,
+            InternetRadioService internetRadioService) {
         super();
         this.settingsService = settingsService;
         this.internetRadioService = internetRadioService;
     }
 
     @GetMapping
-    public String doGet(Model model, @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
+    public String doGet(Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", internetRadioService.getAllInternetRadios(true));
         map.put("useRadio", settingsService.isUseRadio());
@@ -95,9 +98,12 @@ public class InternetRadioSettingsController {
         }
 
         String name = StringUtils.trimToNull(request.getParameter(Attributes.Request.NAME.value()));
-        String streamUrl = StringUtils.trimToNull(request.getParameter(Attributes.Request.STREAM_URL.value()));
-        String homepageUrl = StringUtils.trimToNull(request.getParameter(Attributes.Request.HOMEPAGE_URL.value()));
-        boolean enabled = StringUtils.trimToNull(request.getParameter(Attributes.Request.ENABLED.value())) != null;
+        String streamUrl = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.STREAM_URL.value()));
+        String homepageUrl = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.HOMEPAGE_URL.value()));
+        boolean enabled = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.ENABLED.value())) != null;
 
         if (name != null || streamUrl != null || homepageUrl != null) {
             if (name == null) {
@@ -106,13 +112,16 @@ public class InternetRadioSettingsController {
             if (streamUrl == null) {
                 return "internetradiosettings.nourl";
             }
-            internetRadioService.createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, now()));
+            internetRadioService
+                .createInternetRadio(
+                        new InternetRadio(name, streamUrl, homepageUrl, enabled, now()));
         }
 
         return null;
     }
 
-    private String updateOrDeleteInternetRadio(HttpServletRequest request, InternetRadio radio, Instant current) {
+    private String updateOrDeleteInternetRadio(HttpServletRequest request, InternetRadio radio,
+            Instant current) {
         Integer id = radio.getId();
         String streamUrl = getParam4Array(request, Attributes.Request.STREAM_URL.value(), id);
         String homepageUrl = getParam4Array(request, Attributes.Request.HOMEPAGE_URL.value(), id);
@@ -130,7 +139,8 @@ public class InternetRadioSettingsController {
                 return "internetradiosettings.nourl";
             }
             internetRadioService
-                    .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+                .updateInternetRadio(
+                        new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
         }
         return null;
     }

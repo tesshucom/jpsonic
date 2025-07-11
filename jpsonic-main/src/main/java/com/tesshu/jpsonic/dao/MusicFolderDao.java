@@ -51,8 +51,9 @@ public class MusicFolderDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final TemplateWrapper template;
-    private final RowMapper<MusicFolder> rowMapper = (rs, rowNum) -> new MusicFolder(rs.getInt(1), rs.getString(2),
-            rs.getString(3), rs.getBoolean(4), nullableInstantOf(rs.getTimestamp(5)), rs.getInt(6), rs.getBoolean(7));
+    private final RowMapper<MusicFolder> rowMapper = (rs, rowNum) -> new MusicFolder(rs.getInt(1),
+            rs.getString(2), rs.getString(3), rs.getBoolean(4),
+            nullableInstantOf(rs.getTimestamp(5)), rs.getInt(6), rs.getBoolean(7));
     private final UserDao userDao;
 
     public MusicFolderDao(TemplateWrapper templateWrapper, UserDao userDao) {
@@ -82,8 +83,9 @@ public class MusicFolderDao {
                 values (?, ?, ?, ?,
                         (select count(*) + 1 from music_folder), ?)
                 """.formatted(INSERT_COLUMNS);
-        template.update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
-                musicFolder.getChanged(), musicFolder.isArchived());
+        template
+            .update(sql, musicFolder.getPathString(), musicFolder.getName(),
+                    musicFolder.isEnabled(), musicFolder.getChanged(), musicFolder.isArchived());
 
         Integer id = template.queryForInt("select max(id) from music_folder", 0);
         template.update("""
@@ -112,11 +114,12 @@ public class MusicFolderDao {
                 set path=?, name=?, enabled=?, changed=?, folder_order=?, archived=?
                 where id=?
                 """;
-        template.update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
-                musicFolder.getChanged(),
-                defaultIfNull(musicFolder.getFolderOrder(),
-                        template.queryForInt("select count(*) from music_folder", -1)),
-                musicFolder.isArchived(), musicFolder.getId());
+        template
+            .update(sql, musicFolder.getPathString(), musicFolder.getName(),
+                    musicFolder.isEnabled(), musicFolder.getChanged(),
+                    defaultIfNull(musicFolder.getFolderOrder(),
+                            template.queryForInt("select count(*) from music_folder", -1)),
+                    musicFolder.isArchived(), musicFolder.getId());
     }
 
     public List<MusicFolder> getMusicFoldersForUser(String username) {
@@ -135,8 +138,9 @@ public class MusicFolderDao {
                 where username = ?
                 """, username);
         for (Integer musicFolderId : musicFolderIds) {
-            template.update("insert into music_folder_user(music_folder_id, username) values (?, ?)", musicFolderId,
-                    username);
+            template
+                .update("insert into music_folder_user(music_folder_id, username) values (?, ?)",
+                        musicFolderId, username);
         }
     }
 }

@@ -45,9 +45,12 @@ class TranscodeSchemeTest {
         assertSame(TranscodeScheme.MAX_128, TranscodeScheme.OFF.strictest(TranscodeScheme.MAX_128));
         assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(null));
         assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(TranscodeScheme.OFF));
-        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(TranscodeScheme.MAX_256));
-        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_320.strictest(TranscodeScheme.MAX_128));
-        assertSame(TranscodeScheme.MAX_320, TranscodeScheme.MAX_1411.strictest(TranscodeScheme.MAX_320));
+        assertSame(TranscodeScheme.MAX_128,
+                TranscodeScheme.MAX_128.strictest(TranscodeScheme.MAX_256));
+        assertSame(TranscodeScheme.MAX_128,
+                TranscodeScheme.MAX_320.strictest(TranscodeScheme.MAX_128));
+        assertSame(TranscodeScheme.MAX_320,
+                TranscodeScheme.MAX_1411.strictest(TranscodeScheme.MAX_320));
     }
 
     @Test

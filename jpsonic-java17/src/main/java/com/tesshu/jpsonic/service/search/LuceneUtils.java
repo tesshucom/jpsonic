@@ -31,11 +31,12 @@ import org.springframework.stereotype.Component;
 public class LuceneUtils {
 
     /**
-     * Schema version of Airsonic index. It may be incremented in the following cases:
+     * Schema version of Airsonic index. It may be incremented in the following
+     * cases:
      * <p>
      * - Incompatible update case in Lucene index implementation<br>
-     * - When schema definition is changed due to modification of AnalyzerFactory, DocumentFactory or the class that
-     * they use.
+     * - When schema definition is changed due to modification of AnalyzerFactory,
+     * DocumentFactory or the class that they use.
      */
     private static final int INDEX_VERSION = 29;
 

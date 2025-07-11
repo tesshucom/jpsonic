@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides AJAX-enabled services for editing tags in music files. This class is used by the DWR framework
- * (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for editing tags in music files. This class is
+ * used by the DWR framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -54,8 +54,9 @@ public class TagService {
     private final WritableMediaFileService writableMediaFileService;
     private final ScannerStateService scannerStateService;
 
-    public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, ScannerStateService scannerStateService) {
+    public TagService(MetaDataParserFactory metaDataParserFactory,
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            ScannerStateService scannerStateService) {
         super();
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
@@ -66,27 +67,20 @@ public class TagService {
     /**
      * Updated tags for a given music file.
      *
-     * @param id
-     *            The ID of the music file.
-     * @param trackStr
-     *            The track number.
-     * @param artistStr
-     *            The artist name.
-     * @param albumStr
-     *            The album name.
-     * @param titleStr
-     *            The song title.
-     * @param yearStr
-     *            The release year.
-     * @param genreStr
-     *            The musical genre.
+     * @param id        The ID of the music file.
+     * @param trackStr  The track number.
+     * @param artistStr The artist name.
+     * @param albumStr  The album name.
+     * @param titleStr  The song title.
+     * @param yearStr   The release year.
+     * @param genreStr  The musical genre.
      *
-     * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary. Otherwise the error message
-     *         is returned.
+     * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was
+     *         necessary. Otherwise the error message is returned.
      */
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's ajax API
-    public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
-            String yearStr, String genreStr) {
+    public String updateTags(int id, String trackStr, String artistStr, String albumStr,
+            String titleStr, String yearStr, String genreStr) {
 
         MediaFile file = mediaFileService.getMediaFileStrict(id);
         if (file == null || scannerStateService.isScanning()) {
@@ -96,7 +90,8 @@ public class TagService {
         Path path = file.toPath();
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser == null || !parser.isEditingSupported(path)) {
-            return "Tag editing of " + FilenameUtils.getExtension(file.getPathString()) + " files is not supported.";
+            return "Tag editing of " + FilenameUtils.getExtension(file.getPathString())
+                    + " files is not supported.";
         }
 
         String artist = StringUtils.trimToNull(artistStr);
@@ -107,9 +102,12 @@ public class TagService {
         Integer trackNumber = getTrackNumber(track);
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
-        if (StringUtils.equals(artist, file.getArtist()) && StringUtils.equals(album, file.getAlbumName())
-                && StringUtils.equals(title, file.getTitle()) && Objects.equals(yearNumber, file.getYear())
-                && StringUtils.equals(genre, file.getGenre()) && Objects.equals(trackNumber, file.getTrackNumber())) {
+        if (StringUtils.equals(artist, file.getArtist())
+                && StringUtils.equals(album, file.getAlbumName())
+                && StringUtils.equals(title, file.getTitle())
+                && Objects.equals(yearNumber, file.getYear())
+                && StringUtils.equals(genre, file.getGenre())
+                && Objects.equals(trackNumber, file.getTrackNumber())) {
             return "SKIPPED";
         }
 

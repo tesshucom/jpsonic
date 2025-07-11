@@ -54,7 +54,8 @@ class RecentAlbumId3ByFolderProcTest {
         albumDao = mock(AlbumDao.class);
         UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);
         FolderOrAlbumLogic folderOrAlbumLogic = mock(FolderOrAlbumLogic.class);
-        processor = new RecentAlbumId3ByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
+        processor = new RecentAlbumId3ByFolderProc(mediaFileService, albumDao, factory,
+                folderOrAlbumLogic);
 
     }
 
@@ -66,7 +67,8 @@ class RecentAlbumId3ByFolderProcTest {
     @Nested
     class GetChildrenTest {
 
-        private final MusicFolder folder = new MusicFolder("pathString", "name1", true, null, false);
+        private final MusicFolder folder = new MusicFolder("pathString", "name1", true, null,
+                false);
 
         @Test
         void testAlbumChildren() {
@@ -76,27 +78,31 @@ class RecentAlbumId3ByFolderProcTest {
             FolderAlbum folderAlbum = new FolderAlbum(folder, album);
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folderAlbum);
             assertTrue(processor.getChildren(folderOrAlbum, 0, 0).isEmpty());
-            verify(mediaFileService, times(1)).getSongsForAlbum(anyLong(), anyLong(), anyString(), anyString());
-            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, times(1))
+                .getSongsForAlbum(anyLong(), anyLong(), anyString(), anyString());
+            verify(albumDao, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testFolderChildrenWithCountZero() {
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
             assertTrue(processor.getChildren(folderOrAlbum, 0, 0).isEmpty());
-            verify(mediaFileService, never()).getNewestAlbums(anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList());
-            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            verify(albumDao, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testFolderChildrenWithValidValue() {
-            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder> anyList())).thenReturn(1);
+            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(1);
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
             assertTrue(processor.getChildren(folderOrAlbum, 0, 1).isEmpty());
-            verify(mediaFileService, never()).getNewestAlbums(anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder> anyList());
-            verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList());
+            verify(mediaFileService, never())
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            verify(albumDao, times(1))
+                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         }
     }
 }

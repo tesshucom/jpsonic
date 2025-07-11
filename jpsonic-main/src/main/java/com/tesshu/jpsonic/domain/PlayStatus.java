@@ -27,7 +27,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Represents the playback of a track, possibly remote (e.g., a cached song on a mobile phone).
+ * Represents the playback of a track, possibly remote (e.g., a cached song on a
+ * mobile phone).
  *
  * @author Sindre Mehus
  */

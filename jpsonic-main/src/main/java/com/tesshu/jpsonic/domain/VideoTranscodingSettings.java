@@ -34,7 +34,8 @@ public class VideoTranscodingSettings {
     private final int duration;
     private final boolean hls;
 
-    public VideoTranscodingSettings(int width, int height, int timeOffset, int duration, boolean hls) {
+    public VideoTranscodingSettings(int width, int height, int timeOffset, int duration,
+            boolean hls) {
         this.width = width;
         this.height = height;
         this.timeOffset = timeOffset;

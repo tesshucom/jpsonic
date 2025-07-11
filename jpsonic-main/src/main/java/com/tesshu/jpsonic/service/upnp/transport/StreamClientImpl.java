@@ -72,8 +72,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Apache implementation of AbstractStreamClient.
  * 
- * Jpsonic supports both tomcat and jetty.
- * So it doesn't depend on any of those client-libs.
+ * Jpsonic supports both tomcat and jetty. So it doesn't depend on any of those
+ * client-libs.
  */
 public final class StreamClientImpl
         extends AbstractStreamClient<DefaultStreamClientConf, HttpUriRequestBase> {
@@ -87,31 +87,32 @@ public final class StreamClientImpl
         super();
         this.conf = conf;
 
-        Http1Config customHttpConfig = Http1Config.custom()
-                .setBufferSize(conf.bufferSize())
-                .build();
-        HttpConnectionFactory<ManagedHttpClientConnection> connectionFactory =
-                ManagedHttpClientConnectionFactory.builder()
-                .http1Config(customHttpConfig)
-                .build();
+        Http1Config customHttpConfig = Http1Config
+            .custom()
+            .setBufferSize(conf.bufferSize())
+            .build();
+        HttpConnectionFactory<ManagedHttpClientConnection> connectionFactory = ManagedHttpClientConnectionFactory
+            .builder()
+            .http1Config(customHttpConfig)
+            .build();
 
-        ConnectionConfig connectionConfig = ConnectionConfig.custom()
-                .setConnectTimeout(Timeout.ofSeconds(conf.getTimeoutSeconds()))
-                .setSocketTimeout(Timeout.ofSeconds(conf.socketTimeoutSeconds()))
-                .build();
+        ConnectionConfig connectionConfig = ConnectionConfig
+            .custom()
+            .setConnectTimeout(Timeout.ofSeconds(conf.getTimeoutSeconds()))
+            .setSocketTimeout(Timeout.ofSeconds(conf.socketTimeoutSeconds()))
+            .build();
 
-        manager = PoolingHttpClientConnectionManagerBuilder.create()
-                .setConnectionFactory(connectionFactory)
-                .setDefaultConnectionConfig(connectionConfig)
-                .setMaxConnPerRoute(conf.defaultMaxPerRoute())
-                .setMaxConnTotal(conf.maxTotal())
-                .build();
+        manager = PoolingHttpClientConnectionManagerBuilder
+            .create()
+            .setConnectionFactory(connectionFactory)
+            .setDefaultConnectionConfig(connectionConfig)
+            .setMaxConnPerRoute(conf.defaultMaxPerRoute())
+            .setMaxConnTotal(conf.maxTotal())
+            .build();
 
-        HttpClientBuilder httpClientBuilder = HttpClients.custom()
-                .setConnectionManager(manager);
+        HttpClientBuilder httpClientBuilder = HttpClients.custom().setConnectionManager(manager);
         if (conf.getRetryIterations() == 0) {
-            httpClientBuilder
-                .setRetryStrategy(new NoRetryStrategy(conf.getRetryAfterSeconds()));
+            httpClientBuilder.setRetryStrategy(new NoRetryStrategy(conf.getRetryAfterSeconds()));
         }
         httpClient = httpClientBuilder.build();
     }
@@ -153,10 +154,9 @@ public final class StreamClientImpl
             }
         };
         try (HttpEntity entity = switch (message.getBodyType()) {
-            case BYTES ->
-                new ByteArrayEntity(message.getBodyBytes(), ContentType.APPLICATION_OCTET_STREAM);
-            case STRING ->
-                new StringEntity(message.getBodyString(), Charset.forName(ENCODING_UTF8));
+        case BYTES ->
+            new ByteArrayEntity(message.getBodyBytes(), ContentType.APPLICATION_OCTET_STREAM);
+        case STRING -> new StringEntity(message.getBodyString(), Charset.forName(ENCODING_UTF8));
         }) {
             post.setEntity(entity);
         } catch (IOException e) {
@@ -169,16 +169,14 @@ public final class StreamClientImpl
     protected HttpUriRequestBase createRequest(StreamRequestMessage message) {
         UpnpRequest operation = message.getOperation();
         HttpUriRequestBase request = switch (operation.getMethod()) {
-            case GET, SUBSCRIBE, UNSUBSCRIBE ->
-                    createGet(operation.getMethod(), operation.getURI());
-            case POST, NOTIFY ->
-                    createPost(message);
-            case MSEARCH, UNKNOWN ->
-                    throw new IllegalArgumentException(
-                            "Unknown HTTP method: %s".formatted(operation.getHttpMethodName()));
+        case GET, SUBSCRIBE, UNSUBSCRIBE -> createGet(operation.getMethod(), operation.getURI());
+        case POST, NOTIFY -> createPost(message);
+        case MSEARCH, UNKNOWN -> throw new IllegalArgumentException(
+                "Unknown HTTP method: %s".formatted(operation.getHttpMethodName()));
         };
         if (!message.getHeaders().containsKey(UpnpHeader.Type.USER_AGENT)) {
-            request.setHeader("User-Agent", getConfiguration()
+            request
+                .setHeader("User-Agent", getConfiguration()
                     .getUserAgentValue(message.getUdaMajorVersion(), message.getUdaMinorVersion()));
         }
         if (message.getOperation().getHttpMinorVersion() == 0) {
@@ -187,7 +185,11 @@ public final class StreamClientImpl
             request.setVersion(HttpVersion.HTTP_1_1);
             request.addHeader("Connection", "close");
         }
-        message.getHeaders().entrySet().forEach(entry -> entry.getValue()
+        message
+            .getHeaders()
+            .entrySet()
+            .forEach(entry -> entry
+                .getValue()
                 .forEach(value -> request.addHeader(entry.getKey(), value)));
         return request;
     }
@@ -195,19 +197,20 @@ public final class StreamClientImpl
     private HttpClientResponseHandler<StreamResponseMessage> createResponseHandler() {
         return (final ClassicHttpResponse httpResponse) -> {
             traceIfEnabled("Received HTTP response: %s %s"
-                    .formatted(httpResponse.getCode(), httpResponse.getReasonPhrase()));
+                .formatted(httpResponse.getCode(), httpResponse.getReasonPhrase()));
 
             // Status
-            UpnpResponse responseOperation =
-                    new UpnpResponse(httpResponse.getCode(), httpResponse.getReasonPhrase());
+            UpnpResponse responseOperation = new UpnpResponse(httpResponse.getCode(),
+                    httpResponse.getReasonPhrase());
 
             // Message
             StreamResponseMessage responseMessage = new StreamResponseMessage(responseOperation);
 
             // Headers
             Headers headers = new Headers();
-            Stream.of(httpResponse.getHeaders())
-                    .forEach(header -> headers.add(header.getName(), header.getValue()));
+            Stream
+                .of(httpResponse.getHeaders())
+                .forEach(header -> headers.add(header.getName(), header.getValue()));
             responseMessage.setHeaders(new UpnpHeaders(headers));
 
             // Body
@@ -265,7 +268,7 @@ public final class StreamClientImpl
     private static class NoRetryStrategy implements HttpRequestRetryStrategy {
 
         private final int retryAfterSeconds;
-        
+
         public NoRetryStrategy(int retryAfterSeconds) {
             this.retryAfterSeconds = retryAfterSeconds;
         }

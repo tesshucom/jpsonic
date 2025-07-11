@@ -52,8 +52,8 @@ public class PodcastChannelController {
     private final ScannerStateService scannerStateService;
     private final PodcastService podcastService;
 
-    public PodcastChannelController(SecurityService securityService, ScannerStateService scannerStateService,
-            PodcastService podcastService) {
+    public PodcastChannelController(SecurityService securityService,
+            ScannerStateService scannerStateService, PodcastService podcastService) {
         super();
         this.securityService = securityService;
         this.scannerStateService = scannerStateService;
@@ -65,13 +65,20 @@ public class PodcastChannelController {
 
         ModelAndView result = new ModelAndView();
 
-        int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        result.addObject("model",
-                LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channel",
-                        podcastService.getChannel(channelId), "episodes",
-                        podcastService.getEpisodes(channelId).stream().map(PodcastEpisode::new)
-                                .collect(Collectors.toList()),
-                        "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", scannerStateService.isScanning()));
+        int channelId = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
+        result
+            .addObject("model",
+                    LegacyMap
+                        .of("user", securityService.getCurrentUserStrict(request), "channel",
+                                podcastService.getChannel(channelId), "episodes",
+                                podcastService
+                                    .getEpisodes(channelId)
+                                    .stream()
+                                    .map(PodcastEpisode::new)
+                                    .collect(Collectors.toList()),
+                                "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning",
+                                scannerStateService.isScanning()));
         return result;
     }
 
@@ -79,13 +86,15 @@ public class PodcastChannelController {
     public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
 
         public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
-            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
-                    episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
-                    episode.getBytesDownloaded(), episode.getStatus(), episode.getErrorMessage());
+            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
+                    episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
+                    episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
+                    episode.getStatus(), episode.getErrorMessage());
         }
 
         public @Nullable ZonedDateTime getPublishDateWithZone() {
-            return getPublishDate() == null ? null : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
+            return getPublishDate() == null ? null
+                    : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
         }
     }
 }

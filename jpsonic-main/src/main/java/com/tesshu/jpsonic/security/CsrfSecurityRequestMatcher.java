@@ -39,14 +39,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
 
-    private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
+    private static final List<String> ALLOWED_METHODS = Arrays
+        .asList("GET", "HEAD", "TRACE", "OPTIONS");
 
     private final List<RegexRequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {
-        this.whiteListedMatchers = Arrays.asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
-                new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
-                new RegexRequestMatcher("/search(?:\\.view)?", "POST"));
+        this.whiteListedMatchers = Arrays
+            .asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
+                    new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
+                    new RegexRequestMatcher("/search(?:\\.view)?", "POST"));
     }
 
     @Override

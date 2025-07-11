@@ -50,7 +50,8 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/SpecificPlaylistProvider#toSpecificPlaylist
     @Override
-    public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws ExecutionException {
+    public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider)
+            throws ExecutionException {
         Playlist playlist = createChameleonGenericPlaylistFromDBId(id);
         try {
             return provider.toSpecificPlaylist(playlist);

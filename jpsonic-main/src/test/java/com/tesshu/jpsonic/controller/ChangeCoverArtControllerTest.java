@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class ChangeCoverArtControllerTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
 
     @Autowired
     private MediaFileDao mediaFileDao;
@@ -76,9 +76,12 @@ class ChangeCoverArtControllerTest extends AbstractNeedsScan {
     void testHandleRequest() throws Exception {
 
         MediaFile album = mediaFileDao.getAlphabeticalAlbums(0, 1, false, MUSIC_FOLDERS).get(0);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/changeCoverArt.view")
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/changeCoverArt.view")
                 .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
     }
 }

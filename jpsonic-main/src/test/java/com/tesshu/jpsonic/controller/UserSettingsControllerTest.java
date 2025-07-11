@@ -69,8 +69,9 @@ class UserSettingsControllerTest {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);
-        controller = new UserSettingsController(mock(SettingsService.class), musicFolderService, securityService,
-                mock(TranscodingService.class), mock(ShareService.class), playerService);
+        controller = new UserSettingsController(mock(SettingsService.class), musicFolderService,
+                securityService, mock(TranscodingService.class), mock(ShareService.class),
+                playerService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -78,13 +79,16 @@ class UserSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         // User creation
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("userSettings", modelAndView.getViewName());
-        UserSettingsCommand command = (UserSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        UserSettingsCommand command = (UserSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
         assertTrue(command.isNewUser());
         assertNull(command.getUsername());
@@ -95,15 +99,21 @@ class UserSettingsControllerTest {
         User user2 = new User("user2", null, null);
         List<User> users = Arrays.asList(user0, user1, user2);
         Mockito.when(securityService.getAllUsers()).thenReturn(users);
-        Mockito.when(securityService.getUserSettings(anyString())).thenReturn(new UserSettings(user2.getUsername()));
+        Mockito
+            .when(securityService.getUserSettings(anyString()))
+            .thenReturn(new UserSettings(user2.getUsername()));
         result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value())
-                        .param(Attributes.Redirect.USER_INDEX.value(), "2"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.USER_SETTINGS.value())
+                .param(Attributes.Redirect.USER_INDEX.value(), "2"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();
         assertEquals("userSettings", modelAndView.getViewName());
-        command = (UserSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+        command = (UserSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
         assertFalse(command.isNewUser());
         assertEquals(user2.getUsername(), command.getUsername());
@@ -112,22 +122,27 @@ class UserSettingsControllerTest {
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testPost() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("userSettings", modelAndView.getViewName());
 
-        UserSettingsCommand command = (UserSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        UserSettingsCommand command = (UserSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.USER_SETTINGS.value())
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.USER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.USER_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.USER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -162,11 +177,15 @@ class UserSettingsControllerTest {
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             Mockito.doNothing().when(securityService).updateUser(userCaptor.capture());
-            ArgumentCaptor<UserSettings> settingsCaptor = ArgumentCaptor.forClass(UserSettings.class);
+            ArgumentCaptor<UserSettings> settingsCaptor = ArgumentCaptor
+                .forClass(UserSettings.class);
             Mockito.doNothing().when(securityService).updateUserSettings(settingsCaptor.capture());
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<Integer>> idsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(musicFolderService).setMusicFoldersForUser(anyString(), idsCaptor.capture());
+            Mockito
+                .doNothing()
+                .when(musicFolderService)
+                .setMusicFoldersForUser(anyString(), idsCaptor.capture());
 
             controller.updateUser(command);
 
@@ -213,8 +232,8 @@ class UserSettingsControllerTest {
         }
 
         /*
-         * When the bit rate is changed, the value of the player whose value is set to be larger than that value is
-         * changed to the new value.
+         * When the bit rate is changed, the value of the player whose value is set to
+         * be larger than that value is changed to the new value.
          */
         @Test
         void testUpdateUserChangeTranscodeScheme() throws Exception {

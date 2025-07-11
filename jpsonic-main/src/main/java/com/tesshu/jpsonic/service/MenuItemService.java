@@ -58,11 +58,13 @@ public class MenuItemService {
     }
 
     String getItemName(MenuItemId id) {
-        Locale locale = Locale.JAPAN.getLanguage().equals(settingsService.getLocale().getLanguage()) ? Locale.JAPAN
+        Locale locale = Locale.JAPAN.getLanguage().equals(settingsService.getLocale().getLanguage())
+                ? Locale.JAPAN
                 : Locale.US;
         try {
-            return menuItemSource.getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT),
-                    null, locale);
+            return menuItemSource
+                .getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT),
+                        null, locale);
         } catch (NoSuchMessageException e) {
             if (LOG.isInfoEnabled()) {
                 LOG.info(e.getMessage());
@@ -80,73 +82,103 @@ public class MenuItemService {
     }
 
     public int getTopMenuItemCount(ViewType viewType) {
-        return (int) menuItemDao.getTopMenuIds(viewType).stream().filter(childId -> childId != MenuItemId.ANY).count();
+        return (int) menuItemDao
+            .getTopMenuIds(viewType)
+            .stream()
+            .filter(childId -> childId != MenuItemId.ANY)
+            .count();
     }
 
-    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
+    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset,
+            long count) {
         // To be modifiable
-        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(viewType, enabledOnly, offset, count).stream()
-                .filter(menu -> menu.getId() != MenuItemId.ANY).collect(Collectors.toList());
-        menuItems.stream().filter(item -> item.getName().isBlank())
-                .forEach(item -> item.setName(getItemName(item.getId())));
+        List<MenuItem> menuItems = menuItemDao
+            .getTopMenuItems(viewType, enabledOnly, offset, count)
+            .stream()
+            .filter(menu -> menu.getId() != MenuItemId.ANY)
+            .collect(Collectors.toList());
+        menuItems
+            .stream()
+            .filter(item -> item.getName().isBlank())
+            .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
     }
 
     public List<MenuItemWithDefaultName> getTopMenuItems(ViewType viewType) {
         // To be modifiable
-        return getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE).stream()
-                .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId())))
-                .filter(miwdn -> miwdn.getDefaultName() != null).toList();
+        return getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE)
+            .stream()
+            .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId())))
+            .filter(miwdn -> miwdn.getDefaultName() != null)
+            .toList();
     }
 
     public int getChildSizeOf(ViewType viewType, MenuItemId id) {
-        return (int) menuItemDao.getChildIds(viewType, id).stream().filter(childId -> childId != MenuItemId.ANY)
-                .count();
+        return (int) menuItemDao
+            .getChildIds(viewType, id)
+            .stream()
+            .filter(childId -> childId != MenuItemId.ANY)
+            .count();
     }
 
-    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
-            long count) {
-        List<MenuItem> menuItems = menuItemDao.getChildlenOf(viewType, id, enabledOnly, offset, count).stream()
-                .filter(item -> item.getId() != MenuItemId.ANY).toList();
-        menuItems.stream().filter(item -> item.getName().isBlank())
-                .forEach(item -> item.setName(getItemName(item.getId())));
+    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly,
+            long offset, long count) {
+        List<MenuItem> menuItems = menuItemDao
+            .getChildlenOf(viewType, id, enabledOnly, offset, count)
+            .stream()
+            .filter(item -> item.getId() != MenuItemId.ANY)
+            .toList();
+        menuItems
+            .stream()
+            .filter(item -> item.getName().isBlank())
+            .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
     }
 
     public void updateMenuItem(MenuItem menuItem) {
         MenuItem stored = menuItemDao.getMenuItem(menuItem.getId().value());
         stored.setEnabled(menuItem.isEnabled());
-        stored.setName(menuItem.getName().equals(getItemName(menuItem.getId())) ? "" : menuItem.getName());
+        stored
+            .setName(menuItem.getName().equals(getItemName(menuItem.getId())) ? ""
+                    : menuItem.getName());
         stored.setMenuItemOrder(menuItem.getMenuItemOrder());
         menuItemDao.updateMenuItem(stored);
     }
 
     /**
-     * Ensure at least one submenu is enabled within a category. If not, the default SubMenu will be enabled.
+     * Ensure at least one submenu is enabled within a category. If not, the default
+     * SubMenu will be enabled.
      */
     public void ensureUPnPSubMenuEnabled() {
         List<MenuItem> subMenus = menuItemDao.getSubMenuItems(ViewType.UPNP);
         getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).forEach(topMenu -> {
-            long enableCounts = subMenus.stream().filter(subMenu -> subMenu.getId() != MenuItemId.ANY)
-                    .filter(subMenu -> subMenu.getParent() == topMenu.getId()).filter(MenuItem::isEnabled).count();
+            long enableCounts = subMenus
+                .stream()
+                .filter(subMenu -> subMenu.getId() != MenuItemId.ANY)
+                .filter(subMenu -> subMenu.getParent() == topMenu.getId())
+                .filter(MenuItem::isEnabled)
+                .count();
             if (enableCounts == 0) {
                 MenuItemId defaultSubMenuItemId = switch (topMenu.getId()) {
-                    case FOLDER -> MenuItemId.MEDIA_FILE;
-                    case ARTIST -> MenuItemId.ALBUM_ARTIST;
-                    case ALBUM -> MenuItemId.ALBUM_ID3;
-                    case GENRE -> MenuItemId.ALBUM_ID3_BY_GENRE;
-                    case PODCAST -> MenuItemId.PODCAST_DEFALT;
-                    case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
-                    case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
-                    case SHUFFLE -> MenuItemId.RANDOM_SONG;
-                    default -> MenuItemId.ANY;
+                case FOLDER -> MenuItemId.MEDIA_FILE;
+                case ARTIST -> MenuItemId.ALBUM_ARTIST;
+                case ALBUM -> MenuItemId.ALBUM_ID3;
+                case GENRE -> MenuItemId.ALBUM_ID3_BY_GENRE;
+                case PODCAST -> MenuItemId.PODCAST_DEFALT;
+                case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
+                case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
+                case SHUFFLE -> MenuItemId.RANDOM_SONG;
+                default -> MenuItemId.ANY;
                 };
-                subMenus.stream().filter(menuItem -> MenuItemId.ANY != defaultSubMenuItemId)
-                        .filter(menuItem -> menuItem.getId() == defaultSubMenuItemId).findFirst()
-                        .ifPresent(menuItem -> {
-                            menuItem.setEnabled(true);
-                            menuItemDao.updateMenuItem(menuItem);
-                        });
+                subMenus
+                    .stream()
+                    .filter(menuItem -> MenuItemId.ANY != defaultSubMenuItemId)
+                    .filter(menuItem -> menuItem.getId() == defaultSubMenuItemId)
+                    .findFirst()
+                    .ifPresent(menuItem -> {
+                        menuItem.setEnabled(true);
+                        menuItemDao.updateMenuItem(menuItem);
+                    });
             }
         });
     }
@@ -176,21 +208,26 @@ public class MenuItemService {
     }
 
     public List<MenuItemWithDefaultName> getSubMenuItems(ViewType viewType) {
-        return menuItemDao.getSubMenuItems(viewType).stream().filter(item -> item.getId() != MenuItemId.ANY)
-                .map(item -> {
-                    String defaultName = getItemName(item.getId());
-                    if (item.getName().isBlank()) {
-                        item.setName(defaultName);
-                    }
-                    return new MenuItemWithDefaultName(item, defaultName);
-                }).filter(miwdn -> miwdn.getDefaultName() != null).toList();
+        return menuItemDao
+            .getSubMenuItems(viewType)
+            .stream()
+            .filter(item -> item.getId() != MenuItemId.ANY)
+            .map(item -> {
+                String defaultName = getItemName(item.getId());
+                if (item.getName().isBlank()) {
+                    item.setName(defaultName);
+                }
+                return new MenuItemWithDefaultName(item, defaultName);
+            })
+            .filter(miwdn -> miwdn.getDefaultName() != null)
+            .toList();
     }
 
     public void resetMenuItem(ViewType viewType, ResetMode mode) {
         List<MenuItem> menuItems = switch (mode) {
-            case TOP_MENU -> menuItemDao.getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
-            case SUB_MENU -> menuItemDao.getSubMenuItems(viewType);
-            case ANY -> Collections.emptyList();
+        case TOP_MENU -> menuItemDao.getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
+        case SUB_MENU -> menuItemDao.getSubMenuItems(viewType);
+        case ANY -> Collections.emptyList();
         };
         menuItems.sort(Comparator.comparingInt(m -> m.getId().getDefaultOrder()));
         for (int i = 0; i < menuItems.size(); i++) {
@@ -208,8 +245,8 @@ public class MenuItemService {
         private final String defaultName;
 
         public MenuItemWithDefaultName(MenuItem menuItem, String defaultName) {
-            super(menuItem.getViewType(), menuItem.getId(), menuItem.getParent(), menuItem.getName(),
-                    menuItem.isEnabled(), menuItem.getMenuItemOrder());
+            super(menuItem.getViewType(), menuItem.getId(), menuItem.getParent(),
+                    menuItem.getName(), menuItem.isEnabled(), menuItem.getMenuItemOrder());
             this.defaultName = defaultName;
         }
 

@@ -79,8 +79,8 @@ public class PlayerService implements ReadWriteLockSupport {
 
     private final ReentrantReadWriteLock playerLock = new ReentrantReadWriteLock();
 
-    public PlayerService(PlayerDao playerDao, StatusService statusService, SecurityService securityService,
-            TranscodingService transcodingService) {
+    public PlayerService(PlayerDao playerDao, StatusService statusService,
+            SecurityService securityService, TranscodingService transcodingService) {
         super();
         this.playerDao = playerDao;
         this.statusService = statusService;
@@ -95,8 +95,10 @@ public class PlayerService implements ReadWriteLockSupport {
             playerDao.deleteOldPlayers(60);
             Player upnpPlayer = getUPnPPlayer();
             User guestUser = securityService.getGuestUser();
-            getPlayersForUserAndClientId(guestUser.getUsername(), null).stream()
-                    .filter(p -> p.getId().equals(upnpPlayer.getId())).forEach(p -> playerDao.deletePlayer(p.getId()));
+            getPlayersForUserAndClientId(guestUser.getUsername(), null)
+                .stream()
+                .filter(p -> p.getId().equals(upnpPlayer.getId()))
+                .forEach(p -> playerDao.deletePlayer(p.getId()));
         } finally {
             writeUnlock(playerLock);
         }
@@ -110,21 +112,20 @@ public class PlayerService implements ReadWriteLockSupport {
     }
 
     /**
-     * Returns the player associated with the given HTTP request. If no such player exists, a new one is created.
+     * Returns the player associated with the given HTTP request. If no such player
+     * exists, a new one is created.
      *
-     * @param request
-     *            The HTTP request.
-     * @param response
-     *            The HTTP response.
-     * @param remoteControlEnabled
-     *            Whether this method should return a remote-controlled player.
-     * @param isStreamRequest
-     *            Whether the HTTP request is a request for streaming data.
+     * @param request              The HTTP request.
+     * @param response             The HTTP response.
+     * @param remoteControlEnabled Whether this method should return a
+     *                             remote-controlled player.
+     * @param isStreamRequest      Whether the HTTP request is a request for
+     *                             streaming data.
      *
      * @return The player associated with the given HTTP request.
      */
-    public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
-            boolean isStreamRequest) {
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response,
+            boolean remoteControlEnabled, boolean isStreamRequest) {
         readLock(playerLock);
         try {
 
@@ -158,7 +159,9 @@ public class PlayerService implements ReadWriteLockSupport {
 
             // Save player in session context.
             if (remoteControlEnabled) {
-                request.getSession().setAttribute(Attributes.Session.PLAYER.value(), player.getId());
+                request
+                    .getSession()
+                    .setAttribute(Attributes.Session.PLAYER.value(), player.getId());
             }
 
             return player;
@@ -167,7 +170,8 @@ public class PlayerService implements ReadWriteLockSupport {
         }
     }
 
-    private @NonNull Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled) {
+    private @NonNull Player findOrCreatePlayer(HttpServletRequest request,
+            boolean remoteControlEnabled) {
         String username = securityService.getCurrentUsername(request);
         Player player = findPlayer(request, remoteControlEnabled, username);
 
@@ -185,7 +189,8 @@ public class PlayerService implements ReadWriteLockSupport {
         return player;
     }
 
-    private @Nullable Player findPlayer(HttpServletRequest request, boolean remoteControlEnabled, String username) {
+    private @Nullable Player findPlayer(HttpServletRequest request, boolean remoteControlEnabled,
+            String username) {
         // Find by 'player' request parameter.
         Player player = null;
         try {
@@ -218,15 +223,16 @@ public class PlayerService implements ReadWriteLockSupport {
         }
     }
 
-    boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, @NonNull Player player) {
+    boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest,
+            @NonNull Player player) {
         boolean isToBeUpdate = false;
         String username = securityService.getCurrentUsername(request);
         if (username != null && player.getUsername() == null) {
             player.setUsername(username);
             isToBeUpdate = true;
         }
-        if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player) && player.isDynamicIp()
-                && !request.getRemoteAddr().equals(player.getIpAddress())) {
+        if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player)
+                && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress())) {
             player.setIpAddress(request.getRemoteAddr());
             isToBeUpdate = true;
         }
@@ -250,8 +256,7 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Updates the given player.
      *
-     * @param player
-     *            The player to update.
+     * @param player The player to update.
      */
     public void updatePlayer(Player player) {
         writeLock(playerLock);
@@ -265,10 +270,10 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Returns the player with the given ID.
      *
-     * @param id
-     *            The unique player ID.
+     * @param id The unique player ID.
      *
-     * @return The player with the given ID, or <code>null</code> if no such player exists.
+     * @return The player with the given ID, or <code>null</code> if no such player
+     *         exists.
      */
     public @Nullable Player getPlayerById(Integer id) {
         readLock(playerLock);
@@ -286,8 +291,7 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Returns whether the given player is connected.
      *
-     * @param player
-     *            The player in question.
+     * @param player The player in question.
      *
      * @return Whether the player is connected.
      */
@@ -301,17 +305,17 @@ public class PlayerService implements ReadWriteLockSupport {
     }
 
     /**
-     * Returns the (non-REST) player with the given IP address and username. If no username is given, only IP address is
-     * used as search criteria.
+     * Returns the (non-REST) player with the given IP address and username. If no
+     * username is given, only IP address is used as search criteria.
      *
-     * @param ipAddress
-     *            The IP address.
-     * @param username
-     *            The remote user.
+     * @param ipAddress The IP address.
+     * @param username  The remote user.
      *
-     * @return The player with the given IP address, or <code>null</code> if no such player exists.
+     * @return The player with the given IP address, or <code>null</code> if no such
+     *         player exists.
      */
-    private Player getNonRestPlayerByIpAddressAndUsername(final String ipAddress, final String username) {
+    private Player getNonRestPlayerByIpAddressAndUsername(final String ipAddress,
+            final String username) {
         if (ipAddress == null) {
             return null;
         }
@@ -329,12 +333,11 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Reads the player ID from the cookie in the HTTP request.
      *
-     * @param request
-     *            The HTTP request.
-     * @param username
-     *            The name of the current user.
+     * @param request  The HTTP request.
+     * @param username The name of the current user.
      *
-     * @return The player ID embedded in the cookie, or <code>null</code> if cookie is not present.
+     * @return The player ID embedded in the cookie, or <code>null</code> if cookie
+     *         is not present.
      */
     private Integer getPlayerIdFromCookie(HttpServletRequest request, String username) {
         Cookie[] cookies = request.getCookies();
@@ -357,11 +360,9 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Returns all players owned by the given username and client ID.
      *
-     * @param username
-     *            The name of the user.
-     * @param clientId
-     *            The third-party client ID (used if this player is managed over the Airsonic REST API). May be
-     *            <code>null</code>.
+     * @param username The name of the user.
+     * @param clientId The third-party client ID (used if this player is managed
+     *                 over the Airsonic REST API). May be <code>null</code>.
      *
      * @return All relevant players.
      */
@@ -391,8 +392,7 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Removes the player with the given ID.
      *
-     * @param id
-     *            The unique player ID.
+     * @param id The unique player ID.
      */
     public void removePlayerById(int id) {
         writeLock(playerLock);
@@ -406,8 +406,7 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Creates and returns a clone of the given player.
      *
-     * @param playerId
-     *            The ID of the player to clone.
+     * @param playerId The ID of the player to clone.
      *
      * @return The cloned player.
      */
@@ -433,8 +432,7 @@ public class PlayerService implements ReadWriteLockSupport {
     /**
      * Creates the given player, and activates all transcodings.
      *
-     * @param player
-     *            The player to create.
+     * @param player The player to create.
      */
     public void createPlayer(Player player) {
         createPlayer(player, true);
@@ -443,14 +441,21 @@ public class PlayerService implements ReadWriteLockSupport {
     private void createPlayer(Player player, boolean isInitTranscoding) {
         writeLock(playerLock);
         try {
-            UserSettings userSettings = securityService.getUserSettings(
-                    JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()) ? User.USERNAME_GUEST
-                            : player.getUsername());
+            UserSettings userSettings = securityService
+                .getUserSettings(
+                        JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                                ? User.USERNAME_GUEST
+                                : player.getUsername());
             player.setTranscodeScheme(userSettings.getTranscodeScheme());
             playerDao.createPlayer(player);
             if (isInitTranscoding) {
-                transcodingService.setTranscodingsForPlayer(player, transcodingService.getAllTranscodings().stream()
-                        .filter(Transcoding::isDefaultActive).collect(Collectors.toList()));
+                transcodingService
+                    .setTranscodingsForPlayer(player,
+                            transcodingService
+                                .getAllTranscodings()
+                                .stream()
+                                .filter(Transcoding::isDefaultActive)
+                                .collect(Collectors.toList()));
             }
         } finally {
             writeUnlock(playerLock);
@@ -458,7 +463,8 @@ public class PlayerService implements ReadWriteLockSupport {
     }
 
     /**
-     * Returns a player associated to the special "guest" user, creating it if necessary.
+     * Returns a player associated to the special "guest" user, creating it if
+     * necessary.
      */
     public Player getGuestPlayer(HttpServletRequest request) {
 
@@ -470,9 +476,11 @@ public class PlayerService implements ReadWriteLockSupport {
 
         Optional<Player> oldPlayer = request == null
                 ? players.stream().filter(p -> p.getIpAddress() == null).findFirst()
-                : players.stream()
-                        .filter(p -> p.getIpAddress() != null && p.getIpAddress().equals(request.getRemoteAddr()))
-                        .findFirst();
+                : players
+                    .stream()
+                    .filter(p -> p.getIpAddress() != null
+                            && p.getIpAddress().equals(request.getRemoteAddr()))
+                    .findFirst();
 
         if (oldPlayer.isPresent()) {
             // Update date only if more than 24 hours have passed
@@ -497,15 +505,17 @@ public class PlayerService implements ReadWriteLockSupport {
 
     public Player getUPnPPlayer() {
         User user = securityService.getGuestUser();
-        Player player = getPlayersForUserAndClientId(user.getUsername(), UPNP_PLAYER_ID).stream().findFirst()
-                .orElseGet(() -> {
-                    Player p = new Player();
-                    p.setUsername(User.USERNAME_GUEST);
-                    p.setClientId(UPNP_PLAYER_ID);
-                    p.setLastSeen(now());
-                    createPlayer(p, false);
-                    return p;
-                });
+        Player player = getPlayersForUserAndClientId(user.getUsername(), UPNP_PLAYER_ID)
+            .stream()
+            .findFirst()
+            .orElseGet(() -> {
+                Player p = new Player();
+                p.setUsername(User.USERNAME_GUEST);
+                p.setClientId(UPNP_PLAYER_ID);
+                p.setLastSeen(now());
+                createPlayer(p, false);
+                return p;
+            });
         Instant now = now();
         if (player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now)) {
             player.setLastSeen(now);

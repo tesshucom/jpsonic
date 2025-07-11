@@ -56,10 +56,12 @@ public class FontSchemeFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        settingsService = WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig.getServletContext())
-                .getBean(SettingsService.class);
-        securityService = WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig.getServletContext())
-                .getBean(SecurityService.class);
+        settingsService = WebApplicationContextUtils
+            .getRequiredWebApplicationContext(filterConfig.getServletContext())
+            .getBean(SettingsService.class);
+        securityService = WebApplicationContextUtils
+            .getRequiredWebApplicationContext(filterConfig.getServletContext())
+            .getBean(SecurityService.class);
     }
 
     @Override
@@ -67,14 +69,17 @@ public class FontSchemeFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         /*
-         * There is a problem with AbstractAirsonicRestApiJukeboxIntTest and service is not set correctly. No
-         * abnormalities are seen in all other tests. This judgment block can be deleted by improving
+         * There is a problem with AbstractAirsonicRestApiJukeboxIntTest and service is
+         * not set correctly. No abnormalities are seen in all other tests. This
+         * judgment block can be deleted by improving
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
-        if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService) && !isEmpty(securityService)) {
+        if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService)
+                && !isEmpty(securityService)) {
             @Nullable
             User user = securityService.getCurrentUser(request);
-            UserSettings settings = user == null ? null : securityService.getUserSettings(user.getUsername());
+            UserSettings settings = user == null ? null
+                    : securityService.getUserSettings(user.getUsername());
             WebFontUtils.setToRequest(settings, request);
         }
         chain.doFilter(request, res);

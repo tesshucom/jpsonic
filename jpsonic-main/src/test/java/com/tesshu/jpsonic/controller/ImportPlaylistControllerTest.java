@@ -44,15 +44,18 @@ class ImportPlaylistControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new ImportPlaylistController(mock(SecurityService.class), mock(PlaylistService.class)))
-                .build();
+            .standaloneSetup(new ImportPlaylistController(mock(SecurityService.class),
+                    mock(PlaylistService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/importPlaylist.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/importPlaylist.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

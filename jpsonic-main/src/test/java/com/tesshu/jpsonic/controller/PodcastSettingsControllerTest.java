@@ -50,54 +50,65 @@ class PodcastSettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastSettingsController(settingsService, scannerStateService))
-                .build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new PodcastSettingsController(settingsService, scannerStateService))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("podcastSettings", modelAndView.getViewName());
 
-        PodcastSettingsCommand command = (PodcastSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PodcastSettingsCommand command = (PodcastSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDoSubmitAction() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("podcastSettings", modelAndView.getViewName());
 
-        PodcastSettingsCommand command = (PodcastSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PodcastSettingsCommand command = (PodcastSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.PODCAST_SETTINGS.value())
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.PODCAST_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
         Mockito.verify(settingsService, Mockito.times(1)).save();
         Mockito.clearInvocations(settingsService);
 
         Mockito.when(scannerStateService.isScanning()).thenReturn(true);
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.PODCAST_SETTINGS.value())
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.PODCAST_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
         Mockito.verify(settingsService, Mockito.never()).save();
     }

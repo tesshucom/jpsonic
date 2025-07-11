@@ -60,18 +60,20 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
 
     private final RowMapper<MediaFile> rowMapper = DaoUtils.createRowMapper(MediaFile.class);
     private final RowMapper<MediaFile> iRowMapper;
-    private final RowMapper<MediaFile> artistId3Mapper = (resultSet, rowNum) -> new MediaFile(-1, null,
-            resultSet.getString(1), null, null, null, null, null, resultSet.getString(2), null, null, null, null, null,
-            false, null, null, null, null, resultSet.getString(5), null, -1, null, null, null, null, null, null, false,
-            -1, null, null, null, null, null, null, resultSet.getString(4), null, null, null, resultSet.getString(3),
-            null, null, null, null, -1, "");
+    private final RowMapper<MediaFile> artistId3Mapper = (resultSet, rowNum) -> new MediaFile(-1,
+            null, resultSet.getString(1), null, null, null, null, null, resultSet.getString(2),
+            null, null, null, null, null, false, null, null, null, null, resultSet.getString(5),
+            null, -1, null, null, null, null, null, null, false, -1, null, null, null, null, null,
+            null, resultSet.getString(4), null, null, null, resultSet.getString(3), null, null,
+            null, null, -1, "");
 
-    private final RowMapper<DuplicateSort> duplicateSortMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1),
-            rs.getString(2), -1);
-    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1),
-            rs.getString(2), rs.getInt(3));
-    private final RowMapper<ArtistSortCandidate> artistSortCandidateMapper = (rs, rowNum) -> new ArtistSortCandidate(
-            rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getInt(5));
+    private final RowMapper<DuplicateSort> duplicateSortMapper = (rs,
+            rowNum) -> new SortCandidate(rs.getString(1), rs.getString(2), -1);
+    private final RowMapper<SortCandidate> sortCandidateMapper = (rs,
+            rowNum) -> new SortCandidate(rs.getString(1), rs.getString(2), rs.getInt(3));
+    private final RowMapper<ArtistSortCandidate> artistSortCandidateMapper = (rs,
+            rowNum) -> new ArtistSortCandidate(rs.getString(1), rs.getString(2), rs.getInt(3),
+                    rs.getString(4), rs.getInt(5));
 
     public AnsiMediaFileDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -85,12 +87,14 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+    public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders,
+            boolean withPodcast) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
-                MusicFolder.toPathList(folders), "childMax", ALBUM_CHILD_MAX);
+        Map<String, Object> args = LegacyMap
+            .of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                    MusicFolder.toPathList(folders), "childMax", ALBUM_CHILD_MAX);
         String query = """
                 select music_folder.path as folder, first_fetch.album_artist,
                         mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path
@@ -137,12 +141,14 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+    public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders,
+            boolean withPodcast) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
-                MusicFolder.toPathList(folders), "childMax", ALBUM_CHILD_MAX);
+        Map<String, Object> args = LegacyMap
+            .of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                    MusicFolder.toPathList(folders), "childMax", ALBUM_CHILD_MAX);
         String query = """
                 select music_folder.path as folder, first_fetch.album_artist, mf.album_artist_reading,
                         mf.album_artist_sort, mf_ar.cover_art_path
@@ -190,12 +196,15 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getChangedId3Albums(final int count, List<MusicFolder> musicFolders, boolean withPodcast) {
+    public List<MediaFile> getChangedId3Albums(final int count, List<MusicFolder> musicFolders,
+            boolean withPodcast) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
-                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX, "future", FAR_FUTURE);
+        Map<String, Object> args = LegacyMap
+            .of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                    MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX, "future",
+                    FAR_FUTURE);
         String query = "select " + prefix(QUERY_COLUMNS, "mf_fetched") + """
                 from (select registered.*
                     from
@@ -241,8 +250,9 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
-                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
+        Map<String, Object> args = LegacyMap
+            .of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                    MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
         String query = "select " + prefix(QUERY_COLUMNS, "unregistered") + """
                 from
                     (select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist,
@@ -280,8 +290,9 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
-                MusicFolder.toPathList(folders));
+        Map<String, Object> args = Map
+            .of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
+                    MusicFolder.toPathList(folders));
         return template.namedQuery("""
                 select known.name , known.sort, id
                 from
@@ -303,8 +314,9 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders), "type",
-                MediaFile.MediaType.MUSIC.name());
+        Map<String, Object> args = Map
+            .of("folders", MusicFolder.toPathList(folders), "type",
+                    MediaFile.MediaType.MUSIC.name());
         String query = """
                  select merged.name , merged.sort, id, type, field
                  from
@@ -347,16 +359,18 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
+    public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist,
+            List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
         String type = MediaType.MUSIC.name();
 
         /* Run the query twice. */
 
         /*
-         * Get the number of records that match the conditions, to generate a set of random numbers according to the
-         * number. Therefore, if the number of cases at this time is too large, the subsequent performance is likely to
-         * be affected. If the number isn't too large, it doesn't matter much.
+         * Get the number of records that match the conditions, to generate a set of
+         * random numbers according to the number. Therefore, if the number of cases at
+         * this time is too large, the subsequent performance is likely to be affected.
+         * If the number isn't too large, it doesn't matter much.
          */
         int countAll = template.queryForInt("""
                 select count(*)
@@ -369,17 +383,20 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
 
         List<Integer> randomRownum = randomCallback.apply(countAll, limit);
 
-        Map<String, Object> args = LegacyMap.of("type", type, "artist", albumArtist, "randomRownum", randomRownum,
-                "limit", limit);
+        Map<String, Object> args = LegacyMap
+            .of("type", type, "artist", albumArtist, "randomRownum", randomRownum, "limit", limit);
 
         /*
-         * Perform a conditional search and add a row number. Returns the result whose row number is included in the
-         * random number set.<p> There are some technical barriers to this query.<p> (1) It must be a row number
-         * acquisition method that can be executed in all DBs.<br> (2) It is simpler to join using UNNEST. However,
-         * hsqldb traditionally has a problem with UNNEST, and the operation specification differs depending on the
-         * version. In addition, compatibility of each DB may be affected.<p> Therefore, we use a very primitive query
-         * that combines COUNT and IN here.<p> IN allows you to get the smallest song subset corresponding to random
-         * numbers, but unlike JOIN&UNNEST, the order of random numbers is destroyed.
+         * Perform a conditional search and add a row number. Returns the result whose
+         * row number is included in the random number set.<p> There are some technical
+         * barriers to this query.<p> (1) It must be a row number acquisition method
+         * that can be executed in all DBs.<br> (2) It is simpler to join using UNNEST.
+         * However, hsqldb traditionally has a problem with UNNEST, and the operation
+         * specification differs depending on the version. In addition, compatibility of
+         * each DB may be affected.<p> Therefore, we use a very primitive query that
+         * combines COUNT and IN here.<p> IN allows you to get the smallest song subset
+         * corresponding to random numbers, but unlike JOIN&UNNEST, the order of random
+         * numbers is destroyed.
          */
         List<MediaFile> tmpResult = template.namedQuery("select " + QUERY_COLUMNS + """
                         , foo.irownum
@@ -417,9 +434,10 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("typeDirAndAlbum",
-                Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "folders",
-                MusicFolder.toPathList(folders));
+        Map<String, Object> args = Map
+            .of("typeDirAndAlbum",
+                    Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "folders",
+                    MusicFolder.toPathList(folders));
         String query = """
                 select name, null as sort, id, type, field
                 from
@@ -442,7 +460,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+    public List<ArtistSortCandidate> getSortCandidatePersons(
+            @NonNull List<DuplicateSort> duplicates) {
         List<ArtistSortCandidate> result = new ArrayList<>();
         if (duplicates.isEmpty()) {
             return result;
@@ -478,8 +497,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("type", MediaType.DIRECTORY.name(), "folders",
-                MusicFolder.toPathList(folders));
+        Map<String, Object> args = Map
+            .of("type", MediaType.DIRECTORY.name(), "folders", MusicFolder.toPathList(folders));
         return template.namedQuery("""
                 select distinct album as name, null as sort, id
                 from media_file
@@ -528,8 +547,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         if (folders.isEmpty()) {
             return result;
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaType.MUSIC.name(), "folders",
-                MusicFolder.toPathList(folders));
+        Map<String, Object> args = LegacyMap
+            .of("type", MediaType.MUSIC.name(), "folders", MusicFolder.toPathList(folders));
         String query = """
                 select person_all_with_priority.name, sort,
                         min(field) as field, max(changed) as changed
@@ -582,13 +601,14 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
-            final List<MusicFolder> musicFolders, List<MediaType> types) {
+    public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset,
+            final int count, final List<MusicFolder> musicFolders, List<MediaType> types) {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("types", types.stream().map(MediaType::name).toList(), "genres", genres,
-                "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap
+            .of("types", types.stream().map(MediaType::name).toList(), "genres", genres, "count",
+                    count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
         return template.namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
                 , al.media_file_order = -1 as is_under_root
                 from media_file s

@@ -378,8 +378,7 @@ public class UserSettings {
     /**
      * Sets when the corresponding database entry was last changed.
      *
-     * @param changed
-     *            When the corresponding database entry was last changed.
+     * @param changed When the corresponding database entry was last changed.
      */
     public void setChanged(Instant changed) {
         this.changed = changed;
@@ -619,9 +618,10 @@ public class UserSettings {
         public Visibility() {
         }
 
-        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible, boolean genreVisible,
-                boolean yearVisible, boolean bitRateVisible, boolean durationVisible, boolean formatVisible,
-                boolean fileSizeVisible, boolean composerVisible) {
+        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible,
+                boolean genreVisible, boolean yearVisible, boolean bitRateVisible,
+                boolean durationVisible, boolean formatVisible, boolean fileSizeVisible,
+                boolean composerVisible) {
             this.trackNumberVisible = trackNumberVisible;
             this.artistVisible = artistVisible;
             this.albumVisible = albumVisible;

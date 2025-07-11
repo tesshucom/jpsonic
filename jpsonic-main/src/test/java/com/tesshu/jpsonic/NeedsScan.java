@@ -42,26 +42,28 @@ public interface NeedsScan {
     /**
      * Whether the data input has been completed.
      *
-     * @return Static AtomicBoolean indicating whether the data injection has been completed
+     * @return Static AtomicBoolean indicating whether the data injection has been
+     *         completed
      */
     boolean isDataBasePopulated();
 
     /**
      * Whether the data input has been completed.
      *
-     * @return Static AtomicBoolean indicating whether the data injection has been completed
+     * @return Static AtomicBoolean indicating whether the data injection has been
+     *         completed
      */
     boolean isDataBaseReady();
 
     /**
-     * Populate the database. Used when a subclass has a single test method. Can be used even if there are multiple
-     * inner classes by @Nested.
+     * Populate the database. Used when a subclass has a single test method. Can be
+     * used even if there are multiple inner classes by @Nested.
      */
     void populateDatabase();
 
     /**
-     * Populate the database only once. If you have multiple inner classes, we can only use it if the class that uses
-     * this method is executed first.
+     * Populate the database only once. If you have multiple inner classes, we can
+     * only use it if the class that uses this method is executed first.
      */
     void populateDatabaseOnlyOnce();
 

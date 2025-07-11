@@ -39,7 +39,8 @@ public interface ReadWriteLockSupport {
     }
 
     /**
-     * Promotion of readLock to writeLock. Interrupts on readLock#unlock and writeLock#lock are allowed.
+     * Promotion of readLock to writeLock. Interrupts on readLock#unlock and
+     * writeLock#lock are allowed.
      */
     default void writeLock(ReentrantReadWriteLock lock) {
         readUnlock(lock);

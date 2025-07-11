@@ -34,8 +34,8 @@ import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFArtist, FArtistOrSong>
-        implements CountLimitProc {
+public class RandomSongByFolderArtistProc extends
+        DirectChildrenContentProc<FolderOrFArtist, FArtistOrSong> implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -44,8 +44,9 @@ public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<Fold
     private final SettingsService settingsService;
     private final FolderOrArtistLogic deligate;
 
-    public RandomSongByFolderArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
-            SearchService searchService, SettingsService settingsService, FolderOrArtistLogic folderOrArtistLogic) {
+    public RandomSongByFolderArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            ArtistDao artistDao, SearchService searchService, SettingsService settingsService,
+            FolderOrArtistLogic folderOrArtistLogic) {
         super();
         this.util = util;
         this.factory = factory;
@@ -81,17 +82,27 @@ public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<Fold
     }
 
     @Override
-    public List<FArtistOrSong> getChildren(FolderOrFArtist folderOrArtist, long firstResult, long maxResults) {
+    public List<FArtistOrSong> getChildren(FolderOrFArtist folderOrArtist, long firstResult,
+            long maxResults) {
         int offset = (int) firstResult;
         if (folderOrArtist.isFolderArtist()) {
             int randomMax = settingsService.getDlnaRandomMax();
             int count = toCount(firstResult, maxResults, randomMax);
-            return searchService.getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,
-                    randomMax, util.getGuestFolders()).stream().map(FArtistOrSong::new).toList();
+            return searchService
+                .getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,
+                        randomMax, util.getGuestFolders())
+                .stream()
+                .map(FArtistOrSong::new)
+                .toList();
         }
         MusicFolder folder = folderOrArtist.getFolder();
-        return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(folderOrArtist.getFolder()))
-                .stream().map(artist -> new FolderArtist(folder, artist)).map(FArtistOrSong::new).toList();
+        return artistDao
+            .getAlphabetialArtists(offset, (int) maxResults,
+                    Arrays.asList(folderOrArtist.getFolder()))
+            .stream()
+            .map(artist -> new FolderArtist(folder, artist))
+            .map(FArtistOrSong::new)
+            .toList();
     }
 
     @Override
@@ -102,7 +113,9 @@ public class RandomSongByFolderArtistProc extends DirectChildrenContentProc<Fold
     @Override
     public void addChild(DIDLContent parent, FArtistOrSong artistOrSong) {
         if (artistOrSong.isFolderArtist()) {
-            parent.addContainer(deligate.createContainer(getProcId(), artistOrSong.getFolderArtist()));
+            parent
+                .addContainer(
+                        deligate.createContainer(getProcId(), artistOrSong.getFolderArtist()));
         } else {
             parent.addItem(factory.toMusicTrack(artistOrSong.getSong()));
         }

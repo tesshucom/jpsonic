@@ -62,8 +62,9 @@ package com.tesshu.jpsonic.taglib.util;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * A set of String library static methods. While extending String or StringBuffer would have been the nicest solution,
- * that is not possible, so a simple set of static methods seems the most workable.
+ * A set of String library static methods. While extending String or
+ * StringBuffer would have been the nicest solution, that is not possible, so a
+ * simple set of static methods seems the most workable.
  * <p>
  * Method ideas have so far been taken from the PHP4, Ruby and .NET languages.
  *
@@ -74,8 +75,9 @@ import org.apache.commons.lang3.StringUtils;
 public final class StringW {
 
     /**
-     * Quote a string so that it may be used in a regular expression without any parts of the string being considered as
-     * a part of the regular expression's control characters.
+     * Quote a string so that it may be used in a regular expression without any
+     * parts of the string being considered as a part of the regular expression's
+     * control characters.
      */
     public static String quoteRegularExpression(String str) {
         // replace ? + * / . ^ $ as long as they're not in character
@@ -85,35 +87,37 @@ public final class StringW {
         StringBuffer buffer = new StringBuffer(2 * sz);
         for (int i = 0; i < sz; i++) {
             switch (chrs[i]) {
-                case '[':
-                case ']':
-                case '?':
-                case '+':
-                case '*':
-                case '/':
-                case '.':
-                case '^':
-                case '$':
-                    buffer.append("\\");
-                    break;
-                default:
-                    buffer.append(chrs[i]);
+            case '[':
+            case ']':
+            case '?':
+            case '+':
+            case '*':
+            case '/':
+            case '.':
+            case '^':
+            case '$':
+                buffer.append("\\");
+                break;
+            default:
+                buffer.append(chrs[i]);
             }
         }
         return buffer.toString();
     }
 
     /**
-     * Create a word-wrapped version of a String. Wrap at 80 characters and use newlines as the delimiter. If a word is
-     * over 80 characters long use a - sign to split it.
+     * Create a word-wrapped version of a String. Wrap at 80 characters and use
+     * newlines as the delimiter. If a word is over 80 characters long use a - sign
+     * to split it.
      */
     public static String wordWrap(String str) {
         return wordWrap(str, 80, "\n", "-");
     }
 
     /**
-     * Create a word-wrapped version of a String. Wrap at a specified width and use newlines as the delimiter. If a word
-     * is over the width in lenght use a - sign to split it.
+     * Create a word-wrapped version of a String. Wrap at a specified width and use
+     * newlines as the delimiter. If a word is over the width in lenght use a - sign
+     * to split it.
      */
     public static String wordWrap(String str, int width) {
         return wordWrap(str, width, "\n", "-");
@@ -122,14 +126,10 @@ public final class StringW {
     /**
      * Word-wrap a string.
      *
-     * @param str
-     *            String to word-wrap
-     * @param width
-     *            int to wrap at
-     * @param delim
-     *            String to use to separate lines
-     * @param split
-     *            String to use to split a word greater than width long
+     * @param str   String to word-wrap
+     * @param width int to wrap at
+     * @param delim String to use to separate lines
+     * @param split String to use to split a word greater than width long
      *
      * @return String that has been word wrapped
      */
@@ -223,21 +223,22 @@ public final class StringW {
     }
 
     /**
-     * Truncates a string nicely. It will search for the first space after the lower limit and truncate the string
-     * there. It will also append any string passed as a parameter to the end of the string. The hard limit can be
-     * specified to forcibily truncate a string (in the case of an extremely long word or such). All HTML/XML markup
-     * will be stripped from the string prior to processing for truncation.
+     * Truncates a string nicely. It will search for the first space after the lower
+     * limit and truncate the string there. It will also append any string passed as
+     * a parameter to the end of the string. The hard limit can be specified to
+     * forcibily truncate a string (in the case of an extremely long word or such).
+     * All HTML/XML markup will be stripped from the string prior to processing for
+     * truncation.
      *
-     * @param str
-     *            String the string to be truncated.
-     * @param lower
-     *            int value of the lower limit.
-     * @param upper
-     *            int value of the upper limit, -1 if no limit is desired. If the uppper limit is lower than the lower
-     *            limit, it will be adjusted to be same as the lower limit.
-     * @param appendToEnd
-     *            String to be appended to the end of the truncated string. This is appended ONLY if the string was
-     *            indeed truncated. The append is does not count towards any lower/upper limits.
+     * @param str         String the string to be truncated.
+     * @param lower       int value of the lower limit.
+     * @param upper       int value of the upper limit, -1 if no limit is desired.
+     *                    If the uppper limit is lower than the lower limit, it will
+     *                    be adjusted to be same as the lower limit.
+     * @param appendToEnd String to be appended to the end of the truncated string.
+     *                    This is appended ONLY if the string was indeed truncated.
+     *                    The append is does not count towards any lower/upper
+     *                    limits.
      *
      * @author timster@mac.com
      */

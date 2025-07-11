@@ -68,8 +68,9 @@ public class SecurityService implements UserDetailsService {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
     // https://kb.synology.com/en-in/DSM/help/FileStation/connect?version=7
-    private static final List<String> SYNOLOGY_RESERVED_WORDS = List.of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir",
-            "@sharebin", "@tmp", ".SynologyWorkingDirectory");
+    private static final List<String> SYNOLOGY_RESERVED_WORDS = List
+        .of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir", "@sharebin", "@tmp",
+                ".SynologyWorkingDirectory");
 
     private final UserDao userDao;
     private final SettingsService settingsService;
@@ -77,7 +78,8 @@ public class SecurityService implements UserDetailsService {
 
     private static final Pattern DOTS_IN_SLASH = Pattern.compile(".*(/|\\\\)\\.\\.(/|\\\\|$).*");
 
-    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService) {
+    public SecurityService(UserDao userDao, SettingsService settingsService,
+            MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
         this.settingsService = settingsService;
@@ -85,7 +87,8 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns the selected music folder for a given user, or {@code null} if all music folders should be displayed.
+     * Returns the selected music folder for a given user, or {@code null} if all
+     * music folders should be displayed.
      */
     public @Nullable MusicFolder getSelectedMusicFolder(String username) {
         UserSettings settings = getUserSettings(username);
@@ -99,8 +102,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns settings for the given user.
      *
-     * @param username
-     *            The username.
+     * @param username The username.
      *
      * @return User-specific settings. Never <code>null</code>.
      */
@@ -178,8 +180,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Updates settings for the given username.
      *
-     * @param settings
-     *            The user-specific settings.
+     * @param settings The user-specific settings.
      */
     public void updateUserSettings(UserSettings settings) {
         userDao.updateUserSettings(settings);
@@ -260,7 +261,8 @@ public class SecurityService implements UserDetailsService {
         // Create guest user if necessary.
         User user = getUserByName(User.USERNAME_GUEST);
         if (user == null) {
-            user = new User(User.USERNAME_GUEST, RandomStringUtils.secure().nextAlphanumeric(30), null);
+            user = new User(User.USERNAME_GUEST, RandomStringUtils.secure().nextAlphanumeric(30),
+                    null);
             user.setStreamRole(true);
             createUser(user);
         }
@@ -270,8 +272,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the user with the given email address.
      *
-     * @param email
-     *            The email address.
+     * @param email The email address.
      *
      * @return The user, or <code>null</code> if not found.
      */
@@ -313,13 +314,13 @@ public class SecurityService implements UserDetailsService {
     /**
      * Creates a new user.
      *
-     * @param user
-     *            The user to create.
+     * @param user The user to create.
      */
     public void createUser(User user) {
         userDao.createUser(user);
-        musicFolderService.setMusicFoldersForUser(user.getUsername(),
-                MusicFolder.toIdList(musicFolderService.getAllMusicFolders()));
+        musicFolderService
+            .setMusicFoldersForUser(user.getUsername(),
+                    MusicFolder.toIdList(musicFolderService.getAllMusicFolders()));
         if (LOG.isInfoEnabled()) {
             LOG.info("Created user " + user.getUsername());
         }
@@ -328,8 +329,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Deletes the user with the given username.
      *
-     * @param username
-     *            The username.
+     * @param username The username.
      */
     public void deleteUser(String username) {
         userDao.deleteUser(username);
@@ -341,8 +341,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Updates the given user.
      *
-     * @param user
-     *            The user to update.
+     * @param user The user to update.
      */
     public void updateUser(User user) {
         userDao.updateUser(user);
@@ -355,23 +354,20 @@ public class SecurityService implements UserDetailsService {
     /**
      * Updates the byte counts for given user.
      *
-     * @param user
-     *            The user to update, may be <code>null</code>.
-     * @param bytesStreamedDelta
-     *            Increment bytes streamed count with this value.
-     * @param bytesDownloadedDelta
-     *            Increment bytes downloaded count with this value.
-     * @param bytesUploadedDelta
-     *            Increment bytes uploaded count with this value.
+     * @param user                 The user to update, may be <code>null</code>.
+     * @param bytesStreamedDelta   Increment bytes streamed count with this value.
+     * @param bytesDownloadedDelta Increment bytes downloaded count with this value.
+     * @param bytesUploadedDelta   Increment bytes uploaded count with this value.
      */
     public void updateUserByteCounts(User user, long bytesStreamedDelta, long bytesDownloadedDelta,
             long bytesUploadedDelta) {
         if (user == null) {
             return;
         }
-        userDao.updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
-                user.getBytesDownloaded() + bytesDownloadedDelta, user.getBytesUploaded() + bytesUploadedDelta,
-                user.getUsername());
+        userDao
+            .updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
+                    user.getBytesDownloaded() + bytesDownloadedDelta,
+                    user.getBytesUploaded() + bytesUploadedDelta, user.getUsername());
     }
 
     /**
@@ -399,7 +395,8 @@ public class SecurityService implements UserDetailsService {
         }
         // Only allowed to write podcasts or cover art.
         boolean isPodcast = isInPodcastFolder(path);
-        boolean isCoverArt = isInMusicFolder(path.toString()) && fileName.toString().startsWith("cover.");
+        boolean isCoverArt = isInMusicFolder(path.toString())
+                && fileName.toString().startsWith("cover.");
         return isPodcast || isCoverArt;
     }
 
@@ -413,10 +410,10 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns whether the given file is located in one of the music folders (or any of their sub-folders).
+     * Returns whether the given file is located in one of the music folders (or any
+     * of their sub-folders).
      *
-     * @param path
-     *            The file in question.
+     * @param path The file in question.
      *
      * @return Whether the given file is located in one of the music folders.
      */
@@ -435,10 +432,10 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns whether the given file is located in the Podcast folder (or any of its sub-folders).
+     * Returns whether the given file is located in the Podcast folder (or any of
+     * its sub-folders).
      *
-     * @param path
-     *            The file in question.
+     * @param path The file in question.
      *
      * @return Whether the given file is located in the Podcast folder.
      */
@@ -490,14 +487,13 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns whether the given file is located in the given folder (or any of its sub-folders). If the given file
-     * contains the expression ".." (indicating a reference to the parent directory), this method will return
+     * Returns whether the given file is located in the given folder (or any of its
+     * sub-folders). If the given file contains the expression ".." (indicating a
+     * reference to the parent directory), this method will return
      * <code>false</code>.
      *
-     * @param file
-     *            The file in question.
-     * @param folder
-     *            The folder in question.
+     * @param file   The file in question.
+     * @param folder The folder in question.
      *
      * @return Whether the given file is located in the given folder.
      */
@@ -505,8 +501,9 @@ public class SecurityService implements UserDetailsService {
         if (isEmpty(file)) {
             return false;
         } else if (file.length() > 1_000 && LOG.isWarnEnabled()) {
-            LOG.warn("File path exceeds 1000 characters　:{}",
-                    file.substring(0, 10) + " ... " + file.substring(file.length() - 10, file.length()));
+            LOG
+                .warn("File path exceeds 1000 characters　:{}", file.substring(0, 10) + " ... "
+                        + file.substring(file.length() - 10, file.length()));
         }
 
         // Deny access if file contains ".." surrounded by slashes (or end of line).
@@ -541,8 +538,10 @@ public class SecurityService implements UserDetailsService {
         }
     }
 
-    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity", "PMD.SimplifyBooleanReturns" })
-    // NPathComplexity : Redundantly coded for readability, but not difficult to understand
+    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity",
+            "PMD.SimplifyBooleanReturns" })
+    // NPathComplexity : Redundantly coded for readability, but not difficult to
+    // understand
     public boolean isExcluded(Path path) {
         if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {
             info("Excluding symbolic link %s".formatted(path));
@@ -559,7 +558,7 @@ public class SecurityService implements UserDetailsService {
         if (settingsService.getExcludePattern() != null
                 && settingsService.getExcludePattern().matcher(name).matches()) {
             info("Excluding file which matches exclude pattern %s : %s"
-                    .formatted(settingsService.getExcludePatternString(), path));
+                .formatted(settingsService.getExcludePatternString(), path));
             return true;
         }
 

@@ -30,14 +30,14 @@ import org.jupnp.support.model.container.Container;
 /**
  * An interface for representing a typical UPnP node tree with domain object.
  * <p>
- * Assume that rather than using redundant processors, any tree can be represented using a chain of entity operation
- * definitions up to three layers , including the root.
+ * Assume that rather than using redundant processors, any tree can be
+ * represented using a chain of entity operation definitions up to three layers
+ * , including the root.
  *
- * @param <P>
- *            Entity directly under root. Most are domain objects used for hierarchical expression such as Artist,
- *            Album, MefiaFile, etc. Or their composite object.
- * @param <C>
- *            Grand child entity of root. Child of P.
+ * @param <P> Entity directly under root. Most are domain objects used for
+ *            hierarchical expression such as Artist, Album, MefiaFile, etc. Or
+ *            their composite object.
+ * @param <C> Grand child entity of root. Child of P.
  */
 public interface UPnPContentProcessor<P, C> {
 
@@ -48,12 +48,14 @@ public interface UPnPContentProcessor<P, C> {
     void setProcTitle(String procTitle);
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // DIDLParser#generate
-    default BrowseResult createBrowseResult(DIDLContent parent, int count, int totalMatches) throws ExecutionException {
+    default BrowseResult createBrowseResult(DIDLContent parent, int count, int totalMatches)
+            throws ExecutionException {
         String result;
         try {
             result = new DIDLParser().generate(parent);
         } catch (Exception e) {
-            throw new ExecutionException("Unable to generate XML representation of content model.", e);
+            throw new ExecutionException("Unable to generate XML representation of content model.",
+                    e);
         }
         return new BrowseResult(result, count, totalMatches);
     }
@@ -74,7 +76,8 @@ public interface UPnPContentProcessor<P, C> {
 
     int getDirectChildrenCount();
 
-    default BrowseResult browseRoot(String filter, long offset, long maxLength) throws ExecutionException {
+    default BrowseResult browseRoot(String filter, long offset, long maxLength)
+            throws ExecutionException {
         DIDLContent parent = new DIDLContent();
         getDirectChildren(offset, maxLength).forEach(child -> addDirectChild(parent, child));
         return createBrowseResult(parent, (int) parent.getCount(), getDirectChildrenCount());
@@ -95,7 +98,8 @@ public interface UPnPContentProcessor<P, C> {
 
     void addChild(DIDLContent parent, C entity);
 
-    default BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
+    default BrowseResult browseLeaf(String id, String filter, long offset, long maxLength)
+            throws ExecutionException {
         P branch = getDirectChild(id);
         List<C> leaves = getChildren(branch, offset, maxLength);
         DIDLContent parent = new DIDLContent();

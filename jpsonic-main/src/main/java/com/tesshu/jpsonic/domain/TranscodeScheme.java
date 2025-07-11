@@ -29,7 +29,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * Enumeration of transcoding schemes. Transcoding is the process of converting an audio stream to a lower bit rate.
+ * Enumeration of transcoding schemes. Transcoding is the process of converting
+ * an audio stream to a lower bit rate.
  *
  * @author Sindre Mehus
  */
@@ -53,10 +54,11 @@ public enum TranscodeScheme {
     }
 
     /**
-     * Returns the strictest transcode scheme (i.e., the scheme with the lowest max bitrate).
+     * Returns the strictest transcode scheme (i.e., the scheme with the lowest max
+     * bitrate).
      *
-     * @param other
-     *            The other transcode scheme. May be <code>null</code>, in which case 'this' is returned.
+     * @param other The other transcode scheme. May be <code>null</code>, in which
+     *              case 'this' is returned.
      *
      * @return The strictest scheme.
      */
@@ -96,8 +98,7 @@ public enum TranscodeScheme {
     /**
      * Returns the enum constant corresponding to the specified scheme name.
      *
-     * @param schemeName
-     *            The schemeName.
+     * @param schemeName The schemeName.
      *
      * @return The corresponding enum, or default value(OFF).
      */

@@ -26,9 +26,8 @@ import org.apache.lucene.search.Query;
 /**
  * Search criteria used in the UPnP search implementation
  *
- * @param input
- *            queries based on UPnP Search spec
+ * @param input queries based on UPnP Search spec
  */
-public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count, IndexType targetType)
-        implements SearchCriteria {
+public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count,
+        IndexType targetType) implements SearchCriteria {
 }

@@ -35,8 +35,8 @@ public class RecentAlbumId3Proc extends AlbumId3Proc implements CountLimitProc {
     private final UpnpProcessorUtil util;
     private final AlbumDao albumDao;
 
-    public RecentAlbumId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            AlbumDao albumDao) {
+    public RecentAlbumId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, AlbumDao albumDao) {
         super(util, factory, mediaFileService, albumDao);
         this.util = util;
         this.albumDao = albumDao;

@@ -35,8 +35,12 @@ public final class AjaxMockUtils {
         Object mock;
         if (AjaxHelper.class == classToMock) {
             AjaxHelper ajaxHelper = Mockito.mock(AjaxHelper.class);
-            Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(new MockHttpServletRequest());
-            Mockito.when(ajaxHelper.getHttpServletResponse()).thenReturn(new MockHttpServletResponse());
+            Mockito
+                .when(ajaxHelper.getHttpServletRequest())
+                .thenReturn(new MockHttpServletRequest());
+            Mockito
+                .when(ajaxHelper.getHttpServletResponse())
+                .thenReturn(new MockHttpServletResponse());
             Mockito.when(ajaxHelper.getSession()).thenReturn(new MockHttpSession());
             mock = ajaxHelper;
         } else {

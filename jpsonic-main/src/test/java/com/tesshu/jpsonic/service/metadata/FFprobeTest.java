@@ -51,8 +51,8 @@ class FFprobeTest {
 
     @BeforeEach
     void setUp() {
-        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null);
+        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class),
+                null, null, null, null);
         ffprobe = new FFprobe(transcodingService);
     }
 
@@ -112,7 +112,8 @@ class FFprobeTest {
 
     @Test
     @Order(1)
-    void testParseWithoutCmd(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
+    void testParseWithoutCmd(@TempDir Path emptytranscodeDir)
+            throws URISyntaxException, IOException {
         TranscodingService transcodingService = mock(TranscodingService.class);
         Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
         ffprobe = new FFprobe(transcodingService);

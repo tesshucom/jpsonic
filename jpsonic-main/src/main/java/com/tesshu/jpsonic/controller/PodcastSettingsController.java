@@ -47,7 +47,8 @@ public class PodcastSettingsController {
     private final SettingsService settingsService;
     private final ScannerStateService scannerStateService;
 
-    public PodcastSettingsController(SettingsService settingsService, ScannerStateService scannerStateService) {
+    public PodcastSettingsController(SettingsService settingsService,
+            ScannerStateService scannerStateService) {
         super();
         this.settingsService = settingsService;
         this.scannerStateService = scannerStateService;
@@ -58,8 +59,12 @@ public class PodcastSettingsController {
         PodcastSettingsCommand command = new PodcastSettingsCommand();
 
         command.setInterval(String.valueOf(settingsService.getPodcastUpdateInterval()));
-        command.setEpisodeRetentionCount(String.valueOf(settingsService.getPodcastEpisodeRetentionCount()));
-        command.setEpisodeDownloadCount(String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
+        command
+            .setEpisodeRetentionCount(
+                    String.valueOf(settingsService.getPodcastEpisodeRetentionCount()));
+        command
+            .setEpisodeDownloadCount(
+                    String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
         command.setFolder(settingsService.getPodcastFolder());
 
         // for view page control
@@ -76,9 +81,15 @@ public class PodcastSettingsController {
 
         if (!scannerStateService.isScanning()) {
             settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
-            settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
-            settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
-            PathValidator.validateFolderPath(command.getFolder()).ifPresent(settingsService::setPodcastFolder);
+            settingsService
+                .setPodcastEpisodeRetentionCount(
+                        Integer.parseInt(command.getEpisodeRetentionCount()));
+            settingsService
+                .setPodcastEpisodeDownloadCount(
+                        Integer.parseInt(command.getEpisodeDownloadCount()));
+            PathValidator
+                .validateFolderPath(command.getFolder())
+                .ifPresent(settingsService::setPodcastFolder);
             settingsService.save();
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }

@@ -23,35 +23,39 @@ import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.AttributeFactory;
 
 /**
- * A tokenizer that divides artist text at devide characters defined by id3, or whitespace and comma.
+ * A tokenizer that divides artist text at devide characters defined by id3, or
+ * whitespace and comma.
  */
 public class GenreTokenizer extends CharTokenizer {
 
     /*
-     * see http://id3.org/<p> ; v2.2 (required)<p> / v2.3 The slash is not a delimiter on this server. The generic genre
-     * template uses slashes in the genre name, which causes conflicting specifications.<p> \0 v2.4 (Required for
+     * see http://id3.org/<p> ; v2.2 (required)<p> / v2.3 The slash is not a
+     * delimiter on this server. The generic genre template uses slashes in the
+     * genre name, which causes conflicting specifications.<p> \0 v2.4 (Required for
      * security)
      */
     private static final int DELIM = ';' | '\0';
 
     /**
-     * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
+     * Construct a new Id3ArtistTokenizer using a given
+     * {@link org.apache.lucene.util.AttributeFactory}.
      *
-     * @param factory
-     *            the attribute factory to use for this {@link org.apache.lucene.analysis.Tokenizer}
+     * @param factory the attribute factory to use for this
+     *                {@link org.apache.lucene.analysis.Tokenizer}
      */
     public GenreTokenizer(AttributeFactory factory) {
         super(factory);
     }
 
     /**
-     * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
+     * Construct a new Id3ArtistTokenizer using a given
+     * {@link org.apache.lucene.util.AttributeFactory}.
      *
-     * @param factory
-     *            the attribute factory to use for this {@link org.apache.lucene.analysis.Tokenizer}
-     * @param maxTokenLen
-     *            maximum token length the tokenizer will emit. Must be greater than 0 and less than
-     *            MAX_TOKEN_LENGTH_LIMIT (1024*1024)
+     * @param factory     the attribute factory to use for this
+     *                    {@link org.apache.lucene.analysis.Tokenizer}
+     * @param maxTokenLen maximum token length the tokenizer will emit. Must be
+     *                    greater than 0 and less than MAX_TOKEN_LENGTH_LIMIT
+     *                    (1024*1024)
      */
     public GenreTokenizer(AttributeFactory factory, int maxTokenLen) {
         super(factory, maxTokenLen);

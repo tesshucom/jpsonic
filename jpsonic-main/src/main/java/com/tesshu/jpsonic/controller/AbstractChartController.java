@@ -42,14 +42,13 @@ public abstract class AbstractChartController {
     private static final String KEY_STROKE_COLOR = "strokeColor";
     private static final String KEY_TEXT_COLOR = "textColor";
 
-    public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws IOException;
+    public abstract ModelAndView handleRequest(HttpServletRequest request,
+            HttpServletResponse response) throws IOException;
 
     /**
      * Returns the chart background color for the current theme.
      *
-     * @param request
-     *            The servlet request.
+     * @param request The servlet request.
      *
      * @return The chart background color.
      */
@@ -60,8 +59,7 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart foreground color for the current theme.
      *
-     * @param request
-     *            The servlet request.
+     * @param request The servlet request.
      *
      * @return The chart foreground color.
      */
@@ -72,8 +70,7 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart stroke color for the current theme.
      *
-     * @param request
-     *            The servlet request.
+     * @param request The servlet request.
      *
      * @return The chart stroke color.
      */

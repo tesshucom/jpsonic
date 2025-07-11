@@ -68,8 +68,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * A controller used for downloading files to a remote client. If the requested path refers to a file, the given file is
- * downloaded. If the requested path refers to a directory, the entire directory (including sub-directories) are
+ * A controller used for downloading files to a remote client. If the requested
+ * path refers to a file, the given file is downloaded. If the requested path
+ * refers to a directory, the entire directory (including sub-directories) are
  * downloaded as an uncompressed zip-file.
  *
  * @author Sindre Mehus
@@ -88,8 +89,9 @@ public class DownloadController {
     private final SettingsService settingsService;
     private final MediaFileService mediaFileService;
 
-    public DownloadController(PlayerService playerService, StatusService statusService, SecurityService securityService,
-            PlaylistService playlistService, SettingsService settingsService, MediaFileService mediaFileService) {
+    public DownloadController(PlayerService playerService, StatusService statusService,
+            SecurityService securityService, PlaylistService playlistService,
+            SettingsService settingsService, MediaFileService mediaFileService) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
@@ -122,12 +124,15 @@ public class DownloadController {
         TransferStatus status = null;
         try {
 
-            status = statusService.createDownloadStatus(playerService.getPlayer(request, response, false, false));
+            status = statusService
+                .createDownloadStatus(playerService.getPlayer(request, response, false, false));
 
             MediaFile mediaFile = getMediaFile(request);
 
-            Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
-            Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
+            Integer playlistId = ServletRequestUtils
+                .getIntParameter(request, Attributes.Request.PLAYLIST.value());
+            Integer playerId = ServletRequestUtils
+                .getIntParameter(request, Attributes.Request.PLAYER.value());
             int[] indexes = request.getParameter(Attributes.Request.I.value()) == null ? null
                     : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
 
@@ -145,8 +150,11 @@ public class DownloadController {
 
             if (mediaFile != null) {
                 if (!securityService.isFolderAccessAllowed(mediaFile, user.getUsername())) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, StringEscapeUtils.escapeHtml4(
-                            "Access to file " + mediaFile.getId() + " is forbidden for user " + user.getUsername()));
+                    response
+                        .sendError(HttpServletResponse.SC_FORBIDDEN,
+                                StringEscapeUtils
+                                    .escapeHtml4("Access to file " + mediaFile.getId()
+                                            + " is forbidden for user " + user.getUsername()));
                     return;
                 }
 
@@ -155,7 +163,8 @@ public class DownloadController {
             } else if (playlistId != null) {
                 List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
                 Playlist playlist = playlistService.getPlaylistStrict(playlistId);
-                downloadFiles(response, status, songs, null, null, range, playlist.getName() + ".zip");
+                downloadFiles(response, status, songs, null, null, range,
+                        playlist.getName() + ".zip");
 
             } else if (playerId != null) {
                 Player player = playerService.getPlayerById(playerId);
@@ -164,7 +173,8 @@ public class DownloadController {
                 }
                 PlayQueue playQueue = player.getPlayQueue();
                 playQueue.setName("Playlist");
-                downloadFiles(response, status, playQueue.getFiles(), indexes, null, range, "download.zip");
+                downloadFiles(response, status, playQueue.getFiles(), indexes, null, range,
+                        "download.zip");
             }
 
         } finally {
@@ -175,8 +185,8 @@ public class DownloadController {
         }
     }
 
-    private void doDownload(HttpServletResponse response, TransferStatus status, MediaFile mediaFile, HttpRange range,
-            int... indexes) throws IOException {
+    private void doDownload(HttpServletResponse response, TransferStatus status,
+            MediaFile mediaFile, HttpRange range, int... indexes) throws IOException {
         if (mediaFile.isFile()) {
             downloadFile(response, status, mediaFile.toPath(), range);
         } else {
@@ -189,7 +199,8 @@ public class DownloadController {
         }
     }
 
-    private MediaFile getMediaFile(HttpServletRequest request) throws ServletRequestBindingException {
+    private MediaFile getMediaFile(HttpServletRequest request)
+            throws ServletRequestBindingException {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         return id == null ? null : mediaFileService.getMediaFile(id);
     }
@@ -203,21 +214,16 @@ public class DownloadController {
     /**
      * Downloads a single file.
      *
-     * @param response
-     *            The HTTP response.
-     * @param status
-     *            The download status.
-     * @param path
-     *            The file to download.
-     * @param range
-     *            The byte range, may be <code>null</code>.
+     * @param response The HTTP response.
+     * @param status   The download status.
+     * @param path     The file to download.
+     * @param range    The byte range, may be <code>null</code>.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
     @SuppressLint(value = "PULSE_RESOURCE_LEAK", justification = "Close of response#outputStream is transferred to the container (Servlet API)")
-    private void downloadFile(HttpServletResponse response, TransferStatus status, Path path, HttpRange range)
-            throws IOException {
+    private void downloadFile(HttpServletResponse response, TransferStatus status, Path path,
+            HttpRange range) throws IOException {
         writeLog("Starting to download", FileUtil.getShortPath(path), status.getPlayer());
         status.setPathString(path.toString());
 
@@ -226,23 +232,27 @@ public class DownloadController {
         if (fileName == null) {
             throw new IllegalArgumentException("Illegal path specified: " + path);
         }
-        response.setHeader("Content-Disposition",
-                "attachment; filename*=UTF-8''" + encodeAsRFC5987(fileName.toString()));
+        response
+            .setHeader("Content-Disposition",
+                    "attachment; filename*=UTF-8''" + encodeAsRFC5987(fileName.toString()));
         if (range == null) {
             PlayerUtils.setContentLength(response, Files.size(path));
         }
 
-        copyFileToStream(path, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);
+        copyFileToStream(path, RangeOutputStream.wrap(response.getOutputStream(), range), status,
+                range);
         writeLog("Downloaded", FileUtil.getShortPath(path), status.getPlayer());
     }
 
     private String encodeAsRFC5987(String string) {
         byte[] stringAsByteArray = string.getBytes(StandardCharsets.UTF_8);
-        char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-        byte[] attrChar = { '!', '#', '$', '&', '+', '-', '.', '^', '_', '`', '|', '~', '0', '1', '2', '3', '4', '5',
-                '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-                'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+        char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+                'F' };
+        byte[] attrChar = { '!', '#', '$', '&', '+', '-', '.', '^', '_', '`', '|', '~', '0', '1',
+                '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+                'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+                'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         StringBuilder sb = new StringBuilder();
         for (byte b : stringAsByteArray) {
             if (Arrays.binarySearch(attrChar, b) >= 0) {
@@ -255,26 +265,23 @@ public class DownloadController {
     }
 
     /**
-     * Downloads the given files. The files are packed together in an uncompressed zip-file.
+     * Downloads the given files. The files are packed together in an uncompressed
+     * zip-file.
      *
-     * @param response
-     *            The HTTP response.
-     * @param status
-     *            The download status.
-     * @param files
-     *            The files to download.
-     * @param indexes
-     *            Only download songs at these indexes. May be <code>null</code>.
-     * @param coverArtPath
-     *            The cover art file to include, may be {@code null}.
-     * @param range
-     *            The byte range, may be <code>null</code>.
-     * @param zipFileName
-     *            The name of the resulting zip file. @throws IOException If an I/O error occurs.
+     * @param response     The HTTP response.
+     * @param status       The download status.
+     * @param files        The files to download.
+     * @param indexes      Only download songs at these indexes. May be
+     *                     <code>null</code>.
+     * @param coverArtPath The cover art file to include, may be {@code null}.
+     * @param range        The byte range, may be <code>null</code>.
+     * @param zipFileName  The name of the resulting zip file. @throws IOException
+     *                     If an I/O error occurs.
      */
     @SuppressLint(value = "PULSE_RESOURCE_LEAK", justification = "Close of response#outputStream is transferred to the container (Servlet API)")
-    private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files,
-            int[] indexes, Path coverArtPath, HttpRange range, String zipFileName) throws IOException {
+    private void downloadFiles(HttpServletResponse response, TransferStatus status,
+            List<MediaFile> files, int[] indexes, Path coverArtPath, HttpRange range,
+            String zipFileName) throws IOException {
         if (indexes != null && indexes.length == 1) {
             downloadFile(response, status, files.get(indexes[0]).toPath(), range);
             return;
@@ -284,15 +291,19 @@ public class DownloadController {
 
         writeLog("Starting to download", zipFileName, status.getPlayer());
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
+        response
+            .setHeader("Content-Disposition",
+                    "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
 
-        try (ZipOutputStream out = new ZipOutputStream(RangeOutputStream.wrap(response.getOutputStream(), range))) {
+        try (ZipOutputStream out = new ZipOutputStream(
+                RangeOutputStream.wrap(response.getOutputStream(), range))) {
 
             out.setMethod(ZipOutputStream.STORED); // No compression.
 
             Set<MediaFile> filesToDownload = createFilesToDownload(indexes, files);
             for (MediaFile mediaFile : filesToDownload) {
-                zip(out, Path.of(mediaFile.getParentPathString()), mediaFile.toPath(), status, range);
+                zip(out, Path.of(mediaFile.getParentPathString()), mediaFile.toPath(), status,
+                        range);
                 if (coverArtPath != null && Files.exists(coverArtPath)
                         && mediaFile.toPath().toRealPath().equals(coverArtPath.toRealPath())) {
                     coverEmbedded = true;
@@ -325,22 +336,18 @@ public class DownloadController {
     }
 
     /**
-     * Utility method for writing the content of a given file to a given output stream.
+     * Utility method for writing the content of a given file to a given output
+     * stream.
      *
-     * @param path
-     *            The file to copy.
-     * @param out
-     *            The output stream to write to.
-     * @param status
-     *            The download status.
-     * @param range
-     *            The byte range, may be <code>null</code>.
+     * @param path   The file to copy.
+     * @param out    The output stream to write to.
+     * @param status The download status.
+     * @param range  The byte range, may be <code>null</code>.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
-    private void copyFileToStream(Path path, OutputStream out, TransferStatus status, HttpRange range)
-            throws IOException {
+    private void copyFileToStream(Path path, OutputStream out, TransferStatus status,
+            HttpRange range) throws IOException {
         writeLog("Downloading", FileUtil.getShortPath(path), status.getPlayer());
 
         final int bufferSize = 16 * 1024; // 16 Kbit
@@ -359,7 +366,8 @@ public class DownloadController {
                 out.write(buf, 0, n);
 
                 // Don't sleep if outside range.
-                if (range != null && !range.contains(status.getBytesSkipped() + status.getBytesTransfered())) {
+                if (range != null && !range
+                    .contains(status.getBytesSkipped() + status.getBytesTransfered())) {
                     status.addBytesSkipped(n);
                     continue;
                 }
@@ -397,25 +405,20 @@ public class DownloadController {
     }
 
     /**
-     * Writes a file or a directory structure to a zip output stream. File entries in the zip file are relative to the
-     * given root.
+     * Writes a file or a directory structure to a zip output stream. File entries
+     * in the zip file are relative to the given root.
      *
-     * @param out
-     *            The zip output stream.
-     * @param root
-     *            The root of the directory structure. Used to create path information in the zip file.
-     * @param path
-     *            The file or directory to zip.
-     * @param status
-     *            The download status.
-     * @param range
-     *            The byte range, may be <code>null</code>.
+     * @param out    The zip output stream.
+     * @param root   The root of the directory structure. Used to create path
+     *               information in the zip file.
+     * @param path   The file or directory to zip.
+     * @param status The download status.
+     * @param range  The byte range, may be <code>null</code>.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
-    private void zip(ZipOutputStream out, Path root, Path path, TransferStatus status, HttpRange range)
-            throws IOException {
+    private void zip(ZipOutputStream out, Path root, Path path, TransferStatus status,
+            HttpRange range) throws IOException {
 
         // Exclude all hidden files starting with a "."
         Path fileName = path.getFileName();
@@ -423,7 +426,10 @@ public class DownloadController {
             return;
         }
 
-        String zipName = path.toRealPath().toString().substring(root.toRealPath().toString().length() + 1);
+        String zipName = path
+            .toRealPath()
+            .toString()
+            .substring(root.toRealPath().toString().length() + 1);
 
         if (Files.isRegularFile(path)) {
             status.setPathString(path.toString());
@@ -457,13 +463,11 @@ public class DownloadController {
     /**
      * Computes the CRC checksum for the given file.
      *
-     * @param path
-     *            The file to compute checksum for.
+     * @param path The file to compute checksum for.
      *
      * @return A CRC32 checksum.
      *
-     * @throws IOException
-     *             If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      */
     private long computeCrc(Path path) throws IOException {
         CRC32 crc = new CRC32();

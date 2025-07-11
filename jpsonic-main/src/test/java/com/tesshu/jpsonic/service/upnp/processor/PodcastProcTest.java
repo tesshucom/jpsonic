@@ -55,8 +55,9 @@ class PodcastProcTest {
     @BeforeEach
     public void setup() {
         SettingsService settingsService = mock(SettingsService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
-                mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+                mock(JWTSecurityService.class), mock(MediaFileService.class),
+                mock(PlayerService.class), mock(TranscodingService.class));
         podcastService = mock(PodcastService.class);
         proc = new PodcastProc(factory, podcastService);
     }
@@ -68,7 +69,8 @@ class PodcastProcTest {
 
     @Test
     void testCreateContainer() {
-        PodcastChannel podcastChannel = new PodcastChannel(10, "url", "title", null, null, null, null);
+        PodcastChannel podcastChannel = new PodcastChannel(10, "url", "title", null, null, null,
+                null);
         when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
         Container container = proc.createContainer(podcastChannel);
         assertInstanceOf(MusicAlbum.class, container);
@@ -113,7 +115,15 @@ class PodcastProcTest {
     @Test
     void testAddChild() {
         DIDLContent content = new DIDLContent();
-        PodcastEpisode episode = new PodcastEpisode(null, null, "url", null, null, null, null, null, null, null, null,
+        PodcastEpisode episode = new PodcastEpisode(null, null, "url", null, null, null, null, null,
+                null, null, null, null);
+        proc.addChild(content, episode);
+        verify(podcastService, never()).getChannel(anyInt());
+        assertEquals(0, content.getCount());
+        assertEquals(0, content.getContainers().size());
+        assertEquals(0, content.getItems().size());
+
+        episode = new PodcastEpisode(0, null, "url", null, null, null, null, null, null, null, null,
                 null);
         proc.addChild(content, episode);
         verify(podcastService, never()).getChannel(anyInt());
@@ -121,14 +131,8 @@ class PodcastProcTest {
         assertEquals(0, content.getContainers().size());
         assertEquals(0, content.getItems().size());
 
-        episode = new PodcastEpisode(0, null, "url", null, null, null, null, null, null, null, null, null);
-        proc.addChild(content, episode);
-        verify(podcastService, never()).getChannel(anyInt());
-        assertEquals(0, content.getCount());
-        assertEquals(0, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
-
-        episode = new PodcastEpisode(0, 0, "url", null, null, null, null, null, null, null, null, null);
+        episode = new PodcastEpisode(0, 0, "url", null, null, null, null, null, null, null, null,
+                null);
         proc.addChild(content, episode);
         verify(podcastService, times(1)).getChannel(anyInt());
         assertEquals(0, content.getCount());

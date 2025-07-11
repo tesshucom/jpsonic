@@ -100,22 +100,26 @@ public class RecoverService {
             message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("Jpsonic Password");
-            message.setText("""
-                    Hi there!
+            message
+                .setText(
+                        """
+                                Hi there!
 
-                    You have requested to reset your Jpsonic password. Please find your new login details below.
+                                You have requested to reset your Jpsonic password. Please find your new login details below.
 
-                    Username: %s
-                    Password: ******
+                                Username: %s
+                                Password: ******
 
-                    """.formatted(username));
+                                """
+                            .formatted(username));
             message.setSentDate(Date.from(now()));
 
             try (Transport trans = session.getTransport(prot)) {
-                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null
-                        && SESSION_VALUE_TRUE.equals(props.get(SESSION_KEY_MAIL_PREF + prot + ".auth"))) {
-                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
-                            settingsService.getSmtpPassword());
+                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null && SESSION_VALUE_TRUE
+                    .equals(props.get(SESSION_KEY_MAIL_PREF + prot + ".auth"))) {
+                    trans
+                        .connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
+                                settingsService.getSmtpPassword());
                 } else {
                     trans.connect();
                 }

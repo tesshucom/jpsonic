@@ -38,8 +38,8 @@ public class Bookmark {
     private Instant created;
     private Instant changed;
 
-    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Instant created,
-            Instant changed) {
+    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment,
+            Instant created, Instant changed) {
         this.id = id;
         this.mediaFileId = mediaFileId;
         this.positionMillis = positionMillis;

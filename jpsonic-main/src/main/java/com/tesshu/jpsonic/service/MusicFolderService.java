@@ -14,7 +14,8 @@ public interface MusicFolderService {
 
     List<MusicFolder> getMusicFoldersForUser(@NonNull String username);
 
-    List<MusicFolder> getMusicFoldersForUser(@NonNull String username, @Nullable Integer selectedMusicFolderId);
+    List<MusicFolder> getMusicFoldersForUser(@NonNull String username,
+            @Nullable Integer selectedMusicFolderId);
 
     MusicFolder getMusicFolderById(int id);
 

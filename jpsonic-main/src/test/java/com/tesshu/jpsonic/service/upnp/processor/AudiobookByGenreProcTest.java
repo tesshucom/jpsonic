@@ -81,11 +81,11 @@ class AudiobookByGenreProcTest {
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService, playerService,
-                    transcodingService);
+            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+                    playerService, transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class), settingsService,
-                    mock(JpsonicComparators.class));
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class),
+                    mock(SecurityService.class), settingsService, mock(JpsonicComparators.class));
             proc = new AudiobookByGenreProc(settingsService, util, factory, searchService);
         }
 
@@ -108,7 +108,8 @@ class AudiobookByGenreProcTest {
         @Test
         void testGetDirectChildren() {
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(searchService, times(1)).getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
+            verify(searchService, times(1))
+                .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         }
 
         @Test
@@ -121,7 +122,7 @@ class AudiobookByGenreProcTest {
         void testGetDirectChild() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
-                    .thenReturn(List.of(genre));
+                .thenReturn(List.of(genre));
             assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
             assertNull(proc.getDirectChild("None"));
         }
@@ -130,8 +131,9 @@ class AudiobookByGenreProcTest {
         void testGetChildren() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-            verify(searchService, times(1)).getSongsByGenres(anyString(), anyInt(), anyInt(), anyList(),
-                    any(MediaType[].class));
+            verify(searchService, times(1))
+                .getSongsByGenres(anyString(), anyInt(), anyInt(), anyList(),
+                        any(MediaType[].class));
         }
 
         @Test
@@ -145,7 +147,8 @@ class AudiobookByGenreProcTest {
             DIDLContent content = new DIDLContent();
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new AudiobookByGenreProc(mock(SettingsService.class), util, factory, searchService);
+            proc = new AudiobookByGenreProc(mock(SettingsService.class), util, factory,
+                    searchService);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());
@@ -158,7 +161,8 @@ class AudiobookByGenreProcTest {
     class IntegrationTest extends AbstractNeedsScan {
 
         private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 1, false));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true,
+                    now(), 1, false));
 
         @Autowired
         private AudiobookByGenreProc audiobookByGenreProc;
@@ -182,7 +186,10 @@ class AudiobookByGenreProcTest {
         void testGetDirectChildren() {
             Map<String, Genre> c = LegacyMap.of();
             List<Genre> items = audiobookByGenreProc.getDirectChildren(0, 10);
-            items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
+            items
+                .stream()
+                .filter(g -> !c.containsKey(g.getName()))
+                .forEach(g -> c.put(g.getName(), g));
             assertEquals(c.size(), 2);
         }
 

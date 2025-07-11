@@ -63,17 +63,20 @@ class NowPlayingControllerTest {
         statusService = mock(StatusService.class);
         mediaFileService = mock(MediaFileService.class);
         securityService = mock(SecurityService.class);
-        controller = new NowPlayingController(playerService, statusService, mediaFileService, securityService);
+        controller = new NowPlayingController(playerService, statusService, mediaFileService,
+                securityService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
     @WithMockUser(username = "admin")
     void testGetToHome() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.HOME.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.HOME.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -81,21 +84,28 @@ class NowPlayingControllerTest {
     @WithMockUser(username = "admin")
     void testGetToMain() throws Exception {
         Player player = new Player();
-        Mockito.when(playerService.getPlayer(Mockito.nullable(HttpServletRequest.class),
-                Mockito.nullable(HttpServletResponse.class))).thenReturn(player);
+        Mockito
+            .when(playerService
+                .getPlayer(Mockito.nullable(HttpServletRequest.class),
+                        Mockito.nullable(HttpServletResponse.class)))
+            .thenReturn(player);
         TransferStatus status = new TransferStatus();
         status.setPathString("/dummy");
-        Mockito.when(statusService.getStreamStatusesForPlayer(player)).thenReturn(Arrays.asList(status));
+        Mockito
+            .when(statusService.getStreamStatusesForPlayer(player))
+            .thenReturn(Arrays.asList(status));
         Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
         MediaFile nowPlaing = new MediaFile();
         Mockito.when(mediaFileService.getMediaFile(status.toPath())).thenReturn(nowPlaing);
         MediaFile parent = new MediaFile();
         parent.setId(99);
         Mockito.when(mediaFileService.getParentOf(nowPlaing)).thenReturn(parent);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("main.view?id=99"))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl("main.view?id=99"))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -157,7 +167,9 @@ class NowPlayingControllerTest {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
             status.setPathString("/dummy");
-            Mockito.when(statusService.getStreamStatusesForPlayer(player)).thenReturn(Arrays.asList(status));
+            Mockito
+                .when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(status));
             Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(false);
             assertNull(controller.getNowPlayingFile(player));
         }
@@ -171,9 +183,13 @@ class NowPlayingControllerTest {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
             status.setPathString("/dummy");
-            Mockito.when(statusService.getStreamStatusesForPlayer(player)).thenReturn(Arrays.asList(status));
+            Mockito
+                .when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(status));
             Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
-            Mockito.when(mediaFileService.getMediaFile(status.toPath())).thenReturn(new MediaFile());
+            Mockito
+                .when(mediaFileService.getMediaFile(status.toPath()))
+                .thenReturn(new MediaFile());
             assertNotNull(controller.getNowPlayingFile(player));
         }
 
@@ -186,7 +202,9 @@ class NowPlayingControllerTest {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
             status.setPathString("/dummy");
-            Mockito.when(statusService.getStreamStatusesForPlayer(player)).thenReturn(Arrays.asList(status));
+            Mockito
+                .when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(status));
             Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
             assertNull(controller.getNowPlayingFile(player));
         }

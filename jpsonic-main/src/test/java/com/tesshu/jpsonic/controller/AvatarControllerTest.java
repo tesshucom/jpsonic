@@ -41,16 +41,20 @@ class AvatarControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new AvatarController(mock(SecurityService.class), mock(AvatarService.class))).build();
+            .standaloneSetup(
+                    new AvatarController(mock(SecurityService.class), mock(AvatarService.class)))
+            .build();
     }
 
     @Test
     void testNotFoundWithAvatarSchemeNone() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.AVATAR.value())
-                        .param(Attributes.Request.USER_NAME.value(), "admin")
-                        .param(Attributes.Request.FORCE_CUSTOM.value(), Boolean.toString(false)))
-                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.AVATAR.value())
+                .param(Attributes.Request.USER_NAME.value(), "admin")
+                .param(Attributes.Request.FORCE_CUSTOM.value(), Boolean.toString(false)))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andReturn();
         assertNotNull(result);
     }
 }

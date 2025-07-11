@@ -41,12 +41,13 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * The class to complement sorting and reading. It does not exist in conventional Sonic servers. This class has a large
- * impact on sorting and searching accuracy.
+ * The class to complement sorting and reading. It does not exist in
+ * conventional Sonic servers. This class has a large impact on sorting and
+ * searching accuracy.
  */
 @Service
-@DependsOn({ "musicFolderService", "mediaFileDao", "artistDao", "albumDao", "japaneseReadingUtils", "indexManager",
-        "jpsonicComparators" })
+@DependsOn({ "musicFolderService", "mediaFileDao", "artistDao", "albumDao", "japaneseReadingUtils",
+        "indexManager", "jpsonicComparators" })
 public class SortProcedureService {
 
     private static final int REPEAT_WAIT_MILLISECONDS = 50;
@@ -134,9 +135,12 @@ public class SortProcedureService {
             return Collections.emptyList();
         }
 
-        cands.stream().filter(cand -> cand.getTargetType() == MediaType.DIRECTORY)
-                .filter(cand -> cand.getTargetField() == TargetField.ARTIST)
-                .forEach(cand -> cand.setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex()));
+        cands
+            .stream()
+            .filter(cand -> cand.getTargetType() == MediaType.DIRECTORY)
+            .filter(cand -> cand.getTargetField() == TargetField.ARTIST)
+            .forEach(cand -> cand
+                .setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex()));
 
         Map<Integer, List<ArtistSortCandidate>> idMap = new ConcurrentHashMap<>();
         cands.forEach(cand -> {

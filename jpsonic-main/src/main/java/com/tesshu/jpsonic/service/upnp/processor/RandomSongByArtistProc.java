@@ -32,7 +32,8 @@ import org.jupnp.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile> implements CountLimitProc {
+public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile>
+        implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -40,8 +41,8 @@ public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, Me
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
-            SearchService searchService, SettingsService settingsService) {
+    public RandomSongByArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            ArtistDao artistDao, SearchService searchService, SettingsService settingsService) {
         super();
         this.util = util;
         this.factory = factory;
@@ -83,7 +84,8 @@ public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, Me
         int offset = (int) firstResult;
         int randomMax = settingsService.getDlnaRandomMax();
         int count = toCount(firstResult, maxResults, randomMax);
-        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
+        return searchService
+            .getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
     }
 
     @Override

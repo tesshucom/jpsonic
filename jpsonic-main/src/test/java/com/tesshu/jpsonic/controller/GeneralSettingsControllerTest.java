@@ -63,8 +63,8 @@ class GeneralSettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class), mock(ScannerStateService.class),
-                mock(MusicIndexService.class));
+                mock(ShareService.class), mock(OutlineHelpSelector.class),
+                mock(ScannerStateService.class), mock(MusicIndexService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -73,15 +73,18 @@ class GeneralSettingsControllerTest {
     @Order(1)
     void testGet() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
     }
 
@@ -90,28 +93,35 @@ class GeneralSettingsControllerTest {
     @Order(2)
     void testPost() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         command.setThemeIndex("1");
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.GENERAL_SETTINGS.value())
-                        .flashAttr(Attributes.Model.Command.VALUE, command))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(
-                        MockMvcResultMatchers.flash().attribute(Attributes.Redirect.RELOAD_FLAG.value(), Boolean.FALSE))
-                .andExpect(
-                        MockMvcResultMatchers.flash().attribute(Attributes.Redirect.TOAST_FLAG.value(), Boolean.TRUE))
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.GENERAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/" + ViewName.GENERAL_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers
+                .flash()
+                .attribute(Attributes.Redirect.RELOAD_FLAG.value(), Boolean.FALSE))
+            .andExpect(MockMvcResultMatchers
+                .flash()
+                .attribute(Attributes.Redirect.TOAST_FLAG.value(), Boolean.TRUE))
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.GENERAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 
@@ -120,14 +130,17 @@ class GeneralSettingsControllerTest {
     @Order(3)
     void testReload() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         // When the theme is changed
@@ -141,14 +154,17 @@ class GeneralSettingsControllerTest {
     @Order(3)
     void testPostWithIndexOptions() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         assertEquals(IndexScheme.NATIVE_JAPANESE, command.getIndexScheme());

@@ -20,19 +20,18 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 /**
- * This is an interface for a processor that handles infinitely long lists and requires a certain size limit.
+ * This is an interface for a processor that handles infinitely long lists and
+ * requires a certain size limit.
  */
 public interface CountLimitProc {
 
     /**
-     * Returns the boundary value when searching from the request value from UPnP and the Jpsonic setting item value.
+     * Returns the boundary value when searching from the request value from UPnP
+     * and the Jpsonic setting item value.
      *
-     * @param requestOffset
-     *            Request value from UPnP
-     * @param requestMax
-     *            Request value from UPnP
-     * @param serverSideMax
-     *            Maximum value determined by Jpsonic
+     * @param requestOffset Request value from UPnP
+     * @param requestMax    Request value from UPnP
+     * @param serverSideMax Maximum value determined by Jpsonic
      *
      * @return Count value used for search
      */

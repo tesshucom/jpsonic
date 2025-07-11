@@ -56,8 +56,8 @@ class MediaScannerScheduleConfigurationTest {
     public void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         mediaScannerService = mock(MediaScannerService.class);
-        configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class), settingsService,
-                mediaScannerService);
+        configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class),
+                settingsService, mediaScannerService);
         now = LocalDateTime.now();
         TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.TRACE);
     }
@@ -74,19 +74,26 @@ class MediaScannerScheduleConfigurationTest {
 
     @Test
     void testCreateFirstTime() {
-        LocalDateTime firstTime = configuration.createFirstTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime firstTime = configuration
+            .createFirstTime()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime();
         assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstTime.getDayOfMonth());
         assertEquals(0, firstTime.getHour());
         assertEquals(0, firstTime.getMinute());
 
-        // Date verify is simplified (coverage may not be available depending on system time)
+        // Date verify is simplified (coverage may not be available depending on system
+        // time)
         int hour = 23;
         Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
-        firstTime = configuration.createFirstTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        assertEquals(
-                now.plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0, ChronoUnit.DAYS)
-                        .getDayOfMonth(),
-                firstTime.get(ChronoField.DAY_OF_MONTH));
+        firstTime = configuration
+            .createFirstTime()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime();
+        assertEquals(now
+            .plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0,
+                    ChronoUnit.DAYS)
+            .getDayOfMonth(), firstTime.get(ChronoField.DAY_OF_MONTH));
         assertEquals(11, firstTime.get(ChronoField.HOUR_OF_AMPM));
         assertEquals(23, firstTime.get(ChronoField.HOUR_OF_DAY));
         assertEquals(0, firstTime.get(ChronoField.MINUTE_OF_HOUR));
@@ -119,40 +126,48 @@ class MediaScannerScheduleConfigurationTest {
 
             // Operation check at the first startup
             Instant firstTime = trigger.nextExecution(triggerContext);
-            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.toEpochMilli()).atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-            assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstDateTime.getDayOfMonth());
+            LocalDateTime firstDateTime = Instant
+                .ofEpochMilli(firstTime.toEpochMilli())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+            assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(),
+                    firstDateTime.getDayOfMonth());
             assertEquals(0, firstDateTime.getHour());
             assertEquals(0, firstDateTime.getMinute());
 
             int hour = 23;
             Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
             firstTime = trigger.nextExecution(triggerContext);
-            firstDateTime = Instant.ofEpochMilli(firstTime.toEpochMilli()).atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-            assertEquals(
-                    now.plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0, ChronoUnit.DAYS)
-                            .getDayOfMonth(),
-                    firstDateTime.getDayOfMonth());
+            firstDateTime = Instant
+                .ofEpochMilli(firstTime.toEpochMilli())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+            assertEquals(now
+                .plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0,
+                        ChronoUnit.DAYS)
+                .getDayOfMonth(), firstDateTime.getDayOfMonth());
             assertEquals(hour, firstDateTime.getHour());
             assertEquals(0, firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
             Mockito.when(triggerContext.lastCompletion()).thenReturn(firstTime);
-            LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
-                    .atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime secondDateTime = Instant
+                .ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
 
             assertEquals(hour, secondDateTime.getHour());
             assertEquals(0, secondDateTime.getMinute());
 
             // Whether the date is one day ahead
-            assertEquals(firstDateTime.plus(1, ChronoUnit.DAYS).getDayOfMonth(), secondDateTime.getDayOfMonth());
+            assertEquals(firstDateTime.plus(1, ChronoUnit.DAYS).getDayOfMonth(),
+                    secondDateTime.getDayOfMonth());
             Mockito.verify(mediaScannerService, Mockito.never()).scanLibrary();
         }
 
         /**
-         * Unlike legacy servers, Jpsonic has an optional boot scan. The default is false because there are cases where
-         * problems occur when starting Docker.
+         * Unlike legacy servers, Jpsonic has an optional boot scan. The default is
+         * false because there are cases where problems occur when starting Docker.
          */
         @Test
         void testScanOnBoot() {

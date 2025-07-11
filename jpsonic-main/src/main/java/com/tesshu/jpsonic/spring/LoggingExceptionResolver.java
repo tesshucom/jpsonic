@@ -40,12 +40,14 @@ public class LoggingExceptionResolver implements HandlerExceptionResolver, Order
     private static final Logger LOG = LoggerFactory.getLogger(LoggingExceptionResolver.class);
 
     /**
-     * A list of frequently exceptions that occur outside the control of the server. It is managed by a string to store
-     * vendor-specific exceptions. (Depending on packaging, these classes may not exist in the classpath)
+     * A list of frequently exceptions that occur outside the control of the server.
+     * It is managed by a string to store vendor-specific exceptions. (Depending on
+     * packaging, these classes may not exist in the classpath)
      */
-    private static final List<String> TO_BE_SUPPRESSED_CLASS_NAME = Arrays.asList(
-            "org.apache.catalina.connector.ClientAbortException", "org.eclipse.jetty.io.EofException",
-            "org.springframework.web.context.request.async.AsyncRequestNotUsableException");
+    private static final List<String> TO_BE_SUPPRESSED_CLASS_NAME = Arrays
+        .asList("org.apache.catalina.connector.ClientAbortException",
+                "org.eclipse.jetty.io.EofException",
+                "org.springframework.web.context.request.async.AsyncRequestNotUsableException");
 
     private static boolean isInstanceOfClassName(Object o, String className) {
         try {
@@ -56,26 +58,32 @@ public class LoggingExceptionResolver implements HandlerExceptionResolver, Order
     }
 
     public static boolean isSuppressedException(Exception e) {
-        return TO_BE_SUPPRESSED_CLASS_NAME.stream().anyMatch(name -> isInstanceOfClassName(e, name));
+        return TO_BE_SUPPRESSED_CLASS_NAME
+            .stream()
+            .anyMatch(name -> isInstanceOfClassName(e, name));
     }
 
     @Override
-    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object o,
-            Exception e) {
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response,
+            Object o, Exception e) {
 
         // Trace specific exceptions.
         if (isSuppressedException(e)) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace(request.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
-                        + request.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(request) + ")", e);
+                LOG
+                    .trace(request.getRemoteAddr()
+                            + ": Client unexpectedly closed connection while loading "
+                            + request.getRemoteAddr() + " ("
+                            + PlayerUtils.getAnonymizedURLForRequest(request) + ")", e);
             }
             return null;
         }
 
         // Display a full stack trace in all other cases.
         if (LOG.isErrorEnabled()) {
-            LOG.error(request.getRemoteAddr() + ": An exception occurred while loading "
-                    + PlayerUtils.getAnonymizedURLForRequest(request), e);
+            LOG
+                .error(request.getRemoteAddr() + ": An exception occurred while loading "
+                        + PlayerUtils.getAnonymizedURLForRequest(request), e);
         }
         return null;
     }

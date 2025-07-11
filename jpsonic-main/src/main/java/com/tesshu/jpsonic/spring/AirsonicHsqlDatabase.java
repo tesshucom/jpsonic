@@ -31,7 +31,8 @@ public class AirsonicHsqlDatabase extends HsqlDatabase {
     @Override
     public boolean supportsSchemas() {
         try {
-            return getDatabaseMajorVersion() > CURRENT_SUPPORTED_MAJOR_VERSION && super.supportsSchemas();
+            return getDatabaseMajorVersion() > CURRENT_SUPPORTED_MAJOR_VERSION
+                    && super.supportsSchemas();
         } catch (DatabaseException e) {
             return false;
         }

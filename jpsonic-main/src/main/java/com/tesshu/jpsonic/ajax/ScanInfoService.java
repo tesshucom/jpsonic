@@ -26,8 +26,9 @@ import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR
- * framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the currently playing file and
+ * directory. This class is used by the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -37,7 +38,8 @@ public class ScanInfoService {
     private final ScannerStateService scannerStateService;
     private final ScannerProcedureService scannerProcedureService;
 
-    public ScanInfoService(ScannerStateService scannerStateService, ScannerProcedureService scannerProcedureService) {
+    public ScanInfoService(ScannerStateService scannerStateService,
+            ScannerProcedureService scannerProcedureService) {
         super();
         this.scannerStateService = scannerStateService;
         this.scannerProcedureService = scannerProcedureService;
@@ -50,8 +52,9 @@ public class ScanInfoService {
         boolean scanning = scannerStateService.isScanning();
         int scanCount = (int) scannerStateService.getScanCount();
         return scannerProcedureService
-                .getScanPhaseInfo().map(phaseInfo -> new ScanInfo(scanning, scanCount, phaseInfo.phase(),
-                        phaseInfo.phaseMax(), phaseInfo.phaseName(), phaseInfo.thread()))
-                .orElse(new ScanInfo(scanning, scanCount));
+            .getScanPhaseInfo()
+            .map(phaseInfo -> new ScanInfo(scanning, scanCount, phaseInfo.phase(),
+                    phaseInfo.phaseMax(), phaseInfo.phaseName(), phaseInfo.thread()))
+            .orElse(new ScanInfo(scanning, scanCount));
     }
 }

@@ -38,14 +38,15 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @EnableScheduling
 public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MediaScannerScheduleConfiguration.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(MediaScannerScheduleConfiguration.class);
 
     private final TaskScheduler taskScheduler;
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
 
-    public MediaScannerScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
-            MediaScannerService mediaScannerService) {
+    public MediaScannerScheduleConfiguration(TaskScheduler taskScheduler,
+            SettingsService settingsService, MediaScannerService mediaScannerService) {
         super();
         this.taskScheduler = taskScheduler;
         this.settingsService = settingsService;
@@ -73,10 +74,15 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
         Trigger trigger = (triggerContext) -> {
             Instant lastTime = triggerContext.lastCompletion();
-            Instant nextTime = lastTime == null ? createFirstTime() : lastTime.plus(1L, ChronoUnit.DAYS);
+            Instant nextTime = lastTime == null ? createFirstTime()
+                    : lastTime.plus(1L, ChronoUnit.DAYS);
             if (LOG.isInfoEnabled()) {
-                LOG.info("Daily auto library scan was scheduled. (Next {})", DateTimeFormatter
-                        .ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(nextTime));
+                LOG
+                    .info("Daily auto library scan was scheduled. (Next {})",
+                            DateTimeFormatter
+                                .ofPattern("yyyy-MM-dd HH:mm")
+                                .withZone(ZoneId.systemDefault())
+                                .format(nextTime));
             }
 
             // In addition, create index immediately if it doesn't exist on disk.

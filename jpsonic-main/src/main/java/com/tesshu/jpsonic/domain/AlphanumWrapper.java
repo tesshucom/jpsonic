@@ -127,7 +127,10 @@ class AlphanumWrapper extends Collator {
         if (!(o instanceof AlphanumWrapper that)) {
             return false;
         }
-        return new EqualsBuilder().appendSuper(super.equals(that)).append(that, that.deligate).isEquals();
+        return new EqualsBuilder()
+            .appendSuper(super.equals(that))
+            .append(that, that.deligate)
+            .isEquals();
     }
 
 }

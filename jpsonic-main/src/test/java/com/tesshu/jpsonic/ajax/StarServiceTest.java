@@ -39,7 +39,8 @@ class StarServiceTest {
     @BeforeEach
     public void setup() {
         mediaFileDao = mock(MediaFileDao.class);
-        starService = new StarService(mock(SecurityService.class), mediaFileDao, AjaxMockUtils.mock(AjaxHelper.class));
+        starService = new StarService(mock(SecurityService.class), mediaFileDao,
+                AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test
@@ -48,7 +49,10 @@ class StarServiceTest {
 
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.doNothing().when(mediaFileDao).starMediaFile(idCaptor.capture(), nameCaptor.capture());
+        Mockito
+            .doNothing()
+            .when(mediaFileDao)
+            .starMediaFile(idCaptor.capture(), nameCaptor.capture());
         int mediaFileId = 0;
         starService.star(mediaFileId);
         assertEquals(mediaFileId, idCaptor.getValue());

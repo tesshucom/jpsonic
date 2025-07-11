@@ -73,10 +73,8 @@ class VersionTest {
     /**
      * Tests that equals(), hashCode(), toString() and compareTo() works.
      *
-     * @param v1
-     *            A lower version.
-     * @param v2
-     *            A higher version.
+     * @param v1 A lower version.
+     * @param v2 A higher version.
      */
     private boolean doTestVersion(String v1, String v2) {
         Version ver1 = new Version(v1);

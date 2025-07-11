@@ -85,14 +85,17 @@ class PersonalSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testDisplayForm() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertEquals("random", command.getAlbumListId());
         assertEquals(10, command.getAlbumLists().size());
         assertTrue(command.isAlternativeDrawer());
@@ -260,28 +263,35 @@ class PersonalSettingsControllerTest {
         @Order(1)
         void c1() throws Exception {
 
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             assertNotNull(command.getIetf()); // Depends on the test environment
 
-            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings userSettings = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             assertNull(userSettings.getLocale());
-            assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+            assertEquals(SpeechToTextLangScheme.DEFAULT.name(),
+                    userSettings.getSpeechLangSchemeName());
             assertNull(userSettings.getThemeId());
 
             result = mockMvc
-                    .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
-                            .requestAttr(Attributes.Model.Command.VALUE, command))
-                    .andExpect(MockMvcResultMatchers.status().isFound())
-                    .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+                .perform(MockMvcRequestBuilders
+                    .post("/" + ViewName.PERSONAL_SETTINGS.value())
+                    .requestAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andReturn();
             assertNotNull(result);
         }
 
@@ -291,27 +301,33 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(2)
         void c2() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings userSettings = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setLocale(Locale.JAPANESE);
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.BCP47.name());
             securityService.updateUserSettings(userSettings);
 
             result = mockMvc
-                    .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
-                            .requestAttr(Attributes.Model.Command.VALUE, command))
-                    .andExpect(MockMvcResultMatchers.status().isFound())
-                    .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+                .perform(MockMvcRequestBuilders
+                    .post("/" + ViewName.PERSONAL_SETTINGS.value())
+                    .requestAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andReturn();
             assertNotNull(result);
         }
 
@@ -321,27 +337,33 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(3)
         void c3() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings userSettings = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setLocale(StringUtil.parseLocale("ja_JP"));
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
             securityService.updateUserSettings(userSettings);
 
             result = mockMvc
-                    .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
-                            .requestAttr(Attributes.Model.Command.VALUE, command))
-                    .andExpect(MockMvcResultMatchers.status().isFound())
-                    .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+                .perform(MockMvcRequestBuilders
+                    .post("/" + ViewName.PERSONAL_SETTINGS.value())
+                    .requestAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andReturn();
             assertNotNull(result);
         }
 
@@ -350,26 +372,32 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(4)
         void c4() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings userSettings = securityService
+                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setThemeId("jpsonic");
             securityService.updateUserSettings(userSettings);
 
             result = mockMvc
-                    .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
-                            .requestAttr(Attributes.Model.Command.VALUE, command))
-                    .andExpect(MockMvcResultMatchers.status().isFound())
-                    .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+                .perform(MockMvcRequestBuilders
+                    .post("/" + ViewName.PERSONAL_SETTINGS.value())
+                    .requestAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andReturn();
             assertNotNull(result);
         }
 
@@ -377,22 +405,27 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(5)
         void c5() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
             result = mockMvc
-                    .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
-                            .requestAttr(Attributes.Model.Command.VALUE, command))
-                    .andExpect(MockMvcResultMatchers.status().isFound())
-                    .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+                .perform(MockMvcRequestBuilders
+                    .post("/" + ViewName.PERSONAL_SETTINGS.value())
+                    .requestAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andReturn();
             assertNotNull(result);
         }
 
@@ -402,28 +435,36 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(6)
         void c6() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf(null);
 
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
+            modelAndView = controller
+                .doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
 
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+            command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
 
             assertNotNull(command);
             assertNotNull(command.getIetf());
@@ -435,28 +476,36 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(7)
         void c7() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf("Unknown.Unknown");
 
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
+            modelAndView = controller
+                .doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
 
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+            command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
 
             assertNotNull(command);
             assertNotNull(command.getIetf());
@@ -467,27 +516,35 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(8)
         void c8() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             command.setLastFmPassword("pass");
 
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
+            modelAndView = controller
+                .doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
 
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+            command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
 
             assertNotNull(command);
             assertNotNull(command.getLastFmPassword());
@@ -498,27 +555,35 @@ class PersonalSettingsControllerTest {
         @Test
         @Order(9)
         void c9() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             command.setAvatarId(AvatarScheme.CUSTOM.getCode());
 
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
+            modelAndView = controller
+                .doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
 
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+            command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
 
             assertNotNull(command);
             assertEquals(AvatarScheme.CUSTOM.getCode(), command.getAvatarId());
@@ -529,27 +594,35 @@ class PersonalSettingsControllerTest {
         // @Test NeedScan
         @Order(10)
         void c10() throws Exception {
-            MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             ModelAndView modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
-                    .get(Attributes.Model.Command.VALUE);
+            PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
             command.setAvatarId(1);
 
-            modelAndView = controller.doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
+            modelAndView = controller
+                .doSubmitAction(command, Mockito.mock(RedirectAttributes.class));
             assertNull(modelAndView.getViewName());
 
-            result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
             assertNotNull(result);
             modelAndView = result.getModelAndView();
             assertEquals(VIEW_NAME, modelAndView.getViewName());
-            command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+            command = (PersonalSettingsCommand) modelAndView
+                .getModelMap()
+                .get(Attributes.Model.Command.VALUE);
 
             assertNotNull(command);
             assertEquals(AvatarScheme.CUSTOM.getCode(), command.getAvatarId());

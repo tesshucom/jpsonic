@@ -42,7 +42,8 @@ public class Avatar {
     /*
      * False positive. The caller is guaranteed and cloning is a waste of time.
      */
-    public Avatar(int id, String name, Instant createdDate, String mimeType, int width, int height, byte[] data) {
+    public Avatar(int id, String name, Instant createdDate, String mimeType, int width, int height,
+            byte[] data) {
         this.id = id;
         this.name = name;
         this.createdDate = createdDate;

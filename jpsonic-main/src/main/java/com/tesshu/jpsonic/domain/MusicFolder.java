@@ -55,7 +55,8 @@ public class MusicFolder implements Serializable {
         this.archived = archived;
     }
 
-    public MusicFolder(String pathString, String name, boolean enabled, Instant changed, boolean archived) {
+    public MusicFolder(String pathString, String name, boolean enabled, Instant changed,
+            boolean archived) {
         this(null, pathString, name, enabled, changed, null, archived);
     }
 

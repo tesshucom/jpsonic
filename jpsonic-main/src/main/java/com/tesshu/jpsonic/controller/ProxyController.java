@@ -56,10 +56,14 @@ public class ProxyController {
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, ExecutionException {
-        String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
+        String url = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.URL.value());
 
-        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(15))
-                .setResponseTimeout(Timeout.ofSeconds(15)).build();
+        RequestConfig requestConfig = RequestConfig
+            .custom()
+            .setConnectionRequestTimeout(Timeout.ofSeconds(15))
+            .setResponseTimeout(Timeout.ofSeconds(15))
+            .build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
 

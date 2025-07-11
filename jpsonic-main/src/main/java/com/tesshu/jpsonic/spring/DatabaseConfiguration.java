@@ -88,7 +88,8 @@ public class DatabaseConfiguration {
     @Bean
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
-        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST)) ? new LegacyHsqlDaoHelper(dataSource)
+        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))
+                ? new LegacyHsqlDaoHelper(dataSource)
                 : new GenericDaoHelper(dataSource);
     }
 
@@ -125,7 +126,8 @@ public class DatabaseConfiguration {
     @Bean
     @Profile(ProfileNameConstants.URL)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
-            @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
+            @Value("${DatabaseConfigEmbedUrl}") String url,
+            @Value("${DatabaseConfigEmbedUsername}") String username,
             @Value("${DatabaseConfigEmbedPassword}") String password) {
         return new HikariDataSource(createConfig(driver, url, username, password));
     }
@@ -149,13 +151,15 @@ public class DatabaseConfiguration {
 
     @Bean
     public SpringLiquibase liquibase(DataSource dataSource,
-            @Value("${DatabaseMysqlMaxlength:512}") String mysqlVarcharLimit, String userTableQuote) {
+            @Value("${DatabaseMysqlMaxlength:512}") String mysqlVarcharLimit,
+            String userTableQuote) {
         SpringLiquibase springLiquibase = new AirsonicSpringLiquibase();
         springLiquibase.setDataSource(dataSource);
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
         springLiquibase.setRollbackFile(rollbackFile().toFile());
-        Map<String, String> parameters = LegacyMap.of("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(),
-                "mysqlVarcharLimit", mysqlVarcharLimit, "userTableQuote", userTableQuote);
+        Map<String, String> parameters = LegacyMap
+            .of("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(), "mysqlVarcharLimit",
+                    mysqlVarcharLimit, "userTableQuote", userTableQuote);
         springLiquibase.setChangeLogParameters(parameters);
         return springLiquibase;
     }

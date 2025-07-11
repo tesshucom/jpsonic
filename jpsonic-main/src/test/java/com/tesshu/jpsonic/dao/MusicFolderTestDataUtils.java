@@ -33,7 +33,9 @@ public final class MusicFolderTestDataUtils {
 
     private static String resolveBaseMediaPath() {
         try {
-            return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString();
+            return Path
+                .of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI())
+                .toString();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(BASE_RESOURCES + "is not found", e);
         }

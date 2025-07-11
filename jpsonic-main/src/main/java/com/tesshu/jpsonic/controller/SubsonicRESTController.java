@@ -162,9 +162,11 @@ import org.subsonic.restapi.Videos;
  */
 @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.LinguisticNaming" })
 /*
- * [AvoidInstantiatingObjectsInLoops] There are 21 loop instantiatings, but none of them can be reused. This class has
- * many loop instances because it is responsible for conversion objects. [LinguisticNaming] This is a naming convention
- * specific to this REST class that writes directly to the HTTP response without returning a return value.
+ * [AvoidInstantiatingObjectsInLoops] There are 21 loop instantiatings, but none
+ * of them can be reused. This class has many loop instances because it is
+ * responsible for conversion objects. [LinguisticNaming] This is a naming
+ * convention specific to this REST class that writes directly to the HTTP
+ * response without returning a return value.
  */
 @SuppressFBWarnings(value = "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING", justification = "Difficult to change as it affects existing apps(Protected by a token).")
 @Controller
@@ -218,17 +220,20 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     private final JAXBWriter jaxbWriter;
 
-    public SubsonicRESTController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService, MediaFileService mediaFileService,
+    public SubsonicRESTController(SettingsService settingsService,
+            MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, LastFmService lastFmService,
             MusicIndexService musicIndexService, TranscodingService transcodingService,
             DownloadController downloadController, CoverArtController coverArtController,
             AvatarController avatarController, UserSettingsController userSettingsController,
-            TopController topController, StatusService statusService, StreamController streamController,
-            HLSController hlsController, ShareService shareService, PlaylistService playlistService,
-            LyricsService lyricsService, AudioScrobblerService audioScrobblerService, PodcastService podcastService,
-            RatingService ratingService, SearchService searchService, InternetRadioService internetRadioService,
-            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
+            TopController topController, StatusService statusService,
+            StreamController streamController, HLSController hlsController,
+            ShareService shareService, PlaylistService playlistService, LyricsService lyricsService,
+            AudioScrobblerService audioScrobblerService, PodcastService podcastService,
+            RatingService ratingService, SearchService searchService,
+            InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
             PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
             AirsonicLocaleResolver airsonicLocaleResolver, HttpSearchCriteriaDirector director) {
         super();
@@ -282,7 +287,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     /**
-     * CAUTION : this method is required by mobile applications and must not be removed.
+     * CAUTION : this method is required by mobile applications and must not be
+     * removed.
      */
     @RequestMapping({ "/getLicense", "/getLicense.view" })
     public void getLicense(HttpServletRequest req, HttpServletResponse response) {
@@ -309,7 +315,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         MusicFolders musicFolders = new MusicFolders();
         User user = securityService.getCurrentUserStrict(request);
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolderService
-                .getMusicFoldersForUser(user.getUsername())) {
+            .getMusicFoldersForUser(user.getUsername())) {
             org.subsonic.restapi.MusicFolder mf = new org.subsonic.restapi.MusicFolder();
             mf.setId(musicFolder.getId());
             mf.setName(musicFolder.getName());
@@ -321,12 +327,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getIndexes", "/getIndexes.view" })
-    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getIndexes(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
-        long ifModifiedSince = ServletRequestUtils.getLongParameter(request,
-                Attributes.Request.IF_MODIFIED_SINCE.value(), 0L);
+        long ifModifiedSince = ServletRequestUtils
+            .getLongParameter(request, Attributes.Request.IF_MODIFIED_SINCE.value(), 0L);
         long lastModified = topController.getLastModified(request);
         if (lastModified <= ifModifiedSince) {
             jaxbWriter.writeResponse(request, response, res);
@@ -338,9 +345,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
         indexes.setLastModified(lastModified);
         indexes.setIgnoredArticles(settingsService.getIgnoredArticles());
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username);
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId != null) {
             for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
                 if (musicFolderId.equals(musicFolder.getId())) {
@@ -354,7 +362,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             indexes.getShortcut().add(createJaxbArtist(shortcut, username));
         }
 
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders);
+        MusicFolderContent musicFolderContent = musicIndexService
+            .getMusicFolderContent(musicFolders);
         setRatingAndStarred(musicFolderContent, indexes, username);
 
         // Add children
@@ -369,8 +378,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
-    private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes, String username) {
-        for (Map.Entry<MusicIndex, List<MediaFile>> entry : musicFolderContent.getIndexedArtists().entrySet()) {
+    private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes,
+            String username) {
+        for (Map.Entry<MusicIndex, List<MediaFile>> entry : musicFolderContent
+            .getIndexedArtists()
+            .entrySet()) {
             Index index = new Index();
             indexes.getIndex().add(index);
             index.setName(entry.getKey().getIndex());
@@ -380,7 +392,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
                     index.getArtist().add(a);
                     a.setId(String.valueOf(mediaFile.getId()));
                     a.setName(mediaFile.getName());
-                    Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
+                    Instant starredDate = mediaFileDao
+                        .getMediaFileStarredDate(mediaFile.getId(), username);
                     a.setStarred(jaxbWriter.convertDate(starredDate));
 
                     if (mediaFile.isAlbum()) {
@@ -418,18 +431,22 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         Songs songs = new Songs();
 
-        String genre = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value());
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 10);
+        String genre = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.GENRE.value());
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 10);
         count = Math.max(0, Math.min(count, 500));
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername(), musicFolderId);
+            .getMusicFoldersForUser(user.getUsername(), musicFolderId);
 
         MediaFile.MediaType[] types = { MediaFile.MediaType.MUSIC, MediaFile.MediaType.AUDIOBOOK,
                 MediaFile.MediaType.PODCAST };
-        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders, types)) {
+        for (MediaFile mediaFile : searchService
+            .getSongsByGenres(genre, offset, count, musicFolders, types)) {
             songs.getSong().add(createJaxbChild(player, mediaFile, user.getUsername()));
         }
         Response res = createResponse();
@@ -445,15 +462,18 @@ public class SubsonicRESTController implements CoverArtPresentation {
         ArtistsID3 result = new ArtistsID3();
         result.setIgnoredArticles(settingsService.getIgnoredArticles());
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
 
         SortedMap<MusicIndex, List<com.tesshu.jpsonic.domain.Artist>> indexedArtists = musicIndexService
-                .getIndexedId3Artists(musicFolders);
-        for (Map.Entry<MusicIndex, List<com.tesshu.jpsonic.domain.Artist>> entry : indexedArtists.entrySet()) {
+            .getIndexedId3Artists(musicFolders);
+        for (Map.Entry<MusicIndex, List<com.tesshu.jpsonic.domain.Artist>> entry : indexedArtists
+            .entrySet()) {
             IndexID3 index = new IndexID3();
             index.setName(entry.getKey().getIndex());
             for (com.tesshu.jpsonic.domain.Artist sortableArtist : entry.getValue()) {
-                index.getArtist().add(createJaxbArtist(new ArtistID3(), sortableArtist, user.getUsername()));
+                index
+                    .getArtist()
+                    .add(createJaxbArtist(new ArtistID3(), sortableArtist, user.getUsername()));
             }
             result.getIndex().add(index);
         }
@@ -468,7 +488,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
@@ -476,12 +497,14 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         User user = securityService.getCurrentUserStrict(request);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs result = new SimilarSongs();
 
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
-        List<MediaFile> similarSongs = lastFmService.getSimilarSongs(mediaFile, count, musicFolders);
+            .getMusicFoldersForUser(user.getUsername());
+        List<MediaFile> similarSongs = lastFmService
+            .getSimilarSongs(mediaFile, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile similarSong : similarSongs) {
             result.getSong().add(createJaxbChild(player, similarSong, user.getUsername()));
@@ -497,7 +520,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
@@ -505,10 +529,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         User user = securityService.getCurrentUserStrict(request);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs2 result = new SimilarSongs2();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile similarSong : similarSongs) {
@@ -526,13 +551,15 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
 
-        String artist = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.ARTIST.value());
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        String artist = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.ARTIST.value());
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 50);
 
         TopSongs result = new TopSongs();
 
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
         List<MediaFile> topSongs = lastFmService.getTopSongs(artist, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile topSong : topSongs) {
@@ -548,30 +575,33 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getArtistInfo(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
 
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
-        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        boolean includeNotPresent = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
 
         ArtistInfo result = new ArtistInfo();
 
         User user = securityService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
-        List<MediaFile> similarArtists = lastFmService.getSimilarArtists(mediaFile, count, includeNotPresent,
-                musicFolders);
+            .getMusicFoldersForUser(user.getUsername());
+        List<MediaFile> similarArtists = lastFmService
+            .getSimilarArtists(mediaFile, count, includeNotPresent, musicFolders);
         for (MediaFile similarArtist : similarArtists) {
             result.getSimilarArtist().add(createJaxbArtist(similarArtist, user.getUsername()));
         }
 
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
+                : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
@@ -592,28 +622,33 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
-        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        boolean includeNotPresent = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
         ArtistInfo2 result = new ArtistInfo2();
         User user = securityService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
-        List<com.tesshu.jpsonic.domain.Artist> similarArtists = lastFmService.getSimilarArtists(artist, count,
-                includeNotPresent, musicFolders);
+            .getMusicFoldersForUser(user.getUsername());
+        List<com.tesshu.jpsonic.domain.Artist> similarArtists = lastFmService
+            .getSimilarArtists(artist, count, includeNotPresent, musicFolders);
         for (com.tesshu.jpsonic.domain.Artist similarArtist : similarArtists) {
-            result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, user.getUsername()));
+            result
+                .getSimilarArtist()
+                .add(createJaxbArtist(new ArtistID3(), similarArtist, user.getUsername()));
         }
 
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
+                : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(artist, locale);
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
@@ -629,11 +664,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    private <T extends ArtistID3> T createJaxbArtist(T jaxbArtist, com.tesshu.jpsonic.domain.Artist artist,
-            String username) {
+    private <T extends ArtistID3> T createJaxbArtist(T jaxbArtist,
+            com.tesshu.jpsonic.domain.Artist artist, String username) {
         jaxbArtist.setId(String.valueOf(artist.getId()));
         jaxbArtist.setName(artist.getName());
-        jaxbArtist.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(artist.getId(), username)));
+        jaxbArtist
+            .setStarred(jaxbWriter
+                .convertDate(mediaFileDao.getMediaFileStarredDate(artist.getId(), username)));
         jaxbArtist.setAlbumCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
             jaxbArtist.setCoverArt(createCoverArtKey(artist));
@@ -651,10 +688,12 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getArtist", "/getArtist.view" })
-    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getArtist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
@@ -663,9 +702,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username);
         ArtistWithAlbumsID3 result = createJaxbArtist(new ArtistWithAlbumsID3(), artist, username);
-        for (Album album : albumDao.getAlbumsForArtist(0L, Integer.MAX_VALUE, artist.getName(), false, musicFolders)) {
+        for (Album album : albumDao
+            .getAlbumsForArtist(0L, Integer.MAX_VALUE, artist.getName(), false, musicFolders)) {
             result.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
 
@@ -690,7 +731,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbAlbum.setSongCount(album.getSongCount());
         jaxbAlbum.setDuration(album.getDurationSeconds());
         jaxbAlbum.setCreated(jaxbWriter.convertDate(album.getCreated()));
-        jaxbAlbum.setStarred(jaxbWriter.convertDate(albumDao.getAlbumStarredDate(album.getId(), username)));
+        jaxbAlbum
+            .setStarred(
+                    jaxbWriter.convertDate(albumDao.getAlbumStarredDate(album.getId(), username)));
         jaxbAlbum.setYear(album.getYear());
         jaxbAlbum.setGenre(album.getGenre());
         return jaxbAlbum;
@@ -716,9 +759,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getAlbum", "/getAlbum.view" })
-    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getAlbum(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Album not found.");
@@ -728,8 +773,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         AlbumWithSongsID3 result = createJaxbAlbum(new AlbumWithSongsID3(), album, username);
-        for (MediaFile mediaFile : mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, album.getArtist(),
-                album.getName())) {
+        for (MediaFile mediaFile : mediaFileDao
+            .getSongsForAlbum(0L, Integer.MAX_VALUE, album.getArtist(), album.getName())) {
             result.getSong().add(createJaxbChild(player, mediaFile, username));
         }
 
@@ -739,10 +784,12 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getSong", "/getSong.view" })
-    public void getSong(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getSong(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile song = mediaFileDao.getMediaFile(id);
         if (song == null || song.isDirectory()) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Song not found.");
@@ -765,7 +812,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
         if (dir == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Directory not found");
@@ -787,11 +835,14 @@ public class SubsonicRESTController implements CoverArtPresentation {
             }
         } catch (SecurityException e) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Error in getMusicDirectory.", new AssertionError("Errors with unclear cases.", e));
+                LOG
+                    .trace("Error in getMusicDirectory.",
+                            new AssertionError("Errors with unclear cases.", e));
             }
         }
         directory.setName(dir.getName());
-        directory.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(id, username)));
+        directory
+            .setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(id, username)));
         directory.setPlayCount((long) dir.getPlayCount());
 
         if (dir.isAlbum()) {
@@ -833,15 +884,20 @@ public class SubsonicRESTController implements CoverArtPresentation {
             query.append(title);
         }
 
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         User user = securityService.getCurrentUserStrict(request);
-        boolean includeComposer = settingsService.isSearchComposer()
-                || securityService.getUserSettings(user.getUsername()).getMainVisibility().isComposerVisible();
+        boolean includeComposer = settingsService.isSearchComposer() || securityService
+            .getUserSettings(user.getUsername())
+            .getMainVisibility()
+            .isComposerVisible();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
-        HttpSearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer,
-                musicFolders, IndexType.SONG);
+            .getMusicFoldersForUser(user.getUsername());
+        HttpSearchCriteria criteria = director
+            .construct(query.toString().trim(), offset, count, includeComposer, musicFolders,
+                    IndexType.SONG);
 
         com.tesshu.jpsonic.domain.SearchResult result = searchService.search(criteria);
         org.subsonic.restapi.SearchResult searchResult = new org.subsonic.restapi.SearchResult();
@@ -864,38 +920,49 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
 
         SearchResult2 searchResult = new SearchResult2();
 
-        String searchInput = StringUtils.trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
-        boolean includeComposer = settingsService.isSearchComposer()
-                || securityService.getUserSettings(username).getMainVisibility().isComposerVisible();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
-                musicFolderId);
+        String searchInput = StringUtils
+            .trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
+        boolean includeComposer = settingsService.isSearchComposer() || securityService
+            .getUserSettings(username)
+            .getMainVisibility()
+            .isComposerVisible();
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username, musicFolderId);
 
-        HttpSearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
-                IndexType.ARTIST);
+        HttpSearchCriteria criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
         com.tesshu.jpsonic.domain.SearchResult artists = searchService.search(criteria);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
         }
 
-        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
-        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
-        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+        offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
+        count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
+        criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
         Player player = playerService.getPlayer(request, response);
         com.tesshu.jpsonic.domain.SearchResult albums = searchService.search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
         }
 
-        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
-        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
-        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
+        offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
+        count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
+        criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
         com.tesshu.jpsonic.domain.SearchResult songs = searchService.search(criteria);
         for (MediaFile mediaFile : songs.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, mediaFile, username));
@@ -913,37 +980,50 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
 
         SearchResult3 searchResult = new SearchResult3();
 
-        String searchInput = StringUtils.trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
-        boolean includeComposer = settingsService.isSearchComposer()
-                || securityService.getUserSettings(username).getMainVisibility().isComposerVisible();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
-                musicFolderId);
+        String searchInput = StringUtils
+            .trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
+        boolean includeComposer = settingsService.isSearchComposer() || securityService
+            .getUserSettings(username)
+            .getMainVisibility()
+            .isComposerVisible();
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username, musicFolderId);
 
-        HttpSearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
-                IndexType.ARTIST_ID3);
+        HttpSearchCriteria criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders,
+                    IndexType.ARTIST_ID3);
         com.tesshu.jpsonic.domain.SearchResult result = searchService.search(criteria);
         for (com.tesshu.jpsonic.domain.Artist artist : result.getArtists()) {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
         }
 
-        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
-        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
-        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM_ID3);
+        offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
+        count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
+        criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders,
+                    IndexType.ALBUM_ID3);
         result = searchService.search(criteria);
         for (Album album : result.getAlbums()) {
             searchResult.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
 
-        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
-        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
-        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
+        offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
+        count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
+        criteria = director
+            .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
         Player player = playerService.getPlayer(request, response);
         result = searchService.search(criteria);
         for (MediaFile song : result.getMediaFiles()) {
@@ -966,16 +1046,18 @@ public class SubsonicRESTController implements CoverArtPresentation {
         if (requestedUsername == null) {
             requestedUsername = authenticatedUsername;
         } else if (!user.isAdminRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
-                    authenticatedUsername + " is not authorized to get playlists for " + requestedUsername);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, authenticatedUsername
+                    + " is not authorized to get playlists for " + requestedUsername);
             return;
         }
 
         Playlists result = new Playlists();
 
         for (com.tesshu.jpsonic.domain.Playlist playlist : playlistService
-                .getReadablePlaylistsForUser(requestedUsername)) {
-            result.getPlaylist().add(createJaxbPlaylist(new org.subsonic.restapi.Playlist(), playlist));
+            .getReadablePlaylistsForUser(requestedUsername)) {
+            result
+                .getPlaylist()
+                .add(createJaxbPlaylist(new org.subsonic.restapi.Playlist(), playlist));
         }
 
         Response res = createResponse();
@@ -987,7 +1069,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getPlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -1014,7 +1097,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/jukeboxControl", "/jukeboxControl.view" })
-    public ResponseEntity<String> jukeboxControl(HttpServletRequest req, HttpServletResponse response) {
+    public ResponseEntity<String> jukeboxControl(HttpServletRequest req,
+            HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
@@ -1022,10 +1106,12 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void createPlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
+        Integer playlistId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         String name = request.getParameter(Attributes.Request.NAME.value());
         if (playlistId == null && name == null) {
-            writeError(request, response, ErrorCode.MISSING_PARAMETER, "Playlist ID or name must be specified.");
+            writeError(request, response, ErrorCode.MISSING_PARAMETER,
+                    "Playlist ID or name must be specified.");
             return;
         }
 
@@ -1043,17 +1129,20 @@ public class SubsonicRESTController implements CoverArtPresentation {
         } else {
             playlist = playlistService.getPlaylist(playlistId);
             if (playlist == null) {
-                writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + playlistId);
+                writeError(request, response, ErrorCode.NOT_FOUND,
+                        MSG_PLAYLIST_NOT_FOUND + playlistId);
                 return;
             }
             if (!playlistService.isWriteAllowed(playlist, username)) {
-                writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + playlistId);
+                writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                        MSG_PLAYLIST_DENIED + playlistId);
                 return;
             }
         }
 
         List<MediaFile> songs = new ArrayList<>();
-        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID.value())) {
+        for (int id : ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.SONG_ID.value())) {
             MediaFile song = mediaFileService.getMediaFile(id);
             if (song != null) {
                 songs.add(song);
@@ -1069,7 +1158,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         com.tesshu.jpsonic.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -1090,21 +1180,25 @@ public class SubsonicRESTController implements CoverArtPresentation {
         if (comment != null) {
             playlist.setComment(comment);
         }
-        Boolean shared = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PUBLIC.value());
+        Boolean shared = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.PUBLIC.value());
         if (shared != null) {
             playlist.setShared(shared);
         }
         playlistService.updatePlaylist(playlist);
 
         List<MediaFile> songs = playlistService.getFilesInPlaylist(id);
-        int[] toRemove = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value());
-        int[] toAdd = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value());
+        int[] toRemove = ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value());
+        int[] toAdd = ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value());
         updatePlaylistSongs(id, toRemove, toAdd, songs);
 
         writeEmptyResponse(request, response);
     }
 
-    private void updatePlaylistSongs(int playlistId, int[] toRemove, int[] toAdd, List<MediaFile> songs) {
+    private void updatePlaylistSongs(int playlistId, int[] toRemove, int[] toAdd,
+            List<MediaFile> songs) {
         boolean songsChanged = false;
 
         SortedSet<Integer> tmp = new TreeSet<>();
@@ -1133,7 +1227,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void deletePlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -1156,16 +1251,19 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
 
-        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        int size = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
 
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername(), musicFolderId);
+            .getMusicFoldersForUser(user.getUsername(), musicFolderId);
 
         size = Math.max(0, Math.min(size, 500));
-        String type = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.TYPE.value());
+        String type = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.TYPE.value());
 
         List<MediaFile> albums;
         if ("highest".equals(type)) {
@@ -1177,20 +1275,26 @@ public class SubsonicRESTController implements CoverArtPresentation {
         } else if ("newest".equals(type)) {
             albums = mediaFileService.getNewestAlbums(offset, size, musicFolders);
         } else if ("starred".equals(type)) {
-            albums = mediaFileService.getStarredAlbums(offset, size, user.getUsername(), musicFolders);
+            albums = mediaFileService
+                .getStarredAlbums(offset, size, user.getUsername(), musicFolders);
         } else if ("alphabeticalByArtist".equals(type)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, true, musicFolders);
         } else if ("alphabeticalByName".equals(type)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumsByGenres(
-                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
-                    size, musicFolders);
+            albums = searchService
+                .getAlbumsByGenres(
+                        ServletRequestUtils
+                            .getRequiredStringParameter(request, Attributes.Request.GENRE.value()),
+                        offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
-            albums = mediaFileService.getAlbumsByYear(offset, size,
-                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
-                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
-                    musicFolders);
+            albums = mediaFileService
+                .getAlbumsByYear(offset, size,
+                        ServletRequestUtils
+                            .getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
+                        ServletRequestUtils
+                            .getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
+                        musicFolders);
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbums(size, musicFolders);
         } else {
@@ -1213,15 +1317,18 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int size = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         size = Math.max(0, Math.min(size, 500));
-        String type = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.TYPE.value());
+        String type = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.TYPE.value());
         User user = securityService.getCurrentUserStrict(request);
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername(), musicFolderId);
+            .getMusicFoldersForUser(user.getUsername(), musicFolderId);
 
         List<Album> albums;
         if ("frequent".equals(type)) {
@@ -1235,17 +1342,23 @@ public class SubsonicRESTController implements CoverArtPresentation {
         } else if ("alphabeticalByName".equals(type)) {
             albums = albumDao.getAlphabeticalAlbums(offset, size, false, true, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumId3sByGenres(
-                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
-                    size, musicFolders);
+            albums = searchService
+                .getAlbumId3sByGenres(
+                        ServletRequestUtils
+                            .getRequiredStringParameter(request, Attributes.Request.GENRE.value()),
+                        offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
-            albums = albumDao.getAlbumsByYear(offset, size,
-                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
-                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
-                    musicFolders);
+            albums = albumDao
+                .getAlbumsByYear(offset, size,
+                        ServletRequestUtils
+                            .getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
+                        ServletRequestUtils
+                            .getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
+                        musicFolders);
         } else if ("starred".equals(type)) {
-            albums = albumDao.getStarredAlbums(offset, size,
-                    securityService.getCurrentUserStrict(request).getUsername(), musicFolders);
+            albums = albumDao
+                .getStarredAlbums(offset, size,
+                        securityService.getCurrentUserStrict(request).getUsername(), musicFolders);
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbumsId3(size, musicFolders);
         } else {
@@ -1267,20 +1380,25 @@ public class SubsonicRESTController implements CoverArtPresentation {
         Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
 
-        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int size = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SIZE.value(), 10);
         size = Math.max(0, Math.min(size, 500));
         List<String> genres = null;
-        String genre = ServletRequestUtils.getStringParameter(request, Attributes.Request.GENRE.value());
+        String genre = ServletRequestUtils
+            .getStringParameter(request, Attributes.Request.GENRE.value());
         if (null != genre) {
             genres = Arrays.asList(genre);
         }
-        Integer fromYear = ServletRequestUtils.getIntParameter(request, Attributes.Request.FROM_YEAR.value());
-        Integer toYear = ServletRequestUtils.getIntParameter(request, Attributes.Request.TO_YEAR.value());
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer fromYear = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.FROM_YEAR.value());
+        Integer toYear = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.TO_YEAR.value());
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername(), musicFolderId);
-        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders);
+            .getMusicFoldersForUser(user.getUsername(), musicFolderId);
+        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear,
+                musicFolders);
 
         Songs result = new Songs();
         for (MediaFile mediaFile : searchService.getRandomSongs(criteria)) {
@@ -1292,15 +1410,18 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getVideos", "/getVideos.view" })
-    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getVideos(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
 
-        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
-        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int size = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
+        int offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
 
         Videos result = new Videos();
         for (MediaFile mediaFile : mediaFileDao.getVideos(size, offset, musicFolders)) {
@@ -1351,7 +1472,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
-    private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile, String username) {
+    private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile,
+            String username) {
         MediaFile parent = mediaFileService.getParentOf(mediaFile);
         if (parent != null) {
             try {
@@ -1360,7 +1482,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 }
             } catch (SecurityException e) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+                    LOG
+                        .trace("Error in getMusicDirectory",
+                                new AssertionError("Errors with unclear cases.", e));
                 }
             }
             child.setCoverArt(findCoverArt(mediaFile, parent));
@@ -1373,7 +1497,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         child.setYear(mediaFile.getYear());
         child.setGenre(mediaFile.getGenre());
         child.setCreated(jaxbWriter.convertDate(mediaFile.getCreated()));
-        child.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username)));
+        child
+            .setStarred(jaxbWriter
+                .convertDate(mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username)));
         child.setUserRating(ratingService.getRatingForUser(username, mediaFile));
         child.setAverageRating(ratingService.getAverageRating(mediaFile));
         child.setPlayCount((long) mediaFile.getPlayCount());
@@ -1391,13 +1517,15 @@ public class SubsonicRESTController implements CoverArtPresentation {
             child.setPath(getRelativePath(mediaFile, settingsService, musicFolderService));
 
             if (mediaFile.getAlbumArtist() != null && mediaFile.getAlbumName() != null) {
-                Album album = albumDao.getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
+                Album album = albumDao
+                    .getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
                 if (album != null) {
                     child.setAlbumId(String.valueOf(album.getId()));
                 }
             }
             if (mediaFile.getArtist() != null) {
-                com.tesshu.jpsonic.domain.Artist artist = artistDao.getArtist(mediaFile.getArtist());
+                com.tesshu.jpsonic.domain.Artist artist = artistDao
+                    .getArtist(mediaFile.getArtist());
                 if (artist != null) {
                     child.setArtistId(String.valueOf(artist.getId()));
                 }
@@ -1420,11 +1548,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     private MediaType getMedyaType(MediaFile.MediaType mediaType) {
         return switch (mediaType) {
-            case MUSIC -> MediaType.MUSIC;
-            case PODCAST -> MediaType.PODCAST;
-            case AUDIOBOOK -> MediaType.AUDIOBOOK;
-            case VIDEO -> MediaType.VIDEO;
-            default -> null;
+        case MUSIC -> MediaType.MUSIC;
+        case PODCAST -> MediaType.PODCAST;
+        case AUDIOBOOK -> MediaType.AUDIOBOOK;
+        case VIDEO -> MediaType.VIDEO;
+        default -> null;
         };
     }
 
@@ -1446,7 +1574,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         String filePathLower = filePath.toLowerCase(settingsService.getLocale());
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getAllMusicFolders(false, true);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getAllMusicFolders(false, true);
         StringBuilder builder = new StringBuilder();
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPathString().replace('\\', '/');
@@ -1457,7 +1586,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             }
             if (filePathLower.startsWith(folderPathLower)) {
                 String relativePath = filePath.substring(folderPath.length());
-                return !relativePath.isEmpty() && relativePath.charAt(0) == '/' ? relativePath.substring(1)
+                return !relativePath.isEmpty() && relativePath.charAt(0) == '/'
+                        ? relativePath.substring(1)
                         : relativePath;
             }
         }
@@ -1515,7 +1645,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
                     user.getUsername() + " is not authorized to play files.");
             return;
         }
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile video = mediaFileDao.getMediaFile(id);
         if (video == null || video.isDirectory()) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Video not found.");
@@ -1529,18 +1660,21 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/scrobble", "/scrobble.view" })
-    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void scrobble(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
+        int[] ids = ServletRequestUtils
+            .getRequiredIntParameters(request, Attributes.Request.ID.value());
         long[] times = ServletRequestUtils.getLongParameters(request, "time");
         if (times.length > 0 && times.length != ids.length) {
-            writeError(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
+            writeError(request, response, ErrorCode.GENERIC,
+                    "Wrong number of timestamps: " + times.length);
             return;
         }
 
         Player player = playerService.getPlayer(request, response);
-        boolean submission = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SUBMISSION.value(),
-                true);
+        boolean submission = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.SUBMISSION.value(), true);
         for (int i = 0; i < ids.length; i++) {
             int id = ids[i];
             MediaFile file = mediaFileService.getMediaFile(id);
@@ -1576,7 +1710,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUserStrict(request).getUsername();
-        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value())) {
+        for (int id : ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileDao.getMediaFile(id);
             if (mediaFile == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found: " + id);
@@ -1617,24 +1752,28 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getStarred", "/getStarred.view" })
-    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getStarred(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
-                musicFolderId);
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username, musicFolderId);
 
         Starred result = new Starred();
-        for (MediaFile artist : mediaFileDao.getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders)) {
+        for (MediaFile artist : mediaFileDao
+            .getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getArtist().add(createJaxbArtist(artist, username));
         }
-        for (MediaFile album : mediaFileDao.getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders)) {
+        for (MediaFile album : mediaFileDao
+            .getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getAlbum().add(createJaxbChild(player, album, username));
         }
-        for (MediaFile song : mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders)) {
+        for (MediaFile song : mediaFileDao
+            .getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getSong().add(createJaxbChild(player, song, username));
         }
         Response res = createResponse();
@@ -1649,20 +1788,22 @@ public class SubsonicRESTController implements CoverArtPresentation {
         Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
-                musicFolderId);
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username, musicFolderId);
 
         Starred2 result = new Starred2();
-        for (com.tesshu.jpsonic.domain.Artist artist : artistDao.getStarredArtists(0, Integer.MAX_VALUE, username,
-                musicFolders)) {
+        for (com.tesshu.jpsonic.domain.Artist artist : artistDao
+            .getStarredArtists(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
         }
-        for (Album album : albumDao.getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders)) {
+        for (Album album : albumDao
+            .getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
-        for (MediaFile song : mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders)) {
+        for (MediaFile song : mediaFileDao
+            .getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders)) {
             result.getSong().add(createJaxbChild(player, song, username));
         }
         Response res = createResponse();
@@ -1676,9 +1817,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        boolean includeEpisodes = ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.INCLUDE_EPISODES.value(), true);
-        Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
+        boolean includeEpisodes = ServletRequestUtils
+            .getBooleanParameter(request, Attributes.Request.INCLUDE_EPISODES.value(), true);
+        Integer channelId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.ID.value());
 
         Podcasts result = new Podcasts();
 
@@ -1699,7 +1841,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
                 if (includeEpisodes) {
                     List<com.tesshu.jpsonic.domain.PodcastEpisode> episodes = podcastService
-                            .getEpisodes(channel.getId());
+                        .getEpisodes(channel.getId());
                     for (com.tesshu.jpsonic.domain.PodcastEpisode episode : episodes) {
                         c.getEpisode().add(createJaxbPodcastEpisode(player, username, episode));
                     }
@@ -1718,10 +1860,12 @@ public class SubsonicRESTController implements CoverArtPresentation {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
-        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        int count = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         NewestPodcasts result = new NewestPodcasts();
 
-        for (com.tesshu.jpsonic.domain.PodcastEpisode episode : podcastService.getNewestEpisodes(count)) {
+        for (com.tesshu.jpsonic.domain.PodcastEpisode episode : podcastService
+            .getNewestEpisodes(count)) {
             result.getEpisode().add(createJaxbPodcastEpisode(player, username, episode));
         }
 
@@ -1730,15 +1874,16 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    private org.subsonic.restapi.PodcastEpisode createJaxbPodcastEpisode(Player player, String username,
-            com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+    private org.subsonic.restapi.PodcastEpisode createJaxbPodcastEpisode(Player player,
+            String username, com.tesshu.jpsonic.domain.PodcastEpisode episode) {
         org.subsonic.restapi.PodcastEpisode e = new org.subsonic.restapi.PodcastEpisode();
 
         String path = episode.getPath();
         if (path != null) {
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
             if (mediaFile != null) {
-                e = createJaxbChild(new org.subsonic.restapi.PodcastEpisode(), player, mediaFile, username);
+                e = createJaxbChild(new org.subsonic.restapi.PodcastEpisode(), player, mediaFile,
+                        username);
                 e.setStreamId(String.valueOf(mediaFile.getId()));
             }
         }
@@ -1763,7 +1908,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
         podcastService.refreshAllChannels(true);
@@ -1782,11 +1928,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
-        String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
+        String url = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.URL.value());
         podcastService.createChannel(url);
         writeEmptyResponse(request, response);
     }
@@ -1797,11 +1945,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         podcastService.deleteChannel(id);
         writeEmptyResponse(request, response);
     }
@@ -1812,11 +1962,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         podcastService.deleteEpisode(id, true);
         writeEmptyResponse(request, response);
     }
@@ -1833,14 +1985,17 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.PodcastEpisode episode = podcastService.getEpisode(id, true);
         if (episode == null) {
-            writeError(request, response, ErrorCode.NOT_FOUND, "Podcast episode " + id + " not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND,
+                    "Podcast episode " + id + " not found.");
             return;
         }
 
@@ -1899,8 +2054,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
-        int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        long position = ServletRequestUtils.getRequiredLongParameter(request, Attributes.Request.POSITION.value());
+        int mediaFileId = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
+        long position = ServletRequestUtils
+            .getRequiredLongParameter(request, Attributes.Request.POSITION.value());
         String comment = request.getParameter(Attributes.Request.COMMENT.value());
 
         Instant now = now();
@@ -1915,7 +2072,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUsername(request);
-        int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int mediaFileId = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         bookmarkService.deleteBookmark(username, mediaFileId);
 
         writeEmptyResponse(request, response);
@@ -1958,31 +2116,37 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         List<Integer> mediaFileIds = PlayerUtils
-                .toIntegerList(ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value()));
-        Integer current = ServletRequestUtils.getIntParameter(request, Attributes.Request.CURRENT.value());
+            .toIntegerList(
+                    ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value()));
+        Integer current = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.CURRENT.value());
         if (!mediaFileIds.contains(current)) {
-            writeError(request, response, ErrorCode.GENERIC, "Current track is not included in play queue");
+            writeError(request, response, ErrorCode.GENERIC,
+                    "Current track is not included in play queue");
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
-        Long position = ServletRequestUtils.getLongParameter(request, Attributes.Request.POSITION.value());
+        Long position = ServletRequestUtils
+            .getLongParameter(request, Attributes.Request.POSITION.value());
         Instant changed = now();
-        String changedBy = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.C.value());
+        String changedBy = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.C.value());
 
-        SavedPlayQueue playQueue = new SavedPlayQueue(null, username, mediaFileIds, current, position, changed,
-                changedBy);
+        SavedPlayQueue playQueue = new SavedPlayQueue(null, username, mediaFileIds, current,
+                position, changed, changedBy);
         playQueueDao.savePlayQueue(playQueue);
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping({ "/getShares", "/getShares.view" })
-    public void getShares(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getShares(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
 
         Shares result = new Shares();
         for (com.tesshu.jpsonic.domain.Share share : shareService.getSharesForUser(user)) {
@@ -2010,13 +2174,15 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         List<MediaFile> files = new ArrayList<>();
-        for (int id : ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value())) {
+        for (int id : ServletRequestUtils
+            .getRequiredIntParameters(request, Attributes.Request.ID.value())) {
             files.add(mediaFileService.getMediaFile(id));
         }
 
         com.tesshu.jpsonic.domain.Share share = shareService.createShare(request, files);
         share.setDescription(request.getParameter(Attributes.Request.DESCRIPTION.value()));
-        long expires = ServletRequestUtils.getLongParameter(request, Attributes.Request.EXPIRES.value(), 0L);
+        long expires = ServletRequestUtils
+            .getLongParameter(request, Attributes.Request.EXPIRES.value(), 0L);
         if (expires != 0) {
             share.setExpires(Instant.ofEpochMilli(expires));
         }
@@ -2031,7 +2197,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         if (username == null) {
             writeError(request, response, ErrorCode.NOT_AUTHENTICATED, "Wrong username.");
         }
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
+            .getMusicFoldersForUser(username);
         for (MediaFile mediaFile : shareService.getSharedFiles(share.getId(), musicFolders)) {
             s.getEntry().add(createJaxbChild(player, mediaFile, username));
         }
@@ -2046,7 +2213,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
@@ -2055,7 +2223,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to delete shared media.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not authorized to delete shared media.");
             return;
         }
 
@@ -2068,7 +2237,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
@@ -2077,7 +2247,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to modify shared media.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not authorized to modify shared media.");
             return;
         }
 
@@ -2124,12 +2295,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         HttpServletRequest request = wrapRequest(req);
         User authUser = securityService.getCurrentUserStrict(request);
-        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         boolean allowed = authUser.isAdminRole()
                 || username.equals(authUser.getUsername()) && authUser.isSettingsRole();
         if (!allowed) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
-                    authUser.getUsername() + " is not authorized to change password for " + username);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, authUser.getUsername()
+                    + " is not authorized to change password for " + username);
             return;
         }
 
@@ -2138,22 +2310,24 @@ public class SubsonicRESTController implements CoverArtPresentation {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         }
-        String newPass = decrypt(
-                ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
+        String newPass = decrypt(ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
         securityService.updatePassword(user, newPass, user.isLdapAuthenticated());
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping({ "/getUser", "/getUser.view" })
-    public void getUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void getUser(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
 
         User currentUser = securityService.getCurrentUserStrict(request);
         if (!username.equals(currentUser.getUsername()) && !currentUser.isAdminRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
-                    currentUser.getUsername() + " is not authorized to get details for other users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername()
+                    + " is not authorized to get details for other users.");
             return;
         }
 
@@ -2174,8 +2348,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         User currentUser = securityService.getCurrentUserStrict(request);
         if (!currentUser.isAdminRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
-                    currentUser.getUsername() + " is not authorized to get details for other users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername()
+                    + " is not authorized to get details for other users.");
             return;
         }
 
@@ -2218,7 +2392,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
-                .getMusicFoldersForUser(user.getUsername());
+            .getMusicFoldersForUser(user.getUsername());
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
             result.getFolder().add(musicFolder.getId());
         }
@@ -2226,7 +2400,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/createUser", "/createUser.view" })
-    public void createUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void createUser(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isAdminRole()) {
@@ -2236,37 +2411,54 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         UserSettingsCommand command = new UserSettingsCommand();
-        command.setUsername(
-                ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value()));
-        command.setPassword(
-                decrypt(ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
-        command.setEmail(ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.EMAIL.value()));
-        command.setLdapAuthenticated(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(), false));
-        command.setAdminRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(), false));
-        command.setCommentRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(), false));
-        command.setCoverArtRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(), false));
-        command.setDownloadRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(), false));
-        command.setStreamRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), true));
-        command.setUploadRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), false));
-        command.setPodcastRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), false));
-        command.setSettingsRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), true));
-        command.setShareRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
+        command
+            .setUsername(ServletRequestUtils
+                .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value()));
+        command
+            .setPassword(decrypt(ServletRequestUtils
+                .getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
+        command
+            .setEmail(ServletRequestUtils
+                .getRequiredStringParameter(request, Attributes.Request.EMAIL.value()));
+        command
+            .setLdapAuthenticated(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(),
+                        false));
+        command
+            .setAdminRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(), false));
+        command
+            .setCommentRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(), false));
+        command
+            .setCoverArtRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(), false));
+        command
+            .setDownloadRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(), false));
+        command
+            .setStreamRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), true));
+        command
+            .setUploadRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), false));
+        command
+            .setPodcastRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), false));
+        command
+            .setSettingsRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), true));
+        command
+            .setShareRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
         command.setTranscodeScheme(TranscodeScheme.OFF);
 
-        int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        int[] folderIds = ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
-            folderIds = PlayerUtils.toIntArray(
-                    com.tesshu.jpsonic.domain.MusicFolder.toIdList(musicFolderService.getAllMusicFolders()));
+            folderIds = PlayerUtils
+                .toIntArray(com.tesshu.jpsonic.domain.MusicFolder
+                    .toIdList(musicFolderService.getAllMusicFolders()));
         }
         command.setAllowedMusicFolderIds(folderIds);
 
@@ -2275,7 +2467,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/updateUser", "/updateUser.view" })
-    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void updateUser(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
@@ -2285,61 +2478,89 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         User u = securityService.getUserByName(username);
         if (u == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         } else if (user.getUsername().equals(username)) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not allowed to change own user");
             return;
         } else if (securityService.isAdmin(username)) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change admin user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not allowed to change admin user");
             return;
         }
 
         UserSettingsCommand command = new UserSettingsCommand();
         command.setUsername(username);
-        command.setEmail(
-                ServletRequestUtils.getStringParameter(request, Attributes.Request.EMAIL.value(), u.getEmail()));
-        command.setLdapAuthenticated(ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.LDAP_AUTHENTICATED.value(), u.isLdapAuthenticated()));
-        command.setAdminRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(),
-                u.isAdminRole()));
-        command.setCommentRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(),
-                u.isCommentRole()));
-        command.setCoverArtRole(ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.COVER_ART_ROLE.value(), u.isCoverArtRole()));
-        command.setDownloadRole(ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.DOWNLOAD_ROLE.value(), u.isDownloadRole()));
-        command.setStreamRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(),
-                u.isDownloadRole()));
-        command.setUploadRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(),
-                u.isUploadRole()));
-        command.setPodcastRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(),
-                u.isPodcastRole()));
-        command.setSettingsRole(ServletRequestUtils.getBooleanParameter(request,
-                Attributes.Request.SETTINGS_ROLE.value(), u.isSettingsRole()));
-        command.setShareRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(),
-                u.isShareRole()));
+        command
+            .setEmail(ServletRequestUtils
+                .getStringParameter(request, Attributes.Request.EMAIL.value(), u.getEmail()));
+        command
+            .setLdapAuthenticated(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(),
+                        u.isLdapAuthenticated()));
+        command
+            .setAdminRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(),
+                        u.isAdminRole()));
+        command
+            .setCommentRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(),
+                        u.isCommentRole()));
+        command
+            .setCoverArtRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(),
+                        u.isCoverArtRole()));
+        command
+            .setDownloadRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(),
+                        u.isDownloadRole()));
+        command
+            .setStreamRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(),
+                        u.isDownloadRole()));
+        command
+            .setUploadRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(),
+                        u.isUploadRole()));
+        command
+            .setPodcastRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(),
+                        u.isPodcastRole()));
+        command
+            .setSettingsRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(),
+                        u.isSettingsRole()));
+        command
+            .setShareRole(ServletRequestUtils
+                .getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(),
+                        u.isShareRole()));
 
         UserSettings s = securityService.getUserSettings(username);
-        int maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
-                s.getTranscodeScheme().getMaxBitRate());
+        int maxBitRate = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
+                    s.getTranscodeScheme().getMaxBitRate());
         TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
         if (transcodeScheme != null) {
             command.setTranscodeScheme(transcodeScheme);
         }
 
         if (hasParameter(request, Attributes.Request.PASSWORD.value())) {
-            command.setPassword(decrypt(
-                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
+            command
+                .setPassword(decrypt(ServletRequestUtils
+                    .getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
             command.setPasswordChange(true);
         }
 
-        int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        int[] folderIds = ServletRequestUtils
+            .getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
-            folderIds = PlayerUtils.toIntArray(com.tesshu.jpsonic.domain.MusicFolder
+            folderIds = PlayerUtils
+                .toIntArray(com.tesshu.jpsonic.domain.MusicFolder
                     .toIdList(musicFolderService.getMusicFoldersForUser(username)));
         }
         command.setAllowedMusicFolderIds(folderIds);
@@ -2353,7 +2574,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/deleteUser", "/deleteUser.view" })
-    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void deleteUser(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUserStrict(request);
         if (!user.isAdminRole()) {
@@ -2362,17 +2584,20 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils
+            .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         User u = securityService.getUserByName(username);
 
         if (u == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         } else if (user.getUsername().equals(username)) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not allowed to delete own user");
             return;
         } else if (securityService.isAdmin(username)) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete admin user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
+                    "Not allowed to delete admin user");
             return;
         }
 
@@ -2382,12 +2607,14 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     @RequestMapping({ "/getChatMessages", "/getChatMessages.view" })
-    public ResponseEntity<String> getChatMessages(HttpServletRequest req, HttpServletResponse response) {
+    public ResponseEntity<String> getChatMessages(HttpServletRequest req,
+            HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
     @RequestMapping({ "/addChatMessage", "/addChatMessage.view" })
-    public ResponseEntity<String> addChatMessage(HttpServletRequest req, HttpServletResponse response) {
+    public ResponseEntity<String> addChatMessage(HttpServletRequest req,
+            HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
@@ -2410,14 +2637,17 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @RequestMapping({ "/setRating", "/setRating.view" })
-    public void setRating(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
+    public void setRating(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        Integer rating = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.RATING.value());
+        Integer rating = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.RATING.value());
         if (rating == 0) {
             rating = null;
         }
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "File not found: " + id);
@@ -2435,11 +2665,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
 
         MediaFile mediaFile = this.mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Media file not found.");
+            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND,
+                    "Media file not found.");
             return;
         }
         AlbumNotes albumNotes = this.lastFmService.getAlbumNotes(mediaFile);
@@ -2455,11 +2687,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
 
         Album album = this.albumDao.getAlbum(id);
         if (album == null) {
-            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Album not found.");
+            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND,
+                    "Album not found.");
             return;
         }
         AlbumNotes albumNotes = this.lastFmService.getAlbumNotes(album);
@@ -2533,7 +2767,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     protected final String mapId(String id) {
-        if (id == null || isAlbumCoverArt(id) || isArtistCoverArt(id) || StringUtils.isNumeric(id)) {
+        if (id == null || isAlbumCoverArt(id) || isArtistCoverArt(id)
+                || StringUtils.isNumeric(id)) {
             return id;
         }
         try {
@@ -2556,7 +2791,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbWriter.writeResponse(request, response, createResponse());
     }
 
-    public void writeError(HttpServletRequest request, HttpServletResponse response, ErrorCode code, String message) {
+    public void writeError(HttpServletRequest request, HttpServletResponse response, ErrorCode code,
+            String message) {
         jaxbWriter.writeErrorResponse(request, response, code, message);
     }
 
@@ -2584,8 +2820,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public enum ErrorCode {
 
         GENERIC(0, "A generic error."), MISSING_PARAMETER(10, "Required parameter is missing."),
-        PROTOCOL_MISMATCH_CLIENT_TOO_OLD(20, "Incompatible Jpsonic REST protocol version. Client must upgrade."),
-        PROTOCOL_MISMATCH_SERVER_TOO_OLD(30, "Incompatible Jpsonic REST protocol version. Server must upgrade."),
+        PROTOCOL_MISMATCH_CLIENT_TOO_OLD(20,
+                "Incompatible Jpsonic REST protocol version. Client must upgrade."),
+        PROTOCOL_MISMATCH_SERVER_TOO_OLD(30,
+                "Incompatible Jpsonic REST protocol version. Server must upgrade."),
         NOT_AUTHENTICATED(40, "Wrong username or password."),
         NOT_AUTHORIZED(50, "User is not authorized for the given operation."),
         NOT_FOUND(70, "Requested data was not found.");

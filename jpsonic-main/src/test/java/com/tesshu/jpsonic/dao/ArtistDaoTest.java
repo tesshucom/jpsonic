@@ -37,7 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 class ArtistDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1, false));
+        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1,
+                false));
 
     @Autowired
     private ArtistDao artistDao;
@@ -56,7 +57,8 @@ class ArtistDaoTest extends AbstractNeedsScan {
 
     @Test
     void testGetAlphabetialArtists() {
-        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(MUSIC_FOLDERS.get(0)));
+        List<Artist> all = artistDao
+            .getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(MUSIC_FOLDERS.get(0)));
         List<String> names = all.stream().map(Artist::getName).collect(Collectors.toList());
         assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));
     }

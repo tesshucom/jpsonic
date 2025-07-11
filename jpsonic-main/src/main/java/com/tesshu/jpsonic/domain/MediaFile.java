@@ -97,15 +97,18 @@ public non-sealed class MediaFile implements Orderable, Indexable {
         this.musicIndex = "";
     }
 
-    public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
-            String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
-            String genre, Integer bitRate, boolean variableBitRate, Integer durationSeconds, Long fileSize,
-            Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Instant lastPlayed,
-            String comment, Instant created, Instant changed, Instant lastScanned, Instant childrenLastUpdated,
-            boolean present, int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer,
-            String artistSort, String albumSort, String titleSort, String albumArtistSort, String composerSort,
-            String artistReading, String albumReading, String albumArtistReading, String artistSortRaw,
-            String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order, String musicIndex) {
+    public MediaFile(int id, String path, String folder, MediaType mediaType, String format,
+            String title, String albumName, String artist, String albumArtist, Integer discNumber,
+            Integer trackNumber, Integer year, String genre, Integer bitRate,
+            boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width,
+            Integer height, String coverArtPath, String parentPath, int playCount,
+            Instant lastPlayed, String comment, Instant created, Instant changed,
+            Instant lastScanned, Instant childrenLastUpdated, boolean present, int version,
+            String musicBrainzReleaseId, String musicBrainzRecordingId, String composer,
+            String artistSort, String albumSort, String titleSort, String albumArtistSort,
+            String composerSort, String artistReading, String albumReading,
+            String albumArtistReading, String artistSortRaw, String albumSortRaw,
+            String albumArtistSortRaw, String composerSortRaw, int order, String musicIndex) {
         this();
         this.id = id;
         this.pathString = path;
@@ -201,7 +204,8 @@ public non-sealed class MediaFile implements Orderable, Indexable {
     }
 
     public boolean isAudio() {
-        return mediaType == MediaType.MUSIC || mediaType == MediaType.AUDIOBOOK || mediaType == MediaType.PODCAST;
+        return mediaType == MediaType.MUSIC || mediaType == MediaType.AUDIOBOOK
+                || mediaType == MediaType.PODCAST;
     }
 
     public String getFormat() {
@@ -485,7 +489,8 @@ public non-sealed class MediaFile implements Orderable, Indexable {
     }
 
     public Optional<Path> getCoverArtPath() {
-        return coverArtPathString == null ? Optional.empty() : Optional.of(Path.of(coverArtPathString));
+        return coverArtPathString == null ? Optional.empty()
+                : Optional.of(Path.of(coverArtPathString));
     }
 
     public @Nullable String getComposer() {

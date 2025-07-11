@@ -45,8 +45,9 @@ import org.jupnp.model.message.UpnpRequest.Method;
 import org.jupnp.transport.Router;
 import org.jupnp.transport.RouterException;
 
-@SuppressWarnings({"PMD.TooManyStaticImports", "PMD.JUnitTestsShouldIncludeAssert",
-    "PMD.AvoidDuplicateLiterals", "PMD.AvoidCatchingGenericException", "PMD.AvoidUsingHardCodedIP"})
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.JUnitTestsShouldIncludeAssert",
+        "PMD.AvoidDuplicateLiterals", "PMD.AvoidCatchingGenericException",
+        "PMD.AvoidUsingHardCodedIP" })
 @TestInstance(Lifecycle.PER_CLASS)
 class RouterImplTest {
 

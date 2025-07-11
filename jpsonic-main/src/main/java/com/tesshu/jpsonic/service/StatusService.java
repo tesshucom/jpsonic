@@ -41,7 +41,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides services for maintaining the list of stream, download and upload statuses.
+ * Provides services for maintaining the list of stream, download and upload
+ * statuses.
  * <p/>
  * Note that for stream statuses, the last inactive status is also stored.
  *
@@ -248,7 +249,8 @@ public class StatusService {
                         continue;
                     }
                     Instant time = Instant
-                            .ofEpochMilli(Instant.now().toEpochMilli() - streamStatus.getMillisSinceLastUpdate());
+                        .ofEpochMilli(Instant.now().toEpochMilli()
+                                - streamStatus.getMillisSinceLastUpdate());
                     result.put(player.getId(), new PlayStatus(mediaFile, player, time));
                 }
                 return unmodifiableList(new ArrayList<>(result.values()));

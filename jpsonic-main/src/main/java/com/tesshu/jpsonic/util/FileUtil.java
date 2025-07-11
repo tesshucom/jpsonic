@@ -51,8 +51,8 @@ public final class FileUtil {
     }
 
     /**
-     * Returns a short path for the given file. The path consists of the name of the parent directory and the given
-     * file.
+     * Returns a short path for the given file. The path consists of the name of the
+     * parent directory and the given file.
      */
     public static @Nullable String getShortPath(@Nullable Path path) {
         if (path == null) {

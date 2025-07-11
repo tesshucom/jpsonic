@@ -63,20 +63,29 @@ public class RandomSongByFolderGenreProc extends SongByFolderGenreProc implement
     }
 
     @Override
-    public List<FGenreOrSong> getChildren(FolderOrFGenre folderOrGenre, long firstResult, long maxResults) {
+    public List<FGenreOrSong> getChildren(FolderOrFGenre folderOrGenre, long firstResult,
+            long maxResults) {
         int offset = (int) firstResult;
         int max = getChildSizeOf(folderOrGenre);
         int count = toCount(firstResult, maxResults, max);
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService.getRandomSongs(count, offset, max, List.of(folder), genre.getName()).stream()
-                    .map(FGenreOrSong::new).toList();
+            return searchService
+                .getRandomSongs(count, offset, max, List.of(folder), genre.getName())
+                .stream()
+                .map(FGenreOrSong::new)
+                .toList();
         }
         MusicFolder folder = folderOrGenre.getFolder();
-        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(), TYPES);
-        return searchService.getGenres(criteria, offset, count).stream().map(genre -> new FolderGenre(folder, genre))
-                .map(FGenreOrSong::new).toList();
+        GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(),
+                TYPES);
+        return searchService
+            .getGenres(criteria, offset, count)
+            .stream()
+            .map(genre -> new FolderGenre(folder, genre))
+            .map(FGenreOrSong::new)
+            .toList();
     }
 
     @Override
@@ -93,8 +102,9 @@ public class RandomSongByFolderGenreProc extends SongByFolderGenreProc implement
         if (genreOrSong.isSong()) {
             parent.addItem(factory.toMusicTrack(genreOrSong.getSong()));
         } else {
-            deligate.addChild(parent, getProcId(), genreOrSong.getGenre(),
-                    genreOrSong.getGenre().genre().getSongCount());
+            deligate
+                .addChild(parent, getProcId(), genreOrSong.getGenre(),
+                        genreOrSong.getGenre().genre().getSongCount());
         }
     }
 }

@@ -89,8 +89,9 @@ public class UploadController {
     private final SettingsService settingsService;
     private final ScannerStateService scannerStateService;
 
-    public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            SettingsService settingsService, ScannerStateService scannerStateService) {
+    public UploadController(SecurityService securityService, PlayerService playerService,
+            StatusService statusService, SettingsService settingsService,
+            ScannerStateService scannerStateService) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
@@ -100,11 +101,14 @@ public class UploadController {
     }
 
     @PostMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) {
 
         Map<String, Object> model = LegacyMap.of();
         if (scannerStateService.isScanning()) {
-            model.put(EXEPTION, new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            model
+                .put(EXEPTION, new IllegalArgumentException(
+                        "Currently scanning. Please try again after a while."));
             return new ModelAndView("upload", "model", model);
         }
         if (!JakartaServletFileUpload.isMultipartContent(request)) {
@@ -116,7 +120,8 @@ public class UploadController {
         UnzipResult result = null;
         try {
 
-            status = statusService.createUploadStatus(playerService.getPlayer(request, response, false, false));
+            status = statusService
+                .createUploadStatus(playerService.getPlayer(request, response, false, false));
             status.setBytesTotal(request.getContentLength());
 
             request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
@@ -206,7 +211,8 @@ public class UploadController {
     }
 
     @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
-    private UnzipResult doUnzip(List<DiskFileItem> items, Path dir, boolean unzip) throws ExecutionException {
+    private UnzipResult doUnzip(List<DiskFileItem> items, Path dir, boolean unzip)
+            throws ExecutionException {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();
 
@@ -264,14 +270,14 @@ public class UploadController {
             while (entries.hasMoreElements()) {
                 Path parent = file.getParent();
                 if (parent == null) {
-                    throw new ExecutionException(
-                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml4(file.toString())));
+                    throw new ExecutionException(new IOException(
+                            "Bad zip filename: " + StringEscapeUtils.escapeHtml4(file.toString())));
                 }
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 Path entryFile = Path.of(parent.toString(), entry.getName());
                 if (!entryFile.normalize().toString().startsWith(parent.toString())) {
-                    throw new ExecutionException(new IOException(
-                            "Bad zip filename: " + StringEscapeUtils.escapeHtml4(entryFile.toString())));
+                    throw new ExecutionException(new IOException("Bad zip filename: "
+                            + StringEscapeUtils.escapeHtml4(entryFile.toString())));
                 }
                 if (!entry.isDirectory()) {
                     unzippedFiles = unzip(zipFile, entry, entryFile);
@@ -286,7 +292,8 @@ public class UploadController {
         return unzippedFiles;
     }
 
-    private List<Path> unzip(ZipFile zipFile, ZipEntry entry, Path entryFile) throws ExecutionException {
+    private List<Path> unzip(ZipFile zipFile, ZipEntry entry, Path entryFile)
+            throws ExecutionException {
 
         if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
@@ -294,8 +301,8 @@ public class UploadController {
         }
 
         Path parent = entryFile.getParent();
-        if (parent == null
-                || !Files.exists(parent) && FileUtil.createDirectories(parent) == null && LOG.isWarnEnabled()) {
+        if (parent == null || !Files.exists(parent) && FileUtil.createDirectories(parent) == null
+                && LOG.isWarnEnabled()) {
             LOG.warn("The directory '{}' could not be created.", parent);
         }
 
@@ -332,7 +339,8 @@ public class UploadController {
 
         private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
 
-        UploadListenerImpl(TransferStatus status, StatusService statusService, SettingsService settingsService) {
+        UploadListenerImpl(TransferStatus status, StatusService statusService,
+                SettingsService settingsService) {
             this.status = status;
             this.statusService = statusService;
             this.settingsService = settingsService;
@@ -357,9 +365,11 @@ public class UploadController {
             }
         }
 
-        private void doSleep(long maxBitsPerSecond, long bitCount, float elapsedSeconds) throws InterruptedException {
+        private void doSleep(long maxBitsPerSecond, long bitCount, float elapsedSeconds)
+                throws InterruptedException {
             if (maxBitsPerSecond > 0) {
-                float sleepMillis = bitCount * 1000.0F / (maxBitsPerSecond - elapsedSeconds) * 1000.0F;
+                float sleepMillis = bitCount * 1000.0F / (maxBitsPerSecond - elapsedSeconds)
+                        * 1000.0F;
                 if (sleepMillis > 0) {
                     Thread.sleep((long) sleepMillis);
                 }

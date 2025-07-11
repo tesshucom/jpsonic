@@ -23,7 +23,8 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
-public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album) implements CompositeModel {
+public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album)
+        implements CompositeModel {
 
     private static final String TYPE_PREFIX = "fgal:";
     private static final String SEPA = ";"; // Definitely not part of genre name.
@@ -38,7 +39,8 @@ public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album) imp
     }
 
     public static int parseFolderId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
+        return Integer
+            .parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
     public static int parseAlbumId(String compositeId) {

@@ -55,8 +55,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     private int indexBackup;
 
     /**
-     * The index of the current song, or -1 is the end of the playlist is reached. Note that both the index and the
-     * playlist size can be zero.
+     * The index of the current song, or -1 is the end of the playlist is reached.
+     * Note that both the index and the playlist size can be zero.
      */
     private int index;
 
@@ -76,7 +76,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Returns the user-defined name of the playlist.
      *
-     * @return The name of the playlist, or <code>null</code> if no name has been assigned.
+     * @return The name of the playlist, or <code>null</code> if no name has been
+     *         assigned.
      */
     public String getName() {
         return name;
@@ -85,8 +86,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets the user-defined name of the playlist.
      *
-     * @param name
-     *            The name of the playlist.
+     * @param name The name of the playlist.
      */
     public void setName(String name) {
         this.name = name;
@@ -95,7 +95,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Returns the current song in the playlist.
      *
-     * @return The current song in the playlist, or <code>null</code> if no current song exists.
+     * @return The current song in the playlist, or <code>null</code> if no current
+     *         song exists.
      */
     public MediaFile getCurrentFile() {
         writeLock(sequenceLock);
@@ -137,13 +138,11 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Returns the music file at the given index.
      *
-     * @param index
-     *            The index.
+     * @param index The index.
      *
      * @return The music file at the given index.
      *
-     * @throws IndexOutOfBoundsException
-     *             If the index is out of range.
+     * @throws IndexOutOfBoundsException If the index is out of range.
      */
     public MediaFile getFile(int index) {
         readLock(sequenceLock);
@@ -200,7 +199,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Returns the index of the current song.
      *
-     * @return The index of the current song, or -1 if the end of the playlist is reached.
+     * @return The index of the current song, or -1 if the end of the playlist is
+     *         reached.
      */
     public int getIndex() {
         readLock(sequenceLock);
@@ -214,8 +214,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets the index of the current song.
      *
-     * @param index
-     *            The index of the current song.
+     * @param index The index of the current song.
      */
     public void setIndex(int index) {
         writeLock(sequenceLock);
@@ -231,10 +230,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Adds one or more music file to the playlist.
      *
-     * @param mediaFiles
-     *            The music files to add.
-     * @param index
-     *            Where to add them.
+     * @param mediaFiles The music files to add.
+     * @param index      Where to add them.
      */
     public void addFilesAt(Iterable<MediaFile> mediaFiles, final int index) {
         writeLock(sequenceLock);
@@ -251,10 +248,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Adds one or more music file to the playlist.
      *
-     * @param append
-     *            Whether existing songs in the playlist should be kept.
-     * @param mediaFiles
-     *            The music files to add.
+     * @param append     Whether existing songs in the playlist should be kept.
+     * @param mediaFiles The music files to add.
      */
     public void addFiles(boolean append, Iterable<MediaFile> mediaFiles) {
         writeLock(sequenceLock);
@@ -286,8 +281,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Removes the music file at the given index.
      *
-     * @param index
-     *            The playlist index.
+     * @param index The playlist index.
      */
     public void removeFileAt(final int index) {
         writeLock(sequenceLock);
@@ -388,8 +382,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Moves the song at the given index one step up.
      *
-     * @param index
-     *            The playlist index.
+     * @param index The playlist index.
      */
     public void moveUp(int index) {
         moveDown(index - 1);
@@ -398,8 +391,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Moves the song at the given index one step down.
      *
-     * @param index
-     *            The playlist index.
+     * @param index The playlist index.
      */
     public void moveDown(int index) {
         writeLock(sequenceLock);
@@ -432,8 +424,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets whether the playlist is repeating.
      *
-     * @param repeatEnabled
-     *            Whether the playlist is repeating.
+     * @param repeatEnabled Whether the playlist is repeating.
      */
     public void setRepeatEnabled(boolean repeatEnabled) {
         this.repeatEnabled.set(repeatEnabled);
@@ -490,8 +481,7 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets the playlist status.
      *
-     * @param status
-     *            The playlist status.
+     * @param status The playlist status.
      */
     public void setStatus(Status status) {
         writeLock(sequenceLock);
@@ -508,8 +498,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets the current internet radio
      *
-     * @param internetRadio
-     *            An internet radio, or <code>null</code> if this is not an internet radio playlist
+     * @param internetRadio An internet radio, or <code>null</code> if this is not
+     *                      an internet radio playlist
      */
     public void setInternetRadio(InternetRadio internetRadio) {
         this.internetRadio = internetRadio;
@@ -518,7 +508,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Gets the current internet radio
      *
-     * @return The current internet radio, or <code>null</code> if this is not an internet radio playlist
+     * @return The current internet radio, or <code>null</code> if this is not an
+     *         internet radio playlist
      */
     public InternetRadio getInternetRadio() {
         return internetRadio;
@@ -527,7 +518,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Returns the criteria used to generate this random playlist
      *
-     * @return The search criteria, or <code>null</code> if this is not a random playlist.
+     * @return The search criteria, or <code>null</code> if this is not a random
+     *         playlist.
      */
     public RandomSearchCriteria getRandomSearchCriteria() {
         return randomSearchCriteria;
@@ -536,8 +528,8 @@ public class PlayQueue implements ReadWriteLockSupport {
     /**
      * Sets the criteria used to generate this random playlist
      *
-     * @param randomSearchCriteria
-     *            The search criteria, or <code>null</code> if this is not a random playlist.
+     * @param randomSearchCriteria The search criteria, or <code>null</code> if this
+     *                             is not a random playlist.
      */
     public void setRandomSearchCriteria(RandomSearchCriteria randomSearchCriteria) {
         this.randomSearchCriteria = randomSearchCriteria;

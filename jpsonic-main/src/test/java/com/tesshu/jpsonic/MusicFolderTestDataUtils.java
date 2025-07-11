@@ -40,8 +40,9 @@ public final class MusicFolderTestDataUtils {
 
     public static String resolveBaseMediaPath() {
         try {
-            return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString()
-                    + File.separator;
+            return Path
+                .of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI())
+                .toString() + File.separator;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(BASE_RESOURCES + "is not found", e);
         }
@@ -60,7 +61,8 @@ public final class MusicFolderTestDataUtils {
     }
 
     public static List<MusicFolder> getTestMusicFolders() {
-        return Arrays.asList(new MusicFolder(1, resolveMusicFolderPath(), "Music", true, now(), 0, false),
-                new MusicFolder(2, resolveMusic2FolderPath(), "Music2", true, now(), 1, false));
+        return Arrays
+            .asList(new MusicFolder(1, resolveMusicFolderPath(), "Music", true, now(), 0, false),
+                    new MusicFolder(2, resolveMusic2FolderPath(), "Music2", true, now(), 1, false));
     }
 }

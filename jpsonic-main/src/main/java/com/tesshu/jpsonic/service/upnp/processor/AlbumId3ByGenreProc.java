@@ -49,8 +49,8 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
     private final SearchService searchService;
     private final AlbumDao albumDao;
 
-    public AlbumId3ByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, SettingsService settingsService,
-            SearchService searchService, AlbumDao albumDao) {
+    public AlbumId3ByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            SettingsService settingsService, SearchService searchService, AlbumDao albumDao) {
         super();
         this.util = util;
         this.factory = factory;
@@ -86,15 +86,21 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
 
     @Override
     public Genre getDirectChild(String genreName) {
-        return getDirectChildren(0, Integer.MAX_VALUE).stream().filter(g -> g.getName().equals(genreName)).findFirst()
-                .orElseGet(null);
+        return getDirectChildren(0, Integer.MAX_VALUE)
+            .stream()
+            .filter(g -> g.getName().equals(genreName))
+            .findFirst()
+            .orElseGet(null);
     }
 
     @Override
     public List<GenreAlbum> getChildren(Genre genre, long offset, long maxLength) {
         return searchService
-                .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) maxLength, util.getGuestFolders()).stream()
-                .map(album -> new GenreAlbum(genre, album)).toList();
+            .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) maxLength,
+                    util.getGuestFolders())
+            .stream()
+            .map(album -> new GenreAlbum(genre, album))
+            .toList();
     }
 
     @Override
@@ -108,18 +114,22 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
 
     @Override
     public void addChild(DIDLContent parent, GenreAlbum composite) {
-        parent.addContainer(
-                factory.toAlbumWithGenre(composite, getChildSizeOf(composite.genre().getName(), composite.album())));
+        parent
+            .addContainer(factory
+                .toAlbumWithGenre(composite,
+                        getChildSizeOf(composite.genre().getName(), composite.album())));
     }
 
     @Override
-    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
+    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength)
+            throws ExecutionException {
         final DIDLContent content = new DIDLContent();
         if (GenreAlbum.isCompositeId(id)) {
             String genre = GenreAlbum.parseGenreName(id);
             Album album = albumDao.getAlbum(GenreAlbum.parseAlbumId(id));
-            List<MediaFile> songs = searchService.getChildrenOf(genre, album, (int) offset, (int) maxLength,
-                    util.getGuestFolders(), TYPES);
+            List<MediaFile> songs = searchService
+                .getChildrenOf(genre, album, (int) offset, (int) maxLength, util.getGuestFolders(),
+                        TYPES);
             songs.stream().forEach(song -> content.addItem(factory.toMusicTrack(song)));
             return createBrowseResult(content, songs.size(), getChildSizeOf(genre, album));
         }

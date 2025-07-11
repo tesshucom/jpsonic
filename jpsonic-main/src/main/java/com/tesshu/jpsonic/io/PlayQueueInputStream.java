@@ -66,10 +66,11 @@ public class PlayQueueInputStream extends InputStream {
     private AtomicReference<MediaFile> currentFile;
     private AtomicReference<InputStream> delegate;
 
-    public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
-            VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
-            AudioScrobblerService audioScrobblerService, WritableMediaFileService writableMediaFileService,
-            SearchService searchService, AsyncTaskExecutor executor) {
+    public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate,
+            String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings,
+            TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
+            WritableMediaFileService writableMediaFileService, SearchService searchService,
+            AsyncTaskExecutor executor) {
         super();
         this.player = player;
         this.status = status;
@@ -78,8 +79,9 @@ public class PlayQueueInputStream extends InputStream {
         this.writableMediaFileService = writableMediaFileService;
         this.searchService = searchService;
         this.executor = executor;
-        transParam = transcodingService.getParameters(player.getPlayQueue().getCurrentFile(), player, maxBitRate,
-                preferredTargetFormat, videoTranscodingSettings);
+        transParam = transcodingService
+            .getParameters(player.getPlayQueue().getCurrentFile(), player, maxBitRate,
+                    preferredTargetFormat, videoTranscodingSettings);
     }
 
     @Override
@@ -161,7 +163,8 @@ public class PlayQueueInputStream extends InputStream {
                 try {
                     pqis.delegate = new AtomicReference<>(
                             pqis.transcodingService.getTranscodedInputStream(pqis.transParam));
-                    if (!isEmpty(pqis.delegate) || pqis.player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
+                    if (!isEmpty(pqis.delegate)
+                            || pqis.player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
                         pqis.currentFile = new AtomicReference<>(file);
                         pqis.status.setPathString(pqis.currentFile.get().toPath().toString());
                         return true;
@@ -204,8 +207,8 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     /*
-     * If the closing process performed in this class fails, it can hardly be restored by bubbling to a higher
-     * level(file have been moved, etc?).
+     * If the closing process performed in this class fails, it can hardly be
+     * restored by bubbling to a higher level(file have been moved, etc?).
      */
     private void internalClose() {
         try {
