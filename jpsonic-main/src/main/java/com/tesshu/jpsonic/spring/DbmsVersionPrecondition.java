@@ -33,17 +33,20 @@ public class DbmsVersionPrecondition implements CustomPrecondition {
     private Integer minor;
 
     @Override
-    public void check(Database database) throws CustomPreconditionFailedException, CustomPreconditionErrorException {
+    public void check(Database database)
+            throws CustomPreconditionFailedException, CustomPreconditionErrorException {
         try {
             int dbMajor = database.getDatabaseMajorVersion();
             if (major != null && !major.equals(dbMajor)) {
                 throw new CustomPreconditionFailedException(
-                        "DBMS Major Version Precondition failed: expected " + major + ", got " + dbMajor);
+                        "DBMS Major Version Precondition failed: expected " + major + ", got "
+                                + dbMajor);
             }
             int dbMinor = database.getDatabaseMinorVersion();
             if (minor != null && !minor.equals(dbMinor)) {
                 throw new CustomPreconditionFailedException(
-                        "DBMS Minor Version Precondition failed: expected " + minor + ", got " + dbMinor);
+                        "DBMS Minor Version Precondition failed: expected " + minor + ", got "
+                                + dbMinor);
             }
         } catch (DatabaseException e) {
             throw new CustomPreconditionErrorException("Database version check failed.", e);

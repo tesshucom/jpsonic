@@ -80,11 +80,17 @@ public class PodcastChannelsController {
         }
 
         User user = securityService.getCurrentUserStrict(request);
-        Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channels",
-                channels, "channelMap", channelMap, "newestEpisodes",
-                podcastService.getNewestEpisodes(10).stream().map(PodcastEpisode::new).collect(Collectors.toList()),
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
-                CoverArtScheme.MEDIUM.getSize(), "scanning", scannerStateService.isScanning());
+        Map<String, Object> map = LegacyMap
+            .of("user", securityService.getCurrentUserStrict(request), "channels", channels,
+                    "channelMap", channelMap, "newestEpisodes",
+                    podcastService
+                        .getNewestEpisodes(10)
+                        .stream()
+                        .map(PodcastEpisode::new)
+                        .collect(Collectors.toList()),
+                    "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                    "coverArtSize", CoverArtScheme.MEDIUM.getSize(), "scanning",
+                    scannerStateService.isScanning());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);
@@ -95,13 +101,15 @@ public class PodcastChannelsController {
     public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
 
         public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
-            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
-                    episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
-                    episode.getBytesDownloaded(), episode.getStatus(), episode.getErrorMessage());
+            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
+                    episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
+                    episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
+                    episode.getStatus(), episode.getErrorMessage());
         }
 
         public ZonedDateTime getPublishDateWithZone() {
-            return getPublishDate() == null ? null : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
+            return getPublishDate() == null ? null
+                    : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
         }
     }
 }

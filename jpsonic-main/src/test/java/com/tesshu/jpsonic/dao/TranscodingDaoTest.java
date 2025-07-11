@@ -61,8 +61,8 @@ class TranscodingDaoTest {
 
     @Test
     void testCreateTranscoding() {
-        Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2",
-                "step3", false);
+        Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                "step1", "step2", "step3", false);
         transcodingDao.createTranscoding(transcoding);
 
         Transcoding newTranscoding = transcodingDao.getAllTranscodings().get(0);
@@ -71,8 +71,8 @@ class TranscodingDaoTest {
 
     @Test
     void testUpdateTranscoding() {
-        Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2",
-                "step3", false);
+        Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                "step1", "step2", "step3", false);
         transcodingDao.createTranscoding(transcoding);
         transcoding = transcodingDao.getAllTranscodings().get(0);
 
@@ -91,21 +91,28 @@ class TranscodingDaoTest {
 
     @Test
     void testDeleteTranscoding() {
-        assertEquals(0, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
+        assertEquals(0, transcodingDao.getAllTranscodings().size(),
+                "Wrong number of transcodings.");
 
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
-        assertEquals(1, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", true));
+        assertEquals(1, transcodingDao.getAllTranscodings().size(),
+                "Wrong number of transcodings.");
 
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
-        assertEquals(2, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", true));
+        assertEquals(2, transcodingDao.getAllTranscodings().size(),
+                "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcodingDao.getAllTranscodings().get(0).getId());
-        assertEquals(1, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
+        assertEquals(1, transcodingDao.getAllTranscodings().size(),
+                "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcodingDao.getAllTranscodings().get(0).getId());
-        assertEquals(0, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
+        assertEquals(0, transcodingDao.getAllTranscodings().size(),
+                "Wrong number of transcodings.");
     }
 
     @Test
@@ -113,17 +120,21 @@ class TranscodingDaoTest {
         Player player = new Player();
         playerDao.createPlayer(player);
 
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", false));
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", false));
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", false));
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", false));
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", false));
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", false));
         final Transcoding transcodingA = transcodingDao.getAllTranscodings().get(0);
         final Transcoding transcodingB = transcodingDao.getAllTranscodings().get(1);
         final Transcoding transcodingC = transcodingDao.getAllTranscodings().get(2);
 
-        List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
+        List<Transcoding> activeTranscodings = transcodingDao
+            .getTranscodingsForPlayer(player.getId());
         assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingA.getId());
@@ -131,7 +142,8 @@ class TranscodingDaoTest {
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingA, activeTranscodings.get(0));
 
-        transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingB.getId(), transcodingC.getId());
+        transcodingDao
+            .setTranscodingsForPlayer(player.getId(), transcodingB.getId(), transcodingC.getId());
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals(2, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingB, activeTranscodings.get(0));
@@ -147,12 +159,14 @@ class TranscodingDaoTest {
         Player player = new Player();
         playerDao.createPlayer(player);
 
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", true));
         Transcoding transcoding = transcodingDao.getAllTranscodings().get(0);
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcoding.getId());
-        List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
+        List<Transcoding> activeTranscodings = transcodingDao
+            .getTranscodingsForPlayer(player.getId());
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 
         playerDao.deletePlayer(player.getId());
@@ -165,12 +179,14 @@ class TranscodingDaoTest {
         Player player = new Player();
         playerDao.createPlayer(player);
 
-        transcodingDao.createTranscoding(
-                new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
+        transcodingDao
+            .createTranscoding(new Transcoding(null, "name", "sourceFormats", "targetFormat",
+                    "step1", "step2", "step3", true));
         Transcoding transcoding = transcodingDao.getAllTranscodings().get(0);
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcoding.getId());
-        List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
+        List<Transcoding> activeTranscodings = transcodingDao
+            .getTranscodingsForPlayer(player.getId());
         assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcoding.getId());
@@ -180,7 +196,8 @@ class TranscodingDaoTest {
 
     private void assertTranscodingEquals(Transcoding expected, Transcoding actual) {
         assertEquals(expected.getName(), actual.getName(), "Wrong name.");
-        assertEquals(expected.getSourceFormats(), actual.getSourceFormats(), "Wrong source formats.");
+        assertEquals(expected.getSourceFormats(), actual.getSourceFormats(),
+                "Wrong source formats.");
         assertEquals(expected.getTargetFormat(), actual.getTargetFormat(), "Wrong target format.");
         assertEquals(expected.getStep1(), actual.getStep1(), "Wrong step 1.");
         assertEquals(expected.getStep2(), actual.getStep2(), "Wrong step 2.");

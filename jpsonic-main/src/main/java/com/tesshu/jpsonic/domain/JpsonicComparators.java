@@ -38,8 +38,8 @@ import org.springframework.stereotype.Component;
 /**
  * This class provides Comparator for domain objects.
  * <p>
- * The sorting rules can be changed with some global options and are dynamic. Executed through this class whenever
- * domain objects in the system are sorted.
+ * The sorting rules can be changed with some global options and are dynamic.
+ * Executed through this class whenever domain objects in the system are sorted.
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
@@ -69,8 +69,9 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Album o1, Album o2) {
-                return collator.compare(Objects.toString(o1.getNameReading(), EMPTY),
-                        Objects.toString(o2.getNameReading(), EMPTY));
+                return collator
+                    .compare(Objects.toString(o1.getNameReading(), EMPTY),
+                            Objects.toString(o2.getNameReading(), EMPTY));
             }
         };
     }
@@ -86,8 +87,9 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Artist o1, Artist o2) {
-                return collator.compare(Objects.toString(o1.getReading(), EMPTY),
-                        Objects.toString(o2.getReading(), EMPTY));
+                return collator
+                    .compare(Objects.toString(o1.getReading(), EMPTY),
+                            Objects.toString(o2.getReading(), EMPTY));
             }
         };
     }
@@ -110,47 +112,51 @@ public class JpsonicComparators {
     }
 
     private boolean isSortAlbumsByYear(MediaFile parent) {
-        return settingsService.isSortAlbumsByYear() && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
-        return settingsService.isSortAlbumsByYear() && (isEmpty(artist)
-                || !(settingsService.isProhibitSortVarious() && StringUtils.startsWithIgnoreCase(artist, "various")));
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
+                        && StringUtils.startsWithIgnoreCase(artist, "various")));
     }
 
     /**
-     * Returns the comparator that changes the sorting rules by hierarchy. Mainly used when expanding files. The result
-     * is affected by the global settings related to sorting.
+     * Returns the comparator that changes the sorting rules by hierarchy. Mainly
+     * used when expanding files. The result is affected by the global settings
+     * related to sorting.
      *
-     * @param parent
-     *            The common parent of the list to sort. Null for hierarchy-independent or top-level sorting.
+     * @param parent The common parent of the list to sort. Null for
+     *               hierarchy-independent or top-level sorting.
      */
     public MediaFileComparator mediaFileOrder(@Nullable MediaFile parent) {
         return new JpMediaFileComparator(isSortAlbumsByYear(parent), createCollator());
     }
 
     /**
-     * Returns a comparator for sorting MediaFiles by specifying a field regardless of MediaType.
+     * Returns a comparator for sorting MediaFiles by specifying a field regardless
+     * of MediaType.
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return (a, b) -> {
             switch (orderBy) {
-                case TRACK:
-                    Integer trackA = a.getTrackNumber();
-                    Integer trackB = b.getTrackNumber();
-                    if (trackA == null) {
-                        trackA = 0;
-                    }
-                    if (trackB == null) {
-                        trackB = 0;
-                    }
-                    return trackA.compareTo(trackB);
-                case ARTIST:
-                    return createCollator().compare(a.getArtistReading(), b.getArtistReading());
-                case ALBUM:
-                    return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
-                default:
-                    return 0;
+            case TRACK:
+                Integer trackA = a.getTrackNumber();
+                Integer trackB = b.getTrackNumber();
+                if (trackA == null) {
+                    trackA = 0;
+                }
+                if (trackB == null) {
+                    trackB = 0;
+                }
+                return trackA.compareTo(trackB);
+            case ARTIST:
+                return createCollator().compare(a.getArtistReading(), b.getArtistReading());
+            case ALBUM:
+                return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
+            default:
+                return 0;
             }
         };
     }
@@ -193,9 +199,10 @@ public class JpsonicComparators {
     }
 
     /**
-     * Returns a comparator for dictionary order sorting MediaFiles with different MediaTypes. Ignores some of the
-     * global settings related to sorting, and sorts naturally based on Type and name. It is mainly used for order index
-     * during scanning.
+     * Returns a comparator for dictionary order sorting MediaFiles with different
+     * MediaTypes. Ignores some of the global settings related to sorting, and sorts
+     * naturally based on Type and name. It is mainly used for order index during
+     * scanning.
      *
      * @return Comparator
      */

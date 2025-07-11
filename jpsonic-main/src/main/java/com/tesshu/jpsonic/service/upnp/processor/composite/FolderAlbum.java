@@ -37,7 +37,8 @@ public record FolderAlbum(MusicFolder folder, Album album) implements CompositeM
     }
 
     public static int parseFolderId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
+        return Integer
+            .parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
     public static int parseAlbumId(String compositeId) {

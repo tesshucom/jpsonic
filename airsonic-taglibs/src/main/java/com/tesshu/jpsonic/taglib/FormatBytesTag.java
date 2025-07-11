@@ -32,7 +32,8 @@ import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
- * Converts a byte-count to a formatted string suitable for display to the user, with respect to the current locale.
+ * Converts a byte-count to a formatted string suitable for display to the user,
+ * with respect to the current locale.
  * <p/>
  * For instance:
  * <ul>
@@ -56,7 +57,8 @@ public class FormatBytesTag extends BodyTagSupport {
 
     @Override
     public int doEndTag() throws JspException {
-        Locale locale = RequestContextUtils.getLocale((HttpServletRequest) pageContext.getRequest());
+        Locale locale = RequestContextUtils
+            .getLocale((HttpServletRequest) pageContext.getRequest());
         String result = StringUtilBase.formatBytes(bytes, locale);
 
         try {

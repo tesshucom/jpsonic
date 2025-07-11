@@ -55,7 +55,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class VideoPlayerController {
 
     public static final int DEFAULT_BIT_RATE = 2000;
-    private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
+    private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000,
+            5000 };
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -73,10 +74,11 @@ public class VideoPlayerController {
 
     @GetMapping
     @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. Header value is used to make Proxy transparent.")
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile file = mediaFileService.getMediaFileStrict(id);
         MediaFile parentDir = mediaFileService.getParentOf(file);
 
@@ -90,7 +92,8 @@ public class VideoPlayerController {
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
         String url = NetworkUtils.getBaseUrl(request);
-        String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
+        String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId
+                + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 

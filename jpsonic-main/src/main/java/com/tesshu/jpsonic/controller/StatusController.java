@@ -74,20 +74,28 @@ public class StatusController {
         for (int i = 0; i < streamStatuses.size(); i++) {
             long minutesAgo = streamStatuses.get(i).getMillisSinceLastUpdate() / 1000L / 60L;
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
-                transferStatuses.add(new TransferStatusHolder(streamStatuses.get(i), true, false, false, i, locale));
+                transferStatuses
+                    .add(new TransferStatusHolder(streamStatuses.get(i), true, false, false, i,
+                            locale));
             }
         }
         for (int i = 0; i < downloadStatuses.size(); i++) {
-            transferStatuses.add(new TransferStatusHolder(downloadStatuses.get(i), false, true, false, i, locale));
+            transferStatuses
+                .add(new TransferStatusHolder(downloadStatuses.get(i), false, true, false, i,
+                        locale));
         }
         for (int i = 0; i < uploadStatuses.size(); i++) {
-            transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
+            transferStatuses
+                .add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i,
+                        locale));
         }
-        return new ModelAndView("status", "model",
-                LegacyMap.of("brand", SettingsService.getBrand(), "admin",
-                        securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()),
-                        "transferStatuses", transferStatuses, "chartWidth", StatusChartController.IMAGE_WIDTH,
-                        "chartHeight", StatusChartController.IMAGE_HEIGHT));
+        return new ModelAndView("status", "model", LegacyMap
+            .of("brand", SettingsService.getBrand(), "admin",
+                    securityService
+                        .isAdmin(securityService.getCurrentUserStrict(request).getUsername()),
+                    "transferStatuses", transferStatuses, "chartWidth",
+                    StatusChartController.IMAGE_WIDTH, "chartHeight",
+                    StatusChartController.IMAGE_HEIGHT));
     }
 
     public static class TransferStatusHolder {
@@ -98,8 +106,8 @@ public class StatusController {
         private final int index;
         private final Locale locale;
 
-        TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
-                int index, Locale locale) {
+        TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload,
+                boolean isUpload, int index, Locale locale) {
             this.transferStatus = transferStatus;
             this.stream = isStream;
             this.download = isDownload;

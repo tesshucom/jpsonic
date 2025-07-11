@@ -52,7 +52,8 @@ class IndexProcTest2 {
     class MessyFileStructureTest extends AbstractNeedsScan {
 
         private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,
-                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(), 1, false);
+                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(),
+                1, false);
 
         @Autowired
         private IndexProc indexProc;
@@ -97,7 +98,8 @@ class IndexProcTest2 {
             // Including Album**
             assertTrue(indexOrSongs.get(0).isMusicIndex());
             assertEquals("A", indexOrSongs.get(0).getMusicIndex().getIndex());
-            List<MediaFile> mediaFiles = indexProc.getChildren(indexOrSongs.get(0), 0, Integer.MAX_VALUE);
+            List<MediaFile> mediaFiles = indexProc
+                .getChildren(indexOrSongs.get(0), 0, Integer.MAX_VALUE);
             assertEquals(1, mediaFiles.size());
             assertEquals("Album1", mediaFiles.get(0).getName());
 
@@ -124,7 +126,8 @@ class IndexProcTest2 {
 
             // Including Album**
             assertTrue(indexOrSongs.get(0).isMusicIndex());
-            List<MediaFile> mediaFiles = indexProc.getChildren(indexOrSongs.get(0), 0, Integer.MAX_VALUE);
+            List<MediaFile> mediaFiles = indexProc
+                .getChildren(indexOrSongs.get(0), 0, Integer.MAX_VALUE);
             assertEquals(1, mediaFiles.size());
             assertEquals(1, indexProc.getChildSizeOf(indexOrSongs.get(0)));
 

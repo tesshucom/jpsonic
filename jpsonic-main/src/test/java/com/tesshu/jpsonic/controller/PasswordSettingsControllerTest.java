@@ -52,15 +52,18 @@ class PasswordSettingsControllerTest {
     public void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new PasswordSettingsController(securityService, new PasswordSettingsValidator()))
-                .build();
+            .standaloneSetup(new PasswordSettingsController(securityService,
+                    new PasswordSettingsValidator()))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
@@ -71,13 +74,16 @@ class PasswordSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testPost() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
-        PasswordSettingsCommand command = (PasswordSettingsCommand) modelAndView.getModelMap()
-                .get(Attributes.Model.Command.VALUE);
+        PasswordSettingsCommand command = (PasswordSettingsCommand) modelAndView
+            .getModelMap()
+            .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
         String newPass = "newPass";
@@ -88,11 +94,16 @@ class PasswordSettingsControllerTest {
         Mockito.when(securityService.getUserByNameStrict(command.getUsername())).thenReturn(user);
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         ArgumentCaptor<String> passCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.doNothing().when(securityService).updatePassword(userCaptor.capture(), passCaptor.capture(),
-                Mockito.anyBoolean());
+        Mockito
+            .doNothing()
+            .when(securityService)
+            .updatePassword(userCaptor.capture(), passCaptor.capture(), Mockito.anyBoolean());
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/passwordSettings.view").flashAttr(Attributes.Model.Command.VALUE,
-                command)).andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .post("/passwordSettings.view")
+                .flashAttr(Attributes.Model.Command.VALUE, command))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
 
         assertEquals(user, userCaptor.getValue());
         assertEquals(newPass, passCaptor.getValue());

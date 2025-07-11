@@ -48,12 +48,14 @@ public class RatingDao {
         template = templateWrapper;
     }
 
-    public List<String> getHighestRatedAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<String> getHighestRatedAlbums(final int offset, final int count,
+            final List<MusicFolder> musicFolders) {
         if (count < 1 || musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
+        Map<String, Object> args = LegacyMap
+            .of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                    MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
         String sql = """
                 select user_rating.path
                 from user_rating, media_file
@@ -76,7 +78,9 @@ public class RatingDao {
                 where username=? and path=?
                 """, username, mediaFile.getPathString());
         if (rating != null) {
-            template.update("insert into user_rating values(?, ?, ?)", username, mediaFile.getPathString(), rating);
+            template
+                .update("insert into user_rating values(?, ?, ?)", username,
+                        mediaFile.getPathString(), rating);
         }
     }
 
@@ -108,8 +112,9 @@ public class RatingDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(musicFolders), "username", username);
+        Map<String, Object> args = LegacyMap
+            .of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                    MusicFolder.toPathList(musicFolders), "username", username);
         return template.namedQueryForInt("""
                 select count(*) from user_rating, media_file
                 where media_file.path = user_rating.path

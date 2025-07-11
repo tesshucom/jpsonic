@@ -38,8 +38,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
- * A class that holds the scan progress. It is generally said that services should not have state. Now they are
- * aggregated in this class.
+ * A class that holds the scan progress. It is generally said that services
+ * should not have state. Now they are aggregated in this class.
  */
 @Primary
 @Service("scannerStateService")

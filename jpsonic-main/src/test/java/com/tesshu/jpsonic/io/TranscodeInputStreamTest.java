@@ -45,12 +45,14 @@ class TranscodeInputStreamTest {
         private Path tempFile;
 
         @BeforeEach
-        public void setup(@TempDir Path tempDir) throws ExecutionException, IOException, URISyntaxException {
+        public void setup(@TempDir Path tempDir)
+                throws ExecutionException, IOException, URISyntaxException {
             this.tempDir = tempDir;
             tempFile = Path.of(tempDir.toString(), "jpsonic.log");
             if (!Files.exists(tempFile)) {
                 tempFile = Files.createFile(tempFile);
-                Path dummySource = Path.of(TranscodeInputStreamTest.class.getResource("/banner.txt").toURI());
+                Path dummySource = Path
+                    .of(TranscodeInputStreamTest.class.getResource("/banner.txt").toURI());
                 Files.copy(dummySource, tempFile, StandardCopyOption.REPLACE_EXISTING);
             }
         }

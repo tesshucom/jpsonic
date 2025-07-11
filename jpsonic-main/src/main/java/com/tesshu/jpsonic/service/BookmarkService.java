@@ -38,8 +38,12 @@ public class BookmarkService {
     }
 
     public Bookmark getBookmarkForUserAndMediaFile(String username, MediaFile mediaFile) {
-        return dao.getBookmarks(username).stream().filter(bookmark -> mediaFile.getId() == bookmark.getMediaFileId())
-                .findFirst().orElse(null);
+        return dao
+            .getBookmarks(username)
+            .stream()
+            .filter(bookmark -> mediaFile.getId() == bookmark.getMediaFileId())
+            .findFirst()
+            .orElse(null);
     }
 
     public void createOrUpdateBookmark(Bookmark bookmark) {

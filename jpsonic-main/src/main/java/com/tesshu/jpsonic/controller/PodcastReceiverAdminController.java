@@ -51,7 +51,8 @@ public class PodcastReceiverAdminController {
     private final PodcastService podcastService;
     private final ScannerStateService scannerStateService;
 
-    public PodcastReceiverAdminController(PodcastService podcastService, ScannerStateService scannerStateService) {
+    public PodcastReceiverAdminController(PodcastService podcastService,
+            ScannerStateService scannerStateService) {
         super();
         this.podcastService = podcastService;
         this.scannerStateService = scannerStateService;
@@ -64,7 +65,8 @@ public class PodcastReceiverAdminController {
             return createModelAndView();
         }
 
-        final Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.CHANNEL_ID.value());
+        final Integer channelId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.CHANNEL_ID.value());
         if (!isEmpty(request.getParameter(Attributes.Request.REFRESH.value()))) {
             if (channelId == null) {
                 podcastService.refreshAllChannels(true);
@@ -84,13 +86,15 @@ public class PodcastReceiverAdminController {
             return createRedirect(channelId);
         }
 
-        String downloadEpisodeIds = request.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value());
+        String downloadEpisodeIds = request
+            .getParameter(Attributes.Request.DOWNLOAD_EPISODE.value());
         if (!isEmpty(downloadEpisodeIds)) {
             download(StringUtil.parseInts(downloadEpisodeIds));
             return createRedirect(channelId);
         }
 
-        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value())) && channelId != null) {
+        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
+                && channelId != null) {
             podcastService.deleteChannel(channelId);
         }
 
@@ -111,8 +115,8 @@ public class PodcastReceiverAdminController {
     }
 
     private ModelAndView createRedirect(Integer channelId) {
-        return new ModelAndView(new RedirectView(
-                ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
+        return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?"
+                + Attributes.Request.ID.value() + "=" + channelId));
     }
 
     private boolean deleteEpisode(String deleteEpisodeId) {
@@ -129,8 +133,10 @@ public class PodcastReceiverAdminController {
     private void download(int... episodeIds) {
         for (int episodeId : episodeIds) {
             PodcastEpisode episode = podcastService.getEpisode(episodeId, false);
-            if (episode != null && episode.getUrl() != null && (episode.getStatus() == PodcastStatus.NEW
-                    || episode.getStatus() == PodcastStatus.ERROR || episode.getStatus() == PodcastStatus.SKIPPED)) {
+            if (episode != null && episode.getUrl() != null
+                    && (episode.getStatus() == PodcastStatus.NEW
+                            || episode.getStatus() == PodcastStatus.ERROR
+                            || episode.getStatus() == PodcastStatus.SKIPPED)) {
                 podcastService.downloadEpisode(episode);
             }
         }

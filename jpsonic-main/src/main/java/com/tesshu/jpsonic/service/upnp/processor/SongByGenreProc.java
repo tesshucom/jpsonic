@@ -46,8 +46,8 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
     private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public SongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            SearchService searchService) {
+    public SongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util,
+            UpnpDIDLFactory factory, SearchService searchService) {
         super();
         this.settingsService = settingsService;
         this.util = util;
@@ -82,13 +82,19 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService.getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE).stream()
-                .filter(genre -> genre.getName().equals(id)).findFirst().orElse(null);
+        return searchService
+            .getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE)
+            .stream()
+            .filter(genre -> genre.getName().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getGuestFolders());
+        return searchService
+            .getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
+                    util.getGuestFolders());
     }
 
     @Override

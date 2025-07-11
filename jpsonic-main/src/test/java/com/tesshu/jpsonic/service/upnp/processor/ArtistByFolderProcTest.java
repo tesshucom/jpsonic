@@ -66,8 +66,9 @@ class ArtistByFolderProcTest {
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);
         SettingsService settingsService = mock(SettingsService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
-                mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+                mock(JWTSecurityService.class), mock(MediaFileService.class),
+                mock(PlayerService.class), mock(TranscodingService.class));
         folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);
         proc = new ArtistByFolderProc(util, factory, artistDao, albumDao, folderOrArtistProc);
     }
@@ -87,18 +88,22 @@ class ArtistByFolderProcTest {
         MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
         FolderArtist folderArtist = new FolderArtist(folder, artist);
         assertEquals(0, proc.getChildren(new FolderOrFArtist(folderArtist), 0, 2).size());
-        Mockito.verify(albumDao, Mockito.times(1)).getAlbumsForArtist(anyLong(), anyLong(), anyString(), anyBoolean(),
-                anyList());
+        Mockito
+            .verify(albumDao, Mockito.times(1))
+            .getAlbumsForArtist(anyLong(), anyLong(), anyString(), anyBoolean(), anyList());
     }
 
     @Test
     void testGetChildrenWithFolder() {
         MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
-        Mockito.when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder> anyList()))
-                .thenReturn(Arrays.asList(new Artist()));
+        Mockito
+            .when(artistDao
+                .getAlphabetialArtists(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList()))
+            .thenReturn(Arrays.asList(new Artist()));
         assertEquals(1, proc.getChildren(new FolderOrFArtist(folder), 0, 2).size());
-        Mockito.verify(artistDao, Mockito.times(1)).getAlphabetialArtists(anyInt(), anyInt(),
-                ArgumentMatchers.<MusicFolder> anyList());
+        Mockito
+            .verify(artistDao, Mockito.times(1))
+            .getAlphabetialArtists(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
     }
 
     @Test
@@ -117,7 +122,8 @@ class ArtistByFolderProcTest {
         content = new DIDLContent();
         Album album = new Album();
         artistOrAlbum = new ArtistOrAlbum(album);
-        proc = new ArtistByFolderProc(util, mock(UpnpDIDLFactory.class), artistDao, albumDao, folderOrArtistProc);
+        proc = new ArtistByFolderProc(util, mock(UpnpDIDLFactory.class), artistDao, albumDao,
+                folderOrArtistProc);
         assertEquals(0, content.getItems().size());
         proc.addChild(content, artistOrAlbum);
         assertEquals(1, content.getContainers().size());

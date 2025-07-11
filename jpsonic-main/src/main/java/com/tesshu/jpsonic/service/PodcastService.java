@@ -16,8 +16,7 @@ public interface PodcastService {
     /**
      * Creates a new Podcast channel.
      *
-     * @param url
-     *            The URL of the Podcast channel.
+     * @param url The URL of the Podcast channel.
      */
     void createChannel(String url);
 
@@ -37,19 +36,18 @@ public interface PodcastService {
     /**
      * Returns all Podcast episodes for a given channel.
      *
-     * @param channelId
-     *            The Podcast channel ID.
+     * @param channelId The Podcast channel ID.
      *
-     * @return Possibly empty list of all Podcast episodes for the given channel, sorted in reverse chronological order
-     *         (newest episode first).
+     * @return Possibly empty list of all Podcast episodes for the given channel,
+     *         sorted in reverse chronological order (newest episode first).
      */
     List<PodcastEpisode> getEpisodes(int channelId);
 
     /**
      * Returns the N newest episodes.
      *
-     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse chronological order (newest episode
-     *         first).
+     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse
+     *         chronological order (newest episode first).
      */
     List<PodcastEpisode> getNewestEpisodes(int count);
 
@@ -66,18 +64,16 @@ public interface PodcastService {
     /**
      * Deletes the Podcast channel with the given ID.
      *
-     * @param channelId
-     *            The Podcast channel ID.
+     * @param channelId The Podcast channel ID.
      */
     void deleteChannel(int channelId);
 
     /**
      * Deletes the Podcast episode with the given ID.
      *
-     * @param episodeId
-     *            The Podcast episode ID.
-     * @param logicalDelete
-     *            Whether to perform a logical delete by setting the episode status to {@link PodcastStatus#DELETED}.
+     * @param episodeId     The Podcast episode ID.
+     * @param logicalDelete Whether to perform a logical delete by setting the
+     *                      episode status to {@link PodcastStatus#DELETED}.
      */
     void deleteEpisode(int episodeId, boolean logicalDelete);
 

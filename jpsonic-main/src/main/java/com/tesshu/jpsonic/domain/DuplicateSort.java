@@ -22,7 +22,8 @@ package com.tesshu.jpsonic.domain;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * An interface that represents record whose cardinality of Name and Sort is 1:n in the Repository.
+ * An interface that represents record whose cardinality of Name and Sort is 1:n
+ * in the Repository.
  */
 public interface DuplicateSort {
 

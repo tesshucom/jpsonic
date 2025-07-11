@@ -70,8 +70,9 @@ public class PersonalSettingsController {
     private final AvatarService avatarService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PersonalSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, AvatarService avatarService, OutlineHelpSelector outlineHelpSelector) {
+    public PersonalSettingsController(SettingsService settingsService,
+            SecurityService securityService, ShareService shareService, AvatarService avatarService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -92,10 +93,19 @@ public class PersonalSettingsController {
 
         // - Default language
         command.setLocaleIndex("-1");
-        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
-                .findFirst().ifPresent(locale -> command
-                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
-        command.setLocales(settingsService.getAvailableLocales().stream().map(Locale::getDisplayName)
+        settingsService
+            .getAvailableLocales()
+            .stream()
+            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .findFirst()
+            .ifPresent(locale -> command
+                .setLocaleIndex(
+                        String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command
+            .setLocales(settingsService
+                .getAvailableLocales()
+                .stream()
+                .map(Locale::getDisplayName)
                 .collect(Collectors.toList()));
 
         // - Theme
@@ -103,14 +113,19 @@ public class PersonalSettingsController {
         command.setThemeIndex("-1");
         List<Theme> themes = SettingsService.getAvailableThemes();
         command.setThemes(themes);
-        themes.stream().filter(theme -> theme.getId().equals(userSettings.getThemeId())).findFirst()
-                .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
+        themes
+            .stream()
+            .filter(theme -> theme.getId().equals(userSettings.getThemeId()))
+            .findFirst()
+            .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
 
         // - Font
         WebFontUtils.setToCommand(userSettings, command);
         command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
-        command.setFontFamilyJpEmbedDefault(
-                WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
+        command
+            .setFontFamilyJpEmbedDefault(WebFontUtils.JP_FONT_NAME
+                .concat(", ")
+                .concat(WebFontUtils.DEFAULT_FONT_FAMILY));
         command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
         command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
 
@@ -140,20 +155,29 @@ public class PersonalSettingsController {
         // Additional display features
         command.setSongNotificationEnabled(userSettings.isSongNotificationEnabled());
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
-        command.setSpeechToTextLangScheme(SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
+        command
+            .setSpeechToTextLangScheme(
+                    SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
-            command.setIetf(SupportableBCP47
-                    .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale() : userSettings.getLocale())
+            command
+                .setIetf(SupportableBCP47
+                    .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale()
+                            : userSettings.getLocale())
                     .getValue());
         } else {
             command.setIetf(userSettings.getIetf());
         }
         if (isEmpty(userSettings.getLocale())) {
-            command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
-            command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
+            command
+                .setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
+            command
+                .setIetfDisplayDefault(
+                        settingsService.getLocale().getDisplayName(settingsService.getLocale()));
         } else {
             command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
-            command.setIetfDisplayDefault(userSettings.getLocale().getDisplayName(userSettings.getLocale()));
+            command
+                .setIetfDisplayDefault(
+                        userSettings.getLocale().getDisplayName(userSettings.getLocale()));
         }
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
@@ -189,11 +213,13 @@ public class PersonalSettingsController {
         command.setLastFmPassword(userSettings.getLastFmPassword());
 
         // Update notification
-        command.setFinalVersionNotificationEnabled(userSettings.isFinalVersionNotificationEnabled());
+        command
+            .setFinalVersionNotificationEnabled(userSettings.isFinalVersionNotificationEnabled());
         command.setBetaVersionNotificationEnabled(userSettings.isBetaVersionNotificationEnabled());
 
         // for view page control
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsService.isUseRadio());
@@ -261,7 +287,8 @@ public class PersonalSettingsController {
         settings.setSpeechLangSchemeName(command.getSpeechToTextLangScheme().name());
         if (SpeechToTextLangScheme.DEFAULT == command.getSpeechToTextLangScheme()) {
             settings.setIetf(SupportableBCP47.valueOf(locale).getValue());
-        } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
+        } else if (StringUtils.isNotBlank(command.getIetf())
+                && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
@@ -312,7 +339,8 @@ public class PersonalSettingsController {
 
     private int getAvatarId(UserSettings userSettings) {
         AvatarScheme avatarScheme = userSettings.getAvatarScheme();
-        return avatarScheme == AvatarScheme.SYSTEM ? userSettings.getSystemAvatarId() : avatarScheme.getCode();
+        return avatarScheme == AvatarScheme.SYSTEM ? userSettings.getSystemAvatarId()
+                : avatarScheme.getCode();
     }
 
     private AvatarScheme getAvatarScheme(PersonalSettingsCommand command) {

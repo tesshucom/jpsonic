@@ -53,20 +53,29 @@ class UploadEntryControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException {
-        List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, Path.of(UploadEntryControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
-                        "MEDIAS", true, now(), 1, false));
+        List<MusicFolder> musicFolders = Arrays
+            .asList(new MusicFolder(1,
+                    Path
+                        .of(UploadEntryControllerTest.class.getResource("/MEDIAS").toURI())
+                        .toString(),
+                    "MEDIAS", true, now(), 1, false));
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
-        mockMvc = MockMvcBuilders.standaloneSetup(new UploadEntryController(musicFolderService,
-                mock(SecurityService.class), mock(ScannerStateServiceImpl.class))).build();
+        Mockito
+            .when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(musicFolders);
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new UploadEntryController(musicFolderService,
+                    mock(SecurityService.class), mock(ScannerStateServiceImpl.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequestInternal() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/uploadEntry.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/uploadEntry.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("uploadEntry", modelAndView.getViewName());

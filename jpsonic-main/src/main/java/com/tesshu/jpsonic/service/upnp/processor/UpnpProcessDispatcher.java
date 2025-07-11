@@ -20,14 +20,16 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 /**
- * Interface for searching UPnPContentProcessor. Each UPnPContentProcessor will need to hold the ID defined here and be
- * able to identify. This Dispatcher will only be used at the Top Level hierarchy in the UPnP ContentDirectory.
+ * Interface for searching UPnPContentProcessor. Each UPnPContentProcessor will
+ * need to hold the ID defined here and be able to identify. This Dispatcher
+ * will only be used at the Top Level hierarchy in the UPnP ContentDirectory.
  */
 public interface UpnpProcessDispatcher {
 
     /**
-     * Returns the UPnPContentProcessor specified by ID. This method is used only at the top level of a UPnP
-     * ContentDirectory. Do not use it anywhere else to avoid circular references.
+     * Returns the UPnPContentProcessor specified by ID. This method is used only at
+     * the top level of a UPnP ContentDirectory. Do not use it anywhere else to
+     * avoid circular references.
      */
     UPnPContentProcessor<?, ?> findProcessor(ProcId id);
 }

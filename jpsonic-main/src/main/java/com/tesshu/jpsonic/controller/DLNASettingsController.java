@@ -81,7 +81,7 @@ public class DLNASettingsController {
     private static final int DLNA_RANDOM_DEFAULT = 50;
     private static final int DLNA_RANDOM_LIMIT = 1999;
     private static final Pattern IPV4_STR = Pattern
-            .compile("^(([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])\\.){3}([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])$");
+        .compile("^(([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])\\.){3}([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])$");
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -93,8 +93,9 @@ public class DLNASettingsController {
     private final MenuItemService menuItemService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public DLNASettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService, TranscodingService transcodingService,
+    public DLNASettingsController(SettingsService settingsService,
+            MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, TranscodingService transcodingService,
             UPnPService upnpService, ShareService shareService, MenuItemService menuItemService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
@@ -125,12 +126,20 @@ public class DLNASettingsController {
         command.setDlnaBaseLANURL(settingsService.getDlnaBaseLANURL());
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         User guestUser = securityService.getGuestUser();
-        command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
-                .mapToInt(MusicFolder::getId).toArray());
+        command
+            .setAllowedMusicFolderIds(musicFolderService
+                .getMusicFoldersForUser(guestUser.getUsername())
+                .stream()
+                .mapToInt(MusicFolder::getId)
+                .toArray());
         command.setAllTranscodings(transcodingService.getAllTranscodings());
         Player guestPlayer = playerService.getUPnPPlayer();
-        command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(guestPlayer).stream()
-                .mapToInt(Transcoding::getId).toArray());
+        command
+            .setActiveTranscodingIds(transcodingService
+                .getTranscodingsForPlayer(guestPlayer)
+                .stream()
+                .mapToInt(Transcoding::getId)
+                .toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setDlnaDefaultFilteredIp(SettingsService.getDlnaDefaultFilteredIp());
@@ -143,24 +152,33 @@ public class DLNASettingsController {
         command.setTopMenuItems(topMenuItems);
 
         // Menu detail settings
-        command.setTopMenuEnableds(
-                topMenuItems.stream().collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
+        command
+            .setTopMenuEnableds(topMenuItems
+                .stream()
+                .collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
         List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
         command.setSubMenuItems(subMenuItems);
 
         Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
         topMenuItems.stream().map(MenuItem::getId).forEach(topMenuItemId -> {
-            int count = (int) subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
-                    .count();
-            subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId).findFirst().ifPresent(
-                    firstChild -> subMenuItemRowInfos.put(topMenuItemId, new SubMenuItemRowInfo(firstChild, count)));
+            int count = (int) subMenuItems
+                .stream()
+                .filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
+                .count();
+            subMenuItems
+                .stream()
+                .filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
+                .findFirst()
+                .ifPresent(firstChild -> subMenuItemRowInfos
+                    .put(topMenuItemId, new SubMenuItemRowInfo(firstChild, count)));
         });
         command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control
         command.setAvairableAlbumGenreSort(Arrays.asList(Sort.values()));
         command.setAlbumGenreSort(Sort.of(settingsService.getUPnPAlbumGenreSort()));
-        command.setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
+        command
+            .setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
         command.setSongGenreSort(Sort.of(settingsService.getUPnPSongGenreSort()));
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
@@ -171,7 +189,8 @@ public class DLNASettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsService.isUseRadio());
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -182,7 +201,8 @@ public class DLNASettingsController {
     }
 
     @PostMapping
-    public ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
+    public ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         final boolean enabledChanged = settingsService.isDlnaEnabled() != command.isDlnaEnabled();
@@ -201,23 +221,28 @@ public class DLNASettingsController {
         // UPnP basic settings
         settingsService.setDlnaEnabled(command.isDlnaEnabled());
         settingsService
-                .setDlnaServerName(StringUtils.defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
+            .setDlnaServerName(StringUtils
+                .defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
         settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
         settingsService.setDlnaEnabledFilteredIp(command.isDlnaEnabledFilteredIp());
         String filteredIp = command.getDlnaFilteredIp();
-        settingsService.setDlnaFilteredIp(filteredIp != null && IPV4_STR.matcher(filteredIp).matches() ? filteredIp
-                : SettingsService.getDlnaDefaultFilteredIp());
+        settingsService
+            .setDlnaFilteredIp(
+                    filteredIp != null && IPV4_STR.matcher(filteredIp).matches() ? filteredIp
+                            : SettingsService.getDlnaDefaultFilteredIp());
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         // Display options / Access control
         settingsService.setUPnPAlbumGenreSort(command.getAlbumGenreSort().name());
         settingsService.setUPnPSongGenreSort(command.getSongGenreSort().name());
-        final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
-                .collect(Collectors.toList());
+        final List<Integer> allowedIds = Arrays
+            .stream(command.getAllowedMusicFolderIds())
+            .boxed()
+            .collect(Collectors.toList());
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
-        int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
-                ? DLNA_RANDOM_DEFAULT
-                : command.getDlnaRandomMax();
+        int randomMax = Objects.isNull(command.getDlnaRandomMax())
+                || command.getDlnaRandomMax() == 0 ? DLNA_RANDOM_DEFAULT
+                        : command.getDlnaRandomMax();
         settingsService.setDlnaRandomMax(Math.min(randomMax, DLNA_RANDOM_LIMIT));
 
         settingsService.save();
@@ -243,11 +268,13 @@ public class DLNASettingsController {
 
         // Menu detail settings
         menuItemService
-                .updateMenuItems(Stream.concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()));
+            .updateMenuItems(Stream
+                .concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()));
 
         /*
-         * Service reboot: If some properties are changed, UPnP will be restarted. (Do not restart if the settings
-         * related to the contents that can be changed dynamically are changed.)
+         * Service reboot: If some properties are changed, UPnP will be restarted. (Do
+         * not restart if the settings related to the contents that can be changed
+         * dynamically are changed.)
          */
 
         if (enabledChanged) {

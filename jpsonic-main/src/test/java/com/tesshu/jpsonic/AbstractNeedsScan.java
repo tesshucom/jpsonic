@@ -60,8 +60,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);
 
     /*
-     * Currently, Maven is executing test classes in series, so this class can hold the state. When executing in
-     * parallel, subclasses should override this.
+     * Currently, Maven is executing test classes in series, so this class can hold
+     * the state. When executing in parallel, subclasses should override this.
      */
     private static final AtomicBoolean DATA_BASE_POPULATED = new AtomicBoolean();
 
@@ -93,8 +93,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService, procedure,
-                expungeService, staticsDao, scanExecutor);
+        mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+                procedure, expungeService, staticsDao, scanExecutor);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {
@@ -104,7 +104,9 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     }
 
     protected static final String resolveBaseMediaPath(String childPath) {
-        return Path.of(MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath)).toString();
+        return Path
+            .of(MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath))
+            .toString();
     }
 
     @Override
@@ -214,12 +216,16 @@ public abstract class AbstractNeedsScan implements NeedsScan {
             LOG.debug("--- Report of records count per table ---");
         }
         Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-        records.keySet().stream().filter(s -> "MEDIA_FILE".equals(s) | "ARTIST".equals(s) | "MUSIC_FOLDER".equals(s)
-                | "ALBUM".equals(s) | "GENRE".equals(s)).forEach(tableName -> {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
-                    }
-                });
+        records
+            .keySet()
+            .stream()
+            .filter(s -> "MEDIA_FILE".equals(s) | "ARTIST".equals(s) | "MUSIC_FOLDER".equals(s)
+                    | "ALBUM".equals(s) | "GENRE".equals(s))
+            .forEach(tableName -> {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
+                }
+            });
         if (LOG.isDebugEnabled()) {
             LOG.debug("--- *********************** ---");
         }

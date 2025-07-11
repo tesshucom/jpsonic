@@ -59,7 +59,8 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.InstantiationToGetClass" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
+        "PMD.InstantiationToGetClass" })
 class MediaFileByFolderProcTest {
 
     @Nested
@@ -87,17 +88,21 @@ class MediaFileByFolderProcTest {
         void testCreateContainer() {
             MediaFile entity = new MediaFile();
             entity.setMediaType(MediaType.MUSIC);
-            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> proc.createContainer(entity))
-                    .withNoCause();
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> proc.createContainer(entity))
+                .withNoCause();
             entity.setMediaType(MediaType.VIDEO);
-            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> proc.createContainer(entity))
-                    .withNoCause();
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> proc.createContainer(entity))
+                .withNoCause();
             entity.setMediaType(MediaType.AUDIOBOOK);
-            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> proc.createContainer(entity))
-                    .withNoCause();
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> proc.createContainer(entity))
+                .withNoCause();
             entity.setMediaType(MediaType.PODCAST);
-            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> proc.createContainer(entity))
-                    .withNoCause();
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> proc.createContainer(entity))
+                .withNoCause();
 
             clearInvocations(factory);
             entity.setMediaType(MediaType.ALBUM);
@@ -107,7 +112,8 @@ class MediaFileByFolderProcTest {
             clearInvocations(factory);
             entity.setMediaType(MediaType.DIRECTORY);
             proc.createContainer(entity);
-            verify(factory, times(1)).toMusicFolder(any(ProcId.class), any(MediaFile.class), anyInt());
+            verify(factory, times(1))
+                .toMusicFolder(any(ProcId.class), any(MediaFile.class), anyInt());
 
             clearInvocations(factory);
             entity.setArtist("artist");
@@ -137,7 +143,8 @@ class MediaFileByFolderProcTest {
         @Nested
         class GetGetDirectChildrenTest {
 
-            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
+            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null,
+                    false);
             private final MediaFile mfolder1 = new MediaFile();
             private final MediaFile mfolder2 = new MediaFile();
             private final MediaFile mfolder3 = new MediaFile();
@@ -147,9 +154,11 @@ class MediaFileByFolderProcTest {
                 mfolder1.setPathString("/path1");
                 mfolder2.setPathString("/path2");
                 mfolder3.setPathString("/path3");
-                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(new MediaType[0].getClass()))).thenReturn(
-                                List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
+                when(mediaFileService
+                    .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
+                            any(ChildOrder.class), any(new MediaType[0].getClass())))
+                    .thenReturn(List
+                        .of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
             }
 
             @Test
@@ -159,14 +168,16 @@ class MediaFileByFolderProcTest {
 
             @Test
             void testSingleFolder() {
-                when(mediaFileService.getMediaFileStrict(any(String.class))).thenReturn(mfolder1, mfolder2, mfolder3);
+                when(mediaFileService.getMediaFileStrict(any(String.class)))
+                    .thenReturn(mfolder1, mfolder2, mfolder3);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(4, proc.getDirectChildren(0, 30).size());
             }
 
             @Test
             void testMultiFolder() {
-                when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2, mfolder3);
+                when(mediaFileService.getMediaFile(any(Path.class)))
+                    .thenReturn(mfolder1, mfolder2, mfolder3);
                 MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
                 MusicFolder folder3 = new MusicFolder("path3", "name3", true, null, false);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2, folder3));
@@ -182,13 +193,16 @@ class MediaFileByFolderProcTest {
         @Nested
         class GetGetDirectChildrenCountTest {
 
-            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
+            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null,
+                    false);
 
             @BeforeEach
             public void setup() {
-                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(MediaType.class))).thenReturn(
-                                List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
+                when(mediaFileService
+                    .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
+                            any(ChildOrder.class), any(MediaType.class)))
+                    .thenReturn(List
+                        .of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
             }
 
             @Test
@@ -200,7 +214,8 @@ class MediaFileByFolderProcTest {
             void testSingleFolder() {
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(0, proc.getDirectChildrenCount());
-                verify(mediaFileService, times(1)).getChildSizeOf(anyList(), any(new MediaType[0].getClass()));
+                verify(mediaFileService, times(1))
+                    .getChildSizeOf(anyList(), any(new MediaType[0].getClass()));
             }
 
             @Test
@@ -211,7 +226,8 @@ class MediaFileByFolderProcTest {
                 mfolder2.setPathString("/path2");
                 MediaFile mfolder3 = new MediaFile();
                 mfolder3.setPathString("/path3");
-                when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2, mfolder3);
+                when(mediaFileService.getMediaFile(any(Path.class)))
+                    .thenReturn(mfolder1, mfolder2, mfolder3);
                 MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
                 MusicFolder folder3 = new MusicFolder("path3", "name3", true, null, false);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2, folder3));
@@ -248,8 +264,8 @@ class MediaFileByFolderProcTest {
         @Test
         void testGetChildSizeOf() {
             assertEquals(0, proc.getChildSizeOf(null));
-            verify(mediaFileService, times(1)).getChildSizeOf(nullable(MediaFile.class),
-                    any(new MediaType[0].getClass()));
+            verify(mediaFileService, times(1))
+                .getChildSizeOf(nullable(MediaFile.class), any(new MediaType[0].getClass()));
         }
 
         @Test
@@ -288,10 +304,14 @@ class MediaFileByFolderProcTest {
 
         @BeforeEach
         public void setup() throws URISyntaxException {
-            musicFolders = Arrays.asList(new MusicFolder(1,
-                    Path.of(MediaFileByFolderProcTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI())
+            musicFolders = Arrays
+                .asList(new MusicFolder(1,
+                        Path
+                            .of(MediaFileByFolderProcTest.class
+                                .getResource("/MEDIAS/Sort/Pagination/Artists")
+                                .toURI())
                             .toString(),
-                    "Artists", true, now(), 1, false));
+                        "Artists", true, now(), 1, false));
 
             setSortStrict(true);
             setSortAlphanum(true);
@@ -313,10 +333,14 @@ class MediaFileByFolderProcTest {
             items = mediaFileByFolderProc.getDirectChildren(20, 100);
             assertEquals(33, items.size());
 
-            items = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> !a.getName().startsWith("single")).collect(Collectors.toList());
+            items = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> !a.getName().startsWith("single"))
+                .collect(Collectors.toList());
             assertTrue(UpnpProcessorTestUtils
-                    .validateJPSonicNaturalList(items.stream().map(MediaFile::getName).collect(Collectors.toList())));
+                .validateJPSonicNaturalList(
+                        items.stream().map(MediaFile::getName).collect(Collectors.toList())));
         }
 
         @Test
@@ -328,32 +352,41 @@ class MediaFileByFolderProcTest {
         @Test
         void testgetChildren() {
 
-            List<MediaFile> artists = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> "10".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
 
             List<MediaFile> children = mediaFileByFolderProc.getChildren(artists.get(0), 0, 10);
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
+                        children.get(i).getName());
             }
 
             children = mediaFileByFolderProc.getChildren(artists.get(0), 10, 10);
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
+                        children.get(i).getName());
             }
 
             children = mediaFileByFolderProc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
+                        children.get(i).getName());
             }
         }
 
         @Test
         void testGetChildSizeOf() {
-            List<MediaFile> artists = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> "10".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
             assertEquals(31, mediaFileByFolderProc.getChildSizeOf(artists.get(0)));
@@ -364,17 +397,22 @@ class MediaFileByFolderProcTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> artists = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> "10".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
 
             MediaFile artist = artists.get(0);
 
-            List<MediaFile> albums = mediaFileByFolderProc.getChildren(artist, 0, Integer.MAX_VALUE);
+            List<MediaFile> albums = mediaFileByFolderProc
+                .getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(31, albums.size());
             assertTrue(UpnpProcessorTestUtils
-                    .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
+                .validateJPSonicNaturalList(
+                        albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
 
         }
 
@@ -384,19 +422,25 @@ class MediaFileByFolderProcTest {
             // The result change depending on the setting
             settingsService.setSortAlbumsByYear(true);
             settingsService.save();
-            List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
+            List<String> reversedByYear = new ArrayList<>(
+                    UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
 
-            List<MediaFile> artists = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> "10".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
 
             MediaFile artist = artists.get(0);
 
-            List<MediaFile> albums = mediaFileByFolderProc.getChildren(artist, 0, Integer.MAX_VALUE);
+            List<MediaFile> albums = mediaFileByFolderProc
+                .getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(31, albums.size());
-            assertEquals(reversedByYear, albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
+            assertEquals(reversedByYear,
+                    albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
 
         }
 
@@ -405,18 +449,23 @@ class MediaFileByFolderProcTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> artists = mediaFileByFolderProc.getDirectChildren(0, 100).stream()
-                    .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+            List<MediaFile> artists = mediaFileByFolderProc
+                .getDirectChildren(0, 100)
+                .stream()
+                .filter(a -> "20".equals(a.getName()))
+                .collect(Collectors.toList());
             assertEquals(1, artists.size());
 
             MediaFile artist = artists.get(0);
             assertEquals("20", artist.getName());
 
-            List<MediaFile> albums = mediaFileByFolderProc.getChildren(artist, 0, Integer.MAX_VALUE);
+            List<MediaFile> albums = mediaFileByFolderProc
+                .getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(1, albums.size());
 
             MediaFile album = albums.get(0);
-            assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
+            assertEquals("ALBUM", album.getName()); // the case where album name is different
+                                                    // between file and id3
 
             List<MediaFile> songs = mediaFileByFolderProc.getChildren(album, 0, Integer.MAX_VALUE);
             assertEquals(1, songs.size());

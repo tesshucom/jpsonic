@@ -64,7 +64,8 @@ class CoverArtServiceTest extends AbstractNeedsScan {
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = Arrays
-                    .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1,
+                        false));
         }
         return musicFolders;
     }
@@ -84,7 +85,10 @@ class CoverArtServiceTest extends AbstractNeedsScan {
     @Test
     void testRenameWithoutReplacement(@TempDir Path tmpDir) throws IOException, URISyntaxException {
 
-        Path res = Path.of(CoverArtServiceTest.class.getResource("/MEDIAS/Metadata/coverart/cover.jpg").toURI());
+        Path res = Path
+            .of(CoverArtServiceTest.class
+                .getResource("/MEDIAS/Metadata/coverart/cover.jpg")
+                .toURI());
         Path coverArt = Path.of(tmpDir.toString(), "cover.jpg");
         Files.copy(res, coverArt);
 
@@ -93,7 +97,8 @@ class CoverArtServiceTest extends AbstractNeedsScan {
         mediaFile.setCoverArtPathString(coverArt.toString());
 
         assertTrue(Files.exists(coverArt));
-        coverArtService.renameWithoutReplacement(mediaFile, Path.of(tmpDir.toString(), "dummy.jpg"));
+        coverArtService
+            .renameWithoutReplacement(mediaFile, Path.of(tmpDir.toString(), "dummy.jpg"));
         Path moved = Path.of(tmpDir.toString(), "cover.jpg.old");
         assertFalse(Files.exists(coverArt));
         assertTrue(Files.exists(moved));

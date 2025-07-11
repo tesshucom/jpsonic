@@ -60,8 +60,8 @@ public class StarredController {
     private final ViewAsListSelector viewSelector;
 
     public StarredController(MusicFolderService musicFolderService, SecurityService securityService,
-            PlayerService playerService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            ViewAsListSelector viewSelector) {
+            PlayerService playerService, MediaFileDao mediaFileDao,
+            MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
@@ -72,16 +72,19 @@ public class StarredController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+            HttpServletResponse response) throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
-        List<MediaFile> artists = mediaFileDao.getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders);
-        List<MediaFile> albums = mediaFileDao.getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders);
-        List<MediaFile> files = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
+        List<MediaFile> artists = mediaFileDao
+            .getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders);
+        List<MediaFile> albums = mediaFileDao
+            .getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders);
+        List<MediaFile> files = mediaFileDao
+            .getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         mediaFileService.populateStarredDate(artists, username);
         mediaFileService.populateStarredDate(albums, username);
         mediaFileService.populateStarredDate(files, username);
@@ -94,12 +97,15 @@ public class StarredController {
 
         UserSettings userSettings = securityService.getUserSettings(username);
         return new ModelAndView("starred", "model",
-                LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
-                        userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),
-                        "coverArtSize", CoverArtScheme.MEDIUM.getSize(), "artists", artists, "albums", albums, "songs",
-                        songs, "videos", videos, "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                        "openDetailStar", userSettings.isOpenDetailStar(), "simpleDisplay",
-                        userSettings.isSimpleDisplay()));
+                LegacyMap
+                    .of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(),
+                            "visibility", userSettings.getMainVisibility(), "player",
+                            playerService.getPlayer(request, response), "coverArtSize",
+                            CoverArtScheme.MEDIUM.getSize(), "artists", artists, "albums", albums,
+                            "songs", songs, "videos", videos, "viewAsList",
+                            viewSelector.isViewAsList(request, user.getUsername()),
+                            "openDetailStar", userSettings.isOpenDetailStar(), "simpleDisplay",
+                            userSettings.isSimpleDisplay()));
     }
 
 }

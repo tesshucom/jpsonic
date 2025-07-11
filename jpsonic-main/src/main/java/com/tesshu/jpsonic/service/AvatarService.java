@@ -69,8 +69,7 @@ public class AvatarService {
     /**
      * Returns the system avatar with the given ID.
      *
-     * @param id
-     *            The system avatar ID.
+     * @param id The system avatar ID.
      *
      * @return The avatar or <code>null</code> if not found.
      */
@@ -81,8 +80,7 @@ public class AvatarService {
     /**
      * Returns the custom avatar for the given user.
      *
-     * @param username
-     *            The username.
+     * @param username The username.
      *
      * @return The avatar or <code>null</code> if not found.
      */
@@ -93,19 +91,19 @@ public class AvatarService {
     /**
      * Sets the custom avatar for the given user.
      *
-     * @param avatar
-     *            The avatar, or <code>null</code> to remove the avatar.
-     * @param username
-     *            The username.
+     * @param avatar   The avatar, or <code>null</code> to remove the avatar.
+     * @param username The username.
      */
     public void setCustomAvatar(Avatar avatar, String username) {
         avatarDao.setCustomAvatar(avatar, username);
     }
 
-    public String createAvatarUrl(@NonNull String baseUrlString, @NonNull UserSettings userSettings) {
+    public String createAvatarUrl(@NonNull String baseUrlString,
+            @NonNull UserSettings userSettings) {
         String avatarUrl = null;
         if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
-            avatarUrl = baseUrlString + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
+            avatarUrl = baseUrlString + ViewName.AVATAR.value() + "?id="
+                    + userSettings.getSystemAvatarId();
         } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
                 && getCustomAvatar(userSettings.getUsername()) != null) {
             avatarUrl = baseUrlString + ViewName.AVATAR.value() + "?usernameUtf8Hex="
@@ -114,12 +112,13 @@ public class AvatarService {
         return avatarUrl;
     }
 
-    public boolean createAvatar(@NonNull String fileName, @NonNull InputStream inputStream, long size, String username)
-            throws IOException {
+    public boolean createAvatar(@NonNull String fileName, @NonNull InputStream inputStream,
+            long size, String username) throws IOException {
         BufferedImage image;
         image = ImageIO.read(new ByteArrayInputStream(IOUtils.toByteArray(inputStream)));
         if (image == null) {
-            throw new IOException("Failed to decode incoming image: " + fileName + " (" + size + " bytes).");
+            throw new IOException(
+                    "Failed to decode incoming image: " + fileName + " (" + size + " bytes).");
         }
         int width = image.getWidth();
         int height = image.getHeight();
@@ -142,7 +141,9 @@ public class AvatarService {
         Avatar avatar = new Avatar(0, fileName, now(), mimeType, width, height, imageData);
         setCustomAvatar(avatar, username);
         if (LOG.isInfoEnabled()) {
-            LOG.info("Created avatar '" + fileName + "' (" + imageData.length + " bytes) for user " + username);
+            LOG
+                .info("Created avatar '" + fileName + "' (" + imageData.length + " bytes) for user "
+                        + username);
         }
         return resized;
     }

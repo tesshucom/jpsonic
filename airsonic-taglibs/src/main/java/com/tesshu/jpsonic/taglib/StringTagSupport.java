@@ -65,11 +65,13 @@ import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 /**
- * Abstract support class for the String Taglib. It handles the JSP taglib side of things and calls abstract protected
- * methods to delegate the String functionality.
+ * Abstract support class for the String Taglib. It handles the JSP taglib side
+ * of things and calls abstract protected methods to delegate the String
+ * functionality.
  * <dl>
  * <dt>var</dt>
- * <dd>PageContext variable to put the return result in instead of pushing out to the html page.</dd>
+ * <dd>PageContext variable to put the return result in instead of pushing out
+ * to the html page.</dd>
  * </dl>
  *
  * @author bayard@generationjava.com
@@ -104,8 +106,8 @@ public abstract class StringTagSupport extends BodyTagSupport {
     }
 
     /**
-     * Handles the manipulation of the String tag, evaluating the body of the tag. The evaluation is delegated to the
-     * changeString(String) method
+     * Handles the manipulation of the String tag, evaluating the body of the tag.
+     * The evaluation is delegated to the changeString(String) method
      */
     public int doEndTag() throws JspException {
 
@@ -142,16 +144,16 @@ public abstract class StringTagSupport extends BodyTagSupport {
     /**
      * Perform an operation on the passed in String.
      *
-     * @param str
-     *            String to be manipulated
+     * @param str String to be manipulated
      *
      * @return String result of operation upon passed in String
      */
     public abstract String changeString(String str);
 
     /**
-     * Initialise any properties to default values. This method is called upon construction, and after
-     * changeString(String) is called. This is a default empty implementation.
+     * Initialise any properties to default values. This method is called upon
+     * construction, and after changeString(String) is called. This is a default
+     * empty implementation.
      */
     public void initAttributes() {
         this.var = null;

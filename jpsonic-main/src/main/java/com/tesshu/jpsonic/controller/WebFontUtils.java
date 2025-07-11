@@ -43,8 +43,13 @@ public final class WebFontUtils {
             return "";
         }
         String escaped = raw;
-        escaped = escaped.replace("\\", "").replace("\b", "").replace("\f", "").replace("\n", "").replace("\r", "")
-                .replace("\t", "");
+        escaped = escaped
+            .replace("\\", "")
+            .replace("\b", "")
+            .replace("\f", "")
+            .replace("\n", "")
+            .replace("\r", "")
+            .replace("\t", "");
         String[] fonts = escaped.split(",", -1);
         escaped = "";
         for (String font : fonts) {
@@ -75,12 +80,22 @@ public final class WebFontUtils {
         }
         String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm
                 // [java/dereferenced-value-may-be-null]
-                ? new StringBuilder("@font-face ").append('{').append("font-family: \"").append(JP_FONT_NAME)
-                        .append("\";").append("src: ").append("url(\"").append(to.getContextPath())
-                        .append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")
-                        .append("url(\"").append(to.getContextPath())
-                        .append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")").append(';').append('}')
-                        .toString()
+                ? new StringBuilder("@font-face ")
+                    .append('{')
+                    .append("font-family: \"")
+                    .append(JP_FONT_NAME)
+                    .append("\";")
+                    .append("src: ")
+                    .append("url(\"")
+                    .append(to.getContextPath())
+                    .append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")")
+                    .append(", ")
+                    .append("url(\"")
+                    .append(to.getContextPath())
+                    .append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")")
+                    .append(';')
+                    .append('}')
+                    .toString()
                 : "";
         to.setAttribute(FONT_FACE_KEY, fontFace);
         to.setAttribute(FONT_SIZE_KEY, from.getFontSize());

@@ -40,7 +40,8 @@ public class FolderOrArtistLogic {
     private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
 
-    public FolderOrArtistLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao) {
+    public FolderOrArtistLogic(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            ArtistDao artistDao) {
         super();
         this.util = util;
         this.factory = factory;
@@ -67,8 +68,12 @@ public class FolderOrArtistLogic {
             return folders.stream().skip(offset).limit(count).map(FolderOrFArtist::new).toList();
         }
         MusicFolder folder = folders.get(0);
-        return artistDao.getAlphabetialArtists((int) offset, (int) count, Arrays.asList(folders.get(0))).stream()
-                .map(artist -> new FolderArtist(folder, artist)).map(FolderOrFArtist::new).toList();
+        return artistDao
+            .getAlphabetialArtists((int) offset, (int) count, Arrays.asList(folders.get(0)))
+            .stream()
+            .map(artist -> new FolderArtist(folder, artist))
+            .map(FolderOrFArtist::new)
+            .toList();
     }
 
     public int getDirectChildrenCount() {
@@ -80,8 +85,12 @@ public class FolderOrArtistLogic {
     }
 
     private @Nullable MusicFolder getFolder(int folderId) {
-        return util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId).findFirst()
-                .orElseGet(null);
+        return util
+            .getGuestFolders()
+            .stream()
+            .filter(musicFolder -> musicFolder.getId() == folderId)
+            .findFirst()
+            .orElseGet(null);
     }
 
     public FolderOrFArtist getDirectChild(String id) {

@@ -41,8 +41,8 @@ public class AlbumId3Proc extends DirectChildrenContentProc<Album, MediaFile> {
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
 
-    public AlbumId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            AlbumDao albumDao) {
+    public AlbumId3Proc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, AlbumDao albumDao) {
         super();
         this.util = util;
         this.factory = factory;
@@ -62,7 +62,8 @@ public class AlbumId3Proc extends DirectChildrenContentProc<Album, MediaFile> {
 
     @Override
     public List<Album> getDirectChildren(long offset, long count) {
-        return albumDao.getAlphabeticalAlbums((int) offset, (int) count, false, true, util.getGuestFolders());
+        return albumDao
+            .getAlphabeticalAlbums((int) offset, (int) count, false, true, util.getGuestFolders());
     }
 
     @Override
@@ -77,7 +78,8 @@ public class AlbumId3Proc extends DirectChildrenContentProc<Album, MediaFile> {
 
     @Override
     public List<MediaFile> getChildren(Album album, long count, long maxResults) {
-        return mediaFileService.getSongsForAlbum(count, maxResults, album.getArtist(), album.getName());
+        return mediaFileService
+            .getSongsForAlbum(count, maxResults, album.getArtist(), album.getName());
     }
 
     @Override

@@ -40,8 +40,9 @@ class VersionServiceTest {
     @Test
     void testParseLocalBuildDate() {
         /*
-         * Zoned is used for most of the date and time on web pages or outbounds ... upnp, podcast. BuildDate is also
-         * used outside of the app (such as CI), so the text input value is used as is without region conversion.
+         * Zoned is used for most of the date and time on web pages or outbounds ...
+         * upnp, podcast. BuildDate is also used outside of the app (such as CI), so the
+         * text input value is used as is without region conversion.
          */
         LocalDate localDate = versionService.parseLocalBuildDate("20010203");
         assertEquals(2001, localDate.getYear());

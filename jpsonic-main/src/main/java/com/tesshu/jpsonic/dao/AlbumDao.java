@@ -78,13 +78,14 @@ public class AlbumDao {
                 """, rowMapper, artistName, albumName);
     }
 
-    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear,
-            final List<MusicFolder> musicFolders) {
+    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist,
+            boolean byYear, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
-                "offset", offset, "count", count);
+        Map<String, Object> args = LegacyMap
+            .of("artist", artist, "folders", MusicFolder.toIdList(musicFolders), "offset", offset,
+                    "count", count);
         String orderWithYear = byYear ? "year is null, year, " : "";
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from album
@@ -105,13 +106,16 @@ public class AlbumDao {
                             where parent_path = ? and (type=? or type=? or type=?)),
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        int c = template.update(query, album.getPath(), album.getName(), album.getArtist(), album.getPath(),
-                MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getPath(),
-                MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getCoverArtPath(),
-                album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(),
-                album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(),
-                album.getMusicBrainzReleaseId(), album.getArtistSort(), album.getNameSort(), album.getArtistReading(),
-                album.getNameReading(), -1);
+        int c = template
+            .update(query, album.getPath(), album.getName(), album.getArtist(), album.getPath(),
+                    MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(),
+                    album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
+                    MediaType.AUDIOBOOK.name(), album.getCoverArtPath(), album.getYear(),
+                    album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
+                    album.getComment(), album.getCreated(), album.getLastScanned(),
+                    album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
+                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(),
+                    album.getNameReading(), -1);
         if (c > 0) {
             return getAlbum(album.getArtist(), album.getName());
         }
@@ -135,13 +139,16 @@ public class AlbumDao {
                         mb_release_id=?, artist_sort=?, name_sort=?, artist_reading=?,
                         name_reading=?, album_order=?  where artist=? and name=?
                 """;
-        int c = template.update(sql, album.getPath(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
-                MediaType.AUDIOBOOK.name(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
-                MediaType.AUDIOBOOK.name(), album.getCoverArtPath(), album.getYear(), album.getGenre(),
-                album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
-                album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(),
-                album.getOrder(), album.getArtist(), album.getName());
+        int c = template
+            .update(sql, album.getPath(), album.getPath(), MediaType.MUSIC.name(),
+                    MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getPath(),
+                    MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(),
+                    album.getCoverArtPath(), album.getYear(), album.getGenre(),
+                    album.getPlayCount(), album.getLastPlayed(), album.getComment(),
+                    album.getCreated(), album.getLastScanned(), album.isPresent(),
+                    album.getFolderId(), album.getMusicBrainzReleaseId(), album.getArtistSort(),
+                    album.getNameSort(), album.getArtistReading(), album.getNameReading(),
+                    album.getOrder(), album.getArtist(), album.getName());
         if (c > 0) {
             return getAlbum(album.getArtist(), album.getName());
         }
@@ -172,13 +179,13 @@ public class AlbumDao {
                 """, lastPlayed, playCount, artist, name);
     }
 
-    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase,
-            final List<MusicFolder> musicFolders) {
+    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist,
+            boolean ignoreCase, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset);
 
         String join = "";
         String order;
@@ -207,7 +214,10 @@ public class AlbumDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        List<Integer> ids = musicFolders.stream().map(MusicFolder::getId).collect(Collectors.toList());
+        List<Integer> ids = musicFolders
+            .stream()
+            .map(MusicFolder::getId)
+            .collect(Collectors.toList());
         Map<String, Object> args = LegacyMap.of("folders", ids);
         Integer result = template.getNamedParameterJdbcTemplate().queryForObject("""
                 select count(*)
@@ -225,8 +235,8 @@ public class AlbumDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from album
                 where play_count > 0 and present and folder_id in (:folders)
@@ -240,8 +250,8 @@ public class AlbumDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from album
                 where last_played is not null and present and folder_id in (:folders)
@@ -250,12 +260,13 @@ public class AlbumDao {
                 """, rowMapper, args);
     }
 
-    public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<Album> getNewestAlbums(final int offset, final int count,
+            final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from album
                 where present and folder_id in (:folders)
@@ -269,8 +280,9 @@ public class AlbumDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset, "username", username);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset,
+                    "username", username);
         return template.namedQuery("select " + prefix(QUERY_COLUMNS, "album") + """
                 from starred_album, album
                 where album.id = starred_album.album_id and album.present
@@ -280,13 +292,14 @@ public class AlbumDao {
                 """, rowMapper, args);
     }
 
-    public List<Album> getAlbumsByYear(final int offset, final int count, final int fromYear, final int toYear,
-            final List<MusicFolder> musicFolders) {
+    public List<Album> getAlbumsByYear(final int offset, final int count, final int fromYear,
+            final int toYear, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset, "fromYear", fromYear, "toYear", toYear);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset,
+                    "fromYear", fromYear, "toYear", toYear);
         if (fromYear <= toYear) {
             return template.namedQuery("select " + QUERY_COLUMNS + """
                     from album
@@ -303,7 +316,8 @@ public class AlbumDao {
         }
     }
 
-    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres, List<MusicFolder> folders) {
+    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres,
+            List<MusicFolder> folders) {
         return dialect.getAlbumsByGenre(offset, count, genres, folders);
     }
 
@@ -321,10 +335,12 @@ public class AlbumDao {
                                     and (child.type=? or child.type=? %s))
                 """.formatted(podcastQuery);
         if (withPodcast) {
-            template.update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
-                    MediaType.PODCAST.name());
+            template
+                .update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                        MediaType.PODCAST.name());
         } else {
-            template.update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
+            template
+                .update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
         }
     }
 
@@ -370,7 +386,8 @@ public class AlbumDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
+        Map<String, Object> args = LegacyMap
+            .of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
         return template.namedQueryForInt("""
                 select count(id)
                 from album

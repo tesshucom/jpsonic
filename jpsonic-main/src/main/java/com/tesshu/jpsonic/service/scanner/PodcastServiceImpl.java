@@ -108,7 +108,7 @@ public class PodcastServiceImpl implements PodcastService {
     // Wed, 6 Jul 2014 13:00:00 PDT
     // Wed, 6 Jul 2014 13:00:00 -0700
     private static final DateTimeFormatter RSS_DATE_FORMAT = DateTimeFormatter
-            .ofPattern("EEE, d MMM yyyy H:m:s [Z][zzz]", Locale.ROOT);
+        .ofPattern("EEE, d MMM yyyy H:m:s [Z][zzz]", Locale.ROOT);
 
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
@@ -129,8 +129,9 @@ public class PodcastServiceImpl implements PodcastService {
     private final ReentrantLock episodesLock = new ReentrantLock();
     private final ReentrantLock fileLock = new ReentrantLock();
 
-    public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
-            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+    public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService,
+            SecurityService securityService, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService,
             MetaDataParserFactory metaDataParserFactory,
             @Qualifier("podcastDownloadExecutor") ThreadPoolTaskExecutor podcastDownloadExecutor,
             @Qualifier("podcastRefreshExecutor") ThreadPoolTaskExecutor podcastRefreshExecutor,
@@ -175,8 +176,7 @@ public class PodcastServiceImpl implements PodcastService {
     /**
      * Creates a new Podcast channel.
      *
-     * @param url
-     *            The URL of the Podcast channel.
+     * @param url The URL of the Podcast channel.
      */
     @Override
     public void createChannel(final String url) {
@@ -226,11 +226,10 @@ public class PodcastServiceImpl implements PodcastService {
     /**
      * Returns all Podcast episodes for a given channel.
      *
-     * @param channelId
-     *            The Podcast channel ID.
+     * @param channelId The Podcast channel ID.
      *
-     * @return Possibly empty list of all Podcast episodes for the given channel, sorted in reverse chronological order
-     *         (newest episode first).
+     * @return Possibly empty list of all Podcast episodes for the given channel,
+     *         sorted in reverse chronological order (newest episode first).
      */
     @Override
     public List<PodcastEpisode> getEpisodes(int channelId) {
@@ -241,12 +240,13 @@ public class PodcastServiceImpl implements PodcastService {
     /**
      * Returns the N newest episodes.
      *
-     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse chronological order (newest episode
-     *         first).
+     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse
+     *         chronological order (newest episode first).
      */
     @Override
     public List<PodcastEpisode> getNewestEpisodes(int count) {
-        List<PodcastEpisode> episodes = addMediaFileIdToEpisodes(podcastDao.getNewestEpisodes(count));
+        List<PodcastEpisode> episodes = addMediaFileIdToEpisodes(
+                podcastDao.getNewestEpisodes(count));
 
         return episodes.stream().filter(episode -> {
             Integer mediaFileId = episode.getMediaFileId();
@@ -261,7 +261,8 @@ public class PodcastServiceImpl implements PodcastService {
     private List<PodcastEpisode> filterAllowed(List<PodcastEpisode> episodes) {
         List<PodcastEpisode> result = new ArrayList<>(episodes.size());
         for (PodcastEpisode episode : episodes) {
-            if (episode.getPath() == null || securityService.isReadAllowed(Path.of(episode.getPath()))) {
+            if (episode.getPath() == null
+                    || securityService.isReadAllowed(Path.of(episode.getPath()))) {
                 result.add(episode);
             }
         }
@@ -318,7 +319,9 @@ public class PodcastServiceImpl implements PodcastService {
                 }
             } catch (SecurityException e) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to resolve media file ID for podcast channel: " + channel.getTitle(), e);
+                    LOG
+                        .error("Failed to resolve media file ID for podcast channel: "
+                                + channel.getTitle(), e);
                 }
             }
         }
@@ -335,7 +338,8 @@ public class PodcastServiceImpl implements PodcastService {
         refreshChannels(getAllChannels(), downloadEpisodes);
     }
 
-    private void refreshChannels(final List<PodcastChannel> channels, final boolean downloadEpisodes) {
+    private void refreshChannels(final List<PodcastChannel> channels,
+            final boolean downloadEpisodes) {
         for (final PodcastChannel channel : channels) {
             if (destroy.get()) {
                 return;
@@ -344,13 +348,16 @@ public class PodcastServiceImpl implements PodcastService {
         }
     }
 
-    private HttpClientResponseHandler<PodcastChannel> refreshChannelHandler(PodcastChannel channel) {
+    private HttpClientResponseHandler<PodcastChannel> refreshChannelHandler(
+            PodcastChannel channel) {
         return (response) -> {
             try {
                 Document document = createSAXBuilder().build(response.getEntity().getContent());
                 Element channelElement = document.getRootElement().getChild("channel");
                 channel.setTitle(StringUtil.removeMarkup(channelElement.getChildTextTrim("title")));
-                channel.setDescription(StringUtil.removeMarkup(channelElement.getChildTextTrim("description")));
+                channel
+                    .setDescription(StringUtil
+                        .removeMarkup(channelElement.getChildTextTrim("description")));
                 channel.setImageUrl(getChannelImageUrl(channelElement));
                 channel.setStatus(PodcastStatus.COMPLETED);
                 channel.setErrorMessage(null);
@@ -379,8 +386,11 @@ public class PodcastServiceImpl implements PodcastService {
         channel.setStatus(PodcastStatus.DOWNLOADING);
         channel.setErrorMessage(null);
         podcastDao.updateChannel(channel);
-        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
-                .setResponseTimeout(Timeout.ofMinutes(10)).build();
+        RequestConfig requestConfig = RequestConfig
+            .custom()
+            .setConnectionRequestTimeout(Timeout.ofMinutes(2))
+            .setResponseTimeout(Timeout.ofMinutes(10))
+            .build();
         HttpGet method = new HttpGet(URI.create(channel.getUrl()));
         method.setConfig(requestConfig);
         HttpClientResponseHandler<PodcastChannel> handler = refreshChannelHandler(channel);
@@ -522,7 +532,8 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
-    private List<PodcastEpisode> createPodcastEpisodes(Integer channelId, List<Element> episodeElements) {
+    private List<PodcastEpisode> createPodcastEpisodes(Integer channelId,
+            List<Element> episodeElements) {
         List<PodcastEpisode> episodes = new ArrayList<>();
 
         for (Element episodeElement : episodeElements) {
@@ -538,7 +549,9 @@ public class PodcastServiceImpl implements PodcastService {
             String url = enclosure.getAttributeValue("url");
             url = sanitizeUrl(url);
             if (!isAudioEpisode(url)) {
-                LOG.warn("Audio file specified in episode enclosure does not match extension for scanning : {}", url);
+                LOG
+                    .warn("Audio file specified in episode enclosure does not match extension for scanning : {}",
+                            url);
                 continue;
             }
 
@@ -555,8 +568,8 @@ public class PodcastServiceImpl implements PodcastService {
                 Instant date = parseDate(episodeElement.getChildTextTrim("pubDate"));
                 String duration = formatDuration(getITunesElement(episodeElement, "duration"));
                 String description = getDescription(episodeElement);
-                PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title, description, date,
-                        duration, length, 0L, PodcastStatus.NEW, null);
+                PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title,
+                        description, date, duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);
                 writeInfo("Created Podcast episode " + title);
             }
@@ -567,8 +580,10 @@ public class PodcastServiceImpl implements PodcastService {
     private String getExtension(String url) {
         try {
             URI uri = new URI(url);
-            return FilenameUtils.getExtension(
-                    new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null, uri.getFragment()).toString());
+            return FilenameUtils
+                .getExtension(new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null,
+                        uri.getFragment())
+                    .toString());
         } catch (URISyntaxException e) {
             throw new UncheckedException(e);
         }
@@ -634,14 +649,16 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private HttpGet createHttpGet(String url) {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
-                .setResponseTimeout(Timeout.ofMinutes(10))
-                // Workaround HttpClient circular redirects, which some feeds use (with query
-                // parameters)
-                .setCircularRedirectsAllowed(true)
-                // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires'
-                // attributes
-                .build();
+        RequestConfig requestConfig = RequestConfig
+            .custom()
+            .setConnectionRequestTimeout(Timeout.ofMinutes(2))
+            .setResponseTimeout(Timeout.ofMinutes(10))
+            // Workaround HttpClient circular redirects, which some feeds use (with query
+            // parameters)
+            .setCircularRedirectsAllowed(true)
+            // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires'
+            // attributes
+            .build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         return method;
@@ -666,7 +683,9 @@ public class PodcastServiceImpl implements PodcastService {
 
         if (destroy.get()) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Shutdown has been called. It will not be downloaded.: {}", episode.getTitle());
+                LOG
+                    .info("Shutdown has been called. It will not be downloaded.: {}",
+                            episode.getTitle());
             }
             return;
         }
@@ -690,7 +709,8 @@ public class PodcastServiceImpl implements PodcastService {
 
                 PodcastChannel channel = getChannel(episode.getChannelId());
                 if (channel == null) {
-                    writeInfo("Podcast channel for " + episode.getUrl() + " was deleted. Aborting download.");
+                    writeInfo("Podcast channel for " + episode.getUrl()
+                            + " was deleted. Aborting download.");
                     return;
                 }
 
@@ -705,16 +725,19 @@ public class PodcastServiceImpl implements PodcastService {
                         episode.setPath(path.toString());
                         podcastDao.updateEpisode(episode);
 
-                        long bytesDownloaded = updateEpisode(episode, path, response.getEntity().getContent());
+                        long bytesDownloaded = updateEpisode(episode, path,
+                                response.getEntity().getContent());
 
                         if (isEpisodeDeleted(episode)) {
-                            writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+                            writeInfo("Podcast " + episode.getUrl()
+                                    + " was deleted. Aborting download.");
                             FileUtil.deleteIfExists(path);
                         } else {
                             addMediaFileIdToEpisodes(Arrays.asList(episode));
                             episode.setBytesDownloaded(bytesDownloaded);
                             podcastDao.updateEpisode(episode);
-                            writeInfo("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
+                            writeInfo("Downloaded " + bytesDownloaded + " bytes from Podcast "
+                                    + episode.getUrl());
                             updateTags(path, episode);
                             episode.setStatus(PodcastStatus.COMPLETED);
                             podcastDao.updateEpisode(episode);
@@ -737,7 +760,8 @@ public class PodcastServiceImpl implements PodcastService {
         }
     }
 
-    private long updateEpisode(PodcastEpisode episode, Path path, InputStream in) throws IOException {
+    private long updateEpisode(PodcastEpisode episode, Path path, InputStream in)
+            throws IOException {
         long bytesDownloaded = 0;
         byte[] buffer = new byte[4096];
         long nextLogCount = 30_000L;
@@ -793,7 +817,8 @@ public class PodcastServiceImpl implements PodcastService {
 
             List<PodcastEpisode> episodes = getEpisodes(channel.getId());
 
-            // Don't do anything if other episodes of the same channel is currently downloading.
+            // Don't do anything if other episodes of the same channel is currently
+            // downloading.
             for (PodcastEpisode episode : episodes) {
                 if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
                     return;
@@ -817,8 +842,10 @@ public class PodcastServiceImpl implements PodcastService {
     Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY
-                : DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-                        .format(episode.getPublishDate());
+                : DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd")
+                    .withZone(ZoneId.systemDefault())
+                    .format(episode.getPublishDate());
         String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
                 + episode.getTitle();
         filename = filename.substring(0, Math.min(filename.length(), 146));
@@ -844,10 +871,12 @@ public class PodcastServiceImpl implements PodcastService {
             throw new IllegalStateException("Failed to create directory " + podcastDir);
         }
         if (!Files.isWritable(podcastDir)) {
-            throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
+            throw new IllegalStateException(
+                    "The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
-        Path channelDir = Path.of(podcastDir.toString(), StringUtil.fileSystemSafe(channel.getTitle()));
+        Path channelDir = Path
+            .of(podcastDir.toString(), StringUtil.fileSystemSafe(channel.getTitle()));
         if (!Files.exists(channelDir)) {
             if (FileUtil.createDirectories(channelDir) == null) {
                 throw new IllegalStateException("Failed to create directory " + channelDir);
@@ -864,12 +893,12 @@ public class PodcastServiceImpl implements PodcastService {
     /**
      * Deletes the Podcast channel with the given ID.
      *
-     * @param channelId
-     *            The Podcast channel ID.
+     * @param channelId The Podcast channel ID.
      */
     @Override
     public void deleteChannel(int channelId) {
-        // Delete all associated episodes (in case they have files that need to be deleted).
+        // Delete all associated episodes (in case they have files that need to be
+        // deleted).
         List<PodcastEpisode> episodes = getEpisodes(channelId);
         for (PodcastEpisode episode : episodes) {
             deleteEpisode(episode.getId(), false);
@@ -880,10 +909,9 @@ public class PodcastServiceImpl implements PodcastService {
     /**
      * Deletes the Podcast episode with the given ID.
      *
-     * @param episodeId
-     *            The Podcast episode ID.
-     * @param logicalDelete
-     *            Whether to perform a logical delete by setting the episode status to {@link PodcastStatus#DELETED}.
+     * @param episodeId     The Podcast episode ID.
+     * @param logicalDelete Whether to perform a logical delete by setting the
+     *                      episode status to {@link PodcastStatus#DELETED}.
      */
     @Override
     public void deleteEpisode(int episodeId, boolean logicalDelete) {

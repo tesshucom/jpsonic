@@ -91,10 +91,12 @@ public class TranscodingDao {
                 """, 0);
         int registered = existingMax + 1;
         transcoding.setId(registered);
-        String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
-        template.update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
-                transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(),
-                transcoding.isDefaultActive());
+        String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values ("
+                + questionMarks(QUERY_COLUMNS) + ")";
+        template
+            .update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
+                    transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(),
+                    transcoding.getStep3(), transcoding.isDefaultActive());
         return registered;
     }
 
@@ -113,16 +115,17 @@ public class TranscodingDao {
                         step1=?, step2=?, step3=?, default_active=?
                 where id=?
                 """;
-        template.update(sql, transcoding.getName(), transcoding.getSourceFormats(), transcoding.getTargetFormat(),
-                transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive(),
-                transcoding.getId());
+        template
+            .update(sql, transcoding.getName(), transcoding.getSourceFormats(),
+                    transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(),
+                    transcoding.getStep3(), transcoding.isDefaultActive(), transcoding.getId());
     }
 
     private static class TranscodingRowMapper implements RowMapper<Transcoding> {
         @Override
         public Transcoding mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Transcoding(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                    rs.getString(6), rs.getString(7), rs.getBoolean(8));
+            return new Transcoding(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
+                    rs.getString(5), rs.getString(6), rs.getString(7), rs.getBoolean(8));
         }
     }
 }

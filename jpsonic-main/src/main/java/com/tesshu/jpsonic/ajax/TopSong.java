@@ -35,7 +35,8 @@ public class TopSong {
     private final String durationAsString;
     private final boolean starred;
 
-    public TopSong(int id, String title, String artist, String album, String durationAsString, boolean starred) {
+    public TopSong(int id, String title, String artist, String album, String durationAsString,
+            boolean starred) {
         this.id = id;
         this.title = title;
         this.artist = artist;

@@ -66,17 +66,21 @@ public interface DialectMediaFileDao {
      */
     List<SortCandidate> getNoSortAlbums(List<MusicFolder> folders);
 
-    List<MediaFile> getChangedId3Albums(int count, List<MusicFolder> musicFolders, boolean withPodcast);
+    List<MediaFile> getChangedId3Albums(int count, List<MusicFolder> musicFolders,
+            boolean withPodcast);
 
     List<MediaFile> getChangedId3Artists(int count, List<MusicFolder> folders, boolean withPodcast);
 
-    List<MediaFile> getUnregisteredId3Albums(int count, List<MusicFolder> musicFolders, boolean withPodcast);
+    List<MediaFile> getUnregisteredId3Albums(int count, List<MusicFolder> musicFolders,
+            boolean withPodcast);
 
-    List<MediaFile> getUnregisteredId3Artists(int count, List<MusicFolder> folders, boolean withPodcast);
+    List<MediaFile> getUnregisteredId3Artists(int count, List<MusicFolder> folders,
+            boolean withPodcast);
 
-    List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
+    List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist,
+            List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback);
 
-    List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count, List<MusicFolder> musicFolders,
-            List<MediaType> types);
+    List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count,
+            List<MusicFolder> musicFolders, List<MediaType> types);
 }

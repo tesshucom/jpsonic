@@ -79,8 +79,8 @@ class WMPProcTest {
         when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class))).thenReturn(builder);
         PlayerService playerService = mock(PlayerService.class);
         TranscodingService transcodingService = mock(TranscodingService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
-                playerService, transcodingService);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+                mediaFileService, playerService, transcodingService);
         wmpProcessor = new WMPProc(util, factory, mediaFileService);
         TestCaseUtils.setLogLevel(WMPProc.class, Level.DEBUG);
     }
@@ -99,12 +99,14 @@ class WMPProcTest {
 
     @Test
     void testFolderPath() {
-        assertEmpty(wmpProcessor.getBrowseResult(
-                "upnp:class derivedfrom \"object.container.playlistContainer\" and @refID exists false",
-                "dc:title,microsoft:folderPath", 0, 0));
+        assertEmpty(wmpProcessor
+            .getBrowseResult(
+                    "upnp:class derivedfrom \"object.container.playlistContainer\" and @refID exists false",
+                    "dc:title,microsoft:folderPath", 0, 0));
 
-        assertEmpty(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
-                "dc:title,microsoft:folderPath", 0, 0));
+        assertEmpty(wmpProcessor
+            .getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
+                    "dc:title,microsoft:folderPath", 0, 0));
 
     }
 
@@ -140,15 +142,18 @@ class WMPProcTest {
         assertEquals("2021-01-01", mt.getDate());
 
         // Please check using WMP as it is difficult to test with Mock.
-        // There are two perspectives: "AlbumArtist is transferred instead of Artist" and "Composer
+        // There are two perspectives: "AlbumArtist is transferred instead of Artist"
+        // and "Composer
         // is transferred".
 
         // assertEquals("albumArtist", mt.getArtists()[0].getName());
         // assertEquals(1, mt.getArtists().length);
         // assertNull(mt.getArtists()[0].getRole());
         // assertEquals(1, mt.getProperties(AUTHOR.class).length);
-        // assertEquals("author", mt.getProperties(AUTHOR.class)[0].getDescriptorName());
-        // assertEquals("composer", mt.getProperties(AUTHOR.class)[0].getValue().getName());
+        // assertEquals("author",
+        // mt.getProperties(AUTHOR.class)[0].getDescriptorName());
+        // assertEquals("composer",
+        // mt.getProperties(AUTHOR.class)[0].getValue().getName());
     }
 
     private void assertEmpty(BrowseResult result) {
@@ -162,8 +167,10 @@ class WMPProcTest {
 
         @Test
         void testAudio() {
-            BrowseResult result = wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false", "*", 0, 0);
+            BrowseResult result = wmpProcessor
+                .getBrowseResult(
+                        "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false",
+                        "*", 0, 0);
             assertEquals("""
                     <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
                     xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sec="http://www.sec.co.kr/" \
@@ -189,8 +196,10 @@ class WMPProcTest {
             when(mediaFileService.getParentOf(m)).thenReturn(parent);
             when(mediaFileService.countSongs(anyList())).thenReturn(20L);
 
-            result = wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false", "*", 1, 1);
+            result = wmpProcessor
+                .getBrowseResult(
+                        "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false",
+                        "*", 1, 1);
 
             assertEquals(
                     """
@@ -216,8 +225,10 @@ class WMPProcTest {
 
         @Test
         void testVideo() {
-            BrowseResult result = wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 0, 0);
+            BrowseResult result = wmpProcessor
+                .getBrowseResult(
+                        "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false",
+                        "*", 0, 0);
             assertEquals("""
                     <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
                     xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sec="http://www.sec.co.kr/" \
@@ -243,8 +254,10 @@ class WMPProcTest {
             when(mediaFileService.getParentOf(m)).thenReturn(parent);
             when(mediaFileService.countVideos(anyList())).thenReturn(20L);
 
-            result = wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 1, 1);
+            result = wmpProcessor
+                .getBrowseResult(
+                        "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false",
+                        "*", 1, 1);
 
             assertEquals(
                     """
@@ -268,8 +281,10 @@ class WMPProcTest {
 
         @Test
         void testImage() {
-            assertEmpty(wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.imageItem\" and @refID exists false", "*", 0, 0));
+            assertEmpty(wmpProcessor
+                .getBrowseResult(
+                        "upnp:class derivedfrom \"object.item.imageItem\" and @refID exists false",
+                        "*", 0, 0));
         }
 
         @Test
@@ -313,14 +328,16 @@ class WMPProcTest {
 
         @Test
         void testUnknownQuery() {
-            assertNull(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
-                    "*", 0, 0));
+            assertNull(wmpProcessor
+                .getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
+                        "*", 0, 0));
         }
     }
 
     @Test
     void testUnknownFilter() {
-        assertNull(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
-                "dc:title,apple:folderPath", 0, 0));
+        assertNull(wmpProcessor
+            .getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
+                    "dc:title,apple:folderPath", 0, 0));
     }
 }

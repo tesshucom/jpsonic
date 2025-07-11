@@ -109,10 +109,8 @@ public class UserDao {
     /**
      * Returns the user with the given username.
      *
-     * @param username
-     *            The username used when logging in.
-     * @param caseSensitive
-     *            If false, perform a case-insensitive search
+     * @param username      The username used when logging in.
+     * @param caseSensitive If false, perform a case-insensitive search
      *
      * @return The user, or <code>null</code> if not found.
      */
@@ -121,7 +119,8 @@ public class UserDao {
         if (caseSensitive) {
             sql = "select " + USER_COLUMNS + " from " + getUserTable() + " where username=?";
         } else {
-            sql = "select " + USER_COLUMNS + " from " + getUserTable() + " where UPPER(username)=UPPER(?)";
+            sql = "select " + USER_COLUMNS + " from " + getUserTable()
+                    + " where UPPER(username)=UPPER(?)";
         }
         List<User> users = template.query(sql, userRowMapper, username);
         User user = null;
@@ -139,8 +138,7 @@ public class UserDao {
     /**
      * Returns the user with the given email address.
      *
-     * @param email
-     *            The email address.
+     * @param email The email address.
      *
      * @return The user, or <code>null</code> if not found.
      */
@@ -168,23 +166,22 @@ public class UserDao {
     /**
      * Creates a new user.
      *
-     * @param user
-     *            The user to create.
+     * @param user The user to create.
      */
     public void createUser(User user) {
-        String sql = "insert into " + getUserTable() + " (" + USER_COLUMNS + ") values (" + questionMarks(USER_COLUMNS)
-                + ')';
-        template.update(sql, user.getUsername(), encrypt(user.getPassword()), user.getEmail(),
-                user.isLdapAuthenticated(), user.getBytesStreamed(), user.getBytesDownloaded(),
-                user.getBytesUploaded());
+        String sql = "insert into " + getUserTable() + " (" + USER_COLUMNS + ") values ("
+                + questionMarks(USER_COLUMNS) + ')';
+        template
+            .update(sql, user.getUsername(), encrypt(user.getPassword()), user.getEmail(),
+                    user.isLdapAuthenticated(), user.getBytesStreamed(), user.getBytesDownloaded(),
+                    user.getBytesUploaded());
         writeRoles(user);
     }
 
     /**
      * Deletes the user with the given username.
      *
-     * @param username
-     *            The username.
+     * @param username The username.
      */
     public void deleteUser(String username) {
         template.update("delete from user_role where username=?", username);
@@ -195,25 +192,28 @@ public class UserDao {
     /**
      * Updates the given user.
      *
-     * @param user
-     *            The user to update.
+     * @param user The user to update.
      */
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUser(User user) {
         String sql = "update " + getUserTable()
                 + " set password=?, email=?, ldap_authenticated=?, bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? "
                 + "where username=?";
-        template.update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(),
-                user.getBytesStreamed(), user.getBytesDownloaded(), user.getBytesUploaded(), user.getUsername());
+        template
+            .update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(),
+                    user.getBytesStreamed(), user.getBytesDownloaded(), user.getBytesUploaded(),
+                    user.getUsername());
         writeRoles(user);
     }
 
     public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
-        String sql = "update " + getUserTable() + " set password=?, ldap_authenticated=? where username=?";
+        String sql = "update " + getUserTable()
+                + " set password=?, ldap_authenticated=? where username=?";
         template.update(sql, newPass, ldapAuthenticated, user.getUsername());
     }
 
-    public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded, String username) {
+    public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded,
+            String username) {
         String sql = "update " + getUserTable()
                 + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
         template.update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
@@ -222,8 +222,7 @@ public class UserDao {
     /**
      * Returns the name of the roles for the given user.
      *
-     * @param username
-     *            The user name.
+     * @param username The user name.
      *
      * @return Roles the user is granted.
      */
@@ -235,10 +234,10 @@ public class UserDao {
     /**
      * Returns settings for the given user.
      *
-     * @param username
-     *            The username.
+     * @param username The username.
      *
-     * @return User-specific settings, or <code>null</code> if no such settings exist.
+     * @return User-specific settings, or <code>null</code> if no such settings
+     *         exist.
      */
     public UserSettings getUserSettings(String username) {
         String sql = "select " + USER_SETTINGS_COLUMNS + " from user_settings where username=?";
@@ -248,8 +247,7 @@ public class UserDao {
     /**
      * Updates settings for the given username, creating it if necessary.
      *
-     * @param settings
-     *            The user-specific settings.
+     * @param settings The user-specific settings.
      */
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUserSettings(UserSettings settings) {
@@ -260,33 +258,45 @@ public class UserDao {
         String locale = settings.getLocale() == null ? null : settings.getLocale().toString();
         UserSettings.Visibility main = settings.getMainVisibility();
         UserSettings.Visibility playlist = settings.getPlaylistVisibility();
-        template.update(sql, settings.getUsername(), locale, settings.getThemeId(),
-                settings.isFinalVersionNotificationEnabled(), settings.isBetaVersionNotificationEnabled(),
-                settings.isSongNotificationEnabled(), main.isTrackNumberVisible(), main.isArtistVisible(),
-                main.isAlbumVisible(), main.isGenreVisible(), main.isYearVisible(), main.isBitRateVisible(),
-                main.isDurationVisible(), main.isFormatVisible(), main.isFileSizeVisible(),
-                playlist.isTrackNumberVisible(), playlist.isArtistVisible(), playlist.isAlbumVisible(),
-                playlist.isGenreVisible(), playlist.isYearVisible(), playlist.isBitRateVisible(),
-                playlist.isDurationVisible(), playlist.isFormatVisible(), playlist.isFileSizeVisible(),
-                settings.isLastFmEnabled(), settings.getLastFmUsername(), encrypt(settings.getLastFmPassword()),
-                settings.isListenBrainzEnabled(), settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
-                false, settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
-                settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(), settings.getSystemAvatarId(),
-                settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
-                settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
-                settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
-                settings.getPaginationSize(), main.isComposerVisible(), playlist.isComposerVisible(),
-                settings.isCloseDrawer(), settings.isClosePlayQueue(), settings.isAlternativeDrawer(),
-                settings.isAssignAccesskeyToNumber(), settings.isOpenDetailIndex(), settings.isOpenDetailSetting(),
-                settings.isOpenDetailStar(), settings.isShowIndex(), settings.isSimpleDisplay(),
-                settings.isShowSibling(), settings.isShowRate(), settings.isShowAlbumSearch(),
-                settings.isShowLastPlay(), settings.isShowDownload(), settings.isShowTag(), settings.isShowComment(),
-                settings.isShowShare(), settings.isShowChangeCoverArt(), settings.isShowTopSongs(),
-                settings.isShowSimilar(), settings.isShowAlbumActions(), settings.isBreadcrumbIndex(),
-                settings.isPutMenuInDrawer(), settings.getFontSchemeName(), settings.isShowOutlineHelp(),
-                settings.isForceBio2Eng(), settings.isVoiceInputEnabled(), settings.isShowCurrentSongInfo(),
-                settings.getSpeechLangSchemeName(), settings.getIetf(), settings.getFontFamily(),
-                settings.getFontSize(), settings.isShowScannedCount());
+        template
+            .update(sql, settings.getUsername(), locale, settings.getThemeId(),
+                    settings.isFinalVersionNotificationEnabled(),
+                    settings.isBetaVersionNotificationEnabled(),
+                    settings.isSongNotificationEnabled(), main.isTrackNumberVisible(),
+                    main.isArtistVisible(), main.isAlbumVisible(), main.isGenreVisible(),
+                    main.isYearVisible(), main.isBitRateVisible(), main.isDurationVisible(),
+                    main.isFormatVisible(), main.isFileSizeVisible(),
+                    playlist.isTrackNumberVisible(), playlist.isArtistVisible(),
+                    playlist.isAlbumVisible(), playlist.isGenreVisible(), playlist.isYearVisible(),
+                    playlist.isBitRateVisible(), playlist.isDurationVisible(),
+                    playlist.isFormatVisible(), playlist.isFileSizeVisible(),
+                    settings.isLastFmEnabled(), settings.getLastFmUsername(),
+                    encrypt(settings.getLastFmPassword()), settings.isListenBrainzEnabled(),
+                    settings.getListenBrainzToken(), settings.getTranscodeScheme().name(), false,
+                    settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
+                    settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(),
+                    settings.getSystemAvatarId(), settings.getChanged(),
+                    settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
+                    settings.isViewAsList(), settings.getDefaultAlbumList().getId(),
+                    settings.isQueueFollowingSongs(), settings.isCloseDrawer(),
+                    60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
+                    settings.getPaginationSize(), main.isComposerVisible(),
+                    playlist.isComposerVisible(), settings.isCloseDrawer(),
+                    settings.isClosePlayQueue(), settings.isAlternativeDrawer(),
+                    settings.isAssignAccesskeyToNumber(), settings.isOpenDetailIndex(),
+                    settings.isOpenDetailSetting(), settings.isOpenDetailStar(),
+                    settings.isShowIndex(), settings.isSimpleDisplay(), settings.isShowSibling(),
+                    settings.isShowRate(), settings.isShowAlbumSearch(), settings.isShowLastPlay(),
+                    settings.isShowDownload(), settings.isShowTag(), settings.isShowComment(),
+                    settings.isShowShare(), settings.isShowChangeCoverArt(),
+                    settings.isShowTopSongs(), settings.isShowSimilar(),
+                    settings.isShowAlbumActions(), settings.isBreadcrumbIndex(),
+                    settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
+                    settings.isShowOutlineHelp(), settings.isForceBio2Eng(),
+                    settings.isVoiceInputEnabled(), settings.isShowCurrentSongInfo(),
+                    settings.getSpeechLangSchemeName(), settings.getIetf(),
+                    settings.getFontFamily(), settings.getFontSize(),
+                    settings.isShowScannedCount());
     }
 
     private static String encrypt(String s) {
@@ -312,26 +322,29 @@ public class UserDao {
 
     private void readRoles(User user) {
         String sql = "select role_id from user_role where username=?";
-        List<?> roles = template.getJdbcTemplate().queryForList(sql, Integer.class, user.getUsername());
+        List<?> roles = template
+            .getJdbcTemplate()
+            .queryForList(sql, Integer.class, user.getUsername());
         roles.forEach(role -> {
             switch ((Integer) role) {
-                case ROLE_ID_ADMIN -> user.setAdminRole(true);
-                case ROLE_ID_DOWNLOAD -> user.setDownloadRole(true);
-                case ROLE_ID_UPLOAD -> user.setUploadRole(true);
-                case ROLE_ID_PLAYLIST -> user.setPlaylistRole(true);
-                case ROLE_ID_COVER_ART -> user.setCoverArtRole(true);
-                case ROLE_ID_COMMENT -> user.setCommentRole(true);
-                case ROLE_ID_PODCAST -> user.setPodcastRole(true);
-                case ROLE_ID_STREAM -> user.setStreamRole(true);
-                case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
-                case ROLE_ID_JUKEBOX -> LOG.trace("Discontinued role: {}", role);
-                case ROLE_ID_SHARE -> user.setShareRole(true);
-                default -> LOG.warn("Unknown role: {}", role);
+            case ROLE_ID_ADMIN -> user.setAdminRole(true);
+            case ROLE_ID_DOWNLOAD -> user.setDownloadRole(true);
+            case ROLE_ID_UPLOAD -> user.setUploadRole(true);
+            case ROLE_ID_PLAYLIST -> user.setPlaylistRole(true);
+            case ROLE_ID_COVER_ART -> user.setCoverArtRole(true);
+            case ROLE_ID_COMMENT -> user.setCommentRole(true);
+            case ROLE_ID_PODCAST -> user.setPodcastRole(true);
+            case ROLE_ID_STREAM -> user.setStreamRole(true);
+            case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
+            case ROLE_ID_JUKEBOX -> LOG.trace("Discontinued role: {}", role);
+            case ROLE_ID_SHARE -> user.setShareRole(true);
+            default -> LOG.warn("Unknown role: {}", role);
             }
         });
     }
 
-    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
+    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it
+                                             // as it is.
     private void writeRoles(User user) {
         template.update("delete from user_role where username=?", user.getUsername());
         if (user.isAdminRole()) {
@@ -373,8 +386,8 @@ public class UserDao {
     private static class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new User(rs.getString(1), decrypt(rs.getString(2)), rs.getString(3), rs.getBoolean(4), rs.getLong(5),
-                    rs.getLong(6), rs.getLong(7));
+            return new User(rs.getString(1), decrypt(rs.getString(2)), rs.getString(3),
+                    rs.getBoolean(4), rs.getLong(5), rs.getLong(6), rs.getLong(7));
         }
     }
 

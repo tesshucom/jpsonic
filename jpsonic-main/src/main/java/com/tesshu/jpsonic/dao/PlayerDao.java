@@ -64,7 +64,8 @@ public class PlayerDao {
     private final PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
     private final Map<Integer, PlayQueue> playlists;
 
-    public PlayerDao(TemplateWrapper templateWrapper, PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
+    public PlayerDao(TemplateWrapper templateWrapper,
+            PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
         template = templateWrapper;
         this.playerDaoPlayQueueFactory = playerDaoPlayQueueFactory;
         playlists = new ConcurrentHashMap<>();
@@ -78,11 +79,9 @@ public class PlayerDao {
     /**
      * Returns all players owned by the given username and client ID.
      *
-     * @param username
-     *            The name of the user.
-     * @param clientId
-     *            The third-party client ID (used if this player is managed over the Airsonic REST API). May be
-     *            <code>null</code>.
+     * @param username The name of the user.
+     * @param clientId The third-party client ID (used if this player is managed
+     *                 over the Airsonic REST API). May be <code>null</code>.
      *
      * @return All relevant players.
      */
@@ -92,13 +91,16 @@ public class PlayerDao {
                     from player
                     where username=? and client_id is null
                     """;
-            return template.query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
+            return template
+                .query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
         } else {
             String sql = "select " + QUERY_COLUMNS + """
                     from player
                     where username=? and client_id=?
                     """;
-            return template.query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
+            return template
+                .query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username,
+                        clientId);
         }
     }
 
@@ -107,7 +109,8 @@ public class PlayerDao {
                 from player
                 where id=?
                 """;
-        return template.queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
+        return template
+            .queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
     }
 
     @Transactional
@@ -115,10 +118,13 @@ public class PlayerDao {
         Integer existingMax = template.queryForInt("select max(id) from player", 0);
         int id = existingMax + 1;
         player.setId(id);
-        String sql = "insert into player (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
-        template.update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(),
-                player.getIpAddress(), false, false, player.getLastSeen(), CoverArtScheme.MEDIUM.name(),
-                player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB", player.getClientId(), null);
+        String sql = "insert into player (" + QUERY_COLUMNS + ") values ("
+                + questionMarks(QUERY_COLUMNS) + ")";
+        template
+            .update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(),
+                    player.getIpAddress(), false, false, player.getLastSeen(),
+                    CoverArtScheme.MEDIUM.name(), player.getTranscodeScheme().name(),
+                    player.isDynamicIp(), "WEB", player.getClientId(), null);
         addPlaylist(player, playlists, playerDaoPlayQueueFactory);
 
         if (LOG.isInfoEnabled()) {
@@ -156,9 +162,11 @@ public class PlayerDao {
                         m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?,
                         dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?
                 """;
-        template.update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(), false,
-                false, player.getLastSeen(), player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB",
-                player.getClientId(), null, player.getId());
+        template
+            .update(sql, player.getName(), player.getType(), player.getUsername(),
+                    player.getIpAddress(), false, false, player.getLastSeen(),
+                    player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB",
+                    player.getClientId(), null, player.getId());
     }
 
     protected static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
@@ -176,7 +184,8 @@ public class PlayerDao {
         private final Map<Integer, PlayQueue> playlistMap;
         private final PlayerDaoPlayQueueFactory factory;
 
-        public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap, PlayerDaoPlayQueueFactory factory) {
+        public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap,
+                PlayerDaoPlayQueueFactory factory) {
             super();
             this.playlistMap = playlistMap;
             this.factory = factory;

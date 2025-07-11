@@ -76,11 +76,13 @@ public class ArtistDao {
                 """, rowMapper, artistName);
     }
 
-    public @Nullable Artist getArtist(final String artistName, final List<MusicFolder> musicFolders) {
+    public @Nullable Artist getArtist(final String artistName,
+            final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return null;
         }
-        Map<String, Object> args = LegacyMap.of("name", artistName, "folders", MusicFolder.toIdList(musicFolders));
+        Map<String, Object> args = LegacyMap
+            .of("name", artistName, "folders", MusicFolder.toIdList(musicFolders));
 
         return template.namedQueryOne("select " + QUERY_COLUMNS + """
                 from artist
@@ -95,7 +97,8 @@ public class ArtistDao {
                 """, rowMapper, id);
     }
 
-    public List<Artist> getArtists(MusicIndex musicIndex, List<MusicFolder> folders, long offset, long count) {
+    public List<Artist> getArtists(MusicIndex musicIndex, List<MusicFolder> folders, long offset,
+            long count) {
         return template.query("select " + QUERY_COLUMNS + """
                 from artist
                 where music_index=?
@@ -111,9 +114,10 @@ public class ArtistDao {
                         folder_id=?, sort=?, reading=?, music_index = ?
                 where name=?
                 """;
-        int c = template.update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getMusicIndex(),
-                artist.getName());
+        int c = template
+            .update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                    artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(),
+                    artist.getMusicIndex(), artist.getName());
         if (c > 0) {
             return artist;
         }
@@ -121,11 +125,12 @@ public class ArtistDao {
     }
 
     public @Nullable Artist createArtist(Artist artist) {
-        int c = template.update(
-                "insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1,
-                artist.getMusicIndex());
+        int c = template
+            .update("insert into artist (" + INSERT_COLUMNS + ") values ("
+                    + questionMarks(INSERT_COLUMNS) + ")", artist.getName(),
+                    artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                    artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(),
+                    -1, artist.getMusicIndex());
         Integer id = template.queryForInt("""
                 select id
                 from artist
@@ -146,12 +151,13 @@ public class ArtistDao {
                 """, order, id);
     }
 
-    public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<Artist> getAlphabetialArtists(final int offset, final int count,
+            final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset", offset);
 
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from artist
@@ -166,8 +172,9 @@ public class ArtistDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "username", username,
-                "count", count, "offset", offset);
+        Map<String, Object> args = LegacyMap
+            .of("folders", MusicFolder.toIdList(musicFolders), "username", username, "count", count,
+                    "offset", offset);
 
         return template.namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + """
                 from starred_artist, artist
@@ -191,22 +198,26 @@ public class ArtistDao {
                                 and media_file.present)
                 """.formatted(podcastQuery);
         if (withPodcast) {
-            template.update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
-                    MediaType.PODCAST.name());
+            template
+                .update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                        MediaType.PODCAST.name());
         } else {
-            template.update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
+            template
+                .update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
         }
     }
 
     public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
-        return template.queryForInts("""
-                select id from artist
-                where last_scanned <> ? or not present or name not in
-                        (select distinct album_artist
-                        from media_file
-                        where present and media_file.type = ? or
-                                media_file.type = ? or media_file.type = ?)
-                """, scanDate, MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name());
+        return template
+            .queryForInts("""
+                    select id from artist
+                    where last_scanned <> ? or not present or name not in
+                            (select distinct album_artist
+                            from media_file
+                            where present and media_file.type = ? or
+                                    media_file.type = ? or media_file.type = ?)
+                    """, scanDate, MediaType.MUSIC.name(), MediaType.PODCAST.name(),
+                    MediaType.AUDIOBOOK.name());
     }
 
     public void expunge(@NonNull Instant scanDate) {
@@ -265,7 +276,8 @@ public class ArtistDao {
         if (folders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = LegacyMap.of("folders", folders.stream().map(MusicFolder::getId).toList());
+        Map<String, Object> args = LegacyMap
+            .of("folders", folders.stream().map(MusicFolder::getId).toList());
         Integer result = template.getNamedParameterJdbcTemplate().queryForObject("""
                 select count(distinct music_index)
                 from artist
@@ -281,7 +293,8 @@ public class ArtistDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("folders", folders.stream().map(MusicFolder::getId).toList());
+        Map<String, Object> args = LegacyMap
+            .of("folders", folders.stream().map(MusicFolder::getId).toList());
         return template.namedQuery("""
                 select distinct music_index, count(music_index)
                 from artist
@@ -295,15 +308,16 @@ public class ArtistDao {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
-                    nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7), rs.getString(8),
-                    rs.getString(9), rs.getInt(10), rs.getString(11));
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7),
+                    rs.getString(8), rs.getString(9), rs.getInt(10), rs.getString(11));
         }
     }
 
     private static class ArtistCountMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1, "");
+            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null,
+                    -1, "");
         }
     }
 

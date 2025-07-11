@@ -68,7 +68,12 @@ public class PodcastProc extends DirectChildrenContentProc<PodcastChannel, Podca
 
     @Override
     public List<PodcastEpisode> getChildren(PodcastChannel channel, long offset, long count) {
-        return podcastService.getEpisodes(channel.getId()).stream().skip(offset).limit(count).toList();
+        return podcastService
+            .getEpisodes(channel.getId())
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .toList();
     }
 
     @Override

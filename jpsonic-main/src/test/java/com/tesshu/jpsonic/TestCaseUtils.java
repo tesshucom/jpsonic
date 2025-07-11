@@ -46,12 +46,12 @@ public final class TestCaseUtils {
     }
 
     /**
-     * Returns the path of the JPSONIC_HOME directory to use for tests. This will create a temporary directory.
+     * Returns the path of the JPSONIC_HOME directory to use for tests. This will
+     * create a temporary directory.
      *
      * @return JPSONIC_HOME directory path.
      *
-     * @throws RuntimeException
-     *             if it fails to create the temp directory.
+     * @throws RuntimeException if it fails to create the temp directory.
      */
     public static String jpsonicHomePathForTest() {
 
@@ -59,7 +59,8 @@ public final class TestCaseUtils {
             try {
                 jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_");
             } catch (IOException e) {
-                throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests", e);
+                throw new IllegalStateException(
+                        "Error while creating temporary JPSONIC_HOME directory for tests", e);
             }
             if (LOG.isInfoEnabled()) {
                 LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest);
@@ -92,8 +93,7 @@ public final class TestCaseUtils {
     /**
      * Constructs a map of records count per table.
      *
-     * @param daoHelper
-     *            DaoHelper object
+     * @param daoHelper DaoHelper object
      *
      * @return Map table name -> records count
      */
@@ -103,14 +103,18 @@ public final class TestCaseUtils {
                 from information_schema.system_tables
                 where table_type <> 'SYSTEM TABLE'
                 """, String.class);
-        return tableNames.stream().collect(Collectors.toMap(table -> table, table -> recordsInTable(table, daoHelper)));
+        return tableNames
+            .stream()
+            .collect(Collectors.toMap(table -> table, table -> recordsInTable(table, daoHelper)));
     }
 
     /**
      * Counts records in a table.
      */
     public static Integer recordsInTable(String tableName, DaoHelper daoHelper) {
-        return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName, Integer.class);
+        return daoHelper
+            .getJdbcTemplate()
+            .queryForObject("select count(1) from " + tableName, Integer.class);
     }
 
     /**

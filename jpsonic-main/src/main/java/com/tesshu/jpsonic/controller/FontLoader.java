@@ -44,7 +44,10 @@ public class FontLoader {
     }
 
     public boolean isEmbeddedFonts() {
-        return Optional.ofNullable(System.getProperty("jpsonic.embeddedfont")).map(Boolean::parseBoolean).orElse(false);
+        return Optional
+            .ofNullable(System.getProperty("jpsonic.embeddedfont"))
+            .map(Boolean::parseBoolean)
+            .orElse(false);
     }
 
     public @NonNull Font getFont(float fontSize) {
@@ -71,12 +74,13 @@ public class FontLoader {
     }
 
     /*
-     * Font stream may not be obtained except for general OpenJDK (based on Windows or Linux glibc). It is NonNull on
-     * the Docker image provided by Jpsonic.
+     * Font stream may not be obtained except for general OpenJDK (based on Windows
+     * or Linux glibc). It is NonNull on the Docker image provided by Jpsonic.
      */
     private @NonNull Font getFontFromResource(float fontSize) {
         Font font;
-        try (InputStream fontStream = FontLoader.class.getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
+        try (InputStream fontStream = FontLoader.class
+            .getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
             font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
         } catch (IOException | FontFormatException e) {
             throw new UncheckedException(e);

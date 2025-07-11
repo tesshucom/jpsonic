@@ -90,9 +90,11 @@ class UploadControllerTest {
     @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
-    void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws IOException, URISyntaxException {
+    void testHandleRequestInternalWithFile(@TempDir Path tempDirPath)
+            throws IOException, URISyntaxException {
 
-        MusicFolder musicFolder = new MusicFolder(0, tempDirPath.toString(), "Incoming1", true, now(), 1, false);
+        MusicFolder musicFolder = new MusicFolder(0, tempDirPath.toString(), "Incoming1", true,
+                now(), 1, false);
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolderService.clearMusicFolderCache();
 
@@ -101,18 +103,22 @@ class UploadControllerTest {
         MockMultipartHttpServletRequest req = new MockMultipartHttpServletRequest();
 
         byte[] data = IOUtils.toByteArray(Files.newInputStream(Path.of(url.toURI())));
-        req.setContent(createFileContent(tempDirPath.toString(), FILE_NAME, FILE_CONTENT_TYPE, data));
+        req
+            .setContent(
+                    createFileContent(tempDirPath.toString(), FILE_NAME, FILE_CONTENT_TYPE, data));
         req.setContentType("multipart/form-data; boundary=" + BOUNDARY);
 
         MockMultipartFile file = new MockMultipartFile("file", FILE_NAME, FILE_CONTENT_TYPE, data);
         req.addFile(file);
         req.setMethod(HttpMethod.POST.name());
 
-        ModelAndView result = uploadController.handleRequestInternal(req, new MockHttpServletResponse());
+        ModelAndView result = uploadController
+            .handleRequestInternal(req, new MockHttpServletResponse());
         assertEquals("upload", result.getViewName());
         Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
         assertNotNull(model);
-        assertEquals(FILE_NAME, ((List<Path>) model.get("uploadedFiles")).get(0).getFileName().toString());
+        assertEquals(FILE_NAME,
+                ((List<Path>) model.get("uploadedFiles")).get(0).getFileName().toString());
         assertEquals(0, ((List<Path>) model.get("unzippedFiles")).size());
     }
 
@@ -121,7 +127,8 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(10, tempDirPath.toString(), "Incoming2", true, now(), 1, false);
+        MusicFolder musicFolder = new MusicFolder(10, tempDirPath.toString(), "Incoming2", true,
+                now(), 1, false);
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolderService.clearMusicFolderCache();
 
@@ -130,11 +137,12 @@ class UploadControllerTest {
         MockMultipartHttpServletRequest req = new MockMultipartHttpServletRequest();
 
         byte[] data = IOUtils.toByteArray(Files.newInputStream(Path.of(url.toURI())));
-        byte[] fileContent = createFileContent(tempDirPath.toString(), ZIP_NAME, ZIP_CONTENT_TYPE, data);
+        byte[] fileContent = createFileContent(tempDirPath.toString(), ZIP_NAME, ZIP_CONTENT_TYPE,
+                data);
 
         String zipField = "--" + BOUNDARY + SEPA + " Content-Disposition: form-data; name=\""
-                + UploadController.FIELD_NAME_UNZIP + "\";" + "Content-type: text/plain" + SEPA + " value=\"true\""
-                + SEPA + SEPA;
+                + UploadController.FIELD_NAME_UNZIP + "\";" + "Content-type: text/plain" + SEPA
+                + " value=\"true\"" + SEPA + SEPA;
         String zipValue = "true" + SEPA;
         req.setContent(ArrayUtils.addAll((zipField + zipValue).getBytes(), fileContent));
         req.setContentType("multipart/form-data; boundary=" + BOUNDARY);
@@ -143,23 +151,28 @@ class UploadControllerTest {
         req.addFile(file);
         req.setMethod(HttpMethod.POST.name());
 
-        ModelAndView result = uploadController.handleRequestInternal(req, new MockHttpServletResponse());
+        ModelAndView result = uploadController
+            .handleRequestInternal(req, new MockHttpServletResponse());
         assertEquals("upload", result.getViewName());
         Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
         assertNotNull(model);
-        assertEquals(FILE_NAME, ((List<Path>) model.get("unzippedFiles")).get(0).getFileName().toString());
+        assertEquals(FILE_NAME,
+                ((List<Path>) model.get("unzippedFiles")).get(0).getFileName().toString());
     }
 
-    public byte[] createFileContent(String tempDir, String fileName, String contentType, byte[] fileValue) {
+    public byte[] createFileContent(String tempDir, String fileName, String contentType,
+            byte[] fileValue) {
         String dirField = "--" + BOUNDARY + SEPA + " Content-Disposition: form-data; name=\""
-                + UploadController.FIELD_NAME_DIR + "\";" + "Content-type: text/plain" + SEPA + " value=\"" + tempDir
-                + "\"" + SEPA + SEPA;
+                + UploadController.FIELD_NAME_DIR + "\";" + "Content-type: text/plain" + SEPA
+                + " value=\"" + tempDir + "\"" + SEPA + SEPA;
         String dirValue = tempDir + SEPA;
-        String fileField = "--" + BOUNDARY + SEPA + " Content-Disposition: form-data; name=\"file\"; filename=\""
-                + fileName + "\"" + SEPA + "Content-type: " + contentType + SEPA + SEPA;
+        String fileField = "--" + BOUNDARY + SEPA
+                + " Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\""
+                + SEPA + "Content-type: " + contentType + SEPA + SEPA;
         String end = SEPA + "--" + BOUNDARY + "--";
-        return ArrayUtils.addAll((dirField + dirValue + fileField).getBytes(),
-                ArrayUtils.addAll(fileValue, end.getBytes()));
+        return ArrayUtils
+            .addAll((dirField + dirValue + fileField).getBytes(),
+                    ArrayUtils.addAll(fileValue, end.getBytes()));
     }
 
     @Nested
@@ -170,16 +183,18 @@ class UploadControllerTest {
         @BeforeEach
         public void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
-            uploadController = new UploadController(mock(SecurityService.class), mock(PlayerService.class),
-                    mock(StatusService.class), mock(SettingsService.class), scannerStateService);
+            uploadController = new UploadController(mock(SecurityService.class),
+                    mock(PlayerService.class), mock(StatusService.class),
+                    mock(SettingsService.class), scannerStateService);
         }
 
         @Test
         void testIsScanning() {
 
             Mockito.when(scannerStateService.isScanning()).thenReturn(true);
-            ModelAndView result = uploadController.handleRequestInternal(mock(HttpServletRequest.class),
-                    mock(HttpServletResponse.class));
+            ModelAndView result = uploadController
+                .handleRequestInternal(mock(HttpServletRequest.class),
+                        mock(HttpServletResponse.class));
             @SuppressWarnings("unchecked")
             Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
             assertEquals("Currently scanning. Please try again after a while.",

@@ -110,7 +110,8 @@ public class RootUpnpProc implements UPnPContentProcessor<MenuItem, MenuItem> {
     public int getChildSizeOf(MenuItem parentMenu) {
         int childSize = menuItemService.getChildSizeOf(ViewType.UPNP, parentMenu.getId());
         if (childSize == 1) {
-            List<MenuItem> childlen = menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
+            List<MenuItem> childlen = menuItemService
+                .getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
             if (childlen.size() == 1) {
                 return findProcessor(childlen.get(0)).getDirectChildrenCount();
             }
@@ -120,7 +121,8 @@ public class RootUpnpProc implements UPnPContentProcessor<MenuItem, MenuItem> {
 
     @Override
     public List<MenuItem> getChildren(MenuItem parentMenu, long offset, long maxResults) {
-        return menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, offset, maxResults);
+        return menuItemService
+            .getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, offset, maxResults);
     }
 
     @Override
@@ -131,11 +133,13 @@ public class RootUpnpProc implements UPnPContentProcessor<MenuItem, MenuItem> {
     }
 
     @Override
-    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
+    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength)
+            throws ExecutionException {
         MenuItem parentMenu = getDirectChild(id);
         int childSize = menuItemService.getChildSizeOf(ViewType.UPNP, parentMenu.getId());
         if (childSize == 1) {
-            List<MenuItem> childlen = menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
+            List<MenuItem> childlen = menuItemService
+                .getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
             if (childlen.size() == 1) {
                 return findProcessor(childlen.get(0)).browseRoot(filter, offset, maxLength);
             }

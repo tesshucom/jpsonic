@@ -42,7 +42,8 @@ public class UpnpProcessorUtil {
     }
 
     public List<MusicFolder> getGuestFolders() {
-        return musicFolderService.getMusicFoldersForUser(securityService.getGuestUser().getUsername());
+        return musicFolderService
+            .getMusicFoldersForUser(securityService.getGuestUser().getUsername());
     }
 
     public boolean isSortAlbumsByYear(String artist) {

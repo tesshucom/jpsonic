@@ -26,7 +26,8 @@ public class ExpungeService {
     private final ScannerProcedureService procedure;
 
     public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager,
-            TemplateWrapper template, RatingDao ratingDao, ScannerProcedureService scannerProcedure) {
+            TemplateWrapper template, RatingDao ratingDao,
+            ScannerProcedureService scannerProcedure) {
         super();
         this.scannerState = scannerStateService;
         this.indexManager = indexManager;

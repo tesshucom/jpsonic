@@ -37,11 +37,14 @@ public class SearchCriteriaDirector {
         this.queryFactory = queryFactory;
     }
 
-    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
-            List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
-                indexType);
-        criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
+    public SearchCriteria construct(String searchInput, int offset, int count,
+            boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType)
+            throws IOException {
+        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer,
+                musicFolders, indexType);
+        criteria
+            .setParsedQuery(queryFactory
+                .searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
         return criteria;
     }
 }

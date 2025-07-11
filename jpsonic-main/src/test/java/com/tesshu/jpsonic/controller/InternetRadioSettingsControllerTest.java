@@ -57,21 +57,29 @@ class InternetRadioSettingsControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        InternetRadio radio = new InternetRadio(0, "*name*", "*streamUrl*", "*homepageUrl*", false, now());
+        InternetRadio radio = new InternetRadio(0, "*name*", "*streamUrl*", "*homepageUrl*", false,
+                now());
         internetRadioDao = mock(InternetRadioDao.class);
         Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Arrays.asList(radio));
         InternetRadioService internetRadioService = new InternetRadioService(internetRadioDao);
-        controller = new InternetRadioSettingsController(mock(SettingsService.class), internetRadioService);
+        controller = new InternetRadioSettingsController(mock(SettingsService.class),
+                internetRadioService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     void testDoGet() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/internetRadioSettings.view")).andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.view().name("internetRadioSettings"));
-        mockMvc.perform(MockMvcRequestBuilders.get("/internetRadioSettings.view").param(NameConstants.TOAST, "true"))
-                .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.view().name("internetRadioSettings"));
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/internetRadioSettings.view"))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.view().name("internetRadioSettings"));
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/internetRadioSettings.view")
+                .param(NameConstants.TOAST, "true"))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.view().name("internetRadioSettings"));
     }
 
     @Documented
@@ -125,8 +133,8 @@ class InternetRadioSettingsControllerTest {
     @Nested
     class TestErrorMessages {
 
-        private MockHttpServletRequest createRequest(String streamUrl, String homepageUrl, String name,
-                boolean enabled) {
+        private MockHttpServletRequest createRequest(String streamUrl, String homepageUrl,
+                String name, boolean enabled) {
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setParameter(Attributes.Request.STREAM_URL.value(), streamUrl);
             req.setParameter(Attributes.Request.HOMEPAGE_URL.value(), homepageUrl);
@@ -137,18 +145,22 @@ class InternetRadioSettingsControllerTest {
             return req;
         }
 
-        private MockHttpServletRequest createRequestForArrays(String streamUrl, String homepageUrl, String name,
-                boolean enabled, boolean delete) {
+        private MockHttpServletRequest createRequestForArrays(String streamUrl, String homepageUrl,
+                String name, boolean enabled, boolean delete) {
             int id = internetRadioDao.getAllInternetRadios().get(0).getId();
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setParameter(Attributes.Request.STREAM_URL.value() + "[" + id + "]", streamUrl);
             req.setParameter(Attributes.Request.HOMEPAGE_URL.value() + "[" + id + "]", homepageUrl);
             req.setParameter(Attributes.Request.NAME.value() + "[" + id + "]", name);
             if (enabled) {
-                req.setParameter(Attributes.Request.ENABLED.value() + "[" + id + "]", Boolean.toString(enabled));
+                req
+                    .setParameter(Attributes.Request.ENABLED.value() + "[" + id + "]",
+                            Boolean.toString(enabled));
             }
             if (delete) {
-                req.setParameter(Attributes.Request.DELETE.value() + "[" + id + "]", Boolean.toString(delete));
+                req
+                    .setParameter(Attributes.Request.DELETE.value() + "[" + id + "]",
+                            Boolean.toString(delete));
             }
             return req;
         }
@@ -156,7 +168,10 @@ class InternetRadioSettingsControllerTest {
         private String getRedirectError(HttpServletRequest req) throws ExecutionException {
             RedirectAttributes attributes = Mockito.mock(RedirectAttributes.class);
             ArgumentCaptor<Object> errorCaptor = ArgumentCaptor.forClass(Object.class);
-            Mockito.doReturn(attributes).when(attributes).addFlashAttribute(Mockito.anyString(), errorCaptor.capture());
+            Mockito
+                .doReturn(attributes)
+                .when(attributes)
+                .addFlashAttribute(Mockito.anyString(), errorCaptor.capture());
             controller.doPost(req, attributes);
             Object o = errorCaptor.getValue();
             if (o instanceof Boolean) {
@@ -174,7 +189,8 @@ class InternetRadioSettingsControllerTest {
             String homepageUrl = null;
             boolean enabled = false;
             boolean delete = true;
-            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name, enabled, delete);
+            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name,
+                    enabled, delete);
 
             assertNull(getRedirectError(req));
         }
@@ -190,7 +206,8 @@ class InternetRadioSettingsControllerTest {
             String homepageUrl = "*homepageUrl*";
             boolean enabled = false;
             boolean delete = false;
-            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name, enabled, delete);
+            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name,
+                    enabled, delete);
 
             assertEquals("internetradiosettings.noname", getRedirectError(req));
         }
@@ -206,7 +223,8 @@ class InternetRadioSettingsControllerTest {
             String homepageUrl = "*homepageUrl*";
             boolean enabled = false;
             boolean delete = false;
-            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name, enabled, delete);
+            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name,
+                    enabled, delete);
 
             assertEquals("internetradiosettings.nourl", getRedirectError(req));
         }
@@ -222,7 +240,8 @@ class InternetRadioSettingsControllerTest {
             String homepageUrl = "*homepageUrl*";
             boolean enabled = true;
             boolean delete = false;
-            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name, enabled, delete);
+            MockHttpServletRequest req = createRequestForArrays(streamUrl, homepageUrl, name,
+                    enabled, delete);
 
             assertNull(getRedirectError(req));
         }
@@ -239,7 +258,9 @@ class InternetRadioSettingsControllerTest {
             boolean enabled = false;
             MockHttpServletRequest req = createRequest(streamUrl, homepageUrl, name, enabled);
 
-            Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Collections.emptyList());
+            Mockito
+                .when(internetRadioDao.getAllInternetRadios())
+                .thenReturn(Collections.emptyList());
             assertNull(getRedirectError(req));
         }
 
@@ -255,7 +276,9 @@ class InternetRadioSettingsControllerTest {
             boolean enabled = false;
             MockHttpServletRequest req = createRequest(streamUrl, homepageUrl, name, enabled);
 
-            Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Collections.emptyList());
+            Mockito
+                .when(internetRadioDao.getAllInternetRadios())
+                .thenReturn(Collections.emptyList());
             assertEquals("internetradiosettings.nourl", getRedirectError(req));
         }
 
@@ -271,7 +294,9 @@ class InternetRadioSettingsControllerTest {
             boolean enabled = false;
             MockHttpServletRequest req = createRequest(streamUrl, homepageUrl, name, enabled);
 
-            Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Collections.emptyList());
+            Mockito
+                .when(internetRadioDao.getAllInternetRadios())
+                .thenReturn(Collections.emptyList());
             assertEquals("internetradiosettings.noname", getRedirectError(req));
         }
 
@@ -287,7 +312,9 @@ class InternetRadioSettingsControllerTest {
             boolean enabled = false;
             MockHttpServletRequest req = createRequest(streamUrl, homepageUrl, name, enabled);
 
-            Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Collections.emptyList());
+            Mockito
+                .when(internetRadioDao.getAllInternetRadios())
+                .thenReturn(Collections.emptyList());
             assertEquals("internetradiosettings.noname", getRedirectError(req));
         }
 
@@ -303,7 +330,9 @@ class InternetRadioSettingsControllerTest {
             boolean enabled = true;
             MockHttpServletRequest req = createRequest(streamUrl, homepageUrl, name, enabled);
 
-            Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Collections.emptyList());
+            Mockito
+                .when(internetRadioDao.getAllInternetRadios())
+                .thenReturn(Collections.emptyList());
             assertNull(getRedirectError(req));
         }
     }

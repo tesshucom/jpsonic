@@ -26,7 +26,8 @@ import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * Contains media libaray statistics, including the number of artists, albums and songs.
+ * Contains media libaray statistics, including the number of artists, albums
+ * and songs.
  *
  * @author Sindre Mehus
  */
@@ -45,8 +46,8 @@ public class MediaLibraryStatistics {
         this.executed = executed;
     }
 
-    public MediaLibraryStatistics(@NonNull Instant executed, int folderId, int artistCount, int albumCount,
-            int songCount, int videoCount, long totalSize, long totalDuration) {
+    public MediaLibraryStatistics(@NonNull Instant executed, int folderId, int artistCount,
+            int albumCount, int songCount, int videoCount, long totalSize, long totalDuration) {
         super();
         this.executed = executed;
         this.folderId = folderId;

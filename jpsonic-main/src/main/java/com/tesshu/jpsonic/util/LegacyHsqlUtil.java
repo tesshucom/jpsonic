@@ -46,7 +46,8 @@ public final class LegacyHsqlUtil {
     }
 
     /**
-     * Return the current version of the HSQLDB database, as reported by the database properties file.
+     * Return the current version of the HSQLDB database, as reported by the
+     * database properties file.
      */
     static String getHsqldbDatabaseVersion() {
         Path configFile = Path.of(SettingsService.getDefaultJDBCPath() + ".properties");
@@ -57,7 +58,8 @@ public final class LegacyHsqlUtil {
             return null;
         }
         try {
-            Properties properties = PropertiesLoaderUtils.loadProperties(new FileSystemResource(configFile));
+            Properties properties = PropertiesLoaderUtils
+                .loadProperties(new FileSystemResource(configFile));
             return properties.getProperty("version");
         } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
@@ -68,10 +70,12 @@ public final class LegacyHsqlUtil {
     }
 
     /**
-     * Check if you need to upgrade your HSQLDB database file. This version of Jpsonic does not offer HSQLDB 1.x data
-     * conversions. HSQLDB 2.5.0 is required for 1.x data conversion, and data converters that depend on it are
-     * supported by Jpsonic v110.x.x. So what is done here is to check if HSQLDB 1.x is about to be loaded, and if so,
-     * to display a message prompting for data conversion by v110.x.x.
+     * Check if you need to upgrade your HSQLDB database file. This version of
+     * Jpsonic does not offer HSQLDB 1.x data conversions. HSQLDB 2.5.0 is required
+     * for 1.x data conversion, and data converters that depend on it are supported
+     * by Jpsonic v110.x.x. So what is done here is to check if HSQLDB 1.x is about
+     * to be loaded, and if so, to display a message prompting for data conversion
+     * by v110.x.x.
      */
     public static void checkHsqldbDatabaseVersion() {
 
@@ -88,9 +92,13 @@ public final class LegacyHsqlUtil {
         String driverVersion;
         try {
             Driver driver = Class
-                    .forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
-                    .asSubclass(JDBCDriver.class).getDeclaredConstructor().newInstance();
-            driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
+                .forName("org.hsqldb.jdbc.JDBCDriver", true,
+                        Thread.currentThread().getContextClassLoader())
+                .asSubclass(JDBCDriver.class)
+                .getDeclaredConstructor()
+                .newInstance();
+            driverVersion = String
+                .format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
             if (driver.getMajorVersion() != AirsonicHsqlDatabase.CURRENT_SUPPORTED_MAJOR_VERSION) {
                 LOG.warn("""
                         HSQLDB database driver version {} is untested.
@@ -99,8 +107,9 @@ public final class LegacyHsqlUtil {
                         """, driverVersion, currentVersion);
                 return;
             }
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException
+                | ClassNotFoundException e) {
             LOG.warn("""
                     HSQLDB database driver version cannot be determined.
                     Trying to connect anyway,
@@ -109,7 +118,8 @@ public final class LegacyHsqlUtil {
             return;
         }
 
-        if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
+        if (UPGRADE_NEEDED_VERSION1.equals(currentVersion)
+                || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("""
                         HSQLDB database upgrade needed, from version {} to {}.
@@ -122,12 +132,17 @@ public final class LegacyHsqlUtil {
             }
         } else {
             // The expected conversion version is from '2.5.0 to 2.7'.
-            // HSQLDB 2.5.0 is the last to include a legacy converter that can convert 1.8.x data.
-            // if use v110.2.0 that contains HSQLDB 2.5.0, can convert data from 1.8.x to 2.5.0.
+            // HSQLDB 2.5.0 is the last to include a legacy converter that can convert 1.8.x
+            // data.
+            // if use v110.2.0 that contains HSQLDB 2.5.0, can convert data from 1.8.x to
+            // 2.5.0.
             // Jpsonic does not use incompatible features between HSQLDB 2.5.0 and 2.7.0.
             // So the data between 2.5.0 and 2.7.0 (All of Jpsonic v111.x.x) is reversible.
-            LOG.info("HSQLDB database version changed, from version {} to {}", currentVersion, driverVersion);
-            // If you see this message, the database properties file version has probably been rewritten.
+            LOG
+                .info("HSQLDB database version changed, from version {} to {}", currentVersion,
+                        driverVersion);
+            // If you see this message, the database properties file version has probably
+            // been rewritten.
         }
     }
 }

@@ -40,21 +40,15 @@ public class InternetRadio {
     /**
      * Creates a new internet radio station.
      *
-     * @param id
-     *            The system-generated ID.
-     * @param name
-     *            The user-defined name.
-     * @param streamUrl
-     *            The stream URL for the station.
-     * @param homepageUrl
-     *            The home page URL for the station.
-     * @param isEnabled
-     *            Whether the station is enabled.
-     * @param changed
-     *            When the corresponding database entry was last changed.
+     * @param id          The system-generated ID.
+     * @param name        The user-defined name.
+     * @param streamUrl   The stream URL for the station.
+     * @param homepageUrl The home page URL for the station.
+     * @param isEnabled   Whether the station is enabled.
+     * @param changed     When the corresponding database entry was last changed.
      */
-    public InternetRadio(Integer id, String name, String streamUrl, String homepageUrl, boolean isEnabled,
-            Instant changed) {
+    public InternetRadio(Integer id, String name, String streamUrl, String homepageUrl,
+            boolean isEnabled, Instant changed) {
         this.id = id;
         this.name = name;
         this.streamUrl = streamUrl;
@@ -66,18 +60,14 @@ public class InternetRadio {
     /**
      * Creates a new internet radio station.
      *
-     * @param name
-     *            The user-defined name.
-     * @param streamUrl
-     *            The URL for the station.
-     * @param homepageUrl
-     *            The home page URL for the station.
-     * @param isEnabled
-     *            Whether the station is enabled.
-     * @param changed
-     *            When the corresponding database entry was last changed.
+     * @param name        The user-defined name.
+     * @param streamUrl   The URL for the station.
+     * @param homepageUrl The home page URL for the station.
+     * @param isEnabled   Whether the station is enabled.
+     * @param changed     When the corresponding database entry was last changed.
      */
-    public InternetRadio(String name, String streamUrl, String homepageUrl, boolean isEnabled, Instant changed) {
+    public InternetRadio(String name, String streamUrl, String homepageUrl, boolean isEnabled,
+            Instant changed) {
         this(null, name, streamUrl, homepageUrl, isEnabled, changed);
     }
 
@@ -102,8 +92,7 @@ public class InternetRadio {
     /**
      * Sets the user-defined name.
      *
-     * @param name
-     *            The user-defined name.
+     * @param name The user-defined name.
      */
     public void setName(String name) {
         this.name = name;
@@ -121,8 +110,7 @@ public class InternetRadio {
     /**
      * Sets the stream URL of the radio station.
      *
-     * @param streamUrl
-     *            The stream URL of the radio station.
+     * @param streamUrl The stream URL of the radio station.
      */
     public void setStreamUrl(String streamUrl) {
         this.streamUrl = streamUrl;
@@ -140,8 +128,7 @@ public class InternetRadio {
     /**
      * Sets the home page URL of the radio station.
      *
-     * @param homepageUrl
-     *            The home page URL of the radio station.
+     * @param homepageUrl The home page URL of the radio station.
      */
     public void setHomepageUrl(String homepageUrl) {
         this.homepageUrl = homepageUrl;
@@ -159,8 +146,7 @@ public class InternetRadio {
     /**
      * Sets whether the radio station is enabled.
      *
-     * @param enabled
-     *            Whether the radio station is enabled.
+     * @param enabled Whether the radio station is enabled.
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -178,8 +164,7 @@ public class InternetRadio {
     /**
      * Sets when the corresponding database entry was last changed.
      *
-     * @param changed
-     *            When the corresponding database entry was last changed.
+     * @param changed When the corresponding database entry was last changed.
      */
     public void setChanged(Instant changed) {
         this.changed = changed;

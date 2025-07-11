@@ -31,10 +31,13 @@ public final class JettyApplicationHelper {
 
     public static void configure(JettyServletWebServerFactory factory) {
         factory.addServerCustomizers(server -> {
-            Arrays.stream(server.getConnectors()).filter(c -> c instanceof ServerConnector).forEach(c -> {
-                ServerConnector serverConnector = (ServerConnector) c;
-                serverConnector.setIdleTimeout(300_000);
-            });
+            Arrays
+                .stream(server.getConnectors())
+                .filter(c -> c instanceof ServerConnector)
+                .forEach(c -> {
+                    ServerConnector serverConnector = (ServerConnector) c;
+                    serverConnector.setIdleTimeout(300_000);
+                });
         });
     }
 }

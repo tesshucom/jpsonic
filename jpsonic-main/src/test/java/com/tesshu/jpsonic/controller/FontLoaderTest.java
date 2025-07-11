@@ -95,7 +95,8 @@ class FontLoaderTest {
 
         MetricRegistry metrics = new MetricRegistry();
         List<Future<Font>> futures = new ArrayList<>();
-        Timer globalTimer = metrics.timer(MetricRegistry.name(FontLoaderTest.class, "SpeedOfFontRetrieval"));
+        Timer globalTimer = metrics
+            .timer(MetricRegistry.name(FontLoaderTest.class, "SpeedOfFontRetrieval"));
 
         for (int i = 0; i < threadsCount; i++) {
             futures.add(executor.submit(() -> {
@@ -119,8 +120,10 @@ class FontLoaderTest {
         }).sum());
         executor.shutdown();
 
-        ConsoleReporter.Builder builder = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS);
+        ConsoleReporter.Builder builder = ConsoleReporter
+            .forRegistry(metrics)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.MILLISECONDS);
         try (ConsoleReporter reporter = builder.build()) {
             // to be none
         }

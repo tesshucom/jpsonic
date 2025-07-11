@@ -32,8 +32,8 @@ import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.lucene.search.BoostQuery;
 
 /**
- * Enum that symbolizes the each lucene index entity. This class is a division of what was once part of SearchService
- * and added functionality.
+ * Enum that symbolizes the each lucene index entity. This class is a division
+ * of what was once part of SearchService and added functionality.
  *
  * @since legacy
  */
@@ -104,8 +104,8 @@ public enum IndexType {
     /**
      * Define the field's applied boost value when searching IndexType.
      *
-     * @param entry
-     *            {@link #entry(String, float)}. When specifying multiple values, enumerate entries.
+     * @param entry {@link #entry(String, float)}. When specifying multiple values,
+     *              enumerate entries.
      *
      * @return Map of boost values ​​to be applied to the field
      */
@@ -119,18 +119,16 @@ public enum IndexType {
     /**
      * Create an entry representing the boost value for the field.
      *
-     * @param k
-     *            Field name defined by FieldNames
-     * @param v
-     *            Boost value
+     * @param k Field name defined by FieldNames
+     * @param v Boost value
      */
     private static SimpleEntry<String, Float> entry(String k, float v) {
         return new AbstractMap.SimpleEntry<>(k, v);
     }
 
     /**
-     * Defines the field that the input value is to search for when searching IndexType. If you specify multiple values,
-     * list the field names.
+     * Defines the field that the input value is to search for when searching
+     * IndexType. If you specify multiple values, list the field names.
      */
     private static String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);

@@ -70,10 +70,11 @@ class SetMusicFileInfoControllerTest {
 
         mediaFileDao = mock(MediaFileDao.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
-        WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
-                scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class), mock(MediaFileCache.class),
-                mock(MusicParser.class), mock(VideoParser.class), mock(SettingsService.class),
-                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class),
+        WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
+                mediaFileDao, scannerStateService, mock(MediaFileService.class),
+                mock(AlbumDao.class), mock(MediaFileCache.class), mock(MusicParser.class),
+                mock(VideoParser.class), mock(SettingsService.class), mock(SecurityService.class),
+                mock(JapaneseReadingUtils.class), mock(IndexManager.class),
                 mock(MusicIndexServiceImpl.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -83,11 +84,13 @@ class SetMusicFileInfoControllerTest {
     @WithMockUser(username = "admin")
     void testPost() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/setMusicFileInfo.view").param(Attributes.Request.ID.value(),
-                        Integer.toString(ID)))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MAIN.value() + "?id=" + ID))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/setMusicFileInfo.view")
+                .param(Attributes.Request.ID.value(), Integer.toString(ID)))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MAIN.value() + "?id=" + ID))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 

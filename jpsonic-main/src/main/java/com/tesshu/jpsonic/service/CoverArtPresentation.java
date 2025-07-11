@@ -25,9 +25,10 @@ import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 
 /**
- * A class that the key generation logic of CoverArt. In presentations where cover art is handled, id/type and key
- * conversion may be performed to ensure uniqueness. This interface is used from the controller or service. And the key
- * generated is not stored in the persistence layer.
+ * A class that the key generation logic of CoverArt. In presentations where
+ * cover art is handled, id/type and key conversion may be performed to ensure
+ * uniqueness. This interface is used from the controller or service. And the
+ * key generated is not stored in the persistence layer.
  */
 public interface CoverArtPresentation {
 

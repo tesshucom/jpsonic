@@ -42,7 +42,7 @@ class UpnpStreamImplTest {
         upnpStream = new UpnpStreamImpl(mock(ProtocolFactory.class), mock(HttpExchange.class),
                 mock(ServerClientTokens.class));
     }
-    
+
     @Nested
     class GetBodyBytesTest {
 
@@ -64,7 +64,7 @@ class UpnpStreamImplTest {
 
         @Test
         void testOyherThanString() {
-            byte[] expected = {(byte) 1, (byte) 2, (byte) 3};
+            byte[] expected = { (byte) 1, (byte) 2, (byte) 3 };
             StreamResponseMessage responseMessage = new StreamResponseMessage(expected);
             assertArrayEquals(expected, upnpStream.getBodyBytesOf(responseMessage));
         }

@@ -275,7 +275,7 @@ function onPlayAll() {
                             <c:param name="addEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
                             <c:param name="starEnabled" value="true"/>
                             <c:param name="starred" value="${not empty video.starredDate}"/>
-                            <c:param name="video" value="${model.player.web}"/>
+                            <c:param name="video" value="true"/>
                             <c:param name="asTable" value="true"/>
                         </c:import>
                         <td><a href="javascript:top.onOpenDialogVideoPlayer('${videoUrl}')">${fn:escapeXml(video.name)}</a></td>

@@ -30,8 +30,8 @@ public class AlbumNotes {
     private final String mediumImageUrl;
     private final String largeImageUrl;
 
-    public AlbumNotes(String notes, String musicBrainzId, String lastFmUrl, String smallImageUrl, String mediumImageUrl,
-            String largeImageUrl) {
+    public AlbumNotes(String notes, String musicBrainzId, String lastFmUrl, String smallImageUrl,
+            String mediumImageUrl, String largeImageUrl) {
         this.notes = notes;
         this.musicBrainzId = musicBrainzId;
         this.lastFmUrl = lastFmUrl;

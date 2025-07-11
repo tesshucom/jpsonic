@@ -45,8 +45,10 @@ public class AccessDeniedController {
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
         if (LOG.isInfoEnabled()) {
-            LOG.info("The IP {} tried to access the forbidden url {}.", URI.create(request.getRemoteAddr()),
-                    URI.create(request.getRequestURL().toString()));
+            LOG
+                .info("The IP {} tried to access the forbidden url {}.",
+                        URI.create(request.getRemoteAddr()),
+                        URI.create(request.getRequestURL().toString()));
         }
         return new ModelAndView("accessDenied");
     }

@@ -77,8 +77,9 @@ public class UserSettingsController {
     private final ShareService shareService;
     private final PlayerService playerService;
 
-    public UserSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, TranscodingService transcodingService, ShareService shareService,
+    public UserSettingsController(SettingsService settingsService,
+            MusicFolderService musicFolderService, SecurityService securityService,
+            TranscodingService transcodingService, ShareService shareService,
             PlayerService playerService) {
         super();
         this.settingsService = settingsService;
@@ -117,16 +118,25 @@ public class UserSettingsController {
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = securityService.getUserSettings(user.getUsername());
                 command.setTranscodeScheme(userSettings.getTranscodeScheme());
-                command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
-                command.setCurrentUser(
-                        securityService.getCurrentUserStrict(request).getUsername().equals(user.getUsername()));
+                command
+                    .setAllowedMusicFolderIds(
+                            PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
+                command
+                    .setCurrentUser(securityService
+                        .getCurrentUserStrict(request)
+                        .getUsername()
+                        .equals(user.getUsername()));
                 command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
             }
         }
 
         command.setLdapEnabled(settingsService.isLdapEnabled());
-        command.setUsers(securityService.getAllUsers().stream()
-                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList()));
+        command
+            .setUsers(securityService
+                .getAllUsers()
+                .stream()
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
+                .collect(Collectors.toList()));
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
@@ -140,10 +150,14 @@ public class UserSettingsController {
     }
 
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
+        Integer userIndex = ServletRequestUtils
+            .getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
-            List<User> users = securityService.getAllUsers().stream()
-                    .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
+            List<User> users = securityService
+                .getAllUsers()
+                .stream()
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
+                .collect(Collectors.toList());
             if (userIndex >= 0 && userIndex < users.size()) {
                 return users.get(userIndex);
             }
@@ -153,7 +167,8 @@ public class UserSettingsController {
 
     private List<Integer> getAllowedMusicFolderIds(User user) {
         List<Integer> result = new ArrayList<>();
-        List<MusicFolder> allowedMusicFolders = user == null ? musicFolderService.getAllMusicFolders()
+        List<MusicFolder> allowedMusicFolders = user == null
+                ? musicFolderService.getAllMusicFolders()
                 : musicFolderService.getMusicFoldersForUser(user.getUsername());
 
         for (MusicFolder musicFolder : allowedMusicFolders) {
@@ -163,12 +178,14 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
+    protected ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
+            redirectAttributes
+                .addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
         } else {
             if (command.isDeleteUser()) {
                 deleteUser(command);
@@ -180,15 +197,19 @@ public class UserSettingsController {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         }
 
-        redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(),
-                getUserIndex(command.getUsername()));
+        redirectAttributes
+            .addFlashAttribute(Attributes.Redirect.USER_INDEX.value(),
+                    getUserIndex(command.getUsername()));
 
         return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }
 
     private Integer getUserIndex(String userName) {
-        List<User> users = securityService.getAllUsers().stream()
-                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
+        List<User> users = securityService
+            .getAllUsers()
+            .stream()
+            .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
+            .collect(Collectors.toList());
         for (int i = 0; i < users.size(); i++) {
             if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
@@ -202,7 +223,8 @@ public class UserSettingsController {
     }
 
     public void createUser(UserSettingsCommand command) {
-        User user = new User(command.getUsername(), command.getPassword(), StringUtils.trimToNull(command.getEmail()));
+        User user = new User(command.getUsername(), command.getPassword(),
+                StringUtils.trimToNull(command.getEmail()));
         user.setLdapAuthenticated(command.isLdapAuthenticated());
         securityService.createUser(user);
         updateUser(command);
@@ -230,11 +252,15 @@ public class UserSettingsController {
         UserSettings userSettings = securityService.getUserSettings(command.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         if (command.getTranscodeScheme() != TranscodeScheme.OFF) {
-            List<Player> userPlayers = playerService.getAllPlayers().stream()
-                    .filter(p -> command.getUsername().equals(p.getUsername())).collect(Collectors.toList());
+            List<Player> userPlayers = playerService
+                .getAllPlayers()
+                .stream()
+                .filter(p -> command.getUsername().equals(p.getUsername()))
+                .collect(Collectors.toList());
             for (Player player : userPlayers) {
-                if (player.getTranscodeScheme() == TranscodeScheme.OFF
-                        || player.getTranscodeScheme().getMaxBitRate() > command.getTranscodeScheme().getMaxBitRate()) {
+                if (player.getTranscodeScheme() == TranscodeScheme.OFF || player
+                    .getTranscodeScheme()
+                    .getMaxBitRate() > command.getTranscodeScheme().getMaxBitRate()) {
                     player.setTranscodeScheme(command.getTranscodeScheme());
                     playerService.updatePlayer(player);
                 }
@@ -244,7 +270,8 @@ public class UserSettingsController {
         userSettings.setChanged(now());
         securityService.updateUserSettings(userSettings);
 
-        List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());
+        List<Integer> allowedMusicFolderIds = PlayerUtils
+            .toIntegerList(command.getAllowedMusicFolderIds());
         musicFolderService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);
     }
 }

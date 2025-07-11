@@ -81,9 +81,10 @@ public class ExecutorConfiguration {
     }
 
     /*
-     * General-purpose executor for small processing. Executes a task that has a relatively short execution time and
-     * does not cause a fatal problem even if it is forcibly shut down (Shutdown implementation method depends on
-     * individual task).
+     * General-purpose executor for small processing. Executes a task that has a
+     * relatively short execution time and does not cause a fatal problem even if it
+     * is forcibly shut down (Shutdown implementation method depends on individual
+     * task).
      */
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
@@ -107,7 +108,8 @@ public class ExecutorConfiguration {
     }
 
     /*
-     * Podcast download executor. All tasks must be successfully canceled at shutdown.
+     * Podcast download executor. All tasks must be successfully canceled at
+     * shutdown.
      */
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
@@ -118,13 +120,16 @@ public class ExecutorConfiguration {
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(3);
         suppressIfLargePool(executor);
-        executor.setThreadFactory(createThreadFactory(true, "podcast-download-task", Thread.MIN_PRIORITY));
+        executor
+            .setThreadFactory(
+                    createThreadFactory(true, "podcast-download-task", Thread.MIN_PRIORITY));
         executor.initialize();
         return executor;
     }
 
     /*
-     * Podcast refresh executor. All tasks must be successfully canceled at shutdown.
+     * Podcast refresh executor. All tasks must be successfully canceled at
+     * shutdown.
      */
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastDownloadExecutor" })
@@ -135,7 +140,9 @@ public class ExecutorConfiguration {
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(5);
         suppressIfLargePool(executor);
-        executor.setThreadFactory(createThreadFactory(true, "podcast-refresh-task", Thread.MIN_PRIORITY));
+        executor
+            .setThreadFactory(
+                    createThreadFactory(true, "podcast-refresh-task", Thread.MIN_PRIORITY));
         executor.initialize();
         return executor;
     }
@@ -165,7 +172,8 @@ public class ExecutorConfiguration {
         // scan, podcast. See *ScheduleConfiguration.
         // upnp registry maintainer. See UpnpServiceConfigurationAdapter
         scheduler.setPoolSize(3);
-        scheduler.setThreadFactory(createThreadFactory(true, "task-scheduler", Thread.MIN_PRIORITY));
+        scheduler
+            .setThreadFactory(createThreadFactory(true, "task-scheduler", Thread.MIN_PRIORITY));
         return scheduler;
     }
 
@@ -180,9 +188,11 @@ public class ExecutorConfiguration {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
         executor.setAllowCoreThreadTimeOut(true);
-        executor.setRejectedExecutionHandler(
-                (runnable, threadPoolExecutor) -> LoggerFactory.getLogger(runnable.getClass())
-                        .info("Thread pool(%s) rejected execution.".formatted(threadPoolExecutor.getClass())));
+        executor
+            .setRejectedExecutionHandler((runnable, threadPoolExecutor) -> LoggerFactory
+                .getLogger(runnable.getClass())
+                .info("Thread pool(%s) rejected execution."
+                    .formatted(threadPoolExecutor.getClass())));
         executor.setCorePoolSize(16);
         executor.setMaxPoolSize(200);
         executor.setKeepAliveSeconds(10);
@@ -212,12 +222,15 @@ public class ExecutorConfiguration {
     @Bean
     public Executor registryMaintainerExecutor() {
         return Executors
-                .newSingleThreadExecutor(createThreadFactory(false, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
+            .newSingleThreadExecutor(
+                    createThreadFactory(false, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
     }
 
-    private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {
+    private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName,
+            int threadPriority) {
         JpsonicThreadFactory th = new JpsonicThreadFactory((thread, throwable) -> LoggerFactory
-                .getLogger(thread.getName()).error("An error occurred in the pooling thread.", throwable));
+            .getLogger(thread.getName())
+            .error("An error occurred in the pooling thread.", throwable));
         th.setThreadGroupName(threadGroupName);
         th.setThreadNamePrefix("jps-" + threadGroupName + (isPool ? "-pool-" : "-"));
         th.setThreadPriority(threadPriority);
@@ -227,7 +240,9 @@ public class ExecutorConfiguration {
             th.afterPropertiesSet();
         } catch (NamingException e) {
             if (LOG.isInfoEnabled()) {
-                LOG.info(threadGroupName + ": java:comp/DefaultManagedThreadFactory cannot look up.", e);
+                LOG
+                    .info(threadGroupName
+                            + ": java:comp/DefaultManagedThreadFactory cannot look up.", e);
             }
         }
 
@@ -235,11 +250,13 @@ public class ExecutorConfiguration {
     }
 
     /*
-     * ThreadFactory for overriding UncaughtExceptionHandler. Output to the standard log. However, keep in mind that if
-     * the caller is CallerRunsPolicy, the expected log output depends on the caller's thread implementation.
+     * ThreadFactory for overriding UncaughtExceptionHandler. Output to the standard
+     * log. However, keep in mind that if the caller is CallerRunsPolicy, the
+     * expected log output depends on the caller's thread implementation.
      */
     @SuppressWarnings("serial")
-    public static class JpsonicThreadFactory extends DefaultManagedAwareThreadFactory implements ThreadFactory {
+    public static class JpsonicThreadFactory extends DefaultManagedAwareThreadFactory
+            implements ThreadFactory {
 
         private final Thread.UncaughtExceptionHandler handler;
 

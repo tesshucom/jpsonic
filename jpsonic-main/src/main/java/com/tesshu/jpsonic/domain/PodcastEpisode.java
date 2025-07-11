@@ -48,9 +48,9 @@ public class PodcastEpisode {
     private PodcastStatus status;
     private String errorMessage;
 
-    public PodcastEpisode(Integer id, Integer channelId, String url, String path, String title, String description,
-            Instant publishDate, String duration, Long length, Long bytesDownloaded, PodcastStatus status,
-            String errorMessage) {
+    public PodcastEpisode(Integer id, Integer channelId, String url, String path, String title,
+            String description, Instant publishDate, String duration, Long length,
+            Long bytesDownloaded, PodcastStatus status, String errorMessage) {
         this.id = id;
         this.channelId = channelId;
         this.url = url;

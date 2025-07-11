@@ -70,8 +70,8 @@ public class MediaFileService {
     private final JpsonicComparators comparators;
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaFileCache mediaFileCache, MediaFileDao mediaFileDao,
-            JpsonicComparators comparators) {
+            SecurityService securityService, MediaFileCache mediaFileCache,
+            MediaFileDao mediaFileDao, JpsonicComparators comparators) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -147,23 +147,26 @@ public class MediaFileService {
         return Optional.ofNullable(getParentOf(mediaFile));
     }
 
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles,
+            boolean includeDir) {
         List<MediaFile> result = getChildrenWithoutSortOf(parent, includeFiles, includeDir);
         result.sort(comparators.mediaFileOrder(parent));
         return result;
     }
 
-    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, ChildOrder childOrder,
-            MediaType... excludes) {
-        return mediaFileDao.getChildrenOf(parent.getPathString(), offset, count, childOrder, excludes);
+    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count,
+            ChildOrder childOrder, MediaType... excludes) {
+        return mediaFileDao
+            .getChildrenOf(parent.getPathString(), offset, count, childOrder, excludes);
     }
 
-    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, long offset, long count, MediaType... excludes) {
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, long offset, long count,
+            MediaType... excludes) {
         return mediaFileDao.getChildrenOf(folders, offset, count, excludes);
     }
 
-    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex, long offset, long count,
-            MediaType... excludes) {
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex,
+            long offset, long count, MediaType... excludes) {
         return mediaFileDao.getChildrenOf(folders, musicIndex, offset, count, excludes);
     }
 
@@ -172,7 +175,8 @@ public class MediaFileService {
         return mediaFileDao.getDirectChildFiles(folders, offset, count, excludes);
     }
 
-    public List<MediaFile> getChildrenWithoutSortOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
+    public List<MediaFile> getChildrenWithoutSortOf(MediaFile parent, boolean includeFiles,
+            boolean includeDir) {
         List<MediaFile> result = new ArrayList<>();
         if (!parent.isDirectory()) {
             return result;
@@ -249,10 +253,14 @@ public class MediaFileService {
         }
         String fileName = path.getFileName().toString();
         return attrs.isRegularFile() && fileName.charAt(0) != '.'
-                && settingsService.getExcludedCoverArtsAsArray().stream()
-                        .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(fileName, excluded))
-                && settingsService.getCoverArtFileTypesAsArray().stream()
-                        .anyMatch(type -> StringUtils.endsWithIgnoreCase(fileName, type));
+                && settingsService
+                    .getExcludedCoverArtsAsArray()
+                    .stream()
+                    .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(fileName, excluded))
+                && settingsService
+                    .getCoverArtFileTypesAsArray()
+                    .stream()
+                    .anyMatch(type -> StringUtils.endsWithIgnoreCase(fileName, type));
     }
 
     public Optional<Path> findCoverArt(Path parent) {
@@ -265,7 +273,8 @@ public class MediaFileService {
             throw new UncheckedIOException(e);
         }
 
-        // Look for embedded images in audiofiles. (Only check first audio file encountered).
+        // Look for embedded images in audiofiles. (Only check first audio file
+        // encountered).
         try (Stream<Path> children = Files.list(parent)) {
             return children.filter(ParserUtils::isEmbeddedArtworkApplicable).findFirst();
         } catch (IOException e) {
@@ -293,11 +302,13 @@ public class MediaFileService {
         return result;
     }
 
-    public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count,
+            List<MusicFolder> musicFolders) {
         return mediaFileDao.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
     }
 
-    public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count,
+            List<MusicFolder> musicFolders) {
         return mediaFileDao.getMostRecentlyPlayedAlbums(offset, count, musicFolders);
     }
 
@@ -305,7 +316,8 @@ public class MediaFileService {
         return mediaFileDao.getNewestAlbums(offset, count, musicFolders);
     }
 
-    public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getStarredAlbums(int offset, int count, String username,
+            List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbums(offset, count, username, musicFolders);
     }
 
@@ -389,7 +401,8 @@ public class MediaFileService {
         return mediaFileDao.getMediaFile(MediaType.VIDEO, count, offset, folders);
     }
 
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist,
+            String album) {
         return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
     }
 
@@ -398,15 +411,22 @@ public class MediaFileService {
     }
 
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
-        List<String> shortcutPaths = settingsService.getShortcutsAsArray().stream().flatMap(
-                shortcut -> folders.stream().map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
-                .toList();
+        List<String> shortcutPaths = settingsService
+            .getShortcutsAsArray()
+            .stream()
+            .flatMap(shortcut -> folders
+                .stream()
+                .map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
+            .toList();
         return mediaFileDao.getMudicIndexCounts(folders, shortcutPaths);
     }
 
     @Nullable
     public String getID3AlbumGenresString(MediaFile mediaFile) {
-        String genresString = mediaFileDao.getID3AlbumGenres(mediaFile).stream().collect(Collectors.joining(";"));
+        String genresString = mediaFileDao
+            .getID3AlbumGenres(mediaFile)
+            .stream()
+            .collect(Collectors.joining(";"));
         return genresString.isBlank() ? null : genresString;
     }
 }

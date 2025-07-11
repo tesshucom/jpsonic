@@ -34,16 +34,19 @@ public class HttpRange {
     private final Long lastBytePos;
 
     /**
-     * Parses the given string as a HTTP header byte range. See chapter 14.36.1 in RFC 2068 for details.
+     * Parses the given string as a HTTP header byte range. See chapter 14.36.1 in
+     * RFC 2068 for details.
      * <p/>
-     * Only a subset of the allowed syntaxes are supported. Only ranges which specify first-byte-pos are supported. The
-     * last-byte-pos is optional.
+     * Only a subset of the allowed syntaxes are supported. Only ranges which
+     * specify first-byte-pos are supported. The last-byte-pos is optional.
      *
-     * @param range
-     *            The range from the HTTP header, for instance "bytes=0-499" or "bytes=500-"
+     * @param range The range from the HTTP header, for instance "bytes=0-499" or
+     *              "bytes=500-"
      *
-     * @return A range object (using inclusive values). If the last-byte-pos is not given, the end of the returned range
-     *         is {@code null}. The method returns <code>null</code> if the syntax of the given range is not supported.
+     * @return A range object (using inclusive values). If the last-byte-pos is not
+     *         given, the end of the returned range is {@code null}. The method
+     *         returns <code>null</code> if the syntax of the given range is not
+     *         supported.
      */
     public static HttpRange valueOf(String range) {
         if (range == null) {

@@ -44,7 +44,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Controller for the page used to administrate the set of transcoding configurations.
+ * Controller for the page used to administrate the set of transcoding
+ * configurations.
  *
  * @author Sindre Mehus
  */
@@ -58,8 +59,9 @@ public class TranscodingSettingsController {
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public TranscodingSettingsController(SettingsService settingsService, SecurityService securityService,
-            TranscodingService transcodingService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+    public TranscodingSettingsController(SettingsService settingsService,
+            SecurityService securityService, TranscodingService transcodingService,
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -74,15 +76,18 @@ public class TranscodingSettingsController {
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
-        model.addAttribute("model",
-                LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
+        model
+            .addAttribute("model", LegacyMap
+                .of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
                         transcodingService.getTranscodeDirectory(), "preferredFormat",
                         settingsService.getPreferredFormat(), "preferredFormatSheme",
-                        PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName()), "hlsCommand",
-                        settingsService.getHlsCommand(), "brand", SettingsService.getBrand(), "isOpenDetailSetting",
-                        userSettings.isOpenDetailSetting(), "useRadio", settingsService.isUseRadio(), "showOutlineHelp",
-                        outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()), "shareCount",
-                        shareService.getAllShares().size()));
+                        PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName()),
+                        "hlsCommand", settingsService.getHlsCommand(), "brand",
+                        SettingsService.getBrand(), "isOpenDetailSetting",
+                        userSettings.isOpenDetailSetting(), "useRadio",
+                        settingsService.isUseRadio(), "showOutlineHelp",
+                        outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
+                        "shareCount", shareService.getAllShares().size()));
         return "transcodingSettings";
     }
 
@@ -96,11 +101,14 @@ public class TranscodingSettingsController {
         }
 
         String preferredFormat = request.getParameter("preferredFormat");
-        if (preferredFormat != null && transcodingService.getAllTranscodings().stream()
-                .anyMatch(t -> preferredFormat.equals(t.getTargetFormat()))) {
+        if (preferredFormat != null && transcodingService
+            .getAllTranscodings()
+            .stream()
+            .anyMatch(t -> preferredFormat.equals(t.getTargetFormat()))) {
             settingsService.setPreferredFormat(preferredFormat);
         }
-        settingsService.setPreferredFormatShemeName(request.getParameter("preferredFormatShemeName"));
+        settingsService
+            .setPreferredFormatShemeName(request.getParameter("preferredFormatShemeName"));
         settingsService.save();
 
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
@@ -110,7 +118,8 @@ public class TranscodingSettingsController {
         return Transcodings.of(name) != null;
     }
 
-    private String handleParameters(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    private String handleParameters(HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
         if (restoreTranscoding(request)) {
             return null;
@@ -122,15 +131,21 @@ public class TranscodingSettingsController {
         }
 
         String name = StringUtils.trimToNull(request.getParameter(Attributes.Request.NAME.value()));
-        String sourceFormats = StringUtils.trimToNull(request.getParameter(Attributes.Request.SOURCE_FORMATS.value()));
-        String targetFormat = StringUtils.trimToNull(request.getParameter(Attributes.Request.TARGET_FORMAT.value()));
-        String step1 = StringUtils.trimToNull(request.getParameter(Attributes.Request.STEP1.value()));
-        String step2 = StringUtils.trimToNull(request.getParameter(Attributes.Request.STEP2.value()));
-        boolean defaultActive = request.getParameter(Attributes.Request.DEFAULT_ACTIVE.value()) != null;
+        String sourceFormats = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.SOURCE_FORMATS.value()));
+        String targetFormat = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.TARGET_FORMAT.value()));
+        String step1 = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.STEP1.value()));
+        String step2 = StringUtils
+            .trimToNull(request.getParameter(Attributes.Request.STEP2.value()));
+        boolean defaultActive = request
+            .getParameter(Attributes.Request.DEFAULT_ACTIVE.value()) != null;
 
-        if (name != null || sourceFormats != null || targetFormat != null || step1 != null || step2 != null) {
-            Transcoding transcoding = new Transcoding(null, name, sourceFormats, targetFormat, step1, step2, null,
-                    defaultActive);
+        if (name != null || sourceFormats != null || targetFormat != null || step1 != null
+                || step2 != null) {
+            Transcoding transcoding = new Transcoding(null, name, sourceFormats, targetFormat,
+                    step1, step2, null, defaultActive);
             String error = null;
             if (name == null) {
                 error = "transcodingsettings.noname";
@@ -146,12 +161,15 @@ public class TranscodingSettingsController {
                 transcodingService.createTranscoding(transcoding);
             }
             if (error != null) {
-                redirectAttributes.addAttribute(Attributes.Redirect.NEW_TRANSCODING.value(), transcoding);
+                redirectAttributes
+                    .addAttribute(Attributes.Redirect.NEW_TRANSCODING.value(), transcoding);
                 return error;
             }
         }
 
-        settingsService.setHlsCommand(StringUtils.trim(request.getParameter(Attributes.Request.HLS_COMMAND.value())));
+        settingsService
+            .setHlsCommand(
+                    StringUtils.trim(request.getParameter(Attributes.Request.HLS_COMMAND.value())));
         settingsService.save();
         return null;
     }
@@ -174,8 +192,10 @@ public class TranscodingSettingsController {
 
             Integer id = transcoding.getId();
             String name = getParam4Array(request, Attributes.Request.NAME.value(), id);
-            String sourceFormats = getParam4Array(request, Attributes.Request.SOURCE_FORMATS.value(), id);
-            String targetFormat = getParam4Array(request, Attributes.Request.TARGET_FORMAT.value(), id);
+            String sourceFormats = getParam4Array(request,
+                    Attributes.Request.SOURCE_FORMATS.value(), id);
+            String targetFormat = getParam4Array(request, Attributes.Request.TARGET_FORMAT.value(),
+                    id);
             String step1 = getParam4Array(request, Attributes.Request.STEP1.value(), id);
             String step2 = getParam4Array(request, Attributes.Request.STEP2.value(), id);
             boolean delete = getParam4Array(request, Attributes.Request.DELETE.value(), id) != null;

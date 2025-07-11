@@ -155,8 +155,10 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR01() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(false);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/recover.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/recover.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("recover", modelAndView.getViewName());
@@ -177,8 +179,10 @@ class RecoverControllerTest {
     void testR02() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/recover.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/recover.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("recover", modelAndView.getViewName());
@@ -209,7 +213,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.invalidcaptcha", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -234,7 +239,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.usernotfound", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -252,8 +258,9 @@ class RecoverControllerTest {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
-        Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null));
+        Mockito
+            .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
+            .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null));
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -262,7 +269,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.noemail", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -281,8 +289,10 @@ class RecoverControllerTest {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
-        Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
+        Mockito
+            .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
+            .thenReturn(
+                    new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn(null);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -292,7 +302,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -311,8 +322,10 @@ class RecoverControllerTest {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
-        Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
+        Mockito
+            .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
+            .thenReturn(
+                    new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("");
 
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -322,7 +335,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -342,8 +356,10 @@ class RecoverControllerTest {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
-        Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
+        Mockito
+            .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
+            .thenReturn(
+                    new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(false);
 
@@ -354,7 +370,8 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -374,8 +391,10 @@ class RecoverControllerTest {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
-        Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
+        Mockito
+            .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
+            .thenReturn(
+                    new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(true);
 
@@ -386,10 +405,12 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME,
+                model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         Assertions.assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.times(1)).updatePassword(Mockito.any(User.class), Mockito.anyString(),
-                Mockito.anyBoolean());
+        Mockito
+            .verify(securityService, Mockito.times(1))
+            .updatePassword(Mockito.any(User.class), Mockito.anyString(), Mockito.anyBoolean());
     }
 }

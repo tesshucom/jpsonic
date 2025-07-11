@@ -73,9 +73,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
 
     private final String apiVerion = TestCaseUtils.restApiVersion();
     private final List<MusicFolder> musicFolders = List
-            .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
+        .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).findAndRegisterModules();
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .findAndRegisterModules();
 
     @Autowired
     private MockMvc mvc;
@@ -98,7 +99,8 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         populateDatabaseOnlyOnce();
     }
 
-    private Response readResponse(String jsonContent) throws JsonMappingException, JsonProcessingException {
+    private Response readResponse(String jsonContent)
+            throws JsonMappingException, JsonProcessingException {
         return objectMapper.readValue(jsonContent, JsonResult.class).getResponse();
     }
 
@@ -132,40 +134,52 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_DIR_ Ravel", artists.get(0).getArtist());
         assertEquals("_DIR_ Sixteen Horsepower", artists.get(1).getArtist());
 
-        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        List<MediaFile> albums = mediaFileDao
+            .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
         assertEquals(4, albums.size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", albums.get(0).getAlbumName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                albums.get(0).getAlbumName());
         assertEquals("_ID3_ALBUM_ Ravel - Chamber Music With Voice", albums.get(1).getAlbumName());
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getAlbumName());
         assertEquals("Complete Piano Works", albums.get(3).getAlbumName());
 
-        List<MediaFile> songs = mediaFileDao.getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
-                ChildOrder.BY_ALPHA);
+        List<MediaFile> songs = mediaFileDao
+            .getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
         assertEquals(2, songs.size());
         assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", songs.get(0).getTitle());
 
         // star
-        mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/star")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("id", Integer.toString(artists.get(0).getId()))
                 .param("id", Integer.toString(albums.get(0).getId()))
-                .param("id", Integer.toString(songs.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("id", Integer.toString(songs.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // getStarred
         MvcResult result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         Response response = readResponse(result.getResponse().getContentAsString());
         Starred starred = response.getStarred();
@@ -173,31 +187,42 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(1, starred.getArtist().size());
         assertEquals("_DIR_ Ravel", starred.getArtist().get(0).getName());
         assertEquals(1, starred.getAlbum().size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.getAlbum().get(0).getAlbum());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                starred.getAlbum().get(0).getAlbum());
         assertEquals(1, starred.getSong().size());
-        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", starred.getSong().get(0).getTitle());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria",
+                starred.getSong().get(0).getTitle());
 
         // unstar
-        mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/unstar")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("id", Integer.toString(artists.get(0).getId()))
                 .param("id", Integer.toString(albums.get(0).getId()))
-                .param("id", Integer.toString(songs.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("id", Integer.toString(songs.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         response = readResponse(result.getResponse().getContentAsString());
         starred = response.getStarred();
@@ -218,29 +243,37 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_DIR_ Ravel", artists.get(0).getArtist());
         assertEquals("_DIR_ Sixteen Horsepower", artists.get(1).getArtist());
 
-        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        List<MediaFile> albums = mediaFileDao
+            .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
         assertEquals(4, albums.size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", albums.get(0).getAlbumName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                albums.get(0).getAlbumName());
         assertEquals("_ID3_ALBUM_ Ravel - Chamber Music With Voice", albums.get(1).getAlbumName());
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getAlbumName());
         assertEquals("Complete Piano Works", albums.get(3).getAlbumName());
 
-        List<MediaFile> songs = mediaFileDao.getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
-                ChildOrder.BY_ALPHA);
+        List<MediaFile> songs = mediaFileDao
+            .getChildrenOf(albums.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
         assertEquals(2, songs.size());
         assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", songs.get(0).getTitle());
 
         // star
-        mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/star")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("id", Integer.toString(artists.get(0).getId()))
                 .param("id", Integer.toString(albums.get(0).getId()))
-                .param("id", Integer.toString(songs.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("id", Integer.toString(songs.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
         settingsService.setIgnoreFileTimestamps(true);
@@ -249,14 +282,18 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
 
         // getStarred
         MvcResult result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         Response response = readResponse(result.getResponse().getContentAsString());
         Starred starred = response.getStarred();
@@ -264,31 +301,42 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(1, starred.getArtist().size());
         assertEquals("_DIR_ Ravel", starred.getArtist().get(0).getName());
         assertEquals(1, starred.getAlbum().size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred.getAlbum().get(0).getAlbum());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                starred.getAlbum().get(0).getAlbum());
         assertEquals(1, starred.getSong().size());
-        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria", starred.getSong().get(0).getTitle());
+        assertEquals("Bach: Goldberg Variations, BWV 988 - Aria",
+                starred.getSong().get(0).getTitle());
 
         // unstar
-        mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/unstar")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("id", Integer.toString(artists.get(0).getId()))
                 .param("id", Integer.toString(albums.get(0).getId()))
-                .param("id", Integer.toString(songs.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("id", Integer.toString(songs.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         response = readResponse(result.getResponse().getContentAsString());
         starred = response.getStarred();
@@ -311,34 +359,45 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_ID3_ARTIST_ Céline Frisch: Café Zimmermann", artists.get(2).getName());
         assertEquals("_ID3_ARTIST_ Sixteen Horsepower", artists.get(3).getName());
 
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
+        List<Album> albums = albumDao
+            .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
         assertEquals(4, albums.size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", albums.get(0).getName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                albums.get(0).getName());
         assertEquals("_ID3_ALBUM_ Ravel - Chamber Music With Voice", albums.get(1).getName());
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getName());
         assertEquals("Complete Piano Works", albums.get(3).getName());
 
         // star
-        mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/star")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("artistId", Integer.toString(artists.get(0).getId()))
-                .param("albumId", Integer.toString(albums.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("albumId", Integer.toString(albums.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // getStarred
         MvcResult result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred2")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         Response response = readResponse(result.getResponse().getContentAsString());
         Starred2 starred2 = response.getStarred2();
@@ -346,29 +405,39 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(1, starred2.getArtist().size());
         assertEquals("_DIR_ Ravel", starred2.getArtist().get(0).getName());
         assertEquals(1, starred2.getAlbum().size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred2.getAlbum().get(0).getName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                starred2.getAlbum().get(0).getName());
         assertEquals(0, starred2.getSong().size());
 
         // unstar
-        mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/unstar")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("artistId", Integer.toString(artists.get(0).getId()))
-                .param("albumId", Integer.toString(albums.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("albumId", Integer.toString(albums.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred2")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         response = readResponse(result.getResponse().getContentAsString());
         starred2 = response.getStarred2();
@@ -391,23 +460,30 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals("_ID3_ARTIST_ Céline Frisch: Café Zimmermann", artists.get(2).getName());
         assertEquals("_ID3_ARTIST_ Sixteen Horsepower", artists.get(3).getName());
 
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
+        List<Album> albums = albumDao
+            .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
         assertEquals(4, albums.size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", albums.get(0).getName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                albums.get(0).getName());
         assertEquals("_ID3_ALBUM_ Ravel - Chamber Music With Voice", albums.get(1).getName());
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", albums.get(2).getName());
         assertEquals("Complete Piano Works", albums.get(3).getName());
 
         // star
-        mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/star")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 .param("artistId", Integer.toString(artists.get(0).getId()))
-                .param("albumId", Integer.toString(albums.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("albumId", Integer.toString(albums.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
         settingsService.setIgnoreFileTimestamps(true);
@@ -416,43 +492,58 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
 
         // getStarred
         MvcResult result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred2")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         Response response = readResponse(result.getResponse().getContentAsString());
         Starred2 starred2 = response.getStarred2();
         assertNotNull(starred2);
-        assertEquals(0, starred2.getArtist().size()); // TODO This is a case that has not yet been fixed.
+        assertEquals(0, starred2.getArtist().size()); // TODO This is a case that has not yet been
+                                                      // fixed.
         assertEquals(1, starred2.getAlbum().size());
-        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]", starred2.getAlbum().get(0).getName());
+        assertEquals("_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]",
+                starred2.getAlbum().get(0).getName());
         assertEquals(0, starred2.getSong().size());
 
         // unstar
-        mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
+        mvc
+            .perform(MockMvcRequestBuilders
+                .get("/rest/unstar")
+                .param(Attributes.Request.V.value(), apiVerion)
                 .param(Attributes.Request.C.value(), CLIENT_NAME)
                 .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                 // .param("artistId", Integer.toString(artists.get(0).getId()))
-                .param("albumId", Integer.toString(albums.get(0).getId())).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                .param("albumId", Integer.toString(albums.get(0).getId()))
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         result = mvc
-                .perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
-                        .param(Attributes.Request.C.value(), CLIENT_NAME)
-                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
-                        .param(Attributes.Request.P.value(), ADMIN_PASS)
-                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/rest/getStarred2")
+                .param(Attributes.Request.V.value(), apiVerion)
+                .param(Attributes.Request.C.value(), CLIENT_NAME)
+                .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                .param(Attributes.Request.P.value(), ADMIN_PASS)
+                .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
+            .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion))
+            .andReturn();
 
         response = readResponse(result.getResponse().getContentAsString());
         starred2 = response.getStarred2();

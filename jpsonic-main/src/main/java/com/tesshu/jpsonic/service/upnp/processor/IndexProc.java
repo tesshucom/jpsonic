@@ -40,16 +40,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile> {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.VIDEO)
-            .toArray(size -> new MediaType[size]);
+    private static final MediaType[] EXCLUDED_TYPES = Stream
+        .of(MediaType.PODCAST, MediaType.VIDEO)
+        .toArray(size -> new MediaType[size]);
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
 
-    public IndexProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            MusicIndexService musicIndexService) {
+    public IndexProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, MusicIndexService musicIndexService) {
         super();
         this.util = util;
         this.factory = factory;
@@ -64,7 +65,8 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
 
     @Override
     public Container createContainer(IndexOrSong indexOrSong) {
-        return factory.toMusicIndex(getProcId(), indexOrSong.getMusicIndex(), getChildSizeOf(indexOrSong));
+        return factory
+            .toMusicIndex(getProcId(), indexOrSong.getMusicIndex(), getChildSizeOf(indexOrSong));
     }
 
     @Override
@@ -79,25 +81,38 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
     @Override
     public List<IndexOrSong> getDirectChildren(long offset, long count) {
         List<MusicFolder> folders = util.getGuestFolders();
-        return Stream.concat(
-                musicIndexService.getMusicFolderContentCounts(folders, EXCLUDED_TYPES).indexCounts().keySet().stream()
-                        .map(IndexOrSong::new),
-                mediaFileService.getDirectChildFiles(folders, 0, Integer.MAX_VALUE, EXCLUDED_TYPES).stream()
+        return Stream
+            .concat(musicIndexService
+                .getMusicFolderContentCounts(folders, EXCLUDED_TYPES)
+                .indexCounts()
+                .keySet()
+                .stream()
+                .map(IndexOrSong::new),
+                    mediaFileService
+                        .getDirectChildFiles(folders, 0, Integer.MAX_VALUE, EXCLUDED_TYPES)
+                        .stream()
                         .map(IndexOrSong::new))
-                .skip(offset).limit(count).toList();
+            .skip(offset)
+            .limit(count)
+            .toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        MusicFolderContent.Counts counts = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders(),
-                EXCLUDED_TYPES);
+        MusicFolderContent.Counts counts = musicIndexService
+            .getMusicFolderContentCounts(util.getGuestFolders(), EXCLUDED_TYPES);
         return counts.indexCounts().size() + counts.singleSongCounts();
     }
 
     @Override
     public IndexOrSong getDirectChild(String id) {
-        Optional<MusicIndex> op = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders(), EXCLUDED_TYPES)
-                .indexCounts().keySet().stream().filter(i -> i.getIndex().equals(id)).findFirst();
+        Optional<MusicIndex> op = musicIndexService
+            .getMusicFolderContentCounts(util.getGuestFolders(), EXCLUDED_TYPES)
+            .indexCounts()
+            .keySet()
+            .stream()
+            .filter(i -> i.getIndex().equals(id))
+            .findFirst();
         if (op.isPresent()) {
             return new IndexOrSong(op.get());
         }
@@ -111,8 +126,9 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
     @Override
     public List<MediaFile> getChildren(IndexOrSong indexOrSong, long offset, long count) {
         if (indexOrSong.isMusicIndex()) {
-            return mediaFileService.getChildrenOf(util.getGuestFolders(), indexOrSong.getMusicIndex(), offset, count,
-                    EXCLUDED_TYPES);
+            return mediaFileService
+                .getChildrenOf(util.getGuestFolders(), indexOrSong.getMusicIndex(), offset, count,
+                        EXCLUDED_TYPES);
         }
         return Collections.emptyList();
     }
@@ -120,8 +136,8 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
     @Override
     public int getChildSizeOf(IndexOrSong indexOrSong) {
         if (indexOrSong.isMusicIndex()) {
-            MusicFolderContent.Counts counts = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders(),
-                    EXCLUDED_TYPES);
+            MusicFolderContent.Counts counts = musicIndexService
+                .getMusicFolderContentCounts(util.getGuestFolders(), EXCLUDED_TYPES);
             if (counts != null) {
                 return counts.indexCounts().get(indexOrSong.getMusicIndex());
             }
@@ -132,19 +148,19 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
     @Override
     public void addChild(DIDLContent parent, MediaFile mediaFile) {
         switch (mediaFile.getMediaType()) {
-            case DIRECTORY -> {
-                int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
-                parent.addContainer(factory.toArtist(mediaFile, childCounts));
-            }
-            case ALBUM -> {
-                int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
-                parent.addContainer(factory.toAlbum(mediaFile, childCounts));
-            }
-            case MUSIC -> parent.addItem(factory.toMusicTrack(mediaFile));
-            case PODCAST, AUDIOBOOK, VIDEO -> {
-            }
-            default -> {
-            }
+        case DIRECTORY -> {
+            int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
+            parent.addContainer(factory.toArtist(mediaFile, childCounts));
+        }
+        case ALBUM -> {
+            int childCounts = mediaFileService.getChildSizeOf(mediaFile, EXCLUDED_TYPES);
+            parent.addContainer(factory.toAlbum(mediaFile, childCounts));
+        }
+        case MUSIC -> parent.addItem(factory.toMusicTrack(mediaFile));
+        case PODCAST, AUDIOBOOK, VIDEO -> {
+        }
+        default -> {
+        }
         }
     }
 }

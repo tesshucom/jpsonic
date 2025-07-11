@@ -38,7 +38,8 @@ class FileUtilTest {
 
         assertEquals(File.separator + "child.mp3", FileUtil.getShortPath(Path.of("/child.mp3")));
 
-        assertEquals("MusicFolder" + File.separator + "artist", FileUtil.getShortPath(Path.of("/MusicFolder/artist")));
+        assertEquals("MusicFolder" + File.separator + "artist",
+                FileUtil.getShortPath(Path.of("/MusicFolder/artist")));
 
         assertEquals("artist" + File.separator + "child.mp3",
                 FileUtil.getShortPath(Path.of("/MusicFolder/artist/child.mp3")));

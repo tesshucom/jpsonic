@@ -40,8 +40,8 @@ public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtis
     private final AlbumDao albumDao;
     private final FolderOrArtistLogic deligate;
 
-    public ArtistByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao, AlbumDao albumDao,
-            FolderOrArtistLogic folderOrArtistLogic) {
+    public ArtistByFolderProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
+            AlbumDao albumDao, FolderOrArtistLogic folderOrArtistLogic) {
         super();
         this.util = util;
         this.factory = factory;
@@ -80,12 +80,18 @@ public class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtis
         int offset = (int) first;
         if (folderOrArtist.isFolderArtist()) {
             Artist artist = folderOrArtist.getFolderArtist().artist();
-            return albumDao.getAlbumsForArtist(offset, count, artist.getName(),
-                    util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders()).stream().map(ArtistOrAlbum::new)
-                    .toList();
+            return albumDao
+                .getAlbumsForArtist(offset, count, artist.getName(),
+                        util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders())
+                .stream()
+                .map(ArtistOrAlbum::new)
+                .toList();
         }
-        return artistDao.getAlphabetialArtists(offset, (int) count, Arrays.asList(folderOrArtist.getFolder())).stream()
-                .map(ArtistOrAlbum::new).toList();
+        return artistDao
+            .getAlphabetialArtists(offset, (int) count, Arrays.asList(folderOrArtist.getFolder()))
+            .stream()
+            .map(ArtistOrAlbum::new)
+            .toList();
     }
 
     @Override

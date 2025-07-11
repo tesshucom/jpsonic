@@ -29,8 +29,8 @@ public class SearchCriteria extends LuceneSearchCriteria {
     private final IndexType indexType;
     private final boolean includeComposer;
 
-    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) {
+    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer,
+            List<MusicFolder> musicFolders, IndexType indexType) {
         super(searchInput, offset, count);
         this.musicFolders = musicFolders;
         this.indexType = indexType;

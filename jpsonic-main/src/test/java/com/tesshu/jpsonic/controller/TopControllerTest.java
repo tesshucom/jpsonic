@@ -76,11 +76,12 @@ class TopControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);
         MusicIndexService musicIndexService = mock(MusicIndexService.class);
-        Mockito.when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
-                .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-        controller = new TopController(mock(SettingsService.class), musicFolderService, securityService, scannerState,
-                musicIndexService, mock(VersionService.class), mock(InternetRadioService.class),
-                mock(AirsonicLocaleResolver.class));
+        Mockito
+            .when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
+            .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
+        controller = new TopController(mock(SettingsService.class), musicFolderService,
+                securityService, scannerState, musicIndexService, mock(VersionService.class),
+                mock(InternetRadioService.class), mock(AirsonicLocaleResolver.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -88,9 +89,11 @@ class TopControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
-                        .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.TOP.value())
+                .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("top", modelAndView.getViewName());
@@ -121,11 +124,19 @@ class TopControllerTest {
         }
 
         @Test
-        void testWithoutSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
-                    "MEDIAS", true, now(), 1, false));
-            Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
+        void testWithoutSelectedMusicFolders()
+                throws ServletRequestBindingException, URISyntaxException {
+            List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1,
+                        Path
+                            .of(TopControllerTest.class
+                                .getResource("/MEDIAS/Sort/Pagination/Artists")
+                                .toURI())
+                            .toString(),
+                        "MEDIAS", true, now(), 1, false));
+            Mockito
+                .when(musicFolderService.getMusicFoldersForUser(Mockito.anyString()))
+                .thenReturn(musicFolders);
 
             MockHttpServletRequest request = mock(MockHttpServletRequest.class);
             long lastModified = controller.getLastModified(request);
@@ -133,12 +144,22 @@ class TopControllerTest {
         }
 
         @Test
-        void testWithSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
-                    "MEDIAS", true, now(), 1, false));
-            Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
-            Mockito.when(securityService.getSelectedMusicFolder(Mockito.anyString())).thenReturn(musicFolders.get(0));
+        void testWithSelectedMusicFolders()
+                throws ServletRequestBindingException, URISyntaxException {
+            List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1,
+                        Path
+                            .of(TopControllerTest.class
+                                .getResource("/MEDIAS/Sort/Pagination/Artists")
+                                .toURI())
+                            .toString(),
+                        "MEDIAS", true, now(), 1, false));
+            Mockito
+                .when(musicFolderService.getMusicFoldersForUser(Mockito.anyString()))
+                .thenReturn(musicFolders);
+            Mockito
+                .when(securityService.getSelectedMusicFolder(Mockito.anyString()))
+                .thenReturn(musicFolders.get(0));
 
             MockHttpServletRequest request = mock(MockHttpServletRequest.class);
             long lastModified = controller.getLastModified(request);

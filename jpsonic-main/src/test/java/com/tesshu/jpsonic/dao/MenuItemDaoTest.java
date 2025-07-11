@@ -47,7 +47,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
 
     @Test
     void testGetTopMenuItems() {
-        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
+        List<MenuItem> menuItems = menuItemDao
+            .getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
         assertEquals(8, menuItems.size());
         assertEquals(MenuItemId.FOLDER, menuItems.get(0).getId());
         assertEquals(MenuItemId.ARTIST, menuItems.get(1).getId());
@@ -61,8 +62,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildlenOf() {
-        List<MenuItem> menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0,
-                Integer.MAX_VALUE);
+        List<MenuItem> menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals(MenuItemId.MEDIA_FILE, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
@@ -71,7 +72,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.INDEX, menuItems.get(2).getId());
         assertFalse(menuItems.get(2).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ARTIST, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
@@ -80,7 +82,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.INDEX_ID3, menuItems.get(2).getId());
         assertFalse(menuItems.get(2).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
         assertEquals(4, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ID3, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
@@ -91,7 +94,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.ALBUM_FILE_STRUCTURE_BY_FOLDER, menuItems.get(3).getId());
         assertFalse(menuItems.get(3).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());
         assertEquals(MenuItemId.ALBUM_ID3_BY_GENRE, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
@@ -106,17 +110,20 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.ALBUM_BY_GENRE, menuItems.get(5).getId());
         assertFalse(menuItems.get(5).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals(MenuItemId.PODCAST_DEFALT, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals(MenuItemId.PLAYLISTS_DEFALT, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
         assertEquals(4, menuItems.size());
         assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());
@@ -127,7 +134,8 @@ class MenuItemDaoTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM_BY_FOLDER, menuItems.get(3).getId());
         assertFalse(menuItems.get(3).isEnabled());
 
-        menuItems = menuItemDao.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
+        menuItems = menuItemDao
+            .getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
         assertEquals(6, menuItems.size());
         assertEquals(MenuItemId.RANDOM_SONG, menuItems.get(0).getId());
         assertTrue(menuItems.get(0).isEnabled());

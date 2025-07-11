@@ -32,8 +32,8 @@ public class MenuItem {
     private boolean enabled;
     private int menuItemOrder;
 
-    public MenuItem(ViewType viewType, MenuItemId id, MenuItemId parent, String name, boolean enabled,
-            int menuItemOrder) {
+    public MenuItem(ViewType viewType, MenuItemId id, MenuItemId parent, String name,
+            boolean enabled, int menuItemOrder) {
         super();
         this.viewType = viewType;
         this.id = id;

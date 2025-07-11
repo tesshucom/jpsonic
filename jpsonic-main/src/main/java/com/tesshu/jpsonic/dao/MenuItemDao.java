@@ -40,9 +40,11 @@ public class MenuItemDao {
             view_type, id, parent, name, enabled, menu_item_order\s
             """;
     private final TemplateWrapper template;
-    private final RowMapper<MenuItem> rowMapper = (ResultSet rs, int num) -> new MenuItem(ViewType.of(rs.getInt(1)),
-            MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)), rs.getString(4), rs.getBoolean(5), rs.getInt(6));
-    private final RowMapper<MenuItemId> idRowMapper = (ResultSet rs, int num) -> MenuItemId.of(rs.getInt(1));
+    private final RowMapper<MenuItem> rowMapper = (ResultSet rs, int num) -> new MenuItem(
+            ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)),
+            rs.getString(4), rs.getBoolean(5), rs.getInt(6));
+    private final RowMapper<MenuItemId> idRowMapper = (ResultSet rs, int num) -> MenuItemId
+        .of(rs.getInt(1));
 
     public MenuItemDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -62,9 +64,11 @@ public class MenuItemDao {
                 """, idRowMapper, viewType.value(), MenuItemId.ROOT.value(), true);
     }
 
-    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
-        Map<String, Object> args = Map.of("type", viewType.value(), "parentId", MenuItemId.ROOT.value(), "enabledOnly",
-                enabledOnly, "count", count, "offset", offset);
+    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset,
+            long count) {
+        Map<String, Object> args = Map
+            .of("type", viewType.value(), "parentId", MenuItemId.ROOT.value(), "enabledOnly",
+                    enabledOnly, "count", count, "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from menu_item
                 where view_type=:type and parent=:parentId %s
@@ -80,10 +84,11 @@ public class MenuItemDao {
                 """, idRowMapper, viewType.value(), id.value(), true);
     }
 
-    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
-            long count) {
-        Map<String, Object> args = Map.of("type", viewType.value(), "parentId", id.value(), "enabledOnly", enabledOnly,
-                "count", count, "offset", offset);
+    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly,
+            long offset, long count) {
+        Map<String, Object> args = Map
+            .of("type", viewType.value(), "parentId", id.value(), "enabledOnly", enabledOnly,
+                    "count", count, "offset", offset);
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from menu_item
                 where view_type=:type and parent=:parentId %s
@@ -98,18 +103,25 @@ public class MenuItemDao {
                 set view_type=?, parent=?, name=?, enabled=?, menu_item_order=?
                 where id=?
                 """;
-        template.update(sql, menuItem.getViewType().value(), menuItem.getParent().value(), menuItem.getName(),
-                menuItem.isEnabled(), menuItem.getMenuItemOrder(), menuItem.getId().value());
+        template
+            .update(sql, menuItem.getViewType().value(), menuItem.getParent().value(),
+                    menuItem.getName(), menuItem.isEnabled(), menuItem.getMenuItemOrder(),
+                    menuItem.getId().value());
     }
 
     public List<MenuItem> getSubMenuItems(ViewType viewType) {
-        Map<String, Object> args = Map.of("type", viewType.value(), "rootId", MenuItemId.ROOT.value());
-        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "sub") + """
-                from menu_item sub
-                join menu_item top
-                on sub.parent = top.id
-                where sub.view_type=:type and sub.parent <> :rootId
-                order by top.enabled desc, top.menu_item_order, sub.enabled desc, sub.menu_item_order, top.id, sub.id
-                """, rowMapper, args);
+        Map<String, Object> args = Map
+            .of("type", viewType.value(), "rootId", MenuItemId.ROOT.value());
+        return template
+            .namedQuery(
+                    "select " + prefix(QUERY_COLUMNS, "sub")
+                            + """
+                                    from menu_item sub
+                                    join menu_item top
+                                    on sub.parent = top.id
+                                    where sub.view_type=:type and sub.parent <> :rootId
+                                    order by top.enabled desc, top.menu_item_order, sub.enabled desc, sub.menu_item_order, top.id, sub.id
+                                    """,
+                    rowMapper, args);
     }
 }

@@ -80,8 +80,9 @@ public class GeneralSettingsController {
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
 
-    public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService,
+    public GeneralSettingsController(SettingsService settingsService,
+            SecurityService securityService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService,
             MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
@@ -99,14 +100,21 @@ public class GeneralSettingsController {
 
         // Language and theme
         List<Theme> themes = SettingsService.getAvailableThemes();
-        themes.stream().filter(theme -> theme.getId().equals(settingsService.getThemeId())).findFirst()
-                .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
+        themes
+            .stream()
+            .filter(theme -> theme.getId().equals(settingsService.getThemeId()))
+            .findFirst()
+            .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
         command.setThemes(themes);
 
         List<Locale> locales = settingsService.getAvailableLocales();
-        locales.stream().filter(locale -> locale.equals(settingsService.getLocale())).findFirst()
-                .ifPresent(locale -> command.setLocaleIndex(String.valueOf(locales.indexOf(locale))));
-        command.setLocales(locales.stream().map(Locale::getDisplayName).collect(Collectors.toList()));
+        locales
+            .stream()
+            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .findFirst()
+            .ifPresent(locale -> command.setLocaleIndex(String.valueOf(locales.indexOf(locale))));
+        command
+            .setLocales(locales.stream().map(Locale::getDisplayName).collect(Collectors.toList()));
 
         command.setIndexScheme(IndexScheme.of(settingsService.getIndexSchemeName()));
 
@@ -149,7 +157,9 @@ public class GeneralSettingsController {
         command.setDefaultVideoFileTypes(settingsService.getDefaultVideoFileTypes());
         command.setDefaultCoverArtFileTypes(settingsService.getDefaultCoverArtFileTypes());
         command.setDefaultExcludedCoverArts(settingsService.getDefaultExcludedCoverArts());
-        command.setDefaultPlaylistFolder(settingsService.getDefaultPlaylistFolder().replaceAll("\\\\", "\\\\\\\\"));
+        command
+            .setDefaultPlaylistFolder(
+                    settingsService.getDefaultPlaylistFolder().replaceAll("\\\\", "\\\\\\\\"));
         command.setDefaultShortcuts(settingsService.getDefaultShortcuts());
 
         // Welcom message
@@ -162,7 +172,8 @@ public class GeneralSettingsController {
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         User user = securityService.getCurrentUserStrict(request);
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command
+            .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
@@ -178,7 +189,8 @@ public class GeneralSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+    protected ModelAndView post(
+            @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         // Language and theme
@@ -188,20 +200,22 @@ public class GeneralSettingsController {
         Locale locale = settingsService.getAvailableLocales().get(localeIndex);
 
         /*
-         * To transition the mainframe after reloading the entire web page, not a simple transition. (Compare before
-         * reflecting settings)
+         * To transition the mainframe after reloading the entire web page, not a simple
+         * transition. (Compare before reflecting settings)
          */
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale);
+                || !settingsService.getThemeId().equals(theme.getId())
+                || !settingsService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
 
         settingsService.setThemeId(theme.getId());
         settingsService.setLocale(locale);
 
         // Index settings
-        if (command.getIndex() != null && !command.getIndex().equals(settingsService.getIndexString())) {
+        if (command.getIndex() != null
+                && !command.getIndex().equals(settingsService.getIndexString())) {
             settingsService.setIndexString(command.getIndex());
             musicIndexService.clear();
         }
@@ -241,7 +255,9 @@ public class GeneralSettingsController {
             settingsService.setVideoFileTypes(command.getVideoFileTypes());
             settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
             settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
-            PathValidator.validateFolderPath(command.getPlaylistFolder()).ifPresent(settingsService::setPlaylistFolder);
+            PathValidator
+                .validateFolderPath(command.getPlaylistFolder())
+                .ifPresent(settingsService::setPlaylistFolder);
             settingsService.setShortcuts(command.getShortcuts());
         }
 

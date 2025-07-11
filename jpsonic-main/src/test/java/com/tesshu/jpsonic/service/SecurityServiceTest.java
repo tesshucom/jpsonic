@@ -102,7 +102,8 @@ class SecurityServiceTest {
             assertFalse(userSettings.isSongNotificationEnabled());
             assertFalse(userSettings.isVoiceInputEnabled());
             assertTrue(userSettings.isShowCurrentSongInfo());
-            assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+            assertEquals(SpeechToTextLangScheme.DEFAULT.name(),
+                    userSettings.getSpeechLangSchemeName());
             Assertions.assertNull(userSettings.getIetf());
             assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
             assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
@@ -180,7 +181,8 @@ class SecurityServiceTest {
         assertFalse(tabletSettings.isSongNotificationEnabled());
         assertTrue(tabletSettings.isVoiceInputEnabled());
         assertTrue(tabletSettings.isShowCurrentSongInfo());
-        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), tabletSettings.getSpeechLangSchemeName());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(),
+                tabletSettings.getSpeechLangSchemeName());
         Assertions.assertNull(tabletSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), tabletSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, tabletSettings.getFontFamily());
@@ -209,7 +211,8 @@ class SecurityServiceTest {
         assertFalse(smartphoneSettings.isSongNotificationEnabled());
         assertTrue(smartphoneSettings.isVoiceInputEnabled());
         assertTrue(smartphoneSettings.isShowCurrentSongInfo());
-        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), smartphoneSettings.getSpeechLangSchemeName());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(),
+                smartphoneSettings.getSpeechLangSchemeName());
         Assertions.assertNull(smartphoneSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), smartphoneSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, smartphoneSettings.getFontFamily());
@@ -222,8 +225,9 @@ class SecurityServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(null));
         assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
         assertFalse(service.isWriteAllowed(Path.of("")));
-        Mockito.when(musicFolderService.getAllMusicFolders(false, true))
-                .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null, false)));
+        Mockito
+            .when(musicFolderService.getAllMusicFolders(false, true))
+            .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null, false)));
         Mockito.when(settingsService.getPodcastFolder()).thenReturn("");
         assertTrue(service.isWriteAllowed(Path.of("/test/cover.jpg")));
     }
@@ -235,9 +239,10 @@ class SecurityServiceTest {
         void testIsFileInFolder() {
 
             /*
-             * The parameters of this function are not completely free strings. Any file/folder strings will be filtered
-             * to PathValidator#validateFolderPath. (Sub-paths with string patterns that cannot be registered in
-             * MusicFolder will not be generated during scanning.)
+             * The parameters of this function are not completely free strings. Any
+             * file/folder strings will be filtered to PathValidator#validateFolderPath.
+             * (Sub-paths with string patterns that cannot be registered in MusicFolder will
+             * not be generated during scanning.)
              */
             PathValidator.validateFolderPath("\\").ifPresent(folder -> Assertions.fail());
             PathValidator.validateFolderPath("/").ifPresent(folder -> Assertions.fail());
@@ -270,19 +275,21 @@ class SecurityServiceTest {
         }
 
         /*
-         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
-         * comparing+locale-dependent+data
+         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+
+         * appropriate+locale+when+ comparing+locale-dependent+data
          */
         @Test
         void testIsFileInFolderSTR02J() {
             Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
             assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
-            assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
-                    "/\u0069\u0131")); // iı
+            assertTrue(service
+                .isFileInFolder("/\u0130\u0049/foo.mp3", // İI
+                        "/\u0069\u0131")); // iı
         }
 
         /*
-         * In the previous implementation, the pattern that misjudgment by startwith occurs.
+         * In the previous implementation, the pattern that misjudgment by startwith
+         * occurs.
          */
         @Test
         @EnabledOnOs(OS.LINUX)
@@ -294,7 +301,8 @@ class SecurityServiceTest {
         }
 
         /*
-         * In the previous implementation, the pattern that misjudgment by startwith occurs.
+         * In the previous implementation, the pattern that misjudgment by startwith
+         * occurs.
          */
         @Test
         @EnabledOnOs(OS.WINDOWS)
@@ -312,7 +320,8 @@ class SecurityServiceTest {
         @Test
         void testSymbolicLink(@TempDir Path tmpDir) throws IOException {
             Path concrete = Files.createFile(Paths.get(tmpDir.toString(), "testSymbolic.txt"));
-            Path link = Files.createSymbolicLink(Paths.get(tmpDir.toString(), "testSymbolicLink.txt"), concrete);
+            Path link = Files
+                .createSymbolicLink(Paths.get(tmpDir.toString(), "testSymbolicLink.txt"), concrete);
 
             assertFalse(settingsService.isIgnoreSymLinks());
             assertFalse(service.isExcluded(concrete));
@@ -334,9 +343,13 @@ class SecurityServiceTest {
             Path song = Path.of("foo.mp3");
             assertFalse(service.isExcluded(song));
 
-            Mockito.when(settingsService.getExcludePattern()).thenReturn(Pattern.compile("foo.flac"));
+            Mockito
+                .when(settingsService.getExcludePattern())
+                .thenReturn(Pattern.compile("foo.flac"));
             assertFalse(service.isExcluded(song));
-            Mockito.when(settingsService.getExcludePattern()).thenReturn(Pattern.compile("foo.mp3"));
+            Mockito
+                .when(settingsService.getExcludePattern())
+                .thenReturn(Pattern.compile("foo.mp3"));
             assertTrue(service.isExcluded(song));
         }
 
@@ -349,10 +362,13 @@ class SecurityServiceTest {
 
             assertTrue(service.isExcluded(Path.of(".foo.mp3")));
             assertTrue(service.isExcluded(Path.of("foo.mp3.")));
-            assertFalse(service.isExcluded(Path.of("foo.mp3․"))); // The end is not dot (one dot leader)
+            assertFalse(service.isExcluded(Path.of("foo.mp3․"))); // The end is not dot (one dot
+                                                                  // leader)
             assertTrue(service.isExcluded(Path.of("If...")));
-            assertFalse(service.isExcluded(Path.of("If․․․"))); // The end is not dot (one dot leader)
-            assertFalse(service.isExcluded(Path.of("If…"))); // The end is not dot (Horizontal Ellipsis)
+            assertFalse(service.isExcluded(Path.of("If․․․"))); // The end is not dot (one dot
+                                                               // leader)
+            assertFalse(service.isExcluded(Path.of("If…"))); // The end is not dot (Horizontal
+                                                             // Ellipsis)
             assertTrue(service.isExcluded(Path.of("._foo.mp3")));
             assertTrue(service.isExcluded(Path.of(".SYNOPPSDB")));
             assertTrue(service.isExcluded(Path.of(".DS_Store")));

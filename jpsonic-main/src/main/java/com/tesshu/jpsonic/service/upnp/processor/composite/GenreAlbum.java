@@ -37,7 +37,8 @@ public record GenreAlbum(Genre genre, Album album) implements CompositeModel {
     }
 
     public static int parseAlbumId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
+        return Integer
+            .parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
     public static String parseGenreName(String compositeId) {

@@ -62,14 +62,17 @@ class JAXBWriterTest {
     @WithMockUser(username = "admin")
     void testConvertDate() throws Exception {
 
-        Instant dateInDB = ZonedDateTime.of(2001, 12, 31, 23, 59, 59, 999, ZoneOffset.UTC)
-                .truncatedTo(ChronoUnit.MILLIS).toInstant();
+        Instant dateInDB = ZonedDateTime
+            .of(2001, 12, 31, 23, 59, 59, 999, ZoneOffset.UTC)
+            .truncatedTo(ChronoUnit.MILLIS)
+            .toInstant();
         XMLGregorianCalendar converted = writer.convertDate(dateInDB);
 
         assertEquals(dateInDB.toEpochMilli(), converted.toGregorianCalendar().getTimeInMillis());
 
         // The results below will vary depending on your system's default timezone
-        // (No normalization required. To ensure readability and allow client apps to decide how to display the date.)
+        // (No normalization required. To ensure readability and allow client apps to
+        // decide how to display the date.)
 
         // Below is a sample for JST(+9)
 
@@ -83,20 +86,28 @@ class JAXBWriterTest {
         // assertEquals("2001-12-31T23:59:59.000+09:00", converted.toXMLFormat());
         // assertEquals("2001-12-31T23:59:59.000+09:00", converted.toString());
 
-        // With modern Jackson parsers, it doesn't really matter whether the intermediate format is normalized or not.
-        XMLGregorianCalendar parsedLocal = PlayerUtils.OBJECT_MAPPER.convertValue(converted.toXMLFormat(),
-                XMLGregorianCalendar.class);
+        // With modern Jackson parsers, it doesn't really matter whether the
+        // intermediate format is normalized or not.
+        XMLGregorianCalendar parsedLocal = PlayerUtils.OBJECT_MAPPER
+            .convertValue(converted.toXMLFormat(), XMLGregorianCalendar.class);
 
         // The format is different. Simply because Jackson defaults to nanoseconds.
         assertNotEquals(dateInDB, parsedLocal); // 2001-12-31T23:59:59Z 2001-12-31T23:59:59.000Z
 
         // Most are treated in milliseconds, so they are effectively equivalent
-        assertEquals(dateInDB.toEpochMilli(), parsedLocal.toGregorianCalendar().getTime().getTime());
+        assertEquals(dateInDB.toEpochMilli(),
+                parsedLocal.toGregorianCalendar().getTime().getTime());
 
-        assertEquals("2001-12-31 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC)
-                .format(parsedLocal.toGregorianCalendar().toInstant()));
-        assertEquals("2002-01-01 08:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("Japan")).format(parsedLocal.toGregorianCalendar().toInstant()));
+        assertEquals("2001-12-31 23:59:59",
+                DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneOffset.UTC)
+                    .format(parsedLocal.toGregorianCalendar().toInstant()));
+        assertEquals("2002-01-01 08:59:59",
+                DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneId.of("Japan"))
+                    .format(parsedLocal.toGregorianCalendar().toInstant()));
     }
 
     @Nested
@@ -133,7 +144,9 @@ class JAXBWriterTest {
             Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
             HttpServletRequest request = mock(MockHttpServletRequest.class);
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
-            Mockito.when(request.getParameter(Attributes.Request.CALLBACK.value())).thenReturn("testJsonp");
+            Mockito
+                .when(request.getParameter(Attributes.Request.CALLBACK.value()))
+                .thenReturn("testJsonp");
             HttpServletResponse httpResponse = new MockHttpServletResponse();
             Response response = writer.createResponse(true);
             writer.writeResponse(request, httpResponse, response);

@@ -66,7 +66,8 @@ public final class TomcatApplicationHelper {
 
             // Put Jasper in production mode so that JSP aren't recompiled
             // on each request.
-            // See http://stackoverflow.com/questions/29653326/spring-boot-application-slow-because-of-jsp-compilation
+            // See
+            // http://stackoverflow.com/questions/29653326/spring-boot-application-slow-because-of-jsp-compilation
             Container jsp = context.findChild("jsp");
             if (jsp instanceof Wrapper wrapper) {
                 wrapper.addInitParameter("development", Boolean.toString(development));

@@ -46,7 +46,8 @@ public class FolderOrGenreLogic {
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
 
-    public FolderOrGenreLogic(SearchService searchService, UpnpProcessorUtil util, UpnpDIDLFactory factory) {
+    public FolderOrGenreLogic(SearchService searchService, UpnpProcessorUtil util,
+            UpnpDIDLFactory factory) {
         super();
         this.searchService = searchService;
         this.util = util;
@@ -58,24 +59,31 @@ public class FolderOrGenreLogic {
         return factory.toGenre(procId, folderGenre, childCount);
     }
 
-    private Container createContainer(ProcId procId, MusicFolder folder, Scope scope, Sort sort, MediaType... types) {
+    private Container createContainer(ProcId procId, MusicFolder folder, Scope scope, Sort sort,
+            MediaType... types) {
         int childCount = getChildSizeOf(folder, scope, sort, types);
         return factory.toMusicFolder(procId, folder, childCount);
     }
 
-    Container createContainer(ProcId procId, FolderOrFGenre folderOrGenre, Scope scope, Sort sort, MediaType... types) {
+    Container createContainer(ProcId procId, FolderOrFGenre folderOrGenre, Scope scope, Sort sort,
+            MediaType... types) {
         if (folderOrGenre.isFolderGenre()) {
             return createContainer(procId, folderOrGenre.getFolderGenre(), scope);
         }
         return createContainer(procId, folderOrGenre.getFolder(), scope, sort, types);
     }
 
-    List<FolderOrFGenre> getDirectChildren(long offset, long count, Scope scope, Sort sort, MediaType... types) {
+    List<FolderOrFGenre> getDirectChildren(long offset, long count, Scope scope, Sort sort,
+            MediaType... types) {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
-            return searchService.getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), offset, count)
-                    .stream().map(genre -> new FolderOrFGenre(new FolderGenre(folder, genre))).toList();
+            return searchService
+                .getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), offset,
+                        count)
+                .stream()
+                .map(genre -> new FolderOrFGenre(new FolderGenre(folder, genre)))
+                .toList();
         }
         return folders.stream().skip(offset).limit(count).map(FolderOrFGenre::new).toList();
     }
@@ -84,19 +92,29 @@ public class FolderOrGenreLogic {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
-            return searchService.getGenresCount(new GenreMasterCriteria(asList(folder), scope, sort, types));
+            return searchService
+                .getGenresCount(new GenreMasterCriteria(asList(folder), scope, sort, types));
         }
         return folders.size();
     }
 
-    private FolderOrFGenre getDirectChildGenres(String folderGenreId, Scope scope, Sort sort, MediaType... types) {
+    private FolderOrFGenre getDirectChildGenres(String folderGenreId, Scope scope, Sort sort,
+            MediaType... types) {
         int folderId = FolderGenre.parseFolderId(folderGenreId);
-        MusicFolder folder = util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId)
-                .findFirst().orElseGet(null);
+        MusicFolder folder = util
+            .getGuestFolders()
+            .stream()
+            .filter(musicFolder -> musicFolder.getId() == folderId)
+            .findFirst()
+            .orElseGet(null);
         String genreName = FolderGenre.parseGenreName(folderGenreId);
         Genre genre = searchService
-                .getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), 0, Integer.MAX_VALUE).stream()
-                .filter(g -> genreName.equals(g.getName())).findFirst().orElseGet(null);
+            .getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), 0,
+                    Integer.MAX_VALUE)
+            .stream()
+            .filter(g -> genreName.equals(g.getName()))
+            .findFirst()
+            .orElseGet(null);
         if (genre == null) {
             throw new IllegalArgumentException("The specified Genre cannot be found.");
         }
@@ -104,8 +122,12 @@ public class FolderOrGenreLogic {
     }
 
     private FolderOrFGenre getDirectChildFolder(int folderId) {
-        MusicFolder folder = util.getGuestFolders().stream().filter(musicFolder -> musicFolder.getId() == folderId)
-                .findFirst().orElseGet(null);
+        MusicFolder folder = util
+            .getGuestFolders()
+            .stream()
+            .filter(musicFolder -> musicFolder.getId() == folderId)
+            .findFirst()
+            .orElseGet(null);
         return new FolderOrFGenre(folder);
     }
 
@@ -121,11 +143,14 @@ public class FolderOrGenreLogic {
         return Scope.ALBUM == scope ? genre.getAlbumCount() : genre.getSongCount();
     }
 
-    private int getChildSizeOf(MusicFolder musicFolder, Scope scope, Sort sort, MediaType... types) {
-        return searchService.getGenresCount(new GenreMasterCriteria(asList(musicFolder), scope, sort, types));
+    private int getChildSizeOf(MusicFolder musicFolder, Scope scope, Sort sort,
+            MediaType... types) {
+        return searchService
+            .getGenresCount(new GenreMasterCriteria(asList(musicFolder), scope, sort, types));
     }
 
-    public int getChildSizeOf(FolderOrFGenre folderOrGenre, Scope scope, Sort sort, MediaType... types) {
+    public int getChildSizeOf(FolderOrFGenre folderOrGenre, Scope scope, Sort sort,
+            MediaType... types) {
         if (folderOrGenre.isFolderGenre()) {
             return getChildSizeOf(folderOrGenre.getFolderGenre().genre(), scope);
         }

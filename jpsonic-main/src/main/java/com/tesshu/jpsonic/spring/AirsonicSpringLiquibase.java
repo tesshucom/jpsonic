@@ -77,10 +77,13 @@ public class AirsonicSpringLiquibase extends SpringLiquibase {
 
     @SuppressWarnings("PMD.CloseResource") // liquibaseConnection should not be closed here
     @Override
-    protected Database createDatabase(Connection c, ResourceAccessor resourceAccessor) throws DatabaseException {
+    protected Database createDatabase(Connection c, ResourceAccessor resourceAccessor)
+            throws DatabaseException {
         DatabaseConnection liquibaseConnection;
         if (c == null) {
-            log.warning("Null connection returned by liquibase datasource. Using offline unknown database");
+            log
+                .warning(
+                        "Null connection returned by liquibase datasource. Using offline unknown database");
             liquibaseConnection = new OfflineConnection("offline:unknown", resourceAccessor);
 
         } else {

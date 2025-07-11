@@ -82,7 +82,9 @@ class MainControllerTest {
 
         artist = new MediaFile();
         int artistId = 200;
-        String artistPath = Path.of(MainControllerTest.class.getResource("/MEDIAS/Music").toURI()).toString();
+        String artistPath = Path
+            .of(MainControllerTest.class.getResource("/MEDIAS/Music").toURI())
+            .toString();
         artist.setId(artistId);
         artist.setPathString(artistPath);
         artist.setMediaType(MediaType.DIRECTORY);
@@ -90,16 +92,21 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(artistPath)).thenReturn(artist);
         Mockito.when(mediaFileService.getMediaFile(artistId)).thenReturn(artist);
         Mockito.when(mediaFileService.isRoot(artist)).thenReturn(false);
-        Mockito.when(securityService.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
-        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(Arrays.asList(album));
+        Mockito
+            .when(securityService.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(true);
+        Mockito
+            .when(mediaFileService.getChildrenOf(artist, true, true))
+            .thenReturn(Arrays.asList(album));
         Mockito.when(mediaFileService.getParentOf(artist)).thenReturn(root);
 
         album = new MediaFile();
         int albumId = 300;
         String albumPath = Path
-                .of(MainControllerTest.class
-                        .getResource("/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice").toURI())
-                .toString();
+            .of(MainControllerTest.class
+                .getResource("/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice")
+                .toURI())
+            .toString();
         album.setId(albumId);
         album.setPathString(albumPath);
         album.setMediaType(MediaType.ALBUM);
@@ -107,14 +114,21 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
         Mockito.when(mediaFileService.getMediaFile(albumId)).thenReturn(album);
         Mockito.when(mediaFileService.isRoot(album)).thenReturn(false);
-        Mockito.when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
-        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(Arrays.asList(album));
+        Mockito
+            .when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(true);
+        Mockito
+            .when(mediaFileService.getChildrenOf(artist, true, true))
+            .thenReturn(Arrays.asList(album));
 
         song = new MediaFile();
         int songId = 400;
-        String songPath = Path.of(MainControllerTest.class.getResource(
-                "/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice/01 - Sonata Violin & Cello I. Allegro.ogg")
-                .toURI()).toString();
+        String songPath = Path
+            .of(MainControllerTest.class
+                .getResource(
+                        "/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice/01 - Sonata Violin & Cello I. Allegro.ogg")
+                .toURI())
+            .toString();
         song.setId(songId);
         song.setPathString(songPath);
         song.setMediaType(MediaType.MUSIC);
@@ -122,7 +136,9 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(songId)).thenReturn(song);
         Mockito.when(mediaFileService.isRoot(song)).thenReturn(false);
         Mockito.when(mediaFileService.getParentOf(song)).thenReturn(album);
-        Mockito.when(mediaFileService.getChildrenOf(album, true, true)).thenReturn(Arrays.asList(song));
+        Mockito
+            .when(mediaFileService.getChildrenOf(album, true, true))
+            .thenReturn(Arrays.asList(song));
     }
 
     @SuppressWarnings("unchecked")
@@ -131,19 +147,27 @@ class MainControllerTest {
     void testGet() throws Exception {
 
         // with ID
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value())
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
                 .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("albumMain", modelAndView.getViewName());
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
+        Map<String, Object> model = (Map<String, Object>) modelAndView
+            .getModel()
+            .get(Attributes.Model.VALUE);
         assertNotNull(model);
 
         // ... or path
-        result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value())
+        result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
                 .param(Attributes.Request.PATH.value(), album.getPathString()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();
         assertEquals("albumMain", modelAndView.getViewName());
@@ -151,8 +175,12 @@ class MainControllerTest {
         assertNotNull(model);
 
         // Returns parent if not directory.
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value()).param(Attributes.Request.ID.value(),
-                Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();
         assertEquals("albumMain", modelAndView.getViewName());
@@ -167,13 +195,18 @@ class MainControllerTest {
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGetForChildren() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value())
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
                 .param(Attributes.Request.ID.value(), Integer.toString(artist.getId())))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("artistMain", modelAndView.getViewName());
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
+        Map<String, Object> model = (Map<String, Object>) modelAndView
+            .getModel()
+            .get(Attributes.Model.VALUE);
         assertNotNull(model);
 
         assertEquals(0, ((List<MediaFile>) model.get("files")).size());
@@ -189,18 +222,29 @@ class MainControllerTest {
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     void testGetFail() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value()).param(Attributes.Request.ID.value(),
-                Integer.toString(-1))).andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.NOTFOUND.value()));
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(-1)))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.NOTFOUND.value()));
 
-        Mockito.when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME)).thenReturn(false);
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value()).param(Attributes.Request.ID.value(),
-                Integer.toString(album.getId()))).andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.ACCESS_DENIED.value()));
+        Mockito
+            .when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
+            .thenReturn(false);
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.ACCESS_DENIED.value()));
 
         // Redirect to home if root directory.
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value()).param(Attributes.Request.ID.value(),
-                Integer.toString(root.getId()))).andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.HOME.value() + "?"));
+        mockMvc
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.MAIN.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(root.getId())))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.HOME.value() + "?"));
     }
 }

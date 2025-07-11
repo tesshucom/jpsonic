@@ -54,27 +54,35 @@ class PlaylistServiceTest {
         public void setup() {
             mediaFileDao = mock(MediaFileDao.class);
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
-            playlistService = new PlaylistService(mediaFileDao, jPlaylistDao, mock(SecurityService.class),
-                    mock(SettingsService.class), Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
+            playlistService = new PlaylistService(mediaFileDao, jPlaylistDao,
+                    mock(SecurityService.class), mock(SettingsService.class),
+                    Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
 
         @Test
         void testExportToM3U() throws Exception {
-            Mockito.when(mediaFileDao.getFilesInPlaylist(ArgumentMatchers.eq(23), Mockito.anyLong(), Mockito.anyLong()))
-                    .thenReturn(getPlaylistFiles());
+            Mockito
+                .when(mediaFileDao
+                    .getFilesInPlaylist(ArgumentMatchers.eq(23), Mockito.anyLong(),
+                            Mockito.anyLong()))
+                .thenReturn(getPlaylistFiles());
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 playlistService.exportPlaylist(23, outputStream);
                 /*
-                 * Since there is no problem in operation, blank lines are excluded from verification. (The trailing
-                 * newline is not output on the Windows-"server")
+                 * Since there is no problem in operation, blank lines are excluded from
+                 * verification. (The trailing newline is not output on the Windows-"server")
                  */
                 String expected = IOUtils
-                        .toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"), StandardCharsets.UTF_8)
-                        .replaceAll("\\r", "").replaceAll("\\n+$", "");
-                String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "").replaceAll("\\n+$",
-                        "");
+                    .toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"),
+                            StandardCharsets.UTF_8)
+                    .replaceAll("\\r", "")
+                    .replaceAll("\\n+$", "");
+                String actual = outputStream
+                    .toString(StandardCharsets.UTF_8)
+                    .replaceAll("\\r", "")
+                    .replaceAll("\\n+$", "");
                 assertEquals(expected, actual);
             }
         }
@@ -123,9 +131,11 @@ class PlaylistServiceTest {
         public void setup() {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
-            DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
-                    mock(SettingsService.class), Collections.emptyList(), Arrays.asList(importHandler), null);
+            DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
+                    mediaFileService);
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
+                    mock(SecurityService.class), mock(SettingsService.class),
+                    Collections.emptyList(), Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
         }
@@ -143,16 +153,26 @@ class PlaylistServiceTest {
             FileUtil.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "EXTM3U-mf3");
             FileUtil.touch(mf3);
-            builder.append(mf1.toUri().toString()).append('\n').append(mf2.toUri().toString()).append('\n')
-                    .append(mf3.toUri().toString()).append('\n');
+            builder
+                .append(mf1.toUri().toString())
+                .append('\n')
+                .append(mf2.toUri().toString())
+                .append('\n')
+                .append(mf3.toUri().toString())
+                .append('\n');
 
-            doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
+            doAnswer(new PersistPlayList(23))
+                .when(playlistDao)
+                .createPlaylist(ArgumentMatchers.any());
             String path = playlistName + ".m3u";
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(path);
-            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
+            Mockito
+                .when(mediaFileService.getMediaFile(Mockito.any(Path.class)))
+                .thenReturn(new MediaFile());
 
-            InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
+            InputStream inputStream = new ByteArrayInputStream(
+                    builder.toString().getBytes(StandardCharsets.UTF_8));
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -167,9 +187,13 @@ class PlaylistServiceTest {
             expected.setShared(true);
             expected.setId(23);
 
-            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
-                    "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                            + ToStringBuilder.reflectionToString(expected));
+            Assertions
+                .assertTrue(
+                        EqualsBuilder
+                            .reflectionEquals(actual.getValue(), expected, "created", "changed"),
+                        "\n" + ToStringBuilder.reflectionToString(actual.getValue())
+                                + "\n\n did not equal \n\n"
+                                + ToStringBuilder.reflectionToString(expected));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
@@ -185,17 +209,28 @@ class PlaylistServiceTest {
             Path mf3 = Path.of(tempDir.toString(), "PLS-mf3");
             FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(40);
-            builder.append("[playlist]\nFile1=").append(mf1.toUri().toString()).append("\nFile2=")
-                    .append(mf2.toUri().toString()).append("\nFile3=").append(mf3.toUri().toString()).append('\n');
+            builder
+                .append("[playlist]\nFile1=")
+                .append(mf1.toUri().toString())
+                .append("\nFile2=")
+                .append(mf2.toUri().toString())
+                .append("\nFile3=")
+                .append(mf3.toUri().toString())
+                .append('\n');
 
-            doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
+            doAnswer(new PersistPlayList(23))
+                .when(playlistDao)
+                .createPlaylist(ArgumentMatchers.any());
 
             String path = Path.of("/path/to/" + playlistName + ".pls").toString();
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(path);
-            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(mediaFile);
+            Mockito
+                .when(mediaFileService.getMediaFile(Mockito.any(Path.class)))
+                .thenReturn(mediaFile);
 
-            InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
+            InputStream inputStream = new ByteArrayInputStream(
+                    builder.toString().getBytes(StandardCharsets.UTF_8));
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -210,7 +245,9 @@ class PlaylistServiceTest {
             expected.setShared(true);
             expected.setId(23);
 
-            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+            Assertions
+                .assertTrue(EqualsBuilder
+                    .reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
@@ -226,19 +263,27 @@ class PlaylistServiceTest {
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
             FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
-            builder.append(
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
-                    .append(mf1.toUri().toString()).append("</location></track>\n<track><location>")
-                    .append(mf2.toUri().toString()).append("</location></track>\n<track><location>")
-                    .append(mf3.toUri().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
+            builder
+                .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
+                .append(mf1.toUri().toString())
+                .append("</location></track>\n<track><location>")
+                .append(mf2.toUri().toString())
+                .append("</location></track>\n<track><location>")
+                .append(mf3.toUri().toString())
+                .append("</location></track>\n</trackList>\n</playlist>\n");
 
-            doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
+            doAnswer(new PersistPlayList(23))
+                .when(playlistDao)
+                .createPlaylist(ArgumentMatchers.any());
             String path = Path.of("/path/to/" + playlistName + ".xspf").toString();
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(path);
-            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(mediaFile);
+            Mockito
+                .when(mediaFileService.getMediaFile(Mockito.any(Path.class)))
+                .thenReturn(mediaFile);
 
-            InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
+            InputStream inputStream = new ByteArrayInputStream(
+                    builder.toString().getBytes(StandardCharsets.UTF_8));
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -252,7 +297,9 @@ class PlaylistServiceTest {
             expected.setImportedFrom(path);
             expected.setShared(true);
             expected.setId(23);
-            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+            Assertions
+                .assertTrue(EqualsBuilder
+                    .reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
@@ -289,11 +336,13 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
-            SecurityService securityService = new SecurityService(mock(UserDao.class), settingsService,
-                    mock(MusicFolderService.class));
-            DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, securityService,
-                    settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
+            SecurityService securityService = new SecurityService(mock(UserDao.class),
+                    settingsService, mock(MusicFolderService.class));
+            DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
+                    mediaFileService);
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
+                    securityService, settingsService, Collections.emptyList(),
+                    Arrays.asList(importHandler), null);
         }
 
         @Test
@@ -310,11 +359,14 @@ class PlaylistServiceTest {
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
             FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
-            builder.append(
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
-                    .append(mf1.toUri().toString()).append("</location></track>\n<track><location>")
-                    .append(mf2.toUri().toString()).append("</location></track>\n<track><location>")
-                    .append(mf3.toUri().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
+            builder
+                .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
+                .append(mf1.toUri().toString())
+                .append("</location></track>\n<track><location>")
+                .append(mf2.toUri().toString())
+                .append("</location></track>\n<track><location>")
+                .append(mf3.toUri().toString())
+                .append("</location></track>\n</trackList>\n</playlist>\n");
 
             Path playlistFile = Path.of(tempDir.toString(), "playlistFile");
             Files.write(playlistFile, builder.toString().getBytes());

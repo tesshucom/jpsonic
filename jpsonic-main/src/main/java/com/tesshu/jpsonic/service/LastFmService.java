@@ -70,7 +70,8 @@ public class LastFmService {
     private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
 
-    public LastFmService(MediaFileDao mediaFileDao, MediaFileService mediaFileService, ArtistDao artistDao) {
+    public LastFmService(MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            ArtistDao artistDao) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
@@ -87,11 +88,13 @@ public class LastFmService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
-    private List<MediaFile> fillUpWithNonPresentArtists(List<MediaFile> result, Collection<Artist> similarArtists,
-            int count, List<MusicFolder> musicFolders) {
-        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+    private List<MediaFile> fillUpWithNonPresentArtists(List<MediaFile> result,
+            Collection<Artist> similarArtists, int count, List<MusicFolder> musicFolders) {
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext()
+                && result.size() != count;) {
             Artist lastFmArtist = i.next();
-            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            MediaFile similarArtist = mediaFileDao
+                .getArtistByName(lastFmArtist.getName(), musicFolders);
             if (similarArtist == null) {
                 MediaFile notPresentArtist = new MediaFile();
                 notPresentArtist.setId(-1);
@@ -105,20 +108,17 @@ public class LastFmService {
     /**
      * Returns similar artists, using last.fm REST API.
      *
-     * @param mediaFile
-     *            The media file (song, album or artist).
-     * @param count
-     *            Max number of similar artists to return.
-     * @param includeNotPresent
-     *            Whether to include artists that are not present in the media library.
-     * @param musicFolders
-     *            Only return artists present in these folders.
+     * @param mediaFile         The media file (song, album or artist).
+     * @param count             Max number of similar artists to return.
+     * @param includeNotPresent Whether to include artists that are not present in
+     *                          the media library.
+     * @param musicFolders      Only return artists present in these folders.
      *
      * @return Similar artists, ordered by presence then similarity.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
-    public List<MediaFile> getSimilarArtists(MediaFile mediaFile, int count, boolean includeNotPresent,
-            List<MusicFolder> musicFolders) {
+    public List<MediaFile> getSimilarArtists(MediaFile mediaFile, int count,
+            boolean includeNotPresent, List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
         if (mediaFile == null) {
             return result;
@@ -137,7 +137,8 @@ public class LastFmService {
 
         // First select artists that are present.
         for (Artist lastFmArtist : similarArtists) {
-            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            MediaFile similarArtist = mediaFileDao
+                .getArtistByName(lastFmArtist.getName(), musicFolders);
             if (similarArtist != null) {
                 result.add(similarArtist);
             }
@@ -157,26 +158,25 @@ public class LastFmService {
     /**
      * Returns similar artists, using last.fm REST API.
      *
-     * @param artist
-     *            The artist.
-     * @param count
-     *            Max number of similar artists to return.
-     * @param includeNotPresent
-     *            Whether to include artists that are not present in the media library.
-     * @param musicFolders
-     *            Only return songs from artists in these folders.
+     * @param artist            The artist.
+     * @param count             Max number of similar artists to return.
+     * @param includeNotPresent Whether to include artists that are not present in
+     *                          the media library.
+     * @param musicFolders      Only return songs from artists in these folders.
      *
      * @return Similar artists, ordered by presence then similarity.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Artist) Not reusable
-    public List<com.tesshu.jpsonic.domain.Artist> getSimilarArtists(com.tesshu.jpsonic.domain.Artist artist, int count,
-            boolean includeNotPresent, List<MusicFolder> musicFolders) {
+    public List<com.tesshu.jpsonic.domain.Artist> getSimilarArtists(
+            com.tesshu.jpsonic.domain.Artist artist, int count, boolean includeNotPresent,
+            List<MusicFolder> musicFolders) {
         List<com.tesshu.jpsonic.domain.Artist> result = new ArrayList<>();
 
         Collection<Artist> similarArtists;
         try {
             // First select artists that are present.
-            similarArtists = Artist.getSimilar(getCanonicalArtistName(artist.getName()), LAST_FM_KEY);
+            similarArtists = Artist
+                .getSimilar(getCanonicalArtistName(artist.getName()), LAST_FM_KEY);
         } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to find similar artists for " + artist.getName(), e);
@@ -185,7 +185,8 @@ public class LastFmService {
         }
 
         for (Artist lastFmArtist : similarArtists) {
-            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName(), musicFolders);
+            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao
+                .getArtist(lastFmArtist.getName(), musicFolders);
             if (similarArtist != null) {
                 result.add(similarArtist);
                 if (result.size() == count) {
@@ -199,9 +200,11 @@ public class LastFmService {
         }
 
         // Then fill up with non-present artists
-        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext()
+                && result.size() != count;) {
             Artist lastFmArtist = i.next();
-            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
+            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao
+                .getArtist(lastFmArtist.getName());
             if (similarArtist == null) {
                 com.tesshu.jpsonic.domain.Artist notPresentArtist = new com.tesshu.jpsonic.domain.Artist();
                 notPresentArtist.setId(-1);
@@ -213,22 +216,22 @@ public class LastFmService {
     }
 
     /**
-     * Returns songs from similar artists, using last.fm REST API. Typically used for artist radio features.
+     * Returns songs from similar artists, using last.fm REST API. Typically used
+     * for artist radio features.
      *
-     * @param artist
-     *            The artist.
-     * @param count
-     *            Max number of songs to return.
-     * @param musicFolders
-     *            Only return songs from artists in these folders.
+     * @param artist       The artist.
+     * @param count        Max number of songs to return.
+     * @param musicFolders Only return songs from artists in these folders.
      *
      * @return Songs from similar artists;
      */
     public List<MediaFile> getSimilarSongs(com.tesshu.jpsonic.domain.Artist artist, int count,
             List<MusicFolder> musicFolders) {
 
-        List<MediaFile> similarSongs = new ArrayList<>(mediaFileDao.getSongsByArtist(artist.getName(), 0, 1000));
-        for (com.tesshu.jpsonic.domain.Artist similarArtist : getSimilarArtists(artist, 100, false, musicFolders)) {
+        List<MediaFile> similarSongs = new ArrayList<>(
+                mediaFileDao.getSongsByArtist(artist.getName(), 0, 1000));
+        for (com.tesshu.jpsonic.domain.Artist similarArtist : getSimilarArtists(artist, 100, false,
+                musicFolders)) {
             similarSongs.addAll(mediaFileDao.getSongsByArtist(similarArtist.getName(), 0, 1000));
         }
         Collections.shuffle(similarSongs);
@@ -236,18 +239,17 @@ public class LastFmService {
     }
 
     /**
-     * Returns songs from similar artists, using last.fm REST API. Typically used for artist radio features.
+     * Returns songs from similar artists, using last.fm REST API. Typically used
+     * for artist radio features.
      *
-     * @param mediaFile
-     *            The media file (song, album or artist).
-     * @param count
-     *            Max number of songs to return.
-     * @param musicFolders
-     *            Only return songs from artists present in these folders.
+     * @param mediaFile    The media file (song, album or artist).
+     * @param count        Max number of songs to return.
+     * @param musicFolders Only return songs from artists present in these folders.
      *
      * @return Songs from similar artists;
      */
-    public List<MediaFile> getSimilarSongs(MediaFile mediaFile, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getSimilarSongs(MediaFile mediaFile, int count,
+            List<MusicFolder> musicFolders) {
         List<MediaFile> similarSongs = new ArrayList<>();
 
         String artistName = getArtistName(mediaFile);
@@ -266,8 +268,7 @@ public class LastFmService {
     /**
      * Returns artist bio and images.
      *
-     * @param mediaFile
-     *            The media file (song, album or artist).
+     * @param mediaFile The media file (song, album or artist).
      *
      * @return Artist bio.
      */
@@ -278,8 +279,7 @@ public class LastFmService {
     /**
      * Returns artist bio and images.
      *
-     * @param artist
-     *            The artist.
+     * @param artist The artist.
      *
      * @return Artist bio.
      */
@@ -314,32 +314,28 @@ public class LastFmService {
     /**
      * Returns top songs for the given artist, using last.fm REST API.
      *
-     * @param artist
-     *            The artist.
-     * @param count
-     *            Max number of songs to return.
-     * @param musicFolders
-     *            Only return songs present in these folders.
+     * @param artist       The artist.
+     * @param count        Max number of songs to return.
+     * @param musicFolders Only return songs present in these folders.
      *
      * @return Top songs for artist.
      */
-    public List<MediaFile> getTopSongs(MediaFile artist, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getTopSongs(MediaFile artist, int count,
+            List<MusicFolder> musicFolders) {
         return getTopSongs(artist.getName(), count, musicFolders);
     }
 
     /**
      * Returns top songs for the given artist, using last.fm REST API.
      *
-     * @param artistName
-     *            The artist name.
-     * @param count
-     *            Max number of songs to return.
-     * @param musicFolders
-     *            Only return songs present in these folders.
+     * @param artistName   The artist name.
+     * @param count        Max number of songs to return.
+     * @param musicFolders Only return songs present in these folders.
      *
      * @return Top songs for artist.
      */
-    public List<MediaFile> getTopSongs(String artistName, int count, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getTopSongs(String artistName, int count,
+            List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
 
         if (StringUtils.isBlank(artistName) || count <= 0) {
@@ -347,7 +343,8 @@ public class LastFmService {
         }
 
         for (Track topTrack : Artist.getTopTracks(artistName, LAST_FM_KEY)) {
-            MediaFile song = mediaFileDao.getSongByArtistAndTitle(artistName, topTrack.getName(), musicFolders);
+            MediaFile song = mediaFileDao
+                .getSongByArtistAndTitle(artistName, topTrack.getName(), musicFolders);
             if (song != null) {
                 result.add(song);
                 if (result.size() == count) {
@@ -361,20 +358,19 @@ public class LastFmService {
     /**
      * Returns album notes and images.
      *
-     * @param mediaFile
-     *            The media file (song or album).
+     * @param mediaFile The media file (song or album).
      *
      * @return Album notes.
      */
     public AlbumNotes getAlbumNotes(MediaFile mediaFile) {
-        return getAlbumNotes(getCanonicalArtistName(getArtistName(mediaFile)), mediaFile.getAlbumName());
+        return getAlbumNotes(getCanonicalArtistName(getArtistName(mediaFile)),
+                mediaFile.getAlbumName());
     }
 
     /**
      * Returns album notes and images.
      *
-     * @param album
-     *            The album.
+     * @param album The album.
      *
      * @return Album notes.
      */
@@ -385,10 +381,8 @@ public class LastFmService {
     /**
      * Returns album notes and images.
      *
-     * @param artist
-     *            The artist name.
-     * @param album
-     *            The album name.
+     * @param artist The artist name.
+     * @param album  The album name.
      *
      * @return Album notes.
      */
@@ -438,7 +432,11 @@ public class LastFmService {
             return Collections.emptyList();
         }
 
-        return matches.stream().map(this::convert).filter(Objects::nonNull).collect(Collectors.toList());
+        return matches
+            .stream()
+            .map(this::convert)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     private LastFmCoverArt convert(Album album) {
@@ -452,7 +450,8 @@ public class LastFmService {
             }
         }
 
-        return imageUrl == null ? null : new LastFmCoverArt(imageUrl, album.getArtist(), album.getName());
+        return imageUrl == null ? null
+                : new LastFmCoverArt(imageUrl, album.getArtist(), album.getName());
     }
 
     private String getCanonicalArtistName(String artistName) {
@@ -481,19 +480,24 @@ public class LastFmService {
 
     private String getRedirectedArtist(String biography) {
         /*
-         * This is mistagged for <a target='_blank' href="http://www.last.fm/music/The+Boomtown+Rats"
-         * class="bbcode_artist">The Boomtown Rats</a>; it would help Last.fm if you could correct your tags. <a
-         * target='_blank' href="http://www.last.fm/music/+noredirect/Boomtown+Rats">Boomtown Rats on Last.fm</a>.<p> --
-         * or --<p> Fix your tags to <a target='_blank' href="http://www.last.fm/music/The+Chemical+Brothers"
+         * This is mistagged for <a target='_blank'
+         * href="http://www.last.fm/music/The+Boomtown+Rats" class="bbcode_artist">The
+         * Boomtown Rats</a>; it would help Last.fm if you could correct your tags. <a
+         * target='_blank'
+         * href="http://www.last.fm/music/+noredirect/Boomtown+Rats">Boomtown Rats on
+         * Last.fm</a>.<p> -- or --<p> Fix your tags to <a target='_blank'
+         * href="http://www.last.fm/music/The+Chemical+Brothers"
          * class="bbcode_artist">The Chemical Brothers</a> <a target='_blank'
-         * href="http://www.last.fm/music/+noredirect/Chemical+Brothers">Chemical Brothers on Last.fm</a>.
+         * href="http://www.last.fm/music/+noredirect/Chemical+Brothers">Chemical
+         * Brothers on Last.fm</a>.
          */
 
         if (biography == null) {
             return null;
         }
         Pattern pattern = Pattern
-                .compile("((This is mistagged for)|(Fix your tags to)).*class=\"bbcode_artist\">(.*?)</a>");
+            .compile(
+                    "((This is mistagged for)|(Fix your tags to)).*class=\"bbcode_artist\">(.*?)</a>");
         Matcher matcher = pattern.matcher(biography);
         if (matcher.find()) {
             return matcher.group(4);
@@ -503,15 +507,19 @@ public class LastFmService {
 
     private String processWikiText(final String text) {
         /*
-         * System of a Down is an Armenian American <a href="http://www.last.fm/tag/alternative%20metal"
-         * class="bbcode_tag" rel="tag">alternative metal</a> band, formed in 1994 in Los Angeles, California, USA. All
-         * four members are of Armenian descent, and are widely known for their outspoken views expressed in many of
-         * their songs confronting the Armenian Genocide of 1915 by the Ottoman Empire and the ongoing War on Terror by
-         * the US government. The band consists of <a href="http://www.last.fm/music/Serj+Tankian"
-         * class="bbcode_artist">Serj Tankian</a> (vocals), Daron Malakian (vocals, guitar), Shavo Odadjian (bass,
-         * vocals) and John Dolmayan (drums). <a href="http://www.last.fm/music/System+of+a+Down">Read more about System
-         * of a Down on Last.fm</a>. User-contributed text is available under the Creative Commons By-SA License and may
-         * also be available under the GNU FDL.
+         * System of a Down is an Armenian American <a
+         * href="http://www.last.fm/tag/alternative%20metal" class="bbcode_tag"
+         * rel="tag">alternative metal</a> band, formed in 1994 in Los Angeles,
+         * California, USA. All four members are of Armenian descent, and are widely
+         * known for their outspoken views expressed in many of their songs confronting
+         * the Armenian Genocide of 1915 by the Ottoman Empire and the ongoing War on
+         * Terror by the US government. The band consists of <a
+         * href="http://www.last.fm/music/Serj+Tankian" class="bbcode_artist">Serj
+         * Tankian</a> (vocals), Daron Malakian (vocals, guitar), Shavo Odadjian (bass,
+         * vocals) and John Dolmayan (drums). <a
+         * href="http://www.last.fm/music/System+of+a+Down">Read more about System of a
+         * Down on Last.fm</a>. User-contributed text is available under the Creative
+         * Commons By-SA License and may also be available under the GNU FDL.
          */
         String result = text;
         result = result.replaceAll("User-contributed text.*", "");
@@ -529,7 +537,8 @@ public class LastFmService {
     private String getArtistName(MediaFile mediaFile) {
         String artistName = mediaFile.getName();
         if (mediaFile.isAlbum() || mediaFile.isFile()) {
-            artistName = mediaFile.getAlbumArtist() == null ? mediaFile.getArtist() : mediaFile.getAlbumArtist();
+            artistName = mediaFile.getAlbumArtist() == null ? mediaFile.getArtist()
+                    : mediaFile.getAlbumArtist();
         }
         return artistName;
     }

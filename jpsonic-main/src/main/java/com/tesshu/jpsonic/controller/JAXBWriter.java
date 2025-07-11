@@ -127,13 +127,14 @@ public final class JAXBWriter {
     }
 
     @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Jsonp cannot be used unless the administrator explicitly enables the feature.")
-    public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
+    public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse,
+            Response jaxbResponse) {
 
         String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
         String jsonpCallback = request.getParameter(Attributes.Request.CALLBACK.value());
         boolean json = "json".equals(format);
-        boolean jsonp = settingsService != null && settingsService.isUseJsonp() && "jsonp".equals(format)
-                && jsonpCallback != null;
+        boolean jsonp = settingsService != null && settingsService.isUseJsonp()
+                && "jsonp".equals(format) && jsonpCallback != null;
         Marshaller marshaller;
 
         if (json) {
@@ -193,7 +194,8 @@ public final class JAXBWriter {
             return null;
         }
         return datatypeFactory
-                .newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.ofInstant(date, ZoneId.systemDefault())));
+            .newXMLGregorianCalendar(
+                    GregorianCalendar.from(ZonedDateTime.ofInstant(date, ZoneId.systemDefault())));
     }
 
     public XMLGregorianCalendar convertCalendar(Calendar calendar) {

@@ -46,20 +46,23 @@ class SetRatingControllerTest {
     public void setup() throws ExecutionException {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(Mockito.anyInt())).thenReturn(new MediaFile());
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new SetRatingController(mock(SecurityService.class), mock(RatingService.class), mediaFileService))
-                .build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new SetRatingController(mock(SecurityService.class),
+                    mock(RatingService.class), mediaFileService))
+            .build();
     }
 
     @Test
     @WithMockUser(username = "admin")
     void testGet() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/setRating.view").param(Attributes.Request.ID.value(),
-                        Integer.toString(0)))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MAIN.value() + "?id=0"))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/setRating.view")
+                .param(Attributes.Request.ID.value(), Integer.toString(0)))
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MAIN.value() + "?id=0"))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+            .andReturn();
         assertNotNull(result);
     }
 }

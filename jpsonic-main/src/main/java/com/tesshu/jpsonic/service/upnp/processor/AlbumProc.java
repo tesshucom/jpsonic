@@ -31,7 +31,8 @@ public class AlbumProc extends MediaFileProc {
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
 
-    public AlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
+    public AlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.mediaFileService = mediaFileService;
@@ -44,7 +45,8 @@ public class AlbumProc extends MediaFileProc {
 
     @Override
     public List<MediaFile> getDirectChildren(long offset, long count) {
-        return mediaFileService.getAlphabeticalAlbums((int) offset, (int) count, true, util.getGuestFolders());
+        return mediaFileService
+            .getAlphabeticalAlbums((int) offset, (int) count, true, util.getGuestFolders());
     }
 
     @Override

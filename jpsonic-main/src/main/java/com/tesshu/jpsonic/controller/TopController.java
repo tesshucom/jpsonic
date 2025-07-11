@@ -72,9 +72,11 @@ public class TopController {
 
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
-    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(ViewName.MUSIC_FOLDER_SETTINGS.value(),
-            ViewName.GENERAL_SETTINGS.value(), ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
-            ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
+    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays
+        .asList(ViewName.MUSIC_FOLDER_SETTINGS.value(), ViewName.GENERAL_SETTINGS.value(),
+                ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
+                ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(),
+                ViewName.MORE.value());
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -104,7 +106,8 @@ public class TopController {
     @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. VersionService reads static local files.")
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             @RequestParam("mainView") Optional<String> mainView,
-            @RequestParam("selectedItem") Optional<String> selectedItem) throws ServletRequestBindingException {
+            @RequestParam("selectedItem") Optional<String> selectedItem)
+            throws ServletRequestBindingException {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -122,8 +125,9 @@ public class TopController {
 
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
-        } else if (SpeechToTextLangScheme.BCP47.name().equals(userSettings.getSpeechLangSchemeName())
-                && userSettings.getIetf() != null) {
+        } else if (SpeechToTextLangScheme.BCP47
+            .name()
+            .equals(userSettings.getSpeechLangSchemeName()) && userSettings.getIetf() != null) {
             map.put("voiceInputLocale", userSettings.getIetf());
         } else {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
@@ -144,17 +148,20 @@ public class TopController {
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
 
-        if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
+        if (userSettings.isFinalVersionNotificationEnabled()
+                && versionService.isNewFinalVersionAvailable()) {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestFinalVersion());
 
-        } else if (userSettings.isBetaVersionNotificationEnabled() && versionService.isNewBetaVersionAvailable()) {
+        } else if (userSettings.isBetaVersionNotificationEnabled()
+                && versionService.isNewBetaVersionAvailable()) {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
         map.put("brand", SettingsService.getBrand());
 
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse);
+        MusicFolderContent musicFolderContent = musicIndexService
+            .getMusicFolderContent(musicFoldersToUse);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
@@ -201,15 +208,18 @@ public class TopController {
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 try {
-                    lastModified = Math.max(lastModified, Files.getLastModifiedTime(musicFolder.toPath()).toMillis());
+                    lastModified = Math
+                        .max(lastModified,
+                                Files.getLastModifiedTime(musicFolder.toPath()).toMillis());
                 } catch (IOException e) {
                     LOG.error("Unable to get last modified.", e);
                 }
             }
         } else {
             try {
-                lastModified = Math.max(lastModified,
-                        Files.getLastModifiedTime(selectedMusicFolder.toPath()).toMillis());
+                lastModified = Math
+                    .max(lastModified,
+                            Files.getLastModifiedTime(selectedMusicFolder.toPath()).toMillis());
             } catch (IOException e) {
                 LOG.error("Unable to get last modified.", e);
             }
@@ -232,15 +242,18 @@ public class TopController {
         return lastModified;
     }
 
-    private boolean saveSelectedMusicFolder(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
-                Attributes.Request.MUSIC_FOLDER_ID.value());
+    private boolean saveSelectedMusicFolder(HttpServletRequest request)
+            throws ServletRequestBindingException {
+        Integer musicFolderId = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {
             return false;
         }
-        // Note: UserSettings.setChanged() is intentionally not called. This would break browser caching
+        // Note: UserSettings.setChanged() is intentionally not called. This would break
+        // browser caching
         // of the left frame.
-        UserSettings settings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
+        UserSettings settings = securityService
+            .getUserSettings(securityService.getCurrentUsernameStrict(request));
         settings.setSelectedMusicFolderId(musicFolderId);
         securityService.updateUserSettings(settings);
 

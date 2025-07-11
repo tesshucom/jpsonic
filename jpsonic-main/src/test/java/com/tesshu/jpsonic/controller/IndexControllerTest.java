@@ -45,14 +45,18 @@ class IndexControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new IndexController(mock(SecurityService.class))).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new IndexController(mock(SecurityService.class)))
+            .build();
     }
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/index.view"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/index.view"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("index", modelAndView.getViewName());
@@ -70,9 +74,11 @@ class IndexControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testPostWithView() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/index.view").param("mainView",
-                        ViewName.MUSIC_FOLDER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .post("/index.view")
+                .param("mainView", ViewName.MUSIC_FOLDER_SETTINGS.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("index", modelAndView.getViewName());

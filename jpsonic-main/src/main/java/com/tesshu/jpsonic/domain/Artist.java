@@ -43,8 +43,9 @@ public final class Artist implements Orderable, Indexable {
         musicIndex = "";
     }
 
-    public Artist(int id, String name, String coverArtPath, int albumCount, Instant lastScanned, boolean present,
-            Integer folderId, String sort, String reading, int order, String musicIndex) {
+    public Artist(int id, String name, String coverArtPath, int albumCount, Instant lastScanned,
+            boolean present, Integer folderId, String sort, String reading, int order,
+            String musicIndex) {
         this();
         this.id = id;
         this.name = name;

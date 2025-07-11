@@ -63,23 +63,31 @@ class JWTSecurityServiceTest {
         jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
     }
 
-    @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.UnnecessaryVarargsArrayCreation" }) // false positive
+    @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert",
+            "PMD.UnnecessaryVarargsArrayCreation" }) // false positive
     @Test
     void testAddJWTToken() {
-        // Originally Parameterized was used. If possible, it is better to rewrite to the new
+        // Originally Parameterized was used. If possible, it is better to rewrite to
+        // the new
         // spring-method.
-        Stream.of(new Object[][] { { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
-                { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" } }).forEach(o -> {
-                    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
-                    String actualUri = jwtSecurityService.addJWTToken(builder).build().toUriString();
-                    String jwtToken = UriComponentsBuilder.fromUriString(actualUri).build().getQueryParams()
-                            .getFirst(JWTSecurityService.JWT_PARAM_NAME);
-                    Algorithm algorithm = JWTSecurityService.getAlgorithm(settingsService.getJWTKey());
-                    JWTVerifier verifier = JWT.require(algorithm).build();
-                    DecodedJWT verify = verifier.verify(jwtToken);
-                    Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
-                    assertEquals(o[1], claim.asString());
-                });
+        Stream
+            .of(new Object[][] {
+                    { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
+                    { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" } })
+            .forEach(o -> {
+                UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
+                String actualUri = jwtSecurityService.addJWTToken(builder).build().toUriString();
+                String jwtToken = UriComponentsBuilder
+                    .fromUriString(actualUri)
+                    .build()
+                    .getQueryParams()
+                    .getFirst(JWTSecurityService.JWT_PARAM_NAME);
+                Algorithm algorithm = JWTSecurityService.getAlgorithm(settingsService.getJWTKey());
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT verify = verifier.verify(jwtToken);
+                Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
+                assertEquals(o[1], claim.asString());
+            });
     }
 
     /**
@@ -104,7 +112,8 @@ class JWTSecurityServiceTest {
             assertEquals(2, decoded.getClaims().size());
             assertEquals("\"" + PATH + "\"", decoded.getClaim("path").toString());
             assertNull(decoded.getContentType());
-            assertEquals(current.truncatedTo(ChronoUnit.SECONDS), decoded.getExpiresAt().toInstant());
+            assertEquals(current.truncatedTo(ChronoUnit.SECONDS),
+                    decoded.getExpiresAt().toInstant());
             assertEquals("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", decoded.getHeader());
             assertNull(decoded.getId());
             assertNull(decoded.getIssuer());
@@ -124,9 +133,11 @@ class JWTSecurityServiceTest {
             Instant after = now.plus(7, ChronoUnit.DAYS);
             Instant before = now.minus(7, ChronoUnit.DAYS);
 
-            assertNotNull(JWTSecurityService.verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
+            assertNotNull(JWTSecurityService
+                .verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
             Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
-                    () -> JWTSecurityService.verify(KEY, JWTSecurityService.createToken(KEY, PATH, before)));
+                    () -> JWTSecurityService
+                        .verify(KEY, JWTSecurityService.createToken(KEY, PATH, before)));
             assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
         }
 
@@ -134,32 +145,42 @@ class JWTSecurityServiceTest {
         void testSignatureVerification() {
             Instant current = now();
             String invalidToken = JWTSecurityService.createToken(KEY, PATH, current);
-            Throwable t = assertThrows(com.tesshu.jpsonic.security.SignatureVerificationException.class,
+            Throwable t = assertThrows(
+                    com.tesshu.jpsonic.security.SignatureVerificationException.class,
                     () -> jwtSecurityService.verify(invalidToken));
-            assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class, t.getCause());
+            assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class,
+                    t.getCause());
         }
 
         @Test
         void testJWTDecode() {
             Instant current = now();
-            String invalidToken = "foo" + JWTSecurityService.createToken(KEY, PATH, current).substring(3);
-            Throwable t = assertThrows(BadCredentialsException.class, () -> jwtSecurityService.verify(invalidToken));
+            String invalidToken = "foo"
+                    + JWTSecurityService.createToken(KEY, PATH, current).substring(3);
+            Throwable t = assertThrows(BadCredentialsException.class,
+                    () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(JWTDecodeException.class, t.getCause());
         }
 
         @Test
         void testAlgorithmMismatch() {
             String invalidToken = JWT.create().sign(Algorithm.HMAC512(KEY));
-            Throwable t = assertThrows(BadCredentialsException.class, () -> jwtSecurityService.verify(invalidToken));
+            Throwable t = assertThrows(BadCredentialsException.class,
+                    () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(AlgorithmMismatchException.class, t.getCause());
         }
 
         @Test
         void testInvalidClaim() {
-            final String token = JWT.create()
-                    .withExpiresAt(Date.from(ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault()).toInstant()))
-                    .sign(Algorithm.HMAC256(KEY));
-            Throwable t = assertThrows(BadCredentialsException.class, () -> JWTSecurityService.verify(KEY, token));
+            final String token = JWT
+                .create()
+                .withExpiresAt(Date
+                    .from(ZonedDateTime
+                        .of(LocalDateTime.now(), ZoneId.systemDefault())
+                        .toInstant()))
+                .sign(Algorithm.HMAC256(KEY));
+            Throwable t = assertThrows(BadCredentialsException.class,
+                    () -> JWTSecurityService.verify(KEY, token));
             assertInstanceOf(InvalidClaimException.class, t.getCause());
         }
     }

@@ -63,10 +63,12 @@ public class AvatarUploadController {
         this.avatarService = avatarService;
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseDiamondOperator", "rawtypes", "unchecked" })
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseDiamondOperator",
+            "rawtypes", "unchecked" })
     // TODO UseDiamondOperator -> 114.0.0.beta.1
     @PostMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws FileUploadException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request)
+            throws FileUploadException {
 
         // Check that we have a file upload request.
         if (!JakartaServletFileUpload.isMultipartContent(request)) {
@@ -96,8 +98,9 @@ public class AvatarUploadController {
     private void createAvatar(FileItem<?> fileItem, String username, Map<String, Object> map) {
         if (StringUtils.isNotBlank(fileItem.getName()) && fileItem.getSize() > 0) {
             try {
-                boolean resized = avatarService.createAvatar(fileItem.getFieldName(), fileItem.getInputStream(),
-                        fileItem.getSize(), username);
+                boolean resized = avatarService
+                    .createAvatar(fileItem.getFieldName(), fileItem.getInputStream(),
+                            fileItem.getSize(), username);
                 map.put("resized", resized);
             } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {

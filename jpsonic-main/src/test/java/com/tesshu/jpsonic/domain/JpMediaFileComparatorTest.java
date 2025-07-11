@@ -290,8 +290,8 @@ class JpMediaFileComparatorTest {
     void testNullSafeCompare() {
 
         /*
-         * This affects the specification of precedence when there is a mix of input and non-input data for song numbers
-         * and year.
+         * This affects the specification of precedence when there is a mix of input and
+         * non-input data for song numbers and year.
          */
         boolean nullIsSmaller = false;
         assertEquals(0, alphabetical.nullSafeCompare(null, null, nullIsSmaller));

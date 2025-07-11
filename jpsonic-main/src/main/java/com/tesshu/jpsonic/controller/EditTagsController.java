@@ -58,8 +58,9 @@ public class EditTagsController {
     private final MediaFileService mediaFileService;
     private final ScannerStateService scannerStateService;
 
-    public EditTagsController(SecurityService securityService, MetaDataParserFactory metaDataParserFactory,
-            MediaFileService mediaFileService, ScannerStateService scannerStateService) {
+    public EditTagsController(SecurityService securityService,
+            MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
+            ScannerStateService scannerStateService) {
         super();
         this.securityService = securityService;
         this.metaDataParserFactory = metaDataParserFactory;
@@ -68,9 +69,11 @@ public class EditTagsController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request)
+            throws ServletRequestBindingException {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils
+            .getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFileStrict(id);
         List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false);
 

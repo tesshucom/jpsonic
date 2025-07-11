@@ -62,11 +62,13 @@ class PodcastChannelControllerTest {
     public void setup() throws ExecutionException {
         podcastService = mock(PodcastService.class);
         Mockito.when(podcastService.getChannel(channelId)).thenReturn(new PodcastChannel(""));
-        PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null, null, null, null,
-                null);
+        PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null,
+                null, null, null, null);
         Mockito.when(podcastService.getEpisodes(channelId)).thenReturn(Arrays.asList(episode));
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
-                mock(ScannerStateServiceImpl.class), podcastService)).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
+                    mock(ScannerStateServiceImpl.class), podcastService))
+            .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -74,9 +76,11 @@ class PodcastChannelControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_CHANNEL.value())
-                        .param(Attributes.Request.ID.value(), Integer.toString(channelId)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.PODCAST_CHANNEL.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(channelId)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
@@ -84,27 +88,32 @@ class PodcastChannelControllerTest {
 
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         List<PodcastChannelController.PodcastEpisode> episodes = (List<PodcastChannelController.PodcastEpisode>) model
-                .get("episodes");
+            .get("episodes");
         assertEquals(1, episodes.size());
         assertNull(episodes.get(0).getPublishDate());
         assertNull(episodes.get(0).getPublishDateWithZone());
         Mockito.clearInvocations(podcastService);
 
         Instant now = now();
-        PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null, null, null, null,
-                null);
+        PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null,
+                null, null, null, null);
         episode.setPublishDate(now);
         Mockito.when(podcastService.getEpisodes(channelId)).thenReturn(Arrays.asList(episode));
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
-                mock(ScannerStateService.class), podcastService)).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
+                    mock(ScannerStateService.class), podcastService))
+            .build();
         result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_CHANNEL.value())
-                        .param(Attributes.Request.ID.value(), Integer.toString(channelId)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(MockMvcRequestBuilders
+                .get("/" + ViewName.PODCAST_CHANNEL.value())
+                .param(Attributes.Request.ID.value(), Integer.toString(channelId)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         model = (Map<String, Object>) result.getModelAndView().getModel().get("model");
         episodes = (List<PodcastChannelController.PodcastEpisode>) model.get("episodes");
         assertEquals(1, episodes.size());
         assertEquals(now, episodes.get(0).getPublishDate());
-        assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()), episodes.get(0).getPublishDateWithZone());
+        assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()),
+                episodes.get(0).getPublishDateWithZone());
     }
 }

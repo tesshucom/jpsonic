@@ -37,7 +37,8 @@ public record FolderArtist(MusicFolder folder, Artist artist) implements Composi
     }
 
     public static int parseFolderId(String compositeId) {
-        return Integer.parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
+        return Integer
+            .parseInt(compositeId.substring(TYPE_PREFIX.length(), compositeId.indexOf(SEPA)));
     }
 
     public static int parseArtistId(String compositeId) {

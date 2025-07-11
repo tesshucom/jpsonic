@@ -59,7 +59,9 @@ class HelpControllerTest {
         SecurityService securityService = mock(SecurityService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
-        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, securityService)).build();
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(new HelpController(versionService, securityService))
+            .build();
 
         Path testLog = Path.of(TestCaseUtils.jpsonicHomePathForTest(), "jpsonic.log");
         if (!Files.exists(testLog)) {
@@ -73,8 +75,10 @@ class HelpControllerTest {
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.HELP.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders.get("/" + ViewName.HELP.value()))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();

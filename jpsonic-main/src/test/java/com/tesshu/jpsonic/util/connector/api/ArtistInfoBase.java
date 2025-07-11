@@ -25,8 +25,8 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
 import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ArtistInfoBase", propOrder = { "biography", "musicBrainzId", "lastFmUrl", "smallImageUrl",
-        "mediumImageUrl", "largeImageUrl" })
+@XmlType(name = "ArtistInfoBase", propOrder = { "biography", "musicBrainzId", "lastFmUrl",
+        "smallImageUrl", "mediumImageUrl", "largeImageUrl" })
 @XmlSeeAlso({ ArtistInfo.class, ArtistInfo2.class })
 public class ArtistInfoBase {
 

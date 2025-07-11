@@ -233,7 +233,8 @@ class ScannerStateServiceImplTest {
         void c01() {
             assertFalse(scannerStateService.isScanning());
             assertThatExceptionOfType(IllegalMonitorStateException.class)
-                    .isThrownBy(scannerStateService::unlockScanning).withNoCause();
+                .isThrownBy(scannerStateService::unlockScanning)
+                .withNoCause();
         }
 
         @Test
@@ -248,7 +249,8 @@ class ScannerStateServiceImplTest {
             executor.submit(scannerStateService::tryScanningLock).get();
             assertTrue(scannerStateService.isScanning());
             assertThatExceptionOfType(IllegalMonitorStateException.class)
-                    .isThrownBy(scannerStateService::unlockScanning).withNoCause();
+                .isThrownBy(scannerStateService::unlockScanning)
+                .withNoCause();
             executor.shutdown();
         }
 

@@ -46,8 +46,9 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     private final PodcastService podcastService;
     private final ScannerStateService scannerStateService;
 
-    public PodcastScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
-            PodcastService podcastService, ScannerStateService scannerStateService) {
+    public PodcastScheduleConfiguration(TaskScheduler taskScheduler,
+            SettingsService settingsService, PodcastService podcastService,
+            ScannerStateService scannerStateService) {
         super();
         this.taskScheduler = taskScheduler;
         this.settingsService = settingsService;
@@ -82,7 +83,8 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         private final SettingsService settingsService;
         private final ScannerStateService scannerStateService;
 
-        public PodcastUpdateTrigger(SettingsService settingsService, ScannerStateService scannerStateService) {
+        public PodcastUpdateTrigger(SettingsService settingsService,
+                ScannerStateService scannerStateService) {
             super();
             this.settingsService = settingsService;
             this.scannerStateService = scannerStateService;
@@ -92,8 +94,10 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         public Date nextExecutionTime(TriggerContext triggerContext) {
 
             Instant nextTime = nextExecution(triggerContext);
-            String nextTimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
-                    .format(nextTime);
+            String nextTimeString = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm")
+                .withZone(ZoneId.systemDefault())
+                .format(nextTime);
 
             String msg;
             if (this.scannerStateService.isScanning()) {

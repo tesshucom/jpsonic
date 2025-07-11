@@ -20,8 +20,9 @@
 package com.tesshu.jpsonic.command;
 
 /**
- * Properties used for similar purposes on all Setting pages view. The settings page defaults to as few display items as
- * possible. These settings themselves can be changed by the user.
+ * Properties used for similar purposes on all Setting pages view. The settings
+ * page defaults to as few display items as possible. These settings themselves
+ * can be changed by the user.
  */
 public class SettingsPageCommons {
 
@@ -31,7 +32,8 @@ public class SettingsPageCommons {
     private boolean useRadio;
 
     /**
-     * Number of items in share. If 0, Share does not need to be displayed in the menu.
+     * Number of items in share. If 0, Share does not need to be displayed in the
+     * menu.
      */
     private int shareCount;
 

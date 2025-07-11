@@ -69,8 +69,9 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         if (StringUtils.contains(authentication.getRequestedPath(), "/WEB-INF/jsp/")) {
             LOG.warn("BYPASSING AUTH FOR WEB-INF page");
         } else if (!roughlyEqual(path.asString(), authentication.getRequestedPath())) {
-            throw new InsufficientAuthenticationException("Credentials not valid for path "
-                    + authentication.getRequestedPath() + ". They are valid for " + path.asString());
+            throw new InsufficientAuthenticationException(
+                    "Credentials not valid for path " + authentication.getRequestedPath()
+                            + ". They are valid for " + path.asString());
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -89,7 +90,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
                 && expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
     }
 
-    static boolean expectedJWTParam(@NonNull Map<String, List<String>> left, @NonNull Map<String, List<String>> right) {
+    static boolean expectedJWTParam(@NonNull Map<String, List<String>> left,
+            @NonNull Map<String, List<String>> right) {
 
         if (left.size() + 1 != right.size() // Size
                 || left.values().stream().anyMatch(Objects::isNull) // Null
