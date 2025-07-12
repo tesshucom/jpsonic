@@ -46,6 +46,29 @@ import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Service class for classifying and retrieving artists and directories in music
+ * folders using indexed keys ({@link MusicIndex}).
+ * <p>
+ * Similar to Subsonic, it classifies entries based on artist names. However,
+ * this implementation assumes a dual-language index (Japanese and English),
+ * incorporating phonetic readings and alphabetical order. Optimizations are
+ * applied to improve classification speed.
+ *
+ * <h3>Main Responsibilities</h3>
+ * <ul>
+ * <li>{@link #getMusicFolderContent(List, MediaType...)} Retrieves and
+ * classifies directories and standalone files from the specified music folders,
+ * returning them as a {@code MusicFolderContent} object.</li>
+ * <li>{@link #getIndexedId3Artists(List)} Loads artists based on ID3 tags and
+ * classifies them under each {@code MusicIndex}.</li>
+ * <li>{@link #getShortcuts(List)} Retrieves shortcut information for the
+ * specified music folders.</li>
+ * </ul>
+ *
+ * @see MusicIndex
+ * @see MusicFolderContent
+ */
 @Service
 public class MusicIndexServiceImpl implements MusicIndexService {
 

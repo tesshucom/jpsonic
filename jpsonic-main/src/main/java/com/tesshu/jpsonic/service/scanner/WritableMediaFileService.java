@@ -67,9 +67,50 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 
 /**
- * Class for writing MediaFile. Package-private methods will be used from the
- * scanning thread. Public methods may be used from outside the scanning thread,
- * so concurrency will need to be taken care of.
+ * A service interface that provides write operations—such as registering,
+ * updating, and deleting media files—during the scanning process.
+ *
+ * <p>
+ * This service is primarily used during scan phases to persistently reflect
+ * media files detected and analyzed through various scan procedures. In
+ * particular, it plays a central role in recording results from metadata
+ * analysis phases.
+ * </p>
+ *
+ * <h3>Primary Responsibilities</h3>
+ * <ul>
+ * <li>Registering newly detected media files during a scan</li>
+ * <li>Updating or deleting existing media files as needed</li>
+ * </ul>
+ *
+ * <p>
+ * Each update is applied incrementally as the scan progresses. Overall
+ * integrity and consistency across the scan process is ensured through
+ * cooperation with other related services.
+ * </p>
+ *
+ * <h3>Design Notes</h3>
+ * <p>
+ * This interface was designed to specialize in write operations that occur
+ * during scanning, ensuring that batch updates from a scan do not conflict with
+ * ordinary updates performed outside of scanning. <br>
+ * By clearly separating these responsibilities, the design provides a safe and
+ * predictable update mechanism, even in concurrent environments.
+ * </p>
+ * <ul>
+ * <li>Non-scan updates are limited to updating only specific fields, avoiding
+ * full record overwrites</li>
+ * <li>Updates that could affect scan results are protected through mutual
+ * exclusion using {@link ScannerStateService}</li>
+ * </ul>
+ * <p>
+ * This design helps maintain consistent data structures throughout scanning and
+ * prevents unintended overwrites or data inconsistencies.
+ * </p>
+ *
+ * @see MediaFile
+ * @see ScanContext
+ * @see ScannerStateService
  */
 @Service
 public class WritableMediaFileService {

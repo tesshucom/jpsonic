@@ -35,10 +35,14 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.scanner.ExpungeService;
+import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.service.scanner.FileMetadataScanProcedure;
+import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
-import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
+import com.tesshu.jpsonic.service.scanner.PostScanProcedure;
+import com.tesshu.jpsonic.service.scanner.PreScanProcedure;
+import com.tesshu.jpsonic.service.scanner.ScanHelper;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,9 +85,18 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     private ScannerStateServiceImpl scannerStateService;
     @Autowired
-    private ScannerProcedureService procedure;
+    private PreScanProcedure preScanProc;
     @Autowired
-    private ExpungeService expungeService;
+    private DirectoryScanProcedure directoryScanProc;
+    @Autowired
+    private FileMetadataScanProcedure fileMetaProc;
+    @Autowired
+    private Id3MetadataScanProcedure id3MetaProc;
+    @Autowired
+    private PostScanProcedure postScanProc;
+    @Autowired
+    private ScanHelper scanHelper;
+
     @Autowired
     private StaticsDao staticsDao;
 
@@ -94,7 +107,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @PostConstruct
     public void init() {
         mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                procedure, expungeService, staticsDao, scanExecutor);
+                preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc, scanHelper,
+                staticsDao, scanExecutor);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

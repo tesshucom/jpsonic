@@ -132,31 +132,6 @@ class MusicFolderSettingsControllerTest {
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    @Order(3)
-    void testDoExpunge() throws Exception {
-
-        Mockito.doNothing().when(mediaScannerService).expunge();
-
-        MvcResult result = mockMvc
-            .perform(MockMvcRequestBuilders
-                .get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())
-                .param(Attributes.Request.NameConstants.EXPUNGE, "true"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andReturn();
-        assertNotNull(result);
-        ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) modelAndView
-            .getModelMap()
-            .get(Attributes.Model.Command.VALUE);
-        assertNotNull(command);
-
-        Mockito.verify(mediaScannerService, Mockito.times(1)).expunge();
-    }
-
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(4)
     void testPost() throws Exception {
         MvcResult result = mockMvc

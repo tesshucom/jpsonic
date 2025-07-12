@@ -38,8 +38,45 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
- * A class that holds the scan progress. It is generally said that services
- * should not have state. Now they are aggregated in this class.
+ * Service class responsible for managing the runtime state of the scan process,
+ * including current execution status and recent scan history.
+ * <p>
+ * This service centralizes control over various aspects of scanning: whether
+ * scanning is currently enabled, whether a scan is in progress, the timestamp
+ * of the most recent scan, the total number of executions, and concurrency
+ * control through locking. It also serves as a synchronization point for UI
+ * components or monitoring services.
+ *
+ * <h3>Main Responsibilities</h3>
+ * <ul>
+ * <li>Maintaining and exposing whether scanning is enabled or disabled</li>
+ * <li>Determining whether a scan is currently in progress (via reentrant
+ * locking)</li>
+ * <li>Tracking the timestamp of the most recent scan</li>
+ * <li>Counting the total number of scan executions</li>
+ * <li>Resetting internal state upon server shutdown</li>
+ * </ul>
+ *
+ * <h3>Design Notes</h3>
+ * <p>
+ * While {@link ScanContext} holds immutable configuration parameters related to
+ * scanning, this class manages mutable runtime state during the scan process.
+ * <br>
+ * <br>
+ * To initiate a scan, {@code setReady()} must be called beforehand. This
+ * mechanism ensures that scanning cannot begin until the server has completed
+ * critical startup routines (e.g., Lucene initialization or mounting host
+ * volumes in Docker). These routines could interfere with scanning if allowed
+ * to overlap. <br>
+ * <br>
+ * Classes that execute scans continue to reference this service throughout the
+ * scan, but scanning will not begin until readiness is explicitly declared via
+ * {@code setReady()}. This mechanism helps enforce safe and controlled scan
+ * initiation timing.
+ * </p>
+ *
+ * @see ScanContext
+ * @see MediaScannerServiceImpl
  */
 @Primary
 @Service("scannerStateService")
@@ -84,12 +121,26 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     }
 
     /**
-     * Called only once after startup.
+     * Marks the scanner state as ready to begin the scan process.
+     * <p>
+     * This method should be called after all pre-scan preparations are completed.
+     * It sets the internal readiness flag, allowing procedures dependent on
+     * readiness to proceed.
+     *
+     * <p>
+     * This readiness state is part of the shared scanner lifecycle management and
+     * is not tied to any individual scan context.
+     *
+     * @return void
      */
     public void setReady() {
         ready.set(true);
     }
 
+    /**
+     * Attempts to acquire a lock to indicate that a scan is currently in progress.
+     * This is used to coordinate scan concurrency and prevent duplicate executions.
+     */
     boolean tryScanningLock() {
         if (!ready.get() || destroy.get()) {
             return false;
@@ -113,7 +164,9 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     }
 
     /**
-     * Use only within the thread that acquired the lock.
+     * Returns the date and time of the most recent scan execution.
+     *
+     * @return the timestamp of the last scan, or {@code null} if never scanned
      */
     @ThreadSafe(enableChecks = false)
     @NonNull
@@ -125,6 +178,11 @@ public class ScannerStateServiceImpl implements ScannerStateService {
      * Use only within the thread that acquired the lock.
      */
     @ThreadSafe(enableChecks = false)
+
+    /**
+     * Releases the lock acquired by {@code tryScanningLock()}, marking the scan as
+     * complete. This method should be called after a scan finishes or is cancelled.
+     */
     void unlockScanning() {
         scanDate = FAR_PAST;
         scanCount.reset();
@@ -132,32 +190,70 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         scanningLock.unlock();
     }
 
+    /**
+     * Checks whether a scan is currently in progress.
+     *
+     * @return {@code true} if a scan is running, {@code false} otherwise
+     */
     @Override
     public boolean isScanning() {
         return ready.get() && scanningLock.isLocked();
     }
+
+    /**
+     * Increments the internal scan counter, used to track the number of scan
+     * executions. Should be called once per scan cycle.
+     */
 
     void incrementScanCount() {
         scanCount.increment();
     }
 
     @Override
+    /**
+     * Returns the total number of scans that have been executed since startup.
+     *
+     * @return the scan execution count
+     */
     public long getScanCount() {
         return scanCount.sum();
     }
 
+    /**
+     * Enables or disables cleansing mode during scan. When enabled, this mode may
+     * trigger cleanup logic after scanning.
+     *
+     * @param enable {@code true} to enable cleansing; {@code false} to disable
+     */
     void enableCleansing(boolean b) {
         cleansing.set(b);
     }
 
+    /**
+     * Checks whether cleansing is enabled for the current scan cycle.
+     *
+     * @return {@code true} if cleansing is enabled, {@code false} otherwise
+     */
     boolean isEnableCleansing() {
         return cleansing.get();
     }
 
+    /**
+     * Returns the last {@link ScanEvent} that was emitted during scanning. This is
+     * useful for observers or monitoring tools to track scan progress or result.
+     *
+     * @return the last emitted scan event, or {@code null} if none
+     */
     public ScanEventType getLastEvent() {
         return lastEvent;
     }
 
+    /**
+     * Stores the most recent {@link ScanEvent} emitted by the scanner. This value
+     * can be used for external monitoring or recovery purposes.
+     *
+     * @param event the scan event to store
+     */
     public void setLastEvent(ScanEventType lastEvent) {
         this.lastEvent = lastEvent;
     }

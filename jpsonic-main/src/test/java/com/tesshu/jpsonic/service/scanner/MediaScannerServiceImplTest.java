@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -201,10 +202,15 @@ class MediaScannerServiceImplTest {
         private MediaFileDao mediaFileDao;
         private StaticsDao staticsDao;
         private ScannerStateServiceImpl scannerStateService;
-        private ThreadPoolTaskExecutor executor;
         private SortProcedureService utils;
-        private ScannerProcedureService scannerProcedureService;
         private WritableMediaFileService writableMediaFileService;
+
+        private ScanHelper scanHelper;
+        private PreScanProcedure preScanProc;
+        private DirectoryScanProcedure directoryScanProc;
+        private FileMetadataScanProcedure fileMetaProc;
+        private Id3MetadataScanProcedure id3MetaProc;
+        private PostScanProcedure postScanProc;
         private MediaScannerServiceImpl mediaScannerService;
 
         @BeforeEach
@@ -216,24 +222,44 @@ class MediaScannerServiceImplTest {
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
-            executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
             staticsDao = mock(StaticsDao.class);
             scannerStateService = new ScannerStateServiceImpl(staticsDao);
+
             writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                     scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
                     mock(MusicParser.class), mock(VideoParser.class), settingsService,
                     mock(SecurityService.class), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
-            scannerProcedureService = new ScannerProcedureService(settingsService,
-                    mock(MusicFolderServiceImpl.class), indexManager, mediaFileService,
-                    writableMediaFileService, mock(PlaylistService.class),
-                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao,
-                    utils, scannerStateService, mock(MusicIndexServiceImpl.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class),
-                    mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+            final JpsonicComparators comparators = mock(JpsonicComparators.class);
+            final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+
+            scanHelper = new ScanHelper(scannerStateService, settingsService, staticsDao,
+                    mediaFileDao, indexManager, writableMediaFileService);
+            preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
+                    artistDao, mediaFileCache, scanHelper);
+            directoryScanProc = new DirectoryScanProcedure(mediaFileDao, musicFolderService,
+                    writableMediaFileService, scannerStateService, indexManager, scanHelper);
+            fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, writableMediaFileService, mediaFileDao, utils,
+                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
+                    comparators);
+            id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    comparators, scanHelper);
+            postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
+                    templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
+
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to
@@ -248,9 +274,10 @@ class MediaScannerServiceImplTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
+            ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), mock(StaticsDao.class),
-                    mock(ThreadPoolTaskExecutor.class));
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
             mediaScannerService.scanLibrary();
         }
 
@@ -1099,9 +1126,17 @@ class MediaScannerServiceImplTest {
         @Autowired
         private ScannerStateServiceImpl scannerStateService;
         @Autowired
-        private ScannerProcedureService procedure;
+        private ScanHelper scanHelper;
         @Autowired
-        private ExpungeService expungeService;
+        private PreScanProcedure preScanProc;
+        @Autowired
+        private DirectoryScanProcedure directoryScanProc;
+        @Autowired
+        private FileMetadataScanProcedure fileMetaProc;
+        @Autowired
+        private Id3MetadataScanProcedure id3MetaProc;
+        @Autowired
+        private PostScanProcedure postScanProc;
         @Autowired
         private StaticsDao staticsDao;
 
@@ -1111,7 +1146,8 @@ class MediaScannerServiceImplTest {
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    procedure, expungeService, staticsDao, scanExecutor);
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, scanExecutor);
         }
 
         /**
@@ -1495,6 +1531,7 @@ class MediaScannerServiceImplTest {
         private ScannerStateServiceImpl scannerStateService;
         private SortProcedureService sortProcedureService;
         private MusicFolderServiceImpl musicFolderService;
+
         private MediaScannerServiceImpl mediaScannerService;
         private JpsonicComparators comparators;
 
@@ -1505,27 +1542,45 @@ class MediaScannerServiceImplTest {
             artistDao = mock(ArtistDao.class);
             sortProcedureService = mock(SortProcedureService.class);
             scannerStateService = mock(ScannerStateServiceImpl.class);
-            MediaFileService mediaFileService = mock(MediaFileService.class);
-            AlbumDao albumDao = mock(AlbumDao.class);
-            WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
+            final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final AlbumDao albumDao = mock(AlbumDao.class);
+            final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
-            StaticsDao staticsDao = mock(StaticsDao.class);
-            IndexManager indexManager = mock(IndexManager.class);
-            ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
-            ScannerProcedureService scannerProcedureService = new ScannerProcedureService(
-                    settingsService, musicFolderService, indexManager, mediaFileService,
-                    writableMediaFileService, mock(PlaylistService.class),
-                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao,
-                    sortProcedureService, scannerStateService, mock(MusicIndexServiceImpl.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
-                    mock(ThreadPoolTaskExecutor.class));
+            final StaticsDao staticsDao = mock(StaticsDao.class);
+            final IndexManager indexManager = mock(IndexManager.class);
+            final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+
+            ScanHelper scanHelper = mock(ScanHelper.class);
+            PreScanProcedure preScanProc = new PreScanProcedure(musicFolderService, indexManager,
+                    mediaFileDao, artistDao, mediaFileCache, scanHelper);
+            DirectoryScanProcedure directoryScanProc = new DirectoryScanProcedure(mediaFileDao,
+                    musicFolderService, writableMediaFileService, scannerStateService, indexManager,
+                    scanHelper);
+            FileMetadataScanProcedure fileMetaProc = new FileMetadataScanProcedure(
+                    musicFolderService, indexManager, mediaFileService, writableMediaFileService,
+                    mediaFileDao, sortProcedureService, scannerStateService, scanHelper,
+                    musicIndexServiceImpl, japaneseReadingUtils, comparators);
+            Id3MetadataScanProcedure id3MetaProc = new Id3MetadataScanProcedure(musicFolderService,
+                    indexManager, mediaFileService, mediaFileDao, artistDao, albumDao,
+                    musicIndexServiceImpl, comparators, scanHelper);
+            PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
+                    playlistService, templateWrapper, staticsDao, sortProcedureService,
+                    mediaFileCache, scanHelper);
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
         }
 
         @Test
@@ -1699,4 +1754,151 @@ class MediaScannerServiceImplTest {
                 .updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
         }
     }
+
+    @Nested
+    class GetScanPhaseInfoTest {
+        private SettingsService settingsService;
+        private ScanHelper scanHelper;
+        private PreScanProcedure preScanProc;
+        private DirectoryScanProcedure directoryScanProc;
+        private FileMetadataScanProcedure fileMetaProc;
+        private Id3MetadataScanProcedure id3MetaProc;
+        private PostScanProcedure postScanProc;
+        private StaticsDao staticsDao;
+        private ThreadPoolTaskExecutor executor;
+
+        @BeforeEach
+        public void setup() {
+            settingsService = mock(SettingsService.class);
+            final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
+            final ArtistDao artistDao = mock(ArtistDao.class);
+            final SortProcedureService sortProcedureService = mock(SortProcedureService.class);
+            final ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+            final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final AlbumDao albumDao = mock(AlbumDao.class);
+            final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
+                    mediaFileDao, scannerStateService, mediaFileService, albumDao,
+                    mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
+                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    mock(MusicIndexServiceImpl.class));
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final JpsonicComparators comparators = mock(JpsonicComparators.class);
+            staticsDao = mock(StaticsDao.class);
+            final IndexManager indexManager = mock(IndexManager.class);
+            executor = mock(ThreadPoolTaskExecutor.class);
+
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+
+            scanHelper = mock(ScanHelper.class);
+            preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
+                    artistDao, mediaFileCache, scanHelper);
+            directoryScanProc = new DirectoryScanProcedure(mediaFileDao, musicFolderService,
+                    writableMediaFileService, scannerStateService, indexManager, scanHelper);
+            fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, writableMediaFileService, mediaFileDao, sortProcedureService,
+                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
+                    comparators);
+            id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    comparators, scanHelper);
+            postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
+                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper);
+        }
+
+        @Test
+        void testGetScanPhaseInfo() {
+            ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+            MediaScannerServiceImpl mediaScannerService = new MediaScannerServiceImpl(
+                    settingsService, scannerStateService, preScanProc, directoryScanProc,
+                    fileMetaProc, id3MetaProc, postScanProc, scanHelper, staticsDao, executor);
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(false);
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.UNKNOWN);
+            assertFalse(mediaScannerService.getScanPhaseInfo().isPresent());
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            Mockito
+                .when(scannerStateService.getLastEvent())
+                .thenReturn(ScanEventType.MUSIC_FOLDER_CHECK);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(2, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            Mockito
+                .when(scannerStateService.getLastEvent())
+                .thenReturn(ScanEventType.SCANNED_COUNT);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(2, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CHECKPOINT);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CANCELED);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(-1, scanPhaseInfo.phase());
+                assertEquals(-1, scanPhaseInfo.phaseMax());
+                assertEquals("Semi Scan Proc", scanPhaseInfo.phaseName());
+                assertEquals(-1, scanPhaseInfo.thread());
+            });
+        }
+
+    }
+
 }
