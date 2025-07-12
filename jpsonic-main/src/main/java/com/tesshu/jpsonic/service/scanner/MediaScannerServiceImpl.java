@@ -135,6 +135,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     @Override
+    @Deprecated
     public void expunge() {
         expungeService.expunge();
     }

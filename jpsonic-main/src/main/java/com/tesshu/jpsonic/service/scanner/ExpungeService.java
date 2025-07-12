@@ -36,6 +36,7 @@ public class ExpungeService {
         this.procedure = scannerProcedure;
     }
 
+    @Deprecated
     void expunge() {
 
         if (!scannerState.tryScanningLock()) {

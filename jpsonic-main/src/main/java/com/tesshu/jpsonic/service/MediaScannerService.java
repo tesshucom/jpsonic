@@ -66,5 +66,6 @@ public interface MediaScannerService extends ScannerStateService {
      *
      * @since airsonic
      */
+    @Deprecated
     void expunge();
 }
