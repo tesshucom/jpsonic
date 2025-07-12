@@ -29,11 +29,11 @@ import java.util.Optional;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.service.MediaScannerService.ScanPhaseInfo;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
-import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
-import com.tesshu.jpsonic.service.scanner.ScannerProcedureService.ScanPhaseInfo;
+import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,7 +41,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 class ScanInfoServiceTest {
 
-    private ScannerProcedureService scannerProcedureService;
+    private MediaScannerServiceImpl mediaScannerService;
     private ScanInfoService scanInfoService;
 
     @BeforeEach
@@ -53,9 +53,8 @@ class ScanInfoServiceTest {
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         PlayStatus playStatus = new PlayStatus(file, player, now());
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
-        scannerProcedureService = mock(ScannerProcedureService.class);
-        scanInfoService = new ScanInfoService(mock(ScannerStateService.class),
-                scannerProcedureService);
+        mediaScannerService = mock(MediaScannerServiceImpl.class);
+        scanInfoService = new ScanInfoService(mock(ScannerStateService.class), mediaScannerService);
     }
 
     @Test
@@ -64,7 +63,7 @@ class ScanInfoServiceTest {
         assertEquals(-1, scanInfoService.getScanningStatus().getPhase());
 
         ScanPhaseInfo info = new ScanPhaseInfo(0, 10, "phaseName", 1);
-        Mockito.when(scannerProcedureService.getScanPhaseInfo()).thenReturn(Optional.of(info));
+        Mockito.when(mediaScannerService.getScanPhaseInfo()).thenReturn(Optional.of(info));
         assertEquals(0, scanInfoService.getScanningStatus().getPhase());
     }
 }

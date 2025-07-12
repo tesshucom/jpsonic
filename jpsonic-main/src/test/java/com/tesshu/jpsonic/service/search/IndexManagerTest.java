@@ -58,9 +58,11 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
+import com.tesshu.jpsonic.service.scanner.ScanContext;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.AfterAll;
@@ -538,9 +540,6 @@ class IndexManagerTest {
         private HttpSearchCriteriaDirector director;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
-
-        @Autowired
         private TemplateWrapper template;
 
         @Autowired
@@ -548,6 +547,12 @@ class IndexManagerTest {
 
         @Autowired
         private RatingDao ratingDao;
+
+        @Autowired
+        private DirectoryScanProcedure directoryScanProcedure;
+
+        @Autowired
+        private Id3MetadataScanProcedure id3MetadataScanProcedure;
 
         private static final String USER_NAME = "admin";
 
@@ -602,6 +607,14 @@ class IndexManagerTest {
 
         }
 
+        /**
+         * This test was originally created to cover the now-obsolete expungeService,
+         * which has already been removed. Although the expungeService no longer exists,
+         * an equivalent process is expected to run automatically as part of the scan.
+         * Therefore, in the current implementation, invoking a scan under similar
+         * conditions should result in the removal of unnecessary data from both the
+         * database and the Lucene index.
+         */
         @Test
         @Order(1)
         void testExpunge() throws IOException {
@@ -685,12 +698,19 @@ class IndexManagerTest {
             assertEquals(1, result.getAlbums().size());
             assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
 
-            /* Does not scan, only expunges the index. */
-            mediaScannerService.expunge();
-
-            /*
-             * Subsequent search results. Results can also be confirmed with Luke.
-             */
+            // The following reproduces the behavior of the expungeService.
+            // Note the processing order.
+            // ->
+            ScanContext scanContext = new ScanContext(now(), false, USER_NAME, false, false, 0, 0,
+                    false, false);
+            indexManager.startIndexing();
+            id3MetadataScanProcedure.iterateAlbumId3(scanContext, false);
+            id3MetadataScanProcedure.iterateArtistId3(scanContext, false);
+            directoryScanProcedure.iterateFileStructure(scanContext);
+            indexManager.stopIndexing();
+            ratingDao.expunge();
+            template.checkpoint();
+            // <-
 
             result = searchService.search(criteriaArtist);
             assertEquals(0, result.getMediaFiles().size());
@@ -708,13 +728,13 @@ class IndexManagerTest {
             assertEquals(0, result.getAlbums().size());
 
             // See this#setup
-            assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
+            assertEquals(0, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                     "Because one album has been deleted.");
             int ratingsCount = template
                 .getJdbcTemplate()
                 .queryForObject("select count(*) from user_rating where user_rating.username = ?",
                         Integer.class, USER_NAME);
-            assertEquals(3, ratingsCount, "Will be removed, including oldPath");
+            assertEquals(0, ratingsCount, "Will be removed, including oldPath");
         }
 
         @Test
