@@ -150,7 +150,7 @@ public class SearchServiceImpl implements SearchService {
             TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
 
             // Get the rounded total number of hits
-            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
+            int totalHits = util.round(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
 
             // Calculate the result range (start to end) safely within bounds
@@ -207,7 +207,7 @@ public class SearchServiceImpl implements SearchService {
             TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
 
             // Set total number of hits
-            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
+            int totalHits = util.round(luceneUtils.getTotalHits(topDocs));
             result.setTotalHits(totalHits);
 
             // Calculate result bounds
@@ -246,7 +246,7 @@ public class SearchServiceImpl implements SearchService {
 
         for (int i = start; i < end; i++) {
             Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
-            util.addIgnoreNull(tempResult, indexType, util.getId.apply(doc), clazz);
+            util.addEntityIfPresent(tempResult, indexType, util.getId(doc), clazz);
         }
 
         // Add items to the original result (with casting)
@@ -281,13 +281,13 @@ public class SearchServiceImpl implements SearchService {
         // Randomly pick documents until the desired count is reached or list is
         // exhausted
         while (!docIds.isEmpty() && result.size() < count) {
-            int randomIndex = util.nextInt.apply(docIds.size());
+            int randomIndex = util.nextInt(docIds.size());
 
             // Fetch the document at the random position
             Document document = searcher.storedFields().document(docIds.get(randomIndex));
 
             // Convert the document ID and add to result via the callback
-            idToListCallback.accept(result, util.getId.apply(document));
+            idToListCallback.accept(result, util.getId(document));
 
             // Remove selected doc to avoid duplicates
             docIds.remove(randomIndex);
@@ -312,7 +312,7 @@ public class SearchServiceImpl implements SearchService {
 
             // Create a random list of MediaFile objects using the callback
             return createRandomDocsList(criteria.getCount(), searcher, query,
-                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.SONG, id));
+                    (resultList, id) -> util.addMediaFileIfAnyMatch(resultList, id));
 
         } catch (IOException e) {
             // Log any Lucene or IO-related failures
@@ -337,7 +337,7 @@ public class SearchServiceImpl implements SearchService {
             .stream()
             .skip(offset)
             .limit(count)
-            .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
+            .forEach(id -> util.addMediaFileIfAnyMatch(result, id));
 
         // Try to get cached IDs first
         util.getCache(RandomCacheKey.SONG, cacheMax, musicFolders).ifPresent(addSubsetToResult);
@@ -365,9 +365,9 @@ public class SearchServiceImpl implements SearchService {
             // Select up to `cacheMax` unique random IDs
             List<Integer> ids = new ArrayList<>();
             while (!docIds.isEmpty() && ids.size() < cacheMax) {
-                int randomIndex = util.nextInt.apply(docIds.size());
+                int randomIndex = util.nextInt(docIds.size());
                 Document doc = searcher.storedFields().document(docIds.get(randomIndex));
-                ids.add(util.getId.apply(doc));
+                ids.add(util.getId(doc));
                 docIds.remove(randomIndex);
             }
 
@@ -416,7 +416,7 @@ public class SearchServiceImpl implements SearchService {
                         // Generate a list of unique random integers within [0, range)
                         List<Integer> randomIndices = new ArrayList<>();
                         while (randomIndices.size() < Math.min(limit, range)) {
-                            int random = util.nextInt.apply(range);
+                            int random = util.nextInt(range);
                             if (!randomIndices.contains(random)) {
                                 randomIndices.add(random);
                             }
@@ -452,7 +452,7 @@ public class SearchServiceImpl implements SearchService {
 
             // Select random documents and convert them to MediaFile objects
             return createRandomDocsList(count, searcher, query,
-                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.ALBUM, id));
+                    (resultList, id) -> util.addMediaFileIfAnyMatch(resultList, id));
 
         } catch (IOException e) {
             // Log error if Lucene search fails
@@ -484,7 +484,7 @@ public class SearchServiceImpl implements SearchService {
 
             // Fetch random album documents and convert them to Album entities
             return createRandomDocsList(count, searcher, query,
-                    (resultList, id) -> util.addIgnoreNull(resultList, IndexType.ALBUM_ID3, id));
+                    (resultList, id) -> util.addAlbumId3IfAnyMatch(resultList, id));
 
         } catch (IOException e) {
             // Log any IO or Lucene search error
@@ -509,7 +509,7 @@ public class SearchServiceImpl implements SearchService {
             .stream()
             .skip(offset)
             .limit(count)
-            .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
+            .forEach(id -> util.addAlbumId3IfAnyMatch(result, id));
 
         // Try loading from cache first
         util.getCache(RandomCacheKey.ALBUM, cacheMax, musicFolders).ifPresent(addSubsetToResult);
@@ -537,9 +537,9 @@ public class SearchServiceImpl implements SearchService {
             // Select up to `cacheMax` random IDs without duplicates
             List<Integer> selectedIds = new ArrayList<>();
             while (!docIds.isEmpty() && selectedIds.size() < cacheMax) {
-                int randomIndex = util.nextInt.apply(docIds.size());
+                int randomIndex = util.nextInt(docIds.size());
                 Document document = searcher.storedFields().document(docIds.get(randomIndex));
-                selectedIds.add(util.getId.apply(document));
+                selectedIds.add(util.getId(document));
                 docIds.remove(randomIndex);
             }
 

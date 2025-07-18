@@ -686,7 +686,7 @@ public class IndexManager implements ReadWriteLockSupport {
         try {
             Query query = queryFactory.toPreAnalyzedGenres(genres);
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            int totalHits = util.round.apply(luceneUtils.getTotalHits(topDocs));
+            int totalHits = util.round(luceneUtils.getTotalHits(topDocs));
 
             for (int i = 0; i < totalHits; i++) {
                 Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
@@ -826,9 +826,9 @@ public class IndexManager implements ReadWriteLockSupport {
         for (String genreName : genreNames) {
             Query query = queryFactory.getGenre(genreName);
             TopDocs songDocs = songSearcher.search(query, Integer.MAX_VALUE);
-            int songCount = util.round.apply(luceneUtils.getTotalHits(songDocs));
+            int songCount = util.round(luceneUtils.getTotalHits(songDocs));
             TopDocs albumDocs = albumSearcher.search(query, Integer.MAX_VALUE);
-            int albumCount = util.round.apply(luceneUtils.getTotalHits(albumDocs));
+            int albumCount = util.round(luceneUtils.getTotalHits(albumDocs));
             genres.add(new Genre(genreName, songCount, albumCount));
         }
         return genres;
