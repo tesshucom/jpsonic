@@ -26,6 +26,10 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -38,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
@@ -52,6 +57,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -69,7 +75,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
@@ -145,10 +150,10 @@ class IndexManagerTest {
 
         @BeforeEach
         public void setup() {
-            settingsService = Mockito.mock(SettingsService.class);
+            settingsService = mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null,
-                    Mockito.mock(Ehcache.class), null, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(mock(ArtistDao.class),
+                    mock(AlbumDao.class), mock(Ehcache.class), null, mock(MediaFileService.class));
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
             indexManager = new IndexManager(new LuceneUtils(), null, null, queryFactory, utils,
@@ -160,7 +165,7 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongCount
         @Test
         void c00() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
             indexManager.getGenres(false);
         }
 
@@ -169,7 +174,7 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumCount
         @Test
         void c01() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
             indexManager.getGenres(true);
         }
 
@@ -179,8 +184,8 @@ class IndexManagerTest {
         @Test
         void c02() {
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(false);
         }
 
@@ -190,8 +195,8 @@ class IndexManagerTest {
         @Test
         void c03() {
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(true);
         }
     }
@@ -491,7 +496,7 @@ class IndexManagerTest {
 
         @BeforeEach
         public void setup() {
-            SettingsService settingsService = Mockito.mock(SettingsService.class);
+            SettingsService settingsService = mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             indexManager = new IndexManager(new LuceneUtils(), null, null, null, null, null,
                     settingsService, null, artistDao, null);
@@ -507,14 +512,14 @@ class IndexManagerTest {
             System.setProperty("jpsonic.home", tempDir.toString());
             Files.createDirectories(indexManager.getRootIndexDirectory());
             indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.never()).deleteAll();
+            verify(artistDao, never()).deleteAll();
         }
 
         @Test
         void testIndexDirectoryNotExists(@TempDir Path tempDir) {
             System.setProperty("jpsonic.home", tempDir.toString());
             indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.times(1)).deleteAll();
+            verify(artistDao, times(1)).deleteAll();
         }
     }
 
@@ -605,7 +610,8 @@ class IndexManagerTest {
             int count = Integer.MAX_VALUE;
 
             final HttpSearchCriteria criteriaArtist = director
-                .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST);
+                .construct("_DIR_ Ravel", offset, count, false, getMusicFolders(),
+                        IndexType.ARTIST);
             final HttpSearchCriteria criteriaAlbum = director
                 .construct("Complete Piano Works", offset, count, false, musicFolders,
                         IndexType.ALBUM);

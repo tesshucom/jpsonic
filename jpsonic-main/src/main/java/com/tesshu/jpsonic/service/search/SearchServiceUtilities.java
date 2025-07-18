@@ -30,10 +30,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,37 +56,64 @@ import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
 import jakarta.annotation.PostConstruct;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.document.Document;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
- * Termination used by SearchService.
+ * Utility class used by SearchService.
+ *
  * <p>
- * Since SearchService operates as a proxy for storage (DB) using lucene, there
- * are many redundant descriptions different from essential data processing.
- * This class is a transfer class for saving those redundant descriptions.
+ * This class primarily supports SearchService, which performs searches via
+ * Lucene indexes, by providing the following:
+ * </p>
+ *
+ * <h2>Main Responsibilities</h2>
+ * <ul>
+ * <li>Entity retrieval according to IndexType</li>
+ * <li>Conditional addition to search results (SearchResult,
+ * ParamSearchResult)</li>
+ * <li>Cache management (Ehcache) for genres and random elements</li>
+ * </ul>
+ *
+ * <h2>Supporting Utility Functions</h2>
  * <p>
- * Exception handling is not termination, so do not include exception handling
- * in this class.
+ * In addition to the main responsibilities, this class provides generic
+ * utilities such as:
+ * </p>
+ * <ul>
+ * <li>Use of SecureRandom mainly to reduce bias and improve randomness in
+ * random song selection</li>
+ * <li>ID extraction from Lucene Documents</li>
+ * <li>Type-safe generic entity fetching (fetchEntity)</li>
+ * <li>Null-safe and duplicate-safe addition to collections</li>
+ * <li>Cache key generation based on folders and criteria</li>
+ * </ul>
+ *
+ * <h2>Design Principles</h2>
+ * <p>
+ * This class is designed to be mostly stateless for reusability and simplicity.
+ * It does not handle exceptions internally but delegates them to callers.
+ * </p>
  */
 @Component
 public class SearchServiceUtilities {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
 
-    /* Search by id only. */
+    private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
-
-    /* Search by id only. */
     private final AlbumDao albumDao;
     private final Ehcache genreCache;
     private final Ehcache randomCache;
     private final ReentrantLock genreCacheLock = new ReentrantLock();
     private final ReentrantLock randomCacheLock = new ReentrantLock();
+
+    private final Map<IndexType, Function<Integer, Object>> entityFetchers;
+    private final Map<IndexType, BiConsumer<SearchResult, Integer>> indexTypeActions;
 
     /**
      * For backward compatibility
@@ -95,23 +125,6 @@ public class SearchServiceUtilities {
     @SuppressWarnings("PMD.SingularField")
     private Random random;
 
-    /*
-     * Search by id only. Although there is no influence at present,
-     * mediaFileService has a caching mechanism. Service is used instead of Dao
-     * until you are sure you need to use mediaFileDao.
-     */
-    private final MediaFileService mediaFileService;
-
-    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
-    public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
-
-    // return
-    // NumericUtils.floatToSortableInt(i);
-    public final Function<Long, Integer> round = Long::intValue;
-
-    public final Function<Document, Integer> getId = d -> Integer
-        .valueOf(d.get(FieldNamesConstants.ID));
-
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,
             @Qualifier("genreCache") Ehcache genreCache,
             @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
@@ -121,10 +134,50 @@ public class SearchServiceUtilities {
         this.genreCache = genreCache;
         this.randomCache = randomCache;
         this.mediaFileService = mediaFileService;
+
+        entityFetchers = Map
+            .of(IndexType.SONG, mediaFileService::getMediaFile, IndexType.ALBUM,
+                    mediaFileService::getMediaFile, IndexType.ARTIST,
+                    mediaFileService::getMediaFile, IndexType.ARTIST_ID3, artistDao::getArtist,
+                    IndexType.ALBUM_ID3, albumDao::getAlbum);
+
+        indexTypeActions = Map
+            .of(IndexType.ARTIST, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                    IndexType.ALBUM, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                    IndexType.SONG, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                    IndexType.ARTIST_ID3,
+                    (dist, id) -> addArtistId3IfAnyMatch(dist.getArtists(), id),
+                    IndexType.ALBUM_ID3, (dist, id) -> addAlbumId3IfAnyMatch(dist.getAlbums(), id));
     }
 
-    @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "The Random class is only used if the native random number generator is not available")
-    @SuppressWarnings("PMD.UnusedAssignment") // false positive
+    /**
+     * Generates a random integer between 0 (inclusive) and range (exclusive).
+     */
+    public int nextInt(int range) {
+        return random.nextInt(range);
+    }
+
+    /**
+     * Converts a Long value to int by truncation.
+     */
+    public int round(long value) {
+        return (int) value;
+    }
+
+    /**
+     * Extracts the document ID as an integer from the Lucene Document.
+     */
+    public int getId(@NonNull Document document) {
+        return Integer.parseInt(document.get(FieldNamesConstants.ID));
+    }
+
+    /**
+     * Initializes the random number generator securely.
+     * <p>
+     * This method is automatically called by Spring after dependency injection
+     * (annotated with {@code @PostConstruct}).
+     */
+    @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Typically, SecureRandom is used.")
     @PostConstruct
     public void postConstruct() {
         try {
@@ -147,75 +200,124 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {
-        if (dist.stream().noneMatch(m -> id == m.getId())) {
-            MediaFile mediaFile = mediaFileService.getMediaFile(id);
-            if (!isEmpty(mediaFile)) {
-                dist.add(mediaFile);
-            }
+    /**
+     * Adds a new item to the list if no existing element matches the given
+     * predicate.
+     *
+     * @param targetList The list to which the item may be added.
+     * @param newItem    The item to add if absent.
+     * @param matcher    Predicate used to test for duplication.
+     * @return true if the item was added; false otherwise.
+     */
+    private static <T> boolean addIfAbsent(List<T> targetList, T newItem, Predicate<T> matcher) {
+        if (newItem == null) {
+            return false;
         }
-    }
-
-    public final void addArtistId3IfAnyMatch(List<Artist> dist, Integer id) {
-        if (dist.stream().noneMatch(a -> id == a.getId())) {
-            Artist artist = artistDao.getArtist(id);
-            if (!isEmpty(artist)) {
-                dist.add(artist);
-            }
+        if (targetList.stream().noneMatch(matcher)) {
+            targetList.add(newItem);
+            return true;
         }
+        return false;
     }
 
-    public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer subjectId) {
-        if (dist.stream().noneMatch(a -> subjectId == a.getId())) {
-            Album album = albumDao.getAlbum(subjectId);
-            if (!isEmpty(album)) {
-                dist.add(album);
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public final boolean addIgnoreNull(@SuppressWarnings("rawtypes") Collection collection,
-            Object object) {
-        return CollectionUtils.addIgnoreNull(collection, object);
-    }
-
-    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType,
-            int subjectId) {
-        Object entity = getEntityByIndexType(indexType, subjectId);
-        return entity != null && addIgnoreNull(collection, entity);
-    }
-
-    public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType,
-            int subjectId, Class<T> subjectClass) {
-        Object entity = getEntityByIndexType(indexType, subjectId);
+    /**
+     * Fetches an entity by ID and adds it to the list if it matches the predicate.
+     *
+     * @param dist    Destination list.
+     * @param id      Entity ID.
+     * @param fetcher Function to fetch entity.
+     * @param matcher Predicate to check for duplication.
+     */
+    private static <T> void addEntityIfPresent(List<T> dist, Integer id,
+            Function<Integer, T> fetcher, Predicate<T> matcher) {
+        T entity = fetcher.apply(id);
         if (entity != null) {
-            addIgnoreNull(dist.getItems(), subjectClass.cast(entity));
+            addIfAbsent(dist, entity, matcher);
         }
     }
 
-    private Object getEntityByIndexType(IndexType indexType, int subjectId) {
-        return switch (indexType) {
-        case SONG, ALBUM, ARTIST -> mediaFileService.getMediaFile(subjectId);
-        case ARTIST_ID3 -> artistDao.getArtist(subjectId);
-        case ALBUM_ID3 -> albumDao.getAlbum(subjectId);
-        default -> null;
-        };
+    /**
+     * Adds an entity to the ParamSearchResult items if the entity is present.
+     *
+     * @param dist         The ParamSearchResult destination.
+     * @param indexType    Index type to fetch entity.
+     * @param subjectId    ID of the subject entity.
+     * @param subjectClass Expected class of the entity.
+     * @param <T>          Type of the entity.
+     */
+    public final <T> void addEntityIfPresent(ParamSearchResult<T> dist, IndexType indexType,
+            int subjectId, Class<T> subjectClass) {
+        fetchEntity(indexType, subjectId, subjectClass)
+            .ifPresent(entity -> addIgnoreNull(dist.getItems(), entity));
     }
 
-    public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType,
-            Document subject) {
-        int documentId = getId.apply(subject);
-        switch (subjectIndexType) {
-        case ARTIST, ALBUM, SONG -> addMediaFileIfAnyMatch(dist.getMediaFiles(), documentId);
-        case ARTIST_ID3 -> addArtistId3IfAnyMatch(dist.getArtists(), documentId);
-        case ALBUM_ID3 -> addAlbumId3IfAnyMatch(dist.getAlbums(), documentId);
-        default -> {
-        }
+    /**
+     * Adds a MediaFile to the list if its ID matches and is not already present.
+     */
+    public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {
+        addEntityIfPresent(dist, id, mediaFileService::getMediaFile, m -> m.getId() == id);
+    }
+
+    /**
+     * Adds an Artist to the list if its ID matches and is not already present.
+     */
+    public final void addArtistId3IfAnyMatch(List<Artist> dist, Integer id) {
+        addEntityIfPresent(dist, id, artistDao::getArtist, a -> a.getId() == id);
+    }
+
+    /**
+     * Adds an Album to the list if its ID matches and is not already present.
+     */
+    public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer id) {
+        addEntityIfPresent(dist, id, albumDao::getAlbum, a -> a.getId() == id);
+    }
+
+    /**
+     * Adds an object to a collection only if it is not null.
+     *
+     * @param collection The target collection.
+     * @param object     The object to add.
+     * @return true if the object was added; false otherwise.
+     */
+    public final <T> boolean addIgnoreNull(Collection<T> collection, T object) {
+        return object != null && collection.add(object);
+    }
+
+    /**
+     * Fetches an entity of the expected type from the entity fetchers map.
+     *
+     * @param indexType    The index type to use.
+     * @param subjectId    The ID of the entity.
+     * @param expectedType The expected class type.
+     * @param <T>          Type of the expected object.
+     * @return Optional of the cast entity if found.
+     */
+    private <T> Optional<T> fetchEntity(IndexType indexType, int subjectId, Class<T> expectedType) {
+        Object raw = entityFetchers.getOrDefault(indexType, id -> null).apply(subjectId);
+        return Optional.ofNullable(raw).map(expectedType::cast);
+    }
+
+    /**
+     * Adds the corresponding entity from Lucene document to the result object, only
+     * if the document's ID is recognized in the indexTypeActions map.
+     *
+     * @param dist             The SearchResult to which to add the entity.
+     * @param subjectIndexType The index type.
+     * @param subject          The Lucene document.
+     */
+    public final void addIfAnyMatch(@NonNull SearchResult dist, @NonNull IndexType subjectIndexType,
+            @NonNull Document subject) {
+        int documentId = getId(subject);
+        if (indexTypeActions.containsKey(subjectIndexType)) {
+            indexTypeActions.get(subjectIndexType).accept(dist, documentId);
         }
     }
 
-    private String createCacheKey(RandomCacheKey key, int cacheMax, List<MusicFolder> musicFolders,
+    /**
+     * Builds a string cache key from various components including music folders and
+     * additional values.
+     */
+    String createCacheKey(RandomCacheKey key, int cacheMax, List<MusicFolder> musicFolders,
             String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(',').append(cacheMax).append('[');
@@ -225,42 +327,44 @@ public class SearchServiceUtilities {
             .collect(Collectors.joining(","));
         b.append(musicFolderIds);
         if (!isEmpty(additional)) {
-            String additionalStr = Arrays.stream(additional).collect(Collectors.joining(","));
             if (!musicFolderIds.isEmpty()) {
                 b.append(',');
             }
-            b.append(additionalStr);
+            b.append(Arrays.stream(additional).collect(Collectors.joining(",")));
         }
-
         b.append(']');
         return b.toString();
     }
 
-    private String createCacheKey(GenreMasterCriteria criteria) {
-        StringBuilder b = new StringBuilder();
-        b.append(criteria.scope().name()).append(',').append(criteria.sort().name()).append(",[");
+    /**
+     * Builds a string cache key from genre criteria.
+     */
+    String createCacheKey(GenreMasterCriteria criteria) {
         String folderIds = criteria
             .folders()
             .stream()
             .map(folder -> String.valueOf(folder.getId()))
             .collect(Collectors.joining(","));
-        b.append(folderIds).append("],[");
         String mediaTypes = Stream
             .of(criteria.types())
             .map(Enum::name)
             .collect(Collectors.joining(","));
-        b.append(mediaTypes).append(']');
-        return b.toString();
+        return String
+            .format("%s,%s,[%s],[%s]", criteria.scope().name(), criteria.sort().name(), folderIds,
+                    mediaTypes);
     }
 
+    /**
+     * Retrieves cached list of MediaFile based on key and music folders.
+     */
     @SuppressWarnings("unchecked")
-    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax,
+    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int cacheMax,
             List<MusicFolder> musicFolders, String... additional) {
         List<MediaFile> mediaFiles = null;
         Element element;
         randomCacheLock.lock();
         try {
-            element = randomCache.get(createCacheKey(key, casheMax, musicFolders, additional));
+            element = randomCache.get(createCacheKey(key, cacheMax, musicFolders, additional));
         } finally {
             randomCacheLock.unlock();
         }
@@ -270,14 +374,17 @@ public class SearchServiceUtilities {
         return Optional.ofNullable(mediaFiles);
     }
 
+    /**
+     * Retrieves cached list of Integer IDs based on key and music folders.
+     */
     @SuppressWarnings("unchecked")
-    public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax,
+    public Optional<List<Integer>> getCache(RandomCacheKey key, int cacheMax,
             List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
         Element element;
         randomCacheLock.lock();
         try {
-            element = randomCache.get(createCacheKey(key, casheMax, musicFolders));
+            element = randomCache.get(createCacheKey(key, cacheMax, musicFolders));
         } finally {
             randomCacheLock.unlock();
         }
@@ -287,6 +394,9 @@ public class SearchServiceUtilities {
         return Optional.ofNullable(ids);
     }
 
+    /**
+     * Retrieves cached list of Genre based on GenreMasterCriteria.
+     */
     @SuppressWarnings("unchecked")
     public List<Genre> getCache(GenreMasterCriteria criteria) {
         genreCacheLock.lock();
@@ -299,6 +409,9 @@ public class SearchServiceUtilities {
         }
     }
 
+    /**
+     * Retrieves cached list of Genre based on legacy criteria.
+     */
     @SuppressWarnings("unchecked")
     public List<Genre> getCache(LegacyGenreCriteria criteria) {
         genreCacheLock.lock();
@@ -311,6 +424,9 @@ public class SearchServiceUtilities {
         }
     }
 
+    /**
+     * Returns whether the cache contains an entry for the given legacy criteria.
+     */
     public boolean containsCache(LegacyGenreCriteria criteria) {
         genreCacheLock.lock();
         try {
@@ -322,27 +438,38 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+    /**
+     * Stores a list of Integer IDs in the cache using the provided key and music
+     * folders.
+     */
+    public void putCache(RandomCacheKey key, int cacheMax, List<MusicFolder> musicFolders,
             List<Integer> value) {
         randomCacheLock.lock();
         try {
-            randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
+            randomCache.put(new Element(createCacheKey(key, cacheMax, musicFolders), value));
         } finally {
             randomCacheLock.unlock();
         }
     }
 
-    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+    /**
+     * Stores a list of MediaFile objects in the cache using the provided key and
+     * music folders.
+     */
+    public void putCache(RandomCacheKey key, int cacheMax, List<MusicFolder> musicFolders,
             List<MediaFile> value, String... additional) {
         randomCacheLock.lock();
         try {
             randomCache
-                .put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
+                .put(new Element(createCacheKey(key, cacheMax, musicFolders, additional), value));
         } finally {
             randomCacheLock.unlock();
         }
     }
 
+    /**
+     * Stores a list of Genre based on GenreMasterCriteria in the genre cache.
+     */
     public void putCache(GenreMasterCriteria criteria, List<Genre> value) {
         genreCacheLock.lock();
         try {
@@ -352,6 +479,9 @@ public class SearchServiceUtilities {
         }
     }
 
+    /**
+     * Stores a list of Genre based on legacy criteria in the genre cache.
+     */
     public void putCache(LegacyGenreCriteria criteria, List<Genre> value) {
         genreCacheLock.lock();
         try {
@@ -361,6 +491,9 @@ public class SearchServiceUtilities {
         }
     }
 
+    /**
+     * Removes the genre cache entry for the given legacy criteria.
+     */
     public void removeCache(LegacyGenreCriteria criteria) {
         genreCacheLock.lock();
         try {
@@ -368,9 +501,11 @@ public class SearchServiceUtilities {
         } finally {
             genreCacheLock.unlock();
         }
-
     }
 
+    /**
+     * Clears all entries from both genre and random caches.
+     */
     public void removeCacheAll() {
         genreCacheLock.lock();
         try {

@@ -82,9 +82,9 @@ class SearchServiceUtilitiesTest {
         SearchServiceUtilities utilities = new SearchServiceUtilities(artistDao, albumDao,
                 genreCache, randomCache, mediaFileService);
         assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> utilities.nextInt.apply(50));
+            .isThrownBy(() -> utilities.nextInt(50));
         utilities.postConstruct();
-        assertNotNull(utilities.nextInt.apply(50));
+        assertNotNull(utilities.nextInt(50));
     }
 
     @Test
@@ -190,26 +190,22 @@ class SearchServiceUtilitiesTest {
     void testAddIgnoreNullCollectionOfQIndexTypeInt() {
         List<MediaFile> dist = new ArrayList<>();
         Integer id = 99;
-        utilities.addIgnoreNull(dist, IndexType.SONG, id);
+        utilities.addMediaFileIfAnyMatch(dist, id);
         assertEquals(0, dist.size());
 
         List<Artist> distArtist = new ArrayList<>();
-        utilities.addIgnoreNull(distArtist, IndexType.ARTIST_ID3, id);
+        utilities.addArtistId3IfAnyMatch(distArtist, id);
         assertEquals(0, distArtist.size());
 
-        List<Artist> distAlbum = new ArrayList<>();
-        utilities.addIgnoreNull(distAlbum, IndexType.ALBUM_ID3, id);
+        List<Album> distAlbum = new ArrayList<>();
+        utilities.addAlbumId3IfAnyMatch(distAlbum, id);
         assertEquals(0, distAlbum.size());
-
-        List<Genre> distGenre = new ArrayList<>();
-        utilities.addIgnoreNull(distGenre, IndexType.GENRE, id);
-        assertEquals(0, distGenre.size());
 
         id = 1;
         MediaFile mediaFile = new MediaFile();
         mediaFile.setId(id);
         when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
-        utilities.addIgnoreNull(dist, IndexType.SONG, id);
+        utilities.addMediaFileIfAnyMatch(dist, id);
         assertEquals(1, dist.size());
     }
 
@@ -220,11 +216,11 @@ class SearchServiceUtilitiesTest {
         mediaFile.setId(id);
 
         ParamSearchResult<MediaFile> dist = new ParamSearchResult<>();
-        utilities.addIgnoreNull(dist, IndexType.SONG, id, MediaFile.class);
+        utilities.addEntityIfPresent(dist, IndexType.SONG, id, MediaFile.class);
         assertEquals(0, dist.getItems().size());
 
         when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
-        utilities.addIgnoreNull(dist, IndexType.SONG, id, MediaFile.class);
+        utilities.addEntityIfPresent(dist, IndexType.SONG, id, MediaFile.class);
         assertEquals(1, dist.getItems().size());
     }
 
