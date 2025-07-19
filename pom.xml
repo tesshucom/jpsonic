@@ -38,7 +38,7 @@
     <versions.commons-configuration2>2.12.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
-    <versions.commons-io>2.19.0</versions.commons-io>
+    <versions.commons-io>2.20.0</versions.commons-io>
     <versions.commons-lang>2.6</versions.commons-lang>
     <versions.commons-lang3>3.18.0</versions.commons-lang3>
     <versions.commons-net>3.11.1</versions.commons-net>
