@@ -164,7 +164,7 @@ $(document).ready(function(){
 	                    <c:param name="id" value="${match.id}"/>
 	                    <c:param name="playEnabled" value="${command.user.streamRole and not command.partyModeEnabled}"/>
 	                    <c:param name="addEnabled" value="${command.user.streamRole and (not command.partyModeEnabled or not match.directory)}"/>
-	                    <c:param name="video" value="${match.video and command.player.web}"/>
+	                    <c:param name="video" value="${match.video}"/>
 	                    <c:param name="asTable" value="true"/>
 	                </c:import>
                     <td class="song"><span>${fn:escapeXml(match.title)}</span></td>
