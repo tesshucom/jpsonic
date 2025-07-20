@@ -71,7 +71,7 @@ class UpnpDIDLFactoryTest {
             .thenReturn(Collections.emptyList());
 
         UriComponentsBuilder builder = UriComponentsBuilder
-            .fromHttpUrl("http://192.168.1.1/ext/stream")
+            .fromUriString("http://192.168.1.1/ext/stream")
             .queryParam("id", 0)
             .queryParam("player", 0);
         assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));

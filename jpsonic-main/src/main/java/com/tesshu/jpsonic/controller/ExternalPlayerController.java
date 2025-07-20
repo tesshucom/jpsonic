@@ -166,7 +166,7 @@ public class ExternalPlayerController {
         String streamUrl = jwtSecurityService
             .addJWTToken(
                     UriComponentsBuilder
-                        .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
+                        .fromUriString(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
                         .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                         .queryParam(Attributes.Request.PLAYER.value(), player.getId())
                         .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE),
@@ -176,7 +176,7 @@ public class ExternalPlayerController {
 
         String coverArtUrl = jwtSecurityService
             .addJWTToken(UriComponentsBuilder
-                .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/"
+                .fromUriString(NetworkUtils.getBaseUrl(request) + prefix + "/"
                         + ViewName.COVER_ART.value())
                 .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                 .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires)
