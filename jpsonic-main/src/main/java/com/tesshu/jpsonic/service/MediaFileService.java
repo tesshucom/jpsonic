@@ -48,8 +48,8 @@ import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.PathValidator;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
@@ -256,11 +256,11 @@ public class MediaFileService {
                 && settingsService
                     .getExcludedCoverArtsAsArray()
                     .stream()
-                    .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(fileName, excluded))
+                    .noneMatch(excluded -> StringUtil.endsWithIgnoreCase(fileName, excluded))
                 && settingsService
                     .getCoverArtFileTypesAsArray()
                     .stream()
-                    .anyMatch(type -> StringUtils.endsWithIgnoreCase(fileName, type));
+                    .anyMatch(type -> StringUtil.endsWithIgnoreCase(fileName, type));
     }
 
     public Optional<Path> findCoverArt(Path parent) {

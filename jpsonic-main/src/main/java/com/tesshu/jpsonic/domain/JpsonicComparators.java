@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.service.SettingsService;
-import org.apache.commons.lang3.StringUtils;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
@@ -119,7 +119,7 @@ public class JpsonicComparators {
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
         return settingsService.isSortAlbumsByYear()
                 && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                        && StringUtils.startsWithIgnoreCase(artist, "various")));
+                        && StringUtil.startsWithIgnoreCase(artist, "various")));
     }
 
     /**

@@ -37,9 +37,9 @@ import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -187,9 +187,9 @@ public class CoverArtService {
 
     private String getProperSuffix(String url) {
         String suffix = "jpg";
-        if (StringUtils.endsWithIgnoreCase(url, ".gif")) {
+        if (StringUtil.endsWithIgnoreCase(url, ".gif")) {
             suffix = "gif";
-        } else if (StringUtils.endsWithIgnoreCase(url, ".png")) {
+        } else if (StringUtil.endsWithIgnoreCase(url, ".png")) {
             suffix = "png";
         }
         return suffix;

@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -111,14 +112,14 @@ public class RandomPlayQueueController {
         int size = sizeParam == null ? 24 : sizeParam;
         List<MusicFolder> musicFolders = getMusicFolders(request);
         LastPlayed lastPlayed = getLastPlayed(lastPlayedValue, lastPlayedComp);
-        String genre = StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null
+        String genre = StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null
                 : genreParam;
         List<String> genres = parseGenre(genre);
         InceptionYear year = getInceptionYear(yearParam);
         AlbumRating albumRating = getAlbumRating(albumRatingValue, albumRatingComp);
         PlayCount playCount = getPlayCount(playCountValue, playCountComp);
         SongRating rating = getSongRating(songRating);
-        String format = StringUtils.equalsIgnoreCase(formatParam, REQUEST_VALUE_ANY) ? null
+        String format = StringUtil.equalsIgnoreCase(formatParam, REQUEST_VALUE_ANY) ? null
                 : formatParam;
 
         // Create instance of Criteria from parsed request parameters
@@ -156,7 +157,7 @@ public class RandomPlayQueueController {
     private InceptionYear getInceptionYear(String year) {
         Integer fromYear = null;
         Integer toYear = null;
-        if (!StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
+        if (!StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
             String[] tmp = StringUtils.split(year);
             fromYear = Integer.parseInt(tmp[0]);
             toYear = Integer.parseInt(tmp[1]);
@@ -356,12 +357,12 @@ public class RandomPlayQueueController {
     private SongRating getSongRating(String songRating) {
         boolean doesShowStarredSongs = false;
         boolean doesShowUnstarredSongs = false;
-        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
+        if (StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
             doesShowStarredSongs = true;
             doesShowUnstarredSongs = true;
-        } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
+        } else if (StringUtil.equalsIgnoreCase("starred", songRating)) {
             doesShowStarredSongs = true;
-        } else if (StringUtils.equalsIgnoreCase("unstarred", songRating)) {
+        } else if (StringUtil.equalsIgnoreCase("unstarred", songRating)) {
             doesShowUnstarredSongs = true;
         }
         return new SongRating(doesShowStarredSongs, doesShowUnstarredSongs);

@@ -37,6 +37,7 @@ import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -392,7 +393,7 @@ public class JapaneseReadingUtils {
         }
         String result = s;
         for (String article : settingsService.getIgnoredArticlesAsArray()) {
-            if (StringUtils.startsWithIgnoreCase(s, article + SPACE)) {
+            if (StringUtil.startsWithIgnoreCase(s, article + SPACE)) {
                 result = result.substring(article.length() + 1);
             }
         }

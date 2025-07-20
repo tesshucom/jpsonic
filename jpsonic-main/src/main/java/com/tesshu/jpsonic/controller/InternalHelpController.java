@@ -66,7 +66,6 @@ import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.Version;
@@ -239,7 +238,7 @@ public class InternalHelpController {
      */
     boolean doesLocaleSupportUtf8(String locale) {
         return locale != null
-                && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
+                && StringUtil.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
     }
 
     private void gatherLocaleInfo(Map<String, Object> map) {

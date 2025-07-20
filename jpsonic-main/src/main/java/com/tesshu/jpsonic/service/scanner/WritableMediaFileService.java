@@ -59,8 +59,8 @@ import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -693,7 +693,7 @@ public class WritableMediaFileService {
 
         Optional<Path> getCoverArtAvailable() {
             return Optional
-                .ofNullable(ObjectUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
+                .ofNullable(PlayerUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
         }
     }
 }

@@ -50,6 +50,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -231,7 +232,7 @@ public class UploadController {
                     LOG.info("Uploaded " + targetFile);
                 }
 
-                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.toString(), ".zip")) {
+                if (unzip && StringUtil.endsWithIgnoreCase(targetFile.toString(), ".zip")) {
                     unzippedFiles = unzip(targetFile);
                 }
             }
