@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.security;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.EnumSet;
@@ -62,8 +60,6 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 // Usually not desirable. But that's spring justice
 @SuppressWarnings({ "PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException" })
@@ -144,24 +140,46 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
 
             http
-                .addFilter(new WebAsyncManagerIntegrationFilter())
+                // Add the JWT filter before the UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtRPPFilter, UsernamePasswordAuthenticationFilter.class)
-                .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
+
+                // Limit this security filter chain to requests matching /ext/**
+                .securityMatchers(matchers -> matchers.requestMatchers("/ext/**"))
+
+                // Configure CSRF protection using a custom matcher
                 .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
+
+                // Set X-Frame-Options header to SAMEORIGIN (e.g., for embedded content)
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
-                .authorizeHttpRequests((authz) -> authz
-                    .requestMatchers(antMatcher("/ext/stream/**"), antMatcher("/ext/coverArt*"),
-                            antMatcher("/ext/share/**"), antMatcher("/ext/hls/**"))
-                    .hasAnyRole("TEMP", "USER")
+
+                // Authorization rules
+                .authorizeHttpRequests(authz -> authz
+                    .requestMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**",
+                            "/ext/hls/**")
+                    .hasAnyRole("TEMP", "USER") // Require TEMP or USER roles for these paths
                     .anyRequest()
-                    .authenticated())
-                .sessionManagement((sessions) -> sessions
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authenticated() // All other /ext/** requests require authentication
+                )
+
+                // Use stateless session management (e.g., token-based authentication)
+                .sessionManagement(
+                        sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Use default exception handling
                 .exceptionHandling(Customizer.withDefaults())
+
+                // Use default security context management
                 .securityContext(Customizer.withDefaults())
+
+                // Use default request cache
                 .requestCache(Customizer.withDefaults())
+
+                // Enable anonymous authentication (can be disabled if not needed)
                 .anonymous(Customizer.withDefaults())
+
+                // Enable Servlet API integration
                 .servletApi(Customizer.withDefaults());
+
             return http.build();
         }
     }
@@ -171,14 +189,9 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public static class SecurityConfig {
 
         @Bean
-        public RESTRequestParameterProcessingFilter restRPPFilter(SecurityService securityService,
-                AuthenticationManager authenticationManager,
-                ApplicationEventPublisher eventPublisher) {
-            RESTRequestParameterProcessingFilter restRPPFilter = new RESTRequestParameterProcessingFilter();
-            restRPPFilter.setAuthenticationManager(authenticationManager);
-            restRPPFilter.setSecurityService(securityService);
-            restRPPFilter.setEventPublisher(eventPublisher);
-            return restRPPFilter;
+        public RESTRequestParameterProcessingFilter restRPPFilter(SecurityService service,
+                AuthenticationManager manager, ApplicationEventPublisher publisher) {
+            return new RESTRequestParameterProcessingFilter(manager, service, publisher);
         }
 
         @Bean
@@ -193,56 +206,97 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 throws Exception {
 
             http
+                // Add REST authentication filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(restRPPFilter, UsernamePasswordAuthenticationFilter.class)
-                .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
+
+                // Disable CSRF protection for requests matching csrfMatcher
+                .csrf(csrf -> csrf.ignoringRequestMatchers(csrfMatcher))
+
+                // Allow framing only from the same origin
                 .headers(config -> config.frameOptions(FrameOptionsConfig::sameOrigin))
+
+                // Start authorization configuration
                 .authorizeHttpRequests(config -> config
+                    // Allow requests with FORWARD and ERROR dispatcher types without authentication
                     .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR)
                     .permitAll()
-                    .requestMatchers(antMatcher("/recover*"), antMatcher("/accessDenied*"),
-                            antMatcher("/style/**"), antMatcher("/icons/**"),
-                            antMatcher("/flash/**"), antMatcher("/script/**"), antMatcher("/login"),
-                            antMatcher("/login.view"), antMatcher("/error"))
+
+                    // Permit all access to login, error pages and static resources
+                    .requestMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**",
+                            "/flash/**", "/script/**", "/login", "/login.view", "/error")
                     .permitAll()
-                    .requestMatchers(antMatcher("/personalSettings*"),
-                            antMatcher("/passwordSettings*"), antMatcher("/playerSettings*"),
-                            antMatcher("/shareSettings*"), antMatcher("/passwordSettings*"))
+
+                    // Require SETTINGS role for settings related URLs
+                    .requestMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*",
+                            "/shareSettings*")
                     .hasRole("SETTINGS")
-                    .requestMatchers(antMatcher("/generalSettings*"),
-                            antMatcher("/advancedSettings*"), antMatcher("/userSettings*"),
-                            antMatcher("/internalhelp*"), antMatcher("/musicFolderSettings*"),
-                            antMatcher("/databaseSettings*"), antMatcher("/transcodeSettings*"),
-                            antMatcher("/rest/startScan*"))
+
+                    // Require ADMIN role for admin-related URLs
+                    .requestMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*",
+                            "/internalhelp*", "/musicFolderSettings*", "/databaseSettings*",
+                            "/transcodeSettings*", "/rest/startScan*")
                     .hasRole("ADMIN")
-                    .requestMatchers(antMatcher("/deletePlaylist*"), antMatcher("/savePlaylist*"))
+
+                    // Require PLAYLIST role for playlist modification URLs
+                    .requestMatchers("/deletePlaylist*", "/savePlaylist*")
                     .hasRole("PLAYLIST")
-                    .requestMatchers(antMatcher("/download*"))
+
+                    // Require DOWNLOAD role for download URLs
+                    .requestMatchers("/download*")
                     .hasRole("DOWNLOAD")
-                    .requestMatchers(antMatcher("/upload*"))
+
+                    // Require UPLOAD role for upload URLs
+                    .requestMatchers("/upload*")
                     .hasRole("UPLOAD")
-                    .requestMatchers(antMatcher("/createShare*"))
+
+                    // Require SHARE role for share creation URLs
+                    .requestMatchers("/createShare*")
                     .hasRole("SHARE")
-                    .requestMatchers(antMatcher("/changeCoverArt*"), antMatcher("/editTags*"))
+
+                    // Require COVERART role for cover art modification URLs
+                    .requestMatchers("/changeCoverArt*", "/editTags*")
                     .hasRole("COVERART")
-                    .requestMatchers(antMatcher("/setMusicFileInfo*"))
+
+                    // Require COMMENT role for music file info setting URLs
+                    .requestMatchers("/setMusicFileInfo*")
                     .hasRole("COMMENT")
-                    .requestMatchers(antMatcher("/podcastReceiverAdmin*"))
+
+                    // Require PODCAST role for podcast receiver admin URLs
+                    .requestMatchers("/podcastReceiverAdmin*")
                     .hasRole("PODCAST")
-                    .requestMatchers(antMatcher("/**"))
-                    .hasRole("USER")
+
+                    // Any request not matched by previous rules requires the user to be
+                    // authenticated with the "USER" role
                     .anyRequest()
-                    .authenticated())
+                    .hasRole("USER"))
+
+                // Configure form login
                 .formLogin(config -> config
-                    .loginPage("/login")
-                    .permitAll()
-                    .defaultSuccessUrl("/index", true)
-                    .failureUrl(FAILURE_URL)
-                    .usernameParameter(Attributes.Request.J_USERNAME.value())
-                    .passwordParameter(Attributes.Request.J_PASSWORD.value()))
-                .logout(config -> config
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .logoutSuccessUrl("/login?logout"))
-                .rememberMe(config -> config.key(keyGenerator.get()));
+                    .loginPage("/login") // Custom login page URL
+                    .permitAll() // Allow all to access login page
+                    .defaultSuccessUrl("/index", true) // Redirect after successful login
+                    .failureUrl(FAILURE_URL) // Redirect after failed login
+                    .usernameParameter(Attributes.Request.J_USERNAME.value()) // Username parameter
+                                                                              // name
+                    .passwordParameter(Attributes.Request.J_PASSWORD.value())) // Password parameter
+                                                                               // name
+
+                // Configure logout
+                .logout(logout -> logout
+                    .logoutUrl("/logout") // Logout URL (default is POST)
+                    // Allow GET /logout to trigger logout (deprecated practice, use with caution)
+                    .logoutRequestMatcher(request -> "/logout".equals(request.getRequestURI())
+                            && "GET".equals(request.getMethod()))
+                    .logoutSuccessUrl("/login?logout")) // Redirect after logout success
+
+                // Configure remember-me with injected key
+                .rememberMe(config -> config.key(keyGenerator.get()))
+
+                // Enable anonymous access handling. Without this, unauthenticated users
+                // have no Authentication object in the SecurityContext, which can cause
+                // issues in security checks or cause NullPointerExceptions.
+                .anonymous(Customizer.withDefaults());
+
             return http.build();
         }
     }

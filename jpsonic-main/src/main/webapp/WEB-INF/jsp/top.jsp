@@ -347,6 +347,7 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
         </div>
         <%-- search --%>
         <form method="post" action="search.view" target="main" name="searchForm">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
             <input required type="text" name="query" id="query" placeholder="${search}" onclick="select();" onkeyup="triggerInstantSearch();">
             <c:choose>
                 <c:when test="${model.voiceInputEnabled}">

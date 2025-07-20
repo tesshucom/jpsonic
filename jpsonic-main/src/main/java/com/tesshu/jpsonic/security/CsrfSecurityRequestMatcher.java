@@ -25,16 +25,49 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
 /**
- * See
+ * Custom {@link RequestMatcher} for CSRF protection in Spring Security.
  * <p>
- * http://blogs.sourceallies.com/2014/04/customizing-csrf-protection-in-spring-security/
+ * This matcher excludes certain HTTP methods and specific URL patterns from
+ * CSRF protection.
  * <p>
- * https://docs.spring.io/spring-security/site/docs/current/reference/html/appendix-namespace.html#nsa-csrf
+ * <strong>Important notes and caveats:</strong>
+ * <ul>
+ * <li>Allowed HTTP methods that do not require CSRF protection are: GET, HEAD,
+ * TRACE, OPTIONS.</li>
+ * <li>URL patterns exempted from CSRF protection use
+ * {@link PathPatternRequestMatcher} with HTTP method restrictions.</li>
+ * <li>Due to deprecation of
+ * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher},
+ * this class uses the newer {@link PathPatternRequestMatcher} builder pattern
+ * introduced in Spring Security 6.5+.</li>
+ * <li>{@code PathPatternRequestMatcher} instances are constructed via
+ * {@code PathPatternRequestMatcher.withDefaults().matcher(HttpMethod, String)},
+ * since constructors are not publicly available.</li>
+ * <li>Ensure that URL patterns are specified relative to the application
+ * context root, and be aware of any trailing wildcard behaviors with
+ * {@code PathPatternRequestMatcher}.</li>
+ * <li>This implementation reflects the shift to
+ * {@code PathPatternRequestMatcher} in preparation for Spring Security 7.</li>
+ * </ul>
+ * <p>
+ * References:
+ * <ul>
+ * <li><a href=
+ * "https://docs.spring.io/spring-security/site/docs/current/reference/html5/#csrf">Spring
+ * Security CSRF Documentation</a></li>
+ * <li><a href=
+ * "https://docs.spring.io/spring-security/site/docs/current/reference/html5/#requestmatcher">RequestMatcher
+ * in Spring Security</a></li>
+ * <li><a href=
+ * "https://spring.io/blog/2023/05/23/spring-security-6-2-0-rc1-available-now#pathpatternrequestmatcher">PathPatternRequestMatcher
+ * usage</a></li>
+ * </ul>
  */
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
@@ -42,18 +75,19 @@ public class CsrfSecurityRequestMatcher implements RequestMatcher {
     private static final List<String> ALLOWED_METHODS = Arrays
         .asList("GET", "HEAD", "TRACE", "OPTIONS");
 
-    private final List<RegexRequestMatcher> whiteListedMatchers;
+    private final List<RequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {
-        this.whiteListedMatchers = Arrays
-            .asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
-                    new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
-                    new RegexRequestMatcher("/search(?:\\.view)?", "POST"));
+        this.whiteListedMatchers = List
+            .of(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/dwr/*.dwr"),
+                    PathPatternRequestMatcher
+                        .withDefaults()
+                        .matcher(HttpMethod.POST, "/rest/*.view"));
     }
 
     @Override
     public boolean matches(HttpServletRequest request) {
         return !(ALLOWED_METHODS.contains(request.getMethod())
-                || whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
+                || whiteListedMatchers.stream().anyMatch(m -> m.matches(request)));
     }
 }

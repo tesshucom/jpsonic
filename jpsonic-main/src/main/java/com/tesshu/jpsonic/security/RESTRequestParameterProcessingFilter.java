@@ -68,20 +68,23 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
             "/rest/.+", null);
 
     private final JAXBWriter jaxbWriter = new JAXBWriter(null);
+    private final AuthenticationManager authenticationManager;
+    private final SecurityService securityService;
+    private final ApplicationEventPublisher eventPublisher;
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-    private AuthenticationManager authenticationManager;
-    private SecurityService securityService;
-    private ApplicationEventPublisher eventPublisher;
+    public RESTRequestParameterProcessingFilter(AuthenticationManager authenticationManager,
+            SecurityService securityService, ApplicationEventPublisher eventPublisher) {
+        super();
+        this.authenticationManager = authenticationManager;
+        this.securityService = securityService;
+        this.eventPublisher = eventPublisher;
+        authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    }
 
     protected boolean requiresAuthentication(HttpServletRequest request,
             HttpServletResponse response) {
         return REQUIRES_AUTHENTICATION_REQUEST_MATCHER.matches(request);
-    }
-
-    public RESTRequestParameterProcessingFilter() {
-        super();
-        authenticationDetailsSource = new WebAuthenticationDetailsSource();
     }
 
     @Override
@@ -207,21 +210,5 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
     private void sendErrorXml(HttpServletRequest request, HttpServletResponse response,
             SubsonicRESTController.ErrorCode errorCode) {
         jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
-    }
-
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
     }
 }
