@@ -202,4 +202,8 @@ public final class PlayerUtils {
 
         return builder.build().toUriString();
     }
+
+    public static <T> T defaultIfNull(T object, T defaultValue) {
+        return (object != null) ? object : defaultValue;
+    }
 }

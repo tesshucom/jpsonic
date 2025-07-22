@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.validator.UserSettingsValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -211,7 +212,7 @@ public class UserSettingsController {
             .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
             .collect(Collectors.toList());
         for (int i = 0; i < users.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
+            if (StringUtil.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
             }
         }

@@ -32,67 +32,79 @@ import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.lucene.search.BoostQuery;
 
 /**
- * Enum that symbolizes the each lucene index entity. This class is a division
- * of what was once part of SearchService and added functionality.
+ * Enum representing each Lucene index entity type.
+ * <p>
+ * This class was extracted from the former {@code SearchService} implementation
+ * and encapsulates definitions for index types, including target fields and
+ * boost values for search operations.
+ * </p>
+ *
+ * <p>
+ * Each {@code IndexType} holds a list of fields to be queried, as well as a set
+ * of boost values applied to those fields during Lucene query construction (see
+ * {@link org.apache.lucene.search.BoostQuery}).
+ * </p>
+ *
+ * <p>
+ * {@link #getFields()} returns the list of fields targeted by search queries,
+ * and {@link #getBoosts()} returns a map of boost factors associated with each
+ * field. These are used when building Lucene search queries.
+ * </p>
+ *
+ * <p>
+ * For example, if the index type is {@code SONG}, the target fields may include
+ * song title, artist, and composer. A higher boost is applied to the title
+ * field to improve the precision of search results.
+ * </p>
  *
  * @since legacy
  */
 public enum IndexType {
 
-    SONG(fieldNames(FieldNamesConstants.TITLE, //
-            FieldNamesConstants.TITLE_READING, //
-            FieldNamesConstants.ARTIST, //
-            FieldNamesConstants.ARTIST_READING, //
-            FieldNamesConstants.ARTIST_READING_ROMANIZED, //
-            FieldNamesConstants.COMPOSER, //
-            FieldNamesConstants.COMPOSER_READING, //
-            FieldNamesConstants.COMPOSER_READING_ROMANIZED), //
-            createBoosts(entry(FieldNamesConstants.TITLE, 3.0F), //
-                    entry(FieldNamesConstants.TITLE_READING, 3.1F), //
-                    entry(FieldNamesConstants.ARTIST, 2.0F), //
-                    entry(FieldNamesConstants.ARTIST_READING, 2.1F), //
-                    entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 2.1F), //
-                    entry(FieldNamesConstants.COMPOSER_READING, 1.1F), //
+    SONG(fieldNames(FieldNamesConstants.TITLE, FieldNamesConstants.TITLE_READING,
+            FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_READING_ROMANIZED, FieldNamesConstants.COMPOSER,
+            FieldNamesConstants.COMPOSER_READING, FieldNamesConstants.COMPOSER_READING_ROMANIZED),
+            createBoosts(entry(FieldNamesConstants.TITLE, 3.0F),
+                    entry(FieldNamesConstants.TITLE_READING, 3.1F),
+                    entry(FieldNamesConstants.ARTIST, 2.0F),
+                    entry(FieldNamesConstants.ARTIST_READING, 2.1F),
+                    entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 2.1F),
+                    entry(FieldNamesConstants.COMPOSER_READING, 1.1F),
                     entry(FieldNamesConstants.COMPOSER_READING_ROMANIZED, 1.1F))),
 
-    ALBUM(fieldNames(FieldNamesConstants.ALBUM, //
-            FieldNamesConstants.ALBUM_READING, //
-            FieldNamesConstants.ARTIST, //
-            FieldNamesConstants.ARTIST_READING, //
-            FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
-                    entry(FieldNamesConstants.ALBUM_READING, 2.1F), //
+    ALBUM(fieldNames(FieldNamesConstants.ALBUM, FieldNamesConstants.ALBUM_READING,
+            FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_READING_ROMANIZED),
+            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F),
+                    entry(FieldNamesConstants.ALBUM_READING, 2.1F),
                     entry(FieldNamesConstants.ARTIST_READING, 1.1F),
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
-    ALBUM_ID3(fieldNames(FieldNamesConstants.ALBUM, //
-            FieldNamesConstants.ALBUM_READING, //
-            FieldNamesConstants.ARTIST, //
-            FieldNamesConstants.ARTIST_READING, //
-            FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
-                    entry(FieldNamesConstants.ALBUM_READING, 2.1F), //
-                    entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
+    ALBUM_ID3(
+            fieldNames(FieldNamesConstants.ALBUM, FieldNamesConstants.ALBUM_READING,
+                    FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+                    FieldNamesConstants.ARTIST_READING_ROMANIZED),
+            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F),
+                    entry(FieldNamesConstants.ALBUM_READING, 2.1F),
+                    entry(FieldNamesConstants.ARTIST_READING, 1.1F),
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
-    ARTIST(fieldNames(FieldNamesConstants.ARTIST, //
-            FieldNamesConstants.ARTIST_READING, //
-            FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
+    ARTIST(fieldNames(FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_READING_ROMANIZED),
+            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F),
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
-    ARTIST_ID3(fieldNames(FieldNamesConstants.ARTIST, //
-            FieldNamesConstants.ARTIST_READING, //
-            FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
+    ARTIST_ID3(
+            fieldNames(FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+                    FieldNamesConstants.ARTIST_READING_ROMANIZED),
+            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F),
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
-    GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, //
-            FieldNamesConstants.GENRE), //
+    GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, FieldNamesConstants.GENRE),
             createBoosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
 
-    ALBUM_ID3_GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, //
-            FieldNamesConstants.GENRE), //
+    ALBUM_ID3_GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, FieldNamesConstants.GENRE),
             createBoosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F)));
 
     @SuppressWarnings("ImmutableEnumChecker")

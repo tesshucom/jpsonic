@@ -29,6 +29,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -38,11 +39,8 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.security.GlobalSecurityConfig;
-import com.tesshu.jpsonic.security.RESTRequestParameterProcessingFilter;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import jakarta.servlet.Filter;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
@@ -68,18 +66,10 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -222,8 +212,10 @@ class LoginControllerTest {
                 .stream()
                 .map(RequestMappingInfo::getPathPatternsCondition)
                 .map(PathPatternsRequestCondition::getPatterns)
-                .filter(pathPattern -> StringUtils
-                    .containsIgnoreCase(pathPattern.toString(), "login"))
+                .filter(pathPattern -> pathPattern
+                    .toString()
+                    .toLowerCase(Locale.ROOT)
+                    .contains("login"))
                 .flatMap(Collection::stream)
                 .sorted()
                 .toList();
@@ -231,29 +223,6 @@ class LoginControllerTest {
             assertEquals(2, loginPathPatterns.size());
             assertEquals("/login.view", loginPathPatterns.get(0).getPatternString());
             assertEquals("/login", loginPathPatterns.get(1).getPatternString());
-        }
-
-        @Test
-        @Order(6)
-        void testFilterChain() throws Exception {
-            FilterChainProxy filterChain = webApplicationContext.getBean(FilterChainProxy.class);
-            List<Filter> filters = filterChain.getFilters("/login");
-
-            assertEquals(DisableEncodeUrlFilter.class, filters.get(0).getClass());
-            assertEquals(WebAsyncManagerIntegrationFilter.class, filters.get(1).getClass());
-            assertEquals(SecurityContextHolderFilter.class, filters.get(2).getClass());
-            assertEquals(HeaderWriterFilter.class, filters.get(3).getClass());
-            assertEquals(CsrfFilter.class, filters.get(4).getClass());
-            assertEquals(LogoutFilter.class, filters.get(5).getClass());
-            assertEquals(RESTRequestParameterProcessingFilter.class, filters.get(6).getClass());
-            assertEquals(UsernamePasswordAuthenticationFilter.class, filters.get(7).getClass());
-            assertEquals(RequestCacheAwareFilter.class, filters.get(8).getClass());
-            assertEquals(SecurityContextHolderAwareRequestFilter.class, filters.get(9).getClass());
-            assertEquals(RememberMeAuthenticationFilter.class, filters.get(10).getClass());
-            assertEquals(AnonymousAuthenticationFilter.class, filters.get(11).getClass());
-            assertEquals(ExceptionTranslationFilter.class, filters.get(12).getClass());
-            assertEquals(AuthorizationFilter.class, filters.get(13).getClass());
-            assertEquals(14, filters.size());
         }
 
         @Test

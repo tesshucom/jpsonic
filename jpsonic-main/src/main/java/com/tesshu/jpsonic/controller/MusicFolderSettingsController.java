@@ -97,9 +97,6 @@ public class MusicFolderSettingsController {
             mediaScannerService.tryCancel();
 
         }
-        if (!ObjectUtils.isEmpty(expunge)) {
-            mediaScannerService.expunge();
-        }
         if (!ObjectUtils.isEmpty(id)) {
             musicFolderService.updateMusicFolderOrder(now(), id);
         }

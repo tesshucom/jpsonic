@@ -26,7 +26,7 @@ import java.text.Collator;
 import java.util.Comparator;
 import java.util.Objects;
 
-import org.apache.commons.lang3.ObjectUtils;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -135,7 +135,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         if (trackNumber == null) {
             return null;
         }
-        int discNumber = ObjectUtils.defaultIfNull(file.getDiscNumber(), 1);
+        int discNumber = PlayerUtils.defaultIfNull(file.getDiscNumber(), 1);
         return discNumber * 1000 + trackNumber;
     }
 }

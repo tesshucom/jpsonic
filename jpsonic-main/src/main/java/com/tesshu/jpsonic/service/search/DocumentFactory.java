@@ -34,14 +34,9 @@ import static com.tesshu.jpsonic.service.search.FieldNamesConstants.GENRE_KEY;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE_READING;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.YEAR;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -57,7 +52,6 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
@@ -68,232 +62,206 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
- * A factory that generates the documents to be stored in the index.
+ * A factory that generates Lucene {@link Document} objects to be stored in the
+ * search index.
+ * <p>
+ * This class converts domain entities such as {@link MediaFile}, {@link Album},
+ * and {@link Artist} into indexed documents, applying appropriate fields and
+ * handling language-specific processing (e.g., Japanese readings).
+ * </p>
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class DocumentFactory {
 
-    private static final FieldType TYPE_ID;
-
-    private static final FieldType TYPE_ID_NO_STORE;
-
-    private static final FieldType TYPE_KEY;
+    private static final FieldType TYPE_ID = FieldTypes.ID.type;
+    private static final FieldType TYPE_ID_NO_STORE = FieldTypes.ID_NO_STORE.type;
+    private static final FieldType TYPE_KEY = FieldTypes.KEY.type;
 
     private final SettingsService settingsService;
     private final JapaneseReadingUtils readingUtils;
-
-    static {
-
-        TYPE_ID = new FieldType();
-        TYPE_ID.setIndexOptions(IndexOptions.DOCS);
-        TYPE_ID.setTokenized(false);
-        TYPE_ID.setOmitNorms(true);
-        TYPE_ID.setStored(true);
-        TYPE_ID.freeze();
-
-        TYPE_ID_NO_STORE = new FieldType();
-        TYPE_ID_NO_STORE.setIndexOptions(IndexOptions.DOCS);
-        TYPE_ID_NO_STORE.setTokenized(false);
-        TYPE_ID_NO_STORE.setOmitNorms(true);
-        TYPE_ID_NO_STORE.setStored(false);
-        TYPE_ID_NO_STORE.freeze();
-
-        TYPE_KEY = new FieldType();
-        TYPE_KEY.setIndexOptions(IndexOptions.DOCS);
-        TYPE_KEY.setTokenized(false);
-        TYPE_KEY.setOmitNorms(true);
-        TYPE_KEY.setStored(false);
-        TYPE_KEY.freeze();
-
-    }
-
-    private void applyFieldId(@NonNull Document doc, @NonNull Integer value) {
-        doc.add(new StoredField(FieldNamesConstants.ID, Integer.toString(value), TYPE_ID));
-    }
-
-    private void applyFieldFolderId(@NonNull Document doc, @NonNull Integer value) {
-        doc
-            .add(new StoredField(FieldNamesConstants.FOLDER_ID, Integer.toString(value),
-                    TYPE_ID_NO_STORE));
-    }
-
-    private void applyFieldKey(@NonNull Document doc, @NonNull String field,
-            @NonNull String value) {
-        doc.add(new StoredField(field, value, TYPE_KEY));
-    }
-
-    private void applyFieldMediatype(@NonNull Document doc, @NonNull String value) {
-        applyFieldKey(doc, FieldNamesConstants.MEDIA_TYPE, value);
-    }
-
-    private void applyFieldFolderPath(@NonNull Document doc, @NonNull String value) {
-        applyFieldKey(doc, FieldNamesConstants.FOLDER, value);
-    }
-
-    private List<Field> createFields(@NonNull String fieldName, @Nullable String value) {
-        return Arrays
-            .asList(new TextField(fieldName, value, Store.NO),
-                    new SortedDocValuesField(fieldName, new BytesRef(value)));
-    }
-
-    private void applyFieldValue(@NonNull Document doc, @NonNull String fieldName,
-            @Nullable String value) {
-        if (isEmpty(value)) {
-            return;
-        }
-        createFields(fieldName, value).forEach(doc::add);
-    }
-
-    private void applyGenre(@NonNull Document doc, @Nullable String value) {
-        if (isEmpty(value)) {
-            return;
-        }
-        applyFieldValue(doc, GENRE, value);
-    }
-
-    private void applyFieldGenreKey(Document doc, String fieldName, String value) {
-        doc.add(new TextField(fieldName, value, Store.YES));
-    }
-
-    private void applyFieldYear(@NonNull Document doc, @NonNull String fieldName,
-            @Nullable Integer value) {
-        if (isEmpty(value)) {
-            return;
-        }
-        doc.add(new IntPoint(fieldName, value));
-    }
-
-    public static final Term createPrimarykey(Integer id) {
-        return new Term(FieldNamesConstants.ID, Integer.toString(id));
-    }
-
-    public static final Term createPrimarykey(String id) {
-        return new Term(FieldNamesConstants.ID, id);
-    }
-
-    public static final Term createPrimarykey(Album album) {
-        return createPrimarykey(album.getId());
-    }
-
-    public static final Term createPrimarykey(Artist artist) {
-        return createPrimarykey(artist.getId());
-    }
-
-    public static final Term createPrimarykey(MediaFile mediaFile) {
-        return createPrimarykey(mediaFile.getId());
-    }
 
     public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
         this.settingsService = settingsService;
         this.readingUtils = readingUtils;
     }
 
-    /**
-     * Create a document.
-     *
-     * @param mediaFile target of document
-     *
-     * @return document
-     *
-     * @since legacy
-     */
+    // ========= ENUM for FieldTypes =========
+
+    private enum FieldTypes {
+        ID(true), ID_NO_STORE(false), KEY(false);
+
+        private final transient FieldType type;
+
+        FieldTypes(boolean stored) {
+            FieldType ft = new FieldType();
+            ft.setIndexOptions(IndexOptions.DOCS);
+            ft.setTokenized(false);
+            ft.setOmitNorms(true);
+            ft.setStored(stored);
+            ft.freeze();
+            this.type = ft;
+        }
+    }
+
+    // ========= FIELD HELPERS =========
+
+    private void applyStoredField(@NonNull Document doc, @NonNull String field,
+            @NonNull String value, @NonNull FieldType type) {
+        doc.add(new Field(field, value, type));
+    }
+
+    private void applyFieldId(@NonNull Document doc, @NonNull Integer value) {
+        applyStoredField(doc, FieldNamesConstants.ID, value.toString(), TYPE_ID);
+    }
+
+    private void applyFieldFolderId(@NonNull Document doc, @NonNull Integer value) {
+        applyStoredField(doc, FieldNamesConstants.FOLDER_ID, value.toString(), TYPE_ID_NO_STORE);
+    }
+
+    private void applyFieldKey(@NonNull Document doc, @NonNull String field,
+            @NonNull String value) {
+        applyStoredField(doc, field, value, TYPE_KEY);
+    }
+
+    private void applyTextAndSortedField(@NonNull Document doc, @NonNull String fieldName,
+            @Nullable String value) {
+        if (isEmpty(value)) {
+            return;
+        }
+        doc.add(new TextField(fieldName, value, Store.NO));
+        doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
+    }
+
+    private void applyGenre(@NonNull Document doc, @Nullable String value) {
+        applyTextAndSortedField(doc, GENRE, value);
+    }
+
+    private void applyFieldYear(@NonNull Document doc, @NonNull String fieldName,
+            @Nullable Integer value) {
+        if (value != null) {
+            doc.add(new IntPoint(fieldName, value));
+        }
+    }
+
+    private void applyFieldFolderPath(@NonNull Document doc, @NonNull String value) {
+        applyFieldKey(doc, FieldNamesConstants.FOLDER, value);
+    }
+
+    private void applyFieldMediatype(@NonNull Document doc, @NonNull String value) {
+        applyFieldKey(doc, FieldNamesConstants.MEDIA_TYPE, value);
+    }
+
+    private void applyFieldGenreKey(Document doc, String fieldName, String value) {
+        doc.add(new TextField(fieldName, value, Store.YES));
+    }
+
+    private boolean containsJapanese(String text) {
+        return text.codePoints().anyMatch(cp -> {
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(cp);
+            return block == Character.UnicodeBlock.HIRAGANA
+                    || block == Character.UnicodeBlock.KATAKANA
+                    || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS;
+        });
+    }
+
+    private void acceptReading(Document doc, String field, String romanizedField, String value,
+            String sort, String reading) {
+        if (isEmpty(value)) {
+            return;
+        }
+
+        String result = defaultIfEmpty(sort, reading);
+        if (value.equals(result)) {
+            return;
+        }
+
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        boolean isJapanese = containsJapanese(value);
+        boolean useInternal = settingsService.isForceInternalValueInsteadOfTags();
+
+        switch (scheme) {
+        case WITHOUT_JP_LANG_PROCESSING -> applyTextAndSortedField(doc, field, result);
+        case ROMANIZED_JAPANESE -> {
+            applyTextAndSortedField(doc, field, result);
+            if (isJapanese) {
+                String romanized = readingUtils
+                    .removePunctuationFromJapaneseReading(useInternal ? reading : result);
+                applyTextAndSortedField(doc, romanizedField, romanized);
+            }
+        }
+        default -> {
+            String normalized = readingUtils.removePunctuationFromJapaneseReading(result);
+            applyTextAndSortedField(doc, field, normalized);
+        }
+        }
+    }
+
+    void applyArtistInfo(Document doc, String artist, String sort, String reading) {
+        applyTextAndSortedField(doc, ARTIST, artist);
+        acceptReading(doc, ARTIST_READING, ARTIST_READING_ROMANIZED, artist, sort, reading);
+    }
+
+    void applyComposerInfo(Document doc, String composer, String sortRaw, String sort) {
+        applyTextAndSortedField(doc, COMPOSER, composer);
+        acceptReading(doc, COMPOSER_READING, COMPOSER_READING_ROMANIZED, composer, sortRaw, sort);
+    }
+
+    // ========= DOCUMENT FACTORY METHODS =========
+
     public Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
         applyFieldId(doc, mediaFile.getId());
-        applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+        applyArtistInfo(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
                 mediaFile.getArtistReading());
         applyGenre(doc, mediaFile.getGenre());
-        applyFieldValue(doc, ALBUM, mediaFile.getAlbumName());
-        applyFieldValue(doc, ALBUM_READING,
+        applyTextAndSortedField(doc, ALBUM, mediaFile.getAlbumName());
+        applyTextAndSortedField(doc, ALBUM_READING,
                 defaultIfEmpty(mediaFile.getAlbumSort(), mediaFile.getAlbumReading()));
         applyFieldFolderPath(doc, mediaFile.getFolder());
         return doc;
     }
 
-    /**
-     * Create a document.
-     *
-     * @param mediaFile target of document
-     *
-     * @return document
-     *
-     * @since legacy
-     */
     public Document createArtistDocument(MediaFile mediaFile) {
         Document doc = new Document();
         applyFieldId(doc, mediaFile.getId());
-        applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+        applyArtistInfo(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
                 mediaFile.getArtistReading());
         applyFieldFolderPath(doc, mediaFile.getFolder());
         return doc;
     }
 
-    /**
-     * Create a document.
-     *
-     * @param album target of document
-     *
-     * @return document
-     *
-     * @since legacy
-     */
     public Document createAlbumId3Document(Album album) {
         Document doc = new Document();
         applyFieldId(doc, album.getId());
-        applyFieldValue(doc, ARTIST, album.getArtist());
-        acceptArtistReading(doc, album.getArtist(), album.getArtistSort(),
-                album.getArtistReading());
+        applyArtistInfo(doc, album.getArtist(), album.getArtistSort(), album.getArtistReading());
         applyGenre(doc, album.getGenre());
-        applyFieldValue(doc, ALBUM, album.getName());
-        applyFieldValue(doc, ALBUM_READING,
+        applyTextAndSortedField(doc, ALBUM, album.getName());
+        applyTextAndSortedField(doc, ALBUM_READING,
                 defaultIfEmpty(album.getNameSort(), album.getNameReading()));
         applyFieldFolderId(doc, album.getFolderId());
         return doc;
     }
 
-    /**
-     * Create a document.
-     *
-     * @param artist      target of document
-     * @param musicFolder target folder exists
-     *
-     * @return document
-     *
-     * @since legacy
-     */
-    public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
+    public Document createArtistId3Document(Artist artist, MusicFolder folder) {
         Document doc = new Document();
         applyFieldId(doc, artist.getId());
-        applyFieldValue(doc, ARTIST, artist.getName());
-        acceptArtistReading(doc, artist.getName(), artist.getSort(), artist.getReading());
-        applyFieldFolderId(doc, musicFolder.getId());
+        applyArtistInfo(doc, artist.getName(), artist.getSort(), artist.getReading());
+        applyFieldFolderId(doc, folder.getId());
         return doc;
     }
 
-    /**
-     * Create a document.
-     *
-     * @param mediaFile target of document
-     *
-     * @return document
-     *
-     * @since legacy
-     */
     public Document createSongDocument(MediaFile mediaFile) {
         Document doc = new Document();
         applyFieldId(doc, mediaFile.getId());
         applyFieldMediatype(doc, mediaFile.getMediaType().name());
-        applyFieldValue(doc, TITLE, mediaFile.getTitle());
-        applyFieldValue(doc, TITLE_READING, mediaFile.getTitle());
-        applyFieldValue(doc, ARTIST, mediaFile.getArtist());
-        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
+        applyTextAndSortedField(doc, TITLE, mediaFile.getTitle());
+        // Due to performance concerns, the titleSort field is currently not being used.
+        applyTextAndSortedField(doc, TITLE_READING, mediaFile.getTitle());
+        applyArtistInfo(doc, mediaFile.getArtist(), mediaFile.getArtistSort(),
                 mediaFile.getArtistReading());
-        applyFieldValue(doc, COMPOSER, mediaFile.getComposer());
-        acceptComposerReading(doc, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
+        applyComposerInfo(doc, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
                 mediaFile.getComposerSort());
         if (mediaFile.getMediaType() != MediaType.PODCAST) {
             applyGenre(doc, mediaFile.getGenre());
@@ -317,45 +285,25 @@ public class DocumentFactory {
         return doc;
     }
 
-    void acceptReading(Document doc, String field, String romanizedfield, String value, String sort,
-            String reading) {
-        if (isEmpty(value)) {
-            return;
-        }
+    // ========= PRIMARY KEY CREATION =========
 
-        String result = defaultIfEmpty(sort, reading);
-        if (!value.equals(result)) {
-
-            IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-            boolean isJapaneseName = Stream.of(value.split(EMPTY)).anyMatch(s -> {
-                Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-                return Character.UnicodeBlock.HIRAGANA.equals(b)
-                        || Character.UnicodeBlock.KATAKANA.equals(b)
-                        || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b);
-            });
-
-            if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
-                applyFieldValue(doc, field, result);
-            } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
-                applyFieldValue(doc, field, result);
-                if (isJapaneseName) {
-                    applyFieldValue(doc, romanizedfield, readingUtils
-                        .removePunctuationFromJapaneseReading(
-                                settingsService.isForceInternalValueInsteadOfTags() ? reading
-                                        : result));
-                }
-            } else {
-                applyFieldValue(doc, field,
-                        readingUtils.removePunctuationFromJapaneseReading(result));
-            }
-        }
+    public static Term createPrimarykey(Integer id) {
+        return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
 
-    void acceptArtistReading(Document doc, String value, String sort, String reading) {
-        acceptReading(doc, ARTIST_READING, ARTIST_READING_ROMANIZED, value, sort, reading);
+    public static Term createPrimarykey(String id) {
+        return new Term(FieldNamesConstants.ID, id);
     }
 
-    void acceptComposerReading(Document doc, String value, String sort, String reading) {
-        acceptReading(doc, COMPOSER_READING, COMPOSER_READING_ROMANIZED, value, sort, reading);
+    public static Term createPrimarykey(Album album) {
+        return createPrimarykey(album.getId());
+    }
+
+    public static Term createPrimarykey(Artist artist) {
+        return createPrimarykey(artist.getId());
+    }
+
+    public static Term createPrimarykey(MediaFile mediaFile) {
+        return createPrimarykey(mediaFile.getId());
     }
 }

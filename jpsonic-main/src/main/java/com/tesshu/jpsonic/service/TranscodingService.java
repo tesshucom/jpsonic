@@ -281,7 +281,7 @@ public class TranscodingService {
         List<Transcoding> transcodingsForPlayer = getTranscodingsForPlayer(player);
         for (Transcoding transcoding : transcodingsForPlayer) {
             // special case for now as video must have a transcoding
-            if (mediaFile.isVideo() && StringUtils
+            if (mediaFile.isVideo() && StringUtil
                 .equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
                 // Detected source to target format match for video
                 return transcoding;

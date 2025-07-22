@@ -26,6 +26,10 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -38,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
@@ -52,9 +57,12 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
+import com.tesshu.jpsonic.service.scanner.ScanContext;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.AfterAll;
@@ -69,7 +77,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
@@ -145,10 +152,10 @@ class IndexManagerTest {
 
         @BeforeEach
         public void setup() {
-            settingsService = Mockito.mock(SettingsService.class);
+            settingsService = mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null,
-                    Mockito.mock(Ehcache.class), null, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(mock(ArtistDao.class),
+                    mock(AlbumDao.class), mock(Ehcache.class), null, mock(MediaFileService.class));
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
             JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
             indexManager = new IndexManager(new LuceneUtils(), null, null, queryFactory, utils,
@@ -160,7 +167,7 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongCount
         @Test
         void c00() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
             indexManager.getGenres(false);
         }
 
@@ -169,7 +176,7 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumCount
         @Test
         void c01() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
             indexManager.getGenres(true);
         }
 
@@ -179,8 +186,8 @@ class IndexManagerTest {
         @Test
         void c02() {
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(false);
         }
 
@@ -190,8 +197,8 @@ class IndexManagerTest {
         @Test
         void c03() {
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
+            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
+            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(true);
         }
     }
@@ -491,7 +498,7 @@ class IndexManagerTest {
 
         @BeforeEach
         public void setup() {
-            SettingsService settingsService = Mockito.mock(SettingsService.class);
+            SettingsService settingsService = mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             indexManager = new IndexManager(new LuceneUtils(), null, null, null, null, null,
                     settingsService, null, artistDao, null);
@@ -507,14 +514,14 @@ class IndexManagerTest {
             System.setProperty("jpsonic.home", tempDir.toString());
             Files.createDirectories(indexManager.getRootIndexDirectory());
             indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.never()).deleteAll();
+            verify(artistDao, never()).deleteAll();
         }
 
         @Test
         void testIndexDirectoryNotExists(@TempDir Path tempDir) {
             System.setProperty("jpsonic.home", tempDir.toString());
             indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.times(1)).deleteAll();
+            verify(artistDao, times(1)).deleteAll();
         }
     }
 
@@ -533,9 +540,6 @@ class IndexManagerTest {
         private HttpSearchCriteriaDirector director;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
-
-        @Autowired
         private TemplateWrapper template;
 
         @Autowired
@@ -543,6 +547,12 @@ class IndexManagerTest {
 
         @Autowired
         private RatingDao ratingDao;
+
+        @Autowired
+        private DirectoryScanProcedure directoryScanProcedure;
+
+        @Autowired
+        private Id3MetadataScanProcedure id3MetadataScanProcedure;
 
         private static final String USER_NAME = "admin";
 
@@ -597,6 +607,14 @@ class IndexManagerTest {
 
         }
 
+        /**
+         * This test was originally created to cover the now-obsolete expungeService,
+         * which has already been removed. Although the expungeService no longer exists,
+         * an equivalent process is expected to run automatically as part of the scan.
+         * Therefore, in the current implementation, invoking a scan under similar
+         * conditions should result in the removal of unnecessary data from both the
+         * database and the Lucene index.
+         */
         @Test
         @Order(1)
         void testExpunge() throws IOException {
@@ -605,7 +623,8 @@ class IndexManagerTest {
             int count = Integer.MAX_VALUE;
 
             final HttpSearchCriteria criteriaArtist = director
-                .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST);
+                .construct("_DIR_ Ravel", offset, count, false, getMusicFolders(),
+                        IndexType.ARTIST);
             final HttpSearchCriteria criteriaAlbum = director
                 .construct("Complete Piano Works", offset, count, false, musicFolders,
                         IndexType.ALBUM);
@@ -679,12 +698,19 @@ class IndexManagerTest {
             assertEquals(1, result.getAlbums().size());
             assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
 
-            /* Does not scan, only expunges the index. */
-            mediaScannerService.expunge();
-
-            /*
-             * Subsequent search results. Results can also be confirmed with Luke.
-             */
+            // The following reproduces the behavior of the expungeService.
+            // Note the processing order.
+            // ->
+            ScanContext scanContext = new ScanContext(now(), false, USER_NAME, false, false, 0, 0,
+                    false, false);
+            indexManager.startIndexing();
+            id3MetadataScanProcedure.iterateAlbumId3(scanContext, false);
+            id3MetadataScanProcedure.iterateArtistId3(scanContext, false);
+            directoryScanProcedure.iterateFileStructure(scanContext);
+            indexManager.stopIndexing();
+            ratingDao.expunge();
+            template.checkpoint();
+            // <-
 
             result = searchService.search(criteriaArtist);
             assertEquals(0, result.getMediaFiles().size());
@@ -702,13 +728,13 @@ class IndexManagerTest {
             assertEquals(0, result.getAlbums().size());
 
             // See this#setup
-            assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
+            assertEquals(0, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                     "Because one album has been deleted.");
             int ratingsCount = template
                 .getJdbcTemplate()
                 .queryForObject("select count(*) from user_rating where user_rating.username = ?",
                         Integer.class, USER_NAME);
-            assertEquals(3, ratingsCount, "Will be removed, including oldPath");
+            assertEquals(0, ratingsCount, "Will be removed, including oldPath");
         }
 
         @Test

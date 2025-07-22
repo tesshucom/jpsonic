@@ -388,7 +388,7 @@ public class CoverArtController implements CoverArtPresentation {
      * audio file, the embedded album art is returned. In addition returns the mime
      * type
      */
-    @SuppressWarnings("PMD.CloseResource")
+    @SuppressWarnings({ "PMD.CloseResource", "resource" })
     /*
      * False positive. This method is an intermediate function used internally by
      * createImage, sendUnscaled. The methods calling this method auto-closes the

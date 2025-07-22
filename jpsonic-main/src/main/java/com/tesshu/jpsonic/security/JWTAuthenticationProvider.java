@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.tesshu.jpsonic.service.JWTSecurityService;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
@@ -66,7 +67,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         Claim path = token.getClaim(JWTSecurityService.CLAIM_PATH);
         authentication.setAuthenticated(true);
 
-        if (StringUtils.contains(authentication.getRequestedPath(), "/WEB-INF/jsp/")) {
+        if (StringUtil.containsIgnoreCase(authentication.getRequestedPath(), "/WEB-INF/jsp/")) {
             LOG.warn("BYPASSING AUTH FOR WEB-INF page");
         } else if (!roughlyEqual(path.asString(), authentication.getRequestedPath())) {
             throw new InsufficientAuthenticationException(

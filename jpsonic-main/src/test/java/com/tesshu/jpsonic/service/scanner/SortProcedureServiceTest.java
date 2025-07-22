@@ -23,7 +23,6 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -78,7 +77,15 @@ class SortProcedureServiceTest {
         private ArtistDao artistDao;
 
         @Autowired
-        private ScannerProcedureService scannerProcedureService;
+        private PreScanProcedure preScanProc;
+        @Autowired
+        private FileMetadataScanProcedure fileMetaProc;
+        @Autowired
+        private Id3MetadataScanProcedure id3MetaProc;
+        @Autowired
+        private PostScanProcedure postScanProc;
+        @Autowired
+        private ScanHelper scanHelper;
 
         @Autowired
         private SortProcedureService sortProcedureService;
@@ -168,12 +175,17 @@ class SortProcedureServiceTest {
             assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
-            Instant scanDate = now();
-            scannerProcedureService.createScanLog(scanDate, ScanLogType.SCAN_ALL);
-            scannerProcedureService.beforeScan(scanDate);
-            scannerProcedureService.updateSortOfArtist(scanDate);
-            scannerProcedureService.refleshArtistId3(scanDate);
-            scannerProcedureService.afterScan(scanDate);
+            ScanContext context = new ScanContext(now(), false, settingsService.getPodcastFolder(),
+                    settingsService.isSortStrict(), settingsService.isUseScanLog(),
+                    settingsService.getScanLogRetention(),
+                    settingsService.getDefaultScanLogRetention(), settingsService.isUseScanEvents(),
+                    settingsService.isMeasureMemory());
+
+            scanHelper.createScanLog(context, ScanLogType.SCAN_ALL);
+            preScanProc.beforeScan(context);
+            fileMetaProc.updateSortOfArtist(context);
+            id3MetaProc.refleshArtistId3(context);
+            postScanProc.afterScan(context);
 
             artist = artists.get(0);
             assertEquals("ARTIST", artist.getName());

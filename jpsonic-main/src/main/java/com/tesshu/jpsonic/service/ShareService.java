@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.domain.User;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.RandomStringGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -107,10 +107,13 @@ public class ShareService {
 
     public Share createShare(HttpServletRequest request, List<MediaFile> files) {
 
+        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+            .withinRange(new char[] { 'a', 'z' }, new char[] { 'A', 'Z' })
+            .get();
+        String random = generator.generate(5);
+
         Share share = new Share();
-        share
-            .setName(RandomStringUtils
-                .random(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        share.setName(random);
         share.setCreated(now());
         share.setUsername(securityService.getCurrentUsername(request));
         share.setExpires(now().plus(365, ChronoUnit.DAYS));

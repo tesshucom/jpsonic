@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -113,5 +114,14 @@ class PlayerUtilsTest {
             assertEquals("/var/playlists", PlayerUtils.getDefaultPlaylistFolder());
             System.clearProperty("jpsonic.defaultPlaylistFolder");
         }
+    }
+
+    @Test
+    void testDefaultIfNull() {
+        assertEquals("foo", PlayerUtils.defaultIfNull("foo", "bar"));
+        assertEquals("bar", PlayerUtils.defaultIfNull(null, "bar"));
+        assertNull(PlayerUtils.defaultIfNull(null, null));
+        assertEquals(5, PlayerUtils.defaultIfNull(5, 10));
+        assertEquals(10, PlayerUtils.defaultIfNull(null, 10));
     }
 }

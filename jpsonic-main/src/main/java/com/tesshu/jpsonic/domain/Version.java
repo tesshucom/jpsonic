@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.util.Objects;
 
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -105,7 +106,7 @@ public class Version implements Comparable<Version> {
     }
 
     public boolean isPreview() {
-        return StringUtils.isNotBlank(internalVersion.getQualifier()) && !StringUtils
+        return StringUtils.isNotBlank(internalVersion.getQualifier()) && !StringUtil
             .equalsIgnoreCase(internalVersion.getQualifier(), Artifact.RELEASE_VERSION);
     }
 }

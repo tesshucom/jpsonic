@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.springframework.http.HttpStatus.OK;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -34,9 +32,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.util.Timeout;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -67,18 +65,20 @@ public class ProxyController {
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            // Use HttpClientResponseHandler
-            try (CloseableHttpResponse resp = client.execute(method)) {
-                int statusCode = resp.getCode();
-                if (statusCode == OK.value()) {
-                    try (InputStream in = resp.getEntity().getContent()) {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {    
+            client.execute(method, httpResponse -> {
+                int statusCode = httpResponse.getCode();
+                if (statusCode == HttpStatus.OK.value()) {
+                    // The try-with-resources is not needed here because
+                    // the HttpClientResponseHandler ensures proper resource management.
+                    try (InputStream in = httpResponse.getEntity().getContent()) {
                         IOUtils.copy(in, response.getOutputStream());
                     }
                 } else {
                     response.sendError(statusCode);
                 }
-            }
+                return null; // No meaningful return value needed
+            });
         } catch (IOException e) {
             throw new ExecutionException("Unable to handle proxy for external HTTP request.", e);
         }

@@ -32,6 +32,7 @@ import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -102,11 +103,11 @@ public class TagService {
         Integer trackNumber = getTrackNumber(track);
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
-        if (StringUtils.equals(artist, file.getArtist())
-                && StringUtils.equals(album, file.getAlbumName())
-                && StringUtils.equals(title, file.getTitle())
+        if (StringUtil.equals(artist, file.getArtist())
+                && StringUtil.equals(album, file.getAlbumName())
+                && StringUtil.equals(title, file.getTitle())
                 && Objects.equals(yearNumber, file.getYear())
-                && StringUtils.equals(genre, file.getGenre())
+                && StringUtil.equals(genre, file.getGenre())
                 && Objects.equals(trackNumber, file.getTrackNumber())) {
             return "SKIPPED";
         }

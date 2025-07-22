@@ -41,7 +41,7 @@ import java.util.jar.JarFile;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.util.FileUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -119,9 +119,8 @@ class LegacyDatabaseStartupTest {
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                 final JarEntry entry = e.nextElement();
                 if (entry.getName().startsWith(jarConnection.getEntryName())) {
-                    final String filename = StringUtils
-                        .removeStart(entry.getName(), //
-                                jarConnection.getEntryName());
+                    final String filename = StringUtil
+                        .removeStart(entry.getName(), jarConnection.getEntryName());
 
                     final Path f = Path.of(destDir.toString(), filename);
                     if (entry.isDirectory()) {

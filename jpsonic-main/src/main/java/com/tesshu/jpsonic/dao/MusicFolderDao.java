@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.dao;
 
 import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
 import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static com.tesshu.jpsonic.util.PlayerUtils.defaultIfNull;
 
 import java.util.List;
 
