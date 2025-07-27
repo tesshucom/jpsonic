@@ -39,7 +39,6 @@
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.20.0</versions.commons-io>
-    <versions.commons-lang>2.6</versions.commons-lang>
     <versions.commons-lang3>3.18.0</versions.commons-lang3>
     <versions.commons-net>3.11.1</versions.commons-net>
     <versions.commons-text>1.13.1</versions.commons-text>
@@ -226,11 +225,6 @@
         <version>${versions.logback}</version>
       </dependency>
 
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${versions.commons-lang}</version>
-      </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
