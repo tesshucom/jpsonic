@@ -82,7 +82,7 @@
     <versions.spotbugs>4.9.3</versions.spotbugs>
     <versions.spring-boot>3.5.3</versions.spring-boot>
     <versions.spring-framework>6.2.9</versions.spring-framework>
-    <versions.spring-security>6.5.1</versions.spring-security>
+    <versions.spring-security>6.5.2</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.2.1</versions.tika>
     <versions.tomcat>10.1.43</versions.tomcat>
