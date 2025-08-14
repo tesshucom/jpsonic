@@ -25,14 +25,14 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
-    <versions.HikariCP>6.3.2</versions.HikariCP>
+    <versions.HikariCP>7.0.1</versions.HikariCP>
 
     <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.8</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.49.5</versions.checker-qual>
-    <versions.checkstyle>10.26.1</versions.checkstyle>
+    <versions.checkstyle>11.0.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
     <versions.commons-configuration2>2.12.0</versions.commons-configuration2>
@@ -40,7 +40,7 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.20.0</versions.commons-io>
     <versions.commons-lang3>3.18.0</versions.commons-lang3>
-    <versions.commons-net>3.11.1</versions.commons-net>
+    <versions.commons-net>3.12.0</versions.commons-net>
     <versions.commons-text>1.14.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
     <versions.ecj>3.42.0</versions.ecj>
@@ -57,7 +57,7 @@
     <versions.java-jwt>4.5.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.5</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.23</versions.jetty>
+    <versions.jetty>12.0.25</versions.jetty>
     <versions.jfreechart>1.5.6</versions.jfreechart>
     <versions.junit-jupiter-api>5.13.4</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
@@ -72,19 +72,19 @@
     <versions.maven-artifact>3.9.11</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.18.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.7</versions.moxy>
-    <versions.mysql-connector-j>9.3.0</versions.mysql-connector-j>
+    <versions.mysql-connector-j>9.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.2.0</versions.pmd>
     <versions.postgresql>42.7.7</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.9.3</versions.spotbugs>
+    <versions.spotbugs>4.9.4</versions.spotbugs>
     <versions.spring-boot>3.5.4</versions.spring-boot>
     <versions.spring-framework>6.2.9</versions.spring-framework>
     <versions.spring-security>6.5.2</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
-    <versions.tika>3.2.1</versions.tika>
-    <versions.tomcat>10.1.43</versions.tomcat>
+    <versions.tika>3.2.2</versions.tika>
+    <versions.tomcat>10.1.44</versions.tomcat>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
