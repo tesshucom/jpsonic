@@ -40,7 +40,7 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.20.0</versions.commons-io>
     <versions.commons-lang3>3.18.0</versions.commons-lang3>
-    <versions.commons-net>3.11.1</versions.commons-net>
+    <versions.commons-net>3.12.0</versions.commons-net>
     <versions.commons-text>1.14.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
     <versions.ecj>3.42.0</versions.ecj>
