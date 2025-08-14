@@ -581,7 +581,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.4</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>
