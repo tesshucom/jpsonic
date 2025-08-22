@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>114.2.15</version>
+    <version>114.2.16</version>
   </parent>
   <artifactId>jpsonic-main</artifactId>
   <packaging>war</packaging>
@@ -581,7 +581,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.5</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>
