@@ -70,7 +70,7 @@
     <versions.logback>1.5.18</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.11</versions.maven-artifact>
-    <versions.mockito-junit-jupiter>5.18.0</versions.mockito-junit-jupiter>
+    <versions.mockito-junit-jupiter>5.19.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.7</versions.moxy>
     <versions.mysql-connector-j>9.4.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
