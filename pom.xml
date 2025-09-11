@@ -43,12 +43,12 @@
     <versions.commons-net>3.12.0</versions.commons-net>
     <versions.commons-text>1.14.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
-    <versions.ecj>3.42.0</versions.ecj>
+    <versions.ecj>3.43.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5</versions.httpclient5>
     <versions.icu4j>77.1</versions.icu4j>
-    <versions.jackson>2.19.2</versions.jackson>
+    <versions.jackson>2.20</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -274,12 +274,12 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>${versions.jackson}</version>
+        <version>2.19.2</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${versions.jackson}</version>
+        <version>2.19.2</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -289,7 +289,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${versions.jackson}</version>
+        <version>2.19.2</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
