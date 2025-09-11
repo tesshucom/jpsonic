@@ -540,6 +540,52 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-buffer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-resolver</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-handler</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-unix-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-kqueue</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-classes-kqueue</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-epoll</artifactId>
+      <classifier>linux-x86_64</classifier>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-classes-epoll</artifactId>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -633,18 +679,18 @@
             <phase>generate-resources</phase>
             <configuration>
               <target>
-                <tstamp/>
-                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"/>
+                <tstamp></tstamp>
+                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"></copy>
                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                 <!--suppress MavenModelInspection -->
                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
                 <echo file="${project.build.directory}/classes/version.txt">${project.version}</echo>
                 <copy todir="${project.build.directory}/classes/fonts">
-                  <fileset dir="src/main/webapp/fonts" includes="**/"/>
+                  <fileset dir="src/main/webapp/fonts" includes="**/"></fileset>
                 </copy>
                 <!--Because when generating a CSS map it will generate a valid link to the source with a relative path　-->
                 <copy todir="${project.build.directory}/jpsonic/scss/">
-                  <fileset dir="${basedir}/src/main/webapp/scss" includes="**"/>
+                  <fileset dir="${basedir}/src/main/webapp/scss" includes="**"></fileset>
                 </copy>
               </target>
             </configuration>
@@ -659,7 +705,7 @@
               <target>
                 <delete>
                   <!--This is because *ApplicationHelper may depend on a particular vendor class.　-->
-                  <fileset dir="${project.build.directory}/classes/com/tesshu/jpsonic" includes="${helper.excludes}"/>
+                  <fileset dir="${project.build.directory}/classes/com/tesshu/jpsonic" includes="${helper.excludes}"></fileset>
                 </delete>
               </target>
             </configuration>
