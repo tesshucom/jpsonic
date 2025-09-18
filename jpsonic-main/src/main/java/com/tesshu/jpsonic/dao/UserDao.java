@@ -28,7 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.AvatarScheme;
@@ -194,7 +193,6 @@ public class UserDao {
      *
      * @param user The user to update.
      */
-    @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUser(User user) {
         String sql = "update " + getUserTable()
                 + " set password=?, email=?, ldap_authenticated=?, bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? "
@@ -249,7 +247,6 @@ public class UserDao {
      *
      * @param settings The user-specific settings.
      */
-    @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUserSettings(UserSettings settings) {
         template.update("delete from user_settings where username=?", settings.getUsername());
 
