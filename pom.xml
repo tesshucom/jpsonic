@@ -81,7 +81,7 @@
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.6</versions.spotbugs>
     <versions.spring-boot>3.5.5</versions.spring-boot>
-    <versions.spring-framework>6.2.10</versions.spring-framework>
+    <versions.spring-framework>6.2.11</versions.spring-framework>
     <versions.spring-security>6.5.3</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.2.2</versions.tika>
