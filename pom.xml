@@ -79,7 +79,7 @@
     <versions.pmd>7.2.0</versions.pmd>
     <versions.postgresql>42.7.7</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.9.4</versions.spotbugs>
+    <versions.spotbugs>4.9.6</versions.spotbugs>
     <versions.spring-boot>3.5.5</versions.spring-boot>
     <versions.spring-framework>6.2.10</versions.spring-framework>
     <versions.spring-security>6.5.3</versions.spring-security>
@@ -925,7 +925,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.9.4.2</version>
+          <version>4.9.6.0</version>
           <configuration>
             <plugins>
               <plugin>

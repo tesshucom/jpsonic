@@ -42,7 +42,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -389,8 +388,6 @@ public class IndexManager implements ReadWriteLockSupport {
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
-    @SuppressFBWarnings(value = { "NP_LOAD_OF_KNOWN_NULL_VALUE",
-            "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALU" }, justification = "spotbugs/spotbugs#1338")
     private void stopIndexing(IndexType type) {
 
         // close
