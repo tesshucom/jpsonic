@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -94,7 +93,6 @@ public class AvatarUploadController {
         return new ModelAndView("avatarUploadResult", "model", map);
     }
 
-    @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
     private void createAvatar(FileItem<?> fileItem, String username, Map<String, Object> map) {
         if (StringUtils.isNotBlank(fileItem.getName()) && fileItem.getSize() > 0) {
             try {

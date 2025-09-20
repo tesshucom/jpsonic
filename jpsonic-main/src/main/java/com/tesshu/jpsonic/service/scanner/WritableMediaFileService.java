@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -327,7 +326,6 @@ public class WritableMediaFileService {
         }
     }
 
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")
     Optional<MediaFile> createOrUpdateChild(@Nullable MediaFile child, @NonNull Path childPath,
             @NonNull Instant scanDate) {

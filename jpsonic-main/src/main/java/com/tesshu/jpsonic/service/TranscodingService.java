@@ -38,7 +38,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.dao.TranscodingDao;
@@ -433,7 +432,6 @@ public class TranscodingService {
      * @param in         Data to feed to the process. May be {@code null}. @return
      *                   The newly created input stream.
      */
-    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "False positive. Filtered file-extension are used.")
     TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
             VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, @Nullable InputStream in)
             throws IOException {
