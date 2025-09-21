@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -70,7 +69,6 @@ public class ImportPlaylistController {
         }
     }
 
-    @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "False positive. FilenameUtils eliminates traversal and injection")
     @PostMapping
     protected String handlePost(RedirectAttributes redirectAttributes, HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
