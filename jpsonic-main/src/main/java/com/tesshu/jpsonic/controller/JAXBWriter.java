@@ -126,7 +126,6 @@ public final class JAXBWriter {
         return response;
     }
 
-    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Jsonp cannot be used unless the administrator explicitly enables the feature.")
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse,
             Response jaxbResponse) {
 
