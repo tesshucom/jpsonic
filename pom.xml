@@ -29,7 +29,7 @@
 
     <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
-    <versions.asm>9.8</versions.asm>
+    <versions.asm>9.9</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.51.0</versions.checker-qual>
     <versions.checkstyle>11.0.1</versions.checkstyle>
