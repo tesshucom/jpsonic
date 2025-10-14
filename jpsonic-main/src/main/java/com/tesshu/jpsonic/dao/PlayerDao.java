@@ -26,7 +26,8 @@ import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -142,16 +143,15 @@ public class PlayerDao {
     }
 
     public void deleteOldPlayers(int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -days);
+        Instant cutoff = Instant.now().minus(days, ChronoUnit.DAYS);
         String sql = """
                 delete from player
                 where name is null and client_id is null and (last_seen is null or last_seen < ?)
                         or technology <> ?
                 """;
-        int n = template.update(sql, cal.getTime(), "WEB");
+        int n = template.update(sql, cutoff, "WEB");
         if (LOG.isInfoEnabled() && n > 0) {
-            LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
+            LOG.info("Deleted " + n + " player(s) that haven't been used after " + cutoff);
         }
     }
 
@@ -192,6 +192,8 @@ public class PlayerDao {
         }
 
         @Override
+        @SuppressWarnings("PMD.AssignmentInOperand")
+        // Just use a simple int instead of LongAdder here.
         public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
             Player player = new Player();
             int col = 1;

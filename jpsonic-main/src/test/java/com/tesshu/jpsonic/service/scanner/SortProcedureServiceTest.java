@@ -54,8 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * that handle big data and large-scale searches may have modern mechanism to
  * preventmissing results when necessary.
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition",
-        "PMD.NPathComplexity", "PMD.TooManyStaticImports" })
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class SortProcedureServiceTest {
 

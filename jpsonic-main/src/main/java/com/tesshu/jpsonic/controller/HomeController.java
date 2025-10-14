@@ -167,8 +167,6 @@ public class HomeController {
             map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
             map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
             break;
-        default:
-            break;
         }
 
         map.put("user", user);

@@ -51,7 +51,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class ArtistByFolderProcTest {
 
     private UpnpProcessorUtil util;

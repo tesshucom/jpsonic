@@ -58,7 +58,6 @@ import org.springframework.stereotype.Component;
  * small by version. Therefore, test cases of this class are useful for large
  * version upgrades.
  **/
-@SuppressWarnings("PMD.CloseResource")
 /*
  * Analysers are the factory class for TokenStreams and thread-safe. Loaded only
  * once at startup and used for scanning and searching. Do not explicitly close

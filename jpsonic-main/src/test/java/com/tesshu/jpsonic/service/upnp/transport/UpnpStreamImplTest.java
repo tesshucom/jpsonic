@@ -20,9 +20,9 @@
 package com.tesshu.jpsonic.service.upnp.transport;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertArrayEquals; // NOPMD pmd/pmd#4432
+import static org.junit.Assert.assertArrayEquals;
 
-import java.nio.charset.StandardCharsets; // NOPMD pmd/pmd#4432
+import java.nio.charset.StandardCharsets;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,6 @@ import org.jupnp.model.ServerClientTokens;
 import org.jupnp.model.message.StreamResponseMessage;
 import org.jupnp.protocol.ProtocolFactory;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class UpnpStreamImplTest {
 
     private UpnpStreamImpl upnpStream;

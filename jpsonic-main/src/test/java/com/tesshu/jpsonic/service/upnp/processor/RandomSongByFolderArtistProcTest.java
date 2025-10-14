@@ -52,7 +52,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class RandomSongByFolderArtistProcTest {
 
     @Nested

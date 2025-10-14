@@ -277,7 +277,6 @@ public class LastFMScrobbler {
         return executeRequest(method);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BasicNameValuePair) Not reusable
     private static String[] executePostRequest(String url, Map<String, String> parameters)
             throws ExecutionException {
         List<NameValuePair> params = new ArrayList<>();
