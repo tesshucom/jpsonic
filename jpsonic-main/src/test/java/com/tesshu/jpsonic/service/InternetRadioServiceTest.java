@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -100,7 +101,7 @@ class InternetRadioServiceTest {
         // Prepare the mocked URL connection for the simple playlist
         HttpURLConnection mockURLConnection1 = Mockito.mock(HttpURLConnection.class);
         InputStream mockURLInputStream1 = new ByteArrayInputStream(
-                TEST_STREAM_PLAYLIST_CONTENTS_1.getBytes());
+                TEST_STREAM_PLAYLIST_CONTENTS_1.getBytes(StandardCharsets.UTF_8));
         try {
             lenient().doReturn(mockURLInputStream1).when(mockURLConnection1).getInputStream();
             lenient()
@@ -111,7 +112,7 @@ class InternetRadioServiceTest {
             // Prepare the mocked URL connection for the second simple playlist
             HttpURLConnection mockURLConnection2 = Mockito.mock(HttpURLConnection.class);
             InputStream mockURLInputStream2 = new ByteArrayInputStream(
-                    TEST_STREAM_PLAYLIST_CONTENTS_2.getBytes());
+                    TEST_STREAM_PLAYLIST_CONTENTS_2.getBytes(StandardCharsets.UTF_8));
             lenient().doReturn(mockURLInputStream2).when(mockURLConnection2).getInputStream();
             lenient()
                 .doReturn(HttpURLConnection.HTTP_OK)

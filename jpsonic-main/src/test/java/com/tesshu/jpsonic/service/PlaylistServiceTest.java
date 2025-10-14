@@ -369,7 +369,7 @@ class PlaylistServiceTest {
                 .append("</location></track>\n</trackList>\n</playlist>\n");
 
             Path playlistFile = Path.of(tempDir.toString(), "playlistFile");
-            Files.write(playlistFile, builder.toString().getBytes());
+            Files.write(playlistFile, builder.toString().getBytes(StandardCharsets.UTF_8));
 
             Playlist playlist = new Playlist();
             playlist.setImportedFrom(playlistFile.getFileName().toString());
