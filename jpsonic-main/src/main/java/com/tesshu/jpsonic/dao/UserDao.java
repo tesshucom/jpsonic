@@ -303,7 +303,8 @@ public class UserDao {
         return "enc:" + StringUtil.utf8HexEncode(s);
     }
 
-    protected @Nullable static final String decrypt(String s) {
+    @Nullable
+    protected static final String decrypt(String s) {
         if (s == null) {
             return null;
         }

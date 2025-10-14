@@ -1342,8 +1342,12 @@ class MediaScannerServiceImplTest {
         private Path artist;
         private Path album;
         private Path song;
-        private @TempDir Path tempDir1;
-        private @TempDir Path tempDir2;
+
+        @TempDir
+        private Path tempDir1;
+
+        @TempDir
+        private Path tempDir2;
 
         @Autowired
         private MediaFileDao mediaFileDao;

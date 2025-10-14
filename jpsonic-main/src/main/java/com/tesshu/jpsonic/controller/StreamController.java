@@ -204,7 +204,8 @@ public class StreamController {
         }
     }
 
-    private static @Nullable HttpRange applyRange(final HttpServletRequest request,
+    @Nullable
+    private static HttpRange applyRange(final HttpServletRequest request,
             final HttpServletResponse response, final MediaFile file,
             final TranscodingService.Parameters parameters) {
         HttpRange range = null;
@@ -248,7 +249,8 @@ public class StreamController {
         return range;
     }
 
-    private static @Nullable HttpRange createRange(final HttpServletRequest request,
+    @Nullable
+    private static HttpRange createRange(final HttpServletRequest request,
             final Integer fileDuration, final Long fileSize) {
 
         // First, look for "Range" HTTP header.
