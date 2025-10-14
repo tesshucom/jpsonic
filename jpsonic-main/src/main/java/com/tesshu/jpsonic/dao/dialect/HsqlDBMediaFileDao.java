@@ -34,7 +34,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @Component
 @Profile({ ProfileNameConstants.HOST })
 public class HsqlDBMediaFileDao implements DialectMediaFileDao {

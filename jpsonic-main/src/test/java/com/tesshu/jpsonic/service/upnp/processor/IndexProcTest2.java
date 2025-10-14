@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Originally a Nested class of IndexProcTest. (Avoiding the phenomenon that often occurs in JUnit, where multi-nested classes do not work.)
  */
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@SuppressWarnings("PMD.TooManyStaticImports")
 class IndexProcTest2 {
 
     @Nested

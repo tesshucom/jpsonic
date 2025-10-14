@@ -229,7 +229,6 @@ class IndexManagerTest {
      * The implementation is poor and difficult to assert. This is a coverage test
      * for later fix.
      */
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Nested
     class CreateGenreMasterTest extends AbstractNeedsScan {
 

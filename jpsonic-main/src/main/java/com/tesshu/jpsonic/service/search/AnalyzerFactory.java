@@ -152,8 +152,7 @@ public final class AnalyzerFactory {
         CharArraySet stopWords = loadWords(STOP_WORDS);
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
+
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -182,8 +181,6 @@ public final class AnalyzerFactory {
             private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
             private final Set<String> stopTagset = loadStopTags();
 
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -214,8 +211,6 @@ public final class AnalyzerFactory {
             private final Set<String> stopTagset = loadStopTags();
             private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
 
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by
-                                                   // ReuseStrategy.
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();

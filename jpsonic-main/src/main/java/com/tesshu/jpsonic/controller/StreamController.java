@@ -117,7 +117,6 @@ public class StreamController {
         }
     }
 
-    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     private static Integer getMaxBitRate(HttpServletRequest request)
             throws ServletRequestBindingException {
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
@@ -292,7 +291,6 @@ public class StreamController {
         }
     }
 
-    @SuppressWarnings("PMD.UnnecessaryBoxing")
     private static void applyContentDuration(HttpServletResponse response, MediaFile file) {
         Integer duration = file.getDurationSeconds();
         if (duration != null) {

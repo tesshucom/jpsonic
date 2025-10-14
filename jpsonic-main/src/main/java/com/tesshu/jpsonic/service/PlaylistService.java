@@ -325,7 +325,6 @@ public class PlaylistService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ExecutionException) Not reusable
     private void importPlaylistIfUpdated(Path file, List<Playlist> allPlaylists)
             throws ExecutionException {
 

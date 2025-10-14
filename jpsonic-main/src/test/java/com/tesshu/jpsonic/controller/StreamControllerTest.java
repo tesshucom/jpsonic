@@ -80,8 +80,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.SignatureDeclareThrowsException",
-        "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamControllerTest {
 
@@ -573,7 +572,6 @@ class StreamControllerTest {
         @ApplyRangeDecision.Result.Status.Ok200
         @ApplyRangeDecision.Result.Header.AcceptRanges.NotExist
         @Test
-        @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
         void cr00() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);

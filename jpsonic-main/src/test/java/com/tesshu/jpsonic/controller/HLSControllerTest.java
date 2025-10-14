@@ -48,14 +48,12 @@ class HLSControllerTest {
         assertEquals(300, pair.getRight().height);
     }
 
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Test
     void testParseBitRateParseError1() {
         Assertions
             .assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("asdfl"));
     }
 
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Test
     void testParseBitRateParseError2() {
         Assertions
@@ -63,7 +61,6 @@ class HLSControllerTest {
                     () -> controller.parseBitRate("1000@300"));
     }
 
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Test
     void testParseBitRateParseError3() {
         Assertions

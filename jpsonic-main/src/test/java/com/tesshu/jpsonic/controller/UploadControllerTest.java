@@ -66,7 +66,6 @@ import org.springframework.web.servlet.ModelAndView;
 @SpringBootTest
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UploadControllerTest {
 
     @Autowired
@@ -86,7 +85,7 @@ class UploadControllerTest {
     private static final String BOUNDARY = "265001916915724";
     private static final String SEPA = "\r\n";
 
-    @SuppressWarnings({ "unchecked", "PMD.DefaultPackage" })
+    @SuppressWarnings("unchecked")
     @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")

@@ -55,7 +55,6 @@ import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
-
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;

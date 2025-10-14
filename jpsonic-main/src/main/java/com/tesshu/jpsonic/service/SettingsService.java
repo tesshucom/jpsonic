@@ -454,12 +454,6 @@ public class SettingsService implements ReadWriteLockSupport {
      * @return A list of available themes.
      */
     @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Returns an immutable list without unnecessary copying.")
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached
-     * [CognitiveComplexity] #1020 Remove them as they now contain unnecessary
-     * processing.
-     */
     public static List<Theme> getAvailableThemes() {
         if (!themes.isEmpty()) {
             return themes;

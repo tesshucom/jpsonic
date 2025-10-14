@@ -1278,7 +1278,6 @@ class MediaScannerServiceImplTest {
             assertFalse(mediaScannerService.neverScanned());
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase")
         @Test
         void testMusicBrainzReleaseIdTag() {
 

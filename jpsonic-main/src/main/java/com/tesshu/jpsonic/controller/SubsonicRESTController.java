@@ -377,7 +377,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes,
             String username) {
         for (Map.Entry<MusicIndex, List<MediaFile>> entry : musicFolderContent
