@@ -159,8 +159,6 @@ public class IndexProc extends DirectChildrenContentProc<IndexOrSong, MediaFile>
         case MUSIC -> parent.addItem(factory.toMusicTrack(mediaFile));
         case PODCAST, AUDIOBOOK, VIDEO -> {
         }
-        default -> {
-        }
         }
     }
 }
