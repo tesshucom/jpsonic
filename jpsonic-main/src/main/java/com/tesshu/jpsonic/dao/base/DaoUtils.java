@@ -53,6 +53,8 @@ public final class DaoUtils {
     private DaoUtils() {
     }
 
+    @SuppressWarnings("PMD.ReplaceJavaUtilDate")
+    // Required base processing
     public static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant();
     }
