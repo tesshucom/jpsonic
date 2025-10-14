@@ -36,16 +36,13 @@
         <exclude name="MethodReturnsInternalArray" />
 
         <!-- Messages on complex test are recommended, but not required for all processes. -->
-        <exclude name="JUnitAssertionsShouldIncludeMessage" />
+        <exclude name="UnitTestAssertionsShouldIncludeMessage" />
 
         <!-- It is also possible to organize, after improving coverage. -->
-        <exclude name="JUnitTestContainsTooManyAsserts" />
-        
+        <exclude name="UnitTestContainsTooManyAsserts" />
+
         <!-- Degrade pmd/pmd#1218 -->
         <exclude name="LooseCoupling" />
-
-        <!-- No longer required by current Java. -->
-        <exclude name="SwitchStmtsShouldHaveDefault" />
     </rule>
 
     <!-- Java Rules:Code Style -->
@@ -167,7 +164,7 @@
 
         <!-- This is an old rule. Switch-arrows targeting enums
              should be used proactively even if they have few branches. -->
-        <exclude name="TooFewBranchesForASwitchStatement" />
+        <exclude name="TooFewBranchesForSwitch" />
 
     </rule>
 

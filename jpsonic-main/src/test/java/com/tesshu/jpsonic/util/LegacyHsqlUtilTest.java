@@ -74,7 +74,7 @@ class LegacyHsqlUtilTest {
         }
     }
 
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // Confirmed by coverage
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // Confirmed by coverage
     @Nested
     class CheckHsqldbDatabaseVersionTest {
 

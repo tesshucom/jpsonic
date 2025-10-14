@@ -104,7 +104,7 @@ import org.subsonic.restapi.ResponseStatus;
 
 @AutoConfigureMockMvc
 @SuppressWarnings({ "PMD.AvoidCatchingGenericException", // springframework/MockMvc#perform
-        "PMD.JUnitTestsShouldIncludeAssert", "PMD.DetachedTestCase", "PMD.TooManyStaticImports" })
+        "PMD.UnitTestShouldIncludeAssert", "PMD.DetachedTestCase", "PMD.TooManyStaticImports" })
 class SubsonicRESTControllerTest {
 
     private static final String CLIENT_NAME = "jpsonic";

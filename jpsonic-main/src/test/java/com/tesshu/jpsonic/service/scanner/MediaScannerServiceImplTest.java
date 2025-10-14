@@ -236,8 +236,8 @@ class MediaScannerServiceImplTest {
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
 
-        @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to
-                                                               // capture
+        @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // It doesn't seem to be able to
+                                                             // capture
         @Test
         void testPodcast() throws URISyntaxException {
             indexManager = mock(IndexManager.class);

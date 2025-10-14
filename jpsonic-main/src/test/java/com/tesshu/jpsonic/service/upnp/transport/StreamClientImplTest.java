@@ -53,7 +53,7 @@ import org.jupnp.model.message.UpnpMessage.BodyType;
 import org.jupnp.model.message.UpnpRequest;
 import org.jupnp.model.message.UpnpRequest.Method;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.JUnitTestsShouldIncludeAssert",
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.UnitTestShouldIncludeAssert",
         "PMD.AvoidDuplicateLiterals", "PMD.AvoidCatchingGenericException" })
 @TestInstance(Lifecycle.PER_CLASS)
 class StreamClientImplTest {

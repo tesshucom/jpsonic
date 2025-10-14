@@ -80,7 +80,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.SignatureDeclareThrowsException",
+@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.SignatureDeclareThrowsException",
         "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamControllerTest {

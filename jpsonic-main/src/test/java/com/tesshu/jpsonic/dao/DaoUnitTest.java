@@ -45,7 +45,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * test cases are created to ensure that there are no errors during the work.
  * Note that no logic is mentioned, nor is it used in integration test cases.
  */
-@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 class DaoUnitTest {
