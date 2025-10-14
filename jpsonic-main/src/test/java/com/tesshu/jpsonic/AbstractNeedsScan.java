@@ -97,9 +97,11 @@ public abstract class AbstractNeedsScan implements NeedsScan {
                 procedure, expungeService, staticsDao, scanExecutor);
     }
 
+    @FunctionalInterface
     public interface BeforeScan extends Supplier<Boolean> {
     }
 
+    @FunctionalInterface
     public interface AfterScan extends Supplier<Boolean> {
     }
 

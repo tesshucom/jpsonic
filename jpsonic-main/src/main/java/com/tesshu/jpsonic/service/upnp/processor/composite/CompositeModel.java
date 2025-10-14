@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.service.upnp.processor.composite;
  * models. Since UPnP does not use sessions, the set of models used for
  * summarization is represented by an ID.
  */
+@FunctionalInterface
 public interface CompositeModel {
 
     /**
