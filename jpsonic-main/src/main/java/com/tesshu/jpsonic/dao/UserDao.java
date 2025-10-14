@@ -389,6 +389,8 @@ public class UserDao {
         }
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
+    // Just use a simple int instead of LongAdder here.
     private static class UserSettingsRowMapper implements RowMapper<UserSettings> {
         @Override
         public UserSettings mapRow(ResultSet rs, int rowNum) throws SQLException {
