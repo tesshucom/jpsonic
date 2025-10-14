@@ -43,6 +43,10 @@
 
         <!-- Degrade pmd/pmd#1218 -->
         <exclude name="LooseCoupling" />
+
+        <!-- Not required for Java 17 and later -->
+        <exclude name="NonExhaustiveSwitch" />
+
     </rule>
 
     <!-- Java Rules:Code Style -->
