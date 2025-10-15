@@ -92,14 +92,6 @@ class SearchServiceTest {
             populateDatabaseOnlyOnce();
         }
 
-        @SuppressWarnings("PMD.NPathComplexity")
-        /*
-         * #876 The process from starting the test database to creating Lucene index
-         * data includes asynchronous IO. When Travis was used, this case was very
-         * sensitive to the heavy load of CI. The method with relatively few troubles
-         * was prioritized, and one case became bloated. This case may be split in the
-         * future as Junit updates can improve a bit.
-         */
         @Test
         void testSearchTypical() throws IOException {
 

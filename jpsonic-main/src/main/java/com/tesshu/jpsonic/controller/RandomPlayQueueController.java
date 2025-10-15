@@ -86,11 +86,6 @@ public class RandomPlayQueueController {
         this.indexManager = indexManager;
     }
 
-    @SuppressWarnings("PMD.NullAssignment")
-    /*
-     * (genre, lastPlayed, format) Intentional assignment in the case of receiving a
-     * param indicating no condition value.
-     */
     @PostMapping
     protected String handleRandomPlayQueue(ModelMap model, HttpServletRequest request,
             HttpServletResponse response,

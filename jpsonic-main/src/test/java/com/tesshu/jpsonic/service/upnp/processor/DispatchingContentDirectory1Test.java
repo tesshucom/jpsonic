@@ -73,7 +73,7 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
     }
 
     @Test
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testFindProcessor() {
         Stream.of(ProcId.values()).forEach(id -> assertNotNull(contentDirectory.findProcessor(id)));
     }

@@ -219,7 +219,7 @@ class MainControllerTest {
 
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testGetFail() throws Exception {
 
         mockMvc

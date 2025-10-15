@@ -75,8 +75,8 @@ public class QueryFactory {
      * @param folders the list of music folders
      * @return folder query
      */
-    public @Nonnull Query createFolderQuery(@Nonnull Boolean isId3,
-            @Nonnull List<MusicFolder> folders) {
+    @Nonnull
+    public Query createFolderQuery(@Nonnull Boolean isId3, @Nonnull List<MusicFolder> folders) {
         return luceneQueryBuilder.buildFolderQuery(folders, isId3);
     }
 
@@ -87,7 +87,8 @@ public class QueryFactory {
      * @param to   the end year (nullable)
      * @return range query
      */
-    public @Nonnull Query createYearRangeQuery(@Nullable Integer from, @Nullable Integer to) {
+    @Nonnull
+    public Query createYearRangeQuery(@Nullable Integer from, @Nullable Integer to) {
         return luceneQueryBuilder.buildYearRangeQuery(from, to);
     }
 

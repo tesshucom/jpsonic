@@ -63,8 +63,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
-        "PMD.UseExplicitTypes" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 

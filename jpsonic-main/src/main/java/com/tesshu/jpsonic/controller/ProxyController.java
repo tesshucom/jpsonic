@@ -65,7 +65,7 @@ public class ProxyController {
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {    
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(method, httpResponse -> {
                 int statusCode = httpResponse.getCode();
                 if (statusCode == HttpStatus.OK.value()) {

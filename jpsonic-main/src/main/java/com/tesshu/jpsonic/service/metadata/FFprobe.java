@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-@SuppressWarnings("PMD.TooManyStaticImports")
 public class FFprobe {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);

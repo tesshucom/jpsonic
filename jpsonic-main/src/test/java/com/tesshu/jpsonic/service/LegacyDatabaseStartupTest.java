@@ -112,7 +112,7 @@ class LegacyDatabaseStartupTest {
         return true;
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
+    @SuppressWarnings("PMD.CognitiveComplexity")
     private static boolean copyJarResourcesRecursively(final Path destDir,
             final JarURLConnection jarConnection) throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {

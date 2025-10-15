@@ -205,6 +205,7 @@ public class DLNASettingsController {
     }
 
     @PostMapping
+    @SuppressWarnings("PMD.NPathComplexity") // TODO This will be resolved in 114.3.0
     public ModelAndView post(
             @ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
             RedirectAttributes redirectAttributes) {

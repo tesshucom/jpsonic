@@ -36,16 +36,34 @@
         <exclude name="MethodReturnsInternalArray" />
 
         <!-- Messages on complex test are recommended, but not required for all processes. -->
-        <exclude name="JUnitAssertionsShouldIncludeMessage" />
+        <exclude name="UnitTestAssertionsShouldIncludeMessage" />
 
         <!-- It is also possible to organize, after improving coverage. -->
-        <exclude name="JUnitTestContainsTooManyAsserts" />
-        
+        <exclude name="UnitTestContainsTooManyAsserts" />
+
         <!-- Degrade pmd/pmd#1218 -->
         <exclude name="LooseCoupling" />
 
-        <!-- No longer required by current Java. -->
-        <exclude name="SwitchStmtsShouldHaveDefault" />
+        <!-- Not required for Java 17 and later -->
+        <exclude name="NonExhaustiveSwitch" />
+
+        <!-- Cannot be suppressed with a comment
+            because it conflicts with UnnecessaryWarningSuppression.
+            This rule is unnecessary because the IDE can detect it more accurately. -->
+        <exclude name="UnusedPrivateMethod" />
+
+        <!-- This rule itself is experimental but generally useful.
+            However, it may conflict with other rules whose behavior varies
+            between PMD versions (such as CloseResource).
+            When this rule is enabled, 
+            it prevents proactive suppression of those version-dependent rules.
+            A better practice is to use it as an occasional active rule.
+            Normally, keep this experimental rule disabled globally,
+            and enable it periodically
+            to check for unnecessary assignments or obsolete code.
+        -->
+        <exclude name="UnnecessaryWarningSuppression" />
+
     </rule>
 
     <!-- Java Rules:Code Style -->
@@ -167,7 +185,7 @@
 
         <!-- This is an old rule. Switch-arrows targeting enums
              should be used proactively even if they have few branches. -->
-        <exclude name="TooFewBranchesForASwitchStatement" />
+        <exclude name="TooFewBranchesForSwitch" />
 
     </rule>
 

@@ -303,7 +303,8 @@ public class UserDao {
         return "enc:" + StringUtil.utf8HexEncode(s);
     }
 
-    protected @Nullable static final String decrypt(String s) {
+    @Nullable
+    protected static final String decrypt(String s) {
         if (s == null) {
             return null;
         }
@@ -388,6 +389,8 @@ public class UserDao {
         }
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
+    // Just use a simple int instead of LongAdder here.
     private static class UserSettingsRowMapper implements RowMapper<UserSettings> {
         @Override
         public UserSettings mapRow(ResultSet rs, int rowNum) throws SQLException {

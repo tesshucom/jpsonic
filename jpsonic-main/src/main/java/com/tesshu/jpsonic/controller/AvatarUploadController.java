@@ -62,8 +62,7 @@ public class AvatarUploadController {
         this.avatarService = avatarService;
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseDiamondOperator",
-            "rawtypes", "unchecked" })
+    @SuppressWarnings({ "PMD.UseDiamondOperator", "rawtypes", "unchecked" })
     // TODO UseDiamondOperator -> 114.0.0.beta.1
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request)

@@ -116,7 +116,6 @@ public class LastFmService {
      *
      * @return Similar artists, ordered by presence then similarity.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
     public List<MediaFile> getSimilarArtists(MediaFile mediaFile, int count,
             boolean includeNotPresent, List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();

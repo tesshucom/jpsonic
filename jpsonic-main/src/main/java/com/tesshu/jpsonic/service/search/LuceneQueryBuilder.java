@@ -100,7 +100,6 @@ public class LuceneQueryBuilder {
      * @param isId3   whether to use folder ID (true) or path (false)
      * @return a BooleanQuery containing the folder conditions
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public Query buildFolderQuery(@Nonnull List<MusicFolder> folders, boolean isId3) {
         String field = isId3 ? FieldNamesConstants.FOLDER_ID : FieldNamesConstants.FOLDER;
         BooleanQuery.Builder builder = new BooleanQuery.Builder();

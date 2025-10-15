@@ -122,7 +122,6 @@ public class SearchServiceUtilities {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
-    @SuppressWarnings("PMD.SingularField")
     private Random random;
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,

@@ -86,7 +86,6 @@ public class InternetRadioSettingsController {
         return new ModelAndView(new RedirectView(ViewName.INTERNET_RADIO_SETTINGS.value()));
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
     private String handleParameters(HttpServletRequest request) {
         List<InternetRadio> radios = internetRadioService.getAllInternetRadios(true);
         Instant current = now();

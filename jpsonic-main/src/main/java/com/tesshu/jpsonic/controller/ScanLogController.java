@@ -172,7 +172,6 @@ public class ScanLogController {
         }
     }
 
-    @SuppressWarnings("PMD.ForLoopCanBeForeach") // false positive
     private void setDurations(@NonNull LocalDateTime startDate, List<ScanEventVO> scanEvents) {
         if (scanEvents.isEmpty()) {
             return;

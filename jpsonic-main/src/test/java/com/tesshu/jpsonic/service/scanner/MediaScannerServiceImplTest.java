@@ -262,8 +262,8 @@ class MediaScannerServiceImplTest {
                     scanHelper, staticsDao, executor);
         }
 
-        @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to
-                                                               // capture
+        @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // It doesn't seem to be able to
+                                                             // capture
         @Test
         void testPodcast() throws URISyntaxException {
             indexManager = mock(IndexManager.class);
@@ -1314,7 +1314,6 @@ class MediaScannerServiceImplTest {
             assertFalse(mediaScannerService.neverScanned());
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase")
         @Test
         void testMusicBrainzReleaseIdTag() {
 
@@ -1379,8 +1378,12 @@ class MediaScannerServiceImplTest {
         private Path artist;
         private Path album;
         private Path song;
-        private @TempDir Path tempDir1;
-        private @TempDir Path tempDir2;
+
+        @TempDir
+        private Path tempDir1;
+
+        @TempDir
+        private Path tempDir2;
 
         @Autowired
         private MediaFileDao mediaFileDao;

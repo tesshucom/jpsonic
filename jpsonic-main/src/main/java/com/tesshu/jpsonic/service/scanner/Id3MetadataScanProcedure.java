@@ -398,8 +398,6 @@ public class Id3MetadataScanProcedure {
      * @return {@code true} if any Artist was created or updated; {@code false}
      *         otherwise
      */
-    // (artist) Not reusable: new instance per song
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     boolean refleshArtistId3(@NonNull ScanContext context) {
         if (scanHelper.isInterrupted()) {
             return false;

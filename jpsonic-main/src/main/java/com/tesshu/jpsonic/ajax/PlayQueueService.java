@@ -642,7 +642,6 @@ public class PlayQueueService {
                 playQueue.isShuffleRadioEnabled(), playQueue.isInternetRadioEnabled());
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlayQueueInfo.Entry> convertMediaFileList(Player player) {
 
         String url = resolveBaseUrl();
@@ -676,7 +675,6 @@ public class PlayQueueService {
         return entries;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlayQueueInfo.Entry> convertInternetRadio(Player player) {
 
         PlayQueue playQueue = player.getPlayQueue();

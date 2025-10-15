@@ -176,6 +176,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         scanExecutor.execute(this::doScanLibrary);
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // TODO This will be resolved in 114.3.0
     void doScanLibrary() {
 
         if (!scannerState.tryScanningLock()) {

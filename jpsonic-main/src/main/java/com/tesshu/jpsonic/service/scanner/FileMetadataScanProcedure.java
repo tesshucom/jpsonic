@@ -300,7 +300,6 @@ public class FileMetadataScanProcedure {
      *
      * @return true if any sort field was updated, false otherwise
      */
-    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfAlbum(@NonNull ScanContext context) {
         boolean updated = false;
 
@@ -502,7 +501,6 @@ public class FileMetadataScanProcedure {
      *
      * @return true if any artist sort key was updated
      */
-    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfArtist(@NonNull ScanContext context) {
         boolean updated = false;
 

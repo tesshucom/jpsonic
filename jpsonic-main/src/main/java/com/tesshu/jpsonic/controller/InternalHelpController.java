@@ -413,7 +413,6 @@ public class InternalHelpController {
         map.put("ffmpegVersion", formatFFmpegVersion(version));
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
         for (String path : System.getenv("PATH").split(File.pathSeparator, -1)) {
             Path file = Path.of(path, executableName);
@@ -431,7 +430,6 @@ public class InternalHelpController {
         return null;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForTranscodingExecutable(String executableName) {
         for (String name : Arrays.asList(executableName, "%s.exe".formatted(executableName))) {
             Path executableLocation = Path

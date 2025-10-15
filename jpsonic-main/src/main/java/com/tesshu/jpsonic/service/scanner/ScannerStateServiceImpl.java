@@ -175,14 +175,10 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     }
 
     /**
-     * Use only within the thread that acquired the lock.
-     */
-    @ThreadSafe(enableChecks = false)
-
-    /**
      * Releases the lock acquired by {@code tryScanningLock()}, marking the scan as
      * complete. This method should be called after a scan finishes or is cancelled.
      */
+    @ThreadSafe(enableChecks = false) // Use only within the thread that acquired the lock.
     void unlockScanning() {
         scanDate = FAR_PAST;
         scanCount.reset();
@@ -209,12 +205,12 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         scanCount.increment();
     }
 
-    @Override
     /**
      * Returns the total number of scans that have been executed since startup.
      *
      * @return the scan execution count
      */
+    @Override
     public long getScanCount() {
         return scanCount.sum();
     }

@@ -59,7 +59,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.ModelAndView;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SignatureDeclareThrowsException" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class TopControllerTest {
 
     private SecurityService securityService;

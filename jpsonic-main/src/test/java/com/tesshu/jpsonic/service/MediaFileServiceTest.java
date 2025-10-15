@@ -42,7 +42,7 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MediaFileServiceTest {
 
     private SecurityService securityService;

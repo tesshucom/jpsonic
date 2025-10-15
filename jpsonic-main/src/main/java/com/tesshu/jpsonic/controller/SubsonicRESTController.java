@@ -26,6 +26,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -293,12 +294,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
     @RequestMapping({ "/getLicense", "/getLicense.view" })
     public void getLicense(HttpServletRequest req, HttpServletResponse response) {
         License license = new License();
-
         license.setEmail("webmaster@tesshu.com");
         license.setValid(true);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, 100);
-        XMLGregorianCalendar farFuture = jaxbWriter.convertCalendar(calendar);
+
+        XMLGregorianCalendar farFuture = jaxbWriter
+            .convertDate(ZonedDateTime.now().plusYears(100).toInstant());
         license.setLicenseExpires(farFuture);
         license.setTrialExpires(farFuture);
 
@@ -377,7 +377,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes,
             String username) {
         for (Map.Entry<MusicIndex, List<MediaFile>> entry : musicFolderContent

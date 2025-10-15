@@ -62,7 +62,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // Usually not desirable. But that's spring justice
-@SuppressWarnings({ "PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException" })
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
 @DependsOn("liquibase")
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
