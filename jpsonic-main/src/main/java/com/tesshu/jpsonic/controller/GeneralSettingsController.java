@@ -189,6 +189,7 @@ public class GeneralSettingsController {
     }
 
     @PostMapping
+    @SuppressWarnings("PMD.NPathComplexity") // TODO This will be resolved in 114.3.0
     protected ModelAndView post(
             @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {

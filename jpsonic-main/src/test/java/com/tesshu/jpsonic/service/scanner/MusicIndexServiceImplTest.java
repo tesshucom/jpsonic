@@ -60,8 +60,7 @@ import org.mockito.Mockito;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports",
-        "PMD.InstantiationToGetClass" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicIndexServiceImplTest {
 
     private SettingsService settingsService;

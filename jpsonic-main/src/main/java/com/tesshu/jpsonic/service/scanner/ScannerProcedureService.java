@@ -723,7 +723,6 @@ public class ScannerProcedureService {
         return countNew.intValue();
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (artist) Not reusable
     boolean refleshArtistId3(@NonNull Instant scanDate) {
         if (isInterrupted()) {
             return false;
@@ -820,7 +819,6 @@ public class ScannerProcedureService {
         }
     }
 
-    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfArtist(@NonNull Instant scanDate) {
         boolean updated = false;
         if (isInterrupted()) {
@@ -893,7 +891,6 @@ public class ScannerProcedureService {
         });
     }
 
-    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfAlbum(@NonNull Instant scanDate) {
         boolean updated = false;
         if (isInterrupted()) {

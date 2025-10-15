@@ -31,6 +31,7 @@ public final class ComplementaryFilterFactory extends TokenFilterFactory {
 
     private Mode mode;
 
+    @SuppressWarnings("PMD.AssignmentInOperand") // false positive
     public ComplementaryFilterFactory(Map<String, String> args) {
         super(args);
         stopwards = get(args, "stopwards");

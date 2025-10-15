@@ -153,7 +153,6 @@ public class UploadController {
         return new ModelAndView("upload", "model", model);
     }
 
-    @SuppressWarnings("PMD.UseIOStreamsWithApacheCommonsFileItem") // #1539
     private @NonNull Path getDir(List<DiskFileItem> items) throws IOException {
         for (DiskFileItem item : items) {
             if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {

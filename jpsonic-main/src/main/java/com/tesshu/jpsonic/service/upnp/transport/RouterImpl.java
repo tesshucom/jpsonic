@@ -31,7 +31,6 @@ import org.jupnp.transport.RouterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.AvoidUsingHardCodedIP") // for sandbox
 public class RouterImpl extends org.jupnp.transport.RouterImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterImpl.class);

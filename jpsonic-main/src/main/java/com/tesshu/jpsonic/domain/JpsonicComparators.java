@@ -138,6 +138,8 @@ public class JpsonicComparators {
      * Returns a comparator for sorting MediaFiles by specifying a field regardless
      * of MediaType.
      */
+
+    @SuppressWarnings("PMD.ExhaustiveSwitchHasDefault")
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return (a, b) -> {
             switch (orderBy) {

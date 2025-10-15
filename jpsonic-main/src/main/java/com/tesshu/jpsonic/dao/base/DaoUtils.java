@@ -53,6 +53,8 @@ public final class DaoUtils {
     private DaoUtils() {
     }
 
+    @SuppressWarnings("PMD.ReplaceJavaUtilDate")
+    // Required base processing
     public static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant();
     }
@@ -96,7 +98,7 @@ public final class DaoUtils {
         throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
     }
 
-    @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
+    @SuppressWarnings({ "PMD.CognitiveComplexity" })
     private static RowMapper<MediaFile> createMediaFileRowMapper() {
         return (rs, num) -> new MediaFile(rs.getInt(1), rs.getString(2), rs.getString(3),
                 MediaFile.MediaType.valueOf(rs.getString(4)), rs.getString(5), rs.getString(6),

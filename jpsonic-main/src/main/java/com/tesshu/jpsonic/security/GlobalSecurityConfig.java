@@ -66,7 +66,7 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 // Usually not desirable. But that's spring justice
-@SuppressWarnings({ "PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException" })
+@SuppressWarnings("PMD.SignatureDeclareThrowsException")
 @DependsOn("liquibase")
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)

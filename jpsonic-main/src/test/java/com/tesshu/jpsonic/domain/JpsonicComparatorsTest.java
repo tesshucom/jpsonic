@@ -68,8 +68,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports",
-        "PMD.TestClassWithoutTestCases" })
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JpsonicComparatorsTest extends AbstractNeedsScan {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);

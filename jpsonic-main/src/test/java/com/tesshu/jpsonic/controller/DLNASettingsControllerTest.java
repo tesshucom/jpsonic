@@ -71,7 +71,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings({ "PMD.SingularField", "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" }) // pmd/pmd#4616
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" }) // pmd/pmd#4616
 class DLNASettingsControllerTest {
 
     private SettingsService settingsService;

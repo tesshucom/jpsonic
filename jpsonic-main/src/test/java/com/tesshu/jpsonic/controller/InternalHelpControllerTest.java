@@ -46,7 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
-@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
+@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
 class InternalHelpControllerTest {
 
     @Autowired

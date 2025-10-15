@@ -60,7 +60,6 @@ public class StatusController {
         this.statusService = statusService;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 

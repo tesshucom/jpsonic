@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
  * need to hold the ID defined here and be able to identify. This Dispatcher
  * will only be used at the Top Level hierarchy in the UPnP ContentDirectory.
  */
+@FunctionalInterface
 public interface UpnpProcessDispatcher {
 
     /**

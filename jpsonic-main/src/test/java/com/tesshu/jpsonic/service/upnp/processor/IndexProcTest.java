@@ -65,7 +65,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.InstantiationToGetClass" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class IndexProcTest {
 
     @Nested

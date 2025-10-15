@@ -51,7 +51,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class AlbumId3ByFolderProcTest {
 
     private MediaFileService mediaFileService;

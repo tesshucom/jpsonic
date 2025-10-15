@@ -117,7 +117,6 @@ public class StreamController {
         }
     }
 
-    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     private static Integer getMaxBitRate(HttpServletRequest request)
             throws ServletRequestBindingException {
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
@@ -205,7 +204,8 @@ public class StreamController {
         }
     }
 
-    private static @Nullable HttpRange applyRange(final HttpServletRequest request,
+    @Nullable
+    private static HttpRange applyRange(final HttpServletRequest request,
             final HttpServletResponse response, final MediaFile file,
             final TranscodingService.Parameters parameters) {
         HttpRange range = null;
@@ -249,7 +249,8 @@ public class StreamController {
         return range;
     }
 
-    private static @Nullable HttpRange createRange(final HttpServletRequest request,
+    @Nullable
+    private static HttpRange createRange(final HttpServletRequest request,
             final Integer fileDuration, final Long fileSize) {
 
         // First, look for "Range" HTTP header.
@@ -292,7 +293,6 @@ public class StreamController {
         }
     }
 
-    @SuppressWarnings("PMD.UnnecessaryBoxing")
     private static void applyContentDuration(HttpServletResponse response, MediaFile file) {
         Integer duration = file.getDurationSeconds();
         if (duration != null) {

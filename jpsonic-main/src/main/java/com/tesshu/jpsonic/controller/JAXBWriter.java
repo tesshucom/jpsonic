@@ -196,12 +196,4 @@ public final class JAXBWriter {
             .newXMLGregorianCalendar(
                     GregorianCalendar.from(ZonedDateTime.ofInstant(date, ZoneId.systemDefault())));
     }
-
-    public XMLGregorianCalendar convertCalendar(Calendar calendar) {
-        if (calendar == null) {
-            return null;
-        }
-
-        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
-    }
 }
