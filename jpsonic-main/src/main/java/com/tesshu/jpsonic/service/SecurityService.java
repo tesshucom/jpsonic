@@ -198,8 +198,6 @@ public class SecurityService implements UserDetailsService {
                 !user.isLdapAuthenticated(), true, true, true, authorities);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    // [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority)
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         List<String> roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -538,8 +536,7 @@ public class SecurityService implements UserDetailsService {
         }
     }
 
-    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity",
-            "PMD.SimplifyBooleanReturns" })
+    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.SimplifyBooleanReturns" })
     // NPathComplexity : Redundantly coded for readability, but not difficult to
     // understand
     public boolean isExcluded(Path path) {

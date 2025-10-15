@@ -33,12 +33,12 @@ import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Documented;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -142,18 +142,19 @@ class PlayerServiceTest {
         @GetGuestPlayerLastSeenDecision.Results.LastSeen.Today
         @Test
         void c01() {
-
-            Calendar today = Calendar.getInstance();
-            today.setTime(Date.from(now()));
+            LocalDate today = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();
 
             Mockito.clearInvocations(playerDao);
+
             Player player = playerService.getGuestPlayer(null);
             assertNotNull(player.getLastSeen());
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(Date.from(player.getLastSeen()));
-            assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
-            assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
-            assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            LocalDate lastSeenDate = player
+                .getLastSeen()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+            assertEquals(today, lastSeenDate);
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
@@ -166,26 +167,30 @@ class PlayerServiceTest {
         @GetGuestPlayerLastSeenDecision.Results.LastSeen.Today
         @Test
         void c02() {
+            Instant todayInstant = Instant.now();
 
-            Calendar today = Calendar.getInstance();
-            today.setTime(Date.from(now()));
             Player dummy = playerService.getGuestPlayer(null);
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
-            playerWithIp.setLastSeen(now());
+            playerWithIp.setLastSeen(todayInstant);
+
             when(playerDao
                 .getPlayersForUserAndClientId(Mockito.nullable(String.class),
                         Mockito.nullable(String.class)))
-                .thenReturn(Arrays.asList(playerWithIp, dummy));
+                .thenReturn(List.of(playerWithIp, dummy));
 
             Mockito.clearInvocations(playerDao);
+
             Player player = playerService.getGuestPlayer(null);
             assertNotNull(player.getLastSeen());
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(Date.from(player.getLastSeen()));
-            assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
-            assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
-            assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            LocalDate lastSeenDate = player
+                .getLastSeen()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+            LocalDate todayDate = todayInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+            assertEquals(todayDate, lastSeenDate);
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
@@ -198,27 +203,24 @@ class PlayerServiceTest {
         @GetGuestPlayerLastSeenDecision.Results.LastSeen.Today
         @Test
         void c03() {
-
             Player dummy = playerService.getGuestPlayer(null);
-            Calendar old = Calendar.getInstance();
-            old.setTime(Date.from(dummy.getLastSeen()));
-            old.add(Calendar.DATE, -2);
-            dummy.setLastSeen(old.getTime().toInstant());
+            Instant old = dummy.getLastSeen().minus(2, ChronoUnit.DAYS);
+            dummy.setLastSeen(old);
+
             when(playerDao
                 .getPlayersForUserAndClientId(Mockito.nullable(String.class),
                         Mockito.nullable(String.class)))
-                .thenReturn(Arrays.asList(dummy));
+                .thenReturn(List.of(dummy));
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
+
             assertNotNull(player.getLastSeen());
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(Date.from(player.getLastSeen()));
-            Calendar today = Calendar.getInstance();
-            today.setTime(Date.from(now()));
-            assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
-            assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
-            assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            LocalDate lastSeen = player.getLastSeen().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate today = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            assertEquals(today, lastSeen);
 
             verify(playerDao, times(1)).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
@@ -232,9 +234,6 @@ class PlayerServiceTest {
         @Test
         void c04() {
 
-            Calendar today = Calendar.getInstance();
-            today.setTime(Date.from(now()));
-
             when(playerDao
                 .getPlayersForUserAndClientId(Mockito.nullable(String.class),
                         Mockito.nullable(String.class)))
@@ -245,13 +244,14 @@ class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
+
             assertEquals(PLAYER_IP, player.getIpAddress());
             assertNotNull(player.getLastSeen());
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(Date.from(player.getLastSeen()));
-            assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
-            assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
-            assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            LocalDate lastSeenDate = LocalDate
+                .ofInstant(player.getLastSeen(), ZoneId.systemDefault());
+            LocalDate today = LocalDate.now(ZoneId.systemDefault());
+            assertEquals(today, lastSeenDate);
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, times(1)).createPlayer(Mockito.any(Player.class));
@@ -264,14 +264,11 @@ class PlayerServiceTest {
         @GetGuestPlayerLastSeenDecision.Results.LastSeen.Today
         @Test
         void c05() {
-
-            Calendar today = Calendar.getInstance();
-            today.setTime(Date.from(now()));
-
             Player dummy = playerService.getGuestPlayer(null);
             Player playerWithIp = new Player();
             playerWithIp.setIpAddress(PLAYER_IP);
-            playerWithIp.setLastSeen(now());
+            playerWithIp.setLastSeen(Instant.now());
+
             when(playerDao
                 .getPlayersForUserAndClientId(Mockito.nullable(String.class),
                         Mockito.nullable(String.class)))
@@ -282,13 +279,15 @@ class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
+
             assertEquals(PLAYER_IP, player.getIpAddress());
             assertNotNull(player.getLastSeen());
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(Date.from(player.getLastSeen()));
-            assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
-            assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
-            assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            LocalDate today = LocalDate.now(ZoneId.systemDefault());
+            LocalDate lastSeenDate = LocalDate
+                .ofInstant(player.getLastSeen(), ZoneId.systemDefault());
+
+            assertEquals(today, lastSeenDate);
 
             verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));

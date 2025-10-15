@@ -586,7 +586,6 @@ class StreamServiceTest {
 
     @Test
     @Order(9)
-    @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummyDelayed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] bytes = { 0, 0, 0 };
@@ -598,7 +597,6 @@ class StreamServiceTest {
 
     @Test
     @Order(10)
-    @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummy() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] bytes = { 0, 0, 0 };

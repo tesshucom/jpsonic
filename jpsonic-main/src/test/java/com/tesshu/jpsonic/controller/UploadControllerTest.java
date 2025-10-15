@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -66,7 +67,6 @@ import org.springframework.web.servlet.ModelAndView;
 @SpringBootTest
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UploadControllerTest {
 
     @Autowired
@@ -86,7 +86,7 @@ class UploadControllerTest {
     private static final String BOUNDARY = "265001916915724";
     private static final String SEPA = "\r\n";
 
-    @SuppressWarnings({ "unchecked", "PMD.DefaultPackage" })
+    @SuppressWarnings("unchecked")
     @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
@@ -144,7 +144,9 @@ class UploadControllerTest {
                 + UploadController.FIELD_NAME_UNZIP + "\";" + "Content-type: text/plain" + SEPA
                 + " value=\"true\"" + SEPA + SEPA;
         String zipValue = "true" + SEPA;
-        req.setContent(ArrayUtils.addAll((zipField + zipValue).getBytes(), fileContent));
+        req
+            .setContent(ArrayUtils
+                .addAll((zipField + zipValue).getBytes(StandardCharsets.UTF_8), fileContent));
         req.setContentType("multipart/form-data; boundary=" + BOUNDARY);
 
         MockMultipartFile file = new MockMultipartFile("file", ZIP_NAME, ZIP_CONTENT_TYPE, data);
@@ -171,8 +173,8 @@ class UploadControllerTest {
                 + SEPA + "Content-type: " + contentType + SEPA + SEPA;
         String end = SEPA + "--" + BOUNDARY + "--";
         return ArrayUtils
-            .addAll((dirField + dirValue + fileField).getBytes(),
-                    ArrayUtils.addAll(fileValue, end.getBytes()));
+            .addAll((dirField + dirValue + fileField).getBytes(StandardCharsets.UTF_8),
+                    ArrayUtils.addAll(fileValue, end.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Nested

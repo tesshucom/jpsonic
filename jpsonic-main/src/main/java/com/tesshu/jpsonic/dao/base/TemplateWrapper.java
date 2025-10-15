@@ -167,7 +167,8 @@ public class TemplateWrapper {
         return result;
     }
 
-    public @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
+    @Nullable
+    public <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
         List<T> list = query(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }

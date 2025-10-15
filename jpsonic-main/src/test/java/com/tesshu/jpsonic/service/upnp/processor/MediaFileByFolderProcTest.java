@@ -59,8 +59,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
-        "PMD.InstantiationToGetClass" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 class MediaFileByFolderProcTest {
 
     @Nested

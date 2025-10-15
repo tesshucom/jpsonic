@@ -123,7 +123,6 @@ public class VideoPlayerController {
         return new ModelAndView("videoPlayer", "model", map);
     }
 
-    @SuppressWarnings("PMD.UseConcurrentHashMap")
     /*
      * LinkedHashMap used in Legacy code. Should be triaged in #831.
      */

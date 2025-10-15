@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @Component
 @Profile({ ProfileNameConstants.HOST })
 public class HsqlDBAlbumDao implements DialectAlbumDao {

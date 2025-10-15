@@ -124,7 +124,6 @@ class PlayerDaoTest {
         assertEquals(3, playerDao.getAllPlayers().size(), "Wrong number of players.");
     }
 
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     void testPlaylist() {
         Player player = new Player();

@@ -502,7 +502,6 @@ public class PodcastServiceImpl implements PodcastService {
         podcastDownloadExecutor.execute(() -> doDownloadEpisode(episode));
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
     private void refreshEpisodes(PodcastChannel channel, List<Element> episodeElements) {
 
         Integer channelId = channel.getId();
@@ -838,7 +837,6 @@ public class PodcastServiceImpl implements PodcastService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY

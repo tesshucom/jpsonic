@@ -33,7 +33,6 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 class ParserUtilsTest {
 
     private Path createPath(String resourcePath) throws URISyntaxException {

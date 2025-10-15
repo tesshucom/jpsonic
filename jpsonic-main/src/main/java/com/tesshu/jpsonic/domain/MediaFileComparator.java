@@ -26,6 +26,7 @@ import java.util.Comparator;
 /**
  * Comparator for sorting media files.
  */
+@FunctionalInterface
 public interface MediaFileComparator extends Comparator<MediaFile> {
 
 }

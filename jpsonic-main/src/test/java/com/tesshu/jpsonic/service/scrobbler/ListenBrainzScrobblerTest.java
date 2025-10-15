@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler.RegistrationData;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class ListenBrainzScrobblerTest {
 
     @Test

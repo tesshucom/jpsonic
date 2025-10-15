@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,6 @@ public class TopController {
     private static final Logger LOG = LoggerFactory.getLogger(TopController.class);
 
     // Update this time if you want to force a refresh in clients.
-    private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
     private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays
         .asList(ViewName.MUSIC_FOLDER_SETTINGS.value(), ViewName.GENERAL_SETTINGS.value(),
                 ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
@@ -175,11 +173,6 @@ public class TopController {
         selectedItem.ifPresent(v -> map.put("scanning", scannerStateService.isScanning()));
 
         return new ModelAndView("top", "model", map);
-    }
-
-    static {
-        LAST_COMPATIBILITY_TIME.set(2012, Calendar.MARCH, 6, 0, 0, 0);
-        LAST_COMPATIBILITY_TIME.set(Calendar.MILLISECOND, 0);
     }
 
     private boolean validateMainViewName(String mainView) {

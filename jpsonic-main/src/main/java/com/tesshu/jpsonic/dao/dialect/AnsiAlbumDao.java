@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @Component
 @Profile({ ProfileNameConstants.URL, ProfileNameConstants.JNDI })
 public class AnsiAlbumDao implements DialectAlbumDao {

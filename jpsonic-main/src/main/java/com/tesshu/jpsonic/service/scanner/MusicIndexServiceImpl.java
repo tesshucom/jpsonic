@@ -202,7 +202,6 @@ public class MusicIndexServiceImpl implements MusicIndexService {
                 .orElse(MusicIndex.OTHER);
         }
 
-        @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
         private MusicIndex getIndex(String index) {
             return indexes
                 .stream()

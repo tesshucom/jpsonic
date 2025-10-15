@@ -47,9 +47,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
+        queries: security-and-quality
     - name: Set up java
       if: contains(matrix.language, 'java')
       uses: actions/setup-java@v4
@@ -59,7 +60,7 @@ jobs:
     - name: Compile with Maven
       run: mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease17
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
   ##########################################################################
   verify-Java17:
     needs: pre_job

@@ -292,7 +292,6 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
     public void expungeGenreOtherThan(List<Genre> existing) {
         writeLock(genreLock);
         // This method is executed during scanning.
@@ -675,9 +674,7 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops",
-            "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
-    // [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // lucene/HighFreqTerms#getHighFreqTerms
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -798,8 +795,6 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    // [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable
     public List<Genre> createGenreMaster(GenreMasterCriteria criteria) {
         IndexSearcher songSearcher = getSearcher(IndexType.SONG);
         IndexSearcher albumSearcher = getSearcher(IndexType.ALBUM_ID3);

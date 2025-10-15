@@ -92,7 +92,6 @@ public class SearchServiceUtilities {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
-    @SuppressWarnings("PMD.SingularField")
     private Random random;
 
     /*
@@ -148,7 +147,6 @@ public class SearchServiceUtilities {
     }
 
     @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "The Random class is only used if the native random number generator is not available")
-    @SuppressWarnings("PMD.UnusedAssignment") // false positive
     @PostConstruct
     public void postConstruct() {
         try {

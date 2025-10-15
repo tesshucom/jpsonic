@@ -204,7 +204,6 @@ public class PlaylistService {
         deligate.setFilesInPlaylist(playlistId, files);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
         List<PlaylistInfo.Entry> result = new ArrayList<>();
         for (MediaFile file : files) {
