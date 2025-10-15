@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@SuppressWarnings( "PMD.AvoidDuplicateLiterals" )
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ScanHelperTest {
 
     private SettingsService settingsService;
