@@ -29,7 +29,8 @@ package com.tesshu.jpsonic.spring;
  */
 public enum LifecyclePhase {
 
-    CACHE(Integer.MAX_VALUE / 2 - 100), DATABASE(Integer.MAX_VALUE / 2 - 200);
+    SCAN(Integer.MAX_VALUE / 2), CACHE(Integer.MAX_VALUE / 2 - 100),
+    DATABASE(Integer.MAX_VALUE / 2 - 200);
 
     public final int value;
 
