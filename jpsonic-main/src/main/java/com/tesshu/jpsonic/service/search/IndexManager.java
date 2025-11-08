@@ -916,7 +916,6 @@ public class IndexManager implements ReadWriteLockSupport {
                 boolean addGenre = switch (criteria.scope()) {
                 case ALBUM -> albumCount > 0 && songCount > 0;
                 case SONG -> songCount > 0;
-                default -> false;
                 };
 
                 if (addGenre) {

@@ -136,26 +136,29 @@ public class ExternalPlayerController {
         Instant finalExpires = expires;
 
         List<MediaFileWithUrlInfo> result = new ArrayList<>();
+        if (share == null) {
+            return result;
+        }
 
         List<MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(player.getUsername());
 
-        if (share != null) {
-            for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {
-                if (file.exists()) {
-                    if (file.isDirectory()) {
-                        List<MediaFile> childrenOf = mediaFileService
-                            .getChildrenOf(file, true, false);
-                        result
-                            .addAll(childrenOf
-                                .stream()
-                                .map(mf -> addUrlInfo(request, player, mf, finalExpires))
-                                .collect(Collectors.toList()));
-                    } else {
-                        result.add(addUrlInfo(request, player, file, finalExpires));
-                    }
-                }
+        for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {
+            if (!file.exists()) {
+                continue;
             }
+
+            if (file.isDirectory()) {
+                List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false);
+                result
+                    .addAll(childrenOf
+                        .stream()
+                        .map(mf -> addUrlInfo(request, player, mf, finalExpires))
+                        .collect(Collectors.toList()));
+                continue;
+            }
+
+            result.add(addUrlInfo(request, player, file, finalExpires));
         }
         return result;
     }

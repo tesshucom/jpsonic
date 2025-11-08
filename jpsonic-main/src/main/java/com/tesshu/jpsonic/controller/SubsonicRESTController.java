@@ -1515,19 +1515,21 @@ public class SubsonicRESTController implements CoverArtPresentation {
             child.setIsVideo(mediaFile.isVideo());
             child.setPath(getRelativePath(mediaFile, settingsService, musicFolderService));
 
-            if (mediaFile.getAlbumArtist() != null && mediaFile.getAlbumName() != null) {
-                Album album = albumDao
-                    .getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
-                if (album != null) {
-                    child.setAlbumId(String.valueOf(album.getId()));
-                }
+            String albumArtist = mediaFile.getAlbumArtist();
+            String albumName = mediaFile.getAlbumName();
+            Album album = (albumArtist != null && albumName != null)
+                    ? albumDao.getAlbum(albumArtist, albumName)
+                    : null;
+            if (album != null) {
+                child.setAlbumId(String.valueOf(album.getId()));
             }
-            if (mediaFile.getArtist() != null) {
-                com.tesshu.jpsonic.domain.Artist artist = artistDao
-                    .getArtist(mediaFile.getArtist());
-                if (artist != null) {
-                    child.setArtistId(String.valueOf(artist.getId()));
-                }
+
+            String artistName = mediaFile.getArtist();
+            com.tesshu.jpsonic.domain.Artist artist = (artistName != null)
+                    ? artistDao.getArtist(artistName)
+                    : null;
+            if (artist != null) {
+                child.setArtistId(String.valueOf(artist.getId()));
             }
 
             child.setType(getMedyaType(mediaFile.getMediaType()));

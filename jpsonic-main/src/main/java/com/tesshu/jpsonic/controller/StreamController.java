@@ -316,63 +316,82 @@ public class StreamController {
 
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020
     @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. #1078")
-    private void writeStream(Player player, InputStream in, OutputStream out,
-            Long fileLengthExpected, boolean isPodcast, boolean isSingleFile) throws IOException {
+    void writeStream(Player player, InputStream in, OutputStream out, Long fileLengthExpected,
+            boolean isPodcast, boolean isSingleFile) throws IOException {
+
         byte[] buf = new byte[4096];
         long bytesWritten = 0;
-
         boolean alive = isAliveStream(player);
 
         while (alive) {
 
-            if (!alive && LOG.isInfoEnabled()) {
-                LOG
-                    .info("Transfer was interrupted.(Player :name={}, ip={}, user={})",
-                            player.getName(), player.getIpAddress(), player.getUsername());
+            // If the stream is no longer alive, log and terminate
+            if (!alive) {
+                if (LOG.isInfoEnabled()) {
+                    LOG
+                        .info("Transfer was interrupted. (Player: name={}, ip={}, user={})",
+                                player.getName(), player.getIpAddress(), player.getUsername());
+                }
+                break;
             }
 
-            // To reduce the frequency. If size is too small, it become bottleneck.
-            boolean checkRequired = bytesWritten % 4096 * 200 == 0; // 0.8192Mb
+            // Check playback status periodically to reduce overhead
+            boolean checkRequired = bytesWritten % (4096 * 200) == 0; // ~0.8192 MB
 
+            // Guard: stop playback if PlayQueue is stopped
             if (checkRequired && player.getPlayQueue().getStatus() == PlayQueue.Status.STOPPED) {
                 if (LOG.isInfoEnabled()) {
                     LOG
-                        .info("PlayQueue stopped playing.(Player :name={}, ip={}, user={})",
+                        .info("PlayQueue stopped playing. (Player: name={}, ip={}, user={})",
                                 player.getName(), player.getIpAddress(), player.getUsername());
                 }
+
                 if (isPodcast || isSingleFile) {
                     break;
-                } else {
-                    streamService.sendDummyDelayed(buf, out);
                 }
-            } else {
-                int n = in.read(buf);
-                if (n == -1) {
-                    if (isPodcast || isSingleFile) {
-                        // Pad the output if needed to avoid content length errors on transcodes
-                        if (fileLengthExpected != null && bytesWritten < fileLengthExpected) {
-                            streamService.sendDummy(buf, out, fileLengthExpected - bytesWritten);
-                        }
-                        break;
-                    } else {
-                        streamService.sendDummyDelayed(buf, out);
-                    }
-                } else {
-                    if (LOG.isWarnEnabled() && fileLengthExpected != null
-                            && bytesWritten <= fileLengthExpected
-                            && bytesWritten + n > fileLengthExpected) {
-                        LOG
-                            .warn("""
-                                    Stream output exceeded expected length of {}. \
-                                    It is likely that the transcoder is not adhering to the bitrate limit \
-                                    or the media source is corrupted or has grown larger\
-                                    """,
-                                    fileLengthExpected);
-                    }
-                    out.write(buf, 0, n);
-                    bytesWritten += n;
+
+                streamService.sendDummyDelayed(buf, out);
+                if (checkRequired) {
+                    alive = isAliveStream(player);
                 }
+                continue;
             }
+
+            int n = in.read(buf);
+
+            // Handle EOF (end of stream)
+            if (n == -1 && !(isPodcast || isSingleFile)) {
+                // When not a podcast or single file, send dummy and continue
+                streamService.sendDummyDelayed(buf, out);
+                if (checkRequired) {
+                    alive = isAliveStream(player);
+                }
+                continue;
+            }
+
+            // Handle EOF for podcast or single file
+            if (n == -1) {
+                // Pad the output if needed to avoid content length errors on transcodes
+                if (fileLengthExpected != null && bytesWritten < fileLengthExpected) {
+                    streamService.sendDummy(buf, out, fileLengthExpected - bytesWritten);
+                }
+                break;
+            }
+            // End of EOF
+
+            // Warn if written bytes exceed the expected length
+            if (LOG.isWarnEnabled() && fileLengthExpected != null
+                    && bytesWritten <= fileLengthExpected
+                    && bytesWritten + n > fileLengthExpected) {
+                LOG.warn("""
+                        Stream output exceeded expected length of {}. \
+                        It is likely that the transcoder is not adhering to the bitrate limit \
+                        or the media source is corrupted or has grown larger
+                        """, fileLengthExpected);
+            }
+
+            out.write(buf, 0, n);
+            bytesWritten += n;
 
             if (checkRequired) {
                 alive = isAliveStream(player);
@@ -380,7 +399,7 @@ public class StreamController {
         }
     }
 
-    private boolean isAliveStream(Player player) {
+    boolean isAliveStream(Player player) {
         return !destroy.get() && statusService
             .getStreamStatusesForPlayer(player)
             .stream()

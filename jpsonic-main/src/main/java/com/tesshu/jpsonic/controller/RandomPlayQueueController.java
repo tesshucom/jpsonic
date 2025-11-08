@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -382,22 +383,12 @@ public class RandomPlayQueueController {
         }
     }
 
-    private List<String> parseGenre(String genre) {
-        List<String> genres = null;
-        if (null != genre) {
-            List<String> preAnalyzeds = indexManager
-                .toPreAnalyzedGenres(Arrays.asList(genre), true);
-            if (preAnalyzeds.isEmpty()) {
-                // #267 Invalid search for genre containing specific string
-                if (LOG.isWarnEnabled()) {
-                    LOG
-                        .warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
-                }
-            } else {
-                genres = preAnalyzeds;
-            }
+    @Nullable
+    List<String> parseGenre(String genre) {
+        if (null == genre || genre.isEmpty()) {
+            return Collections.emptyList();
         }
-        return genres;
+        return indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true);
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the

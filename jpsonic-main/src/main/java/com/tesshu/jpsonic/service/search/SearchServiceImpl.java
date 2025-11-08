@@ -296,6 +296,7 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
     @Override
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
@@ -434,6 +435,7 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
     @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
         // Get Lucene IndexSearcher for albums
@@ -465,6 +467,7 @@ public class SearchServiceImpl implements SearchService {
         return Collections.emptyList();
     }
 
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
     @Override
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
         // Obtain IndexSearcher for ID3-based albums
