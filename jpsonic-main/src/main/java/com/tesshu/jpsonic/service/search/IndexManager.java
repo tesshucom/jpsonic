@@ -684,53 +684,50 @@ public class IndexManager implements ReadWriteLockSupport {
         try {
             if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
 
-                mayBeInit: {
+                Stream.of(LegacyGenreCriteria.values()).forEach(util::removeCache);
 
-                    Stream.of(LegacyGenreCriteria.values()).forEach(util::removeCache);
-
-                    Collection<String> fields = FieldInfos
-                        .getIndexedFields(genreSearcher.getIndexReader());
-                    if (fields.isEmpty()) {
-                        LOG.info("The multi-genre master has been updated(no record).");
-                        return;
-                    }
-
-                    int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
-                    Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
-                    TermStats[] stats;
-                    try {
-                        stats = HighFreqTerms
-                            .getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
-                                    FieldNamesConstants.GENRE, c);
-                    } catch (Exception e) {
-                        LOG.info("The genre field may not exist.");
-                        break mayBeInit;
-                    }
-                    List<String> genreNames = Arrays
-                        .stream(stats)
-                        .map(t -> t.termtext.utf8ToString())
-                        .collect(Collectors.toList());
-
-                    List<Genre> genres = new ArrayList<>();
-                    for (String genreName : genreNames) {
-                        Query query = queryFactory.getGenre(genreName);
-                        TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
-                        int songCount = util.round.apply(topDocs.totalHits.value);
-                        topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
-                        int albumCount = util.round.apply(topDocs.totalHits.value);
-                        genres.add(new Genre(genreName, songCount, albumCount));
-                    }
-
-                    genres.sort(comparators.genreOrder(false));
-                    util.putCache(LegacyGenreCriteria.SONG_COUNT, genres);
-
-                    List<Genre> genresByAlbum = new ArrayList<>();
-                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(genresByAlbum::add);
-                    genresByAlbum.sort(comparators.genreOrder(true));
-                    util.putCache(LegacyGenreCriteria.ALBUM_COUNT, genresByAlbum);
-
-                    LOG.info("The multi-genre master has been updated.");
+                Collection<String> fields = FieldInfos
+                    .getIndexedFields(genreSearcher.getIndexReader());
+                if (fields.isEmpty()) {
+                    LOG.info("The multi-genre master has been updated(no record).");
+                    return;
                 }
+
+                int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
+                Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
+                TermStats[] stats;
+                try {
+                    stats = HighFreqTerms
+                        .getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
+                                FieldNamesConstants.GENRE, c);
+                } catch (Exception e) {
+                    LOG.info("The genre field may not exist.");
+                    return;
+                }
+                List<String> genreNames = Arrays
+                    .stream(stats)
+                    .map(t -> t.termtext.utf8ToString())
+                    .collect(Collectors.toList());
+
+                List<Genre> genres = new ArrayList<>();
+                for (String genreName : genreNames) {
+                    Query query = queryFactory.getGenre(genreName);
+                    TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
+                    int songCount = util.round.apply(topDocs.totalHits.value);
+                    topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
+                    int albumCount = util.round.apply(topDocs.totalHits.value);
+                    genres.add(new Genre(genreName, songCount, albumCount));
+                }
+
+                genres.sort(comparators.genreOrder(false));
+                util.putCache(LegacyGenreCriteria.SONG_COUNT, genres);
+
+                List<Genre> genresByAlbum = new ArrayList<>();
+                genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(genresByAlbum::add);
+                genresByAlbum.sort(comparators.genreOrder(true));
+                util.putCache(LegacyGenreCriteria.ALBUM_COUNT, genresByAlbum);
+
+                LOG.info("The multi-genre master has been updated.");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
