@@ -160,7 +160,7 @@ public final class UpnpStreamImpl extends UpnpStream {
         return responseMessage;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingThrowable") // Unchecked Error is rethrown
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // Unchecked Error is rethrown
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH") // false positive
     @Override
     public void run() {
