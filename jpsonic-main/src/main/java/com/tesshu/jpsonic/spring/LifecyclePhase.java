@@ -29,8 +29,14 @@ package com.tesshu.jpsonic.spring;
  */
 public enum LifecyclePhase {
 
-    SCAN(Integer.MAX_VALUE / 2), CACHE(Integer.MAX_VALUE / 2 - 100),
-    DATABASE(Integer.MAX_VALUE / 2 - 200);
+    // spotless:off
+
+    STREAM(Integer.MAX_VALUE / 2),
+    SCAN(Integer.MAX_VALUE / 2 - 100),
+    CACHE(Integer.MAX_VALUE / 2 - 200),
+    DATABASE(Integer.MAX_VALUE / 2 - 300);
+
+    // spotless:on
 
     public final int value;
 
