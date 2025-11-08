@@ -20,14 +20,34 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,7 +100,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
+        "PMD.TooManyStaticImports" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamControllerTest {
 
@@ -108,24 +129,17 @@ class StreamControllerTest {
         securityService = mock(SecurityService.class);
 
         User user = new User(player.getUsername(), player.getUsername(), "");
-        Mockito.when(securityService.getUserByName(player.getUsername())).thenReturn(user);
+        when(securityService.getUserByName(player.getUsername())).thenReturn(user);
         playerService = mock(PlayerService.class);
-        Mockito
-            .when(playerService
-                .getPlayer(Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
-                        Mockito.anyBoolean()))
-            .thenReturn(player);
+        when(playerService.getPlayer(any(), any(), anyBoolean(), anyBoolean())).thenReturn(player);
 
         statusService = mock(StatusService.class);
         TransferStatus transferStatus = mock(TransferStatus.class);
-        Mockito.when(transferStatus.getPlayer()).thenReturn(player);
-        Mockito.when(transferStatus.isTerminated()).thenReturn(true);
-        Mockito.when(transferStatus.isActive()).thenReturn(true);
-        Mockito
-            .when(statusService.createStreamStatus(Mockito.nullable(Player.class)))
-            .thenReturn(transferStatus);
-        Mockito
-            .when(statusService.getStreamStatusesForPlayer(Mockito.nullable(Player.class)))
+        when(transferStatus.getPlayer()).thenReturn(player);
+        when(transferStatus.isTerminated()).thenReturn(true);
+        when(transferStatus.isActive()).thenReturn(true);
+        when(statusService.createStreamStatus(nullable(Player.class))).thenReturn(transferStatus);
+        when(statusService.getStreamStatusesForPlayer(nullable(Player.class)))
             .thenReturn(Arrays.asList(transferStatus));
 
         streamController = new StreamController(settingsService, securityService, playerService, ts,
@@ -148,11 +162,10 @@ class StreamControllerTest {
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         TranscodingService transcodingService = mock(TranscodingService.class);
         Parameters parameters = new TranscodingService.Parameters(null, null);
-        Mockito
-            .when(transcodingService
-                .getParameters(Mockito.nullable(MediaFile.class), Mockito.nullable(Player.class),
-                        Mockito.nullable(Integer.class), Mockito.nullable(String.class),
-                        Mockito.nullable(VideoTranscodingSettings.class)))
+        when(transcodingService
+            .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                    nullable(Integer.class), nullable(String.class),
+                    nullable(VideoTranscodingSettings.class)))
             .thenReturn(parameters);
         StreamService streamService = mock(StreamService.class);
         initMocks(player, transcodingService, streamService);
@@ -171,7 +184,7 @@ class StreamControllerTest {
         // no stream role
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
         user.setStreamRole(false);
-        Mockito.when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+        when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -184,35 +197,26 @@ class StreamControllerTest {
             .andExpect(MockMvcResultMatchers.status().isForbidden())
             .andExpect(
                     MockMvcResultMatchers.status().reason("Streaming is forbidden for user admin"));
-        Mockito
-            .verify(streamService, Mockito.never())
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, never())
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
         // no-jwt with stream role
         user.setStreamRole(true);
-        Mockito.when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+        when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.never())
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, never())
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
         // Unusual : Logging only
         user.setStreamRole(false);
         HttpServletResponse response = mock(MockHttpServletResponse.class);
-        Mockito
-            .doThrow(IOException.class)
-            .when(response)
-            .sendError(Mockito.anyInt(), Mockito.anyString());
+        doThrow(IOException.class).when(response).sendError(anyInt(), anyString());
         streamController.handleRequest(new MockHttpServletRequest(), response);
         assertEquals(0, response.getStatus());
-        Mockito
-            .verify(streamService, Mockito.never())
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, never())
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
     @Test
@@ -220,72 +224,60 @@ class StreamControllerTest {
     void testGetMaxBitRate() throws Exception {
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
-        Mockito
-            .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-            .thenReturn(song);
+        when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
         ArgumentCaptor<Integer> maxBitRateCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Parameters parameters = new TranscodingService.Parameters(null, null);
-        Mockito
-            .when(transcodingService
-                .getParameters(Mockito.nullable(MediaFile.class), Mockito.nullable(Player.class),
-                        maxBitRateCaptor.capture(), Mockito.nullable(String.class),
-                        Mockito.nullable(VideoTranscodingSettings.class)))
+        when(transcodingService
+            .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                    maxBitRateCaptor.capture(), nullable(String.class),
+                    nullable(VideoTranscodingSettings.class)))
             .thenReturn(parameters);
 
         // Null
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(transcodingService, Mockito.times(1))
-            .getParameters(Mockito.nullable(MediaFile.class), Mockito.nullable(Player.class),
-                    Mockito.nullable(Integer.class), Mockito.nullable(String.class),
-                    Mockito.nullable(VideoTranscodingSettings.class));
+        verify(transcodingService, times(1))
+            .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                    nullable(Integer.class), nullable(String.class),
+                    nullable(VideoTranscodingSettings.class));
         assertNull(maxBitRateCaptor.getValue());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
         // 0
-        Mockito.clearInvocations(streamService);
-        Mockito.clearInvocations(transcodingService);
+        clearInvocations(streamService);
+        clearInvocations(transcodingService);
         mockMvc
             .perform(MockMvcRequestBuilders
                 .get(TEST_URL)
                 .param(Attributes.Request.MAX_BIT_RATE.value(), "0"))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(transcodingService, Mockito.times(1))
-            .getParameters(Mockito.nullable(MediaFile.class), Mockito.nullable(Player.class),
-                    Mockito.nullable(Integer.class), Mockito.nullable(String.class),
-                    Mockito.nullable(VideoTranscodingSettings.class));
+        verify(transcodingService, times(1))
+            .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                    nullable(Integer.class), nullable(String.class),
+                    nullable(VideoTranscodingSettings.class));
         assertNull(maxBitRateCaptor.getValue());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
         // 123
-        Mockito.clearInvocations(streamService);
-        Mockito.clearInvocations(transcodingService);
+        clearInvocations(streamService);
+        clearInvocations(transcodingService);
         mockMvc
             .perform(MockMvcRequestBuilders
                 .get(TEST_URL)
                 .param(Attributes.Request.MAX_BIT_RATE.value(), "123"))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(transcodingService, Mockito.times(1))
-            .getParameters(Mockito.nullable(MediaFile.class), Mockito.nullable(Player.class),
-                    Mockito.nullable(Integer.class), Mockito.nullable(String.class),
-                    Mockito.nullable(VideoTranscodingSettings.class));
+        verify(transcodingService, times(1))
+            .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                    nullable(Integer.class), nullable(String.class),
+                    nullable(VideoTranscodingSettings.class));
         assertEquals(123, maxBitRateCaptor.getValue());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
     @Nested
@@ -297,22 +289,16 @@ class StreamControllerTest {
         void testAuthentication() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             // no-jwt with stream role(Pass the first certification check)
             SecurityContextHolder.getContext().setAuthentication(null);
             User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
             user.setStreamRole(true);
-            Mockito
-                .when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME))
-                .thenReturn(user);
+            when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
 
             // No folder access permission
-            Mockito
-                .when(securityService
-                    .isFolderAccessAllowed(Mockito.any(MediaFile.class), Mockito.any(String.class)))
+            when(securityService.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
                 .thenReturn(false);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
@@ -321,23 +307,17 @@ class StreamControllerTest {
                 .andExpect(MockMvcResultMatchers
                     .status()
                     .reason("Access to file 0 is forbidden for user admin"));
-            Mockito
-                .verify(streamService, Mockito.never())
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, never())
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // With folder access permission
-            Mockito
-                .when(securityService
-                    .isFolderAccessAllowed(Mockito.any(MediaFile.class), Mockito.any(String.class)))
+            when(securityService.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
                 .thenReturn(true);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @Test
@@ -345,17 +325,13 @@ class StreamControllerTest {
         void testVideoTranscoding() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             ArgumentCaptor<VideoTranscodingSettings> vtsCaptor = ArgumentCaptor
                 .forClass(VideoTranscodingSettings.class);
-            Mockito
-                .when(streamService
-                    .createInputStream(Mockito.nullable(Player.class),
-                            Mockito.nullable(TransferStatus.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class), vtsCaptor.capture()))
+            when(streamService
+                .createInputStream(nullable(Player.class), nullable(TransferStatus.class),
+                        nullable(Integer.class), nullable(String.class), vtsCaptor.capture()))
                 .thenReturn(IOUtils.toInputStream("test", Charset.defaultCharset()));
 
             // not video
@@ -363,67 +339,52 @@ class StreamControllerTest {
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .createInputStream(Mockito.nullable(Player.class),
-                        Mockito.nullable(TransferStatus.class), Mockito.nullable(Integer.class),
-                        Mockito.nullable(String.class),
-                        Mockito.nullable(VideoTranscodingSettings.class));
-            Mockito
-                .verify(streamService, Mockito.never())
-                .createVideoTranscodingSettings(Mockito.nullable(MediaFile.class),
-                        Mockito.nullable(HttpServletRequest.class));
+            verify(streamService, times(1))
+                .createInputStream(nullable(Player.class), nullable(TransferStatus.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class));
+            verify(streamService, never())
+                .createVideoTranscodingSettings(nullable(MediaFile.class),
+                        nullable(HttpServletRequest.class));
             assertNull(vtsCaptor.getValue());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // video
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             song.setMediaType(MediaType.VIDEO);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .createInputStream(Mockito.nullable(Player.class),
-                        Mockito.nullable(TransferStatus.class), Mockito.nullable(Integer.class),
-                        Mockito.nullable(String.class),
-                        Mockito.nullable(VideoTranscodingSettings.class));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .createVideoTranscodingSettings(Mockito.nullable(MediaFile.class),
-                        Mockito.nullable(HttpServletRequest.class));
+            verify(streamService, times(1))
+                .createInputStream(nullable(Player.class), nullable(TransferStatus.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class));
+            verify(streamService, times(1))
+                .createVideoTranscodingSettings(nullable(MediaFile.class),
+                        nullable(HttpServletRequest.class));
             assertNull(vtsCaptor.getValue());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // hls
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             song.setMediaType(MediaType.MUSIC);
             mockMvc
                 .perform(MockMvcRequestBuilders
                     .get(TEST_URL)
                     .param(Attributes.Request.HLS.value(), "true"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .createInputStream(Mockito.nullable(Player.class),
-                        Mockito.nullable(TransferStatus.class), Mockito.nullable(Integer.class),
-                        Mockito.nullable(String.class),
-                        Mockito.nullable(VideoTranscodingSettings.class));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .createVideoTranscodingSettings(Mockito.nullable(MediaFile.class),
-                        Mockito.nullable(HttpServletRequest.class));
+            verify(streamService, times(1))
+                .createInputStream(nullable(Player.class), nullable(TransferStatus.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class));
+            verify(streamService, times(1))
+                .createVideoTranscodingSettings(nullable(MediaFile.class),
+                        nullable(HttpServletRequest.class));
             assertNull(vtsCaptor.getValue());
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
     }
 
@@ -526,19 +487,15 @@ class StreamControllerTest {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.Video
@@ -549,19 +506,15 @@ class StreamControllerTest {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.VIDEO);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.NotVideo
@@ -577,20 +530,16 @@ class StreamControllerTest {
             song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setFileSize(3_200L);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             Parameters parameters = new TranscodingService.Parameters(song, null);
             parameters.setMaxBitRate(320);
             parameters.setRangeAllowed(true);
             parameters.setExpectedLength(song.getFileSize());
-            Mockito
-                .when(transcodingService
-                    .getParameters(Mockito.nullable(MediaFile.class),
-                            Mockito.nullable(Player.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class),
-                            Mockito.nullable(VideoTranscodingSettings.class)))
+            when(transcodingService
+                .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class)))
                 .thenReturn(parameters);
 
             mockMvc
@@ -600,14 +549,12 @@ class StreamControllerTest {
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "3200"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             song.setFileSize(Long.valueOf(Integer.MAX_VALUE + 1));
             parameters.setExpectedLength(song.getFileSize());
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -616,10 +563,8 @@ class StreamControllerTest {
                 .andExpect(MockMvcResultMatchers
                     .header()
                     .string(HttpHeaders.CONTENT_LENGTH, "-2147483648"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.NotVideo
@@ -635,20 +580,16 @@ class StreamControllerTest {
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_200L);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             Parameters parameters = new TranscodingService.Parameters(song, null);
             parameters.setMaxBitRate(320);
             parameters.setRangeAllowed(true);
             parameters.setExpectedLength(song.getFileSize());
-            Mockito
-                .when(transcodingService
-                    .getParameters(Mockito.nullable(MediaFile.class),
-                            Mockito.nullable(Player.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class),
-                            Mockito.nullable(VideoTranscodingSettings.class)))
+            when(transcodingService
+                .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class)))
                 .thenReturn(parameters);
 
             mockMvc
@@ -661,12 +602,10 @@ class StreamControllerTest {
                     .string(HttpHeaders.CONTENT_RANGE, "bytes 320-639/3200"))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "320"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL).header("Range", "bytes=320-"))
                 .andExpect(MockMvcResultMatchers.status().isPartialContent())
@@ -677,10 +616,8 @@ class StreamControllerTest {
                     .string(HttpHeaders.CONTENT_RANGE, "bytes 320-3199/3200"))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "2880"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.NotVideo
@@ -697,20 +634,16 @@ class StreamControllerTest {
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_300L);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             Parameters parameters = new TranscodingService.Parameters(song, null);
             parameters.setMaxBitRate(320);
             parameters.setRangeAllowed(true);
             parameters.setExpectedLength(song.getFileSize());
-            Mockito
-                .when(transcodingService
-                    .getParameters(Mockito.nullable(MediaFile.class),
-                            Mockito.nullable(Player.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class),
-                            Mockito.nullable(VideoTranscodingSettings.class)))
+            when(transcodingService
+                .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class)))
                 .thenReturn(parameters);
 
             mockMvc
@@ -725,10 +658,8 @@ class StreamControllerTest {
                     .string(HttpHeaders.CONTENT_RANGE, "bytes 330-3299/3300"))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "2970"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.NotVideo
@@ -745,20 +676,16 @@ class StreamControllerTest {
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_300L);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             Parameters parameters = new TranscodingService.Parameters(song, null);
             parameters.setMaxBitRate(320);
             parameters.setRangeAllowed(true);
             parameters.setExpectedLength(song.getFileSize());
-            Mockito
-                .when(transcodingService
-                    .getParameters(Mockito.nullable(MediaFile.class),
-                            Mockito.nullable(Player.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class),
-                            Mockito.nullable(VideoTranscodingSettings.class)))
+            when(transcodingService
+                .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class)))
                 .thenReturn(parameters);
 
             mockMvc
@@ -770,10 +697,8 @@ class StreamControllerTest {
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "3300"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
         @ApplyRangeDecision.Conditions.MediaType.NotVideo
@@ -790,20 +715,16 @@ class StreamControllerTest {
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(null);
             song.setFileSize(3_300L);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             Parameters parameters = new TranscodingService.Parameters(song, null);
             parameters.setMaxBitRate(320);
             parameters.setRangeAllowed(true);
             parameters.setExpectedLength(song.getFileSize());
-            Mockito
-                .when(transcodingService
-                    .getParameters(Mockito.nullable(MediaFile.class),
-                            Mockito.nullable(Player.class), Mockito.nullable(Integer.class),
-                            Mockito.nullable(String.class),
-                            Mockito.nullable(VideoTranscodingSettings.class)))
+            when(transcodingService
+                .getParameters(nullable(MediaFile.class), nullable(Player.class),
+                        nullable(Integer.class), nullable(String.class),
+                        nullable(VideoTranscodingSettings.class)))
                 .thenReturn(parameters);
 
             mockMvc
@@ -815,24 +736,20 @@ class StreamControllerTest {
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                 .andExpect(
                         MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "3300"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             song.setDurationSeconds(10);
             song.setFileSize(null); // Assumed unreachble code
             parameters.setExpectedLength(song.getFileSize());
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             assertThrows(ServletException.class,
                     () -> mockMvc
                         .perform(MockMvcRequestBuilders
                             .get(TEST_URL)
                             .param(Attributes.Request.OFFSET_SECONDS.value(), "1")));
-            Mockito
-                .verify(streamService, Mockito.never())
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, never())
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
     }
 
@@ -929,7 +846,7 @@ class StreamControllerTest {
             song.setBitRate(955);
             song.setDurationSeconds(3);
             MediaFileService mediaFileService = mock(MediaFileService.class);
-            Mockito.when(mediaFileService.getMediaFile(song.getId())).thenReturn(song);
+            when(mediaFileService.getMediaFile(song.getId())).thenReturn(song);
 
             player = new Player();
             player.setId(101);
@@ -945,14 +862,10 @@ class StreamControllerTest {
             if (isAnonymous) {
                 User user = new User(JWTAuthenticationToken.USERNAME_ANONYMOUS,
                         JWTAuthenticationToken.USERNAME_ANONYMOUS, "");
-                Mockito
-                    .when(securityService.getUserByName(JWTAuthenticationToken.USERNAME_ANONYMOUS))
+                when(securityService.getUserByName(JWTAuthenticationToken.USERNAME_ANONYMOUS))
                     .thenReturn(user);
-                Mockito
-                    .when(settingsService.isInUPnPRange(Mockito.nullable(String.class)))
-                    .thenReturn(true);
-                Mockito
-                    .when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class)))
+                when(settingsService.isInUPnPRange(nullable(String.class))).thenReturn(true);
+                when(playerService.getGuestPlayer(nullable(HttpServletRequest.class)))
                     .thenReturn(player);
             }
 
@@ -960,9 +873,7 @@ class StreamControllerTest {
             List<Transcoding> allTranscodings = isSetTranscodingsAll
                     ? transcodingDao.getAllTranscodings()
                     : Collections.emptyList();
-            Mockito
-                .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
-                .thenReturn(allTranscodings);
+            when(transcodingDao.getTranscodingsForPlayer(anyInt())).thenReturn(allTranscodings);
 
             TranscodingService ts = new TranscodingService(settingsService, securityService,
                     transcodingDao, playerService, null);
@@ -1104,7 +1015,7 @@ class StreamControllerTest {
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c6() throws Exception {
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
+            when(settingsService.getPreferredFormat()).thenReturn("mp3");
             initMocksWithTranscoding(true, false);
             mockMvc
                 .perform(MockMvcRequestBuilders
@@ -1252,7 +1163,7 @@ class StreamControllerTest {
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c6a() throws Exception {
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
+            when(settingsService.getPreferredFormat()).thenReturn("mp3");
             initMocksWithTranscoding(true, true);
             mockMvc
                 .perform(MockMvcRequestBuilders
@@ -1271,12 +1182,10 @@ class StreamControllerTest {
         void testHls() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
-            Mockito
-                .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-                .thenReturn(song);
+            when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
             // hls
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             song.setMediaType(MediaType.MUSIC);
             mockMvc
                 .perform(MockMvcRequestBuilders
@@ -1284,14 +1193,12 @@ class StreamControllerTest {
                     .param(Attributes.Request.HLS.value(), "true"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string("Content-Type", "video/MP2T"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // not hls and null duration (Assumed unreachble code)
             song.setMediaType(MediaType.MUSIC);
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1299,15 +1206,13 @@ class StreamControllerTest {
                     .header()
                     .string("Content-Type", "application/octet-stream"))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist("X-Content-Duration"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // not hls and duration
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
-            Mockito.clearInvocations(streamService);
+            clearInvocations(streamService);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1315,10 +1220,8 @@ class StreamControllerTest {
                     .header()
                     .string("Content-Type", "application/octet-stream"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "10.0"));
-            Mockito
-                .verify(streamService, Mockito.times(1))
-                .removeStreamStatus(Mockito.nullable(User.class),
-                        Mockito.nullable(TransferStatus.class));
+            verify(streamService, times(1))
+                .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
     }
 
@@ -1329,37 +1232,294 @@ class StreamControllerTest {
         song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);
         song.setFileSize(3_300L);
-        Mockito
-            .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-            .thenReturn(song);
+        when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
         mockMvc
             .perform(MockMvcRequestBuilders.head(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.never())
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, never())
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
-    @Test
+    @Documented
+    private @interface WriteStreamDecision {
+        @interface Conditions {
+            @interface IsAliveStream {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface IsPodcast {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface IsSingleFile {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface CheckRequired {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface PlayQueueStatus {
+                @interface Stopped {
+                }
+
+                @interface Playing {
+                }
+            }
+
+        }
+
+        @interface Result {
+            @interface Outsize0 {
+            }
+
+            @interface Outsize8192 {
+            }
+        }
+    }
+
+    @Nested
     @Order(6)
-    void testWriteStream() throws Exception {
-        // Not yet implemented!
+    class WriteStreamTest {
+
+        @WriteStreamDecision.Conditions.IsAliveStream.False
+        @WriteStreamDecision.Result.Outsize0
+        @Test
+        void c00() throws Exception {
+            streamController.init();
+            streamController.onDestroy();
+            String dummy = "a".repeat(8192);
+            InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            streamController.writeStream(null, in, out, null, false, false);
+            assertEquals(0, out.size());
+        }
+
+        @WriteStreamDecision.Conditions.IsAliveStream.True
+        @WriteStreamDecision.Conditions.IsPodcast.False
+        @WriteStreamDecision.Conditions.IsSingleFile.True
+        @WriteStreamDecision.Conditions.CheckRequired.True
+        @WriteStreamDecision.Conditions.PlayQueueStatus.Stopped
+        @WriteStreamDecision.Result.Outsize0
+        @Test
+        void c01() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            TransferStatus transferStatus = new TransferStatus();
+            transferStatus.setActive(true);
+            when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(transferStatus));
+            streamController.init();
+
+            PlayQueue playQueue = new PlayQueue();
+            playQueue.setStatus(Status.STOPPED);
+            player.setPlayQueue(playQueue);
+            player.setUsername(ServiceMockUtils.ADMIN_NAME);
+
+            String dummy = "a".repeat(8192);
+            InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            streamController.writeStream(player, in, out, null, false, true);
+            assertEquals(0, out.size());
+            verify(streamService, never())
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+        }
+
+        @WriteStreamDecision.Conditions.IsAliveStream.True
+        @WriteStreamDecision.Conditions.IsPodcast.True
+        @WriteStreamDecision.Conditions.IsSingleFile.False
+        @WriteStreamDecision.Conditions.CheckRequired.True
+        @WriteStreamDecision.Conditions.PlayQueueStatus.Stopped
+        @WriteStreamDecision.Result.Outsize0
+        @Test
+        void c02() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            TransferStatus transferStatus = new TransferStatus();
+            transferStatus.setActive(true);
+            when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(transferStatus));
+            streamController.init();
+
+            PlayQueue playQueue = new PlayQueue();
+            playQueue.setStatus(Status.STOPPED);
+            player.setPlayQueue(playQueue);
+            player.setUsername(ServiceMockUtils.ADMIN_NAME);
+
+            String dummy = "a".repeat(8192);
+            InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            streamController.writeStream(player, in, out, null, true, false);
+            assertEquals(0, out.size());
+            verify(streamService, never())
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+        }
+
+        @WriteStreamDecision.Conditions.IsAliveStream.True
+        @WriteStreamDecision.Conditions.IsPodcast.False
+        @WriteStreamDecision.Conditions.IsSingleFile.False
+        @WriteStreamDecision.Conditions.CheckRequired.True
+        @WriteStreamDecision.Conditions.PlayQueueStatus.Stopped
+        @WriteStreamDecision.Result.Outsize0
+        @Test
+        void c03() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            TransferStatus transferStatus = new TransferStatus();
+            transferStatus.setActive(true);
+            PlayQueue playQueue = new PlayQueue();
+            playQueue.setStatus(Status.STOPPED);
+            player.setPlayQueue(playQueue);
+            player.setUsername(ServiceMockUtils.ADMIN_NAME);
+            initMocks(player, transcodingService, streamService);
+
+            when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(transferStatus));
+            doThrow(new UnsupportedOperationException("To skip verification of sendDummyDelayed"))
+                .when(streamService)
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+            assertTrue(streamController.isAliveStream(player));
+
+            String dummy = "a".repeat(8192);
+            InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            assertThrows(UnsupportedOperationException.class, () -> {
+                streamController.writeStream(player, in, out, null, false, false);
+            });
+            assertEquals(0, out.size());
+            verify(streamService, times(1))
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+        }
+
+        @WriteStreamDecision.Conditions.IsAliveStream.True
+        @WriteStreamDecision.Conditions.CheckRequired.True
+        @WriteStreamDecision.Conditions.PlayQueueStatus.Playing
+        @WriteStreamDecision.Result.Outsize8192
+        @Test
+        void c04() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            TransferStatus transferStatus = new TransferStatus();
+            transferStatus.setActive(true);
+            PlayQueue playQueue = new PlayQueue();
+            playQueue.setStatus(Status.PLAYING);
+            player.setPlayQueue(playQueue);
+            player.setUsername(ServiceMockUtils.ADMIN_NAME);
+            initMocks(player, transcodingService, streamService);
+
+            when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(transferStatus));
+            doThrow(new UnsupportedOperationException("To skip verification of sendDummyDelayed"))
+                .when(streamService)
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+            assertTrue(streamController.isAliveStream(player));
+
+            String dummy = "a".repeat(8192);
+            InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            assertThrows(UnsupportedOperationException.class, () -> {
+                streamController.writeStream(player, in, out, null, false, false);
+            });
+            assertEquals(8192, out.size());
+            verify(streamService, times(1))
+                .sendDummyDelayed(any(byte[].class), any(OutputStream.class));
+        }
     }
 
-    @Test
+    @Documented
+    private @interface IsAliveStreamDecision {
+        @interface Conditions {
+            @interface Destroy {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface TransferStatusisActive {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+        }
+
+        @interface Result {
+            @interface False {
+            }
+
+            @interface True {
+            }
+        }
+    }
+
+    @Nested
     @Order(7)
-    void testIsAliveStream() throws Exception {
-        // Not yet implemented!
+    class IsAliveStreamTest {
+
+        @IsAliveStreamDecision.Conditions.Destroy.False
+        @IsAliveStreamDecision.Conditions.TransferStatusisActive.False
+        @IsAliveStreamDecision.Result.False
+        @Test
+        void c00() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            streamController.init();
+            assertFalse(streamController.isAliveStream(player));
+        }
+
+        @IsAliveStreamDecision.Conditions.Destroy.False
+        @IsAliveStreamDecision.Conditions.TransferStatusisActive.True
+        @IsAliveStreamDecision.Result.True
+        @Test
+        void c01() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            TransferStatus transferStatus = new TransferStatus();
+            transferStatus.setActive(true);
+            when(statusService.getStreamStatusesForPlayer(player))
+                .thenReturn(Arrays.asList(transferStatus));
+            streamController.init();
+            assertTrue(streamController.isAliveStream(player));
+        }
+
+        @IsAliveStreamDecision.Conditions.Destroy.True
+        @IsAliveStreamDecision.Result.False
+        @Test
+        void c02() throws Exception {
+            Player player = new Player();
+            player.setId(100);
+            streamController.init();
+            streamController.onDestroy();
+            assertFalse(streamController.isAliveStream(player));
+        }
     }
 
     @Test
@@ -1369,44 +1529,36 @@ class StreamControllerTest {
         song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);
         song.setFileSize(3_300L);
-        Mockito
-            .when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class)))
-            .thenReturn(song);
+        when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             throw new IOException("testWriteErrorLog1");
         }).when(settingsService).getBufferSize();
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             throw new org.eclipse.jetty.io.EofException("testWriteErrorLog2");
         }).when(settingsService).getBufferSize();
-        Mockito.clearInvocations(streamService);
+        clearInvocations(streamService);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             throw new org.apache.catalina.connector.ClientAbortException("testWriteErrorLog3");
         }).when(settingsService).getBufferSize();
-        Mockito.clearInvocations(streamService);
+        clearInvocations(streamService);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
-        Mockito
-            .verify(streamService, Mockito.times(1))
-            .removeStreamStatus(Mockito.nullable(User.class),
-                    Mockito.nullable(TransferStatus.class));
+        verify(streamService, times(1))
+            .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
     @Test
@@ -1416,12 +1568,10 @@ class StreamControllerTest {
         // case)
         int playlistId = 99;
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito
-            .doNothing()
+        doNothing()
             .when(streamService)
-            .setUpPlayQueue(Mockito.any(HttpServletRequest.class),
-                    Mockito.any(HttpServletResponse.class), Mockito.any(Player.class),
-                    idCaptor.capture());
+            .setUpPlayQueue(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                    any(Player.class), idCaptor.capture());
 
         mockMvc
             .perform(MockMvcRequestBuilders
@@ -1429,11 +1579,9 @@ class StreamControllerTest {
                 .param(Attributes.Request.PLAYLIST.value(), Integer.toString(playlistId)))
             .andExpect(MockMvcResultMatchers.status().isOk());
 
-        Mockito
-            .verify(streamService)
-            .setUpPlayQueue(Mockito.any(HttpServletRequest.class),
-                    Mockito.any(HttpServletResponse.class), Mockito.any(Player.class),
-                    Mockito.any(Integer.class));
+        verify(streamService)
+            .setUpPlayQueue(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                    any(Player.class), any(Integer.class));
         assertEquals(playlistId, idCaptor.getValue());
     }
 }

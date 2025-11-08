@@ -50,36 +50,35 @@ public class RouterImpl extends org.jupnp.transport.RouterImpl {
     public StreamResponseMessage send(StreamRequestMessage msg) throws RouterException {
         lock(readLock);
         try {
-            if (enabled) {
-                if (streamClient == null) {
-                    LOG.debug("No StreamClient available, not sending: {}", msg);
-                    return null;
-                }
-
-                if (filteredIp != null) {
-                    String hostname = msg.getUri().getHost();
-                    InetAddress inetAddress;
-                    try {
-                        inetAddress = InetAddress.getByName(hostname);
-                        String address = inetAddress.getHostAddress();
-                        if (filteredIp.equals(address)) {
-                            LOG.debug("Skipped sent to: {}", hostname);
-                            return null;
-                        }
-                    } catch (UnknownHostException e) {
-                        LOG.debug("Unknown Host Name: {}", hostname);
-                    }
-                }
-
-                LOG.debug("Sending via TCP unicast stream: {}", msg);
-                try {
-                    return streamClient.sendRequest(msg);
-                } catch (InterruptedException e) {
-                    throw new RouterException("Sending stream request was interrupted", e);
-                }
-            } else {
+            if (!enabled) {
                 LOG.debug("Router disabled, not sending stream request: {}", msg);
                 return null;
+            }
+
+            if (streamClient == null) {
+                LOG.debug("No StreamClient available, not sending: {}", msg);
+                return null;
+            }
+
+            if (filteredIp != null) {
+                String hostname = msg.getUri().getHost();
+                try {
+                    InetAddress inetAddress = InetAddress.getByName(hostname);
+                    String address = inetAddress.getHostAddress();
+                    if (filteredIp.equals(address)) {
+                        LOG.debug("Skipped sent to: {}", hostname);
+                        return null;
+                    }
+                } catch (UnknownHostException e) {
+                    LOG.debug("Unknown Host Name: {}", hostname);
+                }
+            }
+
+            LOG.debug("Sending via TCP unicast stream: {}", msg);
+            try {
+                return streamClient.sendRequest(msg);
+            } catch (InterruptedException e) {
+                throw new RouterException("Sending stream request was interrupted", e);
             }
         } finally {
             unlock(readLock);
