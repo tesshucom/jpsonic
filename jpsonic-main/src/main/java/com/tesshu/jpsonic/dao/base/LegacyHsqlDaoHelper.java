@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.dao.base;
 import javax.sql.DataSource;
 
 import ch.qos.logback.classic.Level;
-import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -61,7 +60,7 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
      * Shutdown the embedded HSQLDB database. After this has run, the database
      * cannot be accessed again from the same DataSource.
      */
-    private void shutdownHsqldbDatabase() {
+    public void shutdownHsqldbDatabase() {
         try {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Database shutdown in progress...");
@@ -81,10 +80,5 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
                 LOG.error("Embedded database shutdown failed", e);
             }
         }
-    }
-
-    @PreDestroy
-    public void onDestroy() {
-        shutdownHsqldbDatabase();
     }
 }

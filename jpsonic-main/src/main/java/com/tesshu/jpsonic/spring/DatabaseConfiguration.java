@@ -27,6 +27,7 @@ import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUsername;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
@@ -41,6 +42,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -48,6 +50,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -89,7 +93,7 @@ public class DatabaseConfiguration {
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
         return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))
-                ? new LegacyHsqlDaoHelper(dataSource)
+                ? new SmartLifecycleLegacyDaoHelper(new LegacyHsqlDaoHelper(dataSource))
                 : new GenericDaoHelper(dataSource);
     }
 
@@ -164,4 +168,60 @@ public class DatabaseConfiguration {
         return springLiquibase;
     }
 
+    public static class SmartLifecycleLegacyDaoHelper implements DaoHelper, SmartLifecycle {
+
+        private final LegacyHsqlDaoHelper delegate;
+        private final AtomicBoolean running = new AtomicBoolean(false);
+
+        public SmartLifecycleLegacyDaoHelper(LegacyHsqlDaoHelper delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void start() {
+            running.set(true);
+        }
+
+        @Override
+        public void stop() {
+            delegate.shutdownHsqldbDatabase();
+            running.set(false);
+        }
+
+        @Override
+        public void stop(Runnable callback) {
+            stop();
+            callback.run();
+        }
+
+        @Override
+        public boolean isRunning() {
+            return running.get();
+        }
+
+        @Override
+        public int getPhase() {
+            return LifecyclePhase.DATABASE.value;
+        }
+
+        @Override
+        public JdbcTemplate getJdbcTemplate() {
+            return delegate.getJdbcTemplate();
+        }
+
+        @Override
+        public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
+            return delegate.getNamedParameterJdbcTemplate();
+        }
+
+        @Override
+        public DataSource getDataSource() {
+            return delegate.getDataSource();
+        }
+
+        @Override
+        public void checkpoint() {
+            delegate.checkpoint();
+        }
+    }
 }
