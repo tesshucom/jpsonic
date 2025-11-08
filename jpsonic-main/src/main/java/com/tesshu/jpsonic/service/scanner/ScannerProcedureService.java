@@ -422,26 +422,35 @@ public class ScannerProcedureService {
 
     <T extends Orderable> int invokeUpdateOrder(List<T> list, Comparator<T> comparator,
             Function<T, Integer> updater) {
+
         List<Integer> rawOrders = list
             .stream()
             .map(Orderable::getOrder)
             .collect(Collectors.toList());
-        Collections.sort(list, comparator);
+
+        list.sort(comparator);
+
         LongAdder count = new LongAdder();
+
         for (int i = 0; i < list.size(); i++) {
-            int order = i + 1;
-            if (order != rawOrders.get(i)) {
-                T orderable = list.get(i);
-                orderable.setOrder(order);
-                count.add(updater.apply(orderable));
-                if (count.intValue() % 6_000 == 0) {
-                    repeatWait();
-                    if (isInterrupted()) {
-                        break;
-                    }
+            int newOrder = i + 1;
+
+            if (newOrder == rawOrders.get(i)) {
+                continue;
+            }
+
+            T orderable = list.get(i);
+            orderable.setOrder(newOrder);
+            count.add(updater.apply(orderable));
+
+            if (count.intValue() % 6_000 == 0) {
+                repeatWait();
+                if (isInterrupted()) {
+                    break;
                 }
             }
         }
+
         return count.intValue();
     }
 

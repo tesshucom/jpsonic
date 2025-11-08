@@ -227,23 +227,25 @@ public class PlayQueueService {
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
 
         final List<MediaFile> songs = new ArrayList<>();
-        if (mediaFile.isFile()) {
-            boolean queueFollowingSongs = securityService
-                .getUserSettings(resolveUsername())
-                .isQueueFollowingSongs();
-            if (queueFollowingSongs) {
-                mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
-                    List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false);
-                    if (!children.isEmpty()) {
-                        int index = children.indexOf(mediaFile);
-                        songs.addAll(children.subList(index, children.size()));
-                    }
-                }, () -> songs.add(mediaFile));
-            } else {
-                songs.add(mediaFile);
-            }
-        } else {
+
+        if (!mediaFile.isFile()) {
             songs.addAll(mediaFileService.getDescendantsOf(mediaFile, true));
+            return doPlay(player, songs).startPlayerAtAndGetInfo(0);
+        }
+
+        boolean queueFollowingSongs = securityService
+            .getUserSettings(resolveUsername())
+            .isQueueFollowingSongs();
+        if (queueFollowingSongs) {
+            mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
+                List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false);
+                if (!children.isEmpty()) {
+                    int index = children.indexOf(mediaFile);
+                    songs.addAll(children.subList(index, children.size()));
+                }
+            }, () -> songs.add(mediaFile));
+        } else {
+            songs.add(mediaFile);
         }
         return doPlay(player, songs).startPlayerAtAndGetInfo(0);
     }
