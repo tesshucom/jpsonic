@@ -57,6 +57,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @ExtendWith(NeedsHome.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 class LegacyDatabaseStartupTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyDatabaseStartupTest.class);
@@ -116,24 +117,28 @@ class LegacyDatabaseStartupTest {
     private static boolean copyJarResourcesRecursively(final Path destDir,
             final JarURLConnection jarConnection) throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {
+            final String baseEntryName = jarConnection.getEntryName();
+
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                 final JarEntry entry = e.nextElement();
-                if (entry.getName().startsWith(jarConnection.getEntryName())) {
-                    final String filename = StringUtils
-                        .removeStart(entry.getName(), //
-                                jarConnection.getEntryName());
 
-                    final Path f = Path.of(destDir.toString(), filename);
-                    if (entry.isDirectory()) {
-                        if (!ensureDirectoryExists(f)) {
-                            throw new IOException("Could not create directory: " + f);
-                        }
-                    } else {
-                        try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
-                            if (!copyStream(entryInputStream, f)) {
-                                return false;
-                            }
-                        }
+                if (!entry.getName().startsWith(baseEntryName)) {
+                    continue;
+                }
+
+                final String filename = StringUtils.removeStart(entry.getName(), baseEntryName);
+                final Path f = destDir.resolve(filename);
+
+                if (entry.isDirectory()) {
+                    if (!ensureDirectoryExists(f)) {
+                        throw new IOException("Could not create directory: " + f);
+                    }
+                    continue;
+                }
+
+                try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
+                    if (!copyStream(entryInputStream, f)) {
+                        return false;
                     }
                 }
             }

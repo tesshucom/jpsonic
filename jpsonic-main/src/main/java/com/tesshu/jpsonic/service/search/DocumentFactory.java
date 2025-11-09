@@ -317,37 +317,41 @@ public class DocumentFactory {
         return doc;
     }
 
-    void acceptReading(Document doc, String field, String romanizedfield, String value, String sort,
+    void acceptReading(Document doc, String field, String romanizedField, String value, String sort,
             String reading) {
         if (isEmpty(value)) {
             return;
         }
 
         String result = defaultIfEmpty(sort, reading);
-        if (!value.equals(result)) {
+        if (value.equals(result)) {
+            return;
+        }
 
-            IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-            boolean isJapaneseName = Stream.of(value.split(EMPTY)).anyMatch(s -> {
-                Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-                return Character.UnicodeBlock.HIRAGANA.equals(b)
-                        || Character.UnicodeBlock.KATAKANA.equals(b)
-                        || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b);
-            });
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
 
-            if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
-                applyFieldValue(doc, field, result);
-            } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
-                applyFieldValue(doc, field, result);
-                if (isJapaneseName) {
-                    applyFieldValue(doc, romanizedfield, readingUtils
-                        .removePunctuationFromJapaneseReading(
-                                settingsService.isForceInternalValueInsteadOfTags() ? reading
-                                        : result));
-                }
-            } else {
-                applyFieldValue(doc, field,
-                        readingUtils.removePunctuationFromJapaneseReading(result));
+        boolean isJapaneseName = Stream.of(value.split(EMPTY)).anyMatch(s -> {
+            char c = s.toCharArray()[0];
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+            return Character.UnicodeBlock.HIRAGANA.equals(block)
+                    || Character.UnicodeBlock.KATAKANA.equals(block)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(block);
+        });
+
+        switch (scheme) {
+        case WITHOUT_JP_LANG_PROCESSING -> applyFieldValue(doc, field, result);
+        case ROMANIZED_JAPANESE -> {
+            applyFieldValue(doc, field, result);
+            if (isJapaneseName) {
+                String romanizedValue = settingsService.isForceInternalValueInsteadOfTags()
+                        ? reading
+                        : result;
+                applyFieldValue(doc, romanizedField,
+                        readingUtils.removePunctuationFromJapaneseReading(romanizedValue));
             }
+        }
+        default ->
+            applyFieldValue(doc, field, readingUtils.removePunctuationFromJapaneseReading(result));
         }
     }
 
