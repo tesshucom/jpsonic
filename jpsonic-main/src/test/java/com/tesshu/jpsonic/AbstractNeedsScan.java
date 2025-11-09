@@ -143,7 +143,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         populateDatabaseOnlyOnce(beforeScan, null);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity")
+    @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.AvoidDeeplyNestedIfStmts" })
+    // AvoidDeeplyNestedIfStmts (false positive)
     public final void populateDatabaseOnlyOnce(BeforeScan beforeScan, AfterScan afterscan) {
         if (isDataBasePopulated()) {
             while (!isDataBaseReady()) {
@@ -169,21 +170,15 @@ public abstract class AbstractNeedsScan implements NeedsScan {
                 LOG.error("Database initialization was interrupted unexpectedly.", e);
             }
 
-            if (!isEmpty(beforeScan)) {
-                if (beforeScan.get()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Pre-processing of scan was called.");
-                    }
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Pre-scan processing may have a problem with the call.");
-                    }
-                }
+            if (!isEmpty(beforeScan) && beforeScan.get() && LOG.isDebugEnabled()) {
+                LOG.debug("Pre-processing of scan was called.");
             }
 
             TestCaseUtils.execScan(mediaScannerService);
 
-            supplyIfNotEmpty(afterscan);
+            if (!isEmpty(afterscan) && afterscan.get() && LOG.isDebugEnabled()) {
+                LOG.debug("Post-processing of scan was called.");
+            }
 
             logRecordsPerTables();
 
@@ -199,20 +194,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         }
     }
 
-    private void supplyIfNotEmpty(AfterScan afterscan) {
-        if (!isEmpty(afterscan)) {
-            if (afterscan.get()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Post-processing of scan was called.");
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Post-scan processing may have a problem with the call.");
-                }
-            }
-        }
-    }
-
+    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
+    // AvoidDeeplyNestedIfStmts (false positive)
     private void logRecordsPerTables() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("--- Report of records count per table ---");

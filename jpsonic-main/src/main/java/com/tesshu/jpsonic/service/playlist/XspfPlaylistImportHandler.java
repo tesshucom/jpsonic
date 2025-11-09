@@ -82,22 +82,23 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
     }
 
     private @Nullable MediaFile getMediaFile(StringContainer sc) {
-        if (sc instanceof Location location) {
-            try {
-                if (sc.getText() != null) {
-                    MediaFile mediaFile = mediaFileService
-                        .getMediaFile(Path.of(location.getText()));
-                    if (mediaFile == null) {
-                        return mediaFile;
-                    }
-                }
-            } catch (SecurityException e) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.error("SecurityException will be ignored.", e);
-                }
-            }
+        if (!(sc instanceof Location location)) {
+            return null;
         }
-        return null;
+
+        String text = sc.getText();
+        if (text == null) {
+            return null;
+        }
+
+        try {
+            return mediaFileService.getMediaFile(Path.of(location.getText()));
+        } catch (SecurityException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.error("SecurityException will be ignored.", e);
+            }
+            return null;
+        }
     }
 
     @Override
