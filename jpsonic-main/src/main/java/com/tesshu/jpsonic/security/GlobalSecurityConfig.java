@@ -281,13 +281,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .passwordParameter(Attributes.Request.J_PASSWORD.value())) // Password parameter
                                                                                // name
 
-                // Configure logout
-                .logout(logout -> logout
-                    .logoutUrl("/logout") // Logout URL (default is POST)
-                    // Allow GET /logout to trigger logout (deprecated practice, use with caution)
-                    .logoutRequestMatcher(request -> "/logout".equals(request.getRequestURI())
-                            && "GET".equals(request.getMethod()))
-                    .logoutSuccessUrl("/login?logout")) // Redirect after logout success
+                // Configure logout(POST Only)
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"))
 
                 // Configure remember-me with injected key
                 .rememberMe(config -> config.key(keyGenerator.get()))

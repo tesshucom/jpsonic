@@ -94,7 +94,7 @@ window.onChangeMainLocation = function(location) {
 }
 
 function callScanningStatus() {
-	scanInfoService.getScanningStatus(getScanningStatusCallback);
+    scanInfoService.getScanningStatus(getScanningStatusCallback);
 }
 
 let retryCallScanningStatus = false;
@@ -271,6 +271,7 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                         </c:choose>
                     </span>
                 </div>
+                <form id="logoutForm" action="<c:url value='/logout'/>" method="post" style="display:none;"></form>
                 <ul class="menu">
                     <c:if test="${model.putMenuInDrawer}">
                         <li><a href="home.view?" target="main" title="${home}" class="menu-item home">${home}</a></li>
@@ -285,7 +286,11 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                         <li><a href="uploadEntry.view?" target="main" title="${upload}" class="menu-item upload">${upload}</a></li>
                     </c:if>
                     <li><a href="help.view?" target="main" title="${help}" class="menu-item about">${help}</a></li>
-                    <li><a href="<c:url value='/logout'/>" target="_top" title="<fmt:message key='top.logout'/>" class="menu-item logout"><fmt:message key='top.logout' /></a></li>
+                    <li>
+                        <a href="#" class="menu-item logout" onclick="document.getElementById('logoutForm').submit(); return false;" title="<fmt:message key='top.logout' />">
+                            <fmt:message key='top.logout'/>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
