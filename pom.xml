@@ -73,7 +73,7 @@
     <versions.mockito-junit-jupiter>5.20.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.8</versions.moxy>
     <versions.mysql-connector-j>9.5.0</versions.mysql-connector-j>
-    <versions.netty>4.1.127.Final</versions.netty>
+    <versions.netty>4.2.7.Final</versions.netty>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.18.0</versions.pmd>
@@ -1166,7 +1166,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
