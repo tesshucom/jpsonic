@@ -74,7 +74,7 @@ public class ExecutorConfiguration {
     }
 
     @Bean
-    @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
+	@DependsOn("legacyDaoHelper")
     public AsyncTaskExecutor shortExecutor() {
         // @see TaskExecutorConfigurations
         // shortExecutor(SimpleAsyncTaskExecutorBuilder builder)
@@ -88,7 +88,7 @@ public class ExecutorConfiguration {
      * Podcast download executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
-    @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
+    @DependsOn("legacyDaoHelper")
     public ThreadPoolTaskExecutor podcastDownloadExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
@@ -105,7 +105,7 @@ public class ExecutorConfiguration {
      * Podcast refresh executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
-    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastDownloadExecutor" })
+    @DependsOn({ "legacyDaoHelper", "podcastDownloadExecutor" })
     public ThreadPoolTaskExecutor podcastRefreshExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(true); // To call download
@@ -122,7 +122,7 @@ public class ExecutorConfiguration {
      * Scan thread executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
-    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastRefreshExecutor" })
+    @DependsOn({ "legacyDaoHelper", "podcastRefreshExecutor" })
     public ThreadPoolTaskExecutor scanExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
