@@ -23,20 +23,13 @@ package com.tesshu.jpsonic.spring;
  * Enum defining lifecycle phases for application startup and shutdown.
  *
  * <p>
- * Lower numeric values indicate earlier startup and later shutdown. This
+ * Higher numeric values indicate earlier startup and later shutdown. This
  * ensures resources are initialized and destroyed in a safe order according to
  * their dependencies.
- *
- * <p>
- * Examples:
- * <ul>
- * <li>{@link #DATABASE} - priority for database-related resources</li>
- * <li>{@link #CACHE} - priority for cache-related resources</li>
- * </ul>
  */
 public enum LifecyclePhase {
 
-	DATABASE(Integer.MAX_VALUE / 2 - 100), CACHE(Integer.MAX_VALUE / 2 - 200);
+    CACHE(Integer.MAX_VALUE / 2 - 100), DATABASE(Integer.MAX_VALUE / 2 - 200);
 
     public final int value;
 
