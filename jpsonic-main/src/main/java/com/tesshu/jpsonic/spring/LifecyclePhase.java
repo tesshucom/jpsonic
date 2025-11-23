@@ -34,8 +34,9 @@ public enum LifecyclePhase {
     UPNP(Integer.MAX_VALUE / 2),
     STREAM(Integer.MAX_VALUE / 2 - 100),
     SCAN(Integer.MAX_VALUE / 2 - 200),
-    CACHE(Integer.MAX_VALUE / 2 - 300),
-    DATABASE(Integer.MAX_VALUE / 2 - 400);
+    SEARCHER(Integer.MAX_VALUE / 2 - 300),
+    CACHE(Integer.MAX_VALUE / 2 - 400),
+    DATABASE(Integer.MAX_VALUE / 2 - 500);
 
     // spotless:on
 
