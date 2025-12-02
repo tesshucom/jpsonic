@@ -31,12 +31,13 @@ public enum LifecyclePhase {
 
     // spotless:off
 
-    UPNP(Integer.MAX_VALUE / 2),
-    STREAM(Integer.MAX_VALUE / 2 - 100),
-    SCAN(Integer.MAX_VALUE / 2 - 200),
-    SEARCHER(Integer.MAX_VALUE / 2 - 300),
-    CACHE(Integer.MAX_VALUE / 2 - 400),
-    DATABASE(Integer.MAX_VALUE / 2 - 500);
+    PODCAST(Integer.MAX_VALUE / 2),
+    UPNP(Integer.MAX_VALUE / 2 - 100),
+    STREAM(Integer.MAX_VALUE / 2 - 200),
+    SCAN(Integer.MAX_VALUE / 2 - 300),
+    SEARCHER(Integer.MAX_VALUE / 2 - 400),
+    CACHE(Integer.MAX_VALUE / 2 - 500),
+    DATABASE(Integer.MAX_VALUE / 2 - 600);
 
     // spotless:on
 

@@ -60,7 +60,6 @@ import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -148,8 +147,7 @@ public class PodcastServiceImpl implements PodcastService {
         this.indexManager = indexManager;
     }
 
-    @PostConstruct
-    public void init() {
+    void init() {
         // Clean up partial downloads.
         episodesLock.lock();
         try {
@@ -168,8 +166,11 @@ public class PodcastServiceImpl implements PodcastService {
         destroy.set(false);
     }
 
-    @PreDestroy
-    public void onDestroy() {
+    boolean isRunning() {
+        return !destroy.get();
+    }
+
+    public void markDestroy() {
         destroy.set(true);
     }
 
