@@ -614,6 +614,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${versions.mockito-junit-jupiter}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.eclipse.persistence</groupId>
         <artifactId>org.eclipse.persistence.moxy</artifactId>
         <version>${versions.moxy}</version>
@@ -1019,6 +1025,7 @@
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>
+              <toggleOffOn></toggleOffOn>
               <eclipse>
                 <file>${main.basedir}/jpsonic-main/eclipse-2025-06-formatter.xml</file>
               </eclipse>

@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import jakarta.annotation.PreDestroy;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -69,8 +68,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     /**
      * Called only once before shutdown.
      */
-    @PreDestroy
-    void preDestroy() {
+    void markDestroy() {
         destroy.set(true);
     }
 
