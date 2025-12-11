@@ -43,7 +43,7 @@
     <versions.commons-net>3.12.0</versions.commons-net>
     <versions.commons-text>1.14.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
-    <versions.ecj>3.43.0</versions.ecj>
+    <versions.ecj>3.44.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5.1</versions.httpclient5>
