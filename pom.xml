@@ -41,7 +41,7 @@
     <versions.commons-io>2.21.0</versions.commons-io>
     <versions.commons-lang3>3.20.0</versions.commons-lang3>
     <versions.commons-net>3.12.0</versions.commons-net>
-    <versions.commons-text>1.14.0</versions.commons-text>
+    <versions.commons-text>1.15.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
     <versions.ecj>3.43.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
