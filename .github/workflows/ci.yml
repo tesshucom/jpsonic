@@ -155,7 +155,7 @@ jobs:
           distribution: 'temurin'
           java-version: 11
       - name: Download coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Code coverage report
       - name: Send Jacoco report
@@ -233,7 +233,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -310,7 +310,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -387,7 +387,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -464,7 +464,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -531,7 +531,7 @@ jobs:
 #       id: date
 #       run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
 #     - name: Download package
-#       uses: actions/download-artifact@v4
+#       uses: actions/download-artifact@v7
 #       with:
 #         name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
 #     - name: Create Tag
@@ -608,7 +608,7 @@ jobs:
 #       id: date
 #       run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
 #     - name: Download package
-#       uses: actions/download-artifact@v4
+#       uses: actions/download-artifact@v7
 #       with:
 #         name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
 #     - name: Create Tag
