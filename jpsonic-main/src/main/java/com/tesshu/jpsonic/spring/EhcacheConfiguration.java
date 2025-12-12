@@ -22,14 +22,15 @@
 package com.tesshu.jpsonic.spring;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.cache.CacheFactory;
-import jakarta.annotation.PreDestroy;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,16 +43,27 @@ public class EhcacheConfiguration {
     }
 
     /**
-     * Shutdown priority is equal to database.
+     * SmartLifecycle bean that shuts down all Ehcache CacheManager instances during
+     * Spring context shutdown.
      *
-     * @see net.sf.ehcache.constructs.web.ShutdownListener
+     * <p>
+     * Stopped after database SmartLifecycle beans to ensure proper shutdown order.
+     *
+     * @see net.sf.ehcache.CacheManager
+     * @see org.springframework.context.SmartLifecycle
      */
-    public static class CacheDisposer {
+    public static class CacheDisposer implements SmartLifecycle {
 
         private static final Logger LOG = LoggerFactory.getLogger(CacheDisposer.class);
+        private final AtomicBoolean running = new AtomicBoolean(false);
 
-        @PreDestroy
-        public void preDestroy() {
+        @Override
+        public void start() {
+            running.set(true);
+        }
+
+        @Override
+        public void stop() {
             List<CacheManager> knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
             if (LOG.isInfoEnabled()) {
                 LOG.info("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
@@ -59,6 +71,24 @@ public class EhcacheConfiguration {
             while (!knownCacheManagers.isEmpty()) {
                 CacheManager.ALL_CACHE_MANAGERS.get(0).shutdown();
             }
+            LOG.info("Cache manager shutdown complete.");
+            running.set(false);
+        }
+
+        @Override
+        public void stop(Runnable callback) {
+            stop();
+            callback.run();
+        }
+
+        @Override
+        public boolean isRunning() {
+            return running.get();
+        }
+
+        @Override
+        public int getPhase() {
+            return LifecyclePhase.CACHE.value;
         }
     }
 

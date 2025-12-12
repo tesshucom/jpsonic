@@ -111,7 +111,7 @@ class ScannerStateServiceImplTest {
         @TryScanningLockDecisions.Result.False
         void c02() {
             scannerStateService.setReady();
-            scannerStateService.preDestroy();
+            scannerStateService.markDestroy();
             assertTrue(scannerStateService.isDestroy());
             assertFalse(scannerStateService.tryScanningLock());
         }
