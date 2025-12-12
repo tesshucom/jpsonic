@@ -945,6 +945,27 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
+    /**
+     * Release all SearcherManager resources. Called during shutdown after SCAN
+     * phase.
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    void destroy() {
+        for (IndexType type : IndexType.values()) {
+            SearcherManager manager = searchers.get(type);
+            if (manager != null) {
+                try {
+                    manager.close();
+                } catch (IOException e) {
+                    LOG.warn("Failed to close SearcherManager for {}", type, e);
+                } finally {
+                    searchers.remove(type);
+                }
+            }
+        }
+        LOG.info("All SearcherManager resources released.");
+    }
+
     private record GenreFreq(String genre, int songCount) {
     }
 

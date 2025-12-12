@@ -21,21 +21,30 @@ package com.tesshu.jpsonic.spring;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.spring.DatabaseConfiguration.SmartLifecycleLegacyDaoHelper;
 import com.zaxxer.hikari.HikariDataSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.env.Environment;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 @ExtendWith(NeedsHome.class)
 class DatabaseConfigurationTest {
 
@@ -83,6 +92,123 @@ class DatabaseConfigurationTest {
             assertNull(hikariDataSource.getScheduledExecutor());
             assertNull(hikariDataSource.getThreadFactory());
             assertEquals(1, hikariDataSource.getInitializationFailTimeout());
+        }
+    }
+
+    @Nested
+    class SmartLifecycleLegacyDaoHelperTest {
+
+        private LegacyHsqlDaoHelper mockDelegate;
+        private SmartLifecycleLegacyDaoHelper helper;
+
+        @BeforeEach
+        void setUp() {
+            mockDelegate = mock(LegacyHsqlDaoHelper.class);
+            helper = new SmartLifecycleLegacyDaoHelper(mockDelegate);
+        }
+
+        /**
+         * Decision Table annotations for SmartLifecycleLegacyDaoHelper paths.
+         */
+        @java.lang.annotation.Documented
+        @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+        @java.lang.annotation.Target({ java.lang.annotation.ElementType.METHOD })
+        @interface LegacyDaoHelperDecision {
+
+            @interface Conditions {
+                @interface Running {
+                    @interface True {
+                    }
+
+                    @interface False {
+                    }
+                }
+            }
+
+            @interface Result {
+                @interface DelegateShutdown {
+                }
+
+                @interface CallbackRun {
+                }
+            }
+        }
+
+        @Test
+        @LegacyDaoHelperDecision.Conditions.Running.False
+        @LegacyDaoHelperDecision.Result.DelegateShutdown
+        void testStopWhenNotRunning() {
+            assertFalse(helper.isRunning());
+
+            helper.stop();
+
+            verify(mockDelegate).shutdownHsqldbDatabase();
+            assertFalse(helper.isRunning());
+        }
+
+        @Test
+        @LegacyDaoHelperDecision.Conditions.Running.True
+        @LegacyDaoHelperDecision.Result.DelegateShutdown
+        void testStopAfterStart() {
+            helper.start();
+            assertTrue(helper.isRunning());
+
+            helper.stop();
+
+            verify(mockDelegate).shutdownHsqldbDatabase();
+            assertFalse(helper.isRunning());
+        }
+
+        @Test
+        @LegacyDaoHelperDecision.Conditions.Running.False
+        @LegacyDaoHelperDecision.Result.DelegateShutdown
+        @LegacyDaoHelperDecision.Result.CallbackRun
+        void testStopWithCallback() {
+            Runnable callback = mock(Runnable.class);
+
+            helper.stop(callback);
+
+            verify(mockDelegate).shutdownHsqldbDatabase();
+            verify(callback).run();
+            assertFalse(helper.isRunning());
+        }
+
+        @Test
+        void testStartAndIsRunning() {
+            assertFalse(helper.isRunning());
+            helper.start();
+            assertTrue(helper.isRunning());
+            helper.stop();
+            assertFalse(helper.isRunning());
+        }
+
+        @Test
+        void testGetPhase() {
+            assertEquals(LifecyclePhase.DATABASE.value, helper.getPhase());
+        }
+
+        @Test
+        void testJdbcTemplateDelegation() {
+            helper.getJdbcTemplate();
+            verify(mockDelegate, atLeast(0)).getJdbcTemplate();
+        }
+
+        @Test
+        void testNamedParameterJdbcTemplateDelegation() {
+            helper.getNamedParameterJdbcTemplate();
+            verify(mockDelegate, atLeast(0)).getNamedParameterJdbcTemplate();
+        }
+
+        @Test
+        void testDataSourceDelegation() {
+            helper.getDataSource();
+            verify(mockDelegate, atLeast(0)).getDataSource();
+        }
+
+        @Test
+        void testCheckpointDelegation() {
+            helper.checkpoint();
+            verify(mockDelegate).checkpoint();
         }
     }
 }

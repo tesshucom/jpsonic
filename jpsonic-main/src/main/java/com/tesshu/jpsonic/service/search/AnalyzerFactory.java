@@ -328,4 +328,19 @@ public final class AnalyzerFactory {
             analyzerLock.unlock();
         }
     }
+
+    /**
+     * Release Analyzer resources if initialized. Should be called during
+     * application shutdown.
+     */
+    void destroy() {
+        analyzerLock.lock();
+        try {
+            if (analyzer != null) {
+                IOUtils.closeWhileHandlingException(analyzer); // safely closes Analyzer
+            }
+        } finally {
+            analyzerLock.unlock();
+        }
+    }
 }
