@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes.Request;
@@ -52,8 +51,6 @@ import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.annotation.Nullable;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.text.StringEscapeUtils;
@@ -87,7 +84,6 @@ public class StreamController {
     private final TranscodingService transcodingService;
     private final StatusService statusService;
     private final StreamService streamService;
-    private final AtomicBoolean destroy;
 
     public StreamController(SettingsService settingsService, SecurityService securityService,
             PlayerService playerService, TranscodingService transcodingService,
@@ -99,12 +95,6 @@ public class StreamController {
         this.transcodingService = transcodingService;
         this.statusService = statusService;
         this.streamService = streamService;
-        destroy = new AtomicBoolean();
-    }
-
-    @PostConstruct
-    public void init() {
-        destroy.set(false);
     }
 
     private static void sendForbidden(HttpServletResponse res, String m) {
@@ -400,7 +390,7 @@ public class StreamController {
     }
 
     boolean isAliveStream(Player player) {
-        return !destroy.get() && statusService
+        return statusService
             .getStreamStatusesForPlayer(player)
             .stream()
             .filter(TransferStatus::isActive)
@@ -483,10 +473,5 @@ public class StreamController {
         } finally {
             streamService.removeStreamStatus(user, status);
         }
-    }
-
-    @PreDestroy
-    public void onDestroy() {
-        destroy.set(true);
     }
 }

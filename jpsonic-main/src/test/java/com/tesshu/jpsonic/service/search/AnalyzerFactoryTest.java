@@ -69,7 +69,7 @@ class AnalyzerFactoryTest {
 
     @AfterEach
     void testsGetAnalyzer() {
-        analyzerFactory.getAnalyzer().close();
+        analyzerFactory.destroy();
     }
 
     @Test

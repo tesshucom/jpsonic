@@ -90,7 +90,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -1309,8 +1308,6 @@ class StreamControllerTest {
         @WriteStreamDecision.Result.Outsize0
         @Test
         void c00() throws Exception {
-            streamController.init();
-            streamController.onDestroy();
             String dummy = "a".repeat(8192);
             InputStream in = new ByteArrayInputStream(dummy.getBytes(StandardCharsets.UTF_8));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -1332,7 +1329,6 @@ class StreamControllerTest {
             transferStatus.setActive(true);
             when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(transferStatus));
-            streamController.init();
 
             PlayQueue playQueue = new PlayQueue();
             playQueue.setStatus(Status.STOPPED);
@@ -1363,7 +1359,6 @@ class StreamControllerTest {
             transferStatus.setActive(true);
             when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(transferStatus));
-            streamController.init();
 
             PlayQueue playQueue = new PlayQueue();
             playQueue.setStatus(Status.STOPPED);
@@ -1491,7 +1486,6 @@ class StreamControllerTest {
         void c00() throws Exception {
             Player player = new Player();
             player.setId(100);
-            streamController.init();
             assertFalse(streamController.isAliveStream(player));
         }
 
@@ -1506,7 +1500,6 @@ class StreamControllerTest {
             transferStatus.setActive(true);
             when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(transferStatus));
-            streamController.init();
             assertTrue(streamController.isAliveStream(player));
         }
 
@@ -1516,8 +1509,6 @@ class StreamControllerTest {
         void c02() throws Exception {
             Player player = new Player();
             player.setId(100);
-            streamController.init();
-            streamController.onDestroy();
             assertFalse(streamController.isAliveStream(player));
         }
     }

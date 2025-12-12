@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceFactory;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.jupnp.UpnpService;
 import org.jupnp.transport.RouterException;
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 @Service
-@DependsOn({ "shutdownHook", "upnpServiceFactory" })
+@DependsOn("upnpServiceFactory")
 public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
@@ -78,6 +77,10 @@ public class UPnPService {
         }
     }
 
+    boolean isRunning() {
+        return running.get();
+    }
+
     private void start() {
         runningLock.lock();
         try {
@@ -101,8 +104,7 @@ public class UPnPService {
         }
     }
 
-    @PreDestroy()
-    private void stop() {
+    void stop() {
         runningLock.lock();
         try {
             running.getAndUpdate(isRunning -> {

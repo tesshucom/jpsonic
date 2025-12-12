@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.tesshu.jpsonic.domain.MediaFile;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -48,19 +49,19 @@ public class MediaFileCache {
     public void setEnabled(boolean enabled) {
         this.enabled.set(enabled);
         if (!isEnabled()) {
-            mediaFileMemoryCache.removeAll();
+            removeAll();
         }
     }
 
     public void put(Path path, MediaFile mediaFile) {
-        if (isEnabled()) {
+        if (isEnabled() && mediaFileMemoryCache.getStatus() == Status.STATUS_ALIVE) {
             mediaFileMemoryCache.put(new Element(path, mediaFile));
         }
     }
 
     @Nullable
     public MediaFile get(Path path) {
-        if (!isEnabled()) {
+        if (!isEnabled() || mediaFileMemoryCache.getStatus() != Status.STATUS_ALIVE) {
             return null;
         }
         Element element = mediaFileMemoryCache.get(path);
@@ -68,10 +69,13 @@ public class MediaFileCache {
     }
 
     public void removeAll() {
-        mediaFileMemoryCache.removeAll();
+        if (mediaFileMemoryCache.getStatus() == Status.STATUS_ALIVE) {
+            mediaFileMemoryCache.removeAll();
+        }
     }
 
     public boolean remove(Path path) {
-        return mediaFileMemoryCache.remove(path);
+        return mediaFileMemoryCache.getStatus() == Status.STATUS_ALIVE
+                && mediaFileMemoryCache.remove(path);
     }
 }
