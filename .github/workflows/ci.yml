@@ -95,7 +95,7 @@ jobs:
         run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease17 clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Code coverage report
           path: jpsonic-main/target/site/jacoco
@@ -204,7 +204,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Archive artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.current }}
           path: |
