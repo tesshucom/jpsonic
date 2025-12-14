@@ -12,7 +12,6 @@
     <module>subsonic-rest-api</module>
     <module>airsonic-taglibs</module>
     <module>jpsonic-upnp-template</module>
-    <module>${jpsonic.concurent.module}</module>
     <module>jpsonic-main</module>
   </modules>
 
@@ -20,7 +19,6 @@
     <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     <failOnDependencyWarning>false</failOnDependencyWarning>
     <java.version>21</java.version>
-    <jpsonic.concurent.module>jpsonic-java21</jpsonic.concurent.module>
     <main.basedir>${project.basedir}</main.basedir>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1271,7 +1269,6 @@
       </activation>
       <properties>
         <java.version>21</java.version>
-        <jpsonic.concurent.module>jpsonic-java21</jpsonic.concurent.module>
         <maven.compiler.release>${java.version}</maven.compiler.release>
       </properties>
     </profile>
@@ -1279,7 +1276,6 @@
       <id>release25</id>
       <properties>
         <java.version>25</java.version>
-        <jpsonic.concurent.module>jpsonic-java21</jpsonic.concurent.module>
         <maven.compiler.release>${java.version}</maven.compiler.release>
       </properties>
     </profile>

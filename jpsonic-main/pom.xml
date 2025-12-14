@@ -30,11 +30,6 @@
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic.player</groupId>
-      <artifactId>${jpsonic.concurent.module}</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.tesshu.jpsonic.player</groupId>
       <artifactId>jpsonic-upnp-template</artifactId>
       <version>${project.version}</version>
     </dependency>
