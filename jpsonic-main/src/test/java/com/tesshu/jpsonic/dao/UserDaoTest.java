@@ -216,7 +216,7 @@ class UserDaoTest {
 
         UserSettings userSettings = userDao.getUserSettings("sindre");
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
-        assertNull(userSettings.getLocale(), "Error in getUserSettings().");
+        assertEquals(Locale.getDefault(), userSettings.getLocale(), "Error in getUserSettings().");
         assertNull(userSettings.getThemeId(), "Error in getUserSettings().");
         assertFalse(userSettings.isFinalVersionNotificationEnabled(),
                 "Error in getUserSettings().");

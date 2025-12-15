@@ -52,12 +52,9 @@ class JapaneseReadingUtilsTest {
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
-        String language = "ja";
-        String country = "jp";
-        String variant = "";
         Mockito
             .when(settingsService.getLocale())
-            .thenReturn(new Locale(language, country, variant));
+            .thenReturn(new Locale.Builder().setLanguage("ja").setRegion("jp").build());
         Mockito
             .when(settingsService.getIndexSchemeName())
             .thenReturn(IndexScheme.NATIVE_JAPANESE.name());

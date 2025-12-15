@@ -239,16 +239,16 @@ public final class StringUtil {
      *
      * @return The locale.
      */
-    public static @Nullable Locale parseLocale(String s) {
-        if (s == null) {
-            return null;
+    public static @NonNull Locale parseLocale(String s) {
+        if (s == null || s.isEmpty() || s.equals("_")) {
+            return Locale.getDefault();
         }
 
-        List<String> elements = new ArrayList<>(Arrays.asList(s.split("_", 3)));
-        while (elements.size() < 3) {
-            elements.add("");
+        try {
+            return new Locale.Builder().setLanguageTag(s.replace('_', '-')).build();
+        } catch (java.util.IllformedLocaleException e) {
+            return Locale.getDefault();
         }
-        return new Locale(elements.get(0), elements.get(1), elements.get(2));
     }
 
     /**
