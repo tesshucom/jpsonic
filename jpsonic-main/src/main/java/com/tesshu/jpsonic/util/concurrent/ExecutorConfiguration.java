@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2021 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.util.concurrent;
@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.naming.NamingException;
 
@@ -37,6 +36,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
@@ -53,13 +53,6 @@ public class ExecutorConfiguration {
     protected static final int PODCAST_DOWNLOAD_AWAIT_TERMINATION = 25_000;
     protected static final int PODCAST_REFRESH_AWAIT_TERMINATION = 25_000;
     protected static final int SCAN_AWAIT_TERMINATION = 25_000;
-
-    private final ShortTaskPoolConfiguration poolConf;
-
-    public ExecutorConfiguration(ShortTaskPoolConfiguration poolConf) {
-        super();
-        this.poolConf = poolConf;
-    }
 
     public ThreadPoolTaskExecutor suppressIfLargePool(ThreadPoolTaskExecutor executor) {
 
@@ -80,30 +73,14 @@ public class ExecutorConfiguration {
         return executor;
     }
 
-    /*
-     * General-purpose executor for small processing. Executes a task that has a
-     * relatively short execution time and does not cause a fatal problem even if it
-     * is forcibly shut down (Shutdown implementation method depends on individual
-     * task).
-     */
     @Bean
     public AsyncTaskExecutor shortExecutor() {
+        // @see TaskExecutorConfigurations
+        // shortExecutor(SimpleAsyncTaskExecutorBuilder builder)
+        // return builder.threadNamePrefix("jps-").build();
 
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle Stream
-        executor.setAwaitTerminationMillis(SHORT_AWAIT_TERMINATION);
-        executor.setQueueCapacity(poolConf.getQueueCapacity());
-        executor.setCorePoolSize(poolConf.getCorePoolSize());
-        executor.setMaxPoolSize(poolConf.getMaxPoolSize());
-        suppressIfLargePool(executor);
-
-        executor.setThreadFactory(createThreadFactory(true, "short-task", Thread.MIN_PRIORITY));
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setDaemon(true);
-
-        executor.initialize();
-        return executor;
+        // ... Vanilla is enough for now.
+        return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
     }
 
     /*
@@ -166,9 +143,7 @@ public class ExecutorConfiguration {
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setWaitForTasksToCompleteOnShutdown(false);
-        // scan, podcast. See *ScheduleConfiguration.
-        // upnp registry maintainer. See UpnpServiceConfigurationAdapter
-        scheduler.setPoolSize(3);
+        scheduler.setPoolSize(2); // scan and podcast. See *ScheduleConfiguration.
         scheduler
             .setThreadFactory(createThreadFactory(true, "task-scheduler", Thread.MIN_PRIORITY));
         return scheduler;
@@ -207,11 +182,10 @@ public class ExecutorConfiguration {
             return new ExecutorServiceAdapter(shortExecutor);
         }
 
-        @Lazy
         @Bean("asyncProtocolExecutorService")
-        public ExecutorService asyncProtocolExecutorService(
-                @Autowired @Qualifier("virtualExecutorService") ExecutorService virtualExecutorService) {
-            return virtualExecutorService;
+        public ExecutorService createUpnpServices(
+                @Autowired @Qualifier("virtualExecutorService") ExecutorService executorService) {
+            return executorService;
         }
     }
 

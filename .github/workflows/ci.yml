@@ -1,5 +1,5 @@
-# Currently Windows only validates Java LTS version
-# Send the coverage of Java LTS version on Linux to Cadacy
+# Java LTS (21) is validated on Windows and Linux
+# Coverage is generated on Linux and sent to Codacy
 name: CI
 on:
   push:
@@ -56,16 +56,16 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: 17
+        java-version: 21
     - name: Compile with Maven
-      run: mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease17
+      run: mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease21
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
   ##########################################################################
-  verify-Java17:
+  verify-Java21:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    name: JDK17 on ${{ matrix.os }}
+    name: JDK21 on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest ]
@@ -77,7 +77,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
       - name: Set up ffmpeg
         id: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
@@ -92,7 +92,7 @@ jobs:
       - name: Create coverage
         id: create-coverage
         if: contains(matrix.os, 'ubuntu-latest')
-        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease17 clean test jacoco:report
+        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease21 clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
         uses: actions/upload-artifact@v4
@@ -104,15 +104,15 @@ jobs:
         if: contains(matrix.os, 'windows-latest')
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: mvn -DnvdApiKey=${{ env.NVD_API_KEY }} -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease17 clean verify -B -Ptomcat-embed -Punit-test
+        run: mvn -DnvdApiKey=${{ env.NVD_API_KEY }} -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease21 clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
-  verify-Java21-or-later:
+  verify-Java25-or-later:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 21, 22 ]
+        java: [ 25 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -140,7 +140,7 @@ jobs:
   ##########################################################################
   send-coverage:
     name: Send coverage to Codacy
-    needs: [ verify-Java17 ]
+    needs: [ verify-Java21 ]
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
     env:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -162,12 +162,12 @@ jobs:
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
   ship-war:
-    if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop') && github.event_name != 'schedule'"
-    needs: [ verify-Java17, verify-Java21-or-later ]
+    if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker') && github.event_name != 'schedule'"
+    needs: [ verify-Java21, verify-Java25-or-later ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 17, 21 ]
+        java: [ 21 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -444,226 +444,13 @@ jobs:
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:ea-noble .
   ##########################################################################
-  ship-docker-image-noble-v7:
-    name: Docker(noble-arm/v7)
-    needs: ship-war
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
-      - name: Get current date
-        id: date
-        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      - name: Download package
-        uses: actions/download-artifact@v4
-        with:
-          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
-      - name: Create Tag
-        run: |
-          echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-      - name: Copy artifact
-        run: |
-          mkdir -p install/docker/armv7/target/dependency
-          mv jpsonic.war install/docker/armv7/target/dependency
-      - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master')"
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/armv7
-            mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble-v7 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*}-noble-v7 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-noble-v7 .
-            mvn -DdockerTag=${DOCKER_TAG%.*.*}-noble-v7 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-noble-v7 .
-          fi
-      - name: Release with Latest Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/armv7
-            mvn -DdockerTag=latest-noble-v7 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-noble-v7 .
-          fi
-      - name: Release with Alpha/Beta Tag
-        if: github.ref == 'refs/heads/master'
-        run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-            cd install/docker/armv7
-            mvn -DdockerTag=latest-noble-v7 package
-            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-noble-v7 .
-          fi
-  ##########################################################################
-#
-# https://github.com/tesshucom/jpsonic/pull/2741
-#
-# ship-docker-image-jammy:
-#   name: Docker(jammy-amd,arm)
-#   needs: ship-war
-#   runs-on: ubuntu-latest
-#   steps:
-#     - uses: actions/checkout@v4
-#     - uses: actions/setup-java@v4
-#       with:
-#         distribution: 'temurin'
-#         java-version: 21
-#     - uses: docker/setup-qemu-action@v3
-#     - uses: docker/setup-buildx-action@v3
-#     - uses: docker/login-action@v3
-#       with:
-#         username: ${{ secrets.DOCKER_USER }}
-#         password: ${{ secrets.DOCKER_PASS }}
-#     - name: Get current date
-#       id: date
-#       run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-#     - name: Download package
-#       uses: actions/download-artifact@v4
-#       with:
-#         name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
-#     - name: Create Tag
-#       run: |
-#         echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-#     - name: Copy artifact
-#       run: |
-#         mkdir -p install/docker/jammy/target/dependency
-#         mv jpsonic.war install/docker/jammy/target/dependency
-#     - name: Release with Version Tag
-#       if: "(github.ref == 'refs/heads/master')"
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/jammy
-#           sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
-#           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-#           mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
-#           mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy .
-#           mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy .
-#         fi
-#     - name: Release with Latest Tag
-#       if: github.ref == 'refs/heads/master'
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/jammy
-#           sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
-#           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-#           mvn -DdockerTag=latest-jammy package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest-jammy .
-#         fi
-#     - name: Release with Alpha/Beta Tag
-#       if: github.ref == 'refs/heads/master'
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/jammy
-#           sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
-#           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-#           mvn -DdockerTag=latest-jammy package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
-#         fi
-#     - name: Release with Early-Access Tag
-#       if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
-#       run: |
-#         cd install/docker/jammy
-#         mvn -DdockerTag=ea-jammy package
-#         docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#         docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:ea-jammy .
-  ##########################################################################
-# ship-docker-image-jammy-v7:
-#   name: Docker(jammy-arm/v7)
-#   needs: ship-war
-#   runs-on: ubuntu-latest
-#   steps:
-#     - uses: actions/checkout@v4
-#     - uses: actions/setup-java@v4
-#       with:
-#         distribution: 'temurin'
-#         java-version: 17
-#     - uses: docker/setup-qemu-action@v3
-#     - uses: docker/setup-buildx-action@v3
-#     - uses: docker/login-action@v3
-#       with:
-#         username: ${{ secrets.DOCKER_USER }}
-#         password: ${{ secrets.DOCKER_PASS }}
-#     - name: Get current date
-#       id: date
-#       run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-#     - name: Download package
-#       uses: actions/download-artifact@v4
-#       with:
-#         name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
-#     - name: Create Tag
-#       run: |
-#         echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-#     - name: Copy artifact
-#       run: |
-#         mkdir -p install/docker/armv7/target/dependency
-#         mv jpsonic.war install/docker/armv7/target/dependency
-#     - name: Release with Version Tag
-#       if: "(github.ref == 'refs/heads/master')"
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/armv7
-#           sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
-#           mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy-v7 package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
-#          mvn -DdockerTag=${DOCKER_TAG%.*}-jammy-v7 package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy-v7 .
-#           mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy-v7 package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy-v7 .
-#         fi
-#     - name: Release with Latest Tag
-#       if: github.ref == 'refs/heads/master'
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/armv7
-#           sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
-#           mvn -DdockerTag=latest-jammy-v7 package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-jammy-v7 .
-#         fi
-#     - name: Release with Alpha/Beta Tag
-#       if: github.ref == 'refs/heads/master'
-#       run: |
-#         if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
-#           cd install/docker/armv7
-#           sed -i -e "s/17-jre-noble/17-jre-jammy/g" Dockerfile
-#           mvn -DdockerTag=latest-jammy-v7 package
-#           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-#           docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
-#         fi
-  ##########################################################################
   run-docker4latest:
     name: Run ${{ matrix.tag }}
-#   needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7, ship-docker-image-jammy, ship-docker-image-jammy-v7 ]
-    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7 ]
+    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble ]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-#       tag: [ latest, latest-ubi9, latest-noble, latest-jammy ]
         tag: [ latest, latest-ubi9, latest-noble ]
     steps:
       - uses: actions/checkout@v4
@@ -689,13 +476,11 @@ jobs:
   ##########################################################################
   run-docker4ea:
     name: Run ${{ matrix.tag }}
-#   needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7, ship-docker-image-jammy, ship-docker-image-jammy-v7 ]
-    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble, ship-docker-image-noble-v7 ]
+    needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble ]
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-#       tag: [ ea, ea-ubi9, ea-noble, ea-jammy ]
         tag: [ ea, ea-ubi9, ea-noble ]
     steps:
       - uses: actions/checkout@v4
