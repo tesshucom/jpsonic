@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class UPnPSubnet {
             return false;
         } else if (isEmpty(subnetInfo)) {
             try {
-                URL url = new URL(dlnaBaseLANURL);
+                URL url = StringUtil.parseURL(dlnaBaseLANURL);
                 String cidrNotation = (IP_ADDRESS_PATTERN.matcher(url.getHost()).matches()
                         ? url.getHost()
                         : InetAddress.getByName(url.getHost()).getHostAddress())
