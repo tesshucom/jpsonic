@@ -1008,26 +1008,4 @@ class AnalyzerFactoryTest {
         }
         return result;
     }
-
-    @SuppressWarnings("unused")
-    private List<String> toQueryTermString(String field, String str) {
-        List<String> result = new ArrayList<>();
-        try (TokenStream stream = analyzerFactory
-            .getAnalyzer()
-            .tokenStream(field, new StringReader(str))) {
-            stream.reset();
-            while (stream.incrementToken()) {
-                result
-                    .add(stream
-                        .getAttribute(CharTermAttribute.class)
-                        .toString()
-                        .replaceAll("^term\\=", ""));
-            }
-        } catch (IOException e) {
-            LoggerFactory
-                .getLogger(AnalyzerFactoryTest.class)
-                .error("Error during Token processing.", e);
-        }
-        return result;
-    }
 }

@@ -59,7 +59,6 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
-import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

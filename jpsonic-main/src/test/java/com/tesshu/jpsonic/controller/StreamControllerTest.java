@@ -1305,6 +1305,7 @@ class StreamControllerTest {
     class WriteStreamTest {
 
         @WriteStreamDecision.Conditions.IsAliveStream.False
+        @WriteStreamDecision.Conditions.CheckRequired.False
         @WriteStreamDecision.Result.Outsize0
         @Test
         void c00() throws Exception {
