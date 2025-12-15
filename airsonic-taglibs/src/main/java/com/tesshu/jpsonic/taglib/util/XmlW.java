@@ -60,6 +60,7 @@
 package com.tesshu.jpsonic.taglib.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * XML helping static methods.
@@ -71,20 +72,20 @@ import org.apache.commons.lang3.StringUtils;
 public final class XmlW {
 
     public static String escapeXml(String str) {
-        str = StringUtils.replace(str, "&", "&amp;");
-        str = StringUtils.replace(str, "<", "&lt;");
-        str = StringUtils.replace(str, ">", "&gt;");
-        str = StringUtils.replace(str, "\"", "&quot;");
-        str = StringUtils.replace(str, "'", "&apos;");
+        str = Strings.CS.replace(str, "&", "&amp;");
+        str = Strings.CS.replace(str, "<", "&lt;");
+        str = Strings.CS.replace(str, ">", "&gt;");
+        str = Strings.CS.replace(str, "\"", "&quot;");
+        str = Strings.CS.replace(str, "'", "&apos;");
         return str;
     }
 
     public static String unescapeXml(String str) {
-        str = StringUtils.replace(str, "&amp;", "&");
-        str = StringUtils.replace(str, "&lt;", "<");
-        str = StringUtils.replace(str, "&gt;", ">");
-        str = StringUtils.replace(str, "&quot;", "\"");
-        str = StringUtils.replace(str, "&apos;", "'");
+        str = Strings.CS.replace(str, "&amp;", "&");
+        str = Strings.CS.replace(str, "&lt;", "<");
+        str = Strings.CS.replace(str, "&gt;", ">");
+        str = Strings.CS.replace(str, "&quot;", "\"");
+        str = Strings.CS.replace(str, "&apos;", "'");
         return str;
     }
 
