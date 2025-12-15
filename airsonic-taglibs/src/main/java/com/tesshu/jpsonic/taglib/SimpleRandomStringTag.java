@@ -47,7 +47,7 @@ public class SimpleRandomStringTag extends SimpleTagSupport {
 
     String createRandomString() {
         int ct = NumberUtils.isCreatable(count) ? Integer.parseInt(count) : 5;
-        return RandomStringUtils.randomAlphabetic(ct);
+        return RandomStringUtils.insecure().nextAlphabetic(ct);
     }
 
     @Override

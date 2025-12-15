@@ -27,13 +27,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +47,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Miscellaneous string utility methods.
@@ -85,6 +87,8 @@ public final class StringUtil {
 
             { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
             { "png", "image/png" }, { "bmp", "image/bmp" }, };
+
+    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
     /**
      * Disallow external instantiation.
@@ -239,16 +243,30 @@ public final class StringUtil {
      *
      * @return The locale.
      */
-    public static @Nullable Locale parseLocale(String s) {
-        if (s == null) {
-            return null;
+    public static @NonNull Locale parseLocale(String s) {
+        if (s == null || s.isEmpty() || "_".equals(s)) {
+            return Locale.getDefault();
         }
 
-        List<String> elements = new ArrayList<>(Arrays.asList(s.split("_", 3)));
-        while (elements.size() < 3) {
-            elements.add("");
+        try {
+            return new Locale.Builder().setLanguageTag(s.replace('_', '-')).build();
+        } catch (java.util.IllformedLocaleException e) {
+            return Locale.getDefault();
         }
-        return new Locale(elements.get(0), elements.get(1), elements.get(2));
+    }
+
+    public static @Nullable URL parseURL(String s) throws MalformedURLException {
+        if (StringUtils.isBlank(s)) {
+            return null;
+        }
+        try {
+            return URI.create(s).toURL();
+        } catch (IllegalArgumentException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Invalid URL rejected by strict parsing (Java 20+): [{}]", s, e);
+            }
+            return null;
+        }
     }
 
     /**
@@ -294,9 +312,13 @@ public final class StringUtil {
      *
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
-    public static @Nullable String getUrlFile(String url) {
+    public static @Nullable String getUrlFile(String urlStr) {
         try {
-            String pathString = new URL(url).getPath();
+            URL url = parseURL(urlStr);
+            if (url == null) {
+                return null;
+            }
+            String pathString = url.getPath();
             if (StringUtils.isBlank(pathString) || pathString.endsWith("/")) {
                 return null;
             }

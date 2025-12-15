@@ -422,9 +422,13 @@ public class SettingsService implements ReadWriteLockSupport {
             writeLock(localeLock);
             try {
                 String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
-                String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
+                String region = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
                 String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
-                locale = new Locale(language, country, variant);
+                locale = new Locale.Builder()
+                    .setLanguage(language)
+                    .setRegion(region)
+                    .setVariant(variant)
+                    .build();
                 return locale;
             } finally {
                 writeUnlock(localeLock);

@@ -110,9 +110,13 @@ public final class ServiceMockUtils {
                 .when(settingsService.getThemeId())
                 .thenReturn(SettingsConstants.General.ThemeAndLang.THEME_ID.defaultValue);
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
-            String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
+            String region = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
             String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
-            Locale locale = new Locale(language, country, variant);
+            Locale locale = new Locale.Builder()
+                .setLanguage(language)
+                .setRegion(region)
+                .setVariant(variant)
+                .build();
             Mockito.when(settingsService.getAvailableLocales()).thenReturn(Arrays.asList(locale));
             Mockito.when(settingsService.getLocale()).thenReturn(locale);
             Mockito
@@ -151,9 +155,13 @@ public final class ServiceMockUtils {
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
-            String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
+            String region = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
             String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
-            Locale locale = new Locale(language, country, variant);
+            Locale locale = new Locale.Builder()
+                .setLanguage(language)
+                .setRegion(region)
+                .setVariant(variant)
+                .build();
             AirsonicLocaleResolver localeResolver = Mockito.mock(AirsonicLocaleResolver.class);
             Mockito
                 .when(localeResolver.resolveLocale(Mockito.nullable(HttpServletRequest.class)))

@@ -32,13 +32,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.InternetRadioSource;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -192,27 +192,27 @@ class InternetRadioServiceTest {
             lenient()
                 .doReturn(mockURLConnection1)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_1)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_1)));
             lenient()
                 .doReturn(mockURLConnection2)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_2)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_2)));
             lenient()
                 .doReturn(mockURLConnectionMove)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_MOVE)));
             lenient()
                 .doReturn(mockURLConnectionMoveLoop)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE_LOOP)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_MOVE_LOOP)));
             lenient()
                 .doReturn(mockURLConnectionLarge)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_LARGE)));
             lenient()
                 .doReturn(mockURLConnectionLarge2)
                 .when(internetRadioService)
-                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE_2)));
+                .connectToURL(eq(StringUtil.parseURL(TEST_PLAYLIST_URL_LARGE_2)));
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
@@ -267,9 +267,9 @@ class InternetRadioServiceTest {
 
     @Test
     void testVerifyRadioURL() throws MalformedURLException, IOException {
-        internetRadioService.verifyRadioURL(new URL("http://dummy.com"));
-        internetRadioService.verifyRadioURL(new URL("https://dummy.com"));
+        internetRadioService.verifyRadioURL(StringUtil.parseURL("http://dummy.com"));
+        internetRadioService.verifyRadioURL(StringUtil.parseURL("https://dummy.com"));
         assertThrows(IOException.class,
-                () -> internetRadioService.verifyRadioURL(new URL("ftp://dummy.com")));
+                () -> internetRadioService.verifyRadioURL(StringUtil.parseURL("ftp://dummy.com")));
     }
 }

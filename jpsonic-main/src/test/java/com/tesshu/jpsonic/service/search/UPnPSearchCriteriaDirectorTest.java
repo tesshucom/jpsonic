@@ -157,14 +157,6 @@ public class UPnPSearchCriteriaDirectorTest {
                     @interface creator {
                     }
                 }
-
-                @SuppressWarnings("unused")
-                @interface offset {
-                }
-
-                @SuppressWarnings("unused")
-                @interface count {
-                }
             }
 
             @interface Settings {
@@ -173,15 +165,6 @@ public class UPnPSearchCriteriaDirectorTest {
                     }
 
                     @interface TRUE {
-                    }
-                }
-
-                @SuppressWarnings("unused")
-                @interface musicFolders {
-                    @interface SINGLE_FOLDERS {
-                    }
-
-                    @interface MULTI_FOLDERS {
                     }
                 }
 

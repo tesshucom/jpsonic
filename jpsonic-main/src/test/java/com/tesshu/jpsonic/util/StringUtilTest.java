@@ -162,14 +162,16 @@ class StringUtilTest {
 
     @Test
     void testParseLocale() {
-        assertEquals(new Locale("en"), StringUtil.parseLocale("en"), "Error in parseLocale().");
-        assertEquals(new Locale("en"), StringUtil.parseLocale("en_"), "Error in parseLocale().");
-        assertEquals(new Locale("en"), StringUtil.parseLocale("en__"), "Error in parseLocale().");
-        assertEquals(new Locale("en", "US"), StringUtil.parseLocale("en_US"),
+        assertEquals(new Locale.Builder().setLanguage("en").build(), StringUtil.parseLocale("en"),
                 "Error in parseLocale().");
-        assertEquals(new Locale("en", "US", "WIN"), StringUtil.parseLocale("en_US_WIN"),
+        assertEquals(Locale.getDefault(), StringUtil.parseLocale("en_"), "Error in parseLocale().");
+        assertEquals(Locale.getDefault(), StringUtil.parseLocale("en__"),
                 "Error in parseLocale().");
-        assertEquals(new Locale("en", "", "WIN"), StringUtil.parseLocale("en__WIN"),
+        assertEquals(new Locale.Builder().setLanguage("en").setRegion("US").build(),
+                StringUtil.parseLocale("en_US"), "Error in parseLocale().");
+        assertEquals(Locale.getDefault(), StringUtil.parseLocale("en_US_WIN"),
+                "Error in parseLocale().");
+        assertEquals(Locale.getDefault(), StringUtil.parseLocale("en__WIN"),
                 "Error in parseLocale().");
     }
 

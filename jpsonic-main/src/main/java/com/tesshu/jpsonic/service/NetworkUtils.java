@@ -110,7 +110,7 @@ public final class NetworkUtils {
 
     private static URI calculateNonProxyUri(HttpServletRequest request) throws ExecutionException {
         try {
-            URL url = new URL(request.getRequestURL().toString());
+            URL url = StringUtil.parseURL(request.getRequestURL().toString());
             String host = url.getHost();
             String scheme = url.getProtocol();
             int port = url.getPort();

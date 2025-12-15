@@ -48,8 +48,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -67,7 +65,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/" + ViewName.ViewNameConstants.RANDOM_PLAYQUEUE)
 public class RandomPlayQueueController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
     private static final String REQUEST_VALUE_ANY = "any";
 
     private final MusicFolderService musicFolderService;

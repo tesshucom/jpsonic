@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHitCountCollectorManager;
 import org.springframework.stereotype.Component;
 
 @Component

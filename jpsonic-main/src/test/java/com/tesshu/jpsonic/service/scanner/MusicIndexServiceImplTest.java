@@ -80,7 +80,10 @@ class MusicIndexServiceImplTest {
             .thenReturn(Arrays.asList(ignoredArticles.split("\\s+")));
         String indexString = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
         Mockito.when(settingsService.getIndexString()).thenReturn(indexString);
-        Mockito.when(settingsService.getLocale()).thenReturn(new Locale("ja", "jp", ""));
+        Mockito
+            .when(settingsService.getLocale())
+            .thenReturn(
+                    new Locale.Builder().setLanguage("ja").setRegion("jp").setVariant("").build());
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
         musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao,
                 readingUtils);

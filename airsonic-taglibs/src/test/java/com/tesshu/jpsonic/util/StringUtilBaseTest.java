@@ -57,7 +57,7 @@ class StringUtilBaseTest {
         assertEquals("4413.43 TB", StringUtilBase.formatBytes(4_852_617_603_375_432L, locale),
                 "Error in formatBytes().");
 
-        locale = new Locale("no", "", "");
+        locale = Locale.FRANCE;
         assertEquals("918 B", StringUtilBase.formatBytes(918, locale), "Error in formatBytes().");
         assertEquals("1023 B", StringUtilBase.formatBytes(1023, locale), "Error in formatBytes().");
         assertEquals("1 KB", StringUtilBase.formatBytes(1024, locale), "Error in formatBytes().");
