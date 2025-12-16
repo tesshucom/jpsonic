@@ -32,6 +32,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.theme.ChartColor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jfree.chart.ChartFactory;
@@ -64,7 +65,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/statusChart.view")
-public class StatusChartController extends AbstractChartController {
+public class StatusChartController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusChartController.class);
 
@@ -93,7 +94,6 @@ public class StatusChartController extends AbstractChartController {
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UselessParentheses" })
-    @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -167,12 +167,12 @@ public class StatusChartController extends AbstractChartController {
         theme.setSmallFont(font);
         theme.apply(chart);
 
-        Color bgColor = getBackground(request);
+        Color bgColor = ChartColor.BACKGROUND.get();
         chart.setBackgroundPaint(bgColor);
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(bgColor);
 
-        Color fgColor = getForeground(request);
+        Color fgColor = ChartColor.TEXT.get();
         plot.setOutlinePaint(fgColor);
         plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
 
@@ -182,7 +182,7 @@ public class StatusChartController extends AbstractChartController {
         plot.setDomainGridlineStroke(new BasicStroke(0.2f));
 
         XYItemRenderer renderer = plot.getRendererForDataset(dataset);
-        Color stColor = getStroke(request);
+        Color stColor = ChartColor.STROKE.get();
         renderer.setSeriesPaint(0, stColor);
         renderer
             .setSeriesStroke(0,
