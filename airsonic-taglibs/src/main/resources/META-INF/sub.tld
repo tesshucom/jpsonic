@@ -13,6 +13,15 @@
 
     <tag>
         <description>
+            Resolves the CSS URL for the current request or user settings and outputs it.
+        </description>
+        <name>cssUrl</name>
+        <tag-class>com.tesshu.jpsonic.taglib.CssUrlTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+
+    <tag>
+        <description>
             Creates a URL with optional query parameters. Similar to 'c:url', but
             you may specify which character encoding to use for the URL query
             parameters.  If no encoding is specified, the following steps are performed:
