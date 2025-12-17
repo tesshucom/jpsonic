@@ -24,14 +24,12 @@ package com.tesshu.jpsonic.security;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Random;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
@@ -55,8 +53,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -78,14 +74,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     }
 
     @Bean
-    public PasswordEncoder delegatingPasswordEncoder() {
-        PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
-        String defaultIdForEncode = "noop";
-        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
-        DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder(defaultIdForEncode,
-                encoders);
-        passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
-        return passworEncoder;
+    public PasswordEncoder passwordEncoder() {
+        return new PlainTextPasswordEncoder();
     }
 
     @EnableWebSecurity
