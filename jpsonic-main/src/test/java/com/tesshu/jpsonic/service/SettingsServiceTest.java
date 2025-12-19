@@ -48,12 +48,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Unit test of {@link SettingsService}.
  *
  * @author Sindre Mehus
  */
+@ActiveProfiles("test")
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)

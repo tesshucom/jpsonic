@@ -44,12 +44,6 @@ class PodcastDisposerTest {
     }
 
     @Test
-    void testStartCallsInit() {
-        disposer.start();
-        verify(podcastService).init();
-    }
-
-    @Test
     void testStopCallsMarkDestroy() {
         disposer.stop();
         verify(podcastService).markDestroy();

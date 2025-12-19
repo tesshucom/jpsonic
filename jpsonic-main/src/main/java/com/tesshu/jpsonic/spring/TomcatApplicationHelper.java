@@ -19,13 +19,13 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic;
+package com.tesshu.jpsonic.spring;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 
 public final class TomcatApplicationHelper {
 

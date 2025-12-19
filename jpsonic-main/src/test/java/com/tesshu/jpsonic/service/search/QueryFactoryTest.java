@@ -36,10 +36,12 @@ import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 
@@ -49,6 +51,7 @@ import org.mockito.Mockito;
  * API.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class QueryFactoryTest {
 

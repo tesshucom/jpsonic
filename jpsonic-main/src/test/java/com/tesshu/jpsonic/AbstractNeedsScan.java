@@ -52,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 /*
  * Abstract class for scanning MusicFolder.
@@ -59,6 +60,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ActiveProfiles("test")
 public abstract class AbstractNeedsScan implements NeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);
