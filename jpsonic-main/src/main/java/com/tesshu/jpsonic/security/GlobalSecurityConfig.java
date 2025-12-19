@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -61,7 +60,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 @DependsOn("liquibase")
 @Configuration
-@Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableMethodSecurity(securedEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 

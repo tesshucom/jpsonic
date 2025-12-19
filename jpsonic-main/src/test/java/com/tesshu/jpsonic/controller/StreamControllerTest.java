@@ -84,10 +84,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpHeaders;
@@ -101,6 +103,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
         "PMD.TooManyStaticImports" })
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamControllerTest {
 

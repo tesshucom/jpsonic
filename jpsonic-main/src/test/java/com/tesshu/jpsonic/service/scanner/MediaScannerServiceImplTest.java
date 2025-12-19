@@ -96,9 +96,7 @@ import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnJre;
 import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -109,8 +107,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.ObjectUtils;
 
+@ActiveProfiles("test")
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class MediaScannerServiceImplTest {
 
@@ -1416,7 +1416,6 @@ class MediaScannerServiceImplTest {
             populateDatabase();
         }
 
-        @DisabledOnJre(JRE.JAVA_11) // #1840
         @Test
         void testChangeFolder() throws URISyntaxException, IOException, InterruptedException {
 

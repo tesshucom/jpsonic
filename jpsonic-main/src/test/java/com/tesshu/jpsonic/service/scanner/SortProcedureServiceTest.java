@@ -40,10 +40,12 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -55,6 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SortProcedureServiceTest {
 
     /**

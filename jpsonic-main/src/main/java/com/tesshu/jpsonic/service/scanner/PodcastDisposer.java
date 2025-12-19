@@ -41,7 +41,7 @@ public class PodcastDisposer implements SmartLifecycle {
 
     @Override
     public void start() {
-        podcastService.init();
+        // no-op
     }
 
     @Override

@@ -37,14 +37,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
 class InternalHelpControllerTest {
@@ -53,18 +55,24 @@ class InternalHelpControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     void testOkForAdmins() throws Exception {
+        // Boot 4 migration: @WithMockUser is no longer reapplied across requests.
         mockMvc
-            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .perform(get("/internalhelp")
+                .with(SecurityMockMvcRequestPostProcessors
+                    .user("admin")
+                    .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
             .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {
+        // Boot 4 migration: @WithMockUser is no longer reapplied across requests.
         mockMvc
-            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .perform(get("/internalhelp")
+                .with(SecurityMockMvcRequestPostProcessors
+                    .user("user")
+                    .authorities(new SimpleGrantedAuthority("USER"))))
             .andExpect(status().isForbidden());
     }
 

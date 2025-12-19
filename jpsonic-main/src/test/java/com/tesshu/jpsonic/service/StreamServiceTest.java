@@ -47,10 +47,12 @@ import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +60,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamServiceTest {
 

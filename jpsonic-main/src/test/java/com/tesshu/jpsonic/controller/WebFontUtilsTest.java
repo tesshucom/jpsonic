@@ -34,11 +34,14 @@ import com.tesshu.jpsonic.service.SettingsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WebFontUtilsTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";

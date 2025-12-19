@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Unit tests for Dao methods without coverage since 112.2.1(#2334). With the
@@ -46,6 +47,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * Note that no logic is mentioned, nor is it used in integration test cases.
  */
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
+@ActiveProfiles("test")
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 class DaoUnitTest {
