@@ -17,12 +17,12 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic;
+package com.tesshu.jpsonic.spring;
 
 import java.util.Arrays;
 
 import org.eclipse.jetty.server.ServerConnector;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
 
 public final class JettyApplicationHelper {
 

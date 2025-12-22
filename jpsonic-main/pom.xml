@@ -15,6 +15,7 @@
   <properties>
     <main.basedir>${project.parent.basedir}</main.basedir>
     <tomcat.server.scope>provided</tomcat.server.scope>
+    <argLine>--enable-native-access=ALL-UNNAMED -XX:+EnableDynamicAgentLoading -Xshare:off -XX:+IgnoreUnrecognizedVMOptions</argLine>
   </properties>
 
   <dependencies>
@@ -180,7 +181,7 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.springframework.boot</groupId>
@@ -221,8 +222,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.ee10</groupId>
-      <artifactId>jetty-ee10-apache-jsp</artifactId>
+      <groupId>org.eclipse.jetty.ee11</groupId>
+      <artifactId>jetty-ee11-apache-jsp</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -303,6 +304,11 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-liquibase</artifactId>
     </dependency>
     <dependency>
       <groupId>org.liquibase</groupId>
@@ -476,10 +482,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -622,7 +634,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.5.8</version>
+        <version>4.0.1</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>
@@ -756,7 +768,7 @@
     <profile>
       <id>tomcat-embed</id>
       <properties>
-        <boot.group.excludes>org.mortbay.jasper,org.eclipse.jetty,org.eclipse.jetty.toolchain,org.eclipse.jetty.ee10</boot.group.excludes>
+        <boot.group.excludes>org.mortbay.jasper,org.eclipse.jetty,org.eclipse.jetty.toolchain,org.eclipse.jetty.ee11</boot.group.excludes>
         <helper.excludes>JettyApplicationHelper.class</helper.excludes>
       </properties>
     </profile>

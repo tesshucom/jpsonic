@@ -19,25 +19,23 @@
 
 package com.tesshu.jpsonic.security;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.in;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
-
 import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(NeedsHome.class)
@@ -74,16 +72,24 @@ class GlobalSecurityConfigLogoutTest {
     }
 
     /**
-     * Legacy GET /logout is deprecated and expected to fail or be blocked. This
-     * test ensures that GET requests do not silently succeed.
+     * NOTE: Since Spring Boot 4 / Spring Security 6, requests to /logout are fully
+     * handled inside the Security filter chain.
+     *
+     * - Legacy GET /logout no longer falls through to DispatcherServlet. - Instead,
+     * it is intercepted by Security and results in a redirect (302) to the login
+     * entry point.
+     *
+     * With Boot 4 migration, the test can now accurately observe Security filter
+     * behavior. The expected behavior here is NOT a specific status code, but that
+     * the request does not succeed.
+     *
+     * A 302 response is considered valid evidence that the request was blocked by
+     * Spring Security.
      */
     @Test
     @WithMockUser
-    void testGetLogoutLegacyShouldReturnMethodNotAllowedOrFail() throws Exception {
-        mockMvc.perform(get("/logout")).andExpect(result -> {
-            int status = result.getResponse().getStatus();
-            assertThat(status, in(Arrays.asList(404, 405)));
-        });
+    void testGetLogoutLegacyShouldRedirectOrFail() throws Exception {
+        mockMvc.perform(get("/logout")).andExpect(status().is3xxRedirection());
     }
 
     /**

@@ -24,17 +24,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.RestTemplate;
 
 /*
  * Integration test using RestTemplate to verify behavior with context-path.
  * Due to Spring constraints, POST /logout test is not included here.
  */
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { "server.servlet.context-path=/jpsonic" })
 @ExtendWith(NeedsHome.class)
@@ -43,8 +44,7 @@ class GlobalSecurityConfigIntegrationTest {
     @LocalServerPort
     int port;
 
-    @Autowired
-    TestRestTemplate restTemplate;
+    RestTemplate restTemplate = new RestTemplate();
 
     @Test
     void logoutShouldBeHandledEvenWithContextPath() {

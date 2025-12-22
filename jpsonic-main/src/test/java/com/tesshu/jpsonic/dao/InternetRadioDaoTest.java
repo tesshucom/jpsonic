@@ -36,12 +36,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Unit test of {@link InternetRadioDao}.
  *
  * @author Sindre Mehus
  */
+@ActiveProfiles("test")
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SpringBootTest
