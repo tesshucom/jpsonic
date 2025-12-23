@@ -29,7 +29,7 @@
 
     <versions.ant>1.10.15</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
-    <versions.asm>9.9</versions.asm>
+    <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.52.1</versions.checker-qual>
     <versions.checkstyle>12.2.0</versions.checkstyle>
@@ -307,6 +307,7 @@
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
         <version>${versions.asm}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.jvnet.staxex</groupId>
