@@ -167,7 +167,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 21 ]
+        java: [ 21, 24, 25 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
