@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-ubi9-minimal
+FROM eclipse-temurin:24-jdk-ubi9-minimal
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
