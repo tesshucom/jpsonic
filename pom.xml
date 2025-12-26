@@ -1166,6 +1166,13 @@
       </properties>
     </profile>
     <profile>
+      <id>release24</id>
+      <properties>
+        <java.version>24</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+      </properties>
+    </profile>
+    <profile>
       <id>release25</id>
       <properties>
         <java.version>25</java.version>
