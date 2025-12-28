@@ -167,7 +167,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 21 ]
+        java: [ 21, 24, 25 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -235,7 +235,7 @@ jobs:
       - name: Download package
         uses: actions/download-artifact@v4
         with:
-          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
+          name: jpsonic-jetty-embedded-for-jdk25-${{ steps.date.outputs.current }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -248,7 +248,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
-            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/25-jdk-alpine/25-jre-alpine/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=${{ env.DOCKER_TAG }} package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -265,7 +265,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
-            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/25-jdk-alpine/25-jre-alpine/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -276,7 +276,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
-            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/25-jdk-alpine/25-jre-alpine/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -312,7 +312,7 @@ jobs:
       - name: Download package
         uses: actions/download-artifact@v4
         with:
-          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
+          name: jpsonic-jetty-embedded-for-jdk24-${{ steps.date.outputs.current }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -325,7 +325,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/24-jdk-ubi9-minimal/24-jre-ubi9-minimal/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=${{ env.DOCKER_TAG }}-ubi9 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -342,7 +342,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/24-jdk-ubi9-minimal/24-jre-ubi9-minimal/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest-ubi9 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -353,7 +353,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
-            sed -i -e "s/21-jdk-ubi9-minimal/21-jre-ubi9-minimal/g" Dockerfile
+            sed -i -e "s/24-jdk-ubi9-minimal/24-jre-ubi9-minimal/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest-ubi9 package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -389,7 +389,7 @@ jobs:
       - name: Download package
         uses: actions/download-artifact@v4
         with:
-          name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
+          name: jpsonic-jetty-embedded-for-jdk25-${{ steps.date.outputs.current }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -402,7 +402,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/25-jdk-noble/25-jre-noble/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=${{ env.DOCKER_TAG }}-noble package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -419,7 +419,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/25-jdk-noble/25-jre-noble/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest-noble package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
@@ -430,7 +430,7 @@ jobs:
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
-            sed -i -e "s/21-jdk-noble/21-jre-noble/g" Dockerfile
+            sed -i -e "s/25-jdk-noble/25-jre-noble/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest-noble package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
