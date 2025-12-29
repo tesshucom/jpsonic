@@ -57,7 +57,7 @@
     <versions.java-jwt>4.5.0</versions.java-jwt>
     <versions.jaxb-runtime>4.0.6</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.0.25</versions.jetty>
+    <versions.jetty>12.1.5</versions.jetty>
     <versions.jfreechart>1.5.6</versions.jfreechart>
     <versions.junit-jupiter-api>5.13.4</versions.junit-jupiter-api>
     <versions.junit-jupiter-engine>5.7.1</versions.junit-jupiter-engine>
@@ -1025,7 +1025,7 @@
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>
-              <toggleOffOn></toggleOffOn>
+              <toggleOffOn/>
               <eclipse>
                 <file>${main.basedir}/jpsonic-main/eclipse-2025-06-formatter.xml</file>
               </eclipse>
@@ -1173,7 +1173,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
