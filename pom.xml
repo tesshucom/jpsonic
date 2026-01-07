@@ -31,7 +31,7 @@
     <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.53.0</versions.checker-qual>
-    <versions.checkstyle>12.3.0</versions.checkstyle>
+    <versions.checkstyle>13.0.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
     <versions.commons-configuration2>2.13.0</versions.commons-configuration2>
