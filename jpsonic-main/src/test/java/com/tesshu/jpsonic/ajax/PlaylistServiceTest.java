@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.regex.Pattern;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;

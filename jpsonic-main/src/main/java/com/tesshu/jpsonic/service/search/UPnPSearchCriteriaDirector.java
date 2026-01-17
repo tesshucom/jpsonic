@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaLexer;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaListener;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser;

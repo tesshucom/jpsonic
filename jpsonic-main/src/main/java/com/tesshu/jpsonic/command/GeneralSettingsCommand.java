@@ -24,8 +24,8 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.GeneralSettingsController;
-import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
 
 /**
  * Command used in {@link GeneralSettingsController}.

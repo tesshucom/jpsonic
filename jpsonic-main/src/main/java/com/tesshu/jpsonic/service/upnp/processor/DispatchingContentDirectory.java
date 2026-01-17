@@ -26,7 +26,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.QueryFactory;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;

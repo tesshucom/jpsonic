@@ -26,8 +26,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -61,7 +61,7 @@ public class PlaylistsController {
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUserStrict(request);
-        List<com.tesshu.jpsonic.domain.Playlist> playlists = playlistService
+        List<com.tesshu.jpsonic.persistence.api.entity.Playlist> playlists = playlistService
             .getReadablePlaylistsForUser(user.getUsername());
         model
             .addAttribute("model", LegacyMap
@@ -72,9 +72,9 @@ public class PlaylistsController {
     }
 
     // VO
-    public static class Playlist extends com.tesshu.jpsonic.domain.Playlist {
+    public static class Playlist extends com.tesshu.jpsonic.persistence.api.entity.Playlist {
 
-        Playlist(com.tesshu.jpsonic.domain.Playlist playlist) {
+        Playlist(com.tesshu.jpsonic.persistence.api.entity.Playlist playlist) {
             super(playlist.getId(), playlist.getUsername(), playlist.isShared(), playlist.getName(),
                     playlist.getComment(), playlist.getFileCount(), playlist.getDurationSeconds(),
                     playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());

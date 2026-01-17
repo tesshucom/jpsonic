@@ -4,12 +4,12 @@ package com.tesshu.jpsonic.service;
 import java.util.List;
 import java.util.SortedMap;
 
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicFolderContent;
-import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
+import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 
 /**
  * Provides services for grouping artists by index.

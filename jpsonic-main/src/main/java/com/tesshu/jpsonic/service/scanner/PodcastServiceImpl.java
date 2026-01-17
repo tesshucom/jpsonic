@@ -44,11 +44,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.PodcastDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.repository.PodcastDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;

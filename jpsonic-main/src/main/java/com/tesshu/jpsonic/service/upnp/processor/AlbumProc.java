@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import org.springframework.stereotype.Service;
 

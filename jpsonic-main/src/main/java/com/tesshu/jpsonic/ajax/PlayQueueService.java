@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.TRACK;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
@@ -36,19 +36,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.InternetRadioDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.PlayQueueDao;
-import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.InternetRadioSource;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.domain.SavedPlayQueue;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
+import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.LastFmService;
@@ -61,6 +60,7 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

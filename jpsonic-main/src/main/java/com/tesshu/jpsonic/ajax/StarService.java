@@ -21,8 +21,8 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import org.springframework.stereotype.Service;
 

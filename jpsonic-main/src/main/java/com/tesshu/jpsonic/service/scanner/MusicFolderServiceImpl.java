@@ -28,10 +28,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.checkerframework.checker.nullness.qual.NonNull;

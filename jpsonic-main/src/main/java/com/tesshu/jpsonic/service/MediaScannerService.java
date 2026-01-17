@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.service;
 
 import java.util.Optional;
 
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 
 /**
  * MediaScanner interface.

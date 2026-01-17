@@ -31,11 +31,11 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.MenuItemDao;
-import com.tesshu.jpsonic.dao.base.TemplateWrapper;
-import com.tesshu.jpsonic.domain.MenuItem;
-import com.tesshu.jpsonic.domain.MenuItem.ViewType;
-import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
+import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import org.junit.jupiter.api.Assertions;

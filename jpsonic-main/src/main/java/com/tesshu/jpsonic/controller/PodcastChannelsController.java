@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -72,7 +72,7 @@ public class PodcastChannelsController {
      */
     protected ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<PodcastChannel, List<com.tesshu.jpsonic.domain.PodcastEpisode>> channels = new LinkedHashMap<>();
+        Map<PodcastChannel, List<com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode>> channels = new LinkedHashMap<>();
         Map<Integer, PodcastChannel> channelMap = LegacyMap.of();
         for (PodcastChannel channel : podcastService.getAllChannels()) {
             channels.put(channel, podcastService.getEpisodes(channel.getId()));
@@ -98,9 +98,10 @@ public class PodcastChannelsController {
     }
 
     // VO
-    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+    public static class PodcastEpisode
+            extends com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode {
 
-        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+        public PodcastEpisode(com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode episode) {
             super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
                     episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
                     episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),

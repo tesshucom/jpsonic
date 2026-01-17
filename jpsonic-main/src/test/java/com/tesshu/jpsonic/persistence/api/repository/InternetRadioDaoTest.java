@@ -1,0 +1,117 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
+
+package com.tesshu.jpsonic.persistence.api.repository;
+
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.temporal.ChronoUnit;
+
+import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ActiveProfiles;
+
+/**
+ * Unit test of {@link InternetRadioDao}.
+ *
+ * @author Sindre Mehus
+ */
+@ActiveProfiles("test")
+@SpringBootConfiguration
+@ComponentScan(basePackages = "com.tesshu.jpsonic")
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+class InternetRadioDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
+
+    @Autowired
+    private InternetRadioDao internetRadioDao;
+
+    @BeforeEach
+    public void setUp() {
+        daoHelper.getJdbcTemplate().execute("delete from internet_radio");
+    }
+
+    @Test
+    void testCreateInternetRadio() {
+        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, now());
+        internetRadioDao.createInternetRadio(radio);
+
+        InternetRadio insertedRadio = internetRadioDao.getAllInternetRadios().get(0);
+        assertInternetRadioEquals(radio, insertedRadio);
+    }
+
+    @Test
+    void testUpdateInternetRadio() {
+        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, now());
+        internetRadioDao.createInternetRadio(radio);
+        radio = internetRadioDao.getAllInternetRadios().get(0);
+
+        radio.setName("newName");
+        radio.setStreamUrl("newStreamUrl");
+        radio.setHomepageUrl("newHomePageUrl");
+        radio.setEnabled(false);
+        radio.setChanged(radio.getChanged().minus(1, ChronoUnit.DAYS));
+        internetRadioDao.updateInternetRadio(radio);
+
+        InternetRadio newRadio = internetRadioDao.getAllInternetRadios().get(0);
+        assertInternetRadioEquals(radio, newRadio);
+    }
+
+    @Test
+    void testDeleteInternetRadio() {
+        assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
+        internetRadioDao
+            .createInternetRadio(
+                    new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
+        assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
+        internetRadioDao
+            .createInternetRadio(
+                    new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
+        assertEquals(2, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
+        internetRadioDao
+            .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
+        internetRadioDao
+            .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
+    }
+
+    private void assertInternetRadioEquals(InternetRadio expected, InternetRadio actual) {
+        assertEquals(expected.getName(), actual.getName(), "Wrong name.");
+        assertEquals(expected.getStreamUrl(), actual.getStreamUrl(), "Wrong stream url.");
+        assertEquals(expected.getHomepageUrl(), actual.getHomepageUrl(), "Wrong home page url.");
+        assertEquals(expected.isEnabled(), actual.isEnabled(), "Wrong enabled state.");
+        assertEquals(expected.getChanged(), actual.getChanged(), "Wrong changed date.");
+    }
+}

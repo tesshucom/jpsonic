@@ -41,7 +41,7 @@ import java.util.zip.ZipFile;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.TransferStatus;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;

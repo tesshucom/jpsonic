@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;

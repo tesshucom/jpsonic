@@ -29,8 +29,9 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.ThreadSafe;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.Primary;

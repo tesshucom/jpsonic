@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import org.junit.jupiter.api.BeforeEach;

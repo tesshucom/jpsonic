@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;

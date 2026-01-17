@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;

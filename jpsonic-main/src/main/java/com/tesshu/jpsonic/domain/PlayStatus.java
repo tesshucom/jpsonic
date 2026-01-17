@@ -19,12 +19,17 @@
  * (C) 2018 tesshucom
  */
 
+//Move this class to a static inner class of StatusService
+
 package com.tesshu.jpsonic.domain;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 
 /**
  * Represents the playback of a track, possibly remote (e.g., a cached song on a

@@ -32,10 +32,10 @@ import javax.imageio.ImageIO;
 
 import com.tesshu.jpsonic.controller.CoverArtController;
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.AvatarDao;
-import com.tesshu.jpsonic.domain.Avatar;
-import com.tesshu.jpsonic.domain.AvatarScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.AvatarScheme;
+import com.tesshu.jpsonic.persistence.api.entity.Avatar;
+import com.tesshu.jpsonic.persistence.api.repository.AvatarDao;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

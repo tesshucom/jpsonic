@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.metadata.MetaData;

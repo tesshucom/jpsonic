@@ -2,7 +2,7 @@ package com.tesshu.jpsonic.service;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

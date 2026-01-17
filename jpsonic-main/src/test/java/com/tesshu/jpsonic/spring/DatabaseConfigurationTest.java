@@ -33,7 +33,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.base.LegacyHsqlDaoHelper;
+import com.tesshu.jpsonic.persistence.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.SmartLifecycleLegacyDaoHelper;

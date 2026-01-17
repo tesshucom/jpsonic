@@ -24,9 +24,9 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.SearchController;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 
 /**
  * Command used in {@link SearchController}.

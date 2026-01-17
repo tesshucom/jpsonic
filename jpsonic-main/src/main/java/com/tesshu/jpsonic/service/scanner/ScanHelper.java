@@ -2,6 +2,7 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -10,13 +11,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Orderable;
-import com.tesshu.jpsonic.domain.ScanEvent;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
-import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.contract.Orderable;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.lang3.exception.UncheckedException;

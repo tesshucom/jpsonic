@@ -19,6 +19,8 @@
  * (C) 2018 tesshucom
  */
 
+// This class is scheduled for removal.
+
 package com.tesshu.jpsonic.domain;
 
 public class CacheElement {

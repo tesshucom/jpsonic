@@ -19,11 +19,15 @@
  * (C) 2018 tesshucom
  */
 
+//Move this class to a static inner class of ExternalPlayerController
+
 package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
+
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 
 public class MediaFileWithUrlInfo {
 

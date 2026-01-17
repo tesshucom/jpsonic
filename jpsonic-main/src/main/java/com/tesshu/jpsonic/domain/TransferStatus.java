@@ -19,6 +19,8 @@
  * (C) 2018 tesshucom
  */
 
+//Move this class to a static inner class of StatusService
+
 package com.tesshu.jpsonic.domain;
 
 import java.io.Serializable;
@@ -28,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 /**

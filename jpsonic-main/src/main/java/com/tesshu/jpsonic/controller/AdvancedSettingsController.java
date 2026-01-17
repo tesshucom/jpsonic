@@ -22,9 +22,9 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;

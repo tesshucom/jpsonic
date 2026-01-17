@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.service.scanner;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 
 /**
  * Defines shared scan-related constants used across scan procedures and support

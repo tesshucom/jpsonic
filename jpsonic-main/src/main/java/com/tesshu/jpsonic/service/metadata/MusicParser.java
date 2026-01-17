@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.logging.LogManager;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;

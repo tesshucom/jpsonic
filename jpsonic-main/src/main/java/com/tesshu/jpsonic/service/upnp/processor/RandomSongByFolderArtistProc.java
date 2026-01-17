@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FArtistOrSong;

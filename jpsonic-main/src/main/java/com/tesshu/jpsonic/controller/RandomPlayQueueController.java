@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;

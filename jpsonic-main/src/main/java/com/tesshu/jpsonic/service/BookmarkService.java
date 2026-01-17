@@ -23,9 +23,9 @@ package com.tesshu.jpsonic.service;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.BookmarkDao;
-import com.tesshu.jpsonic.domain.Bookmark;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Bookmark;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.repository.BookmarkDao;
 import org.springframework.stereotype.Service;
 
 @Service

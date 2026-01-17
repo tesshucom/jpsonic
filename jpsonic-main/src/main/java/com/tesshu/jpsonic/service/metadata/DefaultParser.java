@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;

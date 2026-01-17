@@ -22,11 +22,11 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.ParamSearchResult;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;

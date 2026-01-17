@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.domain.ScanEvent;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
-import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.mutable.MutableBoolean;

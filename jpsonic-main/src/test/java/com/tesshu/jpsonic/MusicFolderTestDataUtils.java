@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 
 public final class MusicFolderTestDataUtils {
 

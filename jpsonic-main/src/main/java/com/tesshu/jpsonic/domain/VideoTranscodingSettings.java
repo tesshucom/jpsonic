@@ -19,6 +19,8 @@
  * (C) 2018 tesshucom
  */
 
+// Move this class to a static inner class of TranscodingService
+
 package com.tesshu.jpsonic.domain;
 
 /**

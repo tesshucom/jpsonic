@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.ajax;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.ArtistBio;
+import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
 
 public class ArtistInfo {
 

@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.PasswordSettingsCommand;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.validator.PasswordSettingsValidator;
 import jakarta.servlet.http.HttpServletRequest;

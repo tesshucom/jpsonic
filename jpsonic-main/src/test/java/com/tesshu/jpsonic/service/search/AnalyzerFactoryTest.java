@@ -36,7 +36,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;

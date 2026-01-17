@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
-import com.tesshu.jpsonic.dao.base.DaoHelper;
-import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
-import com.tesshu.jpsonic.dao.base.LegacyHsqlDaoHelper;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
+import com.tesshu.jpsonic.persistence.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;

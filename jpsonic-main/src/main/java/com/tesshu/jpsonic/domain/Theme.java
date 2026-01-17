@@ -19,6 +19,8 @@
  * (C) 2018 tesshucom
  */
 
+// It should exist at the same layer as the SettingsService.
+
 package com.tesshu.jpsonic.domain;
 
 /**

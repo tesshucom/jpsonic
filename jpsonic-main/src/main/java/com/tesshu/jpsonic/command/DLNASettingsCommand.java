@@ -22,13 +22,13 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 import java.util.Map;
 
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.MenuItem;
-import com.tesshu.jpsonic.domain.MenuItemId;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
 public class DLNASettingsCommand extends SettingsPageCommons {

@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;

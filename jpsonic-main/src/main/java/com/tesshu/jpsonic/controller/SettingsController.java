@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;

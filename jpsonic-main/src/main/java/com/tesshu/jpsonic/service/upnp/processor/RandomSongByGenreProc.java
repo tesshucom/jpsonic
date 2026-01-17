@@ -21,8 +21,8 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.jupnp.support.model.container.Container;

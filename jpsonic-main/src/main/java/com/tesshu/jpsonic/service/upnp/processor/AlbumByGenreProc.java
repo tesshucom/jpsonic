@@ -22,9 +22,9 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import org.checkerframework.checker.nullness.qual.Nullable;

@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.service;
 
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;

@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;

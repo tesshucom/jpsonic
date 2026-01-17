@@ -50,10 +50,10 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.base.DaoHelper;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
