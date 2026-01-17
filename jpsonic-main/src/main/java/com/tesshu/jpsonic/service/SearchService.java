@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.ParamSearchResult;
@@ -77,7 +77,7 @@ public interface SearchService {
      *
      * @return List of random songs.
      */
-    List<MediaFile> getRandomSongs(RandomSearchCriteria criteria);
+    List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria);
 
     /**
      * Returns random songs. The song returned by this list is limited to

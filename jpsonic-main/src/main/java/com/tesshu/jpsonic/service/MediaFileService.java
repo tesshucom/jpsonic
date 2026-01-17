@@ -44,7 +44,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.IndexWithCount;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.PathValidator;
@@ -342,7 +342,7 @@ public class MediaFileService {
         return children.subList(0, Math.min(count, children.size()));
     }
 
-    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, String username) {
+    public List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria, String username) {
         return mediaFileDao.getRandomSongs(criteria, username);
     }
 

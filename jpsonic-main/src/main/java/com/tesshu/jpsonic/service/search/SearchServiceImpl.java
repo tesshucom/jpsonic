@@ -41,7 +41,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
@@ -295,7 +295,7 @@ public class SearchServiceImpl implements SearchService {
 
     @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
     @Override
-    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
+    public List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria) {
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
 
         // Return empty list if no searcher is available (e.g., on first startup)

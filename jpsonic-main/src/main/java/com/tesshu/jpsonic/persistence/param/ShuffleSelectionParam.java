@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.service.SearchService;
  *
  * @see SearchService#getRandomSongs
  */
-public class RandomSearchCriteria {
+public class ShuffleSelectionParam {
 
     private final int count;
     private final List<String> genres;
@@ -64,7 +64,7 @@ public class RandomSearchCriteria {
      * @param musicFolders Only return songs from these music folder. May NOT be
      *                     <code>null</code>.
      */
-    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear,
+    public ShuffleSelectionParam(int count, List<String> genres, Integer fromYear, Integer toYear,
             List<MusicFolder> musicFolders) {
         this(count, genres, fromYear, toYear, musicFolders, null, null, null, null, null, null,
                 true, true, null);
@@ -99,7 +99,7 @@ public class RandomSearchCriteria {
      * @param format             Only return songs whose file format is equal to
      *                           this value. May be <code>null</code>.
      */
-    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear,
+    public ShuffleSelectionParam(int count, List<String> genres, Integer fromYear, Integer toYear,
             List<MusicFolder> musicFolders, Instant minLastPlayedDate, Instant maxLastPlayedDate,
             Integer minAlbumRating, Integer maxAlbumRating, Integer minPlayCount,
             Integer maxPlayCount, boolean showStarredSongs, boolean showUnstarredSongs,

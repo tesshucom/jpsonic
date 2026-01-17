@@ -55,7 +55,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
 import com.tesshu.jpsonic.service.InternetRadioService;
@@ -592,7 +592,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testGetSimilarSongs() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -719,7 +719,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testGetArtistInfo() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -889,7 +889,7 @@ class SubsonicRESTControllerTest {
         void testGetSong() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1599,7 +1599,7 @@ class SubsonicRESTControllerTest {
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolderDao.getAllMusicFolders());
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1668,7 +1668,7 @@ class SubsonicRESTControllerTest {
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolderDao.getAllMusicFolders());
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1724,7 +1724,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testDownload() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1764,7 +1764,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testStream() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1804,7 +1804,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testHls() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1845,7 +1845,7 @@ class SubsonicRESTControllerTest {
         @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void testScrobble() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2415,7 +2415,7 @@ class SubsonicRESTControllerTest {
         void testCreateBookmark() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2462,7 +2462,7 @@ class SubsonicRESTControllerTest {
         void testDeleteBookmark() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2544,7 +2544,7 @@ class SubsonicRESTControllerTest {
         @Test
         void testSavePlayQueue() throws ExecutionException {
             try {
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2668,7 +2668,7 @@ class SubsonicRESTControllerTest {
         void testDeleteShare() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2720,7 +2720,7 @@ class SubsonicRESTControllerTest {
         void testUpdateShare() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2767,7 +2767,7 @@ class SubsonicRESTControllerTest {
         @Test
         void testGetCoverArt() throws ExecutionException {
             try {
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)

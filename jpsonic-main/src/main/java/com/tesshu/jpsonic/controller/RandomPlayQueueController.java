@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
@@ -116,7 +116,7 @@ public class RandomPlayQueueController {
                 : formatParam;
 
         // Create instance of Criteria from parsed request parameters
-        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, year.getFromYear(),
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(size, genres, year.getFromYear(),
                 year.getToYear(), musicFolders, lastPlayed.getMinLastPlayedDate(),
                 lastPlayed.getMaxLastPlayedDate(), albumRating.getMinAlbumRating(),
                 albumRating.getMaxAlbumRating(), playCount.getMinPlayCount(),
@@ -134,7 +134,7 @@ public class RandomPlayQueueController {
             .addFiles(shouldAddToPlayList,
                     mediaFileService.getRandomSongs(criteria, user.getUsername()));
         if (autoRandom != null) {
-            playQueue.setRandomSearchCriteria(criteria);
+            playQueue.setShuffleSelectionParam(criteria);
             playQueue.setInternetRadio(null);
         }
 

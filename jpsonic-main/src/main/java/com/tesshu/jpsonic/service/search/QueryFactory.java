@@ -28,7 +28,7 @@ import java.util.Optional;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SettingsService;
 import jakarta.annotation.Nonnull;
 import org.apache.lucene.analysis.TokenStream;
@@ -184,7 +184,7 @@ public class QueryFactory {
         return builder.build();
     }
 
-    public Query getRandomSongs(@Nonnull RandomSearchCriteria criteria) throws IOException {
+    public Query getRandomSongs(@Nonnull ShuffleSelectionParam criteria) throws IOException {
         BooleanQuery.Builder query = new BooleanQuery.Builder();
 
         query

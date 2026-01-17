@@ -44,7 +44,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.RandomSongsQue
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.dialect.DialectMediaFileDao;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate;
 import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate.TargetField;
 import org.junit.jupiter.api.Assertions;
@@ -241,25 +241,25 @@ class MediaFileDaoTest {
             @Test
             void testGetIfJoinStarred() throws ExecutionException {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getIfJoinStarred();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, true, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinStarred();
                 assertEquals(CONDITION_JOIN1, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, false, true, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinStarred();
                 assertEquals(CONDITION_JOIN1, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, true, true, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinStarred();
@@ -269,27 +269,27 @@ class MediaFileDaoTest {
             @Test
             void testGetIfJoinAlbumRating() throws ExecutionException {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getIfJoinAlbumRating();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, 1, null,
                         null, null, false, false, null);
                 assertEquals(1, criteria.getMinAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinAlbumRating();
                 assertEquals(CONDITION_JOIN2, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null, 1,
                         null, null, false, false, null);
                 assertEquals(1, criteria.getMaxAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinAlbumRating();
                 assertEquals(CONDITION_JOIN2, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 1,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, 1, 1,
                         null, null, false, false, null);
                 assertEquals(1, criteria.getMinAlbumRating());
                 assertEquals(1, criteria.getMaxAlbumRating());
@@ -303,7 +303,7 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.folder in (:folders)";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
                         Collections.emptyList(), null, null, null, null, null, null, false, false,
                         null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
@@ -312,7 +312,7 @@ class MediaFileDaoTest {
 
                 List<MusicFolder> folders = new ArrayList<>();
                 folders.add(new MusicFolder("/", "", false, null, false));
-                criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, folders, null, null, null,
                         null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getFolderCondition();
@@ -324,7 +324,7 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.genre in (:genres)";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
                         Collections.emptyList(), null, null, null, null, null, null, false, false,
                         null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
@@ -333,7 +333,7 @@ class MediaFileDaoTest {
 
                 List<String> genres = new ArrayList<>();
                 genres.add("genre");
-                criteria = new RandomSearchCriteria(0, genres, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, genres, null, null, null, null, null, null,
                         null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getGenreCondition();
@@ -345,14 +345,14 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.format = :format";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
                         Collections.emptyList(), null, null, null, null, null, null, false, false,
                         null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getFormatCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, false, false, "mp3");
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getFormatCondition();
@@ -364,14 +364,14 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.year >= :fromYear";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
                         Collections.emptyList(), null, null, null, null, null, null, false, false,
                         null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getFromYearCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, 1900, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, 1900, null, null, null, null, null,
                         null, null, null, false, false, null);
                 assertEquals(1900, criteria.getFromYear());
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -384,13 +384,13 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.year <= :toYear";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getToYearCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, 2020, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, 2020, null, null, null, null,
                         null, null, null, false, false, null);
                 assertEquals(2020, criteria.getToYear());
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -403,13 +403,13 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.last_played >= :minLastPlayed";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMinLastPlayedDateCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, now(), null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, now(), null, null,
                         null, null, null, false, false, null);
                 Assertions.assertNotNull(criteria.getMinLastPlayedDate());
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -423,15 +423,15 @@ class MediaFileDaoTest {
                 final String condition1 = " and media_file.last_played <= :maxLastPlayed";
                 final String condition2 = " and (media_file.last_played is null or media_file.last_played <= :maxLastPlayed)";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 assertNull(criteria.getMinLastPlayedDate());
                 assertNull(criteria.getMaxLastPlayedDate());
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMaxLastPlayedDateCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, now(), now(), null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, now(), now(), null,
                         null, null, null, false, false, null);
                 Assertions.assertNotNull(criteria.getMinLastPlayedDate());
                 Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
@@ -439,7 +439,7 @@ class MediaFileDaoTest {
                 op = builder.getMaxLastPlayedDateCondition();
                 assertEquals(condition1, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, now(), null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, now(), null,
                         null, null, null, false, false, null);
                 assertNull(criteria.getMinLastPlayedDate());
                 Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
@@ -451,13 +451,13 @@ class MediaFileDaoTest {
             @Test
             void testGetMinAlbumRatingCondition() throws ExecutionException {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMinAlbumRatingCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, 1, null,
                         null, null, false, false, null);
                 assertEquals(1, criteria.getMinAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -471,15 +471,15 @@ class MediaFileDaoTest {
                 final String condition1 = " and user_rating.rating <= :maxAlbumRating";
                 final String condition2 = " and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 assertNull(criteria.getMinLastPlayedDate());
                 assertNull(criteria.getMaxLastPlayedDate());
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMaxAlbumRatingCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 2,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, 1, 2,
                         null, null, false, false, null);
                 assertEquals(1, criteria.getMinAlbumRating());
                 assertEquals(2, criteria.getMaxAlbumRating());
@@ -487,7 +487,7 @@ class MediaFileDaoTest {
                 op = builder.getMaxAlbumRatingCondition();
                 assertEquals(condition1, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null, 1,
                         null, null, false, false, null);
                 assertNull(criteria.getMinAlbumRating());
                 assertEquals(1, criteria.getMaxAlbumRating());
@@ -501,13 +501,13 @@ class MediaFileDaoTest {
 
                 final String condition = " and media_file.play_count >= :minPlayCount";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMinPlayCountCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, 1, null, false, false, null);
                 assertEquals(1, criteria.getMinPlayCount());
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -521,15 +521,15 @@ class MediaFileDaoTest {
                 final String condition1 = " and media_file.play_count <= :maxPlayCount";
                 final String condition2 = " and (media_file.play_count is null or media_file.play_count <= :maxPlayCount)";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 assertNull(criteria.getMinLastPlayedDate());
                 assertNull(criteria.getMaxLastPlayedDate());
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getMaxPlayCountCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, 1, 2, false, false, null);
                 assertEquals(1, criteria.getMinPlayCount());
                 assertEquals(2, criteria.getMaxPlayCount());
@@ -537,7 +537,7 @@ class MediaFileDaoTest {
                 op = builder.getMaxPlayCountCondition();
                 assertEquals(condition1, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, 1, false, false, null);
                 assertNull(criteria.getMinPlayCount());
                 assertEquals(1, criteria.getMaxPlayCount());
@@ -549,15 +549,15 @@ class MediaFileDaoTest {
             @Test
             void testGetShowStarredSongsCondition() throws ExecutionException {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 assertFalse(criteria.isShowStarredSongs());
                 assertFalse(criteria.isShowUnstarredSongs());
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getShowStarredSongsCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, true, false, null);
                 assertTrue(criteria.isShowStarredSongs());
                 assertFalse(criteria.isShowUnstarredSongs());
@@ -565,7 +565,7 @@ class MediaFileDaoTest {
                 op = builder.getShowStarredSongsCondition();
                 assertEquals(CONDITION_SHOW_STARRED_SONGS, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, true, true, null);
                 assertTrue(criteria.isShowStarredSongs());
                 assertTrue(criteria.isShowUnstarredSongs());
@@ -579,15 +579,15 @@ class MediaFileDaoTest {
 
                 final String condition = " and starred_media_file.id is null";
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null,
-                        null, null, null, null, null, null, false, false, null);
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
+                        null, null, null, null, null, null, null, false, false, null);
                 assertFalse(criteria.isShowStarredSongs());
                 assertFalse(criteria.isShowUnstarredSongs());
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
                 Optional<String> op = builder.getShowUnstarredSongsCondition();
                 assertFalse(op.isPresent());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, false, true, null);
                 assertFalse(criteria.isShowStarredSongs());
                 assertTrue(criteria.isShowUnstarredSongs());
@@ -595,7 +595,7 @@ class MediaFileDaoTest {
                 op = builder.getShowUnstarredSongsCondition();
                 assertEquals(condition, op.get());
 
-                criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, null, null, null, null,
                         null, null, null, true, true, null);
                 assertTrue(criteria.isShowStarredSongs());
                 assertTrue(criteria.isShowUnstarredSongs());
@@ -608,7 +608,7 @@ class MediaFileDaoTest {
             void testBuild() throws ExecutionException {
 
                 final String noOp = SELECT + WHERE + ORDER_LIMIT;
-                RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null,
                         Collections.emptyList(), null, null, null, null, null, null, false, false,
                         null);
                 RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
@@ -617,7 +617,7 @@ class MediaFileDaoTest {
 
                 final String ifJoinStarred = SELECT + CONDITION_JOIN1 + WHERE
                         + CONDITION_SHOW_STARRED_SONGS + ORDER_LIMIT;
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, null, null, null, null, true, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
@@ -625,7 +625,7 @@ class MediaFileDaoTest {
 
                 final String ifJoinAlbumRating = SELECT + CONDITION_JOIN2 + WHERE
                         + CONDITION_MIN_ALBUM_RATING + ORDER_LIMIT;
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, 1, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
@@ -634,7 +634,7 @@ class MediaFileDaoTest {
                 final String ifJoinStarredAndRating = SELECT + CONDITION_JOIN1 + CONDITION_JOIN2
                         + WHERE + CONDITION_MIN_ALBUM_RATING + CONDITION_SHOW_STARRED_SONGS
                         + ORDER_LIMIT;
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, 1, null, null, null, true, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
@@ -649,7 +649,7 @@ class MediaFileDaoTest {
                 // folder
                 List<MusicFolder> folders = new ArrayList<>();
                 folders.add(new MusicFolder("/", "", false, null, false));
-                criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null,
+                criteria = new ShuffleSelectionParam(0, null, null, null, folders, null, null, null,
                         null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
@@ -658,49 +658,49 @@ class MediaFileDaoTest {
                 // genre
                 List<String> genres = new ArrayList<>();
                 genres.add("genre");
-                criteria = new RandomSearchCriteria(0, genres, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, genres, null, null, Collections.emptyList(),
                         null, null, null, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // format
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, null, null, null, null, false, false, "mp3");
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // fromYear
-                criteria = new RandomSearchCriteria(0, null, 1900, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, 1900, null, Collections.emptyList(),
                         null, null, null, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // toYear
-                criteria = new RandomSearchCriteria(0, null, null, 2021, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, 2021, Collections.emptyList(),
                         null, null, null, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // minLastPlayedDateCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         now(), null, null, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // maxLastPlayedDateCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, now(), null, null, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // maxAlbumRatingCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, 1, 2, null, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
@@ -710,21 +710,21 @@ class MediaFileDaoTest {
                 assertTrue(suffix.length() < query.length());
 
                 // minPlayCountCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, null, null, 1, null, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // maxPlayCountCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, null, null, null, 1, false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();
                 assertTrue(assertWithCondition.apply(query));
 
                 // showUnstarredSongsCondition
-                criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(),
+                criteria = new ShuffleSelectionParam(0, null, null, null, Collections.emptyList(),
                         null, null, null, null, null, null, false, true, null);
                 builder = new RandomSongsQueryBuilder(criteria);
                 query = builder.build();

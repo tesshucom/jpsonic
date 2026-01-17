@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 
 /**
@@ -61,7 +61,7 @@ public class PlayQueue implements ReadWriteLockSupport {
      * removed once PlayQueue and its View Object responsibilities are separated in
      * a future redesign.
      */
-    private transient RandomSearchCriteria randomSearchCriteria;
+    private transient ShuffleSelectionParam shuffleSelectionParam;
     private InternetRadio internetRadio;
     private int indexBackup;
 
@@ -319,7 +319,7 @@ public class PlayQueue implements ReadWriteLockSupport {
         try {
             makeBackup();
             files.clear();
-            setRandomSearchCriteria(null);
+            setShuffleSelectionParam(null);
             setInternetRadio(null);
             index = 0;
         } finally {
@@ -447,7 +447,7 @@ public class PlayQueue implements ReadWriteLockSupport {
      * @return Whether the play queue is a shuffle radio mode.
      */
     public boolean isShuffleRadioEnabled() {
-        return this.randomSearchCriteria != null;
+        return this.shuffleSelectionParam != null;
     }
 
     /**
@@ -532,18 +532,18 @@ public class PlayQueue implements ReadWriteLockSupport {
      * @return The search criteria, or <code>null</code> if this is not a random
      *         playlist.
      */
-    public RandomSearchCriteria getRandomSearchCriteria() {
-        return randomSearchCriteria;
+    public ShuffleSelectionParam getShuffleSelectionParam() {
+        return shuffleSelectionParam;
     }
 
     /**
      * Sets the criteria used to generate this random playlist
      *
-     * @param randomSearchCriteria The search criteria, or <code>null</code> if this
-     *                             is not a random playlist.
+     * @param shuffleSelectionParam The search criteria, or <code>null</code> if
+     *                              this is not a random playlist.
      */
-    public void setRandomSearchCriteria(RandomSearchCriteria randomSearchCriteria) {
-        this.randomSearchCriteria = randomSearchCriteria;
+    public void setShuffleSelectionParam(ShuffleSelectionParam shuffleSelectionParam) {
+        this.shuffleSelectionParam = shuffleSelectionParam;
     }
 
     /**

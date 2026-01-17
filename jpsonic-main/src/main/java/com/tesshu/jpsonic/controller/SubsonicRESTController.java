@@ -64,7 +64,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
@@ -1401,7 +1401,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername(), musicFolderId);
-        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear,
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(size, genres, fromYear, toYear,
                 musicFolders);
 
         Songs result = new Songs();

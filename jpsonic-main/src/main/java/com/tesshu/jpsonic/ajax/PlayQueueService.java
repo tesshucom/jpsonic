@@ -166,10 +166,10 @@ public class PlayQueueService {
         Player player = resolvePlayer();
         PlayQueue playQueue = player.getPlayQueue();
         playQueue.setInternetRadio(null);
-        if (playQueue.getRandomSearchCriteria() != null) {
+        if (playQueue.getShuffleSelectionParam() != null) {
             playQueue
                 .addFiles(true, mediaFileService
-                    .getRandomSongs(playQueue.getRandomSearchCriteria(), resolveUsername()));
+                    .getRandomSongs(playQueue.getShuffleSelectionParam(), resolveUsername()));
         }
         return createPlayQueueInfo(player);
     }
@@ -439,7 +439,7 @@ public class PlayQueueService {
     private PlayQueueInfo doPlay(Player player, List<MediaFile> files) {
         mediaFileService.removeVideoFiles(files);
         player.getPlayQueue().addFiles(false, files);
-        player.getPlayQueue().setRandomSearchCriteria(null);
+        player.getPlayQueue().setShuffleSelectionParam(null);
         player.getPlayQueue().setInternetRadio(null);
         return createPlayQueueInfo(player);
     }
@@ -447,7 +447,7 @@ public class PlayQueueService {
     private PlayQueueInfo doPlayInternetRadio(Player player, InternetRadio radio) {
         internetRadioService.clearInternetRadioSourceCache(radio.getId());
         player.getPlayQueue().clear();
-        player.getPlayQueue().setRandomSearchCriteria(null);
+        player.getPlayQueue().setShuffleSelectionParam(null);
         player.getPlayQueue().setInternetRadio(radio);
         return createPlayQueueInfo(player);
     }
@@ -457,7 +457,7 @@ public class PlayQueueService {
         List<MediaFile> randomFiles = mediaFileService.getRandomSongsForParent(file, count);
         Player player = resolvePlayer();
         player.getPlayQueue().addFiles(false, randomFiles);
-        player.getPlayQueue().setRandomSearchCriteria(null);
+        player.getPlayQueue().setShuffleSelectionParam(null);
         player.getPlayQueue().setInternetRadio(null);
         return createPlayQueueInfo(player).startPlayerAtAndGetInfo(0);
     }
@@ -469,7 +469,7 @@ public class PlayQueueService {
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = resolvePlayer();
         player.getPlayQueue().addFiles(false, similarSongs);
-        player.getPlayQueue().setRandomSearchCriteria(null);
+        player.getPlayQueue().setShuffleSelectionParam(null);
         player.getPlayQueue().setInternetRadio(null);
         return createPlayQueueInfo(player).startPlayerAtAndGetInfo(0);
     }
@@ -502,7 +502,7 @@ public class PlayQueueService {
         } else {
             playQueue.addFilesAt(files, addAtIndex);
         }
-        playQueue.setRandomSearchCriteria(null);
+        playQueue.setShuffleSelectionParam(null);
         playQueue.setInternetRadio(null);
         return playQueue;
     }
@@ -602,7 +602,7 @@ public class PlayQueueService {
         Player player = resolvePlayer();
         PlayQueue playQueue = player.getPlayQueue();
         if (playQueue.isShuffleRadioEnabled()) {
-            playQueue.setRandomSearchCriteria(null);
+            playQueue.setShuffleSelectionParam(null);
             playQueue.setRepeatEnabled(false);
         } else {
             playQueue.setRepeatEnabled(!player.getPlayQueue().isRepeatEnabled());

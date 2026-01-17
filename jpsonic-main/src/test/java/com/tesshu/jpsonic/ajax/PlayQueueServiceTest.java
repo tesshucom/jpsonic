@@ -57,7 +57,7 @@ import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -209,8 +209,8 @@ class PlayQueueServiceTest {
         verify(player.getPlayQueue(), never())
             .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
 
-        RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null);
-        when(player.getPlayQueue().getRandomSearchCriteria()).thenReturn(criteria);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null, null);
+        when(player.getPlayQueue().getShuffleSelectionParam()).thenReturn(criteria);
         playQueueService.reloadSearchCriteria();
         verify(player.getPlayQueue(), times(1))
             .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
@@ -817,14 +817,14 @@ class PlayQueueServiceTest {
     void testToggleRepeat() throws ServletRequestBindingException {
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), never())
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         clearInvocations(player.getPlayQueue());
         when(player.getPlayQueue().isRepeatEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), never())
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         // ShuffleRadioEnabled
@@ -832,7 +832,7 @@ class PlayQueueServiceTest {
         when(player.getPlayQueue().isShuffleRadioEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), times(1))
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
     }
 

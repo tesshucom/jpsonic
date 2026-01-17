@@ -48,7 +48,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.base.DaoUtils;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.dialect.DialectMediaFileDao;
-import com.tesshu.jpsonic.persistence.param.RandomSearchCriteria;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate;
 import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.persistence.result.DuplicateSort;
@@ -926,7 +926,7 @@ public class MediaFileDao {
                 """, rowMapper, args);
     }
 
-    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, final String username) {
+    public List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria, final String username) {
 
         if (criteria.getMusicFolders().isEmpty()) {
             return Collections.emptyList();
@@ -1209,9 +1209,9 @@ public class MediaFileDao {
 
     static class RandomSongsQueryBuilder {
 
-        private final RandomSearchCriteria criteria;
+        private final ShuffleSelectionParam criteria;
 
-        public RandomSongsQueryBuilder(RandomSearchCriteria criteria) {
+        public RandomSongsQueryBuilder(ShuffleSelectionParam criteria) {
             this.criteria = criteria;
         }
 

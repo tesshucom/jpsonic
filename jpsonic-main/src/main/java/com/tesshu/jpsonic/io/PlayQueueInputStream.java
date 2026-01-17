@@ -143,7 +143,7 @@ public class PlayQueueInputStream extends InputStream {
             PlayQueue playQueue = pqis.player.getPlayQueue();
 
             // If playlist is in auto-random mode, populate it with new random songs.
-            if (playQueue.getIndex() == -1 && !isEmpty(playQueue.getRandomSearchCriteria())) {
+            if (playQueue.getIndex() == -1 && !isEmpty(playQueue.getShuffleSelectionParam())) {
                 pqis.populateRandomPlaylist(playQueue);
             }
 
@@ -188,7 +188,7 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     protected void populateRandomPlaylist(PlayQueue playQueue) {
-        List<MediaFile> files = searchService.getRandomSongs(playQueue.getRandomSearchCriteria());
+        List<MediaFile> files = searchService.getRandomSongs(playQueue.getShuffleSelectionParam());
         playQueue.addFiles(false, files);
         if (LOG.isInfoEnabled()) {
             LOG.info("Recreated random playlist with " + playQueue.size() + " songs.");
