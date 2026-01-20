@@ -47,8 +47,8 @@
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5.1</versions.httpclient5>
-    <versions.icu4j>78.1</versions.icu4j>
-    <versions.jackson>2.20</versions.jackson>
+    <versions.icu4j>78.2</versions.icu4j>
+    <versions.jackson>2.21</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -66,7 +66,7 @@
     <versions.lastfm>0.1.2</versions.lastfm>
     <versions.liquibase-core>4.33.0</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
-    <versions.log4j>2.22.1</versions.log4j>
+    <versions.log4j>2.25.3</versions.log4j>
     <versions.logback>1.5.24</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
     <versions.maven-artifact>3.9.12</versions.maven-artifact>
@@ -77,7 +77,7 @@
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
     <versions.pmd>7.20.0</versions.pmd>
-    <versions.postgresql>42.7.8</versions.postgresql>
+    <versions.postgresql>42.7.9</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.8</versions.spotbugs>
     <versions.spring-boot>3.5.8</versions.spring-boot>
@@ -215,6 +215,21 @@
         <scope>compile</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${versions.log4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${versions.log4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-to-slf4j</artifactId>
+        <version>${versions.log4j}</version>
+      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
