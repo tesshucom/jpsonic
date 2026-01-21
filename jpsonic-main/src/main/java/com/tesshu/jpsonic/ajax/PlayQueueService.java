@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.InternetRadioSource;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -49,6 +48,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
 import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.InternetRadioService;
+import com.tesshu.jpsonic.service.InternetRadioService.InternetRadioSource;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;

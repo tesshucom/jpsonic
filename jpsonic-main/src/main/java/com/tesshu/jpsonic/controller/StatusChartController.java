@@ -30,8 +30,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.theme.ChartColor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

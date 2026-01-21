@@ -21,22 +21,26 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static java.util.Collections.unmodifiableList;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.tesshu.jpsonic.domain.PlayStatus;
-import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -269,4 +273,244 @@ public class StatusService {
         return status;
     }
 
+    // VO
+    /**
+     * Represents the playback of a track, possibly remote (e.g., a cached song on a
+     * mobile phone).
+     *
+     * @author Sindre Mehus
+     */
+    public static final class PlayStatus {
+
+        private final MediaFile mediaFile;
+        private final Player player;
+        private final Instant time;
+
+        public PlayStatus(MediaFile mediaFile, Player player, Instant time) {
+            this.mediaFile = mediaFile;
+            this.player = player;
+            this.time = time;
+        }
+
+        public MediaFile getMediaFile() {
+            return mediaFile;
+        }
+
+        public Player getPlayer() {
+            return player;
+        }
+
+        public Instant getTime() {
+            return time;
+        }
+
+        public boolean isExpired() {
+            return now().minus(6, ChronoUnit.HOURS).isBefore(time);
+        }
+
+        public long getMinutesAgo() {
+            return Math.abs(ChronoUnit.MINUTES.between(time, now()));
+        }
+    }
+
+    // VO
+    /**
+     * Status for a single transfer (stream, download or upload).
+     *
+     * @author Sindre Mehus
+     */
+    public static final class TransferStatus implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private static final int HISTORY_LENGTH = 200;
+        private static final long SAMPLE_INTERVAL_MILLIS = 5000;
+
+        private transient Player player;
+        private String pathString;
+        private final AtomicLong bytesTransfered;
+        private final AtomicLong bytesSkipped;
+        private final AtomicLong bytesTotal;
+        private final SampleHistory history;
+        private final ReentrantLock historyLock = new ReentrantLock();
+        private final AtomicBoolean terminated = new AtomicBoolean();
+        private boolean active;
+
+        public TransferStatus() {
+            bytesTransfered = new AtomicLong();
+            bytesSkipped = new AtomicLong();
+            bytesTotal = new AtomicLong();
+            history = new SampleHistory(HISTORY_LENGTH);
+            active = true;
+        }
+
+        public long getBytesTransfered() {
+            return bytesTransfered.get();
+        }
+
+        public void addBytesTransfered(long byteCount) {
+            setBytesTransfered(bytesTransfered.addAndGet(byteCount));
+        }
+
+        public void setBytesTransfered(long bytesTransfered) {
+            historyLock.lock();
+            try {
+                this.bytesTransfered.set(bytesTransfered);
+                createSample(bytesTransfered, false);
+            } finally {
+                historyLock.unlock();
+            }
+        }
+
+        private void createSample(long bytesTransfered, boolean force) {
+            long now = Instant.now().toEpochMilli();
+
+            if (history.isEmpty()) {
+                history.add(new Sample(bytesTransfered, now));
+            } else {
+                Sample lastSample = history.getLast();
+                if (force || now - lastSample.getTimestamp() > SAMPLE_INTERVAL_MILLIS) {
+                    history.add(new Sample(bytesTransfered, now));
+                }
+            }
+        }
+
+        public long getMillisSinceLastUpdate() {
+            historyLock.lock();
+            try {
+                if (history.isEmpty()) {
+                    return 0L;
+                }
+                return Instant.now().toEpochMilli() - history.getLast().getTimestamp();
+            } finally {
+                historyLock.unlock();
+            }
+        }
+
+        public long getBytesTotal() {
+            return bytesTotal.get();
+        }
+
+        public void setBytesTotal(long bytesTotal) {
+            this.bytesTotal.set(bytesTotal);
+        }
+
+        public long getBytesSkipped() {
+            return bytesSkipped.get();
+        }
+
+        public void setBytesSkipped(long bytesSkipped) {
+            this.bytesSkipped.set(bytesSkipped);
+        }
+
+        public void addBytesSkipped(long byteCount) {
+            bytesSkipped.addAndGet(byteCount);
+        }
+
+        public String getPathString() {
+            return pathString;
+        }
+
+        public void setPathString(String pathString) {
+            this.pathString = pathString;
+        }
+
+        public Path toPath() {
+            return Path.of(pathString);
+        }
+
+        public Player getPlayer() {
+            return player;
+        }
+
+        public void setPlayer(Player player) {
+            this.player = player;
+        }
+
+        public SampleHistory getHistory() {
+            historyLock.lock();
+            try {
+                return new SampleHistory(HISTORY_LENGTH, history);
+            } finally {
+                historyLock.unlock();
+            }
+        }
+
+        public long getHistoryLengthMillis() {
+            return SAMPLE_INTERVAL_MILLIS * (HISTORY_LENGTH - 1);
+        }
+
+        public void terminate() {
+            terminated.set(true);
+        }
+
+        public boolean isTerminated() {
+            return terminated.getAndSet(false);
+        }
+
+        public boolean isActive() {
+            historyLock.lock();
+            try {
+                return active;
+            } finally {
+                historyLock.unlock();
+            }
+        }
+
+        public void setActive(boolean active) {
+            historyLock.lock();
+            try {
+                this.active = active;
+                if (active) {
+                    bytesSkipped.set(0);
+                    bytesTotal.set(0);
+                    setBytesTransfered(0L);
+                } else {
+                    createSample(getBytesTransfered(), true);
+                }
+            } finally {
+                historyLock.unlock();
+            }
+        }
+
+        public static final class Sample {
+            private final long bytesTransfered;
+            private final long timestamp;
+
+            public Sample(long bytesTransfered, long timestamp) {
+                this.bytesTransfered = bytesTransfered;
+                this.timestamp = timestamp;
+            }
+
+            public long getBytesTransfered() {
+                return bytesTransfered;
+            }
+
+            public long getTimestamp() {
+                return timestamp;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: "
+                    + pathString + ", terminated: " + terminated + ", active: " + isActive() + "]";
+        }
+
+        @SuppressWarnings("serial")
+        public static final class SampleHistory extends CircularFifoQueue<Sample> {
+
+            public SampleHistory(int length) {
+                super(length);
+            }
+
+            public SampleHistory(int length, SampleHistory other) {
+                this(length);
+                addAll(other);
+            }
+
+            public Sample getLast() {
+                return this.get(this.size() - 1);
+            }
+        }
+    }
 }

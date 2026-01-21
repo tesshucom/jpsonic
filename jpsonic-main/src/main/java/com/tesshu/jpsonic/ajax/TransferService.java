@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.ajax;
 
 import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import org.springframework.stereotype.Service;
 
 /**

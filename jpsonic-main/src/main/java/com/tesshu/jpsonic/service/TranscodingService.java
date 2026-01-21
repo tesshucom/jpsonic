@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
-import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
@@ -846,6 +845,50 @@ public class TranscodingService {
 
         public VideoTranscodingSettings getVideoTranscodingSettings() {
             return videoTranscodingSettings;
+        }
+    }
+
+    // VO
+    /**
+     * Parameters used when transcoding videos.
+     *
+     * @author Sindre Mehus
+     */
+    public static final class VideoTranscodingSettings {
+
+        private final int width;
+        private final int height;
+        private final int timeOffset;
+        private final int duration;
+        private final boolean hls;
+
+        public VideoTranscodingSettings(int width, int height, int timeOffset, int duration,
+                boolean hls) {
+            this.width = width;
+            this.height = height;
+            this.timeOffset = timeOffset;
+            this.duration = duration;
+            this.hls = hls;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public int getTimeOffset() {
+            return timeOffset;
+        }
+
+        public int getDuration() {
+            return duration;
+        }
+
+        public boolean isHls() {
+            return hls;
         }
     }
 }

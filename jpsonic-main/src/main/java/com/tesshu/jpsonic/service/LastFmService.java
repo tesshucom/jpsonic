@@ -34,7 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.LastFmCoverArt;
 import com.tesshu.jpsonic.persistence.api.entity.AlbumNotes;
 import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -541,5 +540,31 @@ public class LastFmService {
                     : mediaFile.getAlbumArtist();
         }
         return artistName;
+    }
+
+    // VO
+    public static final class LastFmCoverArt {
+
+        private final String imageUrl;
+        private final String artist;
+        private final String album;
+
+        public LastFmCoverArt(String imageUrl, String artist, String album) {
+            this.imageUrl = imageUrl;
+            this.artist = artist;
+            this.album = album;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        public String getArtist() {
+            return artist;
+        }
+
+        public String getAlbum() {
+            return album;
+        }
     }
 }

@@ -39,7 +39,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.io.RangeOutputStream;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
@@ -52,6 +51,7 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
