@@ -25,8 +25,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 
 /**
  * Command used in {@link MusicFolderSettingsController}.

@@ -37,19 +37,17 @@ import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.SearchResult;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -175,29 +173,30 @@ class SearchServiceTest {
             // *** testGetRandomSongs() ***
 
             /*
-             * Regardless of the Lucene version, RandomSearchCriteria can specify null and
+             * Regardless of the Lucene version, ShuffleSelectionParam can specify null and
              * means the maximum range. 11 should be obtainable.
              */
-            RandomSearchCriteria randomSearchCriteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+            ShuffleSelectionParam shuffleSelectionParam = new ShuffleSelectionParam(
+                    Integer.MAX_VALUE, // count
                     null, // genre,
                     null, // fromYear
                     null, // toYear
                     allMusicFolders // musicFolders
             );
-            List<MediaFile> allRandomSongs = searchService.getRandomSongs(randomSearchCriteria);
+            List<MediaFile> allRandomSongs = searchService.getRandomSongs(shuffleSelectionParam);
             assertEquals(11, allRandomSongs.size(),
                     "(22) Specify MAX_VALUE as the upper limit, and randomly acquire songs.");
 
             /*
              * Regardless of the Lucene version, 7 should be obtainable.
              */
-            randomSearchCriteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+            shuffleSelectionParam = new ShuffleSelectionParam(Integer.MAX_VALUE, // count
                     null, // genre,
                     1900, // fromYear
                     null, // toYear
                     allMusicFolders // musicFolders
             );
-            allRandomSongs = searchService.getRandomSongs(randomSearchCriteria);
+            allRandomSongs = searchService.getRandomSongs(shuffleSelectionParam);
             assertEquals(7, allRandomSongs.size(),
                     "(23) Specify 1900 as 'fromYear', and randomly acquire songs.");
 
@@ -205,26 +204,26 @@ class SearchServiceTest {
              * Regardless of the Lucene version, It should be 0 because it is a non-existent
              * genre.
              */
-            randomSearchCriteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+            shuffleSelectionParam = new ShuffleSelectionParam(Integer.MAX_VALUE, // count
                     Arrays.asList("Chamber Music"), // genre,
                     null, // fromYear
                     null, // toYear
                     allMusicFolders // musicFolders
             );
-            allRandomSongs = searchService.getRandomSongs(randomSearchCriteria);
+            allRandomSongs = searchService.getRandomSongs(shuffleSelectionParam);
             assertEquals(0, allRandomSongs.size(),
                     "(24) Specify music as 'genre', and randomly acquire songs.");
 
             /*
              * Genre including blank. Regardless of the Lucene version, It should be 2.
              */
-            randomSearchCriteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+            shuffleSelectionParam = new ShuffleSelectionParam(Integer.MAX_VALUE, // count
                     Arrays.asList("Baroque Instrumental"), // genre,
                     null, // fromYear
                     null, // toYear
                     allMusicFolders // musicFolders
             );
-            allRandomSongs = searchService.getRandomSongs(randomSearchCriteria);
+            allRandomSongs = searchService.getRandomSongs(shuffleSelectionParam);
             assertEquals(2, allRandomSongs.size(),
                     "(25) Search by specifying genres including spaces and hyphens.");
 
@@ -314,7 +313,7 @@ class SearchServiceTest {
                 }
 
                 // testGetRandomSongs()
-                RandomSearchCriteria criteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(Integer.MAX_VALUE, // count
                         null, // genre,
                         null, // fromYear
                         null, // toYear
@@ -637,7 +636,7 @@ class SearchServiceTest {
         @Test
         void testQueryEscapeRequires() {
 
-            Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(
+            Function<String, ShuffleSelectionParam> simpleStringCriteria = s -> new ShuffleSelectionParam(
                     Integer.MAX_VALUE, // count
                     Arrays.asList(s), // genre,
                     null, // fromYear
@@ -758,7 +757,7 @@ class SearchServiceTest {
         @Test
         void testBrackets() {
 
-            Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(
+            Function<String, ShuffleSelectionParam> simpleStringCriteria = s -> new ShuffleSelectionParam(
                     Integer.MAX_VALUE, // count
                     Arrays.asList(s), // genre,
                     null, // fromYear
@@ -803,7 +802,7 @@ class SearchServiceTest {
 
             List<MusicFolder> folders = getMusicFolders();
 
-            RandomSearchCriteria criteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(Integer.MAX_VALUE, // count
                     Arrays.asList("Rock"), // genre,
                     null, // fromYear
                     null, // toYear
@@ -826,7 +825,7 @@ class SearchServiceTest {
         @Test
         void testOthers() {
 
-            Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(
+            Function<String, ShuffleSelectionParam> simpleStringCriteria = s -> new ShuffleSelectionParam(
                     Integer.MAX_VALUE, // count
                     Arrays.asList(s), // genre,
                     null, // fromYear

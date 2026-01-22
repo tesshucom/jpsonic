@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.command;
 
 import com.tesshu.jpsonic.controller.AdvancedSettingsController;
-import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
 
 /**
  * Command used in {@link AdvancedSettingsController}.

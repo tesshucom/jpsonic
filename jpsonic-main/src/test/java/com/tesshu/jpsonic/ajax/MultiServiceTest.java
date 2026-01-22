@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -82,7 +82,8 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Test
     @WithMockUser(username = ADMIN_NAME)
     void testGetArtistInfo() {
-        RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, musicFolders);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
+                musicFolders);
         MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
         MediaFile artist = mediaFileDao.getSongsByArtist(song.getArtist(), 0, 1).get(0);
         assertNotNull(multiService.getArtistInfo(artist.getId(), 1, 20));

@@ -3,9 +3,9 @@ package com.tesshu.jpsonic.service;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**

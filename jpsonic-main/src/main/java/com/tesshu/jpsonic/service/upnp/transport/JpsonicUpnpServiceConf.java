@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.service.upnp.transport;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
-import com.tesshu.jpsonic.domain.Version;
+import com.tesshu.jpsonic.domain.system.Version;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.jupnp.model.ServerClientTokens;
 import org.jupnp.transport.spi.NetworkAddressFactory;

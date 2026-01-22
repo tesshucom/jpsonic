@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
-import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;

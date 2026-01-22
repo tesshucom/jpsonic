@@ -18,11 +18,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.PlaylistDao;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistImportHandler;
 import com.tesshu.jpsonic.util.FileUtil;

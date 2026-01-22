@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.service.search;
 import java.io.IOException;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.apache.lucene.search.Query;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;

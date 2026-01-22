@@ -23,9 +23,9 @@ package com.tesshu.jpsonic.controller;
 
 import java.io.IOException;
 
-import com.tesshu.jpsonic.domain.Avatar;
-import com.tesshu.jpsonic.domain.AvatarScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.AvatarScheme;
+import com.tesshu.jpsonic.persistence.api.entity.Avatar;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SecurityService;
 import jakarta.servlet.http.HttpServletRequest;

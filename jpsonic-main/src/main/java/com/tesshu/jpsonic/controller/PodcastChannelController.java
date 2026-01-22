@@ -25,7 +25,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -83,9 +83,10 @@ public class PodcastChannelController {
     }
 
     // VO
-    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+    public static class PodcastEpisode
+            extends com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode {
 
-        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+        public PodcastEpisode(com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode episode) {
             super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
                     episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
                     episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),

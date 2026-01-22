@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.controller;
 import static org.springframework.util.StringUtils.hasLength;
 
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.FontScheme;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;

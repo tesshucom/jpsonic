@@ -39,7 +39,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;

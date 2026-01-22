@@ -24,9 +24,9 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.UserSettingsController;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 
 /**
  * Command used in {@link UserSettingsController}.

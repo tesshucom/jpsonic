@@ -27,7 +27,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.tesshu.jpsonic.domain.Version;
+import com.tesshu.jpsonic.domain.system.Version;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceImpl;
 import org.junit.jupiter.api.AfterAll;

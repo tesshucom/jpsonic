@@ -28,11 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.tesshu.jpsonic.dao.ShareDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Share;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Share;
+import com.tesshu.jpsonic.persistence.api.repository.ShareDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.text.RandomStringGenerator;
 import org.slf4j.Logger;

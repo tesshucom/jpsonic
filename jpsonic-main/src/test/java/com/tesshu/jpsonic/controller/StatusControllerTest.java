@@ -28,10 +28,10 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.StatusController.TransferStatusHolder;
-import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

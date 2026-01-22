@@ -31,7 +31,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.theme.ChartColor;
 import jakarta.servlet.http.HttpServletRequest;

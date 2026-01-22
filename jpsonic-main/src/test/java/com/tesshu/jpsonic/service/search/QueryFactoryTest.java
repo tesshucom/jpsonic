@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;
@@ -281,41 +281,41 @@ class QueryFactoryTest {
     @Test
     @Order(4)
     void testGetRandomSongs() throws IOException {
-        RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"),
-                1900, 2000, SINGLE_FOLDERS);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(50,
+                Arrays.asList("Classic Rock"), 1900, 2000, SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, 2000,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), 1900, 2000,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(
                 "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, null,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), null, null,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, null,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), 1900, null,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2147483647] +(f:" + PATH1 + " f:"
                 + PATH2 + ")", query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, 2000,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), null, 2000,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[-2147483648 TO 2000] +(f:" + PATH1 + " f:"
                 + PATH2 + ")", query.toString());
 
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock", "Rock & Roll"), 1900,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock", "Rock & Roll"), 1900,
                 2000, SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(
                 "+m:MUSIC +(g:Classic Rock g:Rock & Roll) +y:[1900 TO 2000] +(f:" + PATH1 + ")",
                 query.toString(), "multi genre");
 
-        criteria = new RandomSearchCriteria(50, null, 1900, 2000, SINGLE_FOLDERS);
+        criteria = new ShuffleSelectionParam(50, null, 1900, 2000, SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +y:[1900 TO 2000] +(f:" + PATH1 + ")", query.toString(),
                 "null genre");

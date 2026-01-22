@@ -34,13 +34,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.AlbumNotes;
-import com.tesshu.jpsonic.domain.ArtistBio;
-import com.tesshu.jpsonic.domain.LastFmCoverArt;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.AlbumNotes;
+import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
 import de.umass.lastfm.CallException;
@@ -166,10 +165,10 @@ public class LastFmService {
      * @return Similar artists, ordered by presence then similarity.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Artist) Not reusable
-    public List<com.tesshu.jpsonic.domain.Artist> getSimilarArtists(
-            com.tesshu.jpsonic.domain.Artist artist, int count, boolean includeNotPresent,
-            List<MusicFolder> musicFolders) {
-        List<com.tesshu.jpsonic.domain.Artist> result = new ArrayList<>();
+    public List<com.tesshu.jpsonic.persistence.api.entity.Artist> getSimilarArtists(
+            com.tesshu.jpsonic.persistence.api.entity.Artist artist, int count,
+            boolean includeNotPresent, List<MusicFolder> musicFolders) {
+        List<com.tesshu.jpsonic.persistence.api.entity.Artist> result = new ArrayList<>();
 
         Collection<Artist> similarArtists;
         try {
@@ -184,7 +183,7 @@ public class LastFmService {
         }
 
         for (Artist lastFmArtist : similarArtists) {
-            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao
+            com.tesshu.jpsonic.persistence.api.entity.Artist similarArtist = artistDao
                 .getArtist(lastFmArtist.getName(), musicFolders);
             if (similarArtist != null) {
                 result.add(similarArtist);
@@ -202,10 +201,10 @@ public class LastFmService {
         for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext()
                 && result.size() != count;) {
             Artist lastFmArtist = i.next();
-            com.tesshu.jpsonic.domain.Artist similarArtist = artistDao
+            com.tesshu.jpsonic.persistence.api.entity.Artist similarArtist = artistDao
                 .getArtist(lastFmArtist.getName());
             if (similarArtist == null) {
-                com.tesshu.jpsonic.domain.Artist notPresentArtist = new com.tesshu.jpsonic.domain.Artist();
+                com.tesshu.jpsonic.persistence.api.entity.Artist notPresentArtist = new com.tesshu.jpsonic.persistence.api.entity.Artist();
                 notPresentArtist.setId(-1);
                 notPresentArtist.setName(lastFmArtist.getName());
                 result.add(notPresentArtist);
@@ -224,13 +223,13 @@ public class LastFmService {
      *
      * @return Songs from similar artists;
      */
-    public List<MediaFile> getSimilarSongs(com.tesshu.jpsonic.domain.Artist artist, int count,
-            List<MusicFolder> musicFolders) {
+    public List<MediaFile> getSimilarSongs(com.tesshu.jpsonic.persistence.api.entity.Artist artist,
+            int count, List<MusicFolder> musicFolders) {
 
         List<MediaFile> similarSongs = new ArrayList<>(
                 mediaFileDao.getSongsByArtist(artist.getName(), 0, 1000));
-        for (com.tesshu.jpsonic.domain.Artist similarArtist : getSimilarArtists(artist, 100, false,
-                musicFolders)) {
+        for (com.tesshu.jpsonic.persistence.api.entity.Artist similarArtist : getSimilarArtists(
+                artist, 100, false, musicFolders)) {
             similarSongs.addAll(mediaFileDao.getSongsByArtist(similarArtist.getName(), 0, 1000));
         }
         Collections.shuffle(similarSongs);
@@ -282,7 +281,8 @@ public class LastFmService {
      *
      * @return Artist bio.
      */
-    public ArtistBio getArtistBio(com.tesshu.jpsonic.domain.Artist artist, Locale locale) {
+    public ArtistBio getArtistBio(com.tesshu.jpsonic.persistence.api.entity.Artist artist,
+            Locale locale) {
         return getArtistBio(getCanonicalArtistName(artist.getName()), locale);
     }
 
@@ -373,7 +373,7 @@ public class LastFmService {
      *
      * @return Album notes.
      */
-    public AlbumNotes getAlbumNotes(com.tesshu.jpsonic.domain.Album album) {
+    public AlbumNotes getAlbumNotes(com.tesshu.jpsonic.persistence.api.entity.Album album) {
         return getAlbumNotes(getCanonicalArtistName(album.getArtist()), album.getName());
     }
 
@@ -540,5 +540,31 @@ public class LastFmService {
                     : mediaFile.getAlbumArtist();
         }
         return artistName;
+    }
+
+    // VO
+    public static final class LastFmCoverArt {
+
+        private final String imageUrl;
+        private final String artist;
+        private final String album;
+
+        public LastFmCoverArt(String imageUrl, String artist, String album) {
+            this.imageUrl = imageUrl;
+            this.artist = artist;
+            this.album = album;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        public String getArtist() {
+            return artist;
+        }
+
+        public String getAlbum() {
+            return album;
+        }
     }
 }

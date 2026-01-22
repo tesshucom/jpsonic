@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler.RegistrationData;
 import org.junit.jupiter.api.Test;
 

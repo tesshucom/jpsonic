@@ -25,9 +25,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.PlayerSettingsController;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**

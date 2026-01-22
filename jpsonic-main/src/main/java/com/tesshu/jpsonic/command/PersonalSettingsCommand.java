@@ -24,13 +24,13 @@ package com.tesshu.jpsonic.command;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.PersonalSettingsController;
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.Avatar;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.Theme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.AlbumListType;
+import com.tesshu.jpsonic.domain.system.FontScheme;
+import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.persistence.api.entity.Avatar;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 
 /**
  * Command used in {@link PersonalSettingsController}.

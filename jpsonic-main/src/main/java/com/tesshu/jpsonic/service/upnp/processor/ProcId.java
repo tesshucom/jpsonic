@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.domain.system.MenuItemId;
 
 /**
  * ID to identify UPnPContentProcessor.

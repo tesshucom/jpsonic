@@ -24,8 +24,8 @@ package com.tesshu.jpsonic.service;
 import java.time.Instant;
 import java.util.concurrent.Executor;
 
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.scrobbler.LastFMScrobbler;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler;
 import org.springframework.beans.factory.annotation.Qualifier;

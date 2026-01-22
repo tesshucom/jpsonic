@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Path;
 import java.util.Locale;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;

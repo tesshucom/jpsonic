@@ -38,12 +38,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.AlbumListType;
+import com.tesshu.jpsonic.domain.system.FontScheme;
+import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

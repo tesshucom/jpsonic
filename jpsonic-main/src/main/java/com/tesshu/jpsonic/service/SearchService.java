@@ -23,17 +23,17 @@ package com.tesshu.jpsonic.service;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ParamSearchResult;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.SearchResult;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
+import com.tesshu.jpsonic.service.search.ParamSearchResult;
+import com.tesshu.jpsonic.service.search.SearchResult;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 
 /**
@@ -77,7 +77,7 @@ public interface SearchService {
      *
      * @return List of random songs.
      */
-    List<MediaFile> getRandomSongs(RandomSearchCriteria criteria);
+    List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria);
 
     /**
      * Returns random songs. The song returned by this list is limited to

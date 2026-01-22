@@ -1,6 +1,6 @@
 package com.tesshu.jpsonic.service;
 
-import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.spring.LifecyclePhase;
 import org.springframework.context.SmartLifecycle;
 

@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.service.playlist;
 import java.util.List;
 
 import chameleon.playlist.SpecificPlaylist;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.Ordered;
 
