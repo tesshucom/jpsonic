@@ -65,8 +65,8 @@ class AdvancedSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
@@ -82,8 +82,8 @@ class AdvancedSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
@@ -145,8 +145,8 @@ class AdvancedSettingsControllerTest {
     /*
      * Full scan required if schema changes (Compare before reflecting settings)
      */
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testChangeIndexScheme() throws Exception {
 
         MvcResult result = mockMvc

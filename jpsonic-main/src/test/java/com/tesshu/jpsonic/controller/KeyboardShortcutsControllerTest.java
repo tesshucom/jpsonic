@@ -43,8 +43,8 @@ class KeyboardShortcutsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(new KeyboardShortcutsController()).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/keyboardShortcuts.view"))

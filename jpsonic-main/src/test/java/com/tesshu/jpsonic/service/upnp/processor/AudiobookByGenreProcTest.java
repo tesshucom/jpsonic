@@ -65,8 +65,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class AudiobookByGenreProcTest {
 
-    @SuppressWarnings("PMD.SingularField")
     @Nested
+    @SuppressWarnings("PMD.SingularField")
     class UnitTest {
         private SettingsService settingsService;
         private UpnpProcessorUtil util;

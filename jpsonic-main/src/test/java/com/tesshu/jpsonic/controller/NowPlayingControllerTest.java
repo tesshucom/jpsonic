@@ -68,8 +68,8 @@ class NowPlayingControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGetToHome() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
@@ -80,8 +80,8 @@ class NowPlayingControllerTest {
         assertNotNull(result);
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGetToMain() throws Exception {
         Player player = new Player();
         Mockito
@@ -151,18 +151,18 @@ class NowPlayingControllerTest {
     @Nested
     class GetNowPlayingFileTest {
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.Empty
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c1() {
             Player player = new Player();
             assertNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.NotReadAllowed
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c2() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
@@ -174,11 +174,11 @@ class NowPlayingControllerTest {
             assertNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.ReadAllowed
         @GetNowPlayingFileDecisions.Conditions.MediaFile.NonNull
         @GetNowPlayingFileDecisions.Result.NonNull
+        @Test
         void c3() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
@@ -193,11 +193,11 @@ class NowPlayingControllerTest {
             assertNotNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.ReadAllowed
         @GetNowPlayingFileDecisions.Conditions.MediaFile.Null
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c4() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();

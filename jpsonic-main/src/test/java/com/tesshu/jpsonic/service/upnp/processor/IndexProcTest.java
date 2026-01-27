@@ -68,8 +68,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class IndexProcTest {
 
-    @Nested
     @Order(1)
+    @Nested
     class UnitTest {
 
         private UpnpDIDLFactory factory;
@@ -265,8 +265,8 @@ class IndexProcTest {
         }
     }
 
-    @Nested
     @Order(2)
+    @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays

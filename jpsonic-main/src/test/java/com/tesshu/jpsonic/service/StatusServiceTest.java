@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.StatusService.PlayStatus;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,9 +48,9 @@ import org.springframework.test.context.ActiveProfiles;
  *
  * @author Sindre Mehus
  */
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsHome
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class StatusServiceTest {
 

@@ -40,8 +40,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class WebFontUtilsTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
@@ -56,8 +56,8 @@ class WebFontUtilsTest {
                 mock(MusicFolderService.class));
     }
 
-    @Test
     @Order(1)
+    @Test
     void testSetToRequest() throws ExecutionException {
 
         UserSettings settings = securityService.getUserSettings("");
@@ -126,8 +126,8 @@ class WebFontUtilsTest {
         assertEquals(request.getAttribute(FONT_FAMILY_KEY), "Arial");
     }
 
-    @Test
     @Order(2)
+    @Test
     void testSetToCommand() throws ExecutionException {
 
         UserSettings from = securityService.getUserSettings("");
@@ -149,8 +149,8 @@ class WebFontUtilsTest {
         assertEquals("Arial", to.getFontFamily());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testFormatFontFamily() {
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY,
                 WebFontUtils.formatFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY));
@@ -174,8 +174,8 @@ class WebFontUtilsTest {
                 WebFontUtils.formatFontFamily("Ari\"al,  Comi\"c Sans"));
     }
 
-    @Test
     @Order(4)
+    @Test
     void testSetToSettings() throws ExecutionException {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(new UserSettings(""), command);

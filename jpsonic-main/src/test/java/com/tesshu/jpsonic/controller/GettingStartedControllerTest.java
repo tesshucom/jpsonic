@@ -47,8 +47,8 @@ class GettingStartedControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.GETTING_STARTED.value()))

@@ -119,8 +119,8 @@ class SubsonicRESTControllerTest {
 
     private final String apiVerion = TestCaseUtils.restApiVersion();
 
-    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     @Nested
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     class UnitTest {
 
         private SecurityService securityService;
@@ -1580,9 +1580,9 @@ class SubsonicRESTControllerTest {
             /*
              * @see #1048
              */
-            @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(1)
+            @Test
             void testGetNowPlayingWithoutNowPlayingAllowed()
                     throws ServletRequestBindingException, IOException {
 
@@ -1649,9 +1649,9 @@ class SubsonicRESTControllerTest {
                     }, Assertions::fail);
             }
 
-            @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(2)
+            @Test
             void testGetNowPlayingWithNowPlayingAllowed()
                     throws ServletRequestBindingException, IOException {
 
@@ -1842,8 +1842,8 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testScrobble() throws ExecutionException {
             ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
@@ -2663,8 +2663,8 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testDeleteShare() throws ExecutionException {
             try {
 
@@ -2715,8 +2715,8 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testUpdateShare() throws ExecutionException {
             try {
 

@@ -25,9 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -35,10 +34,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsDB
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports",
         "PMD.SignatureDeclareThrowsException" })
 class GlobalSecurityConfigLogoutTest {

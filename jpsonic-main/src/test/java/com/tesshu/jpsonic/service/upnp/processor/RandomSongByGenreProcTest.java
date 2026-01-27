@@ -51,8 +51,8 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class RandomSongByGenreProcTest {
 
-    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
         private SettingsService settingsService;
         private UpnpProcessorUtil util;

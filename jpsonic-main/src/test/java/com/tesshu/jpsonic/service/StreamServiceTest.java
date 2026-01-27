@@ -59,9 +59,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 class StreamServiceTest {
 
     private StatusService statusService;
@@ -165,8 +165,8 @@ class StreamServiceTest {
         }
     }
 
-    @Nested
     @Order(2)
+    @Nested
     class GetFormatTest {
 
         String fmtMp3 = "mp3";
@@ -376,8 +376,8 @@ class StreamServiceTest {
         }
     }
 
-    @Test
     @Order(3)
+    @Test
     void testGetSingleFile() throws Exception {
 
         MediaFile song = new MediaFile();
@@ -397,8 +397,8 @@ class StreamServiceTest {
         assertEquals(song, streamService.getSingleFile(request));
     }
 
-    @Test
     @Order(4)
+    @Test
     void testCreateVideoTranscodingSettings() throws Exception {
         MediaFile video = new MediaFile();
         video.setPathString("song");
@@ -456,8 +456,8 @@ class StreamServiceTest {
         assertTrue(settings.isHls());
     }
 
-    @Test
     @Order(5)
+    @Test
     void testGetRequestedVideoSize() {
         assertNull(streamService.getRequestedVideoSize(null));
         assertNull(streamService.getRequestedVideoSize("fooxbar"));
@@ -477,8 +477,8 @@ class StreamServiceTest {
         return true;
     }
 
-    @Test
     @Order(6)
+    @Test
     void testGetSuitableVideoSize() throws Exception {
 
         // default
@@ -537,8 +537,8 @@ class StreamServiceTest {
         assertTrue(doTestGetSuitableVideoSize(464, 853, 1500, 464, 854));
     }
 
-    @Test
     @Order(7)
+    @Test
     void testCloseAllStreamFor() throws Exception {
 
         TransferStatus status1 = new TransferStatus();
@@ -571,8 +571,8 @@ class StreamServiceTest {
         assertFalse(status2.isTerminated());
     }
 
-    @Test
     @Order(8)
+    @Test
     void testCreateInputStream() throws Exception {
         Player player = new Player();
         PlayQueue playQueue = new PlayQueue();
@@ -587,8 +587,8 @@ class StreamServiceTest {
         }
     }
 
-    @Test
     @Order(9)
+    @Test
     void testSendDummyDelayed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] bytes = { 0, 0, 0 };
@@ -598,8 +598,8 @@ class StreamServiceTest {
             .equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
     }
 
-    @Test
     @Order(10)
+    @Test
     void testSendDummy() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] bytes = { 0, 0, 0 };
@@ -609,8 +609,8 @@ class StreamServiceTest {
             .equals(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, baos.toByteArray()));
     }
 
-    @Test
     @Order(11)
+    @Test
     void testRemoveStreamStatus() throws Exception {
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null);
         TransferStatus status = new TransferStatus();

@@ -49,13 +49,13 @@ import java.util.function.Function;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.CoverArtController.AlbumCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.ArtistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -75,7 +75,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -88,7 +87,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
-@ExtendWith(NeedsHome.class)
+@NeedsHome
 class CoverArtControllerTest {
 
     private MediaFileService mediaFileService;

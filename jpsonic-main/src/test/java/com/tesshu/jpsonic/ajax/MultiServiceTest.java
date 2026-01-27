@@ -79,8 +79,8 @@ class MultiServiceTest extends AbstractNeedsScan {
                 lastFmService, airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ADMIN_NAME)
+    @Test
     void testGetArtistInfo() {
         ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                 musicFolders);
@@ -89,8 +89,8 @@ class MultiServiceTest extends AbstractNeedsScan {
         assertNotNull(multiService.getArtistInfo(artist.getId(), 1, 20));
     }
 
-    @Test
     @WithMockUser(username = ADMIN_NAME)
+    @Test
     void testSetCloseDrawer() {
         UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
         assertFalse(userSettings.isCloseDrawer());

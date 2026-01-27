@@ -20,8 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * Verifies CSS path resolution based on: - context path - authenticated user
  * theme - system default theme
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class CssUrlProviderImplTest {
 
     @Mock

@@ -67,8 +67,8 @@ class EditTagsControllerTest extends AbstractNeedsScan {
         populateDatabaseOnlyOnce();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testHandleRequest() throws Exception {
 
         MediaFile album = mediaFileDao.getAlphabeticalAlbums(0, 1, false, MUSIC_FOLDERS).get(0);

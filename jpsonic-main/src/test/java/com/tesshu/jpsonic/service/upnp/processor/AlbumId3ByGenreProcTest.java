@@ -65,14 +65,14 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
         settingsService.save();
     }
 
-    @Test
     @Order(1)
+    @Test
     void testGetProcId() {
         assertEquals("aibg", proc.getProcId().getValue());
     }
 
-    @Test
     @Order(2)
+    @Test
     void testCreateContainer() {
         // test getDirectChildren
         Genre genre = proc.getDirectChildren(0, 1).get(0);
@@ -85,16 +85,16 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
         assertEquals(2, container.getChildCount());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testBrowseRoot() throws ExecutionException {
         assertEquals(12, proc.getDirectChildrenCount());
         BrowseResult browseResult = proc.browseRoot(null, 0, Integer.MAX_VALUE);
         assertEquals(proc.getDirectChildrenCount(), browseResult.getTotalMatchesLong());
     }
 
-    @Test
     @Order(4)
+    @Test
     void testGetDirectChild() {
         Genre genre = proc.getDirectChildren(0, 1).get(0);
         // test getDirectChild
@@ -105,8 +105,8 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
         assertEquals(genre.getSongCount(), directChild.getSongCount());
     }
 
-    @Test
     @Order(5)
+    @Test
     void testBrowseDirectChildren() throws ExecutionException {
         Genre genre = proc.getDirectChildren(0, 1).get(0);
         // test getDirectChild

@@ -56,8 +56,8 @@ class StarredControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/starred.view"))

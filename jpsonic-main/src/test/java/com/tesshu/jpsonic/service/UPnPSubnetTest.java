@@ -78,61 +78,61 @@ class UPnPSubnetTest {
         subnet = new UPnPSubnet();
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.Null
     @SubnetDecisions.Results.False
-    @Test
     void c01() {
         assertFalse(subnet.isInUPnPRange("dummy"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.InValid
     @SubnetDecisions.Results.False
-    @Test
     void c02() {
         subnet.setDlnaBaseLANURL("http://sjhbfdkljhf.com");
         assertFalse(subnet.isInUPnPRange("dummy"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.InValid
     @SubnetDecisions.Conditions.Address.NotInRange
     @SubnetDecisions.Results.False
-    @Test
     void c021() {
         subnet.setDlnaBaseLANURL("http://sjhbfdkljhf.com");
         assertFalse(subnet.isInUPnPRange("20.27.178.1"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.Valid
     @SubnetDecisions.Conditions.Address.NotInRange
     @SubnetDecisions.Results.False
-    @Test
     void c03() {
         subnet.setDlnaBaseLANURL("http://20.27.177.113");
         assertFalse(subnet.isInUPnPRange("20.27.178.1"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithHostName.Valid
     @SubnetDecisions.Conditions.Address.InRange
     @SubnetDecisions.Results.True
-    @Test
     void c04() {
         subnet.setDlnaBaseLANURL("http://20.27.177.113");
         assertTrue(subnet.isInUPnPRange("20.27.177.1"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithIp
     @SubnetDecisions.Conditions.Address.NotInRange
     @SubnetDecisions.Results.False
-    @Test
     void c05() {
         subnet.setDlnaBaseLANURL("http://192.168.1.5:8080/jpsonic");
         assertFalse(subnet.isInUPnPRange("192.168.2.4"));
     }
 
+    @Test
     @SubnetDecisions.Conditions.DlnaBaseLANURL.NotNull.WithIp
     @SubnetDecisions.Conditions.Address.InRange
     @SubnetDecisions.Results.True
-    @Test
     void c06() {
         subnet.setDlnaBaseLANURL("http://192.168.1.5:8080/jpsonic");
         assertTrue(subnet.isInUPnPRange("192.168.1.2"));

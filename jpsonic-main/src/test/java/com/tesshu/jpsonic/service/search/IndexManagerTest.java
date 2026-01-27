@@ -41,7 +41,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -73,14 +73,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.UseUtilityClass" })
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexManagerTest {
 
     @BeforeAll
@@ -140,9 +139,9 @@ class IndexManagerTest {
      * The implementation is poor and difficult to assert. This is a coverage test
      * for later fix.
      */
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Nested
-    @ExtendWith(NeedsHome.class)
+    @NeedsDB
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     class GetGenresTest {
 
         private SettingsService settingsService;
@@ -612,8 +611,8 @@ class IndexManagerTest {
          * conditions should result in the removal of unnecessary data from both the
          * database and the Lucene index.
          */
-        @Test
         @Order(1)
+        @Test
         void testExpunge() throws IOException {
 
             int offset = 0;
@@ -734,8 +733,8 @@ class IndexManagerTest {
             assertEquals(0, ratingsCount, "Will be removed, including oldPath");
         }
 
-        @Test
         @Order(2)
+        @Test
         void testDeleteLegacyFiles() throws ExecutionException, IOException {
             // Remove the index used in the early days of Airsonic(Close to Subsonic)
             Path legacyFile = Path.of(SettingsService.getJpsonicHome().toString(), "lucene2");
@@ -752,8 +751,8 @@ class IndexManagerTest {
             assertFalse(Files.exists(legacyDir));
         }
 
-        @Test
         @Order(3)
+        @Test
         void testDeleteOldFiles() throws ExecutionException, IOException {
             // If the index version does not match, delete it
             Path oldDir = Path.of(SettingsService.getJpsonicHome().toString(), "index-JP22");

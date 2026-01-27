@@ -43,8 +43,8 @@ class StarServiceTest {
                 AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testStar() {
 
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
@@ -59,8 +59,8 @@ class StarServiceTest {
         assertEquals(ServiceMockUtils.ADMIN_NAME, nameCaptor.getValue());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testUnstar() {
         ArgumentCaptor<Integer> id = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);

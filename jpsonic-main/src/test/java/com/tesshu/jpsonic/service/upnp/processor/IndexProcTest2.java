@@ -46,8 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class IndexProcTest2 {
 
-    @Nested
     @Order(3)
+    @Nested
     class MessyFileStructureTest extends AbstractNeedsScan {
 
         private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,

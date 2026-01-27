@@ -69,8 +69,8 @@ class TopControllerTest {
 
     private MockMvc mockMvc;
 
-    @SuppressWarnings("unchecked")
     @BeforeEach
+    @SuppressWarnings("unchecked")
     public void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
@@ -85,8 +85,8 @@ class TopControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
@@ -103,8 +103,8 @@ class TopControllerTest {
         assertNotNull(model);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGetLastModified() throws ServletRequestBindingException {
         MockHttpServletRequest req = new MockHttpServletRequest();
         assertNotEquals(0, controller.getLastModified(req));

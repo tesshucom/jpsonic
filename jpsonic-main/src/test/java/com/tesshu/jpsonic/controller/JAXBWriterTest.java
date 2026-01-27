@@ -58,8 +58,8 @@ class JAXBWriterTest {
         writer = new JAXBWriter(settingsService);
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testConvertDate() throws Exception {
 
         Instant dateInDB = ZonedDateTime

@@ -71,9 +71,9 @@ class PodcastChannelControllerTest {
             .build();
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

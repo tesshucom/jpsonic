@@ -41,8 +41,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class FFmpegTest {
 
     private FFmpeg ffmpeg;
@@ -58,8 +58,8 @@ class FFmpegTest {
         return Path.of(FFmpegTest.class.getResource(path).toURI());
     }
 
-    @Test
     @Order(1)
+    @Test
     void testGetVersion() throws URISyntaxException, IOException {
         String version = ffmpeg.getVersion();
         assertNotEquals(StringUtils.EMPTY, version);
@@ -68,8 +68,8 @@ class FFmpegTest {
     @Nested
     class CreateImageTest {
 
-        @Test
         @Order(1)
+        @Test
         void testBlank() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
             assertTrue(Files.exists(path));
@@ -77,8 +77,8 @@ class FFmpegTest {
             assertNull(bi);
         }
 
-        @Test
         @Order(2)
+        @Test
         void testInvalidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -86,8 +86,8 @@ class FFmpegTest {
             assertNull(bi);
         }
 
-        @Test
         @Order(3)
+        @Test
         void testThumbnailWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -97,8 +97,8 @@ class FFmpegTest {
             assertEquals(160, bi.getHeight());
         }
 
-        @Test
         @Order(4)
+        @Test
         void testSeekedFrameWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -108,8 +108,8 @@ class FFmpegTest {
             assertEquals(160, bi.getHeight());
         }
 
-        @Test
         @Order(5)
+        @Test
         void testOverFrameWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -117,8 +117,8 @@ class FFmpegTest {
             assertNull(bi);
         }
 
-        @Test
         @Order(6)
+        @Test
         void testZeroSizeWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -128,8 +128,8 @@ class FFmpegTest {
             assertEquals(1080, bi.getHeight()); // original
         }
 
-        @Test
         @Order(6)
+        @Test
         void testNegativeWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));

@@ -30,8 +30,8 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
@@ -42,14 +42,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsDB
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MenuItemServiceTest {
 

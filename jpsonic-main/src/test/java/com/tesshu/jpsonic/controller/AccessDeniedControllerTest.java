@@ -43,8 +43,8 @@ class AccessDeniedControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(new AccessDeniedController()).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.ACCESS_DENIED.value()))

@@ -75,8 +75,8 @@ class UserSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         // User creation
         MvcResult result = mockMvc
@@ -119,8 +119,8 @@ class UserSettingsControllerTest {
         assertEquals(user2.getUsername(), command.getUsername());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))

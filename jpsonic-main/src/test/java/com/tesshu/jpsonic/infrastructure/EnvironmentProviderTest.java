@@ -36,20 +36,23 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 class EnvironmentProviderTest {
 
     @Autowired
-    EnvironmentProvider provider;
+    private EnvironmentProvider provider;
 
     @Nested
     class DefaultHomeTests {
 
+        @TempDir
+        private static Path tempDir;
+
+        @BeforeAll
+        static void init() {
+            System.setProperty("jpsonic.home", tempDir.toString());
+        }
+
         @Test
         void testDefaultHomeDirectory() {
-            System.clearProperty("jpsonic.home");
             Path home = provider.getJpsonicHome();
-            if (provider.isWindows()) {
-                assertEquals(Path.of("C:/jpsonic"), home);
-            } else {
-                assertEquals(Path.of("/var/jpsonic"), home);
-            }
+            assertEquals(tempDir, home);
         }
     }
 

@@ -35,8 +35,8 @@ class TransferServiceTest {
         transferService = new TransferService(AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGetUploadInfo() {
         UploadInfo uploadInfo = transferService.getUploadInfo();
         assertEquals(0L, uploadInfo.getBytesTotal());

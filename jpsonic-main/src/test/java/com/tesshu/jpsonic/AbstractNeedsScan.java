@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
@@ -45,7 +46,6 @@ import com.tesshu.jpsonic.service.scanner.PreScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanHelper;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.annotation.PostConstruct;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +58,9 @@ import org.springframework.test.context.ActiveProfiles;
  * Abstract class for scanning MusicFolder.
  */
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("test")
+@NeedsDB
 public abstract class AbstractNeedsScan implements NeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);

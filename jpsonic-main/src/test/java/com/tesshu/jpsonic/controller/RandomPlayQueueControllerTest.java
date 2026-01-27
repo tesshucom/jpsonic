@@ -82,8 +82,8 @@ class RandomPlayQueueControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

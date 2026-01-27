@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Avatar;
@@ -36,7 +36,6 @@ import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.persistence.result.SortCandidate;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -50,7 +49,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 @ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@NeedsDB
 class DaoUnitTest {
 
     private static final String USER_NAME = "admin";

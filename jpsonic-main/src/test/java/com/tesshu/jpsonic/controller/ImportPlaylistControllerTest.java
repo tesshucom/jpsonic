@@ -49,8 +49,8 @@ class ImportPlaylistControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/importPlaylist.view"))

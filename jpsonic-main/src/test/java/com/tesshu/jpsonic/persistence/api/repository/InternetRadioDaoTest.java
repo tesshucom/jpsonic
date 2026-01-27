@@ -26,16 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.temporal.ChronoUnit;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -44,10 +41,8 @@ import org.springframework.test.context.ActiveProfiles;
  * @author Sindre Mehus
  */
 @ActiveProfiles("test")
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@NeedsDB
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class InternetRadioDaoTest {
 

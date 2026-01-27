@@ -29,11 +29,11 @@ import java.lang.annotation.Documented;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -45,7 +45,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,9 +58,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsHome
 @SuppressWarnings("PMD.TooManyStaticImports")
 class PersonalSettingsControllerTest {
 
@@ -260,9 +259,9 @@ class PersonalSettingsControllerTest {
         @DoSubmitDecision.Conditions.Command.LastFmPassword.Blank
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.Default
         @DoSubmitDecision.Conditions.Command.AvatarScheme.NONE
+        @Order(1)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(1)
         void c1() throws Exception {
 
             MvcResult result = mockMvc
@@ -299,9 +298,9 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.NotNull
         @DoSubmitDecision.Conditions.UserSettings.SpeechLangSchemeName.NotDefault
+        @Order(2)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(2)
         void c2() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -335,9 +334,9 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.NotNull
         @DoSubmitDecision.Conditions.UserSettings.SpeechLangSchemeName.Default
+        @Order(3)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(3)
         void c3() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -370,9 +369,9 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.UserSettings.ThemeId.NotNull
+        @Order(4)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(4)
         void c4() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -403,9 +402,9 @@ class PersonalSettingsControllerTest {
             assertNotNull(result);
         }
 
+        @Order(5)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(5)
         void c5() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -433,9 +432,9 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.NotDefault
         @DoSubmitDecision.Conditions.Command.Ietf.Blank
+        @Order(6)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(6)
         void c6() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -474,9 +473,9 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.NotDefault
         @DoSubmitDecision.Conditions.Command.Ietf.NotBlank.NotFine
+        @Order(7)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(7)
         void c7() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -514,9 +513,9 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.LastFmPassword.NotBlank
+        @Order(8)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(8)
         void c8() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -553,9 +552,9 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.AvatarScheme.CUSTOM
+        @Order(9)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
-        @Order(9)
         void c9() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -592,9 +591,9 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.AvatarScheme.SYSTEM
+        @Order(10)
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         // @Test NeedScan
-        @Order(10)
         void c10() throws Exception {
             MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))

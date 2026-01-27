@@ -50,8 +50,8 @@ class IndexControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/index.view"))
@@ -70,8 +70,8 @@ class IndexControllerTest {
         assertFalse((Boolean) model.get("showLeft"));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPostWithView() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
