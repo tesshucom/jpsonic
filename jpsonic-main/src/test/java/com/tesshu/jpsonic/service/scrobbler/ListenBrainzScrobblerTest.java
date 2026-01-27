@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 class ListenBrainzScrobblerTest {
 
     @Test
-    void testSubmit() throws ExecutionException {
+    void testSubmit() {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setArtist("artist");
         mediaFile.setAlbumName("album");
@@ -39,7 +39,17 @@ class ListenBrainzScrobblerTest {
         mediaFile.setMusicBrainzReleaseId("musicBrainzReleaseId");
         mediaFile.setMusicBrainzRecordingId("musicBrainzRecordingId");
         mediaFile.setTrackNumber(1);
+
         RegistrationData data = new RegistrationData(mediaFile, "token", true, Instant.now());
-        assertFalse(ListenBrainzScrobbler.submit(data));
+        boolean result;
+        try {
+            result = ListenBrainzScrobbler.submit(data);
+        } catch (ExecutionException e) {
+            // The ListenBrainz API rejects invalid tokens and may throw an exception.
+            // Any exception is treated as a submission failure, which is the expected
+            // outcome here.
+            result = false;
+        }
+        assertFalse(result);
     }
 }

@@ -183,7 +183,7 @@ public class ListenBrainzScrobbler {
             throw new ExecutionException("Error when writing Json", e);
         }
 
-        return executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens",
+        return executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens/",
                 registrationData.getToken(), json);
     }
 
