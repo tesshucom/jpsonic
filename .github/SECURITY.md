@@ -1,23 +1,41 @@
-# About CVE verification
+# Security Policy
 
-Jpsonic verifies CVE at build time.
-Jpsonic is automatically compiled by Cron once a week. If CVE publishes information about threats, I'll notice it in up to a week or so.
-Also apart from CVE validation at build time, Github may send high-impact risk alerts to developers.
-In this case, correction or false positive suppression will be performed immediately.
+## Reporting a Vulnerability
+Please report security issues via GitHub Security Advisories.
+Do not open public issues for security-related reports.
 
-# About CVE suppression
+## Supported Versions
+Only the latest released version is supported.
+Older versions are not maintained.
 
-Software does not necessarily have to clear all the problems pointed out by CVE.
-In reality, the software may not perform the processing that corresponds to the pointed out matter.
-If only testing and compiling (rather than the execution phase), the threatening case may not hold.
-And above all, it can be a false positive.
+## Security Response
+Reported issues will be evaluated based on exploitability and impact
+within the actual execution paths of the application.
+Not all dependency-reported CVEs require fixes;
+each case is assessed individually.
 
-These management policies depend on the project.
-If there is no need to upgrade the library or change the code, CVE threat reporting may be suppressed.
-In the case of Jpsonic, it can be confirmed by tracking [the suppression setting file](https://github.com/tesshucom/jpsonic/blob/master/jpsonic-main/cve-suppressed.xml).
+## Vulnerability Evaluation Criteria
 
-# Contact (Us)
+### Jpsonic Core
 
-If you have any questions, please contact us by email. 
-However, it does not respond to application-level feature requests.
-Keep in mind that sound network configuration and library updates are more important and essential for sound security.
+Jpsonic uses the latest available LTS version of the JVM.
+Dependencies are kept up to date, and CVE suppressions or library-level
+patch management are performed on a regular basis.
+
+The project aims to keep builds free of known security warnings
+through continuous dependency review.
+
+### CVE Handling for Docker Images
+
+Jpsonic provides Docker images based on multiple distributions
+for development, research, and risk diversification purposes.
+
+Each base image has different CVE reporting and evaluation characteristics:
+
+- Alpine: Minimal package set with a reduced attack surface
+- UBI9 (RHEL-based): CVEs are evaluated by Red Hat with exploitability context
+- Ubuntu: CVEs are reported broadly, including theoretical or non-reachable cases
+
+Due to these differences, CVE handling policies may vary by base image.
+Alpine and UBI9 images aim to minimize reported warnings where feasible,
+while Ubuntu-based images may retain unresolved CVEs depending on relevance.
