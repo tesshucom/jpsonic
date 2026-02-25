@@ -51,7 +51,7 @@ class UpnpDIDLFactoryTest {
     private UpnpDIDLFactory factory;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         transcodingDao = mock(TranscodingDao.class);
         settingsService = mock(SettingsService.class);
         playerService = mock(PlayerService.class);

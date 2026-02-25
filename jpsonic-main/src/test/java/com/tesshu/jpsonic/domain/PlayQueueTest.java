@@ -59,7 +59,7 @@ class PlayQueueTest {
     private JpsonicComparators jpsonicComparators;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         jpsonicComparators = new JpsonicComparators(mock(SettingsService.class),
                 mock(JapaneseReadingUtils.class));
     }

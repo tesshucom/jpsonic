@@ -133,7 +133,7 @@ public final class TranscodeInputStream extends InputStream {
         private final InputStream in;
         private final OutputStream out;
 
-        public TranscodedOutputStreamTask(@NonNull InputStream in, OutputStream out) {
+        TranscodedOutputStreamTask(@NonNull InputStream in, OutputStream out) {
             this.in = in;
             this.out = out;
         }
@@ -197,7 +197,7 @@ public final class TranscodeInputStream extends InputStream {
         private final Path tmpFile;
         private static final int TRIAL_MAX = 3;
 
-        public DeleteTmpFileTask(Path tmpFile) {
+        DeleteTmpFileTask(Path tmpFile) {
             super();
             this.tmpFile = tmpFile;
         }

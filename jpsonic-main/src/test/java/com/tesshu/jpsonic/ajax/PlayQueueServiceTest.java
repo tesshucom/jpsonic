@@ -103,7 +103,7 @@ class PlayQueueServiceTest {
     private JpsonicComparators comparators;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         final PlayerService playerService = mock(PlayerService.class);
         player = mock(Player.class);
         when(player.getId()).thenReturn(100);

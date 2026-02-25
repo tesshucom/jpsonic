@@ -41,7 +41,7 @@ class StreamDisposerTest {
     private StreamDisposer disposer;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         statusService = spy(new StatusService(null));
         disposer = new StreamDisposer(statusService);
     }

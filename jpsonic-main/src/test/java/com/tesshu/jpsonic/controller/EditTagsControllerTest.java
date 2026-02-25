@@ -62,7 +62,7 @@ class EditTagsControllerTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         populateDatabaseOnlyOnce();
     }

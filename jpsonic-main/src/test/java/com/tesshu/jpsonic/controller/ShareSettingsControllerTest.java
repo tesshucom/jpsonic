@@ -62,7 +62,7 @@ class ShareSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         shareService = mock(ShareService.class);
         mockMvc = MockMvcBuilders
             .standaloneSetup(new ShareSettingsController(mock(SettingsService.class),

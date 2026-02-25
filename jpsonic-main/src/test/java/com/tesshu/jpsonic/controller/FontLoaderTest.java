@@ -48,14 +48,14 @@ class FontLoaderTest {
     private FontLoader fontLoader;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         Path path = Path.of(FontLoaderTest.class.getResource("/ehcache.xml").toURI());
         manager = CacheManager.newInstance(path.toString());
         fontLoader = new FontLoader(manager.getCache("fontCache"));
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         manager.shutdown();
         System.clearProperty("jpsonic.embeddedfont");
     }

@@ -58,7 +58,7 @@ class JWTSecurityServiceTest {
     private JWTSecurityService jwtSecurityService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
     }

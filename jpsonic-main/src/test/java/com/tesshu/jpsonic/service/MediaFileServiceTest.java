@@ -50,7 +50,7 @@ class MediaFileServiceTest {
     private MediaFileService mediaFileService;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         SettingsService settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         mediaFileDao = mock(MediaFileDao.class);

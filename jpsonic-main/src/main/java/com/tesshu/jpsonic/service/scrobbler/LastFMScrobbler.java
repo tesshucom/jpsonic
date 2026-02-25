@@ -375,10 +375,10 @@ public class LastFMScrobbler {
         private final String title;
         private final int duration;
         private final Instant time;
-        public final boolean submission;
+        final boolean submission;
 
-        public RegistrationData(MediaFile mediaFile, String username, String password,
-                boolean submission, Instant time) {
+        RegistrationData(MediaFile mediaFile, String username, String password, boolean submission,
+                Instant time) {
             this.username = username;
             this.password = password;
             this.artist = mediaFile.getArtist();
@@ -389,35 +389,35 @@ public class LastFMScrobbler {
             this.submission = submission;
         }
 
-        public String getUsername() {
+        String getUsername() {
             return username;
         }
 
-        public String getPassword() {
+        String getPassword() {
             return password;
         }
 
-        public String getArtist() {
+        String getArtist() {
             return artist;
         }
 
-        public String getAlbum() {
+        String getAlbum() {
             return album;
         }
 
-        public String getTitle() {
+        String getTitle() {
             return title;
         }
 
-        public int getDuration() {
+        int getDuration() {
             return duration;
         }
 
-        public Instant getTime() {
+        Instant getTime() {
             return time;
         }
 
-        public boolean isSubmission() {
+        boolean isSubmission() {
             return submission;
         }
     }

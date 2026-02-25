@@ -59,7 +59,7 @@ class AlbumId3ByFolderProcTest {
     private AlbumId3ByFolderProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileService = mock(MediaFileService.class);
         albumDao = mock(AlbumDao.class);
         UpnpProcessorUtil util = mock(UpnpProcessorUtil.class);

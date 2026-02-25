@@ -64,7 +64,7 @@ class UserDaoTest {
     private UserDao userDao;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         daoHelper.getJdbcTemplate().execute("delete from user_role");
         daoHelper.getJdbcTemplate().execute("delete from user");
     }

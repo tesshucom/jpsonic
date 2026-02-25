@@ -56,7 +56,7 @@ class InternetRadioDaoTest {
     private InternetRadioDao internetRadioDao;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         daoHelper.getJdbcTemplate().execute("delete from internet_radio");
     }
 

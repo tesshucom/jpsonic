@@ -193,17 +193,17 @@ public class UploadController {
         private final List<Path> uploadedFiles;
         private final List<Path> unzippedFiles;
 
-        public UnzipResult(List<Path> uploadedFiles, List<Path> unzippedFiles) {
+        UnzipResult(List<Path> uploadedFiles, List<Path> unzippedFiles) {
             super();
             this.uploadedFiles = uploadedFiles;
             this.unzippedFiles = unzippedFiles;
         }
 
-        public List<Path> getUploadedFiles() {
+        List<Path> getUploadedFiles() {
             return uploadedFiles;
         }
 
-        public List<Path> getUnzippedFiles() {
+        List<Path> getUnzippedFiles() {
             return unzippedFiles;
         }
     }

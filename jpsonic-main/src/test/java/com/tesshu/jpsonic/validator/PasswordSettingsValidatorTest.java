@@ -35,7 +35,7 @@ class PasswordSettingsValidatorTest {
     private PasswordSettingsCommand psc;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         psc = new PasswordSettingsCommand();
         psc.setUsername("username");
         psc.setPassword("1234");

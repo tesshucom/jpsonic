@@ -43,7 +43,7 @@ class SetRatingControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(Mockito.anyInt())).thenReturn(new MediaFile());
         mockMvc = MockMvcBuilders

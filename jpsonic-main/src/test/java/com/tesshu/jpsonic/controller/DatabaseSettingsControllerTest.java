@@ -44,7 +44,7 @@ class DatabaseSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new DatabaseSettingsController(mock(SettingsService.class),
                     mock(SecurityService.class), mock(ShareService.class),

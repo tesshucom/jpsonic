@@ -69,7 +69,7 @@ class MusicIndexServiceImplTest {
     private ArtistDao artistDao;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
         artistDao = mock(ArtistDao.class);
         settingsService = mock(SettingsService.class);

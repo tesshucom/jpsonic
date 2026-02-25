@@ -102,7 +102,7 @@ class CoverArtControllerTest {
     }
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
         playlistService = mock(PlaylistService.class);
         TranscodingService transcodingService = new TranscodingService(null, null, null, null,
@@ -556,7 +556,7 @@ class CoverArtControllerTest {
         abstract class IntRunnable implements Callable<Path> {
             int i;
 
-            public IntRunnable(int i) {
+            IntRunnable(int i) {
                 this.i = i;
             }
         }

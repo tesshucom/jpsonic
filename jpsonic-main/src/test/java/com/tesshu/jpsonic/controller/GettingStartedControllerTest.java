@@ -41,7 +41,7 @@ class GettingStartedControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new GettingStartedController(mock(SettingsService.class)))
             .build();

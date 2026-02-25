@@ -37,7 +37,7 @@ class UpnpStreamImplTest {
     private UpnpStreamImpl upnpStream;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         upnpStream = new UpnpStreamImpl(mock(ProtocolFactory.class), mock(HttpExchange.class),
                 mock(ServerClientTokens.class));
     }

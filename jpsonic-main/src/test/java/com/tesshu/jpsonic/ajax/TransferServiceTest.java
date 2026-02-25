@@ -31,7 +31,7 @@ class TransferServiceTest {
     private TransferService transferService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         transferService = new TransferService(AjaxMockUtils.mock(AjaxHelper.class));
     }
 

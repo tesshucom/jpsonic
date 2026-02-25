@@ -44,7 +44,7 @@ class RatingServiceTest {
     private RatingService ratingService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         ratingDao = mock(RatingDao.class);
         securityService = mock(SecurityService.class);
         mediaFileService = mock(MediaFileService.class);

@@ -70,7 +70,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         populateDatabaseOnlyOnce();
