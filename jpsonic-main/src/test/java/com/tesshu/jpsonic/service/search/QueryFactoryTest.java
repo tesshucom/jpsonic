@@ -78,7 +78,7 @@ class QueryFactoryTest {
     private SettingsService settingsService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsService);
         queryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsService);

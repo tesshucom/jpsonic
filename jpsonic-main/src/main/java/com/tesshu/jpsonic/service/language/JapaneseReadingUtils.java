@@ -244,7 +244,7 @@ public class JapaneseReadingUtils {
             this.value = text;
         }
 
-        public static @NonNull Tag of(String name) {
+        static @NonNull Tag of(String name) {
             return Stream.of(values()).filter(t -> t.value.equals(name)).findAny().orElse(UNUSED);
         }
     }
@@ -322,7 +322,7 @@ public class JapaneseReadingUtils {
             this.value = name;
         }
 
-        public String getValue() {
+        String getValue() {
             return this.value;
         }
     }
@@ -332,8 +332,8 @@ public class JapaneseReadingUtils {
     }
 
     static class ReadingResult {
-        public final Token token;
-        public final String reading;
+        final Token token;
+        final String reading;
 
         private ReadingResult(Token token, String reading) {
             super();

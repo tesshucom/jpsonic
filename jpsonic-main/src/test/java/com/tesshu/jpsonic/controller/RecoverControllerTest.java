@@ -60,7 +60,7 @@ class RecoverControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         recoverService = mock(RecoverService.class);

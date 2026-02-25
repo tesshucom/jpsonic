@@ -78,7 +78,7 @@ class IndexProcTest {
         private IndexProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
             musicIndexService = mock(MusicIndexService.class);
@@ -284,7 +284,7 @@ class IndexProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             setSortStrict(true);
             setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);

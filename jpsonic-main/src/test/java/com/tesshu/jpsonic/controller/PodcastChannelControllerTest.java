@@ -59,7 +59,7 @@ class PodcastChannelControllerTest {
     int channelId = 99;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         podcastService = mock(PodcastService.class);
         Mockito.when(podcastService.getChannel(channelId)).thenReturn(new PodcastChannel(""));
         PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null,

@@ -66,7 +66,7 @@ class RandomSongByFolderArtistProcTest {
         private RandomSongByFolderArtistProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             util = mock(UpnpProcessorUtil.class);
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
@@ -155,7 +155,7 @@ class RandomSongByFolderArtistProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             setSortStrict(true);
             setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);

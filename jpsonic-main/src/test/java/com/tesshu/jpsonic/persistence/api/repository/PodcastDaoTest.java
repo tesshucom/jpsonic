@@ -60,7 +60,7 @@ class PodcastDaoTest {
     private PodcastDao podcastDao;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         daoHelper.getJdbcTemplate().execute("delete from podcast_channel");
     }
 

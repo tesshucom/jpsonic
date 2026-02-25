@@ -53,7 +53,7 @@ class JAXBWriterTest {
     private JAXBWriter writer;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         writer = new JAXBWriter(settingsService);
     }

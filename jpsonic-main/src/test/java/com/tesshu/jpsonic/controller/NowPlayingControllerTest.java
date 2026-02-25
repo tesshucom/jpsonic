@@ -58,7 +58,7 @@ class NowPlayingControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         playerService = mock(PlayerService.class);
         statusService = mock(StatusService.class);
         mediaFileService = mock(MediaFileService.class);

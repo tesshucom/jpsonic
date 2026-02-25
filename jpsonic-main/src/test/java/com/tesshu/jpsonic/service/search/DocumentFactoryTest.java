@@ -52,7 +52,7 @@ class DocumentFactoryTest {
     private DocumentFactory documentFactory;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         documentFactory = new DocumentFactory(settingsService,
                 new JapaneseReadingUtils(settingsService));

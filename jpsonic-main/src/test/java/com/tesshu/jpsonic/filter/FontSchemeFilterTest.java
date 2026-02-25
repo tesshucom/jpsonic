@@ -53,7 +53,7 @@ class FontSchemeFilterTest {
     private FontSchemeFilter fontSchemeFilter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         assertNotNull(servletContext);
         fontSchemeFilter = new FontSchemeFilter();
         MockFilterConfig mockFilterConfig = new MockFilterConfig(servletContext);

@@ -972,7 +972,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
         private final Executor executor;
 
-        public CustomSearcherFactory(Executor executor) {
+        CustomSearcherFactory(Executor executor) {
             super();
             this.executor = executor;
         }

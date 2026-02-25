@@ -74,7 +74,7 @@ class AlbumId3ByFolderGenreProcTest {
     private AlbumId3ByFolderGenreProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         albumDao = mock(AlbumDao.class);
         util = mock(UpnpProcessorUtil.class);
         settingsService = mock(SettingsService.class);

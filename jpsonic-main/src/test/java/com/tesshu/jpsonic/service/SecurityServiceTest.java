@@ -67,7 +67,7 @@ class SecurityServiceTest {
     private MusicFolderService musicFolderService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         musicFolderService = mock(MusicFolderService.class);
         service = new SecurityService(mock(UserDao.class), settingsService, musicFolderService);

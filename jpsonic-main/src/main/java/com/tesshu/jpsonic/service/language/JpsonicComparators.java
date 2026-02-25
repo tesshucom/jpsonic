@@ -173,7 +173,7 @@ public class JpsonicComparators {
         private final Supplier<Collator> supplier;
         private Collator collator;
 
-        public LazyPathComparator(Supplier<Collator> supplier) {
+        LazyPathComparator(Supplier<Collator> supplier) {
             this.supplier = supplier;
         }
 
@@ -225,7 +225,7 @@ public class JpsonicComparators {
         private final JapaneseReadingUtils utils;
         private final Collator collator;
 
-        public GenreComparator(JapaneseReadingUtils utils, Collator collator) {
+        GenreComparator(JapaneseReadingUtils utils, Collator collator) {
             super();
             this.utils = utils;
             this.collator = collator;
@@ -243,7 +243,7 @@ public class JpsonicComparators {
         private final JapaneseReadingUtils utils;
         private final Collator collator;
 
-        public PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
+        PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
             super();
             this.utils = utils;
             this.collator = collator;

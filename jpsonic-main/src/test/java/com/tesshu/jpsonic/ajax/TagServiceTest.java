@@ -51,7 +51,7 @@ class TagServiceTest {
     private MusicParser parser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         metaDataParserFactory = mock(MetaDataParserFactory.class);
         mediaFileService = mock(MediaFileService.class);
         writableMediaFileService = mock(WritableMediaFileService.class);

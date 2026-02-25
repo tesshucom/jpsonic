@@ -186,7 +186,7 @@ public class UpnpServiceFactory {
 
         private final CustomContentDirectory directory;
 
-        public ServiceManager(LocalService<CustomContentDirectory> service,
+        ServiceManager(LocalService<CustomContentDirectory> service,
                 CustomContentDirectory directory) {
             super(service);
             this.directory = directory;

@@ -49,7 +49,7 @@ class RecentAlbumId3ByFolderProcTest {
     private RecentAlbumId3ByFolderProc processor;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileService = mock(MediaFileService.class);
         albumDao = mock(AlbumDao.class);
         UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);

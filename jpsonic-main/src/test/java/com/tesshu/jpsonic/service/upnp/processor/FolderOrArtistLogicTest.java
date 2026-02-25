@@ -54,7 +54,7 @@ class FolderOrArtistLogicTest {
     private FolderOrArtistLogic logic;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
         UpnpDIDLFactory factory = new UpnpDIDLFactory(mock(SettingsService.class),

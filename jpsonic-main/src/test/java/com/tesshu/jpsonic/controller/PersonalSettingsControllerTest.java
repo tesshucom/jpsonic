@@ -79,7 +79,7 @@ class PersonalSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService.setLocale(Locale.US);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

@@ -60,7 +60,7 @@ class RecentAlbumId3ProcTest {
         private RecentAlbumId3Proc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             UpnpProcessorUtil util = mock(UpnpProcessorUtil.class);
             UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
@@ -129,7 +129,7 @@ class RecentAlbumId3ProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             setSortStrict(true);
             setSortAlphanum(true);
             populateDatabaseOnlyOnce();

@@ -59,7 +59,7 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() throws URISyntaxException, InterruptedException {
+    void setup() throws URISyntaxException, InterruptedException {
         musicFolders = Arrays
             .asList(new MusicFolder(1, Path
                 .of(DispatchingContentDirectory2Test.class.getResource("/MEDIAS/Music").toURI())

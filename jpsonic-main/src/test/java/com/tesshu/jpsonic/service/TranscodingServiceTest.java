@@ -107,12 +107,12 @@ class TranscodingServiceTest {
     private SecurityService securityService;
 
     @BeforeAll
-    public static void beforeAll() {
+    static void beforeAll() {
         executor = Executors.newSingleThreadExecutor();
     }
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException {
+    void setup() throws ExecutionException, URISyntaxException {
         realPath = Path
             .of(TranscodingServiceTest.class
                 .getResource(
@@ -140,7 +140,7 @@ class TranscodingServiceTest {
     }
 
     @AfterAll
-    public static void afterAll() {
+    static void afterAll() {
         executor.shutdown();
     }
 
@@ -1050,7 +1050,7 @@ class TranscodingServiceTest {
                 FMT_MP3, "s1", "s2", "s3", true);
 
         @BeforeEach
-        public void before() throws ExecutionException {
+        void before() throws ExecutionException {
             Player player = new Player();
             player.setId(MOCK_PLAYER_ID);
             String username = "mockUsername";

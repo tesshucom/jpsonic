@@ -83,7 +83,7 @@ class DLNASettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         ApacheCommonsConfigurationService configurationService = mock(
                 ApacheCommonsConfigurationService.class);
         UPnPSubnet uPnPSubnet = mock(UPnPSubnet.class);
@@ -260,7 +260,7 @@ class DLNASettingsControllerTest {
         private DLNASettingsCommand command;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             controller = new DLNASettingsController(settingsService, mock(MusicFolderService.class),
                     mock(SecurityService.class), mock(PlayerService.class),

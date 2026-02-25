@@ -62,7 +62,7 @@ class AlbumByGenreProcTest {
     private AlbumByGenreProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         PlayerService playerService = mock(PlayerService.class);

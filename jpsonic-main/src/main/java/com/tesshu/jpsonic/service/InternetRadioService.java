@@ -141,7 +141,7 @@ public class InternetRadioService {
      */
     @SuppressWarnings("serial")
     private static class PlaylistException extends Exception {
-        public PlaylistException(String message) {
+        PlaylistException(String message) {
             super(message);
         }
     }
@@ -152,7 +152,7 @@ public class InternetRadioService {
      */
     @SuppressWarnings("serial")
     private static class PlaylistTooLarge extends PlaylistException {
-        public PlaylistTooLarge(String message) {
+        PlaylistTooLarge(String message) {
             super(message);
         }
     }
@@ -162,7 +162,7 @@ public class InternetRadioService {
      */
     @SuppressWarnings("serial")
     private static class PlaylistFormatUnsupported extends PlaylistException {
-        public PlaylistFormatUnsupported(String message) {
+        PlaylistFormatUnsupported(String message) {
             super(message);
         }
     }
@@ -173,7 +173,7 @@ public class InternetRadioService {
      */
     @SuppressWarnings("serial")
     private static class PlaylistHasTooManyRedirects extends PlaylistException {
-        public PlaylistHasTooManyRedirects(String message) {
+        PlaylistHasTooManyRedirects(String message) {
             super(message);
         }
     }
@@ -317,7 +317,7 @@ public class InternetRadioService {
         private final int maxCount;
         private final List<InternetRadioSource> entries;
 
-        public PlaylistVisitorImpl(int maxCount, List<InternetRadioSource> entries) {
+        PlaylistVisitorImpl(int maxCount, List<InternetRadioSource> entries) {
             super();
             this.maxCount = maxCount;
             this.entries = entries;

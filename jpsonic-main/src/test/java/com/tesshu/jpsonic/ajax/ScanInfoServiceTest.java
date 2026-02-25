@@ -45,7 +45,7 @@ class ScanInfoServiceTest {
     private ScanInfoService scanInfoService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         StatusService statusService = mock(StatusService.class);
         MediaFile file = new MediaFile();
         file.setId(0);

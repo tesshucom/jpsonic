@@ -59,7 +59,7 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         populateDatabaseOnlyOnce();
         settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
         settingsService.save();

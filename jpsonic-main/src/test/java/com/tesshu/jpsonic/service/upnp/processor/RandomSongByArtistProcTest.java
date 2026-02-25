@@ -74,7 +74,7 @@ class RandomSongByArtistProcTest {
         private RandomSongByArtistProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             util = mock(UpnpProcessorUtil.class);
             factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
                     mock(MediaFileService.class), mock(PlayerService.class),
@@ -169,7 +169,7 @@ class RandomSongByArtistProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             setSortStrict(true);
             setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);

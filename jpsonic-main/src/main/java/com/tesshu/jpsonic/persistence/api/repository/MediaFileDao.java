@@ -1211,11 +1211,11 @@ public class MediaFileDao {
 
         private final ShuffleSelectionParam criteria;
 
-        public RandomSongsQueryBuilder(ShuffleSelectionParam criteria) {
+        RandomSongsQueryBuilder(ShuffleSelectionParam criteria) {
             this.criteria = criteria;
         }
 
-        public String build() {
+        String build() {
             StringBuilder query = new StringBuilder(1024); // 988 + param
             query
                 .append("select ")

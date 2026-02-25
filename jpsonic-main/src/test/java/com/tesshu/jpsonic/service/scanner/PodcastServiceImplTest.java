@@ -54,7 +54,7 @@ class PodcastServiceImplTest {
     private PodcastServiceImpl podcastService;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         MediaFileService mediaFlieService = new MediaFileService(settingsService, null, null, null,

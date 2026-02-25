@@ -95,7 +95,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         populateDatabaseOnlyOnce();
     }
 

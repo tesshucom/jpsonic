@@ -162,17 +162,17 @@ public class RandomPlayQueueController {
         private final Integer fromYear;
         private final Integer toYear;
 
-        public InceptionYear(Integer fromYear, Integer toYear) {
+        InceptionYear(Integer fromYear, Integer toYear) {
             super();
             this.fromYear = fromYear;
             this.toYear = toYear;
         }
 
-        public Integer getFromYear() {
+        Integer getFromYear() {
             return fromYear;
         }
 
-        public Integer getToYear() {
+        Integer getToYear() {
             return toYear;
         }
     }
@@ -234,18 +234,17 @@ public class RandomPlayQueueController {
         private final Instant minLastPlayedDate;
         private final Instant maxLastPlayedDate;
 
-        public LastPlayed(@Nullable Instant minLastPlayedDate,
-                @Nullable Instant maxLastPlayedDate) {
+        LastPlayed(@Nullable Instant minLastPlayedDate, @Nullable Instant maxLastPlayedDate) {
             super();
             this.minLastPlayedDate = minLastPlayedDate;
             this.maxLastPlayedDate = maxLastPlayedDate;
         }
 
-        public Instant getMinLastPlayedDate() {
+        Instant getMinLastPlayedDate() {
             return minLastPlayedDate;
         }
 
-        public Instant getMaxLastPlayedDate() {
+        Instant getMaxLastPlayedDate() {
             return maxLastPlayedDate;
         }
     }
@@ -283,17 +282,17 @@ public class RandomPlayQueueController {
         private final Integer minAlbumRating;
         private final Integer maxAlbumRating;
 
-        public AlbumRating(Integer minAlbumRating, Integer maxAlbumRating) {
+        AlbumRating(Integer minAlbumRating, Integer maxAlbumRating) {
             super();
             this.minAlbumRating = minAlbumRating;
             this.maxAlbumRating = maxAlbumRating;
         }
 
-        public Integer getMinAlbumRating() {
+        Integer getMinAlbumRating() {
             return minAlbumRating;
         }
 
-        public Integer getMaxAlbumRating() {
+        Integer getMaxAlbumRating() {
             return maxAlbumRating;
         }
     }
@@ -331,17 +330,17 @@ public class RandomPlayQueueController {
         private final Integer minPlayCount;
         private final Integer maxPlayCount;
 
-        public PlayCount(Integer minPlayCount, Integer maxPlayCount) {
+        PlayCount(Integer minPlayCount, Integer maxPlayCount) {
             super();
             this.minPlayCount = minPlayCount;
             this.maxPlayCount = maxPlayCount;
         }
 
-        public Integer getMinPlayCount() {
+        Integer getMinPlayCount() {
             return minPlayCount;
         }
 
-        public Integer getMaxPlayCount() {
+        Integer getMaxPlayCount() {
             return maxPlayCount;
         }
 
@@ -365,17 +364,17 @@ public class RandomPlayQueueController {
         private final boolean doesShowStarredSongs;
         private final boolean doesShowUnstarredSongs;
 
-        public SongRating(boolean doesShowStarredSongs, boolean doesShowUnstarredSongs) {
+        SongRating(boolean doesShowStarredSongs, boolean doesShowUnstarredSongs) {
             super();
             this.doesShowStarredSongs = doesShowStarredSongs;
             this.doesShowUnstarredSongs = doesShowUnstarredSongs;
         }
 
-        public boolean isDoesShowStarredSongs() {
+        boolean isDoesShowStarredSongs() {
             return doesShowStarredSongs;
         }
 
-        public boolean isDoesShowUnstarredSongs() {
+        boolean isDoesShowUnstarredSongs() {
             return doesShowUnstarredSongs;
         }
     }

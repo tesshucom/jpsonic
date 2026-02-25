@@ -51,7 +51,7 @@ class WebFontUtilsTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         securityService = new SecurityService(mock(UserDao.class), mock(SettingsService.class),
                 mock(MusicFolderService.class));
     }

@@ -76,7 +76,7 @@ class SongByGenreProcTest {
         private SongByGenreProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
@@ -172,7 +172,7 @@ class SongByGenreProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             setSortStrict(true);
             setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);

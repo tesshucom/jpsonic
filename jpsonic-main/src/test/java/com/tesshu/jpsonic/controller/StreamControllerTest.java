@@ -155,7 +155,7 @@ class StreamControllerTest {
     }
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         Player player = new Player();
         player.setId(100);
         PlayQueue playQueue = new PlayQueue();
@@ -175,7 +175,7 @@ class StreamControllerTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         TestCaseUtils.setLogLevel(StreamController.class, Level.WARN);
     }
 

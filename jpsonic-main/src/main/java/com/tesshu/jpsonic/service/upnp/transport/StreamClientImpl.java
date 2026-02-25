@@ -269,7 +269,7 @@ public final class StreamClientImpl
 
         private final int retryAfterSeconds;
 
-        public NoRetryStrategy(int retryAfterSeconds) {
+        NoRetryStrategy(int retryAfterSeconds) {
             this.retryAfterSeconds = retryAfterSeconds;
         }
 

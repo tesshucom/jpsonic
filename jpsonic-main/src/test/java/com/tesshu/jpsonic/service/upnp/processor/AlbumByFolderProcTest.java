@@ -49,7 +49,7 @@ class AlbumByFolderProcTest {
     private AlbumByFolderProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileService = mock(MediaFileService.class);
         util = mock(UpnpProcessorUtil.class);
         proc = new AlbumByFolderProc(util, mock(UpnpDIDLFactory.class), mediaFileService);

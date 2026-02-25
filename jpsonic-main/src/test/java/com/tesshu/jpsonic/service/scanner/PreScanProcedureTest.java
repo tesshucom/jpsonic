@@ -51,7 +51,7 @@ class PreScanProcedureTest {
         private PreScanProcedure preScanProc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             musicFolderService = mock(MusicFolderServiceImpl.class);
             final IndexManager indexManager = mock(IndexManager.class);

@@ -101,7 +101,7 @@ class SortProcedureServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             scannerStateService.enableCleansing(false);
             populateDatabase();
             scannerStateService.enableCleansing(true);
@@ -272,7 +272,7 @@ class SortProcedureServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 
@@ -340,7 +340,7 @@ class SortProcedureServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce();
         }
 
@@ -837,7 +837,7 @@ class SortProcedureServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 

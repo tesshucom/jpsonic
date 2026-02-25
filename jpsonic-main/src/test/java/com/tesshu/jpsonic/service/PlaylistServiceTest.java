@@ -51,7 +51,7 @@ class PlaylistServiceTest {
         private PlaylistService playlistService;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             mediaFileDao = mock(MediaFileDao.class);
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
             playlistService = new PlaylistService(mediaFileDao, jPlaylistDao,
@@ -124,11 +124,11 @@ class PlaylistServiceTest {
         private ArgumentCaptor<List<MediaFile>> medias;
 
         @TempDir
-        public Path tempDir;
+        private Path tempDir;
 
         @SuppressWarnings("unchecked")
         @BeforeEach
-        public void setup() {
+        void setup() {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
@@ -308,7 +308,7 @@ class PlaylistServiceTest {
     private static class PersistPlayList implements Answer<Object> {
         private final int id;
 
-        public PersistPlayList(int id) {
+        PersistPlayList(int id) {
             this.id = id;
         }
 
@@ -329,10 +329,10 @@ class PlaylistServiceTest {
         private MediaFileService mediaFileService;
 
         @TempDir
-        public Path tempDir;
+        private Path tempDir;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);

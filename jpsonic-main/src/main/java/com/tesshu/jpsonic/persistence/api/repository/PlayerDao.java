@@ -184,8 +184,7 @@ public class PlayerDao {
         private final Map<Integer, PlayQueue> playlistMap;
         private final PlayerDaoPlayQueueFactory factory;
 
-        public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap,
-                PlayerDaoPlayQueueFactory factory) {
+        PlayerRowMapper(Map<Integer, PlayQueue> playlistMap, PlayerDaoPlayQueueFactory factory) {
             super();
             this.playlistMap = playlistMap;
             this.factory = factory;

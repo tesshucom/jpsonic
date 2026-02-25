@@ -70,7 +70,7 @@ class RandomSongByFolderGenreProcTest {
     private RandomSongByFolderGenreProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         util = mock(UpnpProcessorUtil.class);
         settingsService = mock(SettingsService.class);
         when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");

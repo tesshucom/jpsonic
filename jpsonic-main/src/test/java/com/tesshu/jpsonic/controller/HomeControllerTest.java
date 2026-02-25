@@ -70,7 +70,7 @@ class HomeControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(
                     new HomeController(mock(SettingsService.class), mock(SecurityService.class),
@@ -107,7 +107,7 @@ class HomeControllerTest {
         private HomeController controller;
 
         @BeforeEach
-        public void setup() throws ExecutionException {
+        void setup() throws ExecutionException {
             musicFolderService = mock(MusicFolderService.class);
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);

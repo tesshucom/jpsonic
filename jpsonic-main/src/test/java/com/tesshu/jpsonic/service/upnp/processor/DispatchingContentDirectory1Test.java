@@ -58,7 +58,7 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() throws URISyntaxException, InterruptedException {
+    void setup() throws URISyntaxException, InterruptedException {
         musicFolders = Arrays
             .asList(new MusicFolder(1,
                     Path

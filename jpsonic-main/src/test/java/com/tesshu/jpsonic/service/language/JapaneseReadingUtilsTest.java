@@ -59,7 +59,7 @@ class JapaneseReadingUtilsTest {
     private JapaneseReadingUtils utils;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         Mockito
             .when(settingsService.getLocale())

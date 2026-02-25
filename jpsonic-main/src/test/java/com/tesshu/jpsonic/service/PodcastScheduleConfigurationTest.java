@@ -53,7 +53,7 @@ class PodcastScheduleConfigurationTest {
     private ScannerStateService scannerStateService;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         podcastService = mock(PodcastService.class);
         scannerStateService = mock(ScannerStateService.class);
@@ -63,7 +63,7 @@ class PodcastScheduleConfigurationTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         TestCaseUtils.setLogLevel(PodcastScheduleConfiguration.class, Level.WARN);
     }
 

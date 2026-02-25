@@ -84,7 +84,7 @@ class InternetRadioServiceTest {
     @BeforeEach
     @SuppressWarnings("PMD.AssignmentInOperand")
     // It doesn’t affect practical complexity.
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
 
         internetRadioService = Mockito.spy(new InternetRadioService(null));
 

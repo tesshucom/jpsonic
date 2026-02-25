@@ -56,7 +56,7 @@ class PlayerSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
 
         playerService = Mockito.mock(PlayerService.class);
         Player player = new Player();

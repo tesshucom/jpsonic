@@ -207,7 +207,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
             return result;
         }
 
-        public List<MusicIndex> getIndexes() {
+        List<MusicIndex> getIndexes() {
             return indexes;
         }
 
@@ -239,7 +239,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
 
         private final List<MusicIndex> indexes;
 
-        public MusicIndexComparator(List<MusicIndex> indexes) {
+        MusicIndexComparator(List<MusicIndex> indexes) {
             this.indexes = indexes;
         }
 

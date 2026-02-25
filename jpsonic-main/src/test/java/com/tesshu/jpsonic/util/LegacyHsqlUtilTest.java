@@ -35,22 +35,22 @@ import org.junit.jupiter.api.Test;
 class LegacyHsqlUtilTest {
 
     @BeforeAll
-    public static void setUpOnce() throws InterruptedException {
+    static void setUpOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(true);
     }
 
     @AfterAll
-    public static void tearDownOnce() throws InterruptedException {
+    static void tearDownOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(false);
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         TestCaseUtils.setLogLevel(LegacyHsqlUtil.class, Level.INFO);
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         TestCaseUtils.setLogLevel(LegacyHsqlUtil.class, Level.WARN);
     }
 

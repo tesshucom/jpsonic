@@ -67,7 +67,7 @@ class MediaFileDaoTest {
         private MediaFileDao mediaFileDao;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             jdbcTemplate = mock(JdbcTemplate.class);
             DaoHelper daoHelper = mock(DaoHelper.class);
             Mockito.when(daoHelper.getJdbcTemplate()).thenReturn(jdbcTemplate);
@@ -152,7 +152,7 @@ class MediaFileDaoTest {
             private MediaFileDao mediaFileDao;
 
             @BeforeEach
-            public void setup() {
+            void setup() {
                 this.templateWrapper = Mockito.mock(TemplateWrapper.class);
                 mediaFileDao = new MediaFileDao(templateWrapper, mock(DialectMediaFileDao.class));
             }
@@ -752,7 +752,7 @@ class MediaFileDaoTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce();
         }
 

@@ -37,7 +37,7 @@ class StarServiceTest {
     private StarService starService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileDao = mock(MediaFileDao.class);
         starService = new StarService(mock(SecurityService.class), mediaFileDao,
                 AjaxMockUtils.mock(AjaxHelper.class));

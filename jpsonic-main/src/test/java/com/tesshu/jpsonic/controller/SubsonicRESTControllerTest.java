@@ -130,7 +130,7 @@ class SubsonicRESTControllerTest {
         private MediaScannerService mediaScannerService;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             final SettingsService settingsService = mock(SettingsService.class);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
             securityService = mock(SecurityService.class);
@@ -290,7 +290,7 @@ class SubsonicRESTControllerTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService.setDlnaGuestPublish(false);
             populateDatabaseOnlyOnce();
         }

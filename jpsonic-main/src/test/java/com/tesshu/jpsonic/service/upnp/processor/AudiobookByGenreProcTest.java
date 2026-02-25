@@ -75,7 +75,7 @@ class AudiobookByGenreProcTest {
         private AudiobookByGenreProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
@@ -173,7 +173,7 @@ class AudiobookByGenreProcTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce();
         }
 

@@ -40,7 +40,7 @@ class MenuItemDaoTest extends AbstractNeedsScan {
     private MenuItemDao menuItemDao;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         setSortAlphanum(true);
         setSortStrict(true);
         populateDatabaseOnlyOnce();

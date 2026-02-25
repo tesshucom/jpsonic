@@ -57,7 +57,7 @@ class AdvancedSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         controller = new AdvancedSettingsController(settingsService, mock(SecurityService.class),
                 mock(ShareService.class), mock(OutlineHelpSelector.class),

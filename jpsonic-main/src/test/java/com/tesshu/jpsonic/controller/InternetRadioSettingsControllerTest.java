@@ -56,7 +56,7 @@ class InternetRadioSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         InternetRadio radio = new InternetRadio(0, "*name*", "*streamUrl*", "*homepageUrl*", false,
                 now());
         internetRadioDao = mock(InternetRadioDao.class);

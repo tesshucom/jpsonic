@@ -61,7 +61,7 @@ class ArtistByFolderProcTest {
     private ArtistByFolderProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);

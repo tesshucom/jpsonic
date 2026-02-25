@@ -53,7 +53,7 @@ class PodcastProcTest {
     private PodcastProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         SettingsService settingsService = mock(SettingsService.class);
         UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
                 mock(JWTSecurityService.class), mock(MediaFileService.class),

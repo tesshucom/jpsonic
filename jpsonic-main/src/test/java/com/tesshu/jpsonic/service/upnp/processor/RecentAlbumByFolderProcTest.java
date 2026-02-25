@@ -50,7 +50,7 @@ class RecentAlbumByFolderProcTest {
     private RecentAlbumByFolderProc processor;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         util = mock(UpnpProcessorUtil.class);
         UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);
         mediaFileService = mock(MediaFileService.class);
@@ -69,7 +69,7 @@ class RecentAlbumByFolderProcTest {
         private MediaFile folder;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             folder = new MediaFile();
             folder.setMediaType(MediaType.DIRECTORY);
             folder.setPathString("pathString");

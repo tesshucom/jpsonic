@@ -41,7 +41,7 @@ class AvatarServiceTest {
     private AvatarService avatarService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         AvatarDao avatarDao = mock(AvatarDao.class);
         Mockito
             .when(avatarDao.getCustomAvatar(Mockito.anyString()))

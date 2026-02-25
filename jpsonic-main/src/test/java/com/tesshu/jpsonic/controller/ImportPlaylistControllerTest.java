@@ -42,7 +42,7 @@ class ImportPlaylistControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new ImportPlaylistController(mock(SecurityService.class),
                     mock(PlaylistService.class)))

@@ -72,7 +72,7 @@ class StreamServiceTest {
     private StreamService streamService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         statusService = mock(StatusService.class);
         playlistService = mock(PlaylistService.class);
         securityService = mock(SecurityService.class);

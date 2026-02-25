@@ -49,7 +49,7 @@ class PlaylistControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         PlaylistService playlistService = mock(PlaylistService.class);
         Playlist playlist = new Playlist();
         playlist.setCreated(now());

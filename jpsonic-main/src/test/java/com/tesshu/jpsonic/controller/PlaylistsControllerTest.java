@@ -53,7 +53,7 @@ class PlaylistsControllerTest {
     private final Instant now = now();
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
 
         Playlist playlist = new Playlist();
         playlist.setCreated(now);

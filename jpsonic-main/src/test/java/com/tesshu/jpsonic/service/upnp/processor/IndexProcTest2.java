@@ -63,7 +63,7 @@ class IndexProcTest2 {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce();
         }
 

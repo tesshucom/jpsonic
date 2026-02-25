@@ -57,7 +57,7 @@ class IndexId3ProcTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         String simpleIndex = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
                 + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
                 + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)

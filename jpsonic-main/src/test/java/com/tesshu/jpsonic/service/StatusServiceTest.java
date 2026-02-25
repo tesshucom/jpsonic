@@ -60,7 +60,7 @@ class StatusServiceTest {
     private Player player1;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         player1 = new Player();
         player1.setId(1);
     }

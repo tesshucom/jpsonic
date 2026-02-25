@@ -68,7 +68,7 @@ class LegacyDatabaseStartupTest {
     private MusicFolderDao musicFolderDao;
 
     @BeforeAll
-    public static void beforeAll() throws IOException {
+    static void beforeAll() throws IOException {
         Path dbDirectory = Path.of(System.getProperty("jpsonic.home"), "/db");
         FileUtil.createDirectories(dbDirectory);
         copyResourcesRecursively(

@@ -86,7 +86,7 @@ class SearchServiceTest {
         private HttpSearchCriteriaDirector director;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce();
         }
 
@@ -619,7 +619,7 @@ class SearchServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 
@@ -888,7 +888,7 @@ class SearchServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 
@@ -958,7 +958,7 @@ class SearchServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 
@@ -1031,7 +1031,7 @@ class SearchServiceTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             if (!populated) {
                 populateDatabase();
                 populated = true;

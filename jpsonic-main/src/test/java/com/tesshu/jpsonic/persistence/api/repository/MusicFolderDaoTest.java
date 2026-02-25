@@ -54,7 +54,7 @@ class MusicFolderDaoTest {
     private MusicFolderDao musicFolderDao;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         daoHelper.getJdbcTemplate().execute("delete from music_folder");
     }
 

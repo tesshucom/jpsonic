@@ -52,7 +52,7 @@ class UploadEntryControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException {
+    void setup() throws ExecutionException, URISyntaxException {
         List<MusicFolder> musicFolders = Arrays
             .asList(new MusicFolder(1,
                     Path
