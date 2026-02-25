@@ -310,10 +310,9 @@ public class ListenBrainzScrobbler {
         private final Integer trackNumber;
         // private int duration;
         private final Instant time;
-        public boolean submission;
+        boolean submission;
 
-        public RegistrationData(MediaFile mediaFile, String token, boolean submission,
-                Instant time) {
+        RegistrationData(MediaFile mediaFile, String token, boolean submission, Instant time) {
             super();
             this.token = token;
             this.artist = mediaFile.getArtist();
@@ -328,39 +327,39 @@ public class ListenBrainzScrobbler {
             this.submission = submission;
         }
 
-        public String getTitle() {
+        String getTitle() {
             return title;
         }
 
-        public String getToken() {
+        String getToken() {
             return token;
         }
 
-        public Instant getTime() {
+        Instant getTime() {
             return time;
         }
 
-        public boolean isSubmission() {
+        boolean isSubmission() {
             return submission;
         }
 
-        public String getArtist() {
+        String getArtist() {
             return artist;
         }
 
-        public String getAlbum() {
+        String getAlbum() {
             return album;
         }
 
-        public String getMusicBrainzReleaseId() {
+        String getMusicBrainzReleaseId() {
             return musicBrainzReleaseId;
         }
 
-        public String getMusicBrainzRecordingId() {
+        String getMusicBrainzRecordingId() {
             return musicBrainzRecordingId;
         }
 
-        public Integer getTrackNumber() {
+        Integer getTrackNumber() {
             return trackNumber;
         }
     }

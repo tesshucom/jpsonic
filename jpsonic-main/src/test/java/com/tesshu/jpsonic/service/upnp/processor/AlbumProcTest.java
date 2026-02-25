@@ -39,7 +39,7 @@ class AlbumProcTest {
     private AlbumProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileService = mock(MediaFileService.class);
         proc = new AlbumProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class),
                 mediaFileService);

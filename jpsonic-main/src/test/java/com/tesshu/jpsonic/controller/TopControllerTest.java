@@ -71,7 +71,7 @@ class TopControllerTest {
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);

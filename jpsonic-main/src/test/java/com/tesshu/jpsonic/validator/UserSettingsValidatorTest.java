@@ -33,11 +33,11 @@ import org.springframework.validation.MapBindingResult;
 
 class UserSettingsValidatorTest {
 
-    public static final String ADMIN_NAME = "admin";
+    private static final String ADMIN_NAME = "admin";
     UserSettingsValidator validator;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         validator = new UserSettingsValidator(mock(SecurityService.class),
                 mock(SettingsService.class), mock(MockHttpServletRequest.class));
     }

@@ -54,7 +54,7 @@ class MoreControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException {
+    void setup() throws ExecutionException, URISyntaxException {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);

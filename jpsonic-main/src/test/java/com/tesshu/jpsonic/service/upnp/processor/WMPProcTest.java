@@ -64,7 +64,7 @@ class WMPProcTest {
     private WMPProc wmpProcessor;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         mediaFileService = mock(MediaFileService.class);
         util = mock(UpnpProcessorUtil.class);
         SettingsService settingsService = mock(SettingsService.class);
@@ -86,7 +86,7 @@ class WMPProcTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         TestCaseUtils.setLogLevel(WMPProc.class, Level.WARN);
     }
 

@@ -83,7 +83,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         private final SettingsService settingsService;
         private final ScannerStateService scannerStateService;
 
-        public PodcastUpdateTrigger(SettingsService settingsService,
+        PodcastUpdateTrigger(SettingsService settingsService,
                 ScannerStateService scannerStateService) {
             super();
             this.settingsService = settingsService;

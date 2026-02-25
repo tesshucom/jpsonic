@@ -40,7 +40,7 @@ class RandomAlbumProcTest {
     private RandomAlbumProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         searchService = mock(SearchService.class);
         settingsService = mock(SettingsService.class);
         proc = new RandomAlbumProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class),

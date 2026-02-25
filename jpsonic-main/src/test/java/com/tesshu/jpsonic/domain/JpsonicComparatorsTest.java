@@ -1130,7 +1130,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         private SearchCriteriaDirector director;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService.setSortStrict(true);
             settingsService.setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);

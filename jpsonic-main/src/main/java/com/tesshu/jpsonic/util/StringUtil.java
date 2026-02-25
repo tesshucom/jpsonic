@@ -347,7 +347,7 @@ public final class StringUtil {
             this.defaultValue = defaultValue;
         }
 
-        public static <V> Pair<V> of(String key, V defaultValue) {
+        static <V> Pair<V> of(String key, V defaultValue) {
             return new Pair<>(key, defaultValue);
         }
     }

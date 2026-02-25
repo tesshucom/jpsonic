@@ -44,7 +44,7 @@ class ScannerStateServiceImplTest {
     private ScannerStateServiceImpl scannerStateService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         staticsDao = mock(StaticsDao.class);
         scannerStateService = new ScannerStateServiceImpl(staticsDao);
     }

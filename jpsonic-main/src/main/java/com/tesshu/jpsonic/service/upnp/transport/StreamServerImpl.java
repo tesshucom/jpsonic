@@ -128,7 +128,7 @@ public final class StreamServerImpl implements StreamServer<DefaultStreamServerC
         private final Router router;
         private final ServerClientTokens tokens;
 
-        public RequestHttpHandler(Router router, ServerClientTokens tokens) {
+        RequestHttpHandler(Router router, ServerClientTokens tokens) {
             this.router = router;
             this.tokens = tokens;
         }

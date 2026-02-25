@@ -65,7 +65,7 @@ class UserSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);

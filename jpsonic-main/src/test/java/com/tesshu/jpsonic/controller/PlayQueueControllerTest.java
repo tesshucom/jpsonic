@@ -45,7 +45,7 @@ class PlayQueueControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new PlayQueueController(mock(SettingsService.class),
                     mock(SecurityService.class), mock(PlayerService.class)))

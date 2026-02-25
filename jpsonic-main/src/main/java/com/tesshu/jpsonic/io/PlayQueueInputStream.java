@@ -133,7 +133,7 @@ public class PlayQueueInputStream extends InputStream {
 
         private final PlayQueueInputStream pqis;
 
-        public Prepare(PlayQueueInputStream pqis) {
+        Prepare(PlayQueueInputStream pqis) {
             super();
             this.pqis = pqis;
         }

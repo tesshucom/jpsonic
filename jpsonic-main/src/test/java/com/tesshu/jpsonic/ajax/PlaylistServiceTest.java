@@ -52,7 +52,7 @@ class PlaylistServiceTest {
     private PlayerService playerService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         deligate = mock(com.tesshu.jpsonic.service.PlaylistService.class);
         playerService = mock(PlayerService.class);
         playlistService = new PlaylistService(mock(MusicFolderService.class),

@@ -56,7 +56,7 @@ class CoverArtServiceTest extends AbstractNeedsScan {
     private List<MusicFolder> musicFolders;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         populateDatabaseOnlyOnce();
     }
 

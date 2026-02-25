@@ -58,7 +58,7 @@ class MetaDataParserFactoryTest {
     private SettingsService settingsService;
 
     @BeforeAll
-    public static void beforeAll() throws IOException {
+    static void beforeAll() throws IOException {
         Path homePath = Path.of(System.getProperty("jpsonic.home"));
         FileUtil.createDirectories(homePath);
         someMp3 = Path.of(homePath.toString(), "some.mp3");

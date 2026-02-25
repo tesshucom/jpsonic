@@ -56,7 +56,7 @@ class PodcastChannelsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         podcastService = mock(PodcastService.class);
 
         PodcastEpisode episode = new PodcastEpisode(null, null, null, null, null, null, null, null,

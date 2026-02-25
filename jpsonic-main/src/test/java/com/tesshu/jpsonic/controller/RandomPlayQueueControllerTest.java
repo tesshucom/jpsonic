@@ -67,7 +67,7 @@ class RandomPlayQueueControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         PlayerService playerService = mock(PlayerService.class);
         Player player = new Player();
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
