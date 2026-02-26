@@ -4,8 +4,8 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.FontScheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.SpeechToTextLangScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.FontScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 

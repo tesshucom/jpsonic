@@ -45,9 +45,9 @@
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlayQueueInfo$Entry"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlaylistInfo"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlaylistInfo$Entry"/>
-        <convert converter="bean" match="com.tesshu.jpsonic.domain.Playlist"/>
-        <convert converter="bean" match="com.tesshu.jpsonic.domain.ArtistBio"/>
-        <convert converter="bean" match="com.tesshu.jpsonic.domain.LastFmCoverArt"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.controller.PlaylistsController$Playlist"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.persistence.api.entity.ArtistBio"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.service.LastFmService$LastFmCoverArt"/>
 
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.UploadInfo"/>
         <convert converter="bean" match="com.tesshu.jpsonic.ajax.LyricsInfo"/>

@@ -4,8 +4,8 @@
 <head>
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
-<%@ page import="com.tesshu.jpsonic.domain.PreferredFormatSheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.Transcodings" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.PreferredFormatSheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';

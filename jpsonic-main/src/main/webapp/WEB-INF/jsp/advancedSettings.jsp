@@ -4,7 +4,7 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 const scanning = ${command.scanning};
