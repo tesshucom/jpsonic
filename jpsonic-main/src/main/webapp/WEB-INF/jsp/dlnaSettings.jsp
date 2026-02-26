@@ -21,8 +21,8 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.MenuItemId" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.MenuItemId" %>
 <%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
 <%@ page import="com.tesshu.jpsonic.service.search.UPnPSearchMethod" %>
 

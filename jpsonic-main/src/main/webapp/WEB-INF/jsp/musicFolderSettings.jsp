@@ -5,7 +5,7 @@
 <head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.ScanEvent.ScanEventType" %>
+<%@ page import="com.tesshu.jpsonic.persistence.core.entity.ScanEvent" %>
 
 <script>
 const scanning = ${command.scanning};
