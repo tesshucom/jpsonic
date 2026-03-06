@@ -67,8 +67,8 @@ class InternetRadioSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Test
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testDoGet() throws Exception {
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internetRadioSettings.view"))

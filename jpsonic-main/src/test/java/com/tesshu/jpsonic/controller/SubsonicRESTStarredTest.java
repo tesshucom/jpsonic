@@ -123,10 +123,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         }
     }
 
-    @Test
-    @Order(1)
     @Decisions.DataType.FileStructure
     @Decisions.IgnoreTimestamp.False
+    @Order(1)
+    @Test
     void testStarAndUnstar() throws Exception {
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
@@ -232,10 +232,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred.getSong().size());
     }
 
-    @Test
-    @Order(2)
     @Decisions.DataType.FileStructure
     @Decisions.IgnoreTimestamp.True
+    @Order(2)
+    @Test
     void testStarAndUnstarAfterScanWithIgnoreStamp() throws Exception {
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
@@ -346,10 +346,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred.getSong().size());
     }
 
-    @Test
-    @Order(3)
     @Decisions.DataType.Id3
     @Decisions.IgnoreTimestamp.False
+    @Order(3)
+    @Test
     void testStarAndUnstar2() throws Exception {
 
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -447,10 +447,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred2.getSong().size());
     }
 
-    @Test
-    @Order(4)
     @Decisions.DataType.Id3
     @Decisions.IgnoreTimestamp.True
+    @Order(4)
+    @Test
     void testStarAndUnstar2AfterScanWithIgnoreStamp() throws Exception {
 
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);

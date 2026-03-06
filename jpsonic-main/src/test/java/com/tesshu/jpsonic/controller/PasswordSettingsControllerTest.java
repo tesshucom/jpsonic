@@ -57,8 +57,8 @@ class PasswordSettingsControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
@@ -70,8 +70,8 @@ class PasswordSettingsControllerTest {
         assertEquals("passwordSettings", modelAndView.getViewName());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
 
         MvcResult result = mockMvc

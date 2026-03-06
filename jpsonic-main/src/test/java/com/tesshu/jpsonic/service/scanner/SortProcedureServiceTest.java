@@ -55,16 +55,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  * that handle big data and large-scale searches may have modern mechanism to
  * preventmissing results when necessary.
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class SortProcedureServiceTest {
 
     /**
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
      */
-    @Nested
     @Order(2)
+    @Nested
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
@@ -252,8 +252,8 @@ class SortProcedureServiceTest {
     /**
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
      */
-    @Nested
     @Order(3)
+    @Nested
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
@@ -317,8 +317,8 @@ class SortProcedureServiceTest {
      * frequency.Also, if there is duplication among them, the newer ones should be
      * preferred over the older ones.
      */
-    @Nested
     @Order(1)
+    @Nested
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
@@ -344,8 +344,8 @@ class SortProcedureServiceTest {
             populateDatabaseOnlyOnce();
         }
 
-        @Test
         @Order(1)
+        @Test
         void testArtistOfFileStructure() {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
@@ -379,8 +379,8 @@ class SortProcedureServiceTest {
             assertNull(case10.getAlbumSort());
         }
 
-        @Test
         @Order(2)
+        @Test
         void testAlbumOfFileStructure() {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
 
@@ -460,8 +460,8 @@ class SortProcedureServiceTest {
             assertEquals("artistV", albums.get(0).getArtistSort());
         }
 
-        @Test
         @Order(3)
+        @Test
         void testSongOfFileStructure() {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
 
@@ -678,8 +678,8 @@ class SortProcedureServiceTest {
             assertEquals("artistV", songs.get(0).getComposerSort());
         }
 
-        @Test
         @Order(4)
+        @Test
         void testArtistOfId3() {
             // test/resources/MEDIAS/Sort/Cleansing/ArtistSort/Merge
             List<Artist> artistID3s = artistDao
@@ -739,8 +739,8 @@ class SortProcedureServiceTest {
             assertEquals("artistV", artistID3s.get(11).getSort());
         }
 
-        @Test
         @Order(5)
+        @Test
         void testAlbumOfId3() {
 
             List<Album> albumId3s = albumDao
@@ -818,8 +818,8 @@ class SortProcedureServiceTest {
         }
     }
 
-    @Nested
     @Order(4)
+    @Nested
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays

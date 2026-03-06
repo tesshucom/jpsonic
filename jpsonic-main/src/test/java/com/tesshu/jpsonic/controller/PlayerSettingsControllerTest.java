@@ -79,8 +79,8 @@ class PlayerSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PLAYER_SETTINGS.value()))
@@ -96,8 +96,8 @@ class PlayerSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
 
         Player player = playerService

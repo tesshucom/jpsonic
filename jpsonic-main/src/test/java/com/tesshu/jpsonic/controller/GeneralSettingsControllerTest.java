@@ -68,9 +68,9 @@ class GeneralSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(1)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
 
         MvcResult result = mockMvc
@@ -88,9 +88,9 @@ class GeneralSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(2)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
 
         MvcResult result = mockMvc
@@ -125,9 +125,9 @@ class GeneralSettingsControllerTest {
         assertNotNull(result);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testReload() throws Exception {
 
         MvcResult result = mockMvc
@@ -149,9 +149,9 @@ class GeneralSettingsControllerTest {
         controller.post(command, Mockito.mock(RedirectAttributes.class));
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPostWithIndexOptions() throws Exception {
 
         MvcResult result = mockMvc

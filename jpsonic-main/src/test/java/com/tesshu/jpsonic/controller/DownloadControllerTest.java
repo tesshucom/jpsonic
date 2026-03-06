@@ -77,8 +77,8 @@ class DownloadControllerTest extends AbstractNeedsScan {
         return musicFolders;
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testHandleRequestWithMediaFile() throws ExecutionException {
 
         Player player = new Player();

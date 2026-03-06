@@ -141,9 +141,9 @@ class MainControllerTest {
             .thenReturn(Arrays.asList(song));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGet() throws Exception {
 
         // with ID
@@ -191,9 +191,9 @@ class MainControllerTest {
     /*
      * Verify the properties related to Children of the target media file
      */
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGetForChildren() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
@@ -217,8 +217,8 @@ class MainControllerTest {
         assertFalse((Boolean) model.get("navigateUpAllowed"));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testGetFail() throws Exception {
 

@@ -35,16 +35,15 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,9 +54,9 @@ import org.springframework.test.context.ActiveProfiles;
  *
  * @author Sindre Mehus
  */
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsHome
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidUsingHardCodedIP" })

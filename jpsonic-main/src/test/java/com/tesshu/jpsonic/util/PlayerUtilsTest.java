@@ -63,8 +63,8 @@ class PlayerUtilsTest {
     @Nested
     class GetDefaultPodcastFolderTest {
 
-        @Test
         @EnabledOnOs(OS.WINDOWS)
+        @Test
         void testDefaultOnWin() {
             assertEquals("c:\\music\\Podcast", PlayerUtils.getDefaultPodcastFolder());
 
@@ -75,8 +75,8 @@ class PlayerUtilsTest {
             System.clearProperty("jpsonic.defaultPodcastFolder");
         }
 
-        @Test
         @EnabledOnOs(OS.LINUX)
+        @Test
         void testDefaultOnLinux() {
             assertEquals("/var/music/Podcast", PlayerUtils.getDefaultPodcastFolder());
 
@@ -91,8 +91,8 @@ class PlayerUtilsTest {
     @Nested
     class GetDefaultPlaylistFolderTest {
 
-        @Test
         @EnabledOnOs(OS.WINDOWS)
+        @Test
         void testDefaultOnWin() {
             assertEquals("c:\\playlists", PlayerUtils.getDefaultPlaylistFolder());
 
@@ -103,8 +103,8 @@ class PlayerUtilsTest {
             System.clearProperty("jpsonic.defaultPlaylistFolder");
         }
 
-        @Test
         @EnabledOnOs(OS.LINUX)
+        @Test
         void testDefaultOnLinux() {
             assertEquals("/var/playlists", PlayerUtils.getDefaultPlaylistFolder());
 

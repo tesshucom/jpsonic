@@ -28,24 +28,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
 @SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsHome
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class MetaDataParserFactoryTest {
 

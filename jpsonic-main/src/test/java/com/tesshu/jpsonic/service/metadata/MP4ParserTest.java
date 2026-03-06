@@ -44,8 +44,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 class MP4ParserTest {
 
     private TranscodingService transcodingService;
@@ -94,8 +94,8 @@ class MP4ParserTest {
         assertNull(metaData.getComposerSort());
     }
 
-    @Test
     @Order(1)
+    @Test
     void testGetThreshold() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -105,8 +105,8 @@ class MP4ParserTest {
                 threshold);
     }
 
-    @Test
     @Order(2)
+    @Test
     void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
 
@@ -148,8 +148,8 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testParseWithFFProbe() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -160,8 +160,8 @@ class MP4ParserTest {
         assertEquals(226, metaData.getBitRate()); // FFProbe Only!
     }
 
-    @Test
     @Order(4)
+    @Test
     void testParseWithTika() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -172,8 +172,8 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate()); // None!
     }
 
-    @Test
     @Order(5)
+    @Test
     void testGetRawMetaData(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
 

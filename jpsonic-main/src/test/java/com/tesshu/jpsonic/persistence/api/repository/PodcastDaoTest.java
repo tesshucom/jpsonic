@@ -30,14 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,7 +48,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@NeedsDB
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class PodcastDaoTest {
 

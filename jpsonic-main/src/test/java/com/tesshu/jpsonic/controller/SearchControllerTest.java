@@ -57,8 +57,8 @@ class SearchControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/search.view"))
@@ -74,8 +74,8 @@ class SearchControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testOnSubmit() throws Exception {
 
         SearchCommand command = new SearchCommand();

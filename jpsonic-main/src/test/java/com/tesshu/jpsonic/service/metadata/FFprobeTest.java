@@ -43,8 +43,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 class FFprobeTest {
 
     private FFprobe ffprobe;
@@ -110,8 +110,8 @@ class FFprobeTest {
         assertEquals(226, metaData.getBitRate());
     }
 
-    @Test
     @Order(1)
+    @Test
     void testParseWithoutCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
         TranscodingService transcodingService = mock(TranscodingService.class);
@@ -123,8 +123,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(2)
+    @Test
     void testBlank() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -132,8 +132,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(3)
+    @Test
     void testNoHeader() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/noheader/empty.mp3");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -141,8 +141,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(4)
+    @Test
     void testIllegalFilePath() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
         Path file = Path.of("fake");
@@ -152,8 +152,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(5)
+    @Test
     void testTagged() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -161,8 +161,8 @@ class FFprobeTest {
         assertTagsWrittenByMp3tag(metaData);
     }
 
-    @Test
     @Order(5)
+    @Test
     void testTaggedWithStatistics() throws URISyntaxException, IOException {
 
         String folder = "/tagged";

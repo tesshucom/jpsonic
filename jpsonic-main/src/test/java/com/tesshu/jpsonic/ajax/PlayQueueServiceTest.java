@@ -302,10 +302,10 @@ class PlayQueueServiceTest {
     @Nested
     class PlayTest {
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.UserSettings.IsQueueFollowingSongs.False
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c01() throws ServletRequestBindingException {
             MediaFile song = new MediaFile();
             song.setId(0);
@@ -313,11 +313,11 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.MediaFile.Parent.Null
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c02() throws ServletRequestBindingException {
             UserSettings mockedSetting = securityService
                 .getUserSettings(ServiceMockUtils.ADMIN_NAME);
@@ -328,11 +328,11 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.MediaFile.Parent.NonNull
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c03() throws ServletRequestBindingException {
             UserSettings mockedSetting = securityService
                 .getUserSettings(ServiceMockUtils.ADMIN_NAME);
@@ -352,9 +352,9 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song1.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.False
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c04() throws ServletRequestBindingException {
             MediaFile dir = new MediaFile();
             dir.setId(0);

@@ -32,7 +32,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -41,11 +41,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.env.Environment;
 
+@NeedsDB
 @SuppressWarnings("PMD.TooManyStaticImports")
-@ExtendWith(NeedsHome.class)
 class DatabaseConfigurationTest {
 
     private final DatabaseConfiguration configuration = new DatabaseConfiguration(

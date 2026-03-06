@@ -55,8 +55,8 @@ class StatusControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/status.view"))

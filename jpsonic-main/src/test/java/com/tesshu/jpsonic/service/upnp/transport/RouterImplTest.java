@@ -45,8 +45,8 @@ import org.jupnp.model.message.UpnpRequest.Method;
 import org.jupnp.transport.Router;
 import org.jupnp.transport.RouterException;
 
-@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 @TestInstance(Lifecycle.PER_CLASS)
+@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 class RouterImplTest {
 
     private ExecutorService executor;

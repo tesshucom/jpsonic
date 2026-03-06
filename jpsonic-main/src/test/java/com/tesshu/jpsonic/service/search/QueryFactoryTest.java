@@ -50,9 +50,9 @@ import org.mockito.Mockito;
  * face a problem reaping from 3.x to 7.x It may be faster to look at the query than to look at the
  * API.
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class QueryFactoryTest {
 
     private LuceneQueryBuilder queryBuilder;
@@ -85,8 +85,8 @@ class QueryFactoryTest {
         queryFactory = new QueryFactory(settingsService, analyzerFactory);
     }
 
-    @Nested
     @Order(1)
+    @Nested
     class FilterFieldsTest {
 
         @Test
@@ -193,8 +193,8 @@ class QueryFactoryTest {
     /**
      * Related {@link UPnPSearchCriteriaDirectorTest}
      */
-    @Test
     @Order(2)
+    @Test
     void testCreatePhraseQuery() throws IOException {
         assertEquals(
                 "(tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2",
@@ -210,8 +210,8 @@ class QueryFactoryTest {
                     .toString());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testSearchByPhrase() throws IOException {
 
         assertEquals(
@@ -278,8 +278,8 @@ class QueryFactoryTest {
                     .toString());
     }
 
-    @Test
     @Order(4)
+    @Test
     void testGetRandomSongs() throws IOException {
         ShuffleSelectionParam criteria = new ShuffleSelectionParam(50,
                 Arrays.asList("Classic Rock"), 1900, 2000, SINGLE_FOLDERS);

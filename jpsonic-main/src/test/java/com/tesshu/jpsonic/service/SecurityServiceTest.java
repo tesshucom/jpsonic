@@ -291,8 +291,8 @@ class SecurityServiceTest {
          * In the previous implementation, the pattern that misjudgment by startwith
          * occurs.
          */
-        @Test
         @EnabledOnOs(OS.LINUX)
+        @Test
         void testEmbeddedPathString4Linux() {
             assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
             assertFalse(service.isFileInFolder("/music/foo.mp3", "/music2"));
@@ -304,8 +304,8 @@ class SecurityServiceTest {
          * In the previous implementation, the pattern that misjudgment by startwith
          * occurs.
          */
-        @Test
         @EnabledOnOs(OS.WINDOWS)
+        @Test
         void testEmbeddedPathString4Win() {
             assertTrue(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music"));
             assertFalse(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music2"));
