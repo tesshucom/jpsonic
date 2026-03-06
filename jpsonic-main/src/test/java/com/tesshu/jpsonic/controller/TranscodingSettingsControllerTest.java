@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.PlayerService;
@@ -92,16 +93,15 @@ class TranscodingSettingsControllerTest {
             .getModelAndView()
             .getModel()
             .get("model");
-        assertEquals(10, model.size());
+        assertEquals(9, model.size());
         assertEquals(settingsService.getHlsCommand(), model.get("hlsCommand"));
         assertFalse((Boolean) model.get("isOpenDetailSetting"));
         assertFalse((Boolean) model.get("showOutlineHelp"));
         assertEquals(0, model.get("shareCount"));
         assertFalse((Boolean) model.get("useRadio"));
-        assertEquals(transcodingService.getTranscodeDirectory(), model.get("transcodeDirectory"));
         assertEquals(settingsService.getPreferredFormat(), model.get("preferredFormat"));
         assertEquals(PreferredFormatSheme.ANNOYMOUS, model.get("preferredFormatSheme"));
-        assertEquals(SettingsService.getBrand(), model.get("brand"));
+        assertEquals(EnvironmentProvider.getInstance().getBrand(), model.get("brand"));
         assertEquals(transcodingService.getAllTranscodings(), model.get("transcodings"));
     }
 

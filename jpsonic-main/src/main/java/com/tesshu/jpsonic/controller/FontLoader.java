@@ -23,9 +23,9 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.exception.UncheckedException;
@@ -43,13 +43,6 @@ public class FontLoader {
         this.fontCache = fontCache;
     }
 
-    public boolean isEmbeddedFonts() {
-        return Optional
-            .ofNullable(System.getProperty("jpsonic.embeddedfont"))
-            .map(Boolean::parseBoolean)
-            .orElse(false);
-    }
-
     public @NonNull Font getFont(float fontSize) {
         Font font = null;
         String key = Float.toString(fontSize);
@@ -57,7 +50,7 @@ public class FontLoader {
         try {
             Element element = fontCache.get(key);
             if (element == null) {
-                if (isEmbeddedFonts()) {
+                if (EnvironmentProvider.getInstance().isEmbeddedFonts()) {
                     font = getFontFromResource(fontSize);
                 }
                 if (font == null) {

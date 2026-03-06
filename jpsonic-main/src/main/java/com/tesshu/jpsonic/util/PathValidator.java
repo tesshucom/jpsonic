@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.apache.commons.lang3.StringUtils;
 
 public final class PathValidator {
@@ -48,7 +49,7 @@ public final class PathValidator {
         if (!isNoTraversal(folderPath)) {
             return Optional.empty();
         }
-        if ((!PlayerUtils.isWindows() || !folderPath.startsWith("\\\\"))
+        if ((!EnvironmentProvider.getInstance().isWindows() || !folderPath.startsWith("\\\\"))
                 && folderPath.charAt(0) == '\\') {
             return Optional.empty();
         }

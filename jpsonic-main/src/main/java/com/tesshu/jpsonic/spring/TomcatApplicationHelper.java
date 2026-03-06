@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.spring;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.apache.catalina.Container;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.webresources.StandardRoot;
@@ -48,14 +49,16 @@ public final class TomcatApplicationHelper {
             standardJarScanFilter.setTldSkip("*");
             context.getJarScanner().setJarScanFilter(standardJarScanFilter);
 
-            boolean development = System.getProperty("airsonic.development") != null;
+            boolean suppressTomcatCaching = EnvironmentProvider
+                .getInstance()
+                .isSuppressTomcatCaching();
 
             // Increase the size and time before eviction of the Tomcat
             // cache so that resources aren't uncompressed too often.
             // See https://github.com/jhipster/generator-jhipster/issues/3995
 
             StandardRoot resources = new StandardRoot();
-            if (development) {
+            if (suppressTomcatCaching) {
                 resources.setCachingAllowed(false);
             } else {
                 resources.setCacheMaxSize(100_000);
@@ -70,7 +73,7 @@ public final class TomcatApplicationHelper {
             // http://stackoverflow.com/questions/29653326/spring-boot-application-slow-because-of-jsp-compilation
             Container jsp = context.findChild("jsp");
             if (jsp instanceof Wrapper wrapper) {
-                wrapper.addInitParameter("development", Boolean.toString(development));
+                wrapper.addInitParameter("development", Boolean.toString(suppressTomcatCaching));
             }
         });
     }

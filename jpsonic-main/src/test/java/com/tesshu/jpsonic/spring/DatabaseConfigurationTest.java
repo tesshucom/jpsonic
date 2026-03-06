@@ -32,10 +32,10 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.SmartLifecycleLegacyDaoHelper;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +60,8 @@ class DatabaseConfigurationTest {
 
             // apps properties
             assertEquals("org.hsqldb.jdbc.JDBCDriver", hikariDataSource.getDriverClassName());
-            assertEquals(SettingsService.getDefaultJDBCUrl(), hikariDataSource.getJdbcUrl());
+            assertEquals(EnvironmentProvider.getInstance().buildDefaultJDBCUrl(),
+                    hikariDataSource.getJdbcUrl());
             assertEquals("sa", hikariDataSource.getUsername());
             assertEquals("", hikariDataSource.getPassword());
 

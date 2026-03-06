@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.configuration2.Configuration;
@@ -56,7 +57,7 @@ public class ApacheCommonsConfigurationService {
     private final Configuration config;
 
     public ApacheCommonsConfigurationService() {
-        Path propertyFile = SettingsService.getPropertyFile();
+        Path propertyFile = EnvironmentProvider.getInstance().getPropertyFilePath();
         if (!Files.exists(propertyFile)) {
             try {
                 FileUtil.touch(propertyFile);

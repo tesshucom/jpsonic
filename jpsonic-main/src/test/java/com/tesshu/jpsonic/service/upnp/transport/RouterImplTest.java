@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.tesshu.jpsonic.domain.system.Version;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceImpl;
 import org.junit.jupiter.api.AfterAll;
@@ -60,7 +61,7 @@ class RouterImplTest {
     @BeforeEach
     void setUp() throws RouterException {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(executor, executor, executor,
-                SettingsService.getBrand(), new Version("99"));
+                EnvironmentProvider.getInstance().getBrand(), new Version("99"));
         UpnpServiceImpl upnpService = new UpnpServiceImpl(conf, "172.17.16.1");
         upnpService.startup();
         router = upnpService.getRouter();

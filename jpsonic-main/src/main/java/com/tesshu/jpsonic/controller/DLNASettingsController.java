@@ -38,6 +38,7 @@ import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
@@ -227,7 +228,8 @@ public class DLNASettingsController {
         settingsService.setDlnaEnabled(command.isDlnaEnabled());
         settingsService
             .setDlnaServerName(StringUtils
-                .defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
+                .defaultIfEmpty(command.getDlnaServerName(),
+                        EnvironmentProvider.getInstance().getBrand()));
         settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
         settingsService.setDlnaEnabledFilteredIp(command.isDlnaEnabledFilteredIp());
         String filteredIp = command.getDlnaFilteredIp();

@@ -37,12 +37,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -57,9 +57,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class StringUtil {
 
-    private static final Pair<String> ENV_MIME_DSF = Pair.of("jpsonic.mime.dsf", "audio/x-dsd");
-    private static final Pair<String> ENV_MIME_DFF = Pair.of("jpsonic.mime.dff", "audio/x-dsd");
-
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static final String MP4 = "audio/mp4";
@@ -71,19 +68,13 @@ public final class StringUtil {
             { "aac", MP4 }, { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" },
             { "wav", "audio/x-wav" }, { "wma", "audio/x-ms-wma" },
             { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
-            { "shn", "audio/x-shn" },
-            { "dsf", Optional
-                .ofNullable(System.getProperty(ENV_MIME_DSF.key))
-                .orElse(ENV_MIME_DSF.defaultValue) },
-            { "dff", Optional
-                .ofNullable(System.getProperty(ENV_MIME_DFF.key))
-                .orElse(ENV_MIME_DFF.defaultValue) },
-
-            { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" },
-            { "mpeg", "video/mpeg" }, { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" },
-            { "mkv", "video/x-matroska" }, { "mov", "video/quicktime" },
-            { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" }, { "divx", "video/divx" },
-            { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" }, { "webm", "video/webm" },
+            { "shn", "audio/x-shn" }, { "dsf", EnvironmentProvider.getInstance().getMemeDsf() },
+            { "dff", EnvironmentProvider.getInstance().getMemeDff() }, { "flv", "video/x-flv" },
+            { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
+            { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
+            { "mov", "video/quicktime" }, { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" },
+            { "divx", "video/divx" }, { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" },
+            { "webm", "video/webm" },
 
             { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
             { "png", "image/png" }, { "bmp", "image/bmp" }, };

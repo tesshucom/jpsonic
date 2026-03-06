@@ -29,30 +29,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class LuceneUtils {
 
-    /**
-     * Schema version of Airsonic index. It may be incremented in the following
-     * cases:
-     *
-     * - Incompatible update case in Lucene index implementation - When schema
-     * definition is changed due to modification of AnalyzerFactory, DocumentFactory
-     * or the class that they use.
-     *
-     */
-    private static final int INDEX_VERSION = 31;
-
-    /**
-     * Literal name of index top directory.
-     */
-    private static final String INDEX_ROOT_DIR_NAME = "index-JP";
-
-    int getIndexVersion() {
-        return INDEX_VERSION;
-    }
-
-    String getIndexRootDirName() {
-        return INDEX_ROOT_DIR_NAME;
-    }
-
     /*
      * Depends on Lucene10
      */

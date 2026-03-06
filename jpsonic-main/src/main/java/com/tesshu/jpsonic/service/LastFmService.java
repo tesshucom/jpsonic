@@ -34,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.AlbumNotes;
 import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -80,9 +81,8 @@ public class LastFmService {
     @PostConstruct
     public void init() {
         Caller caller = Caller.getInstance();
-        caller.setUserAgent("Airsonic");
-
-        Path cacheDir = Path.of(SettingsService.getJpsonicHome().toString(), "lastfmcache");
+        caller.setUserAgent("Jpsonic");
+        Path cacheDir = EnvironmentProvider.getInstance().getLastfmCacheDirectory();
         caller.setCache(new LastFmCache(cacheDir, CACHE_TIME_TO_LIVE_MILLIS));
     }
 

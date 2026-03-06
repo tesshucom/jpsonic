@@ -40,11 +40,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.ThreadSafe;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -56,7 +56,6 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.search.SearchServiceUtilities.LegacyGenreCriteria;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
@@ -151,19 +150,6 @@ public class IndexManager implements ReadWriteLockSupport {
     private final Map<IndexType, IndexWriter> writers;
     private final ReentrantReadWriteLock genreLock = new ReentrantReadWriteLock();
 
-    @NonNull
-    Path getRootIndexDirectory() {
-        return Path
-            .of(SettingsService.getJpsonicHome().toString(),
-                    luceneUtils.getIndexRootDirName() + luceneUtils.getIndexVersion());
-    }
-
-    private @NonNull Path getIndexDirectory(IndexType indexType) {
-        return Path
-            .of(getRootIndexDirectory().toString(),
-                    indexType.toString().toLowerCase(Locale.ENGLISH));
-    }
-
     public IndexManager(LuceneUtils luceneUtils, AnalyzerFactory analyzerFactory,
             DocumentFactory documentFactory, QueryFactory queryFactory, SearchServiceUtilities util,
             JpsonicComparators comparators, SettingsService settingsService,
@@ -186,9 +172,17 @@ public class IndexManager implements ReadWriteLockSupport {
 
     @PostConstruct
     public void init() {
-        deleteOldIndexFiles();
-        initializeIndexDirectory();
+        EnvironmentProvider.getInstance().deleteLegacyFiles();
+        EnvironmentProvider.getInstance().deleteOldFiles();
+        EnvironmentProvider.getInstance().initializeIndexDirectory(artistDao::deleteAll);
         scannerState.setReady();
+    }
+
+    private @NonNull Path getIndexDirectory(IndexType indexType) {
+        return EnvironmentProvider
+            .getInstance()
+            .getCurrentIndexRootDirectory()
+            .resolve(indexType.toString().toLowerCase(Locale.ENGLISH));
     }
 
     @ThreadSafe(enableChecks = false)
@@ -557,87 +551,6 @@ public class IndexManager implements ReadWriteLockSupport {
             }
         } finally {
             writeUnlock(genreLock);
-        }
-    }
-
-    /**
-     * Check the version of the index and clean it up if necessary. Legacy type
-     * indexes (files or directories starting with lucene) are deleted. If there is
-     * no index directory, initialize the directory. If the index directory exists
-     * and is not the current version, initialize the directory.
-     */
-    void deleteOldIndexFiles() {
-        deleteLegacyFiles();
-        deleteOldFiles();
-    }
-
-    private void deleteFile(String label, Path old) {
-        if (Files.exists(old)) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Found " + label + ". Try to delete : {}", old);
-            }
-            if (Files.isRegularFile(old)) {
-                FileUtil.deleteIfExists(old);
-            } else {
-                FileUtil.deleteDirectory(old);
-            }
-        }
-    }
-
-    void deleteLegacyFiles() {
-        // Delete legacy files unconditionally
-        Pattern legacyPattern = Pattern.compile("^lucene\\d+$");
-        String legacyName = "index";
-        Path homeDir = SettingsService.getJpsonicHome();
-
-        try (Stream<Path> files = Files.list(homeDir)) {
-            files.filter(path -> {
-                String name = path.getFileName().toString();
-                return legacyPattern.matcher(name).matches() || legacyName.equals(name);
-            }).forEach(path -> deleteFile("legacy index file", path));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    void deleteOldFiles() {
-        // Delete old index files except the current root index directory
-        String currentRootDirName = getRootIndexDirectory().getFileName().toString();
-        Pattern indexPattern = Pattern.compile("^" + luceneUtils.getIndexRootDirName() + "\\d+$");
-        Path homeDir = SettingsService.getJpsonicHome();
-
-        try (Stream<Path> files = Files.list(homeDir)) {
-            files.filter(path -> {
-                String name = path.getFileName().toString();
-                return indexPattern.matcher(name).matches() && !currentRootDirName.equals(name);
-            }).forEach(path -> deleteFile("old index file", path));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * Create a directory corresponding to the current index version.
-     */
-    void initializeIndexDirectory() {
-        Path rootIndexDir = getRootIndexDirectory();
-
-        // Check if the current version of the index exists
-        if (Files.exists(rootIndexDir)) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Index was found (index version {}).", luceneUtils.getIndexVersion());
-            }
-            return;
-        }
-
-        // Delete all artist data if index doesn't exist
-        artistDao.deleteAll();
-
-        // Attempt to create the index directory
-        if (FileUtil.createDirectories(rootIndexDir) == null && LOG.isWarnEnabled()) {
-            LOG
-                .warn("Failed to create index directory (index version {}).",
-                        luceneUtils.getIndexVersion());
         }
     }
 

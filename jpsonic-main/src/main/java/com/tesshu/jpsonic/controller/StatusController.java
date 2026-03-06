@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.util.FileUtil;
@@ -89,7 +89,7 @@ public class StatusController {
                         locale));
         }
         return new ModelAndView("status", "model", LegacyMap
-            .of("brand", SettingsService.getBrand(), "admin",
+            .of("brand", EnvironmentProvider.getInstance().getBrand(), "admin",
                     securityService
                         .isAdmin(securityService.getCurrentUserStrict(request).getUsername()),
                     "transferStatuses", transferStatuses, "chartWidth",

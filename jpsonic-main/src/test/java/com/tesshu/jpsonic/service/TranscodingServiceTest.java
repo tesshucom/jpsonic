@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -70,6 +72,7 @@ import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -77,9 +80,11 @@ import org.mockito.Mockito;
  * This test class is a white-box. The goal is to refactor logic or add new logic while ensuring
  * that the logic remains as it is.
  */
+@NeedsHome
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports" })
+@EnabledOnOs(OS.LINUX)
 class TranscodingServiceTest {
 
     private static final String FMT_RAW = "raw";
@@ -205,6 +210,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(2)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class SetTranscodingsForPlayerTest {
 
         @Order(1)
@@ -406,6 +412,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(8)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class GetTranscodedInputStreamTest {
 
         private static final String STEP1 = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -";
@@ -483,6 +490,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(9)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class CreateTranscodedInputStreamTest {
 
         private static final String STEP = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -f flv -";
@@ -499,6 +507,7 @@ class TranscodingServiceTest {
             return parameters;
         }
 
+        @EnabledOnOs(OS.LINUX)
         @Order(1)
         @Test
         void testCTI1() throws ExecutionException {
@@ -574,6 +583,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(11)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class CreateTranscodeInputStreamTest {
 
         private static final String COMMAND = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 22050 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -616,6 +626,7 @@ class TranscodingServiceTest {
 
     @Order(12)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class GetTranscodingTest {
 
         @Order(1)
@@ -789,6 +800,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(14)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class TranscoderInstalledTest {
 
         private static final String FFMPEG = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -828,15 +840,17 @@ class TranscodingServiceTest {
 
         @Order(5)
         @Test
-        void testITI5() throws ExecutionException {
-            Path transcodeDirectory = transcodingService.getTranscodeDirectory();
-            transcodingService.setTranscodeDirectory(Path.of(FAKE_PATH));
+        void testITI5(@TempDir Path fakeDir) throws ExecutionException {
+            final String home = System.getProperty("jpsonic.home");
+            System.setProperty("jpsonic.home", fakeDir.toAbsolutePath().toString());
+            EnvironmentProvider.getInstance().resetCache();
+
             Transcoding transcoding = new Transcoding(null, null, FMT_FLAC, FMT_MP3, FFMPEG, FFMPEG,
                     FFMPEG, true);
-
             assertFalse(transcodingService.isTranscoderInstalled(transcoding));
 
-            transcodingService.setTranscodeDirectory(transcodeDirectory);
+            System.setProperty("jpsonic.home", home);
+            EnvironmentProvider.getInstance().resetCache();
         }
     }
 
@@ -1044,6 +1058,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(15)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class GetParametersTest {
 
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", FMT_FLAC,
@@ -1101,6 +1116,7 @@ class TranscodingServiceTest {
         @GetParametersDecision.Conditions.MaxBitRate.NotNull
         @Order(2)
         @Test
+        @EnabledOnOs(OS.LINUX)
         void testGP2() {
 
             MediaFile mediaFile = new MediaFile();
@@ -1576,6 +1592,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @EnabledOnOs(OS.LINUX)
     class RestoreTranscodingTest {
 
         @Order(1)

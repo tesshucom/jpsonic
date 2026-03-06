@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.command.GettingStartedCommand;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.SettingsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -66,7 +67,9 @@ public class GettingStartedController {
                 .map(Locale::getDisplayName)
                 .collect(Collectors.toList()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
-        model.addAttribute("runningAsRoot", "root".equals(System.getProperty("user.name")));
+        model
+            .addAttribute("runningAsRoot",
+                    "root".equals(EnvironmentProvider.getInstance().getUserName()));
     }
 
     @GetMapping

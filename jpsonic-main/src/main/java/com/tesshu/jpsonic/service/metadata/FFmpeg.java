@@ -34,8 +34,7 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.util.PlayerUtils;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -55,26 +54,17 @@ public class FFmpeg {
     // Same as legacy. Frame at offset position.
     private static final String SEEKED_OPTIONS = "-v quiet -r 1 -ss %o -t 1 -s %wx%h -v 0 -f image2";
 
-    private final TranscodingService transcodingService;
-
-    public FFmpeg(TranscodingService transcodingService) {
-        super();
-        this.transcodingService = transcodingService;
-    }
-
-    private @Nullable String getCommandPath() {
-        Path cmdFile = Path
-            .of(transcodingService.getTranscodeDirectory().toString(),
-                    PlayerUtils.isWindows() ? "ffmpeg.exe" : "ffmpeg");
-        if (Files.exists(cmdFile)) {
-            return cmdFile.toString();
+    private @Nullable String getCommandPathStr() {
+        Path cmdPath = EnvironmentProvider.getInstance().getFfmpegPath();
+        if (Files.exists(cmdPath)) {
+            return cmdPath.toString();
         }
         return null;
     }
 
     public @Nullable String getVersion() {
 
-        String cmdPath = getCommandPath();
+        String cmdPath = getCommandPathStr();
         if (isEmpty(cmdPath)) {
             return null;
         }
@@ -107,7 +97,7 @@ public class FFmpeg {
     public @Nullable BufferedImage createImage(@NonNull Path path, int width, int height,
             int offset) {
 
-        String cmdPath = getCommandPath();
+        String cmdPath = getCommandPathStr();
         if (isEmpty(cmdPath)) {
             return null;
         }

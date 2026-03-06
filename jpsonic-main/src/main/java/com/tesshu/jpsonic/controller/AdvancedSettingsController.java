@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -93,7 +94,7 @@ public class AdvancedSettingsController {
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
         command.setLdapManagerDn(settingsService.getLdapManagerDn());
         command.setLdapAutoShadowing(settingsService.isLdapAutoShadowing());
-        command.setBrand(SettingsService.getBrand());
+        command.setBrand(EnvironmentProvider.getInstance().getBrand());
 
         // Account recovery assistant
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());

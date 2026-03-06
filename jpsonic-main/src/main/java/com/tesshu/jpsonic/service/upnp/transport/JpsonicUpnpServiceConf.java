@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import com.tesshu.jpsonic.domain.system.Version;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.jupnp.model.ServerClientTokens;
 import org.jupnp.transport.spi.NetworkAddressFactory;
 import org.jupnp.transport.spi.StreamClient;
@@ -51,7 +51,7 @@ public class JpsonicUpnpServiceConf extends UpnpServiceConfigurationAdapter {
 
     @Override
     public StreamServer<?> createStreamServer(NetworkAddressFactory factory) {
-        int listenPort = SettingsService.getDefaultUPnPPort();
+        int listenPort = EnvironmentProvider.getInstance().getDefaultUPnPPort();
         if (listenPort <= 0) {
             listenPort = factory.getStreamListenPort();
         }

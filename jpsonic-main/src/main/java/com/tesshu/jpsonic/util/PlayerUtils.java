@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
@@ -81,31 +80,6 @@ public final class PlayerUtils {
         // Date precision uses milliseconds.
         // (hsqldb timestamp precision is milliseconds)
         return Instant.now().truncatedTo(ChronoUnit.MILLIS);
-    }
-
-    private static String getDefaultFolder(String key, String winDefault, String linuxDefault) {
-        String arg = System.getProperty(key);
-        if (PathValidator.validateFolderPath(arg).isEmpty()) {
-            return isWindows() ? winDefault : linuxDefault;
-        }
-        return arg;
-    }
-
-    public static String getDefaultMusicFolder() {
-        return getDefaultFolder("jpsonic.defaultMusicFolder", "c:\\music", "/var/music");
-    }
-
-    public static String getDefaultPodcastFolder() {
-        return getDefaultFolder("jpsonic.defaultPodcastFolder", "c:\\music\\Podcast",
-                "/var/music/Podcast");
-    }
-
-    public static String getDefaultPlaylistFolder() {
-        return getDefaultFolder("jpsonic.defaultPlaylistFolder", "c:\\playlists", "/var/playlists");
-    }
-
-    public static boolean isWindows() {
-        return SystemUtils.IS_OS_WINDOWS;
     }
 
     /**

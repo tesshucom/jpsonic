@@ -31,12 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.BeforeEach;
@@ -206,60 +206,8 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testJpsonicHome() {
-        String homePath = System.getProperty("jpsonic.home");
-        assertEquals(homePath, SettingsService.getJpsonicHome().toString(), "Wrong Jpsonic home.");
-    }
-
-    @Test
     void testIsScanOnBoot() {
-        assertFalse(SettingsService.isScanOnBoot());
-    }
-
-    @Test
-    void testGetDefaultJDBCPath() {
-        assertNotNull(SettingsService.getDefaultJDBCPath());
-    }
-
-    @Test
-    void testGetDefaultJDBCUrl() {
-        assertNotNull(SettingsService.getDefaultJDBCUrl());
-    }
-
-    @Test
-    void testGetDBScript() {
-        assertNotNull(SettingsService.getDBScript());
-    }
-
-    @Test
-    void testGetBackupDBScript() {
-        Path backupDir = Path.of("./");
-        assertEquals("./jpsonic.script", SettingsService.getBackupDBScript(backupDir));
-    }
-
-    @Test
-    void testGetDefaultJDBCUsername() {
-        assertEquals("sa", SettingsService.getDefaultJDBCUsername());
-    }
-
-    @Test
-    void testGetDefaultJDBCPassword() {
-        assertEquals("", SettingsService.getDefaultJDBCPassword());
-    }
-
-    @Test
-    void testGetDefaultUPnPPort() {
-        assertEquals(-1, SettingsService.getDefaultUPnPPort());
-    }
-
-    @Test
-    void testGetLogFile() {
-        assertNotNull(SettingsService.getLogFile());
-    }
-
-    @Test
-    void testGetPropertyFile() {
-        assertNotNull(SettingsService.getPropertyFile());
+        assertFalse(EnvironmentProvider.getInstance().isScanOnBoot());
     }
 
     @Test
@@ -569,7 +517,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetBrand() {
-        assertEquals("Jpsonic", SettingsService.getBrand());
+        assertEquals("Jpsonic", EnvironmentProvider.getInstance().getBrand());
     }
 
     @Test

@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,8 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,7 +38,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+@NeedsHome
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class FFmpegTest {
@@ -49,9 +50,7 @@ class FFmpegTest {
 
     @BeforeEach
     void setUp() {
-        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class),
-                null, null, null, null);
-        ffmpeg = new FFmpeg(transcodingService);
+        ffmpeg = new FFmpeg();
     }
 
     private Path createPath(String path) throws URISyntaxException, IOException {
@@ -65,6 +64,7 @@ class FFmpegTest {
         assertNotEquals(StringUtils.EMPTY, version);
     }
 
+    @NeedsHome
     @Nested
     class CreateImageTest {
 
@@ -88,6 +88,7 @@ class FFmpegTest {
 
         @Order(3)
         @Test
+        @EnabledOnOs(OS.LINUX)
         void testThumbnailWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -99,6 +100,7 @@ class FFmpegTest {
 
         @Order(4)
         @Test
+        @EnabledOnOs(OS.LINUX)
         void testSeekedFrameWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -119,6 +121,7 @@ class FFmpegTest {
 
         @Order(6)
         @Test
+        @EnabledOnOs(OS.LINUX)
         void testZeroSizeWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));
@@ -128,6 +131,7 @@ class FFmpegTest {
             assertEquals(1080, bi.getHeight()); // original
         }
 
+        @EnabledOnOs(OS.LINUX)
         @Order(6)
         @Test
         void testNegativeWithValidFile() throws URISyntaxException, IOException {

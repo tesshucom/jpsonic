@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -76,12 +77,11 @@ public class MoreController {
 
         ModelAndView result = new ModelAndView();
         result
-            .addObject("model",
-                    LegacyMap
-                        .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                                searchService.getGenres(false), "currentYear",
-                                Calendar.getInstance().get(Calendar.YEAR), "musicFolders",
-                                musicFolders, "brand", SettingsService.getBrand()));
+            .addObject("model", LegacyMap
+                .of("user", user, "uploadDirectory", uploadDirectory, "genres",
+                        searchService.getGenres(false), "currentYear",
+                        Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
+                        "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;
     }
 }

@@ -67,7 +67,6 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.exception.UncheckedException;
@@ -104,9 +103,7 @@ class CoverArtControllerTest {
     void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
         playlistService = mock(PlaylistService.class);
-        TranscodingService transcodingService = new TranscodingService(null, null, null, null,
-                null);
-        FFmpeg ffmpeg = new FFmpeg(transcodingService);
+        FFmpeg ffmpeg = new FFmpeg();
         fontLoader = mock(FontLoader.class);
         controller = new CoverArtController(mediaFileService, ffmpeg, playlistService,
                 mock(PodcastService.class), mock(ArtistDao.class), mock(AlbumDao.class),

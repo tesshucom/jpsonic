@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.VersionService;
@@ -105,8 +106,8 @@ public class UpnpServiceFactory {
 
     public UpnpService createUpnpService() {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService,
-                asyncExecutorService, registryMaintainerExecutor, SettingsService.getBrand(),
-                versionService.getLocalVersion());
+                asyncExecutorService, registryMaintainerExecutor,
+                EnvironmentProvider.getInstance().getBrand(), versionService.getLocalVersion());
         return new UpnpServiceImpl(conf,
                 settingsService.isDlnaEnabledFilteredIp() ? settingsService.getDlnaFilteredIp()
                         : null);

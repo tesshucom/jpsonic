@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -178,7 +179,7 @@ public class MainController {
         map.put("showAlbumActions", userSettings.isShowAlbumActions());
         map.put("useRadio", settingsService.isUseRadio());
 
-        map.put("brand", SettingsService.getBrand());
+        map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());
         map.put("coverArtSizeLarge", CoverArtScheme.LARGE.getSize());
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());

@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNull;
@@ -32,30 +31,27 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
+@NeedsHome
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 class MP4ParserTest {
 
-    private TranscodingService transcodingService;
     private MP4Parser parser;
 
     @BeforeEach
     void setUp() {
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null);
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        parser = new MP4Parser(new FFprobe());
     }
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
@@ -105,21 +101,12 @@ class MP4ParserTest {
                 threshold);
     }
 
+    @EnabledOnOs(OS.LINUX)
     @Order(2)
-    @Test
     void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
 
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null) {
-
-            @Override
-            public @NonNull Path getTranscodeDirectory() {
-                return emptytranscodeDir;
-            }
-
-        };
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        parser = new MP4Parser(new FFprobe());
 
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -148,6 +135,7 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate());
     }
 
+    @EnabledOnOs(OS.LINUX)
     @Order(3)
     @Test
     void testParseWithFFProbe() throws URISyntaxException, IOException {
@@ -177,22 +165,17 @@ class MP4ParserTest {
     void testGetRawMetaData(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
 
-        transcodingService = mock(TranscodingService.class);
-        Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        parser = new MP4Parser(new FFprobe());
 
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);
         // If the argument is only mediaFile, FFProbe is used
-        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
-        Mockito.clearInvocations(transcodingService);
 
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
         assertThat(parser.getThreshold(mediaFile, statistics),
                 greaterThan(mediaFile.getFileSize()));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is not used for small files
-        Mockito.verify(transcodingService, Mockito.never()).getTranscodeDirectory();
 
         statistics.clear();
         MP4ParseStatistics s = new MP4ParseStatistics();
@@ -203,6 +186,5 @@ class MP4ParserTest {
                 greaterThan(parser.getThreshold(mediaFile, statistics)));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is used for big files
-        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
     }
 }

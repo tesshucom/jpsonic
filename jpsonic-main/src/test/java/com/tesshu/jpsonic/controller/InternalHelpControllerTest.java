@@ -107,7 +107,7 @@ class InternalHelpControllerTest {
                 libpostproc    57.  3.100 / 57.  3.100
                 """;
         InternalHelpController controller = new InternalHelpController(null, null, null, null, null,
-                null, null, null, null);
+                null, null, null);
 
         assertEquals("""
                 ffmpeg version 6.1.2
@@ -186,7 +186,7 @@ class InternalHelpControllerTest {
     class DoesLocaleSupportUtf8Test {
 
         private final InternalHelpController controller = new InternalHelpController(null, null,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null);
 
         @Test
         void testNull() {

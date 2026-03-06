@@ -26,15 +26,12 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,15 +39,13 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Theme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.SettingsConstants.Pair;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
-import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -72,7 +67,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
 
-    private static final ReentrantLock HOME_LOCK = new ReentrantLock();
     private static final ReentrantLock THEMES_LOCK = new ReentrantLock();
     private final ReentrantReadWriteLock musicFileTypesLock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock videoFileTypesLock = new ReentrantReadWriteLock();
@@ -84,9 +78,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     private static final String LOCALES_FILE = "/com/tesshu/jpsonic/i18n/locales.txt";
     private static final String THEMES_FILE = "/com/tesshu/jpsonic/theme/themes.txt";
-    private static final Path JPSONIC_HOME_WINDOWS = Path.of("c:/jpsonic");
-    private static final Path JPSONIC_HOME_OTHER = Path.of("/var/jpsonic");
-    private static final Pair<Integer> ENV_UPNP_PORT = Pair.of("UPNP_PORT", -1);
     private static final String CONSECUTIVE_WHITESPACE = "\\s+";
 
     // Array of obsolete keys. Used to clean property file.
@@ -131,7 +122,6 @@ public class SettingsService implements ReadWriteLockSupport {
     private final ApacheCommonsConfigurationService configurationService;
     private final UPnPSubnet uPnPSubnet;
 
-    private static Path home;
     private Pattern excludePattern;
     private Locale locale;
 
@@ -163,96 +153,6 @@ public class SettingsService implements ReadWriteLockSupport {
                 configurationService.clearProperty(oKey);
             }
         });
-    }
-
-    private static void ensureDirectoryPresent(Path home) {
-        if (!Files.exists(home) && !Files.isDirectory(home)
-                && FileUtil.createDirectories(home) == null) {
-            throw new IllegalStateException("""
-                    The directory %s does not exist. \
-                    Please create it and make it writable. \
-                    (You can override the directory location \
-                    by specifying -Djpsonic.home=...
-                    when starting the servlet container.)
-                    """.formatted(home));
-        }
-    }
-
-    public static @NonNull Path getJpsonicHome() {
-        if (home != null && !isDevelopmentMode()) {
-            return home;
-        }
-        HOME_LOCK.lock();
-        try {
-            if (home != null && !isDevelopmentMode()) {
-                return home;
-            }
-            String overrideHome = System.getProperty("jpsonic.home");
-            String oldHome = System.getProperty("libresonic.home");
-            if (overrideHome != null) {
-                home = Path.of(overrideHome);
-            } else if (oldHome != null) {
-                home = Path.of(oldHome);
-            } else {
-                home = PlayerUtils.isWindows() ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
-            }
-            ensureDirectoryPresent(home);
-        } finally {
-            HOME_LOCK.unlock();
-        }
-        return home;
-    }
-
-    public static boolean isScanOnBoot() {
-        return Optional
-            .ofNullable(System.getProperty("jpsonic.scan.onboot"))
-            .map(Boolean::parseBoolean)
-            .orElse(false);
-    }
-
-    private static String getFileSystemAppName() {
-        String home = getJpsonicHome().toString();
-        return home.contains("libresonic") ? "libresonic" : "jpsonic";
-    }
-
-    public static String getDefaultJDBCPath() {
-        return getJpsonicHome().toString() + "/db/" + getFileSystemAppName();
-    }
-
-    public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getDefaultJDBCPath()
-                + ";sql.enforce_size=false;sql.regular_names=false";
-    }
-
-    public static String getDBScript() {
-        return getDefaultJDBCPath() + ".script";
-    }
-
-    public static String getBackupDBScript(Path backupDir) {
-        return backupDir + "/" + getFileSystemAppName() + ".script";
-    }
-
-    public static String getDefaultJDBCUsername() {
-        return "sa";
-    }
-
-    public static String getDefaultJDBCPassword() {
-        return "";
-    }
-
-    public static int getDefaultUPnPPort() {
-        return Optional
-            .ofNullable(System.getProperty(ENV_UPNP_PORT.key))
-            .map(Integer::parseInt)
-            .orElse(ENV_UPNP_PORT.defaultValue);
-    }
-
-    public static Path getLogFile() {
-        return Path.of(getJpsonicHome().toString(), getFileSystemAppName() + ".log");
-    }
-
-    static Path getPropertyFile() {
-        return Path.of(getJpsonicHome().toString(), getFileSystemAppName() + ".properties");
     }
 
     private int getInt(Pair<Integer> p) {
@@ -297,7 +197,7 @@ public class SettingsService implements ReadWriteLockSupport {
             key = getString(SettingsConstants.REMEMBER_ME_KEY);
         }
         if (StringUtils.isBlank(key)) {
-            key = System.getProperty("airsonic.rememberMeKey");
+            key = EnvironmentProvider.getInstance().getRememberMeKey();
         }
         return key;
     }
@@ -407,10 +307,6 @@ public class SettingsService implements ReadWriteLockSupport {
         } finally {
             availableLocalesLock.unlock();
         }
-    }
-
-    public static String getBrand() {
-        return "Jpsonic";
     }
 
     public Locale getLocale() {
