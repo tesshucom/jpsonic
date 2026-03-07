@@ -225,8 +225,7 @@ public class ExecutorConfiguration {
      * expected log output depends on the caller's thread implementation.
      */
     @SuppressWarnings("serial")
-    public static class JpsonicThreadFactory extends DefaultManagedAwareThreadFactory
-            implements ThreadFactory {
+    public static class JpsonicThreadFactory extends DefaultManagedAwareThreadFactory {
 
         private final Thread.UncaughtExceptionHandler handler;
 

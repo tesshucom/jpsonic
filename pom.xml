@@ -66,14 +66,14 @@
     <versions.log4j>2.25.3</versions.log4j>
     <versions.logback>1.5.32</versions.logback>
     <versions.lucene>10.4.0</versions.lucene>
-    <versions.maven-artifact>3.9.12</versions.maven-artifact>
+    <versions.maven-artifact>3.9.13</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.20.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.9</versions.moxy>
     <versions.mysql-connector-j>9.6.0</versions.mysql-connector-j>
     <versions.netty>4.1.127.Final</versions.netty>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
-    <versions.pmd>7.21.0</versions.pmd>
+    <versions.pmd>7.22.0</versions.pmd>
     <versions.postgresql>42.7.10</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.8</versions.spotbugs>
