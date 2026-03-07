@@ -49,9 +49,9 @@ import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class JapaneseReadingUtilsTest {
 
     private SettingsService settingsService;
@@ -75,8 +75,8 @@ class JapaneseReadingUtilsTest {
         utils.clear();
     }
 
-    @Test
     @Order(0)
+    @Test
     void testIsStartWithAlpha() {
         assertTrue(JapaneseReadingUtils.isStartWithAlpha("a"));
         assertTrue(JapaneseReadingUtils.isStartWithAlpha("z"));
@@ -98,8 +98,8 @@ class JapaneseReadingUtilsTest {
         assertFalse(JapaneseReadingUtils.isStartWithAlpha("_"));
     }
 
-    @Test
     @Order(1)
+    @Test
     void testIsPunctuation() {
         assertFalse(JapaneseReadingUtils.isPunctuation('a'));
         assertTrue(JapaneseReadingUtils.isPunctuation('*'));
@@ -123,8 +123,8 @@ class JapaneseReadingUtilsTest {
         assertTrue(JapaneseReadingUtils.isPunctuation('】'));
     }
 
-    @Test
     @Order(2)
+    @Test
     void testRemovePunctuationFromJapaneseReading() {
         assertNull(utils.removePunctuationFromJapaneseReading(null));
         assertEquals("あいうえお", utils.removePunctuationFromJapaneseReading("あいうえお"));
@@ -162,8 +162,8 @@ class JapaneseReadingUtilsTest {
         assertEquals("ｼﾝﾃﾞｨﾛｰﾊﾟｰ", utils.removePunctuationFromJapaneseReading("ｼﾝﾃﾞｨ･ﾛｰﾊﾟｰ"));
     }
 
-    @Test
     @Order(3)
+    @Test
     void testNormalize() throws ExecutionException {
         assertEquals("あいうえお", utils.normalize("あいうえお"));
         assertEquals("アイウエオ", utils.normalize("アイウエオ"));
@@ -199,8 +199,8 @@ class JapaneseReadingUtilsTest {
         assertEquals("倖田來未", utils.normalize("倖田來未"));
     }
 
-    @Test
     @Order(4)
+    @Test
     void testRomanize() throws ExecutionException {
         assertEquals("hannari", JapaneseReadingUtils.romanize("han'nari"));
         assertEquals("a~b~c", JapaneseReadingUtils.romanize("~a~b~c"));
@@ -222,8 +222,8 @@ class JapaneseReadingUtilsTest {
         assertEquals("o", JapaneseReadingUtils.romanize("ō"));
     }
 
-    @Test
     @Order(5)
+    @Test
     void testIsJapaneseReadable() {
 
         assertTrue(utils.isJapaneseReadable("abc あいう"));
@@ -277,8 +277,8 @@ class JapaneseReadingUtilsTest {
         assertFalse(utils.isJapaneseReadable("αβγ"));
     }
 
-    @Nested
     @Order(6)
+    @Nested
     class CreateJapaneseReadingTest {
 
         @Test
@@ -530,15 +530,15 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Nested
     @Order(7)
+    @Nested
     class CreateReading {
 
         @Nested
         class NativeJapaneseTest {
 
-            @Test
             @Order(1)
+            @Test
             void testNullSort() throws ExecutionException {
                 assertEquals("name", utils.createReading("name", null));
                 assertEquals("ニホンゴメイ", utils.createReading("日本語名", null));
@@ -549,8 +549,8 @@ class JapaneseReadingUtilsTest {
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.Y
             @CreateReadingDecisions.Result.SortDirived
-            @Test
             @Order(2)
+            @Test
             void c01() throws ExecutionException {
                 assertEquals("It's ニホンゴノヨミ", utils.createReading("abc", "It's 日本語の読み"));
             }
@@ -568,26 +568,26 @@ class JapaneseReadingUtilsTest {
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.N
             @CreateReadingDecisions.Result.NameDirived
-            @Test
             @Order(3)
+            @Test
             void c02() throws ExecutionException {
                 assertEquals("abc", utils.createReading("abc", "It is an English reading"));
                 assertEquals("abcニホンゴ", utils.createReading("abc日本語", "It is an English reading"));
             }
 
-            @Order(4)
             @CreateReadingDecisions.Conditions.Name.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.N
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.Y
             @CreateReadingDecisions.Result.NameDirived
+            @Order(4)
             @Test
             void c03() throws ExecutionException {
                 assertEquals("abc", utils.createReading("abc", "日本語の読み"));
             }
 
             @CreateReadingDecisions.Conditions.Name.StartWithAlpha.N
-            @Test
             @Order(5)
+            @Test
             void c04() throws ExecutionException {
                 assertEquals("ニホンゴノヨミ", utils.createReading("日本語名", "日本語の読み"));
             }
@@ -601,8 +601,8 @@ class JapaneseReadingUtilsTest {
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.Y
             @CreateReadingDecisions.Result.SortDirived
-            @Test
             @Order(2)
+            @Test
             void c01() throws ExecutionException {
                 Mockito
                     .when(settingsService.getIndexSchemeName())
@@ -614,12 +614,12 @@ class JapaneseReadingUtilsTest {
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.N
             @CreateReadingDecisions.Result.NameDirived
+            @Order(3)
             @Test
             /**
              * In the case of NATIVE_JAPANESE This case is a dirty case, but in the case of
              * ROMANIZED_JAPANESE, it is a normal process.
              */
-            @Order(3)
             void c02() throws ExecutionException {
                 Mockito
                     .when(settingsService.getIndexSchemeName())
@@ -628,11 +628,11 @@ class JapaneseReadingUtilsTest {
                     .createReading("It is an English reading", "It is an English reading"));
             }
 
-            @Order(4)
             @CreateReadingDecisions.Conditions.Name.StartWithAlpha.Y
             @CreateReadingDecisions.Conditions.Sort.StartWithAlpha.N
             @CreateReadingDecisions.Conditions.Sort.JapaneseReadable.Y
             @CreateReadingDecisions.Result.NameDirived
+            @Order(4)
             @Test
             void c03() throws ExecutionException {
                 Mockito
@@ -642,8 +642,8 @@ class JapaneseReadingUtilsTest {
             }
 
             @CreateReadingDecisions.Conditions.Name.StartWithAlpha.N
-            @Test
             @Order(5)
+            @Test
             void c04() throws ExecutionException {
                 Mockito
                     .when(settingsService.getIndexSchemeName())
@@ -672,8 +672,8 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Test
     @Order(8)
+    @Test
     void testAnalyzeGenre() {
 
         String genreName = "現代邦楽";
@@ -792,9 +792,9 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Nested
     @Order(9)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Nested
     class AnalyzeMediaFileTest {
 
         private final String nameJp = "The 「あいｱｲ・愛」";
@@ -823,8 +823,8 @@ class JapaneseReadingUtilsTest {
         @AnalyzeMediaFileDecisions.Result.Name.Null
         @AnalyzeMediaFileDecisions.Result.Reading.Null
         @AnalyzeMediaFileDecisions.Result.Sort.Null
-        @Test
         @Order(1)
+        @Test
         void c01() {
             MediaFile mediaFile = toMediaFile(null, null);
             utils.analyze(mediaFile);
@@ -842,8 +842,8 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Name.NotNull
             @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortJp
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
-            @Test
             @Order(2)
+            @Test
             void j02() {
                 MediaFile mediaFile = toMediaFile(null, sortJp);
                 utils.analyze(mediaFile);
@@ -1178,8 +1178,8 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Test
     @Order(10)
+    @Test
     void testAnalyzePlaylist() {
         final String playlistName = "2021/07/21 22:40 お気に入り";
 
@@ -1213,8 +1213,8 @@ class JapaneseReadingUtilsTest {
         assertEquals(playlistName, playlist.getReading());
     }
 
-    @Nested
     @Order(11)
+    @Nested
     class AnalyzeSortCandidate {
 
         private final String nameRaw = "The 「あいｱｲ・愛」";
@@ -1257,8 +1257,8 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Nested
     @Order(12)
+    @Nested
     class CreateIndexableName {
 
         void assertDeleteDiacritic() {
@@ -1442,8 +1442,8 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Nested
     @Order(12)
+    @Nested
     class CreateIndexableNameArtistTest {
 
         private Artist createArtist(String name, String sort) {
@@ -1573,8 +1573,8 @@ class JapaneseReadingUtilsTest {
         }
     }
 
-    @Nested
     @Order(13)
+    @Nested
     class CreateIndexableNameMediaFile {
 
         private MediaFile createMediaFile(String name, String sort, String path) {

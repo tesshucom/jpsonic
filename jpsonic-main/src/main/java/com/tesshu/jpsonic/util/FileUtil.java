@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.file.PathUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -132,16 +131,5 @@ public final class FileUtil {
 
     public static String byteCountToDisplaySize(final long size) {
         return FileUtils.byteCountToDisplaySize(size);
-    }
-
-    public static long sizeOfDirectory(final Path directory) {
-        try {
-            return PathUtils.countDirectory(directory).getByteCounter().get();
-        } catch (IOException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Could not get size of directory: {}", directory);
-            }
-            return -1;
-        }
     }
 }

@@ -151,8 +151,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.UsernameOrEmail.Null
     @RecoverDecision.Conditions.CaptchaEnabled.False
     @RecoverDecision.Result.Success
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR01() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(false);
         MvcResult result = mockMvc
@@ -174,8 +174,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.UsernameOrEmail.Null
     @RecoverDecision.Conditions.CaptchaEnabled.True
     @RecoverDecision.Result.Success
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR02() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -200,8 +200,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.CaptchaEnabled.True
     @RecoverDecision.Conditions.ValidateCaptcha.False
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR03() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -225,8 +225,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.ValidateCaptcha.True
     @RecoverDecision.Conditions.User.Null
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR04() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -252,8 +252,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.User.NotNull
     @RecoverDecision.Conditions.User.Email.Null
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR05() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -283,8 +283,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.User.Email.NotNull
     @RecoverDecision.Conditions.SmtpServer.Null
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR06() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -316,8 +316,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.User.Email.NotNull
     @RecoverDecision.Conditions.SmtpServer.Empty
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR07() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -350,8 +350,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SmtpServer.NotEmpty
     @RecoverDecision.Conditions.SendMail.Fail
     @RecoverDecision.Result.Error
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR08() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
@@ -385,8 +385,8 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SmtpServer.NotEmpty
     @RecoverDecision.Conditions.SendMail.Success
     @RecoverDecision.Result.UpdateUser
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testR09() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);

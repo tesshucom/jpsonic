@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceFactory;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.annotation.PostConstruct;
@@ -90,9 +91,10 @@ public class UPnPService {
                 } else {
                     infoIfEnabled("Starting UPnP service...");
                     createService();
-                    if (0 < SettingsService.getDefaultUPnPPort()) {
+                    int defaultUPnPPort = EnvironmentProvider.getInstance().getDefaultUPnPPort();
+                    if (0 < defaultUPnPPort) {
                         infoIfEnabled("Successfully started UPnP service on port %s!"
-                            .formatted(SettingsService.getDefaultUPnPPort()));
+                            .formatted(defaultUPnPPort));
                     } else {
                         infoIfEnabled("Starting UPnP service - Done!");
                     }

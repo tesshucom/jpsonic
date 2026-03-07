@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
@@ -43,6 +44,8 @@ import org.jupnp.support.model.Res;
 import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@NeedsHome
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UpnpDIDLFactoryTest {
 
     private SettingsService settingsService;

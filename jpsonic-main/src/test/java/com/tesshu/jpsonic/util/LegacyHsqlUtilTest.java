@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -32,11 +34,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@NeedsHome
 class LegacyHsqlUtilTest {
+
+    private static String home;
 
     @BeforeAll
     static void setUpOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(true);
+        home = System.getProperty("jpsonic.home");
     }
 
     @AfterAll
@@ -52,6 +58,8 @@ class LegacyHsqlUtilTest {
     @AfterEach
     void tearDown() {
         TestCaseUtils.setLogLevel(LegacyHsqlUtil.class, Level.WARN);
+        System.setProperty("jpsonic.home", home);
+        EnvironmentProvider.getInstance().resetCache();
     }
 
     private void setHome(String s) {

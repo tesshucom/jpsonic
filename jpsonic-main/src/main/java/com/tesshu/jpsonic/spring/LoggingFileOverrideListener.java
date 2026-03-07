@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.spring;
 
 import java.util.Collections;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.logging.LoggingApplicationListener;
 import org.springframework.boot.logging.LogFile;
@@ -38,8 +38,10 @@ public class LoggingFileOverrideListener
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         @SuppressWarnings("rawtypes")
-        PropertySource ps = new MapPropertySource("LogFileLocationPS", Collections
-            .singletonMap(LogFile.FILE_NAME_PROPERTY, SettingsService.getLogFile().toString()));
+        PropertySource ps = new MapPropertySource("LogFileLocationPS",
+                Collections
+                    .singletonMap(LogFile.FILE_NAME_PROPERTY,
+                            EnvironmentProvider.getInstance().getLogFilePath().toString()));
         event.getEnvironment().getPropertySources().addLast(ps);
     }
 

@@ -61,8 +61,8 @@ class PlaylistServiceTest {
                 AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGetPlaylist() {
         int id = 99;
         Playlist playlist = new Playlist();
@@ -88,8 +88,8 @@ class PlaylistServiceTest {
             .matches());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testCreatePlaylistForPlayQueue() throws ServletRequestBindingException {
         ArgumentCaptor<Playlist> captor = ArgumentCaptor.forClass(Playlist.class);
         Mockito.doNothing().when(deligate).createPlaylist(captor.capture());
@@ -105,8 +105,8 @@ class PlaylistServiceTest {
             .matches());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testCreatePlaylistForStarredSongs() {
         assertNotEquals(-1, playlistService.createPlaylistForStarredSongs());
     }

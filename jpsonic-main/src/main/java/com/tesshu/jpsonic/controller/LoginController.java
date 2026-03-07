@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -74,8 +75,9 @@ public class LoginController {
         Map<String, Object> map = LegacyMap
             .of("logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
                     request.getParameter(Attributes.Request.ERROR.value()) != null, "brand",
-                    SettingsService.getBrand(), "loginMessage", settingsService.getLoginMessage(),
-                    "showRememberMe", settingsService.isShowRememberMe());
+                    EnvironmentProvider.getInstance().getBrand(), "loginMessage",
+                    settingsService.getLoginMessage(), "showRememberMe",
+                    settingsService.isShowRememberMe());
 
         User admin = securityService.getUserByName("admin");
         if (admin != null && admin.getUsername().equals(admin.getPassword())) {

@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
@@ -156,7 +157,7 @@ public class TopController {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
-        map.put("brand", SettingsService.getBrand());
+        map.put("brand", EnvironmentProvider.getInstance().getBrand());
 
         MusicFolderContent musicFolderContent = musicIndexService
             .getMusicFolderContent(musicFoldersToUse);

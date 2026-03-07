@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
@@ -78,12 +79,11 @@ public class TranscodingSettingsController {
 
         model
             .addAttribute("model", LegacyMap
-                .of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
-                        transcodingService.getTranscodeDirectory(), "preferredFormat",
+                .of("transcodings", transcodingService.getAllTranscodings(), "preferredFormat",
                         settingsService.getPreferredFormat(), "preferredFormatSheme",
                         PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName()),
                         "hlsCommand", settingsService.getHlsCommand(), "brand",
-                        SettingsService.getBrand(), "isOpenDetailSetting",
+                        EnvironmentProvider.getInstance().getBrand(), "isOpenDetailSetting",
                         userSettings.isOpenDetailSetting(), "useRadio",
                         settingsService.isUseRadio(), "showOutlineHelp",
                         outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),

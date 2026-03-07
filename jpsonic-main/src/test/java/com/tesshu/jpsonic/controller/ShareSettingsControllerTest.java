@@ -71,9 +71,9 @@ class ShareSettingsControllerTest {
             .build();
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testDoGet() throws Exception {
 
         Instant now = now();
@@ -130,8 +130,8 @@ class ShareSettingsControllerTest {
         Mockito.clearInvocations(shareService);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

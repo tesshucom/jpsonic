@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -86,7 +87,8 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
             }
 
             // In addition, create index immediately if it doesn't exist on disk.
-            if (SettingsService.isScanOnBoot() && mediaScannerService.neverScanned()) {
+            if (EnvironmentProvider.getInstance().isScanOnBoot()
+                    && mediaScannerService.neverScanned()) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Media library never scanned. Doing it now.");
                 }

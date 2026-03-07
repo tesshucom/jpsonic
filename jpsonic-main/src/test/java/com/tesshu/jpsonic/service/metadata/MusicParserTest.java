@@ -47,8 +47,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicParserTest {
 
     private static final MusicParser PARSER = new MusicParser(null);

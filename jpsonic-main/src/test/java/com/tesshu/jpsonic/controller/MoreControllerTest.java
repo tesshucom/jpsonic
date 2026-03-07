@@ -75,8 +75,8 @@ class MoreControllerTest {
             .thenReturn(musicFolders);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MORE.value()))

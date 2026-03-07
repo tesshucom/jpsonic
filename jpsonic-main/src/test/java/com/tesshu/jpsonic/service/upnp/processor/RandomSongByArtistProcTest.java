@@ -61,8 +61,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RandomSongByArtistProcTest {
 
-    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
 
         private UpnpProcessorUtil util;

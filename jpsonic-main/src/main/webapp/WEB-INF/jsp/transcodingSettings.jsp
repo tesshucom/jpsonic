@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <c:if test="${model.showOutlineHelp}">
                 <div class="outlineHelp">
                     <fmt:message key="transcodingsettings.info">
-                        <fmt:param value="${model.transcodeDirectory}" />
+                        <fmt:param value="&lt;DATADIR&gt;/transcode" />
                         <fmt:param value="${model.brand}" />
                     </fmt:message>
                 <p>

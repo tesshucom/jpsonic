@@ -57,8 +57,8 @@ class ScanInfoServiceTest {
         scanInfoService = new ScanInfoService(mock(ScannerStateService.class), mediaScannerService);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testgetScanningStatus() {
         assertEquals(-1, scanInfoService.getScanningStatus().getPhase());
 

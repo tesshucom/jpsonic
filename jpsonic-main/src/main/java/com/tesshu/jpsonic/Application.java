@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.filter.BootstrapVerificationFilter;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
 import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
 import com.tesshu.jpsonic.filter.RESTFilter;
@@ -69,21 +68,6 @@ public class Application extends SpringBootServletInitializer {
                 "/dwr/*");
         servlet.addInitParameter("crossDomainSessionSecurity", "false");
         return servlet;
-    }
-
-    @Bean
-    public FilterRegistrationBean<Filter> bootstrapVerificationFilterRegistration() {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(bootstrapVerificationFiler());
-        registration.addUrlPatterns("/*");
-        registration.setName("BootstrapVerificationFilter");
-        registration.setOrder(1);
-        return registration;
-    }
-
-    @Bean
-    public Filter bootstrapVerificationFiler() {
-        return new BootstrapVerificationFilter();
     }
 
     @Bean

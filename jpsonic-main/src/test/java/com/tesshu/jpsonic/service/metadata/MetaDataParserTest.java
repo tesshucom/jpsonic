@@ -84,8 +84,8 @@ class MetaDataParserTest {
         };
     }
 
-    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class GetMetaDataTest {
 
         private MusicParser musicParser;

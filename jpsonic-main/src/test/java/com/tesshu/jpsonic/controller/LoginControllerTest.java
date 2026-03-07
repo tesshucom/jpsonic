@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import ch.qos.logback.classic.Level;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.security.GlobalSecurityConfig;
@@ -50,7 +50,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -85,10 +84,10 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@NeedsHome
 @SuppressWarnings("PMD.TooManyStaticImports")
 class LoginControllerTest {
 
@@ -103,9 +102,9 @@ class LoginControllerTest {
         loggingClasses.forEach(clazz -> TestCaseUtils.setLogLevel(clazz, logLevel));
     }
 
-    @Nested
-    @EnableMethodSecurity(prePostEnabled = false)
     @Order(1)
+    @EnableMethodSecurity(prePostEnabled = false)
+    @Nested
     class UnitTest {
 
         private MockMvc mockMvc;
@@ -131,10 +130,10 @@ class LoginControllerTest {
     }
 
     // Redundant tests for Springboot3 migration
-    @Nested
     @EnableMethodSecurity(prePostEnabled = true)
     @Order(2)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Nested
     class IntegrationTest {
 
         private MockMvc mockMvc;
@@ -155,15 +154,15 @@ class LoginControllerTest {
             setLogLevel(Level.WARN);
         }
 
-        @Test
         @Order(1)
+        @Test
         void testWithoutUser() throws Exception {
             assertNull(SecurityContextHolder.getContext().getAuthentication());
         }
 
+        @Order(2)
         @WithMockUser
         @Test
-        @Order(2)
         void testWithDefaultMockUser() throws Exception {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertEquals(UsernamePasswordAuthenticationToken.class, auth.getClass());
@@ -174,10 +173,10 @@ class LoginControllerTest {
             assertNull(auth.getDetails());
         }
 
-        @Test
         @Order(3)
         @WithMockUser(username = "admin", password = "pass", authorities = { "SETTINGS", "DOWNLOAD",
                 "SHARE" })
+        @Test
         void testWithMockUser() throws Exception {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertEquals(UsernamePasswordAuthenticationToken.class, auth.getClass());
@@ -188,16 +187,16 @@ class LoginControllerTest {
             assertNull(auth.getDetails());
         }
 
-        @Test
         @Order(4)
+        @Test
         void testDaoUser() throws Exception {
             UserDao userDao = webApplicationContext.getBean(UserDao.class);
             User user = userDao.getUserByName("admin", false);
             assertTrue(user.isAdminRole());
         }
 
-        @Test
         @Order(5)
+        @Test
         void testPathPattern() throws Exception {
             assertNotNull(webApplicationContext.getBean(LoginController.class));
             Map<String, RequestMappingHandlerMapping> matchingBeans = BeanFactoryUtils
@@ -227,8 +226,8 @@ class LoginControllerTest {
             assertEquals("/login", loginPathPatterns.get(1).getPatternString());
         }
 
-        @Test
         @Order(7)
+        @Test
         void testAnonymousGet() throws Exception {
             setLogLevel(Level.TRACE);
             MvcResult result = mockMvc

@@ -44,12 +44,8 @@ import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicAlbum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SpringBootTest
 class AlbumId3ProcTest extends AbstractNeedsScan {
 

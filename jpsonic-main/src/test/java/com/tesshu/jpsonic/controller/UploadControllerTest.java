@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.service.PlayerService;
@@ -50,7 +50,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -65,10 +64,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.servlet.ModelAndView;
 
-@ActiveProfiles("test")
 @SpringBootTest
+@ActiveProfiles("test")
 @Execution(ExecutionMode.CONCURRENT)
-@ExtendWith(NeedsHome.class)
+@NeedsHome
 class UploadControllerTest {
 
     @Autowired
@@ -88,10 +87,10 @@ class UploadControllerTest {
     private static final String BOUNDARY = "265001916915724";
     private static final String SEPA = "\r\n";
 
-    @SuppressWarnings("unchecked")
-    @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
+    @Test
+    @SuppressWarnings("unchecked")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath)
             throws IOException, URISyntaxException {
 
@@ -124,9 +123,9 @@ class UploadControllerTest {
         assertEquals(0, ((List<Path>) model.get("unzippedFiles")).size());
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = "admin")
+    @Test
+    @SuppressWarnings("unchecked")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
         MusicFolder musicFolder = new MusicFolder(10, tempDirPath.toString(), "Incoming2", true,

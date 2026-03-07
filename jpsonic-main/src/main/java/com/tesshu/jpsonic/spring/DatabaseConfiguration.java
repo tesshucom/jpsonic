@@ -21,22 +21,17 @@
 
 package com.tesshu.jpsonic.spring;
 
-import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCPassword;
-import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUrl;
-import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUsername;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
 import com.tesshu.jpsonic.persistence.base.LegacyHsqlDaoHelper;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
@@ -122,8 +117,10 @@ public class DatabaseConfiguration {
     @Bean
     @Profile(ProfileNameConstants.HOST)
     public DataSource legacyDataSource() {
-        return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver", getDefaultJDBCUrl(),
-                getDefaultJDBCUsername(), getDefaultJDBCPassword()));
+        return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver",
+                EnvironmentProvider.getInstance().buildDefaultJDBCUrl(),
+                EnvironmentProvider.getInstance().getDefaultJDBCUsername(),
+                EnvironmentProvider.getInstance().getDefaultJDBCPassword()));
     }
 
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
@@ -145,7 +142,7 @@ public class DatabaseConfiguration {
 
     @Bean
     public Path rollbackFile() {
-        return Path.of(SettingsService.getJpsonicHome().toString(), "rollback.sql");
+        return EnvironmentProvider.getInstance().getRollbackFilePath();
     }
 
     @Bean
@@ -162,8 +159,8 @@ public class DatabaseConfiguration {
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
         springLiquibase.setRollbackFile(rollbackFile().toFile());
         Map<String, String> parameters = LegacyMap
-            .of("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(), "mysqlVarcharLimit",
-                    mysqlVarcharLimit, "userTableQuote", userTableQuote);
+            .of("defaultMusicFolder", EnvironmentProvider.getInstance().getDefaultMusicFolder(),
+                    "mysqlVarcharLimit", mysqlVarcharLimit, "userTableQuote", userTableQuote);
         springLiquibase.setChangeLogParameters(parameters);
         return springLiquibase;
     }

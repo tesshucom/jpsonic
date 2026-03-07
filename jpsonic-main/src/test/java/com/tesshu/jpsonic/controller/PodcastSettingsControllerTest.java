@@ -55,8 +55,8 @@ class PodcastSettingsControllerTest {
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
@@ -72,8 +72,8 @@ class PodcastSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))

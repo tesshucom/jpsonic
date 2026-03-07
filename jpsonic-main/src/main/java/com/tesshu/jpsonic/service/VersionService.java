@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tesshu.jpsonic.domain.system.Version;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.ConnectTimeoutException;
@@ -101,8 +102,8 @@ public class VersionService {
         if (LOG.isInfoEnabled()) {
             LOG
                 .info("Starting Jpsonic " + getLocalVersion() + " (" + getLocalBuildNumber()
-                        + "), Java: " + System.getProperty("java.version") + ", OS: "
-                        + System.getProperty("os.name"));
+                        + "), Java: " + EnvironmentProvider.getInstance().getJavaVersion()
+                        + ", OS: " + EnvironmentProvider.getInstance().getOsName());
         }
     }
 

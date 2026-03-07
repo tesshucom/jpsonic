@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -86,11 +87,11 @@ public class HelpController {
         User user = securityService.getCurrentUserStrict(request);
         map.put("user", user);
         map.put("admin", securityService.isAdmin(user.getUsername()));
-        map.put("brand", SettingsService.getBrand());
+        map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
         map.put("buildNumber", versionService.getLocalBuildNumber());
-        Path logFile = SettingsService.getLogFile();
+        Path logFile = EnvironmentProvider.getInstance().getLogFilePath();
         if (Files.exists(logFile)) {
             List<String> latestLogEntries = getLatestLogEntries(logFile);
             map.put("logEntries", latestLogEntries);

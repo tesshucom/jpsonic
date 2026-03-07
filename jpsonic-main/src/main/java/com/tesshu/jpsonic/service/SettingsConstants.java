@@ -21,10 +21,10 @@ package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
-import com.tesshu.jpsonic.util.PlayerUtils;
 
 /**
  * Literals and initial values used for property keys in SettingsService. Most
@@ -147,7 +147,7 @@ final class SettingsConstants {
             static final Pair<String> EXCLUDED_COVER_ART = Pair
                 .of("ExcludedCoverArt", "AlbumArtSmall.jpg small.jpg large.jpg");
             static final Pair<String> PLAYLIST_FOLDER = Pair
-                .of("PlaylistFolder", PlayerUtils.getDefaultPlaylistFolder());
+                .of("PlaylistFolder", EnvironmentProvider.getInstance().getDefaultPlaylistFolder());
             static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");
 
             private Extension() {
@@ -256,7 +256,7 @@ final class SettingsConstants {
 
     static final class Podcast {
         static final Pair<String> FOLDER = Pair
-            .of("PodcastFolder", PlayerUtils.getDefaultPodcastFolder());
+            .of("PodcastFolder", EnvironmentProvider.getInstance().getDefaultPodcastFolder());
         static final Pair<Integer> UPDATE_INTERVAL = Pair.of("PodcastUpdateInterval", 24);
         static final Pair<Integer> EPISODE_RETENTION_COUNT = Pair
             .of("PodcastEpisodeRetentionCount", 10);

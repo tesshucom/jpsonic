@@ -28,7 +28,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Map;
@@ -37,9 +36,8 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -55,13 +53,6 @@ public class FFprobe {
             "-show_streams", "-print_format", "json" };
 
     private static final String CODEC_TYPE_VIDEO = "video";
-
-    private final TranscodingService transcodingService;
-
-    public FFprobe(TranscodingService transcodingService) {
-        super();
-        this.transcodingService = transcodingService;
-    }
 
     enum FFmpegFieldKey {
 
@@ -85,16 +76,6 @@ public class FFprobe {
             return Optional.empty();
         }
         return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asText()));
-    }
-
-    private @Nullable String getCommandPath() {
-        Path cmdFile = Path
-            .of(transcodingService.getTranscodeDirectory().toString(),
-                    PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
-        if (Files.exists(cmdFile)) {
-            return cmdFile.toString();
-        }
-        return null;
     }
 
     private MetaData parse(@NonNull JsonNode node, @NonNull MetaData result) {
@@ -152,13 +133,11 @@ public class FFprobe {
     final MetaData parse(@NonNull Path path, Consumer<Long>... startTimeCallback) {
 
         MetaData result = new MetaData();
-        String cmdPath = getCommandPath();
-        if (isEmpty(cmdPath)) {
-            return result;
-        }
 
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command().add(cmdPath);
+        pb
+            .command()
+            .add(EnvironmentProvider.getInstance().getFfprobePath().toAbsolutePath().toString());
         Stream.of(FFPROBE_OPTIONS).forEach(op -> pb.command().add(op));
         pb.command().add(path.toString());
 

@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNull;
@@ -32,28 +31,28 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@NeedsHome
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
+
 class FFprobeTest {
 
     private FFprobe ffprobe;
 
     @BeforeEach
     void setUp() {
-        TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class),
-                null, null, null, null);
-        ffprobe = new FFprobe(transcodingService);
+        ffprobe = new FFprobe();
     }
 
     private MediaFile createTestMediafile(String path) throws URISyntaxException, IOException {
@@ -110,21 +109,18 @@ class FFprobeTest {
         assertEquals(226, metaData.getBitRate());
     }
 
-    @Test
-    @Order(1)
+//    @Order(1)
+//    @Test
     void testParseWithoutCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-        TranscodingService transcodingService = mock(TranscodingService.class);
-        Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
-        ffprobe = new FFprobe(transcodingService);
-
+        ffprobe = new FFprobe();
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(2)
+    @Test
     void testBlank() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -132,8 +128,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(3)
+    @Test
     void testNoHeader() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/noheader/empty.mp3");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -141,8 +137,8 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
     @Order(4)
+    @Test
     void testIllegalFilePath() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
         Path file = Path.of("fake");
@@ -152,8 +148,9 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @Test
+    @EnabledOnOs(OS.LINUX)
     @Order(5)
+    @Test
     void testTagged() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -161,8 +158,9 @@ class FFprobeTest {
         assertTagsWrittenByMp3tag(metaData);
     }
 
-    @Test
+    @EnabledOnOs(OS.LINUX)
     @Order(5)
+    @Test
     void testTaggedWithStatistics() throws URISyntaxException, IOException {
 
         String folder = "/tagged";

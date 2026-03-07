@@ -80,8 +80,8 @@ class SetMusicFileInfoControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

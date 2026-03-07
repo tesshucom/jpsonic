@@ -49,6 +49,7 @@ import javax.imageio.ImageIO;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -60,7 +61,6 @@ import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
@@ -430,8 +430,7 @@ public class CoverArtController implements CoverArtPresentation {
 
     @NonNull
     Path getImageCacheDirectory(int size) {
-        Path dir = Path
-            .of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
+        Path dir = EnvironmentProvider.getInstance().getImageCacheDirectory(size);
         FileUtil.createDirectories(dir);
         return dir;
     }

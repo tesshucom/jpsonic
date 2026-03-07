@@ -32,16 +32,16 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexTypeTest {
 
-    @Test
     @Order(1)
+    @Test
     void testLength() {
         for (IndexType type : IndexType.values()) {
             assertEquals(type.getFields().size(), type.getBoosts().size() + 1, type.name());
         }
     }
 
-    @Test
     @Order(2)
+    @Test
     void testSongBoosts() {
         assertEquals(7, IndexType.SONG.getBoosts().size());
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.COMPOSER_READING_ROMANIZED),
@@ -67,8 +67,8 @@ class IndexTypeTest {
             .get(FieldNamesConstants.TITLE_READING));
     }
 
-    @Test
     @Order(3)
+    @Test
     void testAlbumBoosts() {
         assertEquals(4, IndexType.ALBUM.getBoosts().size());
         assertEquals(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ARTIST_READING),
@@ -85,8 +85,8 @@ class IndexTypeTest {
             .get(FieldNamesConstants.ALBUM_READING));
     }
 
-    @Test
     @Order(4)
+    @Test
     void testAlbumId3Boosts() {
         assertEquals(4, IndexType.ALBUM_ID3.getBoosts().size());
         assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING),
@@ -105,16 +105,16 @@ class IndexTypeTest {
                     .get(FieldNamesConstants.ALBUM_READING));
     }
 
-    @Test
     @Order(5)
+    @Test
     void testArtistBoosts() {
         assertEquals(2, IndexType.ARTIST.getBoosts().size());
         assertEquals(IndexType.ARTIST.getBoosts().get(FieldNamesConstants.ARTIST_READING),
                 IndexType.ARTIST.getBoosts().get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
     }
 
-    @Test
     @Order(6)
+    @Test
     void testArtistId3Boosts() {
         assertEquals(2, IndexType.ARTIST_ID3.getBoosts().size());
         assertEquals(
@@ -122,8 +122,8 @@ class IndexTypeTest {
                 IndexType.ARTIST_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING));
     }
 
-    @Test
     @Order(7)
+    @Test
     void testGenreBoosts() {
         assertEquals(1, IndexType.GENRE.getBoosts().size());
         assertEquals(IndexType.GENRE.getBoosts().get(FieldNamesConstants.GENRE_KEY), 1.1F);

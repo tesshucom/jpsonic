@@ -28,7 +28,7 @@ import java.nio.file.Path;
 import java.sql.Driver;
 import java.util.Properties;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.spring.AirsonicHsqlDatabase;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public final class LegacyHsqlUtil {
      * database properties file.
      */
     static String getHsqldbDatabaseVersion() {
-        Path configFile = Path.of(SettingsService.getDefaultJDBCPath() + ".properties");
+        Path configFile = EnvironmentProvider.getInstance().getLocalDatabasePropertyFilePath();
         if (!Files.exists(configFile)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("HSQLDB database doesn't exist, cannot determine version");

@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -42,6 +41,7 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -50,7 +50,6 @@ import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -86,8 +85,6 @@ public class TranscodingService {
     private final TranscodingDao transcodingDao;
     private final PlayerService playerService;
     private final Executor shortExecutor;
-    private final String transcodePath;
-    private Path transcodeDirectory;
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
             TranscodingDao transcodingDao, @Lazy PlayerService playerService,
@@ -98,32 +95,6 @@ public class TranscodingService {
         this.transcodingDao = transcodingDao;
         this.playerService = playerService;
         this.shortExecutor = shortExecutor;
-        String propPath = System.getProperty("transcodePath");
-        if (propPath != null) {
-            transcodePath = propPath.replaceAll("\\\\", "\\\\\\\\");
-        } else {
-            transcodePath = null;
-        }
-    }
-
-    /**
-     * Returns the directory in which all transcoders are installed.
-     */
-    public @NonNull Path getTranscodeDirectory() {
-        if (!isEmpty(transcodeDirectory)) {
-            return transcodeDirectory;
-        }
-        if (isEmpty(transcodePath)) {
-            transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
-            FileUtil.createDirectories(transcodeDirectory);
-        } else {
-            transcodeDirectory = Path.of(transcodePath);
-        }
-        return transcodeDirectory;
-    }
-
-    protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
     }
 
     /**
@@ -450,7 +421,13 @@ public class TranscodingService {
         }
 
         List<String> commands = Arrays.asList(splitCommand(command));
-        commands.set(0, getTranscodeDirectory().toString() + File.separatorChar + commands.get(0));
+        String commandName = commands.get(0);
+        String commandNameFullPath = EnvironmentProvider
+            .getInstance()
+            .getTranscodeDirectory()
+            .resolve(commandName)
+            .toString();
+        commands.set(0, commandNameFullPath);
 
         for (int i = 1; i < commands.size(); i++) {
             String cmd = commands.get(i);
@@ -521,7 +498,8 @@ public class TranscodingService {
 
     private boolean isTranscoderInstalled(String step) {
 
-        if (!Files.exists(getTranscodeDirectory())) {
+        Path transcodeDir = EnvironmentProvider.getInstance().getTranscodeDirectory();
+        if (!Files.exists(transcodeDir)) {
             return false;
         }
         if (StringUtils.isEmpty(step)) {
@@ -529,7 +507,7 @@ public class TranscodingService {
         }
 
         String executable = StringUtil.split(step).get(0);
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(getTranscodeDirectory())) {
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(transcodeDir)) {
             for (Path child : ds) {
                 Path filename = child.getFileName();
                 if (filename != null

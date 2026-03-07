@@ -31,11 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.InternalHelpController.FileStatistics;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -45,9 +44,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@NeedsHome
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
 class InternalHelpControllerTest {
 
@@ -108,7 +107,7 @@ class InternalHelpControllerTest {
                 libpostproc    57.  3.100 / 57.  3.100
                 """;
         InternalHelpController controller = new InternalHelpController(null, null, null, null, null,
-                null, null, null, null);
+                null, null, null);
 
         assertEquals("""
                 ffmpeg version 6.1.2
@@ -187,7 +186,7 @@ class InternalHelpControllerTest {
     class DoesLocaleSupportUtf8Test {
 
         private final InternalHelpController controller = new InternalHelpController(null, null,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null);
 
         @Test
         void testNull() {

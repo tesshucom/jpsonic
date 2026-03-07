@@ -25,23 +25,16 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -61,10 +54,8 @@ import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanContext;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,14 +64,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.UseUtilityClass" })
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexManagerTest {
 
     @BeforeAll
@@ -140,9 +129,9 @@ class IndexManagerTest {
      * The implementation is poor and difficult to assert. This is a coverage test
      * for later fix.
      */
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Nested
-    @ExtendWith(NeedsHome.class)
+    @NeedsDB
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     class GetGenresTest {
 
         private SettingsService settingsService;
@@ -488,41 +477,6 @@ class IndexManagerTest {
     }
 
     @Nested
-    class UnitTest {
-
-        private ArtistDao artistDao;
-        private IndexManager indexManager;
-
-        @BeforeEach
-        void setup() {
-            SettingsService settingsService = mock(SettingsService.class);
-            artistDao = mock(ArtistDao.class);
-            indexManager = new IndexManager(new LuceneUtils(), null, null, null, null, null,
-                    settingsService, null, artistDao, null);
-        }
-
-        @AfterEach
-        void trarDown() {
-            System.clearProperty("jpsonic.home");
-        }
-
-        @Test
-        void testIndexDirectoryAlreadyExists(@TempDir Path tempDir) throws IOException {
-            System.setProperty("jpsonic.home", tempDir.toString());
-            Files.createDirectories(indexManager.getRootIndexDirectory());
-            indexManager.initializeIndexDirectory();
-            verify(artistDao, never()).deleteAll();
-        }
-
-        @Test
-        void testIndexDirectoryNotExists(@TempDir Path tempDir) {
-            System.setProperty("jpsonic.home", tempDir.toString());
-            indexManager.initializeIndexDirectory();
-            verify(artistDao, times(1)).deleteAll();
-        }
-    }
-
-    @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
         private List<MusicFolder> musicFolders;
@@ -612,8 +566,8 @@ class IndexManagerTest {
          * conditions should result in the removal of unnecessary data from both the
          * database and the Lucene index.
          */
-        @Test
         @Order(1)
+        @Test
         void testExpunge() throws IOException {
 
             int offset = 0;
@@ -732,38 +686,6 @@ class IndexManagerTest {
                 .queryForObject("select count(*) from user_rating where user_rating.username = ?",
                         Integer.class, USER_NAME);
             assertEquals(0, ratingsCount, "Will be removed, including oldPath");
-        }
-
-        @Test
-        @Order(2)
-        void testDeleteLegacyFiles() throws ExecutionException, IOException {
-            // Remove the index used in the early days of Airsonic(Close to Subsonic)
-            Path legacyFile = Path.of(SettingsService.getJpsonicHome().toString(), "lucene2");
-            if (Files.createFile(legacyFile) != null) {
-                assertTrue(Files.exists(legacyFile));
-            } else {
-                Assertions.fail();
-            }
-            Path legacyDir = Path.of(SettingsService.getJpsonicHome().toString(), "lucene3");
-            FileUtil.createDirectories(legacyDir);
-
-            indexManager.deleteLegacyFiles();
-            assertFalse(Files.exists(legacyFile));
-            assertFalse(Files.exists(legacyDir));
-        }
-
-        @Test
-        @Order(3)
-        void testDeleteOldFiles() throws ExecutionException, IOException {
-            // If the index version does not match, delete it
-            Path oldDir = Path.of(SettingsService.getJpsonicHome().toString(), "index-JP22");
-            if (FileUtil.createDirectories(oldDir) != null) {
-                assertTrue(Files.exists(oldDir));
-            } else {
-                Assertions.fail();
-            }
-            indexManager.deleteOldFiles();
-            assertFalse(Files.exists(oldDir));
         }
     }
 }

@@ -57,6 +57,7 @@ import java.util.concurrent.ExecutionException;
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
@@ -101,10 +102,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
-        "PMD.TooManyStaticImports" })
+@NeedsHome
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
+        "PMD.TooManyStaticImports" })
 class StreamControllerTest {
 
     private static final String TEST_URL = "/stream/test";
@@ -179,8 +181,8 @@ class StreamControllerTest {
         TestCaseUtils.setLogLevel(StreamController.class, Level.WARN);
     }
 
-    @Test
     @Order(0)
+    @Test
     void testSendForbidden() throws Exception {
 
         // no stream role
@@ -221,8 +223,8 @@ class StreamControllerTest {
             .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
-    @Test
     @Order(1)
+    @Test
     void testGetMaxBitRate() throws Exception {
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
@@ -282,12 +284,12 @@ class StreamControllerTest {
             .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
-    @Nested
     @Order(2)
+    @Nested
     class PrepareResponseTest {
 
-        @Test
         @Order(0)
+        @Test
         void testAuthentication() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
@@ -322,8 +324,8 @@ class StreamControllerTest {
                 .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
         }
 
-        @Test
         @Order(1)
+        @Test
         void testVideoTranscoding() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
@@ -477,8 +479,8 @@ class StreamControllerTest {
         }
     }
 
-    @Nested
     @Order(3)
+    @Nested
     class ApplyRangeTest {
 
         @ApplyRangeDecision.Conditions.IsRangeNotAllowed.False
@@ -824,8 +826,8 @@ class StreamControllerTest {
         }
     }
 
-    @Nested
     @Order(4)
+    @Nested
     class ContentTypeAndDurationTest {
 
         private MediaFile song;
@@ -1227,8 +1229,8 @@ class StreamControllerTest {
         }
     }
 
-    @Test
     @Order(5)
+    @Test
     void testWriteVerboseLog() throws Exception {
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
@@ -1303,8 +1305,8 @@ class StreamControllerTest {
         }
     }
 
-    @Nested
     @Order(6)
+    @Nested
     class WriteStreamTest {
 
         @WriteStreamDecision.Conditions.IsAliveStream.False
@@ -1479,8 +1481,8 @@ class StreamControllerTest {
         }
     }
 
-    @Nested
     @Order(7)
+    @Nested
     class IsAliveStreamTest {
 
         @IsAliveStreamDecision.Conditions.Destroy.False
@@ -1517,8 +1519,8 @@ class StreamControllerTest {
         }
     }
 
-    @Test
     @Order(8)
+    @Test
     void testWriteErrorLog() throws Exception {
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
@@ -1556,8 +1558,8 @@ class StreamControllerTest {
             .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
     }
 
-    @Test
     @Order(9)
+    @Test
     void testGet() throws Exception {
         // Playlist case only (Because path coverage are covered by other than this
         // case)

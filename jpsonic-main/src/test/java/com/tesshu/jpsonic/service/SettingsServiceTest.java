@@ -31,20 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,9 +54,9 @@ import org.springframework.test.context.ActiveProfiles;
  *
  * @author Sindre Mehus
  */
-@ActiveProfiles("test")
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsHome
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidUsingHardCodedIP" })
@@ -207,60 +206,8 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testJpsonicHome() {
-        String homePath = System.getProperty("jpsonic.home");
-        assertEquals(homePath, SettingsService.getJpsonicHome().toString(), "Wrong Jpsonic home.");
-    }
-
-    @Test
     void testIsScanOnBoot() {
-        assertFalse(SettingsService.isScanOnBoot());
-    }
-
-    @Test
-    void testGetDefaultJDBCPath() {
-        assertNotNull(SettingsService.getDefaultJDBCPath());
-    }
-
-    @Test
-    void testGetDefaultJDBCUrl() {
-        assertNotNull(SettingsService.getDefaultJDBCUrl());
-    }
-
-    @Test
-    void testGetDBScript() {
-        assertNotNull(SettingsService.getDBScript());
-    }
-
-    @Test
-    void testGetBackupDBScript() {
-        Path backupDir = Path.of("./");
-        assertEquals("./jpsonic.script", SettingsService.getBackupDBScript(backupDir));
-    }
-
-    @Test
-    void testGetDefaultJDBCUsername() {
-        assertEquals("sa", SettingsService.getDefaultJDBCUsername());
-    }
-
-    @Test
-    void testGetDefaultJDBCPassword() {
-        assertEquals("", SettingsService.getDefaultJDBCPassword());
-    }
-
-    @Test
-    void testGetDefaultUPnPPort() {
-        assertEquals(-1, SettingsService.getDefaultUPnPPort());
-    }
-
-    @Test
-    void testGetLogFile() {
-        assertNotNull(SettingsService.getLogFile());
-    }
-
-    @Test
-    void testGetPropertyFile() {
-        assertNotNull(SettingsService.getPropertyFile());
+        assertFalse(EnvironmentProvider.getInstance().isScanOnBoot());
     }
 
     @Test
@@ -570,7 +517,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetBrand() {
-        assertEquals("Jpsonic", SettingsService.getBrand());
+        assertEquals("Jpsonic", EnvironmentProvider.getInstance().getBrand());
     }
 
     @Test

@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import java.util.Map;
 
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -64,6 +65,7 @@ public class IndexController {
             .getUserSettings(securityService.getCurrentUsernameStrict(request));
         return LegacyMap
             .of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
-                    userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
+                    userSettings.isCloseDrawer(), "brand",
+                    EnvironmentProvider.getInstance().getBrand());
     }
 }
