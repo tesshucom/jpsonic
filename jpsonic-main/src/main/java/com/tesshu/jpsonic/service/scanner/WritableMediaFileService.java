@@ -622,8 +622,7 @@ public class WritableMediaFileService {
         private Path coverArtAvailable;
         private Path firstCoverArtEmbeddable;
 
-        public CoverArtDetector(SecurityService securityService,
-                MediaFileService mediaFileService) {
+        CoverArtDetector(SecurityService securityService, MediaFileService mediaFileService) {
             this.securityService = securityService;
             this.mediaFileService = mediaFileService;
         }

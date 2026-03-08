@@ -61,7 +61,7 @@ class MenuItemServiceTest {
     private TemplateWrapper templateWrapper;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         Locale otherThanEnJp = settingsService.getAvailableLocales().get(5);
         assertEquals("ca", otherThanEnJp.getLanguage());
         settingsService.setLocale(otherThanEnJp);

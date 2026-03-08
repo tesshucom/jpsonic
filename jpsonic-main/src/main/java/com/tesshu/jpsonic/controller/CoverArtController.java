@@ -483,7 +483,7 @@ public class CoverArtController implements CoverArtPresentation {
             return coverArt;
         }
 
-        public abstract String getKey();
+        abstract String getKey();
 
         long getLastModified(Path path) {
             try {
@@ -493,9 +493,9 @@ public class CoverArtController implements CoverArtPresentation {
             }
         }
 
-        public abstract long lastModified();
+        abstract long lastModified();
 
-        public BufferedImage createImage(int size) {
+        BufferedImage createImage(int size) {
             if (coverArt != null) {
                 try (InputStream in = controller.getImageInputStream(coverArt)) {
 
@@ -532,9 +532,9 @@ public class CoverArtController implements CoverArtPresentation {
             return image;
         }
 
-        public abstract String getAlbum();
+        abstract String getAlbum();
 
-        public abstract String getArtist();
+        abstract String getArtist();
     }
 
     static class ArtistCoverArtRequest extends CoverArtRequest {
@@ -822,7 +822,7 @@ public class CoverArtController implements CoverArtPresentation {
             this.color = new Color(rgb);
         }
 
-        public void paintCover() {
+        void paintCover() {
             graphics
                 .setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);

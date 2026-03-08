@@ -208,7 +208,7 @@ class MediaScannerServiceImplTest {
         private MediaScannerServiceImpl mediaScannerService;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
 
             settingsService = mock(SettingsService.class);
             indexManager = mock(IndexManager.class);
@@ -460,7 +460,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabase();
         }
 
@@ -601,7 +601,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup() throws IOException {
+        void setup() throws IOException {
             FileUtils.copyDirectory(new File(resolveBaseMediaPath("MultiGenre")), tempDir.toFile());
             populateDatabase();
         }
@@ -756,7 +756,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup() throws IOException {
+        void setup() throws IOException {
             populateDatabase();
         }
 
@@ -886,7 +886,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
 
             // Create a musicfolder for verification
             artist = Path.of(tempDir.toString(), "ARTIST");
@@ -1108,7 +1108,7 @@ class MediaScannerServiceImplTest {
         private MediaScannerService mediaScannerService;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     procedure, expungeService, staticsDao, scanExecutor);
@@ -1358,7 +1358,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup() throws IOException, URISyntaxException {
+        void setup() throws IOException, URISyntaxException {
             artist = Path.of(tempDir1.toString(), "ARTIST");
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
@@ -1433,7 +1433,7 @@ class MediaScannerServiceImplTest {
         }
 
         @BeforeEach
-        public void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
             Path artist = Path.of(tempDir.toString(), "ARTIST");
             assertNotNull(FileUtil.createDirectories(artist));
             Path album = Path.of(artist.toString(), "ALBUM");
@@ -1502,7 +1502,7 @@ class MediaScannerServiceImplTest {
         private JpsonicComparators comparators;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);

@@ -49,7 +49,7 @@ class PasswordSettingsControllerTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         mockMvc = MockMvcBuilders
             .standaloneSetup(new PasswordSettingsController(securityService,

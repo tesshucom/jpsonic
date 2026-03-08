@@ -49,7 +49,7 @@ class VideoPlayerControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
 
         MediaFile file = new MediaFile();
         file.setId(0);

@@ -162,7 +162,7 @@ class UploadControllerTest {
                 ((List<Path>) model.get("unzippedFiles")).get(0).getFileName().toString());
     }
 
-    public byte[] createFileContent(String tempDir, String fileName, String contentType,
+    byte[] createFileContent(String tempDir, String fileName, String contentType,
             byte[] fileValue) {
         String dirField = "--" + BOUNDARY + SEPA + " Content-Disposition: form-data; name=\""
                 + UploadController.FIELD_NAME_DIR + "\";" + "Content-type: text/plain" + SEPA
@@ -183,7 +183,7 @@ class UploadControllerTest {
         private ScannerStateServiceImpl scannerStateService;
 
         @BeforeEach
-        public void setup() throws ExecutionException {
+        void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
             uploadController = new UploadController(mock(SecurityService.class),
                     mock(PlayerService.class), mock(StatusService.class),

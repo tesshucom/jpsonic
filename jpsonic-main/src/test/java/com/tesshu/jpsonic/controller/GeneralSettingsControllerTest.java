@@ -60,7 +60,7 @@ class GeneralSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
                 mock(ShareService.class), mock(OutlineHelpSelector.class),

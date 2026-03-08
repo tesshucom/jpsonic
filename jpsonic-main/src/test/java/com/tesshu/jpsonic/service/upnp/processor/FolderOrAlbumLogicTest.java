@@ -59,7 +59,7 @@ class FolderOrAlbumLogicTest {
     private FolderOrAlbumLogic logic;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         util = mock(UpnpProcessorUtil.class);
         albumDao = mock(AlbumDao.class);
         SettingsService settingsService = mock(SettingsService.class);

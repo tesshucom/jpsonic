@@ -102,7 +102,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
         private final MediaScannerService mediaScannerService;
 
-        public ScanLibraryTask(MediaScannerService mediaScannerService) {
+        ScanLibraryTask(MediaScannerService mediaScannerService) {
             super();
             this.mediaScannerService = mediaScannerService;
         }

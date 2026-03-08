@@ -31,7 +31,7 @@ class VersionServiceTest {
     private VersionService versionService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         versionService = new VersionService();
     }
 

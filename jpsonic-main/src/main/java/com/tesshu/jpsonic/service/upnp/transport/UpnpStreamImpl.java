@@ -193,7 +193,7 @@ public final class UpnpStreamImpl extends UpnpStream {
 
         private final HttpExchange exchange;
 
-        public UpnpStreamConnection(HttpExchange exchange) {
+        UpnpStreamConnection(HttpExchange exchange) {
             this.exchange = exchange;
         }
 

@@ -49,7 +49,7 @@ class AlbumDaoTest {
     private AlbumDao albumDao;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.templateWrapper = Mockito.mock(TemplateWrapper.class);
         albumDao = new AlbumDao(templateWrapper, Mockito.mock(DialectAlbumDao.class));
     }
@@ -84,7 +84,7 @@ class AlbumDaoTest {
         List<MusicFolder> folders;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             MusicFolder folder = new MusicFolder("/Music", "Music", true, null, false);
             folders = List.of(folder);
         }
@@ -164,7 +164,7 @@ class AlbumDaoTest {
     @Nested
     class StarredPersistenceTest extends AbstractNeedsScan {
 
-        public static final String ADMIN_NAME = "admin";
+        static final String ADMIN_NAME = "admin";
 
         @Autowired
         private AlbumDao albumDao;
@@ -180,7 +180,7 @@ class AlbumDaoTest {
         }
 
         @BeforeEach
-        public void setup() throws IOException {
+        void setup() throws IOException {
             populateDatabase();
         }
 
@@ -242,7 +242,7 @@ class AlbumDaoTest {
     @Nested
     class CreatedPersistenceTest extends AbstractNeedsScan {
 
-        public static final String ADMIN_NAME = "admin";
+        static final String ADMIN_NAME = "admin";
 
         @Autowired
         private AlbumDao albumDao;
@@ -258,7 +258,7 @@ class AlbumDaoTest {
         }
 
         @BeforeEach
-        public void setup() throws IOException {
+        void setup() throws IOException {
             populateDatabase();
         }
 

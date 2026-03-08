@@ -63,7 +63,7 @@ class TranscodingSettingsControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
         Mockito

@@ -36,7 +36,7 @@ class UpnpProcessorUtilTest {
     private UpnpProcessorUtil util;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
                 mock(JpsonicComparators.class));

@@ -41,7 +41,7 @@ class RandomSongProcTest {
     private RandomSongProc proc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         searchService = mock(SearchService.class);
         settingsService = mock(SettingsService.class);
         proc = new RandomSongProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class),

@@ -57,7 +57,7 @@ class ExternalPlayerControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         musicFolderService = mock(MusicFolderService.class);
         shareService = mock(ShareService.class);
         jwtSecurityService = mock(JWTSecurityService.class);

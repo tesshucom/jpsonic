@@ -35,7 +35,7 @@ class OutlineHelpSelectorTest {
     private OutlineHelpSelector outlineHelpSelector;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         outlineHelpSelector = new OutlineHelpSelector(mock(SecurityService.class));
     }
 

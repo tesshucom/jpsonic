@@ -68,7 +68,7 @@ class ScannerProcedureServiceTest {
     private ScannerProcedureService scannerProcedureService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
         musicFolderServiceImpl = mock(MusicFolderServiceImpl.class);

@@ -75,7 +75,7 @@ class WritableMediaFileServiceTest {
     private WritableMediaFileService writableMediaFileService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mediaFileDao = mock(MediaFileDao.class);
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
@@ -179,7 +179,7 @@ class WritableMediaFileServiceTest {
         private final Instant scanStart = now();
 
         @BeforeEach
-        public void setup() throws URISyntaxException {
+        void setup() throws URISyntaxException {
             dir = Path.of(WritableMediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
         }
 
