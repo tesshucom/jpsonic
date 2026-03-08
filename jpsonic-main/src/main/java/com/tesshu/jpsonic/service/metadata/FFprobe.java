@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
-import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -35,7 +34,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -43,15 +41,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class FFprobe {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);
-
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-show_format",
             "-show_streams", "-print_format", "json" };
-
     private static final String CODEC_TYPE_VIDEO = "video";
 
     enum FFmpegFieldKey {
@@ -70,22 +68,29 @@ public class FFprobe {
         }
     }
 
+    private final ObjectMapper objectMapper;
+
+    public FFprobe(ObjectMapper objectMapper) {
+        super();
+        this.objectMapper = objectMapper;
+    }
+
     private Optional<String> getField(JsonNode tags, FFmpegFieldKey fieldKey) {
         JsonNode node = tags.get(fieldKey.value);
         if (isEmpty(node)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asText()));
+        return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asString()));
     }
 
     private MetaData parse(@NonNull JsonNode node, @NonNull MetaData result) {
 
         // ### streams
         for (JsonNode stream : node.at("/streams")) {
-            String codec = stream.get("codec_type").asText();
+            String codec = stream.get("codec_type").asString();
             if (CODEC_TYPE_VIDEO.equals(codec) && stream.has("width") && stream.has("height")) {
-                result.setWidth(ParserUtils.parseInt(stream.get("width").asText()));
-                result.setHeight(ParserUtils.parseInt(stream.get("height").asText()));
+                result.setWidth(ParserUtils.parseInt(stream.get("width").asString()));
+                result.setHeight(ParserUtils.parseInt(stream.get("height").asString()));
                 break;
             }
         }
@@ -95,18 +100,24 @@ public class FFprobe {
         if (isEmpty(format)) {
             return result;
         }
-        Optional.ofNullable(format.at("/duration")).ifPresent(duration -> {
-            int value = duration.asInt();
-            if (value != 0) {
-                result.setDurationSeconds(value);
+
+        JsonNode durationNode = format.at("/duration");
+        if (!isEmpty(durationNode) && durationNode.isValueNode()) {
+            double value = durationNode.asDouble();
+            int rounded = (int) Math.floor(value);
+            if (rounded != 0) {
+                result.setDurationSeconds(rounded);
             }
-        });
-        Optional.ofNullable(format.at("/bit_rate")).ifPresent(bitRate -> {
-            int value = bitRate.asInt();
-            if (value != 0) {
-                result.setBitRate(value / 1000);
+        }
+
+        JsonNode bitRateNode = format.at("/bit_rate");
+        if (!isEmpty(bitRateNode) && bitRateNode.isValueNode()) {
+            double value = bitRateNode.asDouble();
+            int rounded = (int) Math.floor(value / 1000.0);
+            if (rounded != 0) {
+                result.setBitRate(rounded);
             }
-        });
+        }
 
         // ### format/tags
         JsonNode tags = format.at("/tags");
@@ -150,7 +161,7 @@ public class FFprobe {
                     OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream();
                     BufferedInputStream bis = new BufferedInputStream(is);) {
-                node = OBJECT_MAPPER.readTree(bis);
+                node = objectMapper.readTree(bis);
                 os.close();
                 es.close();
             } finally {

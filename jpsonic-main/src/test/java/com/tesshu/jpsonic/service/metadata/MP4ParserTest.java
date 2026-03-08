@@ -41,6 +41,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @NeedsHome
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -51,7 +53,8 @@ class MP4ParserTest {
 
     @BeforeEach
     void setUp() {
-        parser = new MP4Parser(new FFprobe());
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
     }
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
@@ -105,8 +108,8 @@ class MP4ParserTest {
     @Order(2)
     void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-
-        parser = new MP4Parser(new FFprobe());
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
 
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -164,8 +167,8 @@ class MP4ParserTest {
     @Test
     void testGetRawMetaData(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-
-        parser = new MP4Parser(new FFprobe());
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
 
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);

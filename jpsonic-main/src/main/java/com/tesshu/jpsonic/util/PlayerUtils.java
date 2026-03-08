@@ -28,14 +28,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -46,11 +41,6 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class PlayerUtils {
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .findAndRegisterModules();
-
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
 
     /*
@@ -119,15 +109,6 @@ public final class PlayerUtils {
             result[i] = values.get(i);
         }
         return result;
-    }
-
-    public static String debugObject(Object object) {
-        try {
-            return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            LOG.warn("Cant output debug object", e);
-            return "";
-        }
     }
 
     /**

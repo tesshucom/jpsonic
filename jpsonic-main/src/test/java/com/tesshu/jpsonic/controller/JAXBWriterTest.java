@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +44,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.subsonic.restapi.Response;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JAXBWriterTest {
@@ -88,7 +89,8 @@ class JAXBWriterTest {
 
         // With modern Jackson parsers, it doesn't really matter whether the
         // intermediate format is normalized or not.
-        XMLGregorianCalendar parsedLocal = PlayerUtils.OBJECT_MAPPER
+        ObjectMapper mapper = JsonMapper.builder().build();
+        XMLGregorianCalendar parsedLocal = mapper
             .convertValue(converted.toXMLFormat(), XMLGregorianCalendar.class);
 
         // The format is different. Simply because Jackson defaults to nanoseconds.

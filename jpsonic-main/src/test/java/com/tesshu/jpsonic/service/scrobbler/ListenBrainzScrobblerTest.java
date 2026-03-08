@@ -26,9 +26,20 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler.RegistrationData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class ListenBrainzScrobblerTest {
+
+    private ListenBrainzScrobbler scrobbler;
+
+    @BeforeEach
+    void setUp() {
+        ObjectMapper mapper = JsonMapper.builder().build();
+        scrobbler = new ListenBrainzScrobbler(mapper);
+    }
 
     @Test
     void testSubmit() {
@@ -43,7 +54,7 @@ class ListenBrainzScrobblerTest {
         RegistrationData data = new RegistrationData(mediaFile, "token", true, Instant.now());
         boolean result;
         try {
-            result = ListenBrainzScrobbler.submit(data);
+            result = scrobbler.submit(data);
         } catch (ExecutionException e) {
             // The ListenBrainz API rejects invalid tokens and may throw an exception.
             // Any exception is treated as a submission failure, which is the expected
