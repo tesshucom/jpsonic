@@ -31,6 +31,7 @@ import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Provides services for "audioscrobbling", which is the process of registering
@@ -42,14 +43,16 @@ public class AudioScrobblerService {
 
     private final SecurityService securityService;
     private final Executor shortExecutor;
+    private final ObjectMapper objectMapper;
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
 
     public AudioScrobblerService(SecurityService securityService,
-            @Qualifier("shortExecutor") Executor shortExecutor) {
+            @Qualifier("shortExecutor") Executor shortExecutor, ObjectMapper objectMapper) {
         this.securityService = securityService;
         this.shortExecutor = shortExecutor;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -79,7 +82,7 @@ public class AudioScrobblerService {
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
             if (listenBrainzScrobbler == null) {
-                listenBrainzScrobbler = new ListenBrainzScrobbler();
+                listenBrainzScrobbler = new ListenBrainzScrobbler(objectMapper);
             }
             listenBrainzScrobbler
                 .register(mediaFile, userSettings.getListenBrainzToken(), submission, time,

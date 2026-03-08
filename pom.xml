@@ -47,7 +47,6 @@
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5.1</versions.httpclient5>
     <versions.icu4j>78.2</versions.icu4j>
-    <versions.jackson>2.21</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>4.0.0</versions.jakarta.servlet.jsp-api>
     <versions.jakarta.servlet.jsp.jstl>3.0.1</versions.jakarta.servlet.jsp.jstl>
@@ -184,26 +183,6 @@
         <version>${versions.commons-configuration2}</version>
       </dependency>
 
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>2.19.2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.19.2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${versions.jackson}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>2.19.2</version>
-      </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>

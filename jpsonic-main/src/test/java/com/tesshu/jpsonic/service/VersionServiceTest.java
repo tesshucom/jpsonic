@@ -25,6 +25,9 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class VersionServiceTest {
 
@@ -32,7 +35,9 @@ class VersionServiceTest {
 
     @BeforeEach
     void setup() {
-        versionService = new VersionService();
+        ObjectMapper mapper = JsonMapper.builder().build();
+        versionService = Mockito.spy(new VersionService(mapper));
+
     }
 
     @Test
@@ -47,4 +52,21 @@ class VersionServiceTest {
         assertEquals(2, localDate.getMonthValue());
         assertEquals(3, localDate.getDayOfMonth());
     }
+
+    @Test
+    void testReadLatestVersion() throws Exception {
+        Mockito.doReturn("""
+                [
+                  {"tag_name": "v1.26"},
+                  {"tag_name": "v1.26.2"},
+                  {"tag_name": "v1.27-beta3"}
+                ]
+                """).when(versionService).fetchVersionJson();
+
+        versionService.readLatestVersion();
+
+        assertEquals("1.27-beta3", versionService.getLatestBetaVersion().toString());
+        assertEquals("1.26.2", versionService.getLatestFinalVersion().toString());
+    }
+
 }

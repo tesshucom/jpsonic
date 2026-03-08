@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,21 +31,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tesshu.jpsonic.domain.system.Version;
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import jakarta.annotation.PostConstruct;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -60,6 +55,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Provides version-related services, including functionality for determining
@@ -73,7 +69,7 @@ public class VersionService {
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
         .withInitial(() -> DateTimeFormatter.ofPattern("yyyyMMdd"));
-    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
+    private static final Pattern VERSION_REGEX = Pattern.compile("^(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
     /**
@@ -85,6 +81,7 @@ public class VersionService {
     private final ReentrantLock localVersionLock = new ReentrantLock();
     private final ReentrantLock localBuildDateLock = new ReentrantLock();
     private final ReentrantLock localBuildNumberLock = new ReentrantLock();
+    private final ObjectMapper objectMapper;
 
     private Version latestFinalVersion;
     private Version latestBetaVersion;
@@ -96,6 +93,11 @@ public class VersionService {
      * Time when latest version was fetched (in milliseconds).
      */
     private long lastVersionFetched;
+
+    public VersionService(ObjectMapper objectMapper) {
+        super();
+        this.objectMapper = objectMapper;
+    }
 
     @PostConstruct
     public void init() {
@@ -265,10 +267,64 @@ public class VersionService {
         }
     }
 
+    @Nullable
+    String fetchVersionJson() throws IOException {
+        RequestConfig requestConfig = RequestConfig
+            .custom()
+            .setConnectionRequestTimeout(Timeout.ofSeconds(10))
+            .setResponseTimeout(Timeout.ofSeconds(10))
+            .build();
+        HttpGet method = new HttpGet(URI.create(VERSION_URL + "?v=" + getLocalVersion()));
+        method.setConfig(requestConfig);
+
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            return client.execute(method, new BasicHttpClientResponseHandler());
+        } catch (ConnectTimeoutException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+            }
+            return null;
+        }
+    }
+
+    String normalizeTag(String tag) {
+        return tag.startsWith("v") ? tag.substring(1) : tag;
+    }
+
+    List<String> extractTags(String json) throws IOException {
+        return StreamSupport
+            .stream(objectMapper.readTree(json).spliterator(), false)
+            .map(node -> node.path("tag_name").asString())
+            .map(this::normalizeTag)
+            .filter(Objects::nonNull)
+            .filter(s -> !s.isEmpty())
+            .toList();
+    }
+
+    Version toVersion(String tag) {
+        Matcher match = VERSION_REGEX.matcher(tag);
+        if (!match.matches()) {
+            throw new IllegalArgumentException("Unexpected tag format " + tag);
+        }
+        return new Version(match.group(1));
+    }
+
+    Optional<Version> findLatestBeta(List<String> tags) {
+        return tags.stream().map(this::toVersion).max(Comparator.naturalOrder());
+    }
+
+    Optional<Version> findLatestFinal(List<String> tags) {
+        return tags
+            .stream()
+            .map(this::toVersion)
+            .filter(v -> !v.isPreview())
+            .max(Comparator.naturalOrder());
+    }
+
     /**
      * Resolves the latest available Jpsonic version by inspecting github.
      */
-    private void readLatestVersion() throws IOException {
+    void readLatestVersion() throws IOException {
 
         latestLock.lock();
         try {
@@ -276,58 +332,20 @@ public class VersionService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig
-                .custom()
-                .setConnectionRequestTimeout(Timeout.ofSeconds(10))
-                .setResponseTimeout(Timeout.ofSeconds(10))
-                .build();
-            HttpGet method = new HttpGet(URI.create(VERSION_URL + "?v=" + getLocalVersion()));
-            method.setConfig(requestConfig);
-            String content;
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                content = client.execute(method, new BasicHttpClientResponseHandler());
-            } catch (ConnectTimeoutException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
-                }
+
+            String content = fetchVersionJson();
+            if (content == null) {
                 return;
             }
 
-            List<String> unsortedTags = new ArrayList<>();
-            for (JsonNode item : OBJECT_MAPPER.readTree(content)) {
-                String tagName = item.path("tag_name").asText();
-                if (!StringUtils.isEmpty(tagName)) {
-                    unsortedTags.add(tagName);
-                }
-            }
+            List<String> tags = extractTags(content);
+            latestBetaVersion = findLatestBeta(tags).orElse(null);
+            latestFinalVersion = findLatestFinal(tags).orElse(null);
 
-            Function<String, Version> convertToVersion = s -> {
-                Matcher match = VERSION_REGEX.matcher(s);
-                if (!match.matches()) {
-                    throw new IllegalArgumentException("Unexpected tag format " + s);
-                }
-                return new Version(match.group(1));
-            };
-
-            Predicate<Version> finalVersionPredicate = version -> !version.isPreview();
-
-            Optional<Version> betaV = unsortedTags
-                .stream()
-                .map(convertToVersion)
-                .max(Comparator.naturalOrder());
-            Optional<Version> finalV = unsortedTags
-                .stream()
-                .map(convertToVersion)
-                .sorted(Comparator.reverseOrder())
-                .filter(finalVersionPredicate)
-                .findFirst();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Got {} for beta version", betaV);
-                LOG.debug("Got {} for final version", finalV);
+                LOG.debug("Got {} for beta version", latestBetaVersion);
+                LOG.debug("Got {} for final version", latestFinalVersion);
             }
-
-            latestBetaVersion = betaV.get();
-            latestFinalVersion = finalV.get();
         } finally {
             latestLock.unlock();
         }

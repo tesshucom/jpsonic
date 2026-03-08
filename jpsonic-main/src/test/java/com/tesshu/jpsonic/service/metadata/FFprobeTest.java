@@ -41,18 +41,20 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @NeedsHome
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings("PMD.TooManyStaticImports")
-
 class FFprobeTest {
 
     private FFprobe ffprobe;
 
     @BeforeEach
     void setUp() {
-        ffprobe = new FFprobe();
+        ObjectMapper mapper = JsonMapper.builder().build();
+        ffprobe = new FFprobe(mapper);
     }
 
     private MediaFile createTestMediafile(String path) throws URISyntaxException, IOException {
@@ -109,11 +111,12 @@ class FFprobeTest {
         assertEquals(226, metaData.getBitRate());
     }
 
-//    @Order(1)
-//    @Test
+//  @Order(1)
+//  @Test
     void testParseWithoutCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-        ffprobe = new FFprobe();
+        ObjectMapper mapper = JsonMapper.builder().build();
+        ffprobe = new FFprobe(mapper);
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);

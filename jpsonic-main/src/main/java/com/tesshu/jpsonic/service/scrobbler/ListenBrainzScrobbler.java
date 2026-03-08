@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.scrobbler;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -50,6 +48,8 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Provides services for "audioscrobbling" at listenbrainz.org. <br/>
@@ -62,16 +62,13 @@ public class ListenBrainzScrobbler {
 
     private final LinkedBlockingQueue<RegistrationData> queue;
     private final ReentrantLock registrationLock = new ReentrantLock();
+    private final ObjectMapper objectMapper;
 
     private RegistrationTask task;
 
-    // private final RequestConfig requestConfig = RequestConfig.custom()
-    // .setConnectTimeout(15000)
-    // .setSocketTimeout(15000)
-    // .build();
-
-    public ListenBrainzScrobbler() {
+    public ListenBrainzScrobbler(ObjectMapper objectMapper) {
         queue = new LinkedBlockingQueue<>();
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -118,7 +115,7 @@ public class ListenBrainzScrobbler {
      *
      * @param registrationData Registration data for the song.
      */
-    protected static void scrobble(RegistrationData registrationData) throws ExecutionException {
+    protected void scrobble(RegistrationData registrationData) throws ExecutionException {
         if (registrationData == null || registrationData.getToken() == null) {
             return;
         }
@@ -142,7 +139,7 @@ public class ListenBrainzScrobbler {
     /**
      * Returns if submission succeeds.
      */
-    static boolean submit(RegistrationData registrationData) throws ExecutionException {
+    boolean submit(RegistrationData registrationData) throws ExecutionException {
         Map<String, Object> additionalInfo = LegacyMap.of();
         additionalInfo
             .computeIfAbsent("release_mbid", k -> registrationData.getMusicBrainzReleaseId());
@@ -178,8 +175,8 @@ public class ListenBrainzScrobbler {
 
         String json;
         try {
-            json = OBJECT_MAPPER.writeValueAsString(content);
-        } catch (JsonProcessingException e) {
+            json = objectMapper.writeValueAsString(content);
+        } catch (JacksonException e) {
             throw new ExecutionException("Error when writing Json", e);
         }
 
@@ -233,7 +230,7 @@ public class ListenBrainzScrobbler {
     /*
      * httpClient can be reused #833
      */
-    private static class RegistrationTask implements Runnable {
+    private class RegistrationTask implements Runnable {
 
         private static final Logger LOG = LoggerFactory.getLogger(ListenBrainzScrobbler.class);
 
