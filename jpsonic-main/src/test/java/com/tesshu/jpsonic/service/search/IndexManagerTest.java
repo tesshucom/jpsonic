@@ -79,12 +79,12 @@ import org.springframework.util.ObjectUtils;
 class IndexManagerTest {
 
     @BeforeAll
-    public static void setUpOnce() throws InterruptedException {
+    static void setUpOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(true);
     }
 
     @AfterAll
-    public static void tearDownOnce() throws InterruptedException {
+    static void tearDownOnce() throws InterruptedException {
         SettingsService.setDevelopmentMode(false);
     }
 
@@ -144,7 +144,7 @@ class IndexManagerTest {
         private IndexManager indexManager;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = Mockito.mock(SettingsService.class);
             QueryFactory queryFactory = new QueryFactory(settingsService, null);
             SearchServiceUtilities utils = new SearchServiceUtilities(null, null,
@@ -247,7 +247,7 @@ class IndexManagerTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             if (!populated) {
                 populateDatabase();
                 populated = true;
@@ -489,7 +489,7 @@ class IndexManagerTest {
         private IndexManager indexManager;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             indexManager = new IndexManager(null, null, null, null, null, settingsService, null,
@@ -497,7 +497,7 @@ class IndexManagerTest {
         }
 
         @AfterEach
-        public void trarDown() {
+        void trarDown() {
             System.clearProperty("jpsonic.home");
         }
 
@@ -556,7 +556,7 @@ class IndexManagerTest {
         }
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             populateDatabaseOnlyOnce(() -> {
                 return true;
             }, () -> {

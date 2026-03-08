@@ -50,7 +50,7 @@ class PodcastReceiverAdminControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         podcastService = mock(PodcastService.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
         controller = new PodcastReceiverAdminController(podcastService, scannerStateService);

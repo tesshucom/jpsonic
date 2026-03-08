@@ -238,7 +238,7 @@ public class UPnPSearchCriteriaDirectorTest {
     private String fid = "";
 
     @BeforeEach
-    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+    void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);

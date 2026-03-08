@@ -47,7 +47,7 @@ class StarredControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new StarredController(mock(MusicFolderService.class),
                     mock(SecurityService.class), mock(PlayerService.class),

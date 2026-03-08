@@ -44,21 +44,21 @@ import java.util.List;
  */
 final class UpnpProcessorTestUtils {
 
-    public static final List<String> INDEX_LIST = Collections
+    static final List<String> INDEX_LIST = Collections
         .unmodifiableList(Arrays
             .asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ｴｵｱｲｳ",
                     "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "10", "20", "30",
                     "40", "50", "60", "70", "80", "90", "98", "99", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ",
                     "♂くんつ"));
 
-    public static final List<String> JPSONIC_NATURAL_LIST = Collections
+    static final List<String> JPSONIC_NATURAL_LIST = Collections
         .unmodifiableList(Arrays
             .asList("10", "20", "30", "40", "50", "60", "70", "80", "90", "98", "99", "abcde",
                     "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ",
                     "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ",
                     "♂くんつ"));
 
-    public static final List<String> CHILDREN_LIST = Collections
+    static final List<String> CHILDREN_LIST = Collections
         .unmodifiableList(Arrays
             .asList("empty30", "empty29", "empty28", "empty27", "empty26", "empty25", "empty24",
                     "empty23", "empty22", "empty21", "empty20", "empty19", "empty18", "empty17",
@@ -69,7 +69,7 @@ final class UpnpProcessorTestUtils {
     private UpnpProcessorTestUtils() {
     }
 
-    public static boolean validateJPSonicNaturalList(List<String> l) {
+    static boolean validateJPSonicNaturalList(List<String> l) {
         return JPSONIC_NATURAL_LIST.equals(l);
     }
 }

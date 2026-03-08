@@ -71,7 +71,7 @@ class MediaFileProcTest {
         private MediaFileProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             util = mock(UpnpProcessorUtil.class);
             factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
@@ -150,7 +150,7 @@ class MediaFileProcTest {
             private final MediaFile mfolder3 = new MediaFile();
 
             @BeforeEach
-            public void setup() {
+            void setup() {
                 mfolder1.setPathString("/path1");
                 mfolder2.setPathString("/path2");
                 mfolder3.setPathString("/path3");
@@ -197,7 +197,7 @@ class MediaFileProcTest {
                     false);
 
             @BeforeEach
-            public void setup() {
+            void setup() {
                 when(mediaFileService
                     .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
                             any(ChildOrder.class), any(MediaType.class)))
@@ -303,7 +303,7 @@ class MediaFileProcTest {
         }
 
         @BeforeEach
-        public void setup() throws URISyntaxException {
+        void setup() throws URISyntaxException {
             musicFolders = Arrays
                 .asList(new MusicFolder(1,
                         Path

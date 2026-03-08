@@ -53,7 +53,7 @@ class MediaScannerScheduleConfigurationTest {
     private LocalDateTime now;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         mediaScannerService = mock(MediaScannerService.class);
         configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class),
@@ -63,12 +63,12 @@ class MediaScannerScheduleConfigurationTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.WARN);
     }
 
     @AfterClass
-    public static void afterClass() throws URISyntaxException {
+    static void afterClass() throws URISyntaxException {
         System.setProperty("jpsonic.scan.onboot", "false");
     }
 

@@ -45,7 +45,7 @@ class TranscodeInputStreamTest {
         private Path tempFile;
 
         @BeforeEach
-        public void setup(@TempDir Path tempDir)
+        void setup(@TempDir Path tempDir)
                 throws ExecutionException, IOException, URISyntaxException {
             this.tempDir = tempDir;
             tempFile = Path.of(tempDir.toString(), "jpsonic.log");

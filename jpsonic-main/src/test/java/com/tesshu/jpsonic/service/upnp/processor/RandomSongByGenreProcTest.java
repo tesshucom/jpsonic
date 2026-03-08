@@ -61,7 +61,7 @@ class RandomSongByGenreProcTest {
         private RandomSongByGenreProc proc;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             settingsService = mock(SettingsService.class);
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);

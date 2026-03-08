@@ -61,7 +61,7 @@ class SetMusicFileInfoControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         MediaFile album = new MediaFile();
         album.setId(ID);

@@ -73,7 +73,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         populateDatabaseOnlyOnce();
         multiService = new MultiService(musicFolderService, securityService, mediaFileService,
                 lastFmService, airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));

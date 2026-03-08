@@ -168,7 +168,7 @@ public class StreamController {
         private final Long fileLengthExpected;
         private final VideoTranscodingSettings videoTranscodingSettings;
 
-        public PrepareResponseResult(boolean authenticationFailed, HttpRange range,
+        PrepareResponseResult(boolean authenticationFailed, HttpRange range,
                 Long fileLengthExpected, VideoTranscodingSettings videoTranscodingSettings) {
             super();
             this.folderAccessNotAllowed = authenticationFailed;
@@ -177,19 +177,19 @@ public class StreamController {
             this.videoTranscodingSettings = videoTranscodingSettings;
         }
 
-        public boolean isFolderAccessNotAllowed() {
+        boolean isFolderAccessNotAllowed() {
             return folderAccessNotAllowed;
         }
 
-        public HttpRange getRange() {
+        HttpRange getRange() {
             return range;
         }
 
-        public Long getFileLengthExpected() {
+        Long getFileLengthExpected() {
             return fileLengthExpected;
         }
 
-        public VideoTranscodingSettings getVideoTranscodingSettings() {
+        VideoTranscodingSettings getVideoTranscodingSettings() {
             return videoTranscodingSettings;
         }
     }

@@ -64,7 +64,7 @@ class PlayerDaoTest {
     private TemplateWrapper templateWrapper;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         daoHelper.getJdbcTemplate().execute("delete from player");
     }
 

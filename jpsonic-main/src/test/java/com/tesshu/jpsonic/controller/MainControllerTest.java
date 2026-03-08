@@ -61,7 +61,7 @@ class MainControllerTest {
     private MediaFile song;
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException {
+    void setup() throws ExecutionException, URISyntaxException {
 
         securityService = mock(SecurityService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);

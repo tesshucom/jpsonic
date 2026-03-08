@@ -38,7 +38,7 @@ class JpMediaFileComparatorTest {
     private JpMediaFileComparator sortAlbumsByYear;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Collator c = Collator.getInstance(Locale.US);
         alphabetical = new JpMediaFileComparator(false, c);
         sortAlbumsByYear = new JpMediaFileComparator(true, c);

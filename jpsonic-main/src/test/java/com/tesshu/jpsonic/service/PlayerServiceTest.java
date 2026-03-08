@@ -71,7 +71,7 @@ class PlayerServiceTest {
     private PlayerService playerService;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    void setup() throws ExecutionException {
         playerDao = mock(PlayerDao.class);
         userDao = mock(UserDao.class);
         transcodingDao = mock(TranscodingDao.class);

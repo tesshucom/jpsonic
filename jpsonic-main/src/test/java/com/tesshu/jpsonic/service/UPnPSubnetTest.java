@@ -74,7 +74,7 @@ class UPnPSubnetTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         subnet = new UPnPSubnet();
     }
 

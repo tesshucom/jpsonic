@@ -55,7 +55,7 @@ class HelpControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException, IOException {
+    void setup() throws ExecutionException, URISyntaxException, IOException {
         SecurityService securityService = mock(SecurityService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));

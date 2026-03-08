@@ -74,7 +74,7 @@ class QueryFactoryTest {
     private SettingsService settingsService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         settingsService = mock(SettingsService.class);
         queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
     }

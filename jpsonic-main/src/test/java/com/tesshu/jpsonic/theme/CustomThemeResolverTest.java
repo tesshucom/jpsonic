@@ -31,7 +31,7 @@ class CustomThemeResolverTest {
     private CustomThemeResolver customThemeResolver;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         customThemeResolver = new CustomThemeResolver(mock(SecurityService.class),
                 mock(SettingsService.class));
     }

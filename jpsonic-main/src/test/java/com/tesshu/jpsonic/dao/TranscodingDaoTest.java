@@ -55,7 +55,7 @@ class TranscodingDaoTest {
     private PlayerDao playerDao;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
         daoHelper.getJdbcTemplate().execute("delete from transcoding2");
     }
 

@@ -839,7 +839,7 @@ class SettingsServiceTest {
         private SettingsService service;
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             uPnPSubnet = mock(UPnPSubnet.class);
             service = new SettingsService(configurationService, uPnPSubnet);
         }

@@ -51,7 +51,7 @@ class MusicFolderServiceTest {
     private static final String USER_NAME = "user";
 
     @BeforeEach
-    public void setup() throws ExecutionException, URISyntaxException {
+    void setup() throws ExecutionException, URISyntaxException {
         musicFolderDao = mock(MusicFolderDao.class);
         ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
         Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
@@ -181,7 +181,7 @@ class MusicFolderServiceTest {
     class GetMusicFoldersForUserUsernameTest {
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             List<MusicFolder> enabledExisting = musicFolderDao
                 .getAllMusicFolders()
                 .stream()
@@ -223,7 +223,7 @@ class MusicFolderServiceTest {
     class GetMusicFoldersForUserUsernameFolderIdTest {
 
         @BeforeEach
-        public void setup() {
+        void setup() {
             List<MusicFolder> enabledExisting = musicFolderDao
                 .getAllMusicFolders()
                 .stream()
