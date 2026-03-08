@@ -31,7 +31,7 @@
     <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
     <versions.checker-qual>3.54.0</versions.checker-qual>
-    <versions.checkstyle>13.2.0</versions.checkstyle>
+    <versions.checkstyle>13.3.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
     <versions.commons-configuration2>2.13.0</versions.commons-configuration2>
@@ -55,12 +55,12 @@
     <versions.java-jwt>4.5.1</versions.java-jwt>
     <versions.jaxb-runtime>4.0.6</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
-    <versions.jetty>12.1.6</versions.jetty>
+    <versions.jetty>12.1.7</versions.jetty>
     <versions.jfreechart>1.5.6</versions.jfreechart>
     <versions.jupnp>3.0.4</versions.jupnp>
     <versions.kuromoji-ipadic>0.9.0</versions.kuromoji-ipadic>
     <versions.lastfm>0.1.2</versions.lastfm>
-    <versions.liquibase-core>5.0.1</versions.liquibase-core>
+    <versions.liquibase-core>5.0.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
     <versions.log4j>2.25.3</versions.log4j>
     <versions.logback>1.5.32</versions.logback>
