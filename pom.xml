@@ -40,14 +40,14 @@
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.21.0</versions.commons-io>
     <versions.commons-lang3>3.20.0</versions.commons-lang3>
-    <versions.commons-net>3.12.0</versions.commons-net>
+    <versions.commons-net>3.13.0</versions.commons-net>
     <versions.commons-text>1.15.0</versions.commons-text>
     <versions.dwr-JakartaEE>4.0.0-SNAPSHOT</versions.dwr-JakartaEE>
-    <versions.ecj>3.44.0</versions.ecj>
+    <versions.ecj>3.45.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
     <versions.httpclient5>5.5.1</versions.httpclient5>
-    <versions.icu4j>78.2</versions.icu4j>
+    <versions.icu4j>78.3</versions.icu4j>
     <versions.jackson>2.21</versions.jackson>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>3.1.1</versions.jakarta.servlet.jsp-api>
@@ -55,7 +55,7 @@
     <versions.jakarta.servlet.jsp.jstl-api>3.0.2</versions.jakarta.servlet.jsp.jstl-api>
     <versions.jaudiotagger>3.0.1</versions.jaudiotagger>
     <versions.java-jwt>4.5.1</versions.java-jwt>
-    <versions.jaxb-runtime>4.0.6</versions.jaxb-runtime>
+    <versions.jaxb-runtime>4.0.7</versions.jaxb-runtime>
     <versions.jdom2>2.0.6.1</versions.jdom2>
     <versions.jetty>12.0.33</versions.jetty>
     <versions.jfreechart>1.5.6</versions.jfreechart>
@@ -69,7 +69,7 @@
     <versions.log4j>2.25.3</versions.log4j>
     <versions.logback>1.5.32</versions.logback>
     <versions.lucene>9.11.1</versions.lucene>
-    <versions.maven-artifact>3.9.13</versions.maven-artifact>
+    <versions.maven-artifact>3.9.14</versions.maven-artifact>
     <versions.mockito-junit-jupiter>5.20.0</versions.mockito-junit-jupiter>
     <versions.moxy>4.0.9</versions.moxy>
     <versions.mysql-connector-j>9.6.0</versions.mysql-connector-j>
@@ -84,7 +84,7 @@
     <versions.spring-framework>6.2.17</versions.spring-framework>
     <versions.spring-security>6.5.9</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
-    <versions.tika>3.2.3</versions.tika>
+    <versions.tika>3.3.0</versions.tika>
     <versions.tomcat>10.1.52</versions.tomcat>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
