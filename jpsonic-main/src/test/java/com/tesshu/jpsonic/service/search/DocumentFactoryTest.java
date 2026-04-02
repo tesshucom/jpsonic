@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,26 +35,27 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.apache.lucene.document.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class DocumentFactoryTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private DocumentFactory documentFactory;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        documentFactory = new DocumentFactory(settingsService,
-                new JapaneseReadingUtils(settingsService));
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        documentFactory = new DocumentFactory(settingsFacade,
+                new JapaneseReadingUtils(settingsFacade));
     }
 
     @Test
@@ -402,9 +402,14 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
         @Test
         void c05() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
@@ -424,9 +429,14 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c06() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistReading("analyzed artist-reading-value");
@@ -454,10 +464,15 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c07() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-            Mockito.when(settingsService.isForceInternalValueInsteadOfTags()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistSort("あーてぃすと");
@@ -486,9 +501,15 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
         @Test
         void c08() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
@@ -507,9 +528,15 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c09() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistSort("あーてぃすと");

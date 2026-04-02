@@ -41,8 +41,9 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -72,17 +73,17 @@ import org.springframework.util.StringUtils;
 @Service
 public class MusicIndexServiceImpl implements MusicIndexService {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
     private final JapaneseReadingUtils readingUtils;
 
     private MusicIndexParser parser;
 
-    public MusicIndexServiceImpl(SettingsService settingsService, MediaFileService mediaFileService,
+    public MusicIndexServiceImpl(SettingsFacade settingsFacade, MediaFileService mediaFileService,
             ArtistDao artistDao, JapaneseReadingUtils readingUtils) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
         this.artistDao = artistDao;
         this.readingUtils = readingUtils;
@@ -122,7 +123,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     @Override
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
-        settingsService.getShortcutsAsArray().forEach(shortcuts -> {
+        settingsFacade.getCachedList(SKeys.general.extension.shortcuts).forEach(shortcuts -> {
             musicFolders.forEach(musicFolder -> {
                 MediaFile shortcut = mediaFileService
                     .getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
@@ -140,7 +141,9 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         if (parser != null) {
             return parser;
         }
-        parser = new MusicIndexParser(settingsService.getIndexString(), readingUtils);
+
+        parser = new MusicIndexParser(settingsFacade.get(SKeys.general.index.indexString),
+                readingUtils);
         return parser;
     }
 

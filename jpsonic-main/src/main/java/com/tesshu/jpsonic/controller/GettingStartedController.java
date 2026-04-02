@@ -25,8 +25,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.command.GettingStartedCommand;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,26 +44,29 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/gettingStarted", "/gettingStarted.view" })
 public class GettingStartedController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
+    private final ServerLocaleService serverLocaleService;
 
-    public GettingStartedController(SettingsService settingsService) {
+    public GettingStartedController(SettingsFacade settingsFacade,
+            ServerLocaleService serverLocaleService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
+        this.serverLocaleService = serverLocaleService;
     }
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
         GettingStartedCommand command = new GettingStartedCommand();
-        settingsService
+        serverLocaleService
             .getAvailableLocales()
             .stream()
-            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .filter(locale -> locale.equals(serverLocaleService.getLocale()))
             .findFirst()
             .ifPresent(locale -> command
                 .setLocaleIndex(
-                        String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+                        String.valueOf(serverLocaleService.getAvailableLocales().indexOf(locale))));
         command
-            .setLocales(settingsService
+            .setLocales(serverLocaleService
                 .getAvailableLocales()
                 .stream()
                 .map(Locale::getDisplayName)
@@ -75,8 +80,7 @@ public class GettingStartedController {
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
         if (request.getParameter(Attributes.Request.HIDE.value()) != null) {
-            settingsService.setGettingStartedEnabled(false);
-            settingsService.save();
+            settingsFacade.commit(SKeys.general.welcome.gettingStartedEnabled, false);
             return new ModelAndView(new RedirectView(ViewName.HOME.value()));
         }
         return new ModelAndView("gettingStarted");
@@ -87,11 +91,11 @@ public class GettingStartedController {
             @ModelAttribute(Attributes.Model.Command.VALUE) GettingStartedCommand command,
             RedirectAttributes redirectAttributes) {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
-        Locale locale = settingsService.getAvailableLocales().get(localeIndex);
-        boolean isReload = !settingsService.getLocale().equals(locale);
+        Locale locale = serverLocaleService.getAvailableLocales().get(localeIndex);
+        boolean isReload = !serverLocaleService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
-        settingsService.setLocale(locale);
-        settingsService.save();
+        serverLocaleService.stagingLocale(locale);
+        settingsFacade.commitAll();
         return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
     }
 }

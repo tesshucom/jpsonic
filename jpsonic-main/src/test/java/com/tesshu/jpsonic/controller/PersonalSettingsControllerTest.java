@@ -33,11 +33,12 @@ import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.NeedsHome;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -70,7 +71,10 @@ class PersonalSettingsControllerTest {
     private PersonalSettingsController controller;
 
     @Autowired
-    private SettingsService settingsService;
+    private ServerLocaleService serverLocaleService;
+
+    @Autowired
+    private SettingsFacade settingsFacade;
 
     @Autowired
     private SecurityService securityService;
@@ -79,7 +83,8 @@ class PersonalSettingsControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService.setLocale(Locale.US);
+        serverLocaleService.stagingLocale(Locale.US);
+        settingsFacade.commitAll();
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

@@ -33,7 +33,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,13 +52,13 @@ import tools.jackson.databind.json.JsonMapper;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JAXBWriterTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private JAXBWriter writer;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        writer = new JAXBWriter(settingsService);
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        writer = new JAXBWriter(settingsFacade);
     }
 
     @WithMockUser(username = "admin")
@@ -143,7 +145,13 @@ class JAXBWriterTest {
 
         @Test
         void testContentTypeWithJsonp() {
-            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.legacy.useJsonp, true)
+                .build();
+            writer = new JAXBWriter(settingsFacade);
+
             HttpServletRequest request = mock(MockHttpServletRequest.class);
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
             Mockito
@@ -167,8 +175,11 @@ class JAXBWriterTest {
             writer.writeResponse(request, httpResponse, response);
             assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
 
-            writer = new JAXBWriter(settingsService);
-            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.legacy.useJsonp, true)
+                .build();
+            writer = new JAXBWriter(settingsFacade);
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("xml");
             writer.writeResponse(request, httpResponse, response);
             assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());

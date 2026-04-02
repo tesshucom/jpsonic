@@ -27,10 +27,11 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -41,15 +42,15 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     private static final MediaType[] TYPES = { MediaType.MUSIC };
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public SongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util,
+    public SongByGenreProc(SettingsFacade settingsFacade, UpnpProcessorUtil util,
             UpnpDIDLFactory factory, SearchService searchService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.util = util;
         this.factory = factory;
         this.searchService = searchService;
@@ -57,7 +58,7 @@ public class SongByGenreProc extends DirectChildrenContentProc<Genre, MediaFile>
 
     private GenreMasterCriteria createGenreMasterCriteria() {
         return new GenreMasterCriteria(util.getGuestFolders(), Scope.SONG,
-                Sort.of(settingsService.getUPnPSongGenreSort()), TYPES);
+                Sort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)), TYPES);
     }
 
     @Override

@@ -54,6 +54,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
+import com.tesshu.jpsonic.service.settings.SKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.IndexOrSong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
@@ -285,10 +286,6 @@ class IndexProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-
             String simpleIndex = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
                     + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
                     + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
@@ -302,7 +299,7 @@ class IndexProcTest {
                     + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
 
             // Test case is created on the premise of simpleIndex.
-            settingsService.setIndexString(simpleIndex);
+            settingsFacade.commit(SKeys.general.index.indexString, simpleIndex);
             populateDatabaseOnlyOnce();
         }
 
@@ -465,7 +462,7 @@ class IndexProcTest {
         @Test
         void testAlbum() {
 
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
 
             List<IndexOrSong> indexes = indexProc.getDirectChildren(0, 100);
             assertEquals(31, indexes.size());

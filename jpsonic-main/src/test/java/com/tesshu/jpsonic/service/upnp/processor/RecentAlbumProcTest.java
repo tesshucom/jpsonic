@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,11 +55,8 @@ class RecentAlbumProcTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        setSortStrict(true);
-        setSortAlphanum(true);
         populateDatabaseOnlyOnce();
-        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-        settingsService.save();
+        settingsFacade.commit(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
     }
 
     @Test

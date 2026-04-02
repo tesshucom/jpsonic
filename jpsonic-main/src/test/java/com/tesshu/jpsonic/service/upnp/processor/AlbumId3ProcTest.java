@@ -30,11 +30,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.i18n.I18nSKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.ParamSearchResult;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,9 +56,6 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
                 now(), 1, false));
 
     @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
     @Qualifier("albumId3Proc")
     private AlbumId3Proc proc;
 
@@ -67,11 +66,15 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        setSortStrict(true);
-        setSortAlphanum(true);
         populateDatabaseOnlyOnce();
-        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-        settingsService.save();
+        settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
+        settingsFacade.staging(I18nSKeys.localeLanguage, "ja");
+        settingsFacade.staging(I18nSKeys.localeCountry, "ja");
+        settingsFacade.staging(I18nSKeys.localeVariant, "ja");
+
+        settingsFacade.staging(SKeys.advanced.sort.strict, false);
+
+        settingsFacade.commitAll();
     }
 
     @Test
@@ -96,7 +99,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
         @Test
         void testGetDirectChildren() {
 
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
 
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {
@@ -122,7 +125,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
         void testGetDirectChildrenByYear() {
 
             // The result does not change depending on the setting
-            settingsService.setSortAlbumsByYear(true);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, true);
 
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {

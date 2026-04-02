@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
@@ -38,9 +37,12 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,7 +56,7 @@ class RandomSongByGenreProcTest {
     @Nested
     @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private UpnpProcessorUtil util;
         private UpnpDIDLFactory factory;
         private SearchService searchService;
@@ -62,17 +64,22 @@ class RandomSongByGenreProcTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+            factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
                     playerService, transcodingService);
             searchService = mock(SearchService.class);
             util = new UpnpProcessorUtil(mock(MusicFolderService.class),
-                    mock(SecurityService.class), settingsService, mock(JpsonicComparators.class));
-            proc = new RandomSongByGenreProc(settingsService, util, factory, searchService);
+                    mock(SecurityService.class), settingsFacade, mock(JpsonicComparators.class));
+            proc = new RandomSongByGenreProc(settingsFacade, util, factory, searchService);
         }
 
         @Test
@@ -103,9 +110,18 @@ class RandomSongByGenreProcTest {
         @Test
         void testGetChildSizeOf() {
             Genre genre = new Genre("English/Japanese", 50, 100);
-            when(settingsService.getDlnaRandomMax()).thenReturn(10);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withInt(UPnPSKeys.options.randomMax, 10)
+                .build();
+            init();
             assertEquals(10, proc.getChildSizeOf(genre));
-            when(settingsService.getDlnaRandomMax()).thenReturn(1000);
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withInt(UPnPSKeys.options.randomMax, 1_000)
+                .build();
+            init();
             assertEquals(50, proc.getChildSizeOf(genre));
         }
     }

@@ -52,10 +52,11 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.search.SearchServiceUtilities.LegacyGenreCriteria;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
@@ -141,7 +142,7 @@ public class IndexManager implements ReadWriteLockSupport {
     private final QueryFactory queryFactory;
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ScannerStateServiceImpl scannerState;
     private final ArtistDao artistDao;
     private final Executor shortExecutor;
@@ -152,7 +153,7 @@ public class IndexManager implements ReadWriteLockSupport {
 
     public IndexManager(LuceneUtils luceneUtils, AnalyzerFactory analyzerFactory,
             DocumentFactory documentFactory, QueryFactory queryFactory, SearchServiceUtilities util,
-            JpsonicComparators comparators, SettingsService settingsService,
+            JpsonicComparators comparators, SettingsFacade settingsFacade,
             ScannerStateServiceImpl scannerState, ArtistDao artistDao,
             @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
@@ -162,7 +163,7 @@ public class IndexManager implements ReadWriteLockSupport {
         this.queryFactory = queryFactory;
         this.util = util;
         this.comparators = comparators;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.scannerState = scannerState;
         this.artistDao = artistDao;
         this.shortExecutor = shortExecutor;
@@ -625,8 +626,7 @@ public class IndexManager implements ReadWriteLockSupport {
             if (util.getCache(LegacyGenreCriteria.SONG_COUNT).isEmpty()) {
                 refreshMultiGenreMaster();
             }
-
-            if (settingsService.isSortGenresByAlphabet()) {
+            if (settingsFacade.get(SKeys.general.sort.genresByAlphabet)) {
                 return getSortedGenres(sortByAlbum);
             }
 

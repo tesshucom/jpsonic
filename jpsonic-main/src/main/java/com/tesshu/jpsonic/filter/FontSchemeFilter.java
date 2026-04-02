@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -42,10 +42,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-@DependsOn({ "settingsService", "securityService" })
+@DependsOn({ "settingsFacade", "securityService" })
 public class FontSchemeFilter implements Filter {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
 
     private final List<String> excludes;
@@ -56,9 +56,9 @@ public class FontSchemeFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        settingsService = WebApplicationContextUtils
+        settingsFacade = WebApplicationContextUtils
             .getRequiredWebApplicationContext(filterConfig.getServletContext())
-            .getBean(SettingsService.class);
+            .getBean(SettingsFacade.class);
         securityService = WebApplicationContextUtils
             .getRequiredWebApplicationContext(filterConfig.getServletContext())
             .getBean(SecurityService.class);
@@ -74,7 +74,7 @@ public class FontSchemeFilter implements Filter {
          * judgment block can be deleted by improving
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
-        if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService)
+        if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsFacade)
                 && !isEmpty(securityService)) {
             @Nullable
             User user = securityService.getCurrentUser(request);

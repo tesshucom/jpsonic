@@ -25,7 +25,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;
@@ -39,16 +40,16 @@ public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, Me
     private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
     private final SearchService searchService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
     public RandomSongByArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            ArtistDao artistDao, SearchService searchService, SettingsService settingsService) {
+            ArtistDao artistDao, SearchService searchService, SettingsFacade settingsFacade) {
         super();
         this.util = util;
         this.factory = factory;
         this.artistDao = artistDao;
         this.searchService = searchService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
     }
 
     @Override
@@ -82,7 +83,7 @@ public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, Me
     @Override
     public List<MediaFile> getChildren(Artist artist, long firstResult, long maxResults) {
         int offset = (int) firstResult;
-        int randomMax = settingsService.getDlnaRandomMax();
+        int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
         int count = toCount(firstResult, maxResults, randomMax);
         return searchService
             .getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
@@ -90,7 +91,7 @@ public class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, Me
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        return settingsService.getDlnaRandomMax();
+        return settingsFacade.get(UPnPSKeys.options.randomMax);
     }
 
     @Override

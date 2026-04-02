@@ -42,6 +42,8 @@ import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -67,7 +69,7 @@ public class StreamService {
     private final StatusService statusService;
     private final PlaylistService playlistService;
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
     private final MediaFileService mediaFileService;
@@ -77,7 +79,7 @@ public class StreamService {
     private final AsyncTaskExecutor shortExecutor;
 
     public StreamService(StatusService statusService, PlaylistService playlistService,
-            SecurityService securityService, SettingsService settingsService,
+            SecurityService securityService, SettingsFacade settingsFacade,
             TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
             SearchService searchService,
@@ -86,7 +88,7 @@ public class StreamService {
         this.statusService = statusService;
         this.playlistService = playlistService;
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
@@ -125,12 +127,13 @@ public class StreamService {
     public @Nullable String getFormat(HttpServletRequest request, Player player, Boolean isRest) {
         String format = request.getParameter(Attributes.Request.FORMAT.value());
         PreferredFormatSheme sheme = PreferredFormatSheme
-            .of(settingsService.getPreferredFormatShemeName());
+            .of(settingsFacade.get(SKeys.transcoding.preferredFormatShemeName));
         if (sheme == PreferredFormatSheme.ANNOYMOUS
                 && JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                 || sheme == PreferredFormatSheme.OTHER_THAN_REQUEST
                         && (isRest == null || !isRest)) {
-            return StringUtils.defaultIfEmpty(format, settingsService.getPreferredFormat());
+            return StringUtils
+                .defaultIfEmpty(format, settingsFacade.get(SKeys.transcoding.preferredFormat));
         }
         return format;
     }

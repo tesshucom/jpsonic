@@ -38,6 +38,7 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
+import com.tesshu.jpsonic.service.settings.SKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
@@ -177,11 +178,15 @@ class SortProcedureServiceTest {
             assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
-            ScanContext context = new ScanContext(now(), false, settingsService.getPodcastFolder(),
-                    settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                    settingsService.getScanLogRetention(),
-                    settingsService.getDefaultScanLogRetention(), settingsService.isUseScanEvents(),
-                    settingsService.isMeasureMemory());
+
+            ScanContext context = new ScanContext(now(), false,
+                    settingsFacade.get(SKeys.podcast.folder),
+                    settingsFacade.get(SKeys.advanced.sort.strict),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                    settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                    settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
 
             scanHelper.createScanLog(context, ScanLogType.SCAN_ALL);
             preScanProc.beforeScan(context);

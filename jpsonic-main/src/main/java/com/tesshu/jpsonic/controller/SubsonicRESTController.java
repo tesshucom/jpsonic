@@ -48,6 +48,7 @@ import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.AlbumNotes;
 import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
@@ -80,7 +81,6 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.PlayStatus;
@@ -89,6 +89,8 @@ import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -184,7 +186,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
+    private final ServerLocaleService serverLocaleService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
@@ -220,24 +223,25 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     private final JAXBWriter jaxbWriter;
 
-    public SubsonicRESTController(SettingsService settingsService,
-            MusicFolderService musicFolderService, SecurityService securityService,
-            PlayerService playerService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, LastFmService lastFmService,
-            MusicIndexService musicIndexService, TranscodingService transcodingService,
-            DownloadController downloadController, CoverArtController coverArtController,
-            AvatarController avatarController, UserSettingsController userSettingsController,
-            TopController topController, StatusService statusService,
-            StreamController streamController, HLSController hlsController,
-            ShareService shareService, PlaylistService playlistService, LyricsService lyricsService,
-            AudioScrobblerService audioScrobblerService, PodcastService podcastService,
-            RatingService ratingService, SearchService searchService,
+    public SubsonicRESTController(SettingsFacade settingsFacade,
+            ServerLocaleService serverLocaleService, MusicFolderService musicFolderService,
+            SecurityService securityService, PlayerService playerService,
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            LastFmService lastFmService, MusicIndexService musicIndexService,
+            TranscodingService transcodingService, DownloadController downloadController,
+            CoverArtController coverArtController, AvatarController avatarController,
+            UserSettingsController userSettingsController, TopController topController,
+            StatusService statusService, StreamController streamController,
+            HLSController hlsController, ShareService shareService, PlaylistService playlistService,
+            LyricsService lyricsService, AudioScrobblerService audioScrobblerService,
+            PodcastService podcastService, RatingService ratingService, SearchService searchService,
             InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
             ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
             PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
             AirsonicLocaleResolver airsonicLocaleResolver, HttpSearchCriteriaDirector director) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
+        this.serverLocaleService = serverLocaleService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
@@ -270,7 +274,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         this.mediaScannerService = mediaScannerService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
         this.director = director;
-        jaxbWriter = new JAXBWriter(settingsService);
+        jaxbWriter = new JAXBWriter(settingsFacade);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -342,7 +346,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         String username = securityService.getCurrentUserStrict(request).getUsername();
         Indexes indexes = new Indexes();
         indexes.setLastModified(lastModified);
-        indexes.setIgnoredArticles(settingsService.getIgnoredArticles());
+        indexes.setIgnoredArticles(settingsFacade.get(SKeys.general.index.ignoredArticles));
 
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username);
@@ -459,7 +463,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         User user = securityService.getCurrentUserStrict(request);
 
         ArtistsID3 result = new ArtistsID3();
-        result.setIgnoredArticles(settingsService.getIgnoredArticles());
+        result.setIgnoredArticles(settingsFacade.get(SKeys.general.index.ignoredArticles));
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
 
@@ -890,10 +894,12 @@ public class SubsonicRESTController implements CoverArtPresentation {
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         User user = securityService.getCurrentUserStrict(request);
-        boolean includeComposer = settingsService.isSearchComposer() || securityService
-            .getUserSettings(user.getUsername())
-            .getMainVisibility()
-            .isComposerVisible();
+
+        boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
+                || securityService
+                    .getUserSettings(user.getUsername())
+                    .getMainVisibility()
+                    .isComposerVisible();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
         HttpSearchCriteria criteria = director
@@ -932,10 +938,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
             .getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
-        boolean includeComposer = settingsService.isSearchComposer() || securityService
-            .getUserSettings(username)
-            .getMainVisibility()
-            .isComposerVisible();
+        boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
+                || securityService
+                    .getUserSettings(username)
+                    .getMainVisibility()
+                    .isComposerVisible();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username, musicFolderId);
 
@@ -992,10 +999,11 @@ public class SubsonicRESTController implements CoverArtPresentation {
             .getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
-        boolean includeComposer = settingsService.isSearchComposer() || securityService
-            .getUserSettings(username)
-            .getMainVisibility()
-            .isComposerVisible();
+        boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
+                || securityService
+                    .getUserSettings(username)
+                    .getMainVisibility()
+                    .isComposerVisible();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username, musicFolderId);
 
@@ -1518,7 +1526,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             child.setSuffix(suffix);
             child.setContentType(StringUtil.getMimeType(suffix));
             child.setIsVideo(mediaFile.isVideo());
-            child.setPath(getRelativePath(mediaFile, settingsService, musicFolderService));
+            child.setPath(getRelativePath(mediaFile, serverLocaleService, musicFolderService));
 
             String albumArtist = mediaFile.getAlbumArtist();
             String albumName = mediaFile.getAlbumName();
@@ -1570,22 +1578,22 @@ public class SubsonicRESTController implements CoverArtPresentation {
         return null;
     }
 
-    public static String getRelativePath(MediaFile musicFile, SettingsService settingsService,
-            MusicFolderService musicFolderService) {
+    public static String getRelativePath(MediaFile musicFile,
+            ServerLocaleService serverLocaleService, MusicFolderService musicFolderService) {
 
         String filePath = musicFile.getPathString();
 
         // Convert slashes.
         filePath = filePath.replace('\\', '/');
 
-        String filePathLower = filePath.toLowerCase(settingsService.getLocale());
+        String filePathLower = filePath.toLowerCase(serverLocaleService.getLocale());
 
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getAllMusicFolders(false, true);
         StringBuilder builder = new StringBuilder();
         for (com.tesshu.jpsonic.persistence.api.entity.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPathString().replace('\\', '/');
-            String folderPathLower = folderPath.toLowerCase(settingsService.getLocale());
+            String folderPathLower = folderPath.toLowerCase(serverLocaleService.getLocale());
             if (!folderPathLower.endsWith("/")) {
                 builder.setLength(0);
                 folderPathLower = builder.append(folderPathLower).append('/').toString();

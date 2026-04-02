@@ -14,23 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2021 tesshucom
+ * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.upnp;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
+import java.lang.reflect.Field;
 
+import org.apache.commons.lang3.exception.UncheckedException;
+import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD.AvoidUsingHardCodedIP") // It's test code!
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidUsingHardCodedIP" })
 class UPnPSubnetTest {
 
     private UPnPSubnet subnet;
+
+    @BeforeEach
+    void setUp() {
+        subnet = new UPnPSubnet();
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+    }
 
     @Documented
     private @interface SubnetDecisions {
@@ -143,5 +154,71 @@ class UPnPSubnetTest {
         subnet.setDlnaBaseLANURL("http://192.168.1.5:8080/jpsonic");
         assertTrue(subnet.isInUPnPRange("192.168.1.2"));
         assertTrue(subnet.isInUPnPRange("192.168.1.2"));
+    }
+
+    @Test
+    void returnsFalseWhenAddressIsEmpty() {
+        assertFalse(subnet.isInUPnPRange(""));
+        assertFalse(subnet.isInUPnPRange(null));
+    }
+
+    @Test
+    void returnsFalseWhenAddressIsNotIPv4() {
+        assertFalse(subnet.isInUPnPRange("not-an-ip"));
+    }
+
+    @Test
+    void throwsIllegalArgumentWhenAddressOctetOutOfRange() {
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+
+        assertThrows(IllegalArgumentException.class, () -> subnet.isInUPnPRange("999.999.999.999"));
+    }
+
+    @Test
+    void returnsTrueWhenAddressIsInSame24Subnet() {
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+        assertTrue(subnet.isInUPnPRange("192.168.1.55"));
+    }
+
+    @Test
+    void returnsFalseWhenAddressIsOutside24Subnet() {
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+        assertFalse(subnet.isInUPnPRange("192.168.2.1"));
+    }
+
+    @Test
+    void returnsNPEWhenURLIsMalformed() {
+        subnet.setDlnaBaseLANURL("::::://bad-url");
+
+        assertThrows(NullPointerException.class, () -> subnet.isInUPnPRange("192.168.1.20"));
+    }
+
+    @Test
+    void resolvesHostnameToIPAddress() {
+        subnet.setDlnaBaseLANURL("http://localhost:4040");
+
+        assertTrue(subnet.isInUPnPRange("127.0.0.5"));
+        assertFalse(subnet.isInUPnPRange("192.168.1.1"));
+    }
+
+    @Test
+    void subnetInfoIsAlwaysClearedWhenURLSet() {
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+        assertTrue(subnet.isInUPnPRange("192.168.1.20"));
+
+        subnet.setDlnaBaseLANURL("http://192.168.1.10:4040");
+        assertNull(getPrivateSubnetInfo(subnet), "URL set always clears cache");
+    }
+
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+    private SubnetInfo getPrivateSubnetInfo(UPnPSubnet s) {
+        try {
+            Field f = UPnPSubnet.class.getDeclaredField("subnetInfo");
+            f.setAccessible(true);
+            return (SubnetInfo) f.get(s);
+        } catch (IllegalArgumentException | NoSuchFieldException | SecurityException
+                | IllegalAccessException e) {
+            throw new UncheckedException(e);
+        }
     }
 }

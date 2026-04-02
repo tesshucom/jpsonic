@@ -14,7 +14,7 @@ the
 # to was will with"
 #
 
-#see SettingsService.DEFAULT_IGNORED_ARTICLES
+#see SKeys.general.index.ignoredArticles
 
 el
 la

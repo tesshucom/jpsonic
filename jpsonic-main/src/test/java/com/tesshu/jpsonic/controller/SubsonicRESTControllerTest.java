@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -71,12 +72,14 @@ import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
@@ -131,7 +134,8 @@ class SubsonicRESTControllerTest {
 
         @BeforeEach
         void setup() {
-            final SettingsService settingsService = mock(SettingsService.class);
+            final SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+            final ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
             securityService = mock(SecurityService.class);
             final PlayerService playerService = mock(PlayerService.class);
@@ -167,15 +171,15 @@ class SubsonicRESTControllerTest {
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(
                     AirsonicLocaleResolver.class);
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
-            controller = new SubsonicRESTController(settingsService, musicFolderService,
-                    securityService, playerService, mediaFileService, writableMediaFileService,
-                    lastFmService, musicIndexService, transcodingService, downloadController,
-                    coverArtController, avatarController, userSettingsController, topController,
-                    statusService, streamController, hlsController, shareService, playlistService,
-                    lyricsService, audioScrobblerService, podcastService, ratingService,
-                    searchService, internetRadioService, mediaFileDao, artistDao, albumDao,
-                    bookmarkService, playQueueDao, mediaScannerService, airsonicLocaleResolver,
-                    director);
+            controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
+                    musicFolderService, securityService, playerService, mediaFileService,
+                    writableMediaFileService, lastFmService, musicIndexService, transcodingService,
+                    downloadController, coverArtController, avatarController,
+                    userSettingsController, topController, statusService, streamController,
+                    hlsController, shareService, playlistService, lyricsService,
+                    audioScrobblerService, podcastService, ratingService, searchService,
+                    internetRadioService, mediaFileDao, artistDao, albumDao, bookmarkService,
+                    playQueueDao, mediaScannerService, airsonicLocaleResolver, director);
         }
 
         @Test
@@ -291,7 +295,10 @@ class SubsonicRESTControllerTest {
 
         @BeforeEach
         void setup() {
-            settingsService.setDlnaGuestPublish(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.options.guestPublish, false)
+                .build();
             populateDatabaseOnlyOnce();
         }
 
@@ -1260,8 +1267,8 @@ class SubsonicRESTControllerTest {
             try {
 
                 String playlistName = "UpdatePlaylist";
-                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false,
-                        playlistName, "comment", 0, 0, now(), now(), null);
+                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, true, playlistName,
+                        "comment", 0, 0, now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService
                     .getAllPlaylists()
@@ -1317,12 +1324,13 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void testDeletePlaylist() throws ExecutionException {
             try {
 
                 String playlistName = "DeletePlaylist";
-                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false,
-                        playlistName, "comment", 0, 0, now(), now(), null);
+                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, true, playlistName,
+                        "comment", 0, 0, now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService
                     .getAllPlaylists()
@@ -1367,7 +1375,7 @@ class SubsonicRESTControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             } catch (Exception e) {
-                Assertions.fail();
+//                Assertions.fail();
                 throw new ExecutionException(e);
             }
         }

@@ -41,7 +41,8 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.connector.api.JsonResult;
 import com.tesshu.jpsonic.util.connector.api.Response;
 import com.tesshu.jpsonic.util.connector.api.Starred;
@@ -81,7 +82,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
     @Autowired
     private MockMvc mvc;
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     @Autowired
     private MediaFileDao mediaFileDao;
     @Autowired
@@ -276,8 +277,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
             .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
 
         // getStarred
@@ -486,8 +486,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
             .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
 
         // getStarred

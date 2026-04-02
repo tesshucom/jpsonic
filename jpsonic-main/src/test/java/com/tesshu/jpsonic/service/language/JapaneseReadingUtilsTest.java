@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.language;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,17 +26,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.i18n.I18nSKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.result.SortCandidate;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
@@ -47,27 +48,25 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class JapaneseReadingUtilsTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     private JapaneseReadingUtils utils;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        Mockito
-            .when(settingsService.getLocale())
-            .thenReturn(new Locale.Builder().setLanguage("ja").setRegion("jp").build());
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-        utils = new JapaneseReadingUtils(settingsService);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
     }
 
     @AfterEach
@@ -263,17 +262,28 @@ class JapaneseReadingUtilsTest {
         assertFalse(utils.isJapaneseReadable("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertFalse(utils.isJapaneseReadable("Dvořák: Symphonies #7-9"));
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        // NATIVE_JAPANESE
         assertTrue(utils.isJapaneseReadable("αβγ"));
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+
+        // ROMANIZED_JAPANESE
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
         assertFalse(utils.isJapaneseReadable("αβγ"));
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+
+        // WITHOUT_JP_LANG_PROCESSING
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
         assertFalse(utils.isJapaneseReadable("αβγ"));
     }
 
@@ -292,9 +302,7 @@ class JapaneseReadingUtilsTest {
             @Test
             void testCreateReading() throws ExecutionException {
 
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+                // NATIVE_JAPANESE
 
                 /*
                  * Kuromoji will read the full-width alphabet in Japanese. ＢＢＣ(It's not bbc but
@@ -351,9 +359,15 @@ class JapaneseReadingUtilsTest {
             @Test
             void testReading1() throws ExecutionException {
 
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
 
                 assertEquals("Aiueo", utils.createJapaneseReading("The あいうえお"));
                 assertEquals("Aiueo", utils.createJapaneseReading("あいうえお"));
@@ -437,9 +451,15 @@ class JapaneseReadingUtilsTest {
                  * information.
                  */
 
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
 
                 assertEquals("Kimi no Na wa", utils.createJapaneseReading("君の名は"));
 
@@ -604,9 +624,15 @@ class JapaneseReadingUtilsTest {
             @Order(2)
             @Test
             void c01() throws ExecutionException {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
                 assertEquals("It's Nihongo no Yomi", utils.createReading("abc", "It's 日本語の読み"));
             }
 
@@ -621,9 +647,15 @@ class JapaneseReadingUtilsTest {
              * ROMANIZED_JAPANESE, it is a normal process.
              */
             void c02() throws ExecutionException {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
                 assertEquals("It is an English reading", utils
                     .createReading("It is an English reading", "It is an English reading"));
             }
@@ -635,9 +667,15 @@ class JapaneseReadingUtilsTest {
             @Order(4)
             @Test
             void c03() throws ExecutionException {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
                 assertEquals("Nihongo no Yomi", utils.createReading("abc", "日本語の読み"));
             }
 
@@ -645,9 +683,15 @@ class JapaneseReadingUtilsTest {
             @Order(5)
             @Test
             void c04() throws ExecutionException {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
                 assertEquals("Nihongo no Yomi", utils.createReading("日本語名", "日本語の読み"));
                 assertEquals("Nihongo-mei", utils.createReading("日本語名", null));
             }
@@ -658,9 +702,15 @@ class JapaneseReadingUtilsTest {
 
             @Test
             void testDonithing() throws ExecutionException {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                // WITHOUT_JP_LANG_PROCESSING
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
 
                 /*
                  * Nothing is done. The value has been transferred only.
@@ -686,9 +736,15 @@ class JapaneseReadingUtilsTest {
         utils.clear();
         assertEquals("ゲンダイホウガク", genre.getReading());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+        // ROMANIZED_JAPANESE
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
+
         utils.analyze(genre);
         utils.clear();
         assertEquals("Gendaihogaku", genre.getReading());
@@ -698,10 +754,16 @@ class JapaneseReadingUtilsTest {
         utils.clear();
         assertEquals("Gendaihogaku", genre.getReading());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-        utils.clear();
+        // WITHOUT_JP_LANG_PROCESSING
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
+
         genre = new Genre(genreName, 0, 0);
         utils.analyze(genre);
         assertEquals(genreName, genre.getReading());
@@ -963,9 +1025,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
             void r03() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -981,9 +1050,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
             @Test
             void r04() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, sortJp);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -999,9 +1075,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
             @Test
             void r05() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, sortLatin);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1017,9 +1100,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
             void r06() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1035,9 +1125,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
             @Test
             void r07() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, sortJp);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1053,9 +1150,16 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
             @Test
             void r08() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                // ROMANIZED_JAPANESE
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.ROMANIZED_JAPANESE.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, sortLatin);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1076,9 +1180,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
             void w03() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1094,9 +1204,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
             @Test
             void w04() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, sortJp);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1112,9 +1228,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
             @Test
             void w05() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameJp, sortLatin);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1130,9 +1252,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
             void w06() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1148,9 +1276,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
             @Test
             void w07() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, sortJp);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1166,9 +1300,15 @@ class JapaneseReadingUtilsTest {
             @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
             @Test
             void w08() {
-                Mockito
-                    .when(settingsService.getIndexSchemeName())
-                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                    .build();
+                utils = new JapaneseReadingUtils(settingsFacade);
+
                 MediaFile mediaFile = toMediaFile(nameLatin, sortLatin);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
@@ -1192,9 +1332,14 @@ class JapaneseReadingUtilsTest {
         utils.clear();
         assertEquals("2021/07/21 22:40 オキニイリ", playlist.getReading());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
+
         utils.analyze(playlist);
         utils.clear();
         assertEquals("2021/07/21 22:40 Okiniiri", playlist.getReading());
@@ -1205,9 +1350,15 @@ class JapaneseReadingUtilsTest {
         utils.clear();
         assertEquals("2021/07/21 22:40 Okiniiri", playlist.getReading());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .build();
+        utils = new JapaneseReadingUtils(settingsFacade);
+
         utils.analyze(playlist);
         utils.clear();
         assertEquals(playlistName, playlist.getReading());
@@ -1313,10 +1464,6 @@ class JapaneseReadingUtilsTest {
         @Test
         void c01() throws ExecutionException {
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-
             assertEquals("ABCDE", utils.createIndexableName("ABCDE")); // no change
             assertEquals("アイウエオ", utils.createIndexableName("アイウエオ")); // no change
             assertEquals("ァィゥェォ", utils.createIndexableName("ァィゥェォ")); // no change
@@ -1339,10 +1486,15 @@ class JapaneseReadingUtilsTest {
         @Test
         void c02() throws ExecutionException {
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .withBoolean(SKeys.advanced.index.deleteDiacritic, true)
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
 
             assertEquals("ABCDE", utils.createIndexableName("ABCDE"));
 
@@ -1351,7 +1503,15 @@ class JapaneseReadingUtilsTest {
 
             // Diacritic
             assertDeleteDiacritic();
-            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .withBoolean(SKeys.advanced.index.deleteDiacritic, false)
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
             assertRemainDiacritic();
         }
 
@@ -1359,11 +1519,16 @@ class JapaneseReadingUtilsTest {
         @Test
         void c03() throws ExecutionException {
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
-            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.ignoreFullWidth, true)
+                .withBoolean(SKeys.advanced.index.deleteDiacritic, true)
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
 
             assertEquals("DJ FUMI★YEAH!", utils.createIndexableName("DJ FUMI★YEAH!")); // no change
             assertEquals("ABCDE", utils.createIndexableName("ABCDE")); // no change
@@ -1379,12 +1544,34 @@ class JapaneseReadingUtilsTest {
 
             // Halfwidth
             assertEquals("ABCDE", utils.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
-            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(false);
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.ignoreFullWidth, false)
+                .withBoolean(SKeys.advanced.index.deleteDiacritic, true)
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
+
             assertEquals("ＡＢＣＤＥ", utils.createIndexableName("ＡＢＣＤＥ")); // no change
 
             // Diacritic
             assertDeleteDiacritic();
-            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(false);
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.ignoreFullWidth, false)
+                .withBoolean(SKeys.advanced.index.deleteDiacritic, false)
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
+
             assertRemainDiacritic();
         }
     }
@@ -1460,9 +1647,15 @@ class JapaneseReadingUtilsTest {
         @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
         @Test
         void c01() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
+
             Artist artist = createArtist(name, null);
             assertEquals(name, utils.createIndexableName(artist));
         }
@@ -1592,9 +1785,15 @@ class JapaneseReadingUtilsTest {
         @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
         @Test
         void c01() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            utils = new JapaneseReadingUtils(settingsFacade);
+
             MediaFile mediaFile = createMediaFile(name, null, pathDerived);
             utils.analyze(mediaFile);
             assertEquals("pathDerived", utils.createIndexableName(mediaFile));

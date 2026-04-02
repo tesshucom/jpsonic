@@ -42,7 +42,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.persistence.result.SortCandidate;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -54,7 +55,7 @@ import org.springframework.stereotype.Component;
  * Provide analysis of Japanese name.
  */
 @Component
-@DependsOn({ "settingsService" })
+@DependsOn({ "settingsFacade" })
 @ThreadSafe(enableChecks = false)
 public class JapaneseReadingUtils {
 
@@ -66,7 +67,7 @@ public class JapaneseReadingUtils {
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
     private static final char WAVY_LINE = '~';
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final Tokenizer tokenizer;
     private final Map<String, String> readingMap;
     private final Map<String, String> truncatedReadingMap;
@@ -95,9 +96,9 @@ public class JapaneseReadingUtils {
         }
     }
 
-    public JapaneseReadingUtils(SettingsService settingsService) {
+    public JapaneseReadingUtils(SettingsFacade settingsFacade) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         tokenizer = new Tokenizer();
         readingMap = new ConcurrentHashMap<>();
         truncatedReadingMap = new ConcurrentHashMap<>();
@@ -133,7 +134,7 @@ public class JapaneseReadingUtils {
     }
 
     private IndexScheme getIndexScheme() {
-        return IndexScheme.of(settingsService.getIndexSchemeName());
+        return IndexScheme.of(settingsFacade.get(SKeys.advanced.index.indexSchemeName));
     }
 
     /**
@@ -398,7 +399,8 @@ public class JapaneseReadingUtils {
             return null;
         }
         String result = s;
-        for (String article : settingsService.getIgnoredArticlesAsArray()) {
+
+        for (String article : settingsFacade.getCachedList(SKeys.general.index.ignoredArticles)) {
             if (StringUtil.startsWithIgnoreCase(s, article + SPACE)) {
                 result = result.substring(article.length() + 1);
             }
@@ -492,11 +494,12 @@ public class JapaneseReadingUtils {
             indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
             indexableName = transliterate(ID.TO_KATAKANA, indexableName);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE
-                || settingsService.isIgnoreFullWidth()) {
+                || settingsFacade.get(SKeys.advanced.index.ignoreFullWidth)) {
             indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
         }
 
-        if (scheme == IndexScheme.NATIVE_JAPANESE || settingsService.isDeleteDiacritic()) {
+        if (scheme == IndexScheme.NATIVE_JAPANESE
+                || settingsFacade.get(SKeys.advanced.index.deleteDiacritic)) {
             indexableName = Normalizer
                 .normalize(indexableName, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");

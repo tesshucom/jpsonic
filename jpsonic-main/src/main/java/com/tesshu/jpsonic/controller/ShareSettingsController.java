@@ -37,8 +37,9 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -61,17 +62,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/shareSettings", "/shareSettings.view" })
 public class ShareSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final ShareService shareService;
     private final MediaFileService mediaFileService;
 
-    public ShareSettingsController(SettingsService settingsService,
+    public ShareSettingsController(SettingsFacade settingsFacade,
             MusicFolderService musicFolderService, SecurityService securityService,
             ShareService shareService, MediaFileService mediaFileService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.shareService = shareService;
@@ -85,7 +86,7 @@ public class ShareSettingsController {
                     LegacyMap
                         .of("shareInfos", getShareInfos(request), "user",
                                 securityService.getCurrentUserStrict(request), "useRadio",
-                                settingsService.isUseRadio(), "shareCount",
+                                settingsFacade.get(SKeys.general.legacy.useRadio), "shareCount",
                                 shareService.getAllShares().size()));
         return "shareSettings";
     }

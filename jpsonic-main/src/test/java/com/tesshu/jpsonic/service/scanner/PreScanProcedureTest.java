@@ -33,8 +33,10 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,13 +48,13 @@ class PreScanProcedureTest {
     @Nested
     class CheckMudicFoldersTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private MusicFolderServiceImpl musicFolderService;
         private PreScanProcedure preScanProc;
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
             musicFolderService = mock(MusicFolderServiceImpl.class);
             final IndexManager indexManager = mock(IndexManager.class);
             final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
@@ -73,11 +75,15 @@ class PreScanProcedureTest {
             List<MusicFolder> folders = Arrays.asList(existingFolder);
             Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
-            ScanContext context = new ScanContext(startDate, false,
-                    settingsService.getPodcastFolder(), settingsService.isSortStrict(),
-                    settingsService.isUseScanLog(), settingsService.getScanLogRetention(),
-                    settingsService.getDefaultScanLogRetention(), settingsService.isUseScanEvents(),
-                    settingsService.isMeasureMemory());
+            ScanContext context = new ScanContext(startDate,
+                    settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                    settingsFacade.get(SKeys.podcast.folder),
+                    settingsFacade.get(SKeys.advanced.sort.strict),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                    settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                    settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
             preScanProc.checkMusicFolders(context);
             Mockito
                 .verify(musicFolderService, Mockito.never())
@@ -125,11 +131,16 @@ class PreScanProcedureTest {
             List<MusicFolder> folders = Arrays.asList(orderedFolder);
             Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
-            ScanContext context = new ScanContext(startDate, false,
-                    settingsService.getPodcastFolder(), settingsService.isSortStrict(),
-                    settingsService.isUseScanLog(), settingsService.getScanLogRetention(),
-                    settingsService.getDefaultScanLogRetention(), settingsService.isUseScanEvents(),
-                    settingsService.isMeasureMemory());
+            ScanContext context = new ScanContext(startDate,
+                    settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                    settingsFacade.get(SKeys.podcast.folder),
+                    settingsFacade.get(SKeys.advanced.sort.strict),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                    settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                    settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                    settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
+
             preScanProc.checkMusicFolders(context);
             Mockito
                 .verify(musicFolderService, Mockito.never())

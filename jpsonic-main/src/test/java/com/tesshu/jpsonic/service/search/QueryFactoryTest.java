@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,8 +32,11 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.apache.lucene.search.Query;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
@@ -43,7 +45,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3. (A slight difference) If you
@@ -75,14 +76,22 @@ class QueryFactoryTest {
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays
         .asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsService);
-        queryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsService);
-        queryFactory = new QueryFactory(settingsService, analyzerFactory);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+        AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsFacade);
+        queryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsFacade);
+        queryFactory = new QueryFactory(settingsFacade, analyzerFactory);
     }
 
     @Order(1)
@@ -100,7 +109,11 @@ class QueryFactoryTest {
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.search.searchComposer, true)
+                .build();
+            init();
             String[] containsComposer = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -116,9 +129,13 @@ class QueryFactoryTest {
         @Test
         void testScheme() {
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.NATIVE_JAPANESE.name())
+                .build();
+            init();
+
             String[] notRomanize = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -128,17 +145,24 @@ class QueryFactoryTest {
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            init();
+
             assertArrayEquals(notRomanize,
                     queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            init();
             String[] romanize = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -150,9 +174,12 @@ class QueryFactoryTest {
                         .toArray(new String[0]));
 
             // and Composer
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.NATIVE_JAPANESE.name())
+                .build();
+            init();
             String[] notRomanizeAndCmp = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -164,17 +191,23 @@ class QueryFactoryTest {
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            init();
             assertArrayEquals(notRomanizeAndCmp,
                     queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            init();
             String[] romanizeAndCmp = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -238,10 +271,12 @@ class QueryFactoryTest {
                     .searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .build();
+        init();
         assertEquals(
                 "+((tit:\"い ぬ と ね こ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"い ぬ と ね こ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2) +(f:"
                         + PATH1 + ")",
@@ -249,10 +284,11 @@ class QueryFactoryTest {
                     .searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .build();
+        init();
         String query = "Inu to Neko";
 
         assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
@@ -264,7 +300,12 @@ class QueryFactoryTest {
                     .searchByPhrase(query, false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .withBoolean(SKeys.general.search.searchComposer, true)
+            .build();
+        init();
         assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
                 + "(art:\"inu to neko\"~1)^4.0 " //
                 + "(artR:\"inu to neko\"~1)^4.2 " //

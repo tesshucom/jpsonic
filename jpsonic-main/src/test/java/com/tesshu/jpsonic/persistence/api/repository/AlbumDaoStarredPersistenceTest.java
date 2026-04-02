@@ -29,7 +29,8 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ class AlbumDaoStarredPersistenceTest extends AbstractNeedsScan {
     @Autowired
     private AlbumDao albumDao;
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     private final List<MusicFolder> folders = List
         .of(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 0, false));
@@ -97,8 +98,7 @@ class AlbumDaoStarredPersistenceTest extends AbstractNeedsScan {
                 starred.get(1).getName());
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
 
         // The result remains the same

@@ -24,9 +24,10 @@ import java.util.List;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,14 +35,14 @@ public class UpnpProcessorUtil {
 
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final JpsonicComparators comparators;
 
     public UpnpProcessorUtil(MusicFolderService musicFolderService, SecurityService securityService,
-            SettingsService settingsService, JpsonicComparators comparators) {
+            SettingsFacade settingsFacade, JpsonicComparators comparators) {
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.comparators = comparators;
     }
 
@@ -55,6 +56,6 @@ public class UpnpProcessorUtil {
     }
 
     public UPnPSearchMethod getUPnPSearchMethod() {
-        return UPnPSearchMethod.of(settingsService.getUPnPSearchMethod());
+        return UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod));
     }
 }

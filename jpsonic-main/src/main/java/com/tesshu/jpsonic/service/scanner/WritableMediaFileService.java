@@ -51,13 +51,14 @@ import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -122,7 +123,7 @@ public class WritableMediaFileService {
     private final MusicParser musicParser;
     private final VideoParser videoParser;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
     private final IndexManager indexManager;
@@ -131,9 +132,9 @@ public class WritableMediaFileService {
     public WritableMediaFileService(MediaFileDao mediaFileDao,
             ScannerStateService scannerStateService, MediaFileService mediaFileService,
             AlbumDao albumDao, MediaFileCache mediaFileCache, MusicParser musicParser,
-            VideoParser videoParser, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils,
-            IndexManager indexManager, MusicIndexServiceImpl musicIndexService) {
+            VideoParser videoParser, SettingsFacade settingsFacade, SecurityService securityService,
+            JapaneseReadingUtils readingUtils, IndexManager indexManager,
+            MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -142,7 +143,7 @@ public class WritableMediaFileService {
         this.mediaFileCache = mediaFileCache;
         this.musicParser = musicParser;
         this.videoParser = videoParser;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.readingUtils = readingUtils;
         this.indexManager = indexManager;
@@ -366,14 +367,15 @@ public class WritableMediaFileService {
 
     Optional<MediaFile> checkLastModified(@NonNull Instant scanDate,
             @NonNull final MediaFile mediaFile) {
+        boolean ignoreFileTimestamps = settingsFacade
+            .get(SKeys.musicFolder.scan.ignoreFileTimestamps);
         if (scanDate.equals(mediaFile.getLastScanned())
                 || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
             return Optional.empty();
         } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            if (settingsService.isIgnoreFileTimestamps()
-                    && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+            if (ignoreFileTimestamps && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                 return Optional.empty();
-            } else if (!settingsService.isIgnoreFileTimestamps()
+            } else if (!ignoreFileTimestamps
                     && !mediaFile.getChanged().isBefore(getLastModified(mediaFile.toPath()))
                     && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                 return Optional.empty();
@@ -494,7 +496,7 @@ public class WritableMediaFileService {
                 to.setLastScanned(FAR_FUTURE);
             }, () -> {
                 to.setArtist(dirPath.getFileName().toString());
-                if (!settingsService.isSortStrict()) {
+                if (!settingsFacade.get(SKeys.advanced.sort.strict)) {
                     String index = musicIndexService.getParser().getIndex(to).getIndex();
                     to.setMusicIndex(index);
                 }

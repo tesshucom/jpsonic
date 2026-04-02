@@ -50,8 +50,11 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -73,8 +76,8 @@ class PlaylistProcTest {
 
         @BeforeEach
         void setup() {
-            SettingsService settingsService = mock(SettingsService.class);
-            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+            factory = new UpnpDIDLFactory(settingsFacade, mock(JWTSecurityService.class),
                     mock(MediaFileService.class), mock(PlayerService.class),
                     mock(TranscodingService.class));
             playlistService = mock(PlaylistService.class);
@@ -161,6 +164,9 @@ class PlaylistProcTest {
         @Autowired
         private PlaylistDao playlistDao;
 
+        @Autowired
+        private SettingsFacade settingsFacade;
+
         @Override
         public List<MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
@@ -168,13 +174,11 @@ class PlaylistProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setDlnaGuestPublish(false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(UPnPSKeys.options.guestPublish, false);
+            settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
+            settingsFacade.commitAll();
             populateDatabaseOnlyOnce();
-            settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-            settingsService.save();
 
             Function<String, Playlist> toPlaylist = (title) -> {
                 Instant now = now();

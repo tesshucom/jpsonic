@@ -30,7 +30,8 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +53,8 @@ class WebFontUtilsTest {
 
     @BeforeEach
     void setup() {
-        securityService = new SecurityService(mock(UserDao.class), mock(SettingsService.class),
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        securityService = new SecurityService(mock(UserDao.class), settingsFacade,
                 mock(MusicFolderService.class));
     }
 

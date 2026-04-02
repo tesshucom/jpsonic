@@ -26,7 +26,8 @@ import java.util.Locale;
 
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
@@ -40,14 +41,14 @@ import org.springframework.stereotype.Service;
 @Order(100)
 public class VideoParser extends MetaDataParser {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final FFprobe ffprobe;
 
-    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService,
+    public VideoParser(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             FFprobe ffprobe) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.ffprobe = ffprobe;
     }
@@ -104,8 +105,8 @@ public class VideoParser extends MetaDataParser {
             return false;
         }
         String format = extension.toLowerCase(Locale.ENGLISH);
-        return settingsService
-            .getVideoFileTypesAsArray()
+        return settingsFacade
+            .getCachedList(SKeys.general.extension.videoFileTypes)
             .stream()
             .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
     }

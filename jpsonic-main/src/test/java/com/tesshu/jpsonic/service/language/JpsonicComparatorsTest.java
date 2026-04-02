@@ -53,12 +53,14 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchResult;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -112,7 +114,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     protected JpsonicComparators comparators;
 
     @Autowired
-    protected SettingsService settingsService;
+    protected SettingsFacade settingsFacade;
 
     @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
@@ -218,9 +220,12 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.Artist
         @Test
         void c00() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Artist> artists = testUtils.createReversedArtists();
             artists.sort(comparators.artistOrderByAlpha());
             JpsonicComparatorsTestUtils.assertArtistOrder(artists, 14, 15, 16);
@@ -234,9 +239,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.artistOrderByAlpha
         @Test
         void c01() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Artist> artists = testUtils.createReversedArtists();
             artists.sort(comparators.artistOrderByAlpha());
             JpsonicComparatorsTestUtils.assertArtistOrder(artists, 14, 15, 16);
@@ -249,9 +256,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.albumOrderByAlpha
         @Test
         void c02() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Album> albums = testUtils.createReversedAlbums();
             albums.sort(comparators.albumOrderByAlpha());
             JpsonicComparatorsTestUtils.assertAlbumOrder(albums, 14, 15, 16);
@@ -265,9 +274,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.albumOrderByAlpha
         @Test
         void c03() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Album> albums = testUtils.createReversedAlbums();
             albums.sort(comparators.albumOrderByAlpha());
             JpsonicComparatorsTestUtils.assertAlbumOrder(albums, 14, 15, 16);
@@ -283,9 +294,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c16() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -302,9 +315,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c17() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -321,9 +336,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c18() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -341,9 +358,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c19() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -359,9 +378,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c20() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -378,9 +399,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c21() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -397,9 +420,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c22() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -417,9 +442,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c23() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -435,9 +462,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c24() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -454,9 +483,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c25() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -473,9 +504,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c26() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             assertEquals("98", files.get(0).getName());
@@ -492,9 +525,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c27() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(new MediaFile()));
             assertEquals("98", files.get(0).getName());
@@ -509,9 +544,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c28() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -528,9 +565,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c29() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -547,9 +586,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c30() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -567,9 +608,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrder
         @Test
         void c31() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, true);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -583,9 +626,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c32() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -600,9 +645,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c33() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             files.sort(comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -617,9 +664,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c34() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -635,9 +684,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c35() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediArtists();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -651,9 +702,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c36() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -668,9 +721,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c37() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -685,9 +740,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c38() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -703,9 +760,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
         @Test
         void c39() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediAlbums();
             Collections.sort(files, comparators.mediaFileOrderByAlpha());
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -719,9 +778,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Artist
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c40() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections
                 .sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
@@ -737,9 +798,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Artist
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c41() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections
                 .sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
@@ -754,9 +817,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Album
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c42() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -771,9 +836,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Album
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c43() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -787,9 +854,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Track
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c44() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -804,9 +873,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Track
         @ComparatorsDecisions.Actions.mediaFileOrderBy
         void c45() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<MediaFile> files = testUtils.createReversedMediaSongs();
             Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
             JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
@@ -819,9 +890,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.playlistOrder
         @Test
         void c46() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Playlist> playlists = testUtils.createReversedPlaylists();
             Collections.sort(playlists, comparators.playlistOrder());
             JpsonicComparatorsTestUtils.assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
@@ -840,9 +913,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.playlistOrder
         @Test
         void c47() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Playlist> playlists = testUtils.createReversedPlaylists();
             Collections.sort(playlists, comparators.playlistOrder());
             JpsonicComparatorsTestUtils.assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
@@ -860,9 +935,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.genreOrder
         @Test
         void c48() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Genre> genres = testUtils.createReversedGenres();
             Collections.sort(genres, comparators.genreOrder(false));
 
@@ -878,9 +955,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.genreOrder
         @Test
         void c49() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Genre> genres = testUtils.createReversedGenres();
             Collections.sort(genres, comparators.genreOrder(true));
 
@@ -894,9 +973,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.genreOrderByAlpha
         @Test
         void c50() {
-            settingsService.setSortAlphanum(false);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Genre> genres = testUtils.createReversedGenres();
             Collections.sort(genres, comparators.genreOrderByAlpha());
 
@@ -916,9 +997,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         @ComparatorsDecisions.Actions.genreOrderByAlpha
         @Test
         void c51() {
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.commitAll();
+
             List<Genre> genres = testUtils.createReversedGenres();
             Collections.sort(genres, comparators.genreOrderByAlpha());
             JpsonicComparatorsTestUtils.assertGenreOrder(genres, 8, 9, 14, 15, 16);
@@ -935,9 +1018,11 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
 
     @Test
     void testSerialNumbers() {
-        settingsService.setSortAlphanum(true);
-        settingsService.setSortAlbumsByYear(false);
-        settingsService.setProhibitSortVarious(false);
+        settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+        settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+        settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+        settingsFacade.commitAll();
+
         List<Artist> artists = testUtils.createReversedAlphanum();
         Collections.sort(artists, comparators.artistOrderByAlpha());
         assertTrue(JpsonicComparatorsTestUtils.assertAlphanumArtistOrder(artists));
@@ -951,8 +1036,10 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
      */
     @Test
     void testCompareAlbums() {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(true);
+        settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+        settingsFacade.staging(SKeys.general.sort.albumsByYear, true);
+        settingsFacade.commitAll();
+
         final MediaFileComparator comparator = comparators.mediaFileOrder(null);
 
         MediaFile albumA2012 = new MediaFile();
@@ -997,8 +1084,9 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
      */
     @Test
     void testCompareDiscNumbers() {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(false);
+        settingsFacade.staging(SKeys.advanced.sort.alphanum, false);
+        settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+        settingsFacade.commitAll();
 
         MediaFile discXtrack1 = new MediaFile();
         discXtrack1.setMediaType(MediaFile.MediaType.MUSIC);
@@ -1136,11 +1224,12 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
 
         @BeforeEach
         void setup() {
-            settingsService.setSortStrict(true);
-            settingsService.setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setProhibitSortVarious(false);
-            settingsService.setDlnaGuestPublish(false);
+            settingsFacade.staging(SKeys.advanced.sort.strict, true);
+            settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.prohibitSortVarious, false);
+            settingsFacade.staging(UPnPSKeys.options.guestPublish, false);
+            settingsFacade.commitAll();
 
             Function<String, Playlist> toPlaylist = (title) -> {
                 Instant now = now();

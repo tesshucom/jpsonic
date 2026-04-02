@@ -40,8 +40,10 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FArtistOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
@@ -61,7 +63,7 @@ class RandomSongByFolderArtistProcTest {
         private UpnpProcessorUtil util;
         private ArtistDao artistDao;
         private SearchService searchService;
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private FolderOrArtistLogic folderOrArtistProc;
         private RandomSongByFolderArtistProc proc;
 
@@ -70,13 +72,13 @@ class RandomSongByFolderArtistProcTest {
             util = mock(UpnpProcessorUtil.class);
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
-            settingsService = mock(SettingsService.class);
-            UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
                     mock(JWTSecurityService.class), mock(MediaFileService.class),
                     mock(PlayerService.class), mock(TranscodingService.class));
             folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);
             proc = new RandomSongByFolderArtistProc(util, factory, artistDao, searchService,
-                    settingsService, folderOrArtistProc);
+                    settingsFacade, folderOrArtistProc);
         }
 
         @Test
@@ -132,7 +134,7 @@ class RandomSongByFolderArtistProcTest {
             artistOrSong = new FArtistOrSong(song);
 
             proc = new RandomSongByFolderArtistProc(util, mock(UpnpDIDLFactory.class), artistDao,
-                    searchService, settingsService, folderOrArtistProc);
+                    searchService, settingsFacade, folderOrArtistProc);
             assertEquals(0, content.getItems().size());
             proc.addChild(content, artistOrSong);
             assertEquals(1, content.getItems().size());
@@ -149,6 +151,9 @@ class RandomSongByFolderArtistProcTest {
         @Autowired
         private RandomSongByFolderArtistProc proc;
 
+        @Autowired
+        private SettingsFacade settingsFacade;
+
         @Override
         public List<MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
@@ -156,9 +161,7 @@ class RandomSongByFolderArtistProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
             populateDatabaseOnlyOnce();
         }
 

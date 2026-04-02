@@ -23,7 +23,8 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,13 +45,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/podcastSettings", "/podcastSettings.view" })
 public class PodcastSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ScannerStateService scannerStateService;
 
-    public PodcastSettingsController(SettingsService settingsService,
+    public PodcastSettingsController(SettingsFacade settingsFacade,
             ScannerStateService scannerStateService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.scannerStateService = scannerStateService;
     }
 
@@ -58,14 +59,14 @@ public class PodcastSettingsController {
     protected String formBackingObject(Model model) {
         PodcastSettingsCommand command = new PodcastSettingsCommand();
 
-        command.setInterval(String.valueOf(settingsService.getPodcastUpdateInterval()));
+        command.setInterval(String.valueOf(settingsFacade.get(SKeys.podcast.updateInterval)));
         command
             .setEpisodeRetentionCount(
-                    String.valueOf(settingsService.getPodcastEpisodeRetentionCount()));
+                    String.valueOf(settingsFacade.get(SKeys.podcast.episodeRetentionCount)));
         command
             .setEpisodeDownloadCount(
-                    String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
-        command.setFolder(settingsService.getPodcastFolder());
+                    String.valueOf(settingsFacade.get(SKeys.podcast.episodeDownloadCount)));
+        command.setFolder(settingsFacade.get(SKeys.podcast.folder));
 
         // for view page control
         command.setScanning(scannerStateService.isScanning());
@@ -80,17 +81,19 @@ public class PodcastSettingsController {
             RedirectAttributes redirectAttributes) {
 
         if (!scannerStateService.isScanning()) {
-            settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
-            settingsService
-                .setPodcastEpisodeRetentionCount(
+            settingsFacade
+                .staging(SKeys.podcast.updateInterval, Integer.parseInt(command.getInterval()));
+            settingsFacade
+                .staging(SKeys.podcast.episodeRetentionCount,
                         Integer.parseInt(command.getEpisodeRetentionCount()));
-            settingsService
-                .setPodcastEpisodeDownloadCount(
+            settingsFacade
+                .staging(SKeys.podcast.episodeDownloadCount,
                         Integer.parseInt(command.getEpisodeDownloadCount()));
             PathValidator
                 .validateFolderPath(command.getFolder())
-                .ifPresent(settingsService::setPodcastFolder);
-            settingsService.save();
+                .ifPresent(folder -> settingsFacade.staging(SKeys.podcast.folder, folder));
+
+            settingsFacade.commitAll();
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }
 

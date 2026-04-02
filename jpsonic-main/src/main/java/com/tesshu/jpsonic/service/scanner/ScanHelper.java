@@ -18,8 +18,9 @@ import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -66,7 +67,7 @@ import org.springframework.stereotype.Service;
 public class ScanHelper {
 
     private final ScannerStateServiceImpl scannerState;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final StaticsDao staticsDao;
     private final MediaFileDao mediaFileDao;
     private final IndexManager indexManager;
@@ -74,11 +75,11 @@ public class ScanHelper {
 
     private final AtomicBoolean cancel = new AtomicBoolean();
 
-    public ScanHelper(ScannerStateServiceImpl scannerState, SettingsService settingsService,
+    public ScanHelper(ScannerStateServiceImpl scannerState, SettingsFacade settingsFacade,
             StaticsDao staticsDao, MediaFileDao mediaFileDao, IndexManager indexManager,
             WritableMediaFileService wmfs) {
         this.scannerState = scannerState;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.staticsDao = staticsDao;
         this.mediaFileDao = mediaFileDao;
         this.indexManager = indexManager;
@@ -159,7 +160,7 @@ public class ScanHelper {
 
         boolean shouldCreateEvent = switch (logType) {
         case SUCCESS, DESTROYED, CANCELED -> true;
-        default -> settingsService.isUseScanEvents();
+        default -> settingsFacade.get(SKeys.advanced.scanLog.useScanEvents);
         };
 
         if (!shouldCreateEvent) {
@@ -170,7 +171,7 @@ public class ScanHelper {
         Long totalMemory = null;
         Long freeMemory = null;
 
-        if (settingsService.isMeasureMemory()) {
+        if (settingsFacade.get(SKeys.advanced.scanLog.measureMemory)) {
             Runtime runtime = Runtime.getRuntime();
             maxMemory = runtime.maxMemory();
             totalMemory = runtime.totalMemory();

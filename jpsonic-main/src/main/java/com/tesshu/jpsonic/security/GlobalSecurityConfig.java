@@ -27,9 +27,11 @@ import java.util.EnumSet;
 import java.util.Random;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
@@ -80,27 +82,28 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public static class AuthenticationManagerConfig {
 
         @Autowired
-        public void configure(SettingsService settingsService, SecurityService securityService,
-                AuthenticationManagerBuilder auth,
+        public void configure(SettingsFacade settingsFacade, SettingsFacade settings,
+                SecurityService securityService, AuthenticationManagerBuilder auth,
                 CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
-            if (settingsService.isLdapEnabled()) {
+            if (settingsFacade.get(SKeys.advanced.ldap.enabled)) {
                 auth
                     .ldapAuthentication()
                     .contextSource()
-                    .managerDn(settingsService.getLdapManagerDn())
-                    .managerPassword(settingsService.getLdapManagerPassword())
-                    .url(settingsService.getLdapUrl())
+                    .managerDn(settingsFacade.get(SKeys.advanced.ldap.managerDn))
+                    .managerPassword(
+                            settingsFacade.getDecodedString(SKeys.advanced.ldap.managerPassword))
+                    .url(settingsFacade.get(SKeys.advanced.ldap.url))
                     .and()
-                    .userSearchFilter(settingsService.getLdapSearchFilter())
+                    .userSearchFilter(settingsFacade.get(SKeys.advanced.ldap.searchFilter))
                     .userDetailsContextMapper(customUserDetailsContextMapper);
             }
             auth.userDetailsService(securityService);
-            String jwtKey = settingsService.getJWTKey();
+
+            String jwtKey = settings.get(SKeys.deprecatedSecrets.jwtKey);
             if (StringUtils.isBlank(jwtKey)) {
                 LoggerFactory.getLogger(GlobalSecurityConfig.class).warn("Generating new jwt key");
                 jwtKey = JWTSecurityService.generateKey();
-                settingsService.setJWTKey(jwtKey);
-                settingsService.save();
+                settings.commit(SKeys.deprecatedSecrets.jwtKey, jwtKey);
             }
             auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
         }
@@ -183,8 +186,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         }
 
         @Bean
-        public RememberMeKeyGenerator rememberMeKeyGenerator(SettingsService settingsService) {
-            return new RememberMeKeyGenerator(settingsService);
+        public RememberMeKeyGenerator rememberMeKeyGenerator(SettingsFacade settingsFacade) {
+            return new RememberMeKeyGenerator(settingsFacade);
         }
 
         @Bean
@@ -287,12 +290,12 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public static class RememberMeKeyGenerator {
 
         private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
-        private final SettingsService settingsService;
+        private final SettingsFacade settingsFacade;
         private final Random random = new SecureRandom();
 
-        public RememberMeKeyGenerator(SettingsService settingsService) {
+        public RememberMeKeyGenerator(SettingsFacade settingsFacade) {
             super();
-            this.settingsService = settingsService;
+            this.settingsFacade = settingsFacade;
         }
 
         private String generateRememberMeKey() {
@@ -314,16 +317,15 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             //
             // See:
             // https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html
-
-            String rememberMeKey = settingsService.getRememberMeKey();
-            boolean development = SettingsService.isDevelopmentMode();
-            if (StringUtils.isBlank(rememberMeKey) && !development) {
+            String rememberMeKey = settingsFacade.get(SKeys.deprecatedSecrets.rememberMeKey);
+            boolean suppressCaching = EnvironmentProvider.getInstance().isSuppressTomcatCaching();
+            if (StringUtils.isBlank(rememberMeKey) && !suppressCaching) {
                 // ...if it is empty, generate a random key on startup (default).
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
                 }
                 rememberMeKey = generateRememberMeKey();
-            } else if (StringUtils.isBlank(rememberMeKey) && development) {
+            } else if (StringUtils.isBlank(rememberMeKey) && suppressCaching) {
                 // ...if we are in development mode, we can use a fixed key.
                 if (LOG.isWarnEnabled()) {
                     LOG

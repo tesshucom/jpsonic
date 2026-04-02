@@ -39,9 +39,10 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,9 +70,9 @@ class UserSettingsControllerTest {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);
-        controller = new UserSettingsController(mock(SettingsService.class), musicFolderService,
-                securityService, mock(TranscodingService.class), mock(ShareService.class),
-                playerService);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        controller = new UserSettingsController(settingsFacade, musicFolderService, securityService,
+                mock(TranscodingService.class), mock(ShareService.class), playerService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

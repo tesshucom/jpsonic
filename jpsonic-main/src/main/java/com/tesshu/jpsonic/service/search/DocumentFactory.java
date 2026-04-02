@@ -43,8 +43,9 @@ import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -70,7 +71,7 @@ import org.springframework.stereotype.Component;
  * </p>
  */
 @Component
-@DependsOn({ "settingsService", "japaneseReadingUtils" })
+@DependsOn({ "settingsFacade", "japaneseReadingUtils" })
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class DocumentFactory {
 
@@ -78,11 +79,11 @@ public class DocumentFactory {
     private static final FieldType TYPE_ID_NO_STORE = FieldTypes.ID_NO_STORE.type;
     private static final FieldType TYPE_KEY = FieldTypes.KEY.type;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final JapaneseReadingUtils readingUtils;
 
-    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
-        this.settingsService = settingsService;
+    public DocumentFactory(SettingsFacade settingsFacade, JapaneseReadingUtils readingUtils) {
+        this.settingsFacade = settingsFacade;
         this.readingUtils = readingUtils;
     }
 
@@ -176,9 +177,11 @@ public class DocumentFactory {
             return;
         }
 
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        IndexScheme scheme = IndexScheme
+            .of(settingsFacade.get(SKeys.advanced.index.indexSchemeName));
         boolean isJapanese = containsJapanese(value);
-        boolean useInternal = settingsService.isForceInternalValueInsteadOfTags();
+        boolean useInternal = settingsFacade
+            .get(SKeys.advanced.index.forceInternalValueInsteadOfTags);
 
         switch (scheme) {
         case WITHOUT_JP_LANG_PROCESSING -> applyTextAndSortedField(doc, field, result);

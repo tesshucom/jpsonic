@@ -45,8 +45,9 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -77,7 +78,7 @@ public class TopController {
                 ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(),
                 ViewName.MORE.value());
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final ScannerStateService scannerStateService;
@@ -86,12 +87,12 @@ public class TopController {
     private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
-    public TopController(SettingsService settingsService, MusicFolderService musicFolderService,
+    public TopController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             SecurityService securityService, ScannerStateService scannerStateService,
             MusicIndexService musicIndexService, VersionService versionService,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.scannerStateService = scannerStateService;
@@ -120,7 +121,7 @@ public class TopController {
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
-        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useRadio", settingsFacade.get(SKeys.general.legacy.useRadio));
 
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
@@ -192,9 +193,6 @@ public class TopController {
 
         long lastModified = Instant.now().toEpochMilli();
         String username = securityService.getCurrentUsernameStrict(request);
-
-        // When was settings last changed?
-        lastModified = Math.max(lastModified, settingsService.getSettingsChanged());
 
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);

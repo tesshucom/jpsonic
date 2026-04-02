@@ -39,8 +39,10 @@ import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,18 +64,21 @@ class FolderOrAlbumLogicTest {
     void setup() {
         util = mock(UpnpProcessorUtil.class);
         albumDao = mock(AlbumDao.class);
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
+        SettingsFacade settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+            .build();
+
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-            .fromUriString(
-                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
+                    + ViewName.COVER_ART.value())
             .queryParam("id", "99")
             .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
         Mockito
             .when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
             .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
                 mock(MediaFileService.class), mock(PlayerService.class),
                 mock(TranscodingService.class));
         logic = new FolderOrAlbumLogic(util, factory, albumDao);

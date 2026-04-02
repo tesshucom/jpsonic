@@ -25,6 +25,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -42,16 +44,15 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     private static final Logger LOG = LoggerFactory.getLogger(PodcastScheduleConfiguration.class);
 
     private final TaskScheduler taskScheduler;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final PodcastService podcastService;
     private final ScannerStateService scannerStateService;
 
-    public PodcastScheduleConfiguration(TaskScheduler taskScheduler,
-            SettingsService settingsService, PodcastService podcastService,
-            ScannerStateService scannerStateService) {
+    public PodcastScheduleConfiguration(TaskScheduler taskScheduler, SettingsFacade settingsFacade,
+            PodcastService podcastService, ScannerStateService scannerStateService) {
         super();
         this.taskScheduler = taskScheduler;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.podcastService = podcastService;
         this.scannerStateService = scannerStateService;
     }
@@ -75,18 +76,18 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 LOG.info("Auto Podcast update will be performed.");
                 podcastService.refreshAllChannels(true);
             }
-        }, new PodcastUpdateTrigger(settingsService, scannerStateService));
+        }, new PodcastUpdateTrigger(settingsFacade, scannerStateService));
     }
 
     static class PodcastUpdateTrigger implements Trigger {
 
-        private final SettingsService settingsService;
+        private final SettingsFacade settingsFacade;
         private final ScannerStateService scannerStateService;
 
-        PodcastUpdateTrigger(SettingsService settingsService,
+        PodcastUpdateTrigger(SettingsFacade settingsFacade,
                 ScannerStateService scannerStateService) {
             super();
-            this.settingsService = settingsService;
+            this.settingsFacade = settingsFacade;
             this.scannerStateService = scannerStateService;
         }
 
@@ -103,7 +104,8 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
             if (this.scannerStateService.isScanning()) {
                 msg = "Auto Podcast update has been rescheduled because being scanning. (Next {})";
             } else {
-                msg = "Auto Podcast update every " + settingsService.getPodcastUpdateInterval()
+                msg = "Auto Podcast update every "
+                        + settingsFacade.get(SKeys.podcast.updateInterval)
                         + " hours was scheduled. (Next {})";
             }
 
@@ -116,7 +118,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
 
         @Override
         public Instant nextExecution(TriggerContext triggerContext) {
-            int hoursBetween = settingsService.getPodcastUpdateInterval();
+            int hoursBetween = settingsFacade.get(SKeys.podcast.updateInterval);
             if (hoursBetween == -1) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Automatic Podcast update disabled.");

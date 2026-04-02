@@ -50,8 +50,6 @@ class JAlbumDaoTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        setSortStrict(true);
-        setSortAlphanum(true);
         populateDatabaseOnlyOnce();
     }
 

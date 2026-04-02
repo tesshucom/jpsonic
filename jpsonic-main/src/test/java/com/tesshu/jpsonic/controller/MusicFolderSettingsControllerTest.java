@@ -31,7 +31,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
@@ -41,9 +40,12 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -69,18 +71,23 @@ class MusicFolderSettingsControllerTest {
 
     private static final String VIEW_NAME = "musicFolderSettings";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private MusicFolderServiceImpl musicFolderService;
     private MediaScannerService mediaScannerService;
     private MusicFolderSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         musicFolderService = mock(MusicFolderServiceImpl.class);
         mediaScannerService = mock(MediaScannerService.class);
-        controller = new MusicFolderSettingsController(settingsService, musicFolderService,
+        controller = new MusicFolderSettingsController(settingsFacade, musicFolderService,
                 mock(SecurityService.class), mediaScannerService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -268,6 +275,12 @@ class MusicFolderSettingsControllerTest {
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfIgnoreFileTimestamps() throws Exception {
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, captor)
+            .build();
+        init();
 
         MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -278,13 +291,15 @@ class MusicFolderSettingsControllerTest {
         assertFalse(command.isIgnoreFileTimestamps());
 
         command.setIgnoreFileTimestamps(true);
-        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(captor.getValue());
 
         captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, captor)
+            .build();
+        init();
         command.setIgnoreFileTimestamps(false);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertFalse(captor.getValue());

@@ -26,13 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,18 +55,23 @@ class RecoverControllerTest {
     private static final String ATTR_SITE_KEY = "recaptchaSiteKey";
     private static final String RECAPTCHA_SITE_KEY = "testRecaptchaSiteKey";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
     private RecoverService recoverService;
     private RecoverController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         securityService = mock(SecurityService.class);
         recoverService = mock(RecoverService.class);
-        controller = new RecoverController(settingsService, securityService, recoverService);
+        controller = new RecoverController(settingsFacade, securityService, recoverService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -154,7 +161,12 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR01() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(false);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, false)
+            .build();
+        init();
+
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/recover.view"))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -177,8 +189,13 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR02() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .build();
+        init();
+
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/recover.view"))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -203,8 +220,12 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR03() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .build();
+        init();
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -228,8 +249,12 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR04() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .build();
+        init();
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -255,8 +280,12 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR05() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .build();
+        init();
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito
             .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
@@ -286,14 +315,18 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR06() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .withString(SKeys.advanced.smtp.server, null)
+            .build();
+        init();
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito
             .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
             .thenReturn(
                     new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
-        Mockito.when(settingsService.getSmtpServer()).thenReturn(null);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -319,14 +352,18 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR07() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .withString(SKeys.advanced.smtp.server, "")
+            .build();
+        init();
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito
             .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
             .thenReturn(
                     new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
-        Mockito.when(settingsService.getSmtpServer()).thenReturn("");
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -353,14 +390,19 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR08() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .withString(SKeys.advanced.smtp.server, "dummySMTP")
+            .build();
+        init();
+
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito
             .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
             .thenReturn(
                     new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
-        Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(false);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -388,14 +430,18 @@ class RecoverControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testR09() throws Exception {
-        Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
-        Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(RECAPTCHA_SITE_KEY);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.advanced.captcha.enabled, true)
+            .withString(SKeys.advanced.captcha.siteKey, RECAPTCHA_SITE_KEY)
+            .withString(SKeys.advanced.smtp.server, "dummySMTP")
+            .build();
+        init();
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito
             .when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
             .thenReturn(
                     new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
-        Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(true);
 
         MockHttpServletRequest req = new MockHttpServletRequest();

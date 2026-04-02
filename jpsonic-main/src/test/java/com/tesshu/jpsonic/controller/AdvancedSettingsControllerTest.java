@@ -32,8 +32,11 @@ import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -52,14 +55,23 @@ class AdvancedSettingsControllerTest {
 
     private static final String VIEW_NAME = "advancedSettings";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private AdvancedSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        controller = new AdvancedSettingsController(settingsService, mock(SecurityService.class),
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    SKeys.advanced.index.indexSchemeName.defaultValue())
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+        controller = new AdvancedSettingsController(settingsFacade, mock(SecurityService.class),
                 mock(ShareService.class), mock(OutlineHelpSelector.class),
                 mock(ScannerStateService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -111,16 +123,17 @@ class AdvancedSettingsControllerTest {
 
     @Test
     void testSetScanLog() {
-
-        Mockito.when(settingsService.getDefaultScanLogRetention()).thenReturn(-1);
-
         ArgumentCaptor<Integer> scanLogRetention = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Boolean> useScanEvents = ArgumentCaptor.forClass(Boolean.class);
         ArgumentCaptor<Boolean> measureMemory = ArgumentCaptor.forClass(Boolean.class);
-
-        Mockito.doNothing().when(settingsService).setScanLogRetention(scanLogRetention.capture());
-        Mockito.doNothing().when(settingsService).setUseScanEvents(useScanEvents.capture());
-        Mockito.doNothing().when(settingsService).setMeasureMemory(measureMemory.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withInt(SKeys.advanced.scanLog.scanLogRetention, -1)
+            .captureInt(SKeys.advanced.scanLog.scanLogRetention, scanLogRetention)
+            .captureBoolean(SKeys.advanced.scanLog.useScanEvents, useScanEvents)
+            .captureBoolean(SKeys.advanced.scanLog.measureMemory, measureMemory)
+            .build();
+        init();
 
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
         command.setUseScanLog(false);
@@ -148,12 +161,22 @@ class AdvancedSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testChangeIndexScheme() throws Exception {
-
+        ArgumentCaptor<Boolean> forceInternalValueInsteadOfTags = ArgumentCaptor
+            .forClass(Boolean.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .captureBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags,
+                    forceInternalValueInsteadOfTags)
+            .build();
+        init();
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
         assertNotNull(result);
+
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
@@ -165,64 +188,55 @@ class AdvancedSettingsControllerTest {
         assertFalse(command.isForceInternalValueInsteadOfTags());
         command.setForceInternalValueInsteadOfTags(true);
 
-        assertEquals(IndexScheme.NATIVE_JAPANESE, command.getIndexScheme());
-        assertFalse(settingsService.isIgnoreFileTimestamps());
+        assertEquals(IndexScheme.WITHOUT_JP_LANG_PROCESSING, command.getIndexScheme());
+        assertFalse(settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps));
 
-        ArgumentCaptor<Boolean> forceInternalValueInsteadOfTags = ArgumentCaptor
-            .forClass(Boolean.class);
-        Mockito
-            .doNothing()
-            .when(settingsService)
-            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
-
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
         command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertEquals(1, forceInternalValueInsteadOfTags.getAllValues().size());
         assertFalse(forceInternalValueInsteadOfTags.getValue());
 
-        Mockito.clearInvocations(settingsService);
         forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
-        Mockito
-            .doNothing()
-            .when(settingsService)
-            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .captureBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags,
+                    forceInternalValueInsteadOfTags)
+            .build();
+        init();
+
         command.setIndexScheme(IndexScheme.ROMANIZED_JAPANESE);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertEquals(1, forceInternalValueInsteadOfTags.getAllValues().size());
         assertTrue(forceInternalValueInsteadOfTags.getValue());
 
-        Mockito.clearInvocations(settingsService);
         forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
-        Mockito
-            .doNothing()
-            .when(settingsService)
-            .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-        command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito
-            .verify(settingsService, Mockito.times(1))
-            .setForceInternalValueInsteadOfTags(Mockito.anyBoolean());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .captureBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags,
+                    forceInternalValueInsteadOfTags)
+            .build();
+        init();
 
         command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertEquals(1, forceInternalValueInsteadOfTags.getAllValues().size());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertEquals(2, forceInternalValueInsteadOfTags.getAllValues().size());
 
-        Mockito.clearInvocations(settingsService);
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-        assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
+        forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .captureBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags,
+                    forceInternalValueInsteadOfTags)
+            .build();
+        init();
         command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-
-        Mockito.clearInvocations(settingsService);
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-        command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertEquals(1, forceInternalValueInsteadOfTags.getAllValues().size());
+        assertFalse(forceInternalValueInsteadOfTags.getValue());
     }
 }

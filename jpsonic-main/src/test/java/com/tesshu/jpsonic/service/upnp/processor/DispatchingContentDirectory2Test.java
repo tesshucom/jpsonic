@@ -29,8 +29,9 @@ import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
     private DispatchingContentDirectory contentDirectory;
 
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     private List<MusicFolder> musicFolders;
 
@@ -64,8 +65,7 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
             .asList(new MusicFolder(1, Path
                 .of(DispatchingContentDirectory2Test.class.getResource("/MEDIAS/Music").toURI())
                 .toString(), "Music", true, now(), 1, false));
-        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-        settingsService.save();
+        settingsFacade.commit(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
         populateDatabaseOnlyOnce();
     }
 
@@ -117,8 +117,8 @@ class DispatchingContentDirectory2Test extends AbstractNeedsScan {
         // Unlike Subsonic and Airsonic, Jpsonic allows searching by tag even if your
         // music lib
         // does not have a three-layer structure.
-        settingsService.setUPnPSearchMethod(UPnPSearchMethod.ID3.name());
-        settingsService.save();
+
+        settingsFacade.commit(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
 
         query = """
                 (upnp:class = "object.container.person.musicArtist" \

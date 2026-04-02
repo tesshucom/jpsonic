@@ -43,7 +43,8 @@ import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
@@ -97,26 +98,26 @@ public class SearchServiceImpl implements SearchService {
     private final QueryFactory queryFactory;
     private final IndexManager indexManager;
     private final SearchServiceUtilities util;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
 
     public SearchServiceImpl(LuceneUtils luceneUtils, QueryFactory queryFactory,
-            IndexManager indexManager, SearchServiceUtilities util, SettingsService settingsService,
+            IndexManager indexManager, SearchServiceUtilities util, SettingsFacade settingsFacade,
             MediaFileDao mediaFileDao, AlbumDao albumDao) {
         super();
         this.luceneUtils = luceneUtils;
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;
         this.util = util;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
     }
 
     // Logs the search query if settings and log level allow it
     private void logSearchQueryIfNeeded(HttpSearchCriteria criteria) {
-        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
+        if (settingsFacade.get(SKeys.general.search.outputSearchQuery) && LOG.isInfoEnabled()) {
             LOG
                 .info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}",
                         criteria.targetType(), criteria.input(), criteria.offset(),
@@ -251,7 +252,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private void writeUPnPSerchLog(IndexType indexType, UPnPSearchCriteria criteria) {
-        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
+        if (settingsFacade.get(SKeys.general.search.outputSearchQuery) && LOG.isInfoEnabled()) {
             LOG
                 .info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}",
                         indexType, criteria.input(), criteria.offset(), criteria.count());

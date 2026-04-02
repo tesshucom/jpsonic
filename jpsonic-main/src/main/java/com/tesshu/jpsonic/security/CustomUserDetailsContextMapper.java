@@ -41,7 +41,8 @@ import java.util.Collection;
 
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -63,13 +64,13 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
     private static final String ATTRIBUTE_NAME_PASSWORD = "userPassword";
 
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
     public CustomUserDetailsContextMapper(SecurityService securityService,
-            SettingsService settingsService) {
+            SettingsFacade settingsFacade) {
         super();
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
     }
 
     @Override
@@ -83,7 +84,8 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
         // User must be defined in Airsonic, unless auto-shadowing is enabled.
         User user = securityService.getUserByName(username, false);
-        if (user == null && !settingsService.isLdapAutoShadowing()) {
+
+        if (user == null && !settingsFacade.get(SKeys.advanced.ldap.autoShadowing)) {
             throw new BadCredentialsException("User does not exist.");
         }
 

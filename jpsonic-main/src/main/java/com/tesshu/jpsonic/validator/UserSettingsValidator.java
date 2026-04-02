@@ -24,7 +24,8 @@ package com.tesshu.jpsonic.validator;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.UserSettingsController;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
@@ -44,13 +45,13 @@ public class UserSettingsValidator implements Validator {
     private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
 
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final HttpServletRequest request;
 
-    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService,
+    public UserSettingsValidator(SecurityService securityService, SettingsFacade settingsFacade,
             HttpServletRequest request) {
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.request = request;
     }
 
@@ -85,7 +86,8 @@ public class UserSettingsValidator implements Validator {
                 errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.useralreadyexists");
             } else if (email == null) {
                 errors.rejectValue(REJECTED_FIELD_EMAIL, "usersettings.noemail");
-            } else if (command.isLdapAuthenticated() && !settingsService.isLdapEnabled()) {
+            } else if (command.isLdapAuthenticated()
+                    && !settingsFacade.get(SKeys.advanced.ldap.enabled)) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.ldapdisabled");
             } else if (command.isLdapAuthenticated() && password != null) {
                 errors

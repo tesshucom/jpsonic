@@ -48,8 +48,9 @@ import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -71,12 +72,12 @@ class HomeControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(
-                    new HomeController(mock(SettingsService.class), mock(SecurityService.class),
-                            mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
-                            mock(RatingService.class), mock(MediaFileService.class),
-                            mock(SearchService.class), mock(MusicIndexService.class)))
+            .standaloneSetup(new HomeController(settingsFacade, mock(SecurityService.class),
+                    mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
+                    mock(RatingService.class), mock(MediaFileService.class),
+                    mock(SearchService.class), mock(MusicIndexService.class)))
             .build();
     }
 
@@ -113,10 +114,10 @@ class HomeControllerTest {
             mediaFileService = mock(MediaFileService.class);
             searchService = mock(SearchService.class);
             musicIndexService = mock(MusicIndexService.class);
-            SettingsService settingsService = mock(SettingsService.class);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             SecurityService securityService = mock(SecurityService.class);
             ScannerStateService scannerStateService = mock(ScannerStateService.class);
-            controller = new HomeController(settingsService, securityService, musicFolderService,
+            controller = new HomeController(settingsFacade, securityService, musicFolderService,
                     scannerStateService, ratingService, mediaFileService, searchService,
                     musicIndexService);
         }

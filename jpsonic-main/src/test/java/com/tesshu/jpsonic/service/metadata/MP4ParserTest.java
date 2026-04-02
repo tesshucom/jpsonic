@@ -138,7 +138,6 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate());
     }
 
-    @EnabledOnOs(OS.LINUX)
     @Order(3)
     @Test
     void testParseWithFFProbe() throws URISyntaxException, IOException {

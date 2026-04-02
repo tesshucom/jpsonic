@@ -53,7 +53,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * <ul>
  * <li>Logic that depends on files located under the home directory</li>
  * <li>Services that read or write configuration files (e.g.,
- * {@code SettingsService})</li>
+ * {@code SettingsFacade})</li>
  * <li>Components that produce logs or other output under the home
  * directory</li>
  * </ul>

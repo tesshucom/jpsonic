@@ -24,8 +24,13 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,11 +38,12 @@ import java.time.temporal.ChronoUnit;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
@@ -47,17 +53,17 @@ import org.springframework.scheduling.config.TriggerTask;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class PodcastScheduleConfigurationTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private PodcastService podcastService;
     private PodcastScheduleConfiguration configuration;
     private ScannerStateService scannerStateService;
 
     @BeforeEach
-    void setup() throws URISyntaxException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = mock(SettingsFacade.class);
         podcastService = mock(PodcastService.class);
         scannerStateService = mock(ScannerStateService.class);
-        configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsService,
+        configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsFacade,
                 podcastService, scannerStateService);
         TestCaseUtils.setLogLevel(PodcastScheduleConfiguration.class, Level.TRACE);
     }
@@ -101,20 +107,19 @@ class PodcastScheduleConfigurationTest {
 
             // Confirmation of scan startup
             task.getRunnable().run();
-            Mockito
-                .verify(podcastService, Mockito.times(1))
-                .refreshAllChannels(Mockito.anyBoolean());
-            Mockito.clearInvocations(podcastService);
+            verify(podcastService, times(1)).refreshAllChannels(anyBoolean());
+            clearInvocations(podcastService);
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
 
             // Do nothing
-            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
+
+            when(settingsFacade.get(SKeys.podcast.updateInterval)).thenReturn(-1);
             assertNull(trigger.nextExecution(triggerContext));
 
             int hourOfweek = 24 * 7;
-            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(hourOfweek);
+            when(settingsFacade.get(SKeys.podcast.updateInterval)).thenReturn(hourOfweek);
 
             // Operation check at the first startup
             LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
@@ -128,7 +133,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletion()).thenReturn(firstTime);
+            when(triggerContext.lastCompletion()).thenReturn(firstTime);
             LocalDateTime secondDateTime = Instant
                 .ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
                 .atZone(ZoneId.systemDefault())
@@ -138,9 +143,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(secondExpected.getHour(), secondDateTime.getHour());
             assertEquals(secondExpected.getMinute(), secondDateTime.getMinute());
 
-            Mockito
-                .verify(podcastService, Mockito.never())
-                .refreshAllChannels(Mockito.anyBoolean());
+            verify(podcastService, never()).refreshAllChannels(anyBoolean());
         }
 
         /*
@@ -150,7 +153,7 @@ class PodcastScheduleConfigurationTest {
         @Test
         void testExecutionTimeDuringScan() {
 
-            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            when(scannerStateService.isScanning()).thenReturn(true);
 
             ScheduledTaskRegistrar registrar = new ScheduledTaskRegistrar();
             configuration.configureTasks(registrar);
@@ -167,19 +170,17 @@ class PodcastScheduleConfigurationTest {
             // Confirmation of scan startup
             task.getRunnable().run();
 
-            Mockito
-                .verify(podcastService, Mockito.never())
-                .refreshAllChannels(Mockito.anyBoolean());
+            verify(podcastService, never()).refreshAllChannels(anyBoolean());
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
 
             // Do nothing
-            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
+            when(settingsFacade.get(SKeys.podcast.updateInterval)).thenReturn(-1);
             assertNull(trigger.nextExecution(triggerContext));
 
             int hourOfweek = 24 * 7;
-            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(hourOfweek);
+            when(settingsFacade.get(SKeys.podcast.updateInterval)).thenReturn(hourOfweek);
 
             // Operation check at the first startup
             LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
@@ -193,7 +194,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletion()).thenReturn(firstTime);
+            when(triggerContext.lastCompletion()).thenReturn(firstTime);
             LocalDateTime secondDateTime = Instant
                 .ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
                 .atZone(ZoneId.systemDefault())
@@ -204,9 +205,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(secondExpected.getHour(), secondDateTime.getHour());
             assertEquals(secondExpected.getMinute(), secondDateTime.getMinute());
 
-            Mockito
-                .verify(podcastService, Mockito.never())
-                .refreshAllChannels(Mockito.anyBoolean());
+            verify(podcastService, never()).refreshAllChannels(anyBoolean());
         }
 
     }

@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class VideoParserTest {
 
@@ -39,9 +39,11 @@ class VideoParserTest {
 
     @BeforeEach
     void setUp() {
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Arrays.asList("mp4"));
-        parser = new VideoParser(settingsService, mock(MusicFolderService.class),
+        SettingsFacade settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.general.extension.videoFileTypes, "mp4")
+            .build();
+        parser = new VideoParser(settingsFacade, mock(MusicFolderService.class),
                 mock(FFprobe.class));
     }
 

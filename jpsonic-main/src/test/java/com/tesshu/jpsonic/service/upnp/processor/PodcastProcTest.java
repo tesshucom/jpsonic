@@ -38,8 +38,9 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -54,8 +55,8 @@ class PodcastProcTest {
 
     @BeforeEach
     void setup() {
-        SettingsService settingsService = mock(SettingsService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
                 mock(JWTSecurityService.class), mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
         podcastService = mock(PodcastService.class);

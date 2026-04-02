@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,6 +44,9 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,13 +56,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class JWTSecurityServiceTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private JWTSecurityService jwtSecurityService;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        jwtSecurityService = new JWTSecurityService(settingsFacade);
     }
 
     @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.UnnecessaryVarargsArrayCreation" }) // false
@@ -82,7 +84,8 @@ class JWTSecurityServiceTest {
                     .build()
                     .getQueryParams()
                     .getFirst(JWTSecurityService.JWT_PARAM_NAME);
-                Algorithm algorithm = JWTSecurityService.getAlgorithm(settingsService.getJWTKey());
+                Algorithm algorithm = JWTSecurityService
+                    .getAlgorithm(settingsFacade.get(SKeys.deprecatedSecrets.jwtKey));
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT verify = verifier.verify(jwtToken);
                 Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);

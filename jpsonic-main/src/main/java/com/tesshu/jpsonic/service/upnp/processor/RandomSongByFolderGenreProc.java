@@ -26,8 +26,9 @@ import java.util.List;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFGenre;
@@ -38,15 +39,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class RandomSongByFolderGenreProc extends SongByFolderGenreProc implements CountLimitProc {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
 
-    public RandomSongByFolderGenreProc(SettingsService settingsService, SearchService searchService,
+    public RandomSongByFolderGenreProc(SettingsFacade settingsFacade, SearchService searchService,
             UpnpDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
-        super(settingsService, searchService, factory, folderOrGenreLogic);
-        this.settingsService = settingsService;
+        super(settingsFacade, searchService, factory, folderOrGenreLogic);
+        this.settingsFacade = settingsFacade;
         this.searchService = searchService;
         this.factory = factory;
         this.deligate = folderOrGenreLogic;
@@ -92,7 +93,7 @@ public class RandomSongByFolderGenreProc extends SongByFolderGenreProc implement
     public int getChildSizeOf(FolderOrFGenre folderOrGenre) {
         int childSize = super.getChildSizeOf(folderOrGenre);
         if (folderOrGenre.isFolderGenre()) {
-            return Math.min(childSize, settingsService.getDlnaRandomMax());
+            return Math.min(childSize, settingsFacade.get(UPnPSKeys.options.randomMax));
         }
         return childSize;
     }

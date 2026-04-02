@@ -130,8 +130,6 @@ class RecentAlbumId3ProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
             populateDatabaseOnlyOnce();
         }
 

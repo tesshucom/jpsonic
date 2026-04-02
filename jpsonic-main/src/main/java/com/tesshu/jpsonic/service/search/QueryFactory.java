@@ -29,7 +29,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.annotation.Nonnull;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -50,7 +51,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class QueryFactory {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final LuceneQueryBuilder luceneQueryBuilder;
     private final AnalyzerFactory analyzerFactory;
 
@@ -59,13 +60,13 @@ public class QueryFactory {
     /**
      * Constructs a QueryFactory.
      *
-     * @param settingsService the settings service
+     * @param settingsFacade  the settings
      * @param analyzerFactory the analyzer factory
      */
-    public QueryFactory(SettingsService settingsService, AnalyzerFactory analyzerFactory) {
-        this.settingsService = settingsService;
+    public QueryFactory(SettingsFacade settingsFacade, AnalyzerFactory analyzerFactory) {
+        this.settingsFacade = settingsFacade;
         this.analyzerFactory = analyzerFactory;
-        this.luceneQueryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsService);
+        this.luceneQueryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsFacade);
     }
 
     /**
@@ -103,7 +104,7 @@ public class QueryFactory {
      */
     public Optional<Query> createPhraseQuery(List<String> targetFields, @Nonnull String queryString,
             @Nonnull IndexType indexType) throws IOException {
-        boolean includeComposer = settingsService.isSearchComposer();
+        boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer);
         return luceneQueryBuilder
             .buildMultiFieldQueryWithBoost(targetFields, queryString, indexType.getBoosts(),
                     includeComposer);
@@ -123,7 +124,8 @@ public class QueryFactory {
             @Nonnull List<MusicFolder> musicFolders, @Nonnull IndexType indexType)
             throws IOException {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        boolean composerIncluded = includeComposer || settingsService.isSearchComposer();
+        boolean composerIncluded = includeComposer
+                || settingsFacade.get(SKeys.general.search.searchComposer);
 
         Optional<Query> textQuery = luceneQueryBuilder
             .buildMultiFieldQueryWithBoost(indexType.getFields(), searchInput,

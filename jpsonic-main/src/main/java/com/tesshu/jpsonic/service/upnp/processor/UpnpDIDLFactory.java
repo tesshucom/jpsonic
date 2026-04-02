@@ -44,8 +44,9 @@ import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
@@ -86,16 +87,16 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
                 () -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
     private static final String SUB_DIR_EXT = "/ext/";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final JWTSecurityService jwtSecurityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
 
-    public UpnpDIDLFactory(SettingsService settingsService, JWTSecurityService jwtSecurityService,
+    public UpnpDIDLFactory(SettingsFacade settingsFacade, JWTSecurityService jwtSecurityService,
             MediaFileService mediaFileService, PlayerService playerService,
             TranscodingService transcodingService) {
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.jwtSecurityService = jwtSecurityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
@@ -116,7 +117,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
         String token = addJWTToken(builder).toUriString();
-        if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
+        if (settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions)
+                && !StringUtils.isEmpty(song.getFormat())) {
             Player player = playerService.getUPnPPlayer();
             String fmt = transcodingService.getSuffix(player, song, null);
             token = token.concat(".").concat(fmt);
@@ -129,7 +131,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private String getBaseUrl() {
-        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
+        String dlnaBaseLANURL = settingsFacade.get(UPnPSKeys.basic.baseLanUrl);
         if (StringUtils.isBlank(dlnaBaseLANURL)) {
             throw new IllegalArgumentException("UPnP Base LAN URL is not set correctly");
         }

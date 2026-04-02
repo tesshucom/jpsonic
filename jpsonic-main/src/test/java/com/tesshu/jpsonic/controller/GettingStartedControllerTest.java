@@ -19,13 +19,14 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -42,8 +43,10 @@ class GettingStartedControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new GettingStartedController(mock(SettingsService.class)))
+            .standaloneSetup(new GettingStartedController(settingsFacade, serverLocaleService))
             .build();
     }
 

@@ -31,8 +31,9 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.contentdirectory.ContentDirectoryException;
@@ -48,7 +49,7 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
     private DispatchingContentDirectory contentDirectory;
 
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settings;
 
     private List<MusicFolder> musicFolders;
 
@@ -67,8 +68,7 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
                             .toURI())
                         .toString(),
                     "Artists", true, now(), 1, false));
-        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-        settingsService.save();
+        settings.commit(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
         populateDatabaseOnlyOnce();
     }
 
@@ -123,7 +123,7 @@ class DispatchingContentDirectory1Test extends AbstractNeedsScan {
         // management. Therefore, if a tag is missing, the same result as the File
         // Structure will be
         // returned, preventing missing results.
-        settingsService.setUPnPSearchMethod(UPnPSearchMethod.ID3.name());
+        settings.commit(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
         query = """
                 (upnp:class = "object.container.person.musicArtist" \
                 and dc:title contains "はるなつあきふゆ")\

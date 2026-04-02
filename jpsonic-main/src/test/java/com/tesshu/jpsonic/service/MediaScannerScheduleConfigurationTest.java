@@ -22,6 +22,11 @@ package com.tesshu.jpsonic.service;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -32,21 +37,22 @@ import java.time.temporal.ChronoUnit;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
-import org.junit.AfterClass;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.config.TriggerTask;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class MediaScannerScheduleConfigurationTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private MediaScannerService mediaScannerService;
     private MediaScannerScheduleConfiguration configuration;
 
@@ -54,10 +60,11 @@ class MediaScannerScheduleConfigurationTest {
 
     @BeforeEach
     void setup() throws URISyntaxException {
-        settingsService = mock(SettingsService.class);
+        settingsFacade = mock(SettingsFacade.class);
+        when(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)).thenReturn(0);
         mediaScannerService = mock(MediaScannerService.class);
         configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class),
-                settingsService, mediaScannerService);
+                settingsFacade, mediaScannerService);
         now = LocalDateTime.now();
         TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.TRACE);
     }
@@ -65,11 +72,6 @@ class MediaScannerScheduleConfigurationTest {
     @AfterEach
     void tearDown() {
         TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.WARN);
-    }
-
-    @AfterClass
-    static void afterClass() throws URISyntaxException {
-        System.setProperty("jpsonic.scan.onboot", "false");
     }
 
     @Test
@@ -85,7 +87,8 @@ class MediaScannerScheduleConfigurationTest {
         // Date verify is simplified (coverage may not be available depending on system
         // time)
         int hour = 23;
-        Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
+        when(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)).thenReturn(hour);
+
         firstTime = configuration
             .createFirstTime()
             .atZone(ZoneId.systemDefault())
@@ -118,8 +121,8 @@ class MediaScannerScheduleConfigurationTest {
 
             // Confirmation of scan startup
             task.getRunnable().run();
-            Mockito.verify(mediaScannerService, Mockito.times(1)).scanLibrary();
-            Mockito.clearInvocations(mediaScannerService);
+            verify(mediaScannerService, times(1)).scanLibrary();
+            clearInvocations(mediaScannerService);
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
@@ -136,7 +139,7 @@ class MediaScannerScheduleConfigurationTest {
             assertEquals(0, firstDateTime.getMinute());
 
             int hour = 23;
-            Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
+            when(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)).thenReturn(hour);
             firstTime = trigger.nextExecution(triggerContext);
             firstDateTime = Instant
                 .ofEpochMilli(firstTime.toEpochMilli())
@@ -150,7 +153,7 @@ class MediaScannerScheduleConfigurationTest {
             assertEquals(0, firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletion()).thenReturn(firstTime);
+            when(triggerContext.lastCompletion()).thenReturn(firstTime);
             LocalDateTime secondDateTime = Instant
                 .ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
                 .atZone(ZoneId.systemDefault())
@@ -162,7 +165,7 @@ class MediaScannerScheduleConfigurationTest {
             // Whether the date is one day ahead
             assertEquals(firstDateTime.plus(1, ChronoUnit.DAYS).getDayOfMonth(),
                     secondDateTime.getDayOfMonth());
-            Mockito.verify(mediaScannerService, Mockito.never()).scanLibrary();
+            verify(mediaScannerService, never()).scanLibrary();
         }
 
         /**
@@ -177,13 +180,13 @@ class MediaScannerScheduleConfigurationTest {
             Trigger trigger = registrar.getTriggerTaskList().get(0).getTrigger();
 
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(mediaScannerService.neverScanned()).thenReturn(false);
+            when(mediaScannerService.neverScanned()).thenReturn(false);
             trigger.nextExecution(triggerContext);
-            Mockito.verify(mediaScannerService, Mockito.never()).scanLibrary();
+            verify(mediaScannerService, never()).scanLibrary();
 
-            Mockito.when(mediaScannerService.neverScanned()).thenReturn(true);
+            when(mediaScannerService.neverScanned()).thenReturn(true);
             trigger.nextExecution(triggerContext);
-            Mockito.verify(mediaScannerService, Mockito.times(1)).scanLibrary();
+            verify(mediaScannerService, times(1)).scanLibrary();
         }
     }
 }

@@ -25,7 +25,6 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -34,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.i18n.I18nSKeys;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -46,7 +47,6 @@ import com.tesshu.jpsonic.persistence.api.repository.RatingDao;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
@@ -54,10 +54,12 @@ import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanContext;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import net.sf.ehcache.Ehcache;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -71,16 +73,6 @@ import org.springframework.util.ObjectUtils;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.UseUtilityClass" })
 class IndexManagerTest {
-
-    @BeforeAll
-    static void setUpOnce() throws InterruptedException {
-        SettingsService.setDevelopmentMode(true);
-    }
-
-    @AfterAll
-    static void tearDownOnce() throws InterruptedException {
-        SettingsService.setDevelopmentMode(false);
-    }
 
     @Documented
     private @interface GetGenresDecisions {
@@ -134,19 +126,26 @@ class IndexManagerTest {
     @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     class GetGenresTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private IndexManager indexManager;
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
-            QueryFactory queryFactory = new QueryFactory(settingsService, null);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
+            QueryFactory queryFactory = new QueryFactory(settingsFacade, null);
             SearchServiceUtilities utils = new SearchServiceUtilities(mock(ArtistDao.class),
                     mock(AlbumDao.class), mock(Ehcache.class), null, mock(MediaFileService.class));
-            JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
-            JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
+            JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
+            ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
+                    serverLocaleService, readingUtils);
             indexManager = new IndexManager(new LuceneUtils(), null, null, queryFactory, utils,
-                    comparators, settingsService, null, null, null);
+                    comparators, settingsFacade, null, null, null);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -154,7 +153,12 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongCount
         @Test
         void c00() {
-            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.sort.genresByAlphabet, false)
+                .build();
+            init();
+
             indexManager.getGenres(false);
         }
 
@@ -163,7 +167,12 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumCount
         @Test
         void c01() {
-            when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.sort.genresByAlphabet, false)
+                .build();
+            init();
+
             indexManager.getGenres(true);
         }
 
@@ -172,9 +181,15 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongAlphabetical
         @Test
         void c02() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, Locale.ROOT.getLanguage())
+                .withString(I18nSKeys.localeCountry, Locale.ROOT.getCountry())
+                .withString(I18nSKeys.localeVariant, Locale.ROOT.getVariant())
+                .withBoolean(SKeys.general.sort.genresByAlphabet, true)
+                .build();
+            init();
 
-            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(false);
         }
 
@@ -183,9 +198,15 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumAlphabetical
         @Test
         void c03() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, Locale.ROOT.getLanguage())
+                .withString(I18nSKeys.localeCountry, Locale.ROOT.getCountry())
+                .withString(I18nSKeys.localeVariant, Locale.ROOT.getVariant())
+                .withBoolean(SKeys.general.sort.genresByAlphabet, true)
+                .build();
+            init();
 
-            when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(true);
         }
     }

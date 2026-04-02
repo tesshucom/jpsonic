@@ -28,12 +28,14 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -47,19 +49,22 @@ import org.springframework.stereotype.Component;
  * Executed through this class whenever domain objects in the system are sorted.
  */
 @Component
-@DependsOn({ "settingsService", "japaneseReadingUtils" })
+@DependsOn({ "settingsFacade", "japaneseReadingUtils" })
 public class JpsonicComparators {
 
     public enum OrderBy {
         TRACK, ARTIST, ALBUM
     }
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
+    private final ServerLocaleService serverLocaleService;
     private final JapaneseReadingUtils utils;
 
-    public JpsonicComparators(SettingsService settingsService, JapaneseReadingUtils utils) {
+    public JpsonicComparators(SettingsFacade settingsFacade,
+            ServerLocaleService serverLocaleService, JapaneseReadingUtils utils) {
         super();
-        this.settingsService = settingsService;
+        this.serverLocaleService = serverLocaleService;
+        this.settingsFacade = settingsFacade;
         this.utils = utils;
     }
 
@@ -103,8 +108,9 @@ public class JpsonicComparators {
      * Returns Collator which is used as standard in Jpsonic.
      */
     protected final Collator createCollator() {
-        Collator collator = Collator.getInstance(settingsService.getLocale());
-        return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
+        Collator collator = Collator.getInstance(serverLocaleService.getLocale());
+        return settingsFacade.get(SKeys.advanced.sort.alphanum) ? new AlphanumWrapper(collator)
+                : collator;
     }
 
     public Comparator<Genre> genreOrder(boolean sortByAlbum) {
@@ -117,13 +123,13 @@ public class JpsonicComparators {
     }
 
     private boolean isSortAlbumsByYear(MediaFile parent) {
-        return settingsService.isSortAlbumsByYear()
+        return settingsFacade.get(SKeys.general.sort.albumsByYear)
                 && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
-        return settingsService.isSortAlbumsByYear()
-                && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
+        return settingsFacade.get(SKeys.general.sort.albumsByYear)
+                && (isEmpty(artist) || !(settingsFacade.get(SKeys.general.sort.prohibitSortVarious)
                         && StringUtil.startsWithIgnoreCase(artist, "various")));
     }
 

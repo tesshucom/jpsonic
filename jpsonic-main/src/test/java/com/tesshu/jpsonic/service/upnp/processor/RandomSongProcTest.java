@@ -23,11 +23,15 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
@@ -37,15 +41,20 @@ import org.mockito.Mockito;
 class RandomSongProcTest {
 
     private SearchService searchService;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private RandomSongProc proc;
 
     @BeforeEach
     void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         searchService = mock(SearchService.class);
-        settingsService = mock(SettingsService.class);
         proc = new RandomSongProc(mock(UpnpProcessorUtil.class), mock(UpnpDIDLFactory.class),
-                mock(MediaFileService.class), searchService, settingsService);
+                mock(MediaFileService.class), searchService, settingsFacade);
     }
 
     @Test
@@ -55,9 +64,19 @@ class RandomSongProcTest {
 
     @Test
     void testBrowseRoot() throws ExecutionException {
+        AtomicInteger count = new AtomicInteger();
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withIntAnswer(UPnPSKeys.options.randomMax, invocation -> {
+                count.incrementAndGet();
+                return 999;
+            })
+            .build();
+        init();
+
         BrowseResult result = proc.browseRoot(null, 0, 0);
         assertEquals(0, result.getCount().getValue());
-        Mockito.verify(settingsService, Mockito.times(2)).getDlnaRandomMax();
+        assertEquals(2, count.get());
         Mockito
             .verify(searchService, Mockito.times(1))
             .getRandomSongs(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
@@ -75,7 +94,11 @@ class RandomSongProcTest {
 
     @Test
     void testGetDirectChildrenCount() {
-        Mockito.when(settingsService.getDlnaRandomMax()).thenReturn(1_000);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withInt(UPnPSKeys.options.randomMax, 1_000)
+            .build();
+        init();
         assertEquals(1_000, proc.getDirectChildrenCount());
     }
 }

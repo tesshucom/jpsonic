@@ -40,9 +40,11 @@ import java.util.concurrent.TimeUnit;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +64,9 @@ class PlayQueueTest {
 
     @BeforeEach
     void setup() {
-        jpsonicComparators = new JpsonicComparators(mock(SettingsService.class),
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        jpsonicComparators = new JpsonicComparators(settingsFacade, serverLocaleService,
                 mock(JapaneseReadingUtils.class));
     }
 

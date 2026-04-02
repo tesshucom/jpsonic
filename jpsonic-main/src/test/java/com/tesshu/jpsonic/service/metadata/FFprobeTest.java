@@ -38,8 +38,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -151,7 +149,6 @@ class FFprobeTest {
         assertEmpty(metaData);
     }
 
-    @EnabledOnOs(OS.LINUX)
     @Order(5)
     @Test
     void testTagged() throws URISyntaxException, IOException {
@@ -161,7 +158,6 @@ class FFprobeTest {
         assertTagsWrittenByMp3tag(metaData);
     }
 
-    @EnabledOnOs(OS.LINUX)
     @Order(5)
     @Test
     void testTaggedWithStatistics() throws URISyntaxException, IOException {

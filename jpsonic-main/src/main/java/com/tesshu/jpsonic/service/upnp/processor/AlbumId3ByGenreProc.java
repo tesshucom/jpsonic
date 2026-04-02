@@ -28,10 +28,11 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
@@ -45,23 +46,23 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SearchService searchService;
     private final AlbumDao albumDao;
 
     public AlbumId3ByGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            SettingsService settingsService, SearchService searchService, AlbumDao albumDao) {
+            SettingsFacade settingsFacade, SearchService searchService, AlbumDao albumDao) {
         super();
         this.util = util;
         this.factory = factory;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.searchService = searchService;
         this.albumDao = albumDao;
     }
 
     private GenreMasterCriteria createGenreMasterCriteria() {
         return new GenreMasterCriteria(util.getGuestFolders(), Scope.ALBUM,
-                Sort.of(settingsService.getUPnPAlbumGenreSort()), TYPES);
+                Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)), TYPES);
     }
 
     @Override

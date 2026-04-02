@@ -32,7 +32,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,15 +59,15 @@ public class VideoPlayerController {
     private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000,
             5000 };
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
-    public VideoPlayerController(SettingsService settingsService, SecurityService securityService,
+    public VideoPlayerController(SettingsFacade settingsFacade, SecurityService securityService,
             MediaFileService mediaFileService, PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
@@ -118,7 +119,7 @@ public class VideoPlayerController {
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
         }
 
-        map.put("useCast", settingsService.isUseCast());
+        map.put("useCast", settingsFacade.get(SKeys.general.legacy.useCast));
 
         return new ModelAndView("videoPlayer", "model", map);
     }

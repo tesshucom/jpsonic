@@ -24,7 +24,8 @@ import java.util.List;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,15 +33,15 @@ public class RandomSongProc extends MediaFileByFolderProc implements CountLimitP
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
     public RandomSongProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
             MediaFileService mediaFileService, SearchService searchService,
-            SettingsService settingsService) {
+            SettingsFacade settingsFacade) {
         super(util, factory, mediaFileService);
         this.util = util;
         this.searchService = searchService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
     }
 
     @Override
@@ -58,6 +59,6 @@ public class RandomSongProc extends MediaFileByFolderProc implements CountLimitP
 
     @Override
     public int getDirectChildrenCount() {
-        return settingsService.getDlnaRandomMax();
+        return settingsFacade.get(UPnPSKeys.options.randomMax);
     }
 }

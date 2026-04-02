@@ -29,7 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.infrastructure.NeedsHome;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ class MetaDataParserFactoryTest {
     private MetaDataParserFactory metaDataParserFactory;
 
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -70,7 +71,7 @@ class MetaDataParserFactoryTest {
     void testorder() {
         MetaDataParser parser;
 
-        settingsService.setVideoFileTypes("mp3 flv");
+        settingsFacade.commit(SKeys.general.extension.videoFileTypes, "mp3 flv");
 
         parser = metaDataParserFactory.getParser(someMp3);
         assertThat(parser, instanceOf(MusicParser.class));

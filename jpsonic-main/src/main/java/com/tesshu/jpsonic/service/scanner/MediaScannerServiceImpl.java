@@ -30,7 +30,8 @@ import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ScannerStateServiceImpl scannerState;
 
     private final PreScanProcedure preScanProc;
@@ -88,14 +89,14 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private final ReentrantLock cancelLock = new ReentrantLock();
 
-    public MediaScannerServiceImpl(SettingsService settingsService,
+    public MediaScannerServiceImpl(SettingsFacade settingsFacade,
             ScannerStateServiceImpl scannerState, PreScanProcedure preScanProc,
             DirectoryScanProcedure directoryScanProc, FileMetadataScanProcedure fileMetaProc,
             Id3MetadataScanProcedure id3MetaProc, PostScanProcedure postScanProc,
             ScanHelper scanHelper, StaticsDao staticsDao,
             @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.scannerState = scannerState;
 
         this.preScanProc = preScanProc;
@@ -158,7 +159,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     boolean isOptionalProcessSkippable() {
-        MutableBoolean skippable = new MutableBoolean(!settingsService.isIgnoreFileTimestamps());
+        MutableBoolean skippable = new MutableBoolean(
+                !settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps));
         if (skippable.isTrue()) {
             getLastScanEventType(false)
                 .ifPresentOrElse(
@@ -187,11 +189,16 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         }
 
         LOG.info("Starting to scan media library.");
+
         ScanContext context = new ScanContext(scannerState.getScanDate(),
-                settingsService.isIgnoreFileTimestamps(), settingsService.getPodcastFolder(),
-                settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                settingsService.getScanLogRetention(), settingsService.getDefaultScanLogRetention(),
-                settingsService.isUseScanEvents(), settingsService.isMeasureMemory());
+                settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                settingsFacade.get(SKeys.podcast.folder),
+                settingsFacade.get(SKeys.advanced.sort.strict),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
 
         scanHelper.createScanLog(context, ScanLogType.SCAN_ALL);
 

@@ -41,12 +41,13 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.StreamService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -78,18 +79,18 @@ public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final StatusService statusService;
     private final StreamService streamService;
 
-    public StreamController(SettingsService settingsService, SecurityService securityService,
+    public StreamController(SettingsFacade settingsFacade, SecurityService securityService,
             PlayerService playerService, TranscodingService transcodingService,
             StatusService statusService, StreamService streamService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
@@ -466,7 +467,7 @@ public class StreamController {
                     result.getVideoTranscodingSettings());
                 OutputStream out = RangeOutputStream
                     .wrap(res.getOutputStream(), result.getRange())) {
-            res.setBufferSize(settingsService.getBufferSize());
+            res.setBufferSize(settingsFacade.get(SKeys.advanced.bandwidth.bufferSize));
             writeStream(player, in, out, result.getFileLengthExpected(), isPodcast, isSingleFile);
         } catch (IOException e) {
             writeErrorLog(e, req);

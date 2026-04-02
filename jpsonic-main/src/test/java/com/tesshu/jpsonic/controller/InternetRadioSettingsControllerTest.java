@@ -34,7 +34,8 @@ import com.tesshu.jpsonic.controller.Attributes.Request.NameConstants;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -62,8 +63,8 @@ class InternetRadioSettingsControllerTest {
         internetRadioDao = mock(InternetRadioDao.class);
         Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Arrays.asList(radio));
         InternetRadioService internetRadioService = new InternetRadioService(internetRadioDao);
-        controller = new InternetRadioSettingsController(mock(SettingsService.class),
-                internetRadioService);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        controller = new InternetRadioSettingsController(settingsFacade, internetRadioService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

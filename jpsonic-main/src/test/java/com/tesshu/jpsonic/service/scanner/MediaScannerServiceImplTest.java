@@ -68,15 +68,18 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -174,7 +177,7 @@ class MediaScannerServiceImplTest {
     @Nested
     class UnitTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private IndexManager indexManager;
         private ArtistDao artistDao;
         private AlbumDao albumDao;
@@ -195,8 +198,12 @@ class MediaScannerServiceImplTest {
 
         @BeforeEach
         void setup() {
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
 
-            settingsService = mock(SettingsService.class);
+        @Ignore
+        void init() {
             indexManager = mock(IndexManager.class);
             mediaFileService = mock(MediaFileService.class);
             mediaFileDao = mock(MediaFileDao.class);
@@ -208,7 +215,7 @@ class MediaScannerServiceImplTest {
 
             writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                     scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
-                    mock(MusicParser.class), mock(VideoParser.class), settingsService,
+                    mock(MusicParser.class), mock(VideoParser.class), settingsFacade,
                     mock(SecurityService.class), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
 
@@ -221,7 +228,7 @@ class MediaScannerServiceImplTest {
             final JpsonicComparators comparators = mock(JpsonicComparators.class);
             final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
 
-            scanHelper = new ScanHelper(scannerStateService, settingsService, staticsDao,
+            scanHelper = new ScanHelper(scannerStateService, settingsFacade, staticsDao,
                     mediaFileDao, indexManager, writableMediaFileService);
             preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
                     artistDao, mediaFileCache, scanHelper);
@@ -237,7 +244,7 @@ class MediaScannerServiceImplTest {
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
                     templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
 
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, executor);
         }
@@ -250,12 +257,17 @@ class MediaScannerServiceImplTest {
             Mockito.doNothing().when(indexManager).startIndexing();
             Path podcastPath = Path
                 .of(MediaScannerServiceImplTest.class.getResource("/MEDIAS/Scan/Null").toURI());
-            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastPath.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.podcast.folder, podcastPath.toString())
+                .build();
+            init();
+
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
             ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, executor);
             mediaScannerService.scanLibrary();
@@ -363,7 +375,11 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.True
             @IsOptionalProcessSkippableDecisions.Result.False
             void c01() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                    .build();
+
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
 
@@ -372,7 +388,11 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.NotPresent
             @IsOptionalProcessSkippableDecisions.Result.False
             void c02() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
+
                 Mockito.when(staticsDao.isNeverScanned()).thenReturn(true);
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -382,12 +402,16 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.Present.ScanEventType.NeFinished
             @IsOptionalProcessSkippableDecisions.Result.False
             void c03() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
                         .asList(new ScanEvent(null, null, ScanEventType.CANCELED, null, null, null,
                                 null, null)));
+
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
 
@@ -397,7 +421,10 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.True
             @IsOptionalProcessSkippableDecisions.Result.False
             void c04() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
@@ -413,7 +440,10 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.False
             @IsOptionalProcessSkippableDecisions.Result.True
             void c05() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
@@ -438,7 +468,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private DaoHelper daoHelper;
         @Autowired
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         @Autowired
         private MusicFolderServiceImpl musicFolderService;
         @Autowired
@@ -471,7 +501,7 @@ class MediaScannerServiceImplTest {
         @BeforeEach
         void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, scanExecutor);
         }
@@ -700,7 +730,7 @@ class MediaScannerServiceImplTest {
     @Nested
     class StrictSortTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private ArtistDao artistDao;
         private MediaFileDao mediaFileDao;
         private ScannerStateServiceImpl scannerStateService;
@@ -712,7 +742,12 @@ class MediaScannerServiceImplTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             sortProcedureService = mock(SortProcedureService.class);
@@ -722,7 +757,7 @@ class MediaScannerServiceImplTest {
             final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    settingsFacade, mock(SecurityService.class), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
@@ -753,14 +788,18 @@ class MediaScannerServiceImplTest {
             PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
                     playlistService, templateWrapper, staticsDao, sortProcedureService,
                     mediaFileCache, scanHelper);
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, executor);
         }
 
         @Test
         void testDoScanLibraryWithSortStrict() {
-
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.advanced.sort.strict, true)
+                .build();
+            init();
             Mockito
                 .when(musicFolderService.getAllMusicFolders())
                 .thenReturn(
@@ -769,7 +808,6 @@ class MediaScannerServiceImplTest {
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
             Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-            Mockito.when(settingsService.isSortStrict()).thenReturn(true);
 
             mediaScannerService.doScanLibrary();
 
@@ -847,6 +885,10 @@ class MediaScannerServiceImplTest {
          */
         @Test
         void testDoScanLibraryWithoutSortStrict() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.advanced.sort.strict, false)
+                .build();
 
             Mockito
                 .when(musicFolderService.getAllMusicFolders())
@@ -856,7 +898,6 @@ class MediaScannerServiceImplTest {
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
             Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-            Mockito.when(settingsService.isSortStrict()).thenReturn(false);
 
             mediaScannerService.doScanLibrary();
 
@@ -932,7 +973,7 @@ class MediaScannerServiceImplTest {
 
     @Nested
     class GetScanPhaseInfoTest {
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private ScanHelper scanHelper;
         private PreScanProcedure preScanProc;
         private DirectoryScanProcedure directoryScanProc;
@@ -944,7 +985,12 @@ class MediaScannerServiceImplTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
             final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
             final ArtistDao artistDao = mock(ArtistDao.class);
             final SortProcedureService sortProcedureService = mock(SortProcedureService.class);
@@ -954,7 +1000,7 @@ class MediaScannerServiceImplTest {
             final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    settingsFacade, mock(SecurityService.class), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final JpsonicComparators comparators = mock(JpsonicComparators.class);
@@ -988,7 +1034,7 @@ class MediaScannerServiceImplTest {
         void testGetScanPhaseInfo() {
             ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
             MediaScannerServiceImpl mediaScannerService = new MediaScannerServiceImpl(
-                    settingsService, scannerStateService, preScanProc, directoryScanProc,
+                    settingsFacade, scannerStateService, preScanProc, directoryScanProc,
                     fileMetaProc, id3MetaProc, postScanProc, scanHelper, staticsDao, executor);
 
             Mockito.when(scannerStateService.isScanning()).thenReturn(false);
@@ -1073,7 +1119,5 @@ class MediaScannerServiceImplTest {
                 assertEquals(-1, scanPhaseInfo.thread());
             });
         }
-
     }
-
 }

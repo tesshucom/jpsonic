@@ -35,6 +35,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -54,10 +56,10 @@ public class JWTSecurityService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     public static final int WITH_FILE_EXTENSION = 4;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
-    public JWTSecurityService(SettingsService settingsService) {
-        this.settingsService = settingsService;
+    public JWTSecurityService(SettingsFacade settingsFacade) {
+        this.settingsFacade = settingsFacade;
     }
 
     public static String generateKey() {
@@ -93,7 +95,8 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Instant expires) {
-        String token = createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
+        String jwtKey = settingsFacade.get(SKeys.deprecatedSecrets.jwtKey);
+        String token = createToken(jwtKey, builder.toUriString(), expires);
         builder.queryParam(JWT_PARAM_NAME, token);
         return builder;
     }
@@ -119,6 +122,6 @@ public class JWTSecurityService {
     }
 
     public DecodedJWT verify(String credentials) {
-        return verify(settingsService.getJWTKey(), credentials);
+        return verify(settingsFacade.get(SKeys.deprecatedSecrets.jwtKey), credentials);
     }
 }
