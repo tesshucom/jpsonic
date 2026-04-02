@@ -1,7 +1,25 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2026 tesshucom
+ */
+
 package com.tesshu.jpsonic.theme;
 
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.taglib.CssUrlProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspContext;
@@ -20,11 +38,12 @@ public class CssUrlProviderImpl implements CssUrlProvider {
     private static final String DEFAULT_THEME_ID = "jpsonic";
 
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final ServerThemeService serverThemeService;
 
-    public CssUrlProviderImpl(SecurityService securityService, SettingsService settingsService) {
+    public CssUrlProviderImpl(SecurityService securityService,
+            ServerThemeService serverThemeService) {
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.serverThemeService = serverThemeService;
     }
 
     /**
@@ -41,7 +60,7 @@ public class CssUrlProviderImpl implements CssUrlProvider {
         String contextPath = request.getContextPath();
         String username = securityService.getCurrentUsername(request);
         String themeId = username != null ? securityService.getUserSettings(username).getThemeId()
-                : settingsService.getThemeId();
+                : serverThemeService.getThemeId();
 
         return generateCssPath(contextPath, themeId);
     }

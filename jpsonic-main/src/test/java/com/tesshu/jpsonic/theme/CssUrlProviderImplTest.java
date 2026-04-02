@@ -1,3 +1,22 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2026 tesshucom
+ */
+
 package com.tesshu.jpsonic.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -5,7 +24,8 @@ import static org.mockito.Mockito.when;
 
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.PageContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,29 +41,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * theme - system default theme
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.SingularField" })
 class CssUrlProviderImplTest {
 
     @Mock
     private SecurityService securityService;
-
-    @Mock
-    private SettingsService settingsService;
-
     @Mock
     private PageContext pageContext;
-
     @Mock
     private HttpServletRequest request;
-
     @Mock
     private UserSettings userSettings;
-
+    private SettingsFacade settingsFacade;
     private CssUrlProviderImpl provider;
 
     @BeforeEach
     void setUp() {
-        provider = new CssUrlProviderImpl(securityService, settingsService);
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
+        provider = new CssUrlProviderImpl(securityService, serverThemeService);
         when(pageContext.getRequest()).thenReturn(request);
     }
 
@@ -75,7 +91,12 @@ class CssUrlProviderImplTest {
     void returnsSystemThemeCssPathWhenUserIsNotAuthenticated() {
         when(request.getContextPath()).thenReturn("");
         when(securityService.getCurrentUsername(request)).thenReturn(null);
-        when(settingsService.getThemeId()).thenReturn("testTheme");
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(ThemeSKeys.themeId, "testTheme")
+            .build();
+        ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
+        provider = new CssUrlProviderImpl(securityService, serverThemeService);
 
         String cssUrl = provider.getCssUrl(pageContext);
 
