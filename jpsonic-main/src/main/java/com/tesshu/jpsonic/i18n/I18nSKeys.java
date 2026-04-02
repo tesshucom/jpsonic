@@ -27,9 +27,9 @@ import com.tesshu.jpsonic.service.settings.SettingKey;
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
 public class I18nSKeys {
 
-    static final SKey<String> localeLanguage = SKey.of("LocaleLanguage", STRING, "ja");
-    static final SKey<String> localeCountry = SKey.of("LocaleCountry", STRING, "jp");
-    static final SKey<String> localeVariant = SKey.of("LocaleVariant", STRING, "");
+    public static final SKey<String> localeLanguage = SKey.of("LocaleLanguage", STRING, "ja");
+    public static final SKey<String> localeCountry = SKey.of("LocaleCountry", STRING, "jp");
+    public static final SKey<String> localeVariant = SKey.of("LocaleVariant", STRING, "");
 
     @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
     static final class SKey<V> implements SettingKey<V> {
