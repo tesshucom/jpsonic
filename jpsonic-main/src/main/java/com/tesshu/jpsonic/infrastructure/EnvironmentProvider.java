@@ -39,8 +39,10 @@ import com.tesshu.jpsonic.domain.system.IndexGeneration;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.apache.commons.io.file.PathUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,8 +278,10 @@ public class EnvironmentProvider {
             .orElse(EnvKeys.application.suppressTomcatCaching.defaultValue);
     }
 
+    @Nullable
     public String getRememberMeKey() {
-        return System.getProperty(EnvKeys.application.rememberMeKey.envVarName);
+        String key = System.getProperty(EnvKeys.application.rememberMeKey.envVarName);
+        return StringUtils.isBlank(key) ? null : key;
     }
 
     private String resolveDefaultFolder(String key, String winDefault, String linuxDefault) {
@@ -303,16 +307,18 @@ public class EnvironmentProvider {
                 "c:\\playlists", "/var/playlists");
     }
 
+    @NonNull
     public String getMemeDsf() {
-        return Optional
-            .ofNullable(System.getProperty(EnvKeys.misc.mimeDsf.envVarName))
-            .orElse(EnvKeys.misc.mimeDsf.defaultValue);
+        return StringUtils
+            .defaultIfBlank(System.getProperty(EnvKeys.misc.mimeDsf.envVarName),
+                    EnvKeys.misc.mimeDsf.defaultValue);
     }
 
+    @NonNull
     public String getMemeDff() {
-        return Optional
-            .ofNullable(System.getProperty(EnvKeys.misc.mimeDff.envVarName))
-            .orElse(EnvKeys.misc.mimeDff.defaultValue);
+        return StringUtils
+            .defaultIfBlank(System.getProperty(EnvKeys.misc.mimeDff.envVarName),
+                    EnvKeys.misc.mimeDff.defaultValue);
     }
 
     // ============================================================
