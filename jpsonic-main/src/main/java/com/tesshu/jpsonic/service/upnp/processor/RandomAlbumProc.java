@@ -25,7 +25,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,15 +34,15 @@ public class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
     public RandomAlbumProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
             MediaFileService mediaFileService, AlbumDao albumDao, SearchService searchService,
-            SettingsService settingsService) {
+            SettingsFacade settingsFacade) {
         super(util, factory, mediaFileService, albumDao);
         this.util = util;
         this.searchService = searchService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
 
     @Override
     public int getDirectChildrenCount() {
-        return settingsService.getDlnaRandomMax();
+        return settingsFacade.get(UPnPSKeys.options.randomMax);
     }
 
     @Override

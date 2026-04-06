@@ -19,14 +19,10 @@
  * (C) 2018 tesshucom
  */
 
-// It should exist at the same layer as the SettingsService.
-
-package com.tesshu.jpsonic.domain;
+package com.tesshu.jpsonic.theme;
 
 /**
  * Contains the ID and name for a theme.
- *
- * @author Sindre Mehus
  */
 public class Theme {
 

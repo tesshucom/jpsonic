@@ -28,15 +28,19 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,32 +49,55 @@ import org.mockito.Mockito;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ScanHelperTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private ScanHelper scanHelper;
     private StaticsDao staticsDao;
 
     @BeforeEach
     void setup() {
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps,
+                    SKeys.musicFolder.scan.ignoreFileTimestamps.defaultValue())
+            .withString(SKeys.podcast.folder, SKeys.podcast.folder.defaultValue())
+            .withBoolean(SKeys.advanced.sort.strict, SKeys.advanced.sort.strict.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanLog,
+                    SKeys.advanced.scanLog.useScanLog.defaultValue())
+            .withInt(SKeys.advanced.scanLog.scanLogRetention,
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanEvents,
+                    SKeys.advanced.scanLog.useScanEvents.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.measureMemory,
+                    SKeys.advanced.scanLog.measureMemory.defaultValue())
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+
         final ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
-        settingsService = mock(SettingsService.class);
         staticsDao = mock(StaticsDao.class);
         final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
         final IndexManager indexManager = mock(IndexManager.class);
         final WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
-        scanHelper = new ScanHelper(scannerStateService, settingsService, staticsDao, mediaFileDao,
+        scanHelper = new ScanHelper(scannerStateService, settingsFacade, staticsDao, mediaFileDao,
                 indexManager, wmfs);
     }
 
     @Test
     void testCreateScanEvent() {
         Instant startDate = now();
-        ScanContext context = new ScanContext(startDate, false, settingsService.getPodcastFolder(),
-                settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                settingsService.getScanLogRetention(), settingsService.getDefaultScanLogRetention(),
-                settingsService.isUseScanEvents(), settingsService.isMeasureMemory());
+        ScanContext context = new ScanContext(startDate,
+                settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                settingsFacade.get(SKeys.podcast.folder),
+                settingsFacade.get(SKeys.advanced.sort.strict),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
 
-        // Log only mandary events if useScanEvents=false
-        Mockito.when(settingsService.isUseScanEvents()).thenReturn(false);
         scanHelper.createScanEvent(context, ScanEventType.SUCCESS, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
         scanHelper.createScanEvent(context, ScanEventType.CANCELED, null);
@@ -82,12 +109,32 @@ class ScanHelperTest {
         Mockito.verify(staticsDao, Mockito.never()).createScanEvent(Mockito.any(ScanEvent.class));
 
         // Log all events if useScanEvents=true
-        Mockito.when(settingsService.isUseScanEvents()).thenReturn(true);
-        context = new ScanContext(startDate, false, settingsService.getPodcastFolder(),
-                settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                settingsService.getScanLogRetention(), settingsService.getDefaultScanLogRetention(),
-                settingsService.isUseScanEvents(), settingsService.isMeasureMemory());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps,
+                    SKeys.musicFolder.scan.ignoreFileTimestamps.defaultValue())
+            .withString(SKeys.podcast.folder, SKeys.podcast.folder.defaultValue())
+            .withBoolean(SKeys.advanced.sort.strict, SKeys.advanced.sort.strict.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanLog,
+                    SKeys.advanced.scanLog.useScanLog.defaultValue())
+            .withInt(SKeys.advanced.scanLog.scanLogRetention,
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanEvents, true)
+            .withBoolean(SKeys.advanced.scanLog.measureMemory,
+                    SKeys.advanced.scanLog.measureMemory.defaultValue())
+            .build();
+        init();
+        context = new ScanContext(startDate,
+                settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                settingsFacade.get(SKeys.podcast.folder),
+                settingsFacade.get(SKeys.advanced.sort.strict),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
         Mockito.clearInvocations(staticsDao);
+
         scanHelper.createScanEvent(context, ScanEventType.SUCCESS, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
         scanHelper.createScanEvent(context, ScanEventType.CANCELED, null);
@@ -98,22 +145,60 @@ class ScanHelperTest {
         Mockito.verify(staticsDao, Mockito.times(4)).createScanEvent(Mockito.any(ScanEvent.class));
 
         // No memory metering
-        Mockito.when(settingsService.isMeasureMemory()).thenReturn(false);
-        context = new ScanContext(startDate, false, settingsService.getPodcastFolder(),
-                settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                settingsService.getScanLogRetention(), settingsService.getDefaultScanLogRetention(),
-                settingsService.isUseScanEvents(), settingsService.isMeasureMemory());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps,
+                    SKeys.musicFolder.scan.ignoreFileTimestamps.defaultValue())
+            .withString(SKeys.podcast.folder, SKeys.podcast.folder.defaultValue())
+            .withBoolean(SKeys.advanced.sort.strict, SKeys.advanced.sort.strict.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanLog,
+                    SKeys.advanced.scanLog.useScanLog.defaultValue())
+            .withInt(SKeys.advanced.scanLog.scanLogRetention,
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanEvents, true)
+            .withBoolean(SKeys.advanced.scanLog.measureMemory, false)
+            .build();
+        init();
+        context = new ScanContext(startDate,
+                settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                settingsFacade.get(SKeys.podcast.folder),
+                settingsFacade.get(SKeys.advanced.sort.strict),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
+        Mockito.clearInvocations(staticsDao);
         ArgumentCaptor<ScanEvent> eventCap = ArgumentCaptor.forClass(ScanEvent.class);
         Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
         scanHelper.createScanEvent(context, ScanEventType.PARSE_FILE_STRUCTURE, null);
         assertEquals(-1, eventCap.getValue().getFreeMemory());
 
         // With memory metering
-        Mockito.when(settingsService.isMeasureMemory()).thenReturn(true);
-        context = new ScanContext(startDate, false, settingsService.getPodcastFolder(),
-                settingsService.isSortStrict(), settingsService.isUseScanLog(),
-                settingsService.getScanLogRetention(), settingsService.getDefaultScanLogRetention(),
-                settingsService.isUseScanEvents(), settingsService.isMeasureMemory());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps,
+                    SKeys.musicFolder.scan.ignoreFileTimestamps.defaultValue())
+            .withString(SKeys.podcast.folder, SKeys.podcast.folder.defaultValue())
+            .withBoolean(SKeys.advanced.sort.strict, SKeys.advanced.sort.strict.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanLog,
+                    SKeys.advanced.scanLog.useScanLog.defaultValue())
+            .withInt(SKeys.advanced.scanLog.scanLogRetention,
+                    SKeys.advanced.scanLog.scanLogRetention.defaultValue())
+            .withBoolean(SKeys.advanced.scanLog.useScanEvents, true)
+            .withBoolean(SKeys.advanced.scanLog.measureMemory, true)
+            .build();
+        init();
+        context = new ScanContext(startDate,
+                settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps),
+                settingsFacade.get(SKeys.podcast.folder),
+                settingsFacade.get(SKeys.advanced.sort.strict),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanLog),
+                settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention),
+                SKeys.advanced.scanLog.scanLogRetention.defaultValue(),
+                settingsFacade.get(SKeys.advanced.scanLog.useScanEvents),
+                settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
+        Mockito.clearInvocations(staticsDao);
         eventCap = ArgumentCaptor.forClass(ScanEvent.class);
         Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
         scanHelper.createScanEvent(context, ScanEventType.PARSE_FILE_STRUCTURE, null);
@@ -136,8 +221,10 @@ class ScanHelperTest {
         m3.setPresent(true);
         m3.setOrder(3);
 
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
-        JpsonicComparators comparators = new JpsonicComparators(mock(SettingsService.class),
+        JpsonicComparators comparators = new JpsonicComparators(settingsFacade, serverLocaleService,
                 readingUtils);
         WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
 

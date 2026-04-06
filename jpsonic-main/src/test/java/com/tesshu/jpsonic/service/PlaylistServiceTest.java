@@ -25,11 +25,15 @@ import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistImportHandler;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -47,15 +51,22 @@ class PlaylistServiceTest {
     @Nested
     class ExportPlaylistTest {
 
+        private SettingsFacade settingsFacade;
         private MediaFileDao mediaFileDao;
         private PlaylistService playlistService;
 
         @BeforeEach
         void setup() {
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        protected void init() {
             mediaFileDao = mock(MediaFileDao.class);
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
             playlistService = new PlaylistService(mediaFileDao, jPlaylistDao,
-                    mock(SecurityService.class), mock(SettingsService.class),
+                    mock(SecurityService.class), settingsFacade,
                     Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
@@ -133,9 +144,10 @@ class PlaylistServiceTest {
             mediaFileService = mock(MediaFileService.class);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
                     mediaFileService);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    mock(SecurityService.class), mock(SettingsService.class),
-                    Collections.emptyList(), Arrays.asList(importHandler), null);
+                    mock(SecurityService.class), settingsFacade, Collections.emptyList(),
+                    Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
         }
@@ -323,7 +335,7 @@ class PlaylistServiceTest {
     @Nested
     class ImportPlaylistsTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private PlaylistService playlistService;
         private PlaylistDao playlistDao;
         private MediaFileService mediaFileService;
@@ -333,15 +345,20 @@ class PlaylistServiceTest {
 
         @BeforeEach
         void setup() {
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
             playlistDao = mock(PlaylistDao.class);
-            settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
             SecurityService securityService = new SecurityService(mock(UserDao.class),
-                    settingsService, mock(MusicFolderService.class));
+                    settingsFacade, mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
                     mediaFileService);
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    securityService, settingsService, Collections.emptyList(),
+                    securityService, settingsFacade, Collections.emptyList(),
                     Arrays.asList(importHandler), null);
         }
 
@@ -349,8 +366,11 @@ class PlaylistServiceTest {
         void testImportPlaylists(@TempDir Path tempDir) throws IOException {
 
             final Instant current = now();
-
-            Mockito.when(settingsService.getPlaylistFolder()).thenReturn(tempDir.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.general.extension.playlistFolder, tempDir.toString())
+                .build();
+            init();
 
             Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
             FileUtil.touch(mf1);

@@ -36,8 +36,10 @@ import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.ParamSearchResult;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,7 +64,7 @@ class ArtistProcTest extends AbstractNeedsScan {
     private AlbumId3Proc albumId3Proc;
 
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -71,12 +73,12 @@ class ArtistProcTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        setSortStrict(true);
-        setSortAlphanum(true);
-        settingsService.setSortAlbumsByYear(false);
+        settingsFacade.staging(SKeys.advanced.sort.alphanum, true);
+        settingsFacade.staging(SKeys.advanced.sort.strict, true);
+        settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+        settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
+        settingsFacade.commitAll();
         populateDatabaseOnlyOnce();
-        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-        settingsService.save();
     }
 
     @Test
@@ -137,7 +139,7 @@ class ArtistProcTest extends AbstractNeedsScan {
         @Test
         void testGetChildren() {
 
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
 
             List<Artist> artists = proc.getDirectChildren(0, 1);
             assertEquals(1, artists.size());
@@ -170,7 +172,8 @@ class ArtistProcTest extends AbstractNeedsScan {
          */
         @Test
         void testGetChildrenByYear() {
-            settingsService.setSortAlbumsByYear(true);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, true);
+
             List<String> reversedByYear = new ArrayList<>(
                     UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);

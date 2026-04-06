@@ -22,10 +22,12 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.DatabaseSettingsCommand;
+import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -43,16 +45,16 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/databaseSettings", "/databaseSettings.view" })
 public class DatabaseSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public DatabaseSettingsController(SettingsService settingsService,
+    public DatabaseSettingsController(SettingsFacade settingsFacade,
             SecurityService securityService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -66,17 +68,18 @@ public class DatabaseSettingsController {
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
         DatabaseSettingsCommand command = new DatabaseSettingsCommand();
-        command.setConfigType(settingsService.getDatabaseConfigType());
-        command.setEmbedDriver(settingsService.getDatabaseConfigEmbedDriver());
-        command.setEmbedUrl(settingsService.getDatabaseConfigEmbedUrl());
-        command.setEmbedUsername(settingsService.getDatabaseConfigEmbedUsername());
-        command.setEmbedPassword(settingsService.getDatabaseConfigEmbedPassword());
-        command.setJNDIName(settingsService.getDatabaseConfigJNDIName());
-        command.setMysqlVarcharMaxlength(settingsService.getDatabaseMysqlVarcharMaxlength());
-        command.setUsertableQuote(settingsService.getDatabaseUsertableQuote());
+        command
+            .setConfigType(DataSourceConfigType.of(settingsFacade.get(DBSKeys.databaseConfigType)));
+        command.setEmbedDriver(settingsFacade.get(DBSKeys.embedDriver));
+        command.setEmbedUrl(settingsFacade.get(DBSKeys.embedUrl));
+        command.setEmbedUsername(settingsFacade.get(DBSKeys.embedUsername));
+        command.setEmbedPassword(settingsFacade.get(DBSKeys.embedPassword));
+        command.setJNDIName(settingsFacade.get(DBSKeys.jndiName));
+        command.setMysqlVarcharMaxlength(settingsFacade.get(DBSKeys.mysqlVarcharMaxlength));
+        command.setUsertableQuote(settingsFacade.get(DBSKeys.usertableQuote));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUserStrict(request);
         command
@@ -89,26 +92,34 @@ public class DatabaseSettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
-            settingsService.resetDatabaseToDefault();
-            settingsService.setDatabaseConfigType(command.getConfigType());
+            resetDatabaseToDefault();
+            settingsFacade.staging(DBSKeys.databaseConfigType, command.getConfigType().name());
 
             if (command.getConfigType() == DataSourceConfigType.URL) {
-                settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
-                settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
-                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
-                settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
+                settingsFacade.staging(DBSKeys.embedDriver, command.getEmbedDriver());
+                settingsFacade.staging(DBSKeys.embedUrl, command.getEmbedUrl());
+                settingsFacade.staging(DBSKeys.embedPassword, command.getEmbedPassword());
+                settingsFacade.staging(DBSKeys.embedUsername, command.getEmbedUsername());
             } else if (command.getConfigType() == DataSourceConfigType.JNDI) {
-                settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
+                settingsFacade.staging(DBSKeys.jndiName, command.getJNDIName());
             }
 
             if (command.getConfigType() != DataSourceConfigType.HOST) {
-                settingsService
-                    .setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
-                settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());
+                settingsFacade
+                    .staging(DBSKeys.mysqlVarcharMaxlength, command.getMysqlVarcharMaxlength());
+                settingsFacade.staging(DBSKeys.usertableQuote, command.getUsertableQuote());
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
-            settingsService.save();
+            settingsFacade.commitAll();
         }
         return new RedirectView(ViewName.DATABASE_SETTINGS.value());
+    }
+
+    void resetDatabaseToDefault() {
+        settingsFacade
+            .stagingDefault(DBSKeys.databaseConfigType, DBSKeys.embedDriver, DBSKeys.embedPassword,
+                    DBSKeys.embedUrl, DBSKeys.embedUsername, DBSKeys.jndiName,
+                    DBSKeys.usertableQuote);
+        settingsFacade.stagingDefault(DBSKeys.mysqlVarcharMaxlength);
     }
 }

@@ -31,6 +31,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -50,6 +52,8 @@ class IndexId3ProcTest extends AbstractNeedsScan {
     private IndexId3Proc proc;
     @Autowired
     private UpnpProcessorUtil util;
+    @Autowired
+    private SettingsFacade settingsFacade;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -69,8 +73,7 @@ class IndexId3ProcTest extends AbstractNeedsScan {
                 + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
                 + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
                 + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
-        settingsService.setIndexString(simpleIndex);
-        settingsService.save();
+        settingsFacade.commit(SKeys.general.index.indexString, simpleIndex);
         populateDatabaseOnlyOnce();
     }
 

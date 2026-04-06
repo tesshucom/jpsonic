@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.Properties;
 
 import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import de.triology.recaptchav2java.ReCaptcha;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -44,18 +46,18 @@ public class RecoverService {
     private static final String SESSION_KEY_MAIL_PREF = "mail.";
     private static final String SESSION_VALUE_TRUE = "true";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
 
-    public RecoverService(SettingsService settingsService, SecurityService securityService) {
+    public RecoverService(SettingsFacade settingsFacade, SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
     }
 
     public boolean validateCaptcha(String captchaResponseToken) {
-        if (settingsService.isCaptchaEnabled()) {
-            ReCaptcha captcha = new ReCaptcha(settingsService.getRecaptchaSecretKey());
+        if (settingsFacade.get(SKeys.advanced.captcha.enabled)) {
+            ReCaptcha captcha = new ReCaptcha(settingsFacade.get(SKeys.advanced.captcha.secretKey));
             return captchaResponseToken != null && captcha.isValid(captchaResponseToken);
         }
         return true;
@@ -79,17 +81,22 @@ public class RecoverService {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
         String prot = "smtp";
         Properties props = new Properties();
-        if ("SSL/TLS".equals(settingsService.getSmtpEncryption())) {
+        if ("SSL/TLS".equals(settingsFacade.get(SKeys.advanced.smtp.encryption))) {
             prot = "smtps";
             props.put(SESSION_KEY_MAIL_PREF + prot + ".ssl.enable", SESSION_VALUE_TRUE);
-        } else if ("STARTTLS".equals(settingsService.getSmtpEncryption())) {
+        } else if ("STARTTLS".equals(settingsFacade.get(SKeys.advanced.smtp.encryption))) {
             prot = "smtp";
             props.put(SESSION_KEY_MAIL_PREF + prot + ".starttls.enable", SESSION_VALUE_TRUE);
         }
-        props.put(SESSION_KEY_MAIL_PREF + prot + ".host", settingsService.getSmtpServer());
-        props.put(SESSION_KEY_MAIL_PREF + prot + ".port", settingsService.getSmtpPort());
+        props
+            .put(SESSION_KEY_MAIL_PREF + prot + ".host",
+                    settingsFacade.get(SKeys.advanced.smtp.server));
+        props
+            .put(SESSION_KEY_MAIL_PREF + prot + ".port",
+                    settingsFacade.get(SKeys.advanced.smtp.port));
         /* use authentication when SmtpUser is configured */
-        if (settingsService.getSmtpUser() != null && !settingsService.getSmtpUser().isEmpty()) {
+        if (settingsFacade.get(SKeys.advanced.smtp.user) != null
+                && !settingsFacade.get(SKeys.advanced.smtp.user).isEmpty()) {
             props.put(SESSION_KEY_MAIL_PREF + prot + ".auth", SESSION_VALUE_TRUE);
         }
 
@@ -97,7 +104,7 @@ public class RecoverService {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
+            message.setFrom(new InternetAddress(settingsFacade.get(SKeys.advanced.smtp.from)));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("Jpsonic Password");
             message
@@ -118,8 +125,9 @@ public class RecoverService {
                 if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null && SESSION_VALUE_TRUE
                     .equals(props.get(SESSION_KEY_MAIL_PREF + prot + ".auth"))) {
                     trans
-                        .connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
-                                settingsService.getSmtpPassword());
+                        .connect(settingsFacade.get(SKeys.advanced.smtp.server),
+                                settingsFacade.get(SKeys.advanced.smtp.user),
+                                settingsFacade.getDecodedString(SKeys.advanced.smtp.password));
                 } else {
                     trans.connect();
                 }

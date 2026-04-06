@@ -52,11 +52,12 @@ import com.tesshu.jpsonic.persistence.api.repository.PodcastDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.annotation.PostConstruct;
@@ -114,7 +115,7 @@ public class PodcastServiceImpl implements PodcastService {
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
 
     private final PodcastDao podcastDao;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
@@ -128,7 +129,7 @@ public class PodcastServiceImpl implements PodcastService {
     private final ReentrantLock episodesLock = new ReentrantLock();
     private final ReentrantLock fileLock = new ReentrantLock();
 
-    public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService,
+    public PodcastServiceImpl(PodcastDao podcastDao, SettingsFacade settingsFacade,
             SecurityService securityService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService,
             MetaDataParserFactory metaDataParserFactory,
@@ -136,7 +137,7 @@ public class PodcastServiceImpl implements PodcastService {
             @Qualifier("podcastRefreshExecutor") ThreadPoolTaskExecutor podcastRefreshExecutor,
             ScannerStateServiceImpl scannerState, IndexManager indexManager) {
         this.podcastDao = podcastDao;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
@@ -518,7 +519,7 @@ public class PodcastServiceImpl implements PodcastService {
         });
 
         // Create episodes in database, skipping the proper number of episodes.
-        int downloadCount = settingsService.getPodcastEpisodeDownloadCount();
+        int downloadCount = settingsFacade.get(SKeys.podcast.episodeDownloadCount);
         if (downloadCount == -1) {
             downloadCount = Integer.MAX_VALUE;
         }
@@ -811,7 +812,7 @@ public class PodcastServiceImpl implements PodcastService {
     private void deleteObsoleteEpisodes(PodcastChannel channel) {
         episodesLock.lock();
         try {
-            int episodeCount = settingsService.getPodcastEpisodeRetentionCount();
+            int episodeCount = settingsFacade.get(SKeys.podcast.episodeRetentionCount);
             if (episodeCount == -1) {
                 return;
             }
@@ -866,7 +867,7 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private Path getChannelDirectory(PodcastChannel channel) {
-        Path podcastDir = Path.of(settingsService.getPodcastFolder());
+        Path podcastDir = Path.of(settingsFacade.get(SKeys.podcast.folder));
         if (!Files.exists(podcastDir) && FileUtil.createDirectories(podcastDir) == null) {
             throw new IllegalStateException("Failed to create directory " + podcastDir);
         }

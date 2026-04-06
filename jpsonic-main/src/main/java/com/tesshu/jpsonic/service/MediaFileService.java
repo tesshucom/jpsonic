@@ -47,6 +47,8 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.IndexWithCount
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PathValidator;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -62,18 +64,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileService {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final MediaFileCache mediaFileCache;
     private final MediaFileDao mediaFileDao;
     private final JpsonicComparators comparators;
 
-    public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
+    public MediaFileService(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             SecurityService securityService, MediaFileCache mediaFileCache,
             MediaFileDao mediaFileDao, JpsonicComparators comparators) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaFileCache = mediaFileCache;
@@ -216,7 +218,7 @@ public class MediaFileService {
     }
 
     public boolean isAudioFile(String suffix) {
-        for (String type : settingsService.getMusicFileTypesAsArray()) {
+        for (String type : settingsFacade.getCachedList(SKeys.general.extension.musicFileTypes)) {
             if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
@@ -225,7 +227,7 @@ public class MediaFileService {
     }
 
     public boolean isVideoFile(String suffix) {
-        for (String type : settingsService.getVideoFileTypesAsArray()) {
+        for (String type : settingsFacade.getCachedList(SKeys.general.extension.videoFileTypes)) {
             if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
@@ -253,12 +255,12 @@ public class MediaFileService {
         }
         String fileName = path.getFileName().toString();
         return attrs.isRegularFile() && fileName.charAt(0) != '.'
-                && settingsService
-                    .getExcludedCoverArtsAsArray()
+                && settingsFacade
+                    .getCachedList(SKeys.general.extension.excludedCoverArt)
                     .stream()
                     .noneMatch(excluded -> StringUtil.endsWithIgnoreCase(fileName, excluded))
-                && settingsService
-                    .getCoverArtFileTypesAsArray()
+                && settingsFacade
+                    .getCachedList(SKeys.general.extension.coverArtFileTypes)
                     .stream()
                     .anyMatch(type -> StringUtil.endsWithIgnoreCase(fileName, type));
     }
@@ -407,12 +409,14 @@ public class MediaFileService {
     }
 
     public List<MediaFile> getIndexedDirs(List<MusicFolder> folders) {
-        return mediaFileDao.getIndexedDirs(folders, settingsService.getShortcutsAsArray());
+        return mediaFileDao
+            .getIndexedDirs(folders,
+                    settingsFacade.getCachedList(SKeys.general.extension.shortcuts));
     }
 
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
-        List<String> shortcutPaths = settingsService
-            .getShortcutsAsArray()
+        List<String> shortcutPaths = settingsFacade
+            .getCachedList(SKeys.general.extension.shortcuts)
             .stream()
             .flatMap(shortcut -> folders
                 .stream()

@@ -32,11 +32,12 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchResult;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -59,18 +60,18 @@ public class SearchController {
 
     private static final int MATCH_COUNT = 25;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final SearchService searchService;
     private final HttpSearchCriteriaDirector director;
 
-    public SearchController(SettingsService settingsService, MusicFolderService musicFolderService,
+    public SearchController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             SecurityService securityService, PlayerService playerService,
             SearchService searchService, HttpSearchCriteriaDirector director) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
@@ -109,7 +110,7 @@ public class SearchController {
 
             int offset = 0;
             int count = MATCH_COUNT;
-            boolean includeComposer = settingsService.isSearchComposer()
+            boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
                     || userSettings.getMainVisibility().isComposerVisible();
 
             HttpSearchCriteria criteria = director

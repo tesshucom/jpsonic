@@ -41,9 +41,9 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -54,7 +54,7 @@ import org.jupnp.support.model.container.GenreContainer;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.SingularField" })
 class AlbumByGenreProcTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private UpnpProcessorUtil util;
     private UpnpDIDLFactory factory;
     private MediaFileService mediaFileService;
@@ -63,16 +63,16 @@ class AlbumByGenreProcTest {
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
+        settingsFacade = mock(SettingsFacade.class);
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         PlayerService playerService = mock(PlayerService.class);
         TranscodingService transcodingService = mock(TranscodingService.class);
-        factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+        factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
                 playerService, transcodingService);
         mediaFileService = mock(MediaFileService.class);
         searchService = mock(SearchService.class);
         util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
-                settingsService, mock(JpsonicComparators.class));
+                settingsFacade, mock(JpsonicComparators.class));
         proc = new AlbumByGenreProc(util, factory, mediaFileService, searchService);
     }
 

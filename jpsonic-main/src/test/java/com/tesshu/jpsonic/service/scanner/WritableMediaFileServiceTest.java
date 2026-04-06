@@ -40,8 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -53,54 +51,59 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class WritableMediaFileServiceTest {
 
     private MediaFileDao mediaFileDao;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
     private WritableMediaFileService writableMediaFileService;
 
     @BeforeEach
     void setup() {
-        mediaFileDao = mock(MediaFileDao.class);
-        settingsService = mock(SettingsService.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.general.extension.videoFileTypes, null)
+            .withString(SKeys.general.extension.musicFileTypes, "mp3")
+            .withString(SKeys.general.extension.excludedCoverArt, null)
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+
         securityService = mock(SecurityService.class);
-
+        mediaFileDao = mock(MediaFileDao.class);
         MusicParser musicParser = new MusicParser(mock(MusicFolderService.class));
-
         MediaFileCache mediaFileCache = mock(MediaFileCache.class);
-        MediaFileService mediaFileService = new MediaFileService(settingsService,
+        MediaFileService mediaFileService = new MediaFileService(settingsFacade,
                 mock(MusicFolderService.class), securityService, mediaFileCache, mediaFileDao,
                 mock(JpsonicComparators.class));
         AlbumDao albumDao = mock(AlbumDao.class);
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 mock(ScannerStateService.class), mediaFileService, albumDao, mediaFileCache,
-                musicParser, mock(VideoParser.class), settingsService, securityService,
-                readingUtils, mock(IndexManager.class),
-                new MusicIndexServiceImpl(settingsService, null, null, readingUtils));
+                musicParser, mock(VideoParser.class), settingsFacade, securityService, readingUtils,
+                mock(IndexManager.class),
+                new MusicIndexServiceImpl(settingsFacade, null, null, readingUtils));
 
-        Mockito
-            .when(settingsService.getVideoFileTypesAsArray())
-            .thenReturn(Collections.emptyList());
-        Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));
-        Mockito
-            .when(settingsService.getExcludedCoverArtsAsArray())
-            .thenReturn(Collections.emptyList());
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 
@@ -171,12 +174,12 @@ class WritableMediaFileServiceTest {
 
     }
 
-    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     @Nested
     class CheckLastModifiedTest {
 
         private Path dir;
         private final Instant scanStart = now();
+        private static final String INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
 
         @BeforeEach
         void setup() throws URISyntaxException {
@@ -196,7 +199,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c02() throws ExecutionException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION - 1);
             mediaFile.setPathString(dir.toString());
             Mockito
@@ -229,7 +241,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c03() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -279,7 +300,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c04() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -320,7 +350,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c05() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -355,7 +394,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c06() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -383,7 +431,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c07() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -433,7 +490,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c08() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -482,7 +548,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c09() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -517,7 +592,16 @@ class WritableMediaFileServiceTest {
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c10() throws ExecutionException, IOException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                .withString(SKeys.general.index.indexString, INDEX_STRING)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPathString(dir.toString());
             try {
@@ -620,11 +704,6 @@ class WritableMediaFileServiceTest {
             Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(path));
 
-            // Newly created case
-            Mockito
-                .when(settingsService.getVideoFileTypesAsArray())
-                .thenReturn(Collections.emptyList());
-
             Instant scanStart = now();
 
             ArgumentCaptor<MediaFile> mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
@@ -689,9 +768,6 @@ class WritableMediaFileServiceTest {
             final Instant scanStart = now();
 
             // Newly created case
-            Mockito
-                .when(settingsService.getVideoFileTypesAsArray())
-                .thenReturn(Collections.emptyList());
             ArgumentCaptor<MediaFile> mfCaptor = ArgumentCaptor.forClass(MediaFile.class);
             Mockito.doReturn(null).when(mediaFileDao).createMediaFile(mfCaptor.capture());
 
@@ -717,14 +793,23 @@ class WritableMediaFileServiceTest {
 
         @Test
         void testApplyDirWithoutChild() throws URISyntaxException {
+
+            String indexStr = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                .withString(SKeys.general.index.indexString, indexStr)
+                .withString(SKeys.general.extension.videoFileTypes, null)
+                .withString(SKeys.general.extension.musicFileTypes, "mp3")
+                .withString(SKeys.general.extension.excludedCoverArt, null)
+                .build();
+            init();
+
             Path path = createPath("/MEDIAS/Music2");
             assertTrue(Files.isDirectory(path));
             final Instant scanStart = now();
 
             // Newly created case
-            Mockito
-                .when(settingsService.getVideoFileTypesAsArray())
-                .thenReturn(Collections.emptyList());
             ArgumentCaptor<MediaFile> mfCaptor = ArgumentCaptor.forClass(MediaFile.class);
             Mockito.doReturn(null).when(mediaFileDao).createMediaFile(mfCaptor.capture());
             writableMediaFileService.createMediaFile(scanStart, path);
@@ -751,9 +836,6 @@ class WritableMediaFileServiceTest {
             Mockito
                 .when(musicParser.getMetaData(Mockito.any(Path.class)))
                 .thenReturn(new MetaData());
-            Mockito
-                .when(settingsService.getVideoFileTypesAsArray())
-                .thenReturn(Collections.emptyList());
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
@@ -786,5 +868,4 @@ class WritableMediaFileServiceTest {
             Mockito.verify(mediaFileDao, Mockito.never()).getMediaFile(pathsCaptor.capture());
         }
     }
-
 }

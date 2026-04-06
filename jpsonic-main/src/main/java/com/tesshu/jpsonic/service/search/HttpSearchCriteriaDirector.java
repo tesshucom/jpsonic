@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>
  * The {@code @DependsOn} annotation ensures that this component is initialized
- * only after the {@code queryFactory} and {@code settingsService} beans have
+ * only after the {@code QueryFactory} and {@code SettingsFacade} beans have
  * been fully initialized, maintaining correct dependency initialization order
  * within the Spring container.
  * </p>
@@ -52,7 +52,7 @@ import org.springframework.stereotype.Component;
  * </p>
  */
 @Component
-@DependsOn({ "queryFactory", "settingsService" })
+@DependsOn({ "queryFactory", "settingsFacade" })
 public class HttpSearchCriteriaDirector {
 
     private final QueryFactory queryFactory;

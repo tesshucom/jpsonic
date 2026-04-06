@@ -47,6 +47,9 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.playlist.PlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.PlaylistImportHandler;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -75,19 +78,19 @@ public class PlaylistService {
     private final MediaFileDao mediaFileDao;
     private final PlaylistDao playlistDao;
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final List<PlaylistExportHandler> exportHandlers;
     private final List<PlaylistImportHandler> importHandlers;
     private final JpsonicComparators comparators;
 
     public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao,
-            SecurityService securityService, SettingsService settingsService,
+            SecurityService securityService, SettingsFacade settingsFacade,
             List<PlaylistExportHandler> exportHandlers, List<PlaylistImportHandler> importHandlers,
             JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.exportHandlers = exportHandlers;
         this.importHandlers = importHandlers;
         this.comparators = comparators;
@@ -98,7 +101,7 @@ public class PlaylistService {
     }
 
     public List<Playlist> getAllPlaylists() {
-        if (settingsService.isDlnaGuestPublish()) {
+        if (settingsFacade.get(UPnPSKeys.options.guestPublish)) {
             return sort(playlistDao.getReadablePlaylistsForUser(User.USERNAME_GUEST));
         }
         return sort(playlistDao.getAllPlaylists());
@@ -294,7 +297,7 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        String playlistFolderPath = settingsService.getPlaylistFolder();
+        String playlistFolderPath = settingsFacade.get(SKeys.general.extension.playlistFolder);
         if (playlistFolderPath == null) {
             return;
         }

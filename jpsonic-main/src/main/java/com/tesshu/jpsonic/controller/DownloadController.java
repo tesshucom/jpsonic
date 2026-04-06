@@ -49,9 +49,10 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -86,18 +87,18 @@ public class DownloadController {
     private final StatusService statusService;
     private final SecurityService securityService;
     private final PlaylistService playlistService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
 
     public DownloadController(PlayerService playerService, StatusService statusService,
             SecurityService securityService, PlaylistService playlistService,
-            SettingsService settingsService, MediaFileService mediaFileService) {
+            SettingsFacade settingsFacade, MediaFileService mediaFileService) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.securityService = securityService;
         this.playlistService = playlistService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
     }
 
@@ -377,7 +378,8 @@ public class DownloadController {
 
                 // Calculate bitrate limit every 5 seconds.
                 if (after - lastLimitCheck > BITRATE_LIMIT_UPDATE_INTERVAL) {
-                    bitrateLimit = 1024L * settingsService.getDownloadBitrateLimit()
+                    bitrateLimit = 1024L
+                            * settingsFacade.get(SKeys.advanced.bandwidth.downloadBitrateLimit)
                             / Math.max(1, statusService.getAllDownloadStatuses().size());
                     lastLimitCheck = after;
                 }

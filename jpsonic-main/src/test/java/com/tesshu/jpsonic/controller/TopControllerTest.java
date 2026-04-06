@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.service.InternetRadioService;
@@ -42,9 +43,10 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -76,12 +78,19 @@ class TopControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);
         MusicIndexService musicIndexService = mock(MusicIndexService.class);
+
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        SecurityService securityService = mock(SecurityService.class);
+        AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(securityService,
+                serverLocaleService);
+
         Mockito
             .when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
             .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-        controller = new TopController(mock(SettingsService.class), musicFolderService,
-                securityService, scannerState, musicIndexService, mock(VersionService.class),
-                mock(InternetRadioService.class), mock(AirsonicLocaleResolver.class));
+        controller = new TopController(settingsFacade, musicFolderService, securityService,
+                scannerState, musicIndexService, mock(VersionService.class),
+                mock(InternetRadioService.class), airsonicLocaleResolver);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

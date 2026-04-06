@@ -54,10 +54,11 @@ import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -87,7 +88,7 @@ public class InternalHelpController {
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
     private static final String TABLE_TYPE_TABLE = "table";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final IndexManager indexManager;
@@ -96,11 +97,11 @@ public class InternalHelpController {
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
-    public InternalHelpController(SettingsService settingsService, SecurityService securityService,
+    public InternalHelpController(SettingsFacade settingsFacade, SecurityService securityService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
             Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
@@ -128,8 +129,8 @@ public class InternalHelpController {
         gatherIndexInfo(map);
         gatherStats(map);
 
-        map.put("showIndexDetails", settingsService.isShowIndexDetails());
-        map.put("showDBDetails", settingsService.isShowDBDetails());
+        map.put("showIndexDetails", settingsFacade.get(SKeys.general.legacy.showIndexDetails));
+        map.put("showDBDetails", settingsFacade.get(SKeys.general.legacy.showDbDetails));
 
         return new ModelAndView("internalhelp", "model", map);
     }
@@ -178,7 +179,7 @@ public class InternalHelpController {
      */
     private void gatherIndexInfo(Map<String, Object> map) {
         map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
-        if (!settingsService.isShowIndexDetails()) {
+        if (!settingsFacade.get(SKeys.general.legacy.showIndexDetails)) {
             return;
         }
 
@@ -250,7 +251,7 @@ public class InternalHelpController {
             map.put("dbDriverVersion", conn.getMetaData().getDriverVersion());
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
 
-            if (!settingsService.isShowDBDetails()) {
+            if (!settingsFacade.get(SKeys.general.legacy.showDbDetails)) {
                 return;
             }
 

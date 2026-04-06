@@ -28,9 +28,10 @@ import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -54,17 +55,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/transcodingSettings", "/transcodingSettings.view" })
 public class TranscodingSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public TranscodingSettingsController(SettingsService settingsService,
+    public TranscodingSettingsController(SettingsFacade settingsFacade,
             SecurityService securityService, TranscodingService transcodingService,
             ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
@@ -80,12 +81,14 @@ public class TranscodingSettingsController {
         model
             .addAttribute("model", LegacyMap
                 .of("transcodings", transcodingService.getAllTranscodings(), "preferredFormat",
-                        settingsService.getPreferredFormat(), "preferredFormatSheme",
-                        PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName()),
-                        "hlsCommand", settingsService.getHlsCommand(), "brand",
+                        settingsFacade.get(SKeys.transcoding.preferredFormat),
+                        "preferredFormatSheme",
+                        PreferredFormatSheme
+                            .of(settingsFacade.get(SKeys.transcoding.preferredFormatShemeName)),
+                        "hlsCommand", settingsFacade.get(SKeys.transcoding.hlsCommand), "brand",
                         EnvironmentProvider.getInstance().getBrand(), "isOpenDetailSetting",
                         userSettings.isOpenDetailSetting(), "useRadio",
-                        settingsService.isUseRadio(), "showOutlineHelp",
+                        settingsFacade.get(SKeys.general.legacy.useRadio), "showOutlineHelp",
                         outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
                         "shareCount", shareService.getAllShares().size()));
         return "transcodingSettings";
@@ -105,11 +108,13 @@ public class TranscodingSettingsController {
             .getAllTranscodings()
             .stream()
             .anyMatch(t -> preferredFormat.equals(t.getTargetFormat()))) {
-            settingsService.setPreferredFormat(preferredFormat);
+            settingsFacade.staging(SKeys.transcoding.preferredFormat, preferredFormat);
         }
-        settingsService
-            .setPreferredFormatShemeName(request.getParameter("preferredFormatShemeName"));
-        settingsService.save();
+
+        settingsFacade
+            .staging(SKeys.transcoding.preferredFormatShemeName,
+                    request.getParameter("preferredFormatShemeName"));
+        settingsFacade.commitAll();
 
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
     }
@@ -167,10 +172,10 @@ public class TranscodingSettingsController {
             }
         }
 
-        settingsService
-            .setHlsCommand(
+        settingsFacade
+            .commit(SKeys.transcoding.hlsCommand,
                     StringUtils.trim(request.getParameter(Attributes.Request.HLS_COMMAND.value())));
-        settingsService.save();
+
         return null;
     }
 

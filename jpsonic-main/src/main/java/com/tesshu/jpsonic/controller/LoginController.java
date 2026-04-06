@@ -27,7 +27,8 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,12 +47,12 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/login", "/login.view" })
 public class LoginController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
 
-    public LoginController(SettingsService settingsService, SecurityService securityService) {
+    public LoginController(SettingsFacade settingsFacade, SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
     }
 
@@ -76,8 +77,8 @@ public class LoginController {
             .of("logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
                     request.getParameter(Attributes.Request.ERROR.value()) != null, "brand",
                     EnvironmentProvider.getInstance().getBrand(), "loginMessage",
-                    settingsService.getLoginMessage(), "showRememberMe",
-                    settingsService.isShowRememberMe());
+                    settingsFacade.get(SKeys.general.welcome.loginMessage), "showRememberMe",
+                    settingsFacade.get(SKeys.general.legacy.showRememberMe));
 
         User admin = securityService.getUserByName("admin");
         if (admin != null && admin.getUsername().equals(admin.getPassword())) {

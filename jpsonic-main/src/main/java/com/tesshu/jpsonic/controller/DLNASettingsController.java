@@ -27,7 +27,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -52,12 +51,14 @@ import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -85,7 +86,7 @@ public class DLNASettingsController {
     private static final Pattern IPV4_STR = Pattern
         .compile("^(([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])\\.){3}([0-1]?\\d?\\d|2[0-4]\\d|25[0-5])$");
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
@@ -95,13 +96,13 @@ public class DLNASettingsController {
     private final MenuItemService menuItemService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public DLNASettingsController(SettingsService settingsService,
+    public DLNASettingsController(SettingsFacade settingsFacade,
             MusicFolderService musicFolderService, SecurityService securityService,
             PlayerService playerService, TranscodingService transcodingService,
             UPnPService upnpService, ShareService shareService, MenuItemService menuItemService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
@@ -123,9 +124,10 @@ public class DLNASettingsController {
         DLNASettingsCommand command = new DLNASettingsCommand();
 
         // UPnP basic settings
-        command.setDlnaEnabled(settingsService.isDlnaEnabled());
-        command.setDlnaServerName(settingsService.getDlnaServerName());
-        command.setDlnaBaseLANURL(settingsService.getDlnaBaseLANURL());
+
+        command.setDlnaEnabled(settingsFacade.get(UPnPSKeys.basic.enabled));
+        command.setDlnaServerName(settingsFacade.get(UPnPSKeys.basic.serverName));
+        command.setDlnaBaseLANURL(settingsFacade.get(UPnPSKeys.basic.baseLanUrl));
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         User guestUser = securityService.getGuestUser();
         command
@@ -144,10 +146,10 @@ public class DLNASettingsController {
                 .toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
-        command.setDlnaDefaultFilteredIp(SettingsService.getDlnaDefaultFilteredIp());
-        command.setDlnaEnabledFilteredIp(settingsService.isDlnaEnabledFilteredIp());
-        command.setDlnaFilteredIp(settingsService.getDlnaFilteredIp());
-        command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
+        command.setDlnaDefaultFilteredIp(UPnPSKeys.basic.filteredIp.defaultValue());
+        command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp));
+        command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.basic.filteredIp));
+        command.setUriWithFileExtensions(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions));
 
         // Menu settings
         List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
@@ -178,22 +180,25 @@ public class DLNASettingsController {
 
         // Display options / Access control
         command.setAvairableAlbumGenreSort(Arrays.asList(Sort.values()));
-        command.setAlbumGenreSort(Sort.of(settingsService.getUPnPAlbumGenreSort()));
+        command
+            .setAlbumGenreSort(Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)));
         command
             .setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
-        command.setSongGenreSort(Sort.of(settingsService.getUPnPSongGenreSort()));
-        command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
-        command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
+        command.setSongGenreSort(Sort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)));
+        command.setDlnaRandomMax(settingsFacade.get(UPnPSKeys.options.randomMax));
+        command.setDlnaGuestPublish(settingsFacade.get(UPnPSKeys.options.guestPublish));
 
         // Search
-        command.setSearchMethod(UPnPSearchMethod.of(settingsService.getUPnPSearchMethod()));
+        command
+            .setSearchMethod(
+                    UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod)));
 
         // for view page control
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
@@ -211,51 +216,68 @@ public class DLNASettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        final boolean enabledChanged = settingsService.isDlnaEnabled() != command.isDlnaEnabled();
+        final boolean enabledChanged = settingsFacade.get(UPnPSKeys.basic.enabled) != command
+            .isDlnaEnabled();
         final boolean restartRequired = !isEmpty(command.getDlnaServerName())
-                && !command.getDlnaServerName().equals(settingsService.getDlnaServerName())
-                || !isEmpty(command.getDlnaBaseLANURL())
-                        && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL())
-                || command.isDlnaEnabledFilteredIp() != settingsService.isDlnaEnabledFilteredIp()
-                || !isEmpty(command.getDlnaFilteredIp())
-                        && !command.getDlnaFilteredIp().equals(settingsService.getDlnaFilteredIp());
+                && !command
+                    .getDlnaServerName()
+                    .equals(settingsFacade.get(UPnPSKeys.basic.serverName))
+                || !isEmpty(command.getDlnaBaseLANURL()) && !command
+                    .getDlnaBaseLANURL()
+                    .equals(settingsFacade.get(UPnPSKeys.basic.baseLanUrl))
+                || command.isDlnaEnabledFilteredIp() != settingsFacade
+                    .get(UPnPSKeys.basic.enabledFilteredIp)
+                || !isEmpty(command.getDlnaFilteredIp()) && !command
+                    .getDlnaFilteredIp()
+                    .equals(settingsFacade.get(UPnPSKeys.basic.filteredIp));
 
         /*
          * Changes to property file
          */
 
         // UPnP basic settings
-        settingsService.setDlnaEnabled(command.isDlnaEnabled());
-        settingsService
-            .setDlnaServerName(StringUtils
-                .defaultIfEmpty(command.getDlnaServerName(),
-                        EnvironmentProvider.getInstance().getBrand()));
-        settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
-        settingsService.setDlnaEnabledFilteredIp(command.isDlnaEnabledFilteredIp());
-        String filteredIp = command.getDlnaFilteredIp();
-        settingsService
-            .setDlnaFilteredIp(
-                    filteredIp != null && IPV4_STR.matcher(filteredIp).matches() ? filteredIp
-                            : SettingsService.getDlnaDefaultFilteredIp());
-        settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
+        settingsFacade.staging(UPnPSKeys.basic.enabled, command.isDlnaEnabled());
+
+        String serverName = StringUtils
+            .defaultIfEmpty(command.getDlnaServerName(),
+                    EnvironmentProvider.getInstance().getBrand());
+        settingsFacade.staging(UPnPSKeys.basic.serverName, serverName);
+
+        settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, command.getDlnaBaseLANURL());
+        settingsFacade
+            .staging(UPnPSKeys.basic.enabledFilteredIp, command.isDlnaEnabledFilteredIp());
+
+        String filteredIpIn = command.getDlnaFilteredIp();
+        String filteredIp = filteredIpIn != null && IPV4_STR.matcher(filteredIpIn).matches()
+                ? filteredIpIn
+                : UPnPSKeys.basic.filteredIp.defaultValue();
+        settingsFacade.staging(UPnPSKeys.basic.filteredIp, filteredIp);
+
+        settingsFacade
+            .staging(UPnPSKeys.basic.uriWithFileExtensions, command.isUriWithFileExtensions());
 
         // Display options / Access control
-        settingsService.setUPnPAlbumGenreSort(command.getAlbumGenreSort().name());
-        settingsService.setUPnPSongGenreSort(command.getSongGenreSort().name());
+        settingsFacade
+            .staging(UPnPSKeys.options.upnpAlbumGenreSort, command.getAlbumGenreSort().name());
+        settingsFacade
+            .staging(UPnPSKeys.options.upnpSongGenreSort, command.getSongGenreSort().name());
+
         final List<Integer> allowedIds = Arrays
             .stream(command.getAllowedMusicFolderIds())
             .boxed()
             .collect(Collectors.toList());
-        settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
-        int randomMax = Objects.isNull(command.getDlnaRandomMax())
-                || command.getDlnaRandomMax() == 0 ? DLNA_RANDOM_DEFAULT
-                        : command.getDlnaRandomMax();
-        settingsService.setDlnaRandomMax(Math.min(randomMax, DLNA_RANDOM_LIMIT));
+
+        settingsFacade.staging(UPnPSKeys.options.guestPublish, command.isDlnaGuestPublish());
+
+        Integer input = command.getDlnaRandomMax();
+        int normalized = (input == null || input <= 0) ? DLNA_RANDOM_DEFAULT
+                : Math.min(input, DLNA_RANDOM_LIMIT);
+        settingsFacade.staging(UPnPSKeys.options.randomMax, normalized);
 
         // Search
-        settingsService.setUPnPSearchMethod(command.getSearchMethod().name());
+        settingsFacade.staging(UPnPSKeys.search.upnpSearchMethod, command.getSearchMethod().name());
 
-        settingsService.save();
+        settingsFacade.commitAll();
 
         /*
          * Changes to the database
@@ -289,7 +311,7 @@ public class DLNASettingsController {
 
         if (enabledChanged) {
             upnpService.setEnabled(command.isDlnaEnabled());
-        } else if (restartRequired && settingsService.isDlnaEnabled()) {
+        } else if (restartRequired && settingsFacade.get(UPnPSKeys.basic.enabled)) {
             upnpService.setEnabled(false);
             upnpService.setEnabled(true);
         }

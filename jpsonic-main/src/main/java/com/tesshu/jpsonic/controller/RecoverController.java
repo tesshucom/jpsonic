@@ -28,7 +28,8 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -51,15 +52,15 @@ public class RecoverController {
     private static final String SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     private static final int PASSWORD_LENGTH = 32;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final RecoverService recoverService;
     private final SecureRandom random;
 
-    public RecoverController(SettingsService settingsService, SecurityService securityService,
+    public RecoverController(SettingsFacade settingsFacade, SecurityService securityService,
             RecoverService recoverService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.recoverService = recoverService;
         this.random = new SecureRandom();
@@ -68,8 +69,8 @@ public class RecoverController {
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
-        if (settingsService.isCaptchaEnabled()) {
-            map.put("recaptchaSiteKey", settingsService.getRecaptchaSiteKey());
+        if (settingsFacade.get(SKeys.advanced.captcha.enabled)) {
+            map.put("recaptchaSiteKey", settingsFacade.get(SKeys.advanced.captcha.siteKey));
         }
         return new ModelAndView("recover", "model", map);
     }
@@ -101,8 +102,8 @@ public class RecoverController {
             map.put(Attributes.Model.ERROR.getValue(), errorMsg);
         }
 
-        if (settingsService.isCaptchaEnabled()) {
-            map.put("recaptchaSiteKey", settingsService.getRecaptchaSiteKey());
+        if (settingsFacade.get(SKeys.advanced.captcha.enabled)) {
+            map.put("recaptchaSiteKey", settingsFacade.get(SKeys.advanced.captcha.siteKey));
         }
 
         return new ModelAndView("recover", "model", map);
@@ -130,8 +131,8 @@ public class RecoverController {
      */
     private boolean sendEmail(String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
-
-        if (settingsService.getSmtpServer() == null || settingsService.getSmtpServer().isEmpty()) {
+        String smtpServer = settingsFacade.get(SKeys.advanced.smtp.server);
+        if (smtpServer == null || smtpServer.isEmpty()) {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }

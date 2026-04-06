@@ -40,8 +40,9 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,18 +64,18 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/main.view")
 public class MainController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final JpsonicComparators jpsonicComparator;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public MainController(SettingsService settingsService, SecurityService securityService,
+    public MainController(SettingsFacade settingsFacade, SecurityService securityService,
             JpsonicComparators jpsonicComparator, RatingService ratingService,
             MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.jpsonicComparator = jpsonicComparator;
         this.ratingService = ratingService;
@@ -163,7 +164,8 @@ public class MainController {
         map.put("visibility", userSettings.getMainVisibility());
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("simpleDisplay", userSettings.isSimpleDisplay());
-        map.put("showAlbumYear", settingsService.isSortAlbumsByYear());
+
+        map.put("showAlbumYear", settingsFacade.get(SKeys.general.sort.albumsByYear));
         map.put("showArtistInfo", userSettings.isShowArtistInfoEnabled());
         map.put("showTopSongs", userSettings.isShowTopSongs());
         map.put("showSimilar", userSettings.isShowSimilar());
@@ -177,7 +179,7 @@ public class MainController {
         map.put("showLastPlay", userSettings.isShowLastPlay());
         map.put("showSibling", userSettings.isShowSibling());
         map.put("showAlbumActions", userSettings.isShowAlbumActions());
-        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useRadio", settingsFacade.get(SKeys.general.legacy.useRadio));
 
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());

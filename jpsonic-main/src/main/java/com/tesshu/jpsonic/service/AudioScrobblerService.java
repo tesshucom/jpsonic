@@ -38,7 +38,7 @@ import tools.jackson.databind.ObjectMapper;
  * what songs are played at website.
  */
 @Service
-@DependsOn({ "settingsService", "shortExecutor" })
+@DependsOn({ "settingsFacade", "shortExecutor" })
 public class AudioScrobblerService {
 
     private final SecurityService securityService;

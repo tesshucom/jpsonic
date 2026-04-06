@@ -57,6 +57,8 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
@@ -84,7 +86,6 @@ import org.mockito.Mockito;
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports" })
-@EnabledOnOs(OS.LINUX)
 class TranscodingServiceTest {
 
     private static final String FMT_RAW = "raw";
@@ -134,14 +135,14 @@ class TranscodingServiceTest {
         Mockito
             .when(securityService.getUserSettings(Mockito.nullable(String.class)))
             .thenReturn(new UserSettings());
-        SettingsService settingsService = mock(SettingsService.class);
-        transcodingService = new TranscodingService(settingsService, securityService,
-                transcodingDao, playerService, executor);
+        SettingsFacade settingsFacade = mock(SettingsFacade.class);
+        transcodingService = new TranscodingService(settingsFacade, securityService,
+                mock(UPnPSubnet.class), transcodingDao, playerService, executor);
         playerDao = mock(PlayerDao.class);
         playerService = new PlayerService(playerDao, null, securityService, transcodingService);
         // for lazy
-        transcodingService = new TranscodingService(settingsService, securityService,
-                transcodingDao, playerService, executor);
+        transcodingService = new TranscodingService(settingsFacade, securityService,
+                mock(UPnPSubnet.class), transcodingDao, playerService, executor);
     }
 
     @AfterAll

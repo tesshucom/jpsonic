@@ -41,6 +41,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -73,16 +75,16 @@ public class SecurityService implements UserDetailsService {
                 ".SynologyWorkingDirectory");
 
     private final UserDao userDao;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
 
     private static final Pattern DOTS_IN_SLASH = Pattern.compile(".*(/|\\\\)\\.\\.(/|\\\\|$).*");
 
-    public SecurityService(UserDao userDao, SettingsService settingsService,
+    public SecurityService(UserDao userDao, SettingsFacade settingsFacade,
             MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
     }
 
@@ -438,12 +440,12 @@ public class SecurityService implements UserDetailsService {
      * @return Whether the given file is located in the Podcast folder.
      */
     public boolean isInPodcastFolder(Path path) {
-        String podcastFolder = settingsService.getPodcastFolder();
+        String podcastFolder = settingsFacade.get(SKeys.podcast.folder);
         return isFileInFolder(path.toString(), podcastFolder);
     }
 
     private boolean isInPodcastFolder(String path) {
-        String podcastFolder = settingsService.getPodcastFolder();
+        String podcastFolder = settingsFacade.get(SKeys.podcast.folder);
         return isFileInFolder(path, podcastFolder);
     }
 
@@ -454,7 +456,7 @@ public class SecurityService implements UserDetailsService {
         }
 
         if (isInPodcastFolder(path)) {
-            return settingsService.getPodcastFolder();
+            return settingsFacade.get(SKeys.podcast.folder);
         }
         return null;
     }
@@ -466,7 +468,7 @@ public class SecurityService implements UserDetailsService {
         }
 
         if (isInPodcastFolder(path)) {
-            return settingsService.getPodcastFolder();
+            return settingsFacade.get(SKeys.podcast.folder);
         }
         return null;
     }
@@ -540,7 +542,8 @@ public class SecurityService implements UserDetailsService {
     // NPathComplexity : Redundantly coded for readability, but not difficult to
     // understand
     public boolean isExcluded(Path path) {
-        if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {
+        if (settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks)
+                && Files.isSymbolicLink(path)) {
             info("Excluding symbolic link %s".formatted(path));
             return true;
         }
@@ -552,10 +555,12 @@ public class SecurityService implements UserDetailsService {
 
         // Exclude those that match a user-specified pattern
         String name = fileName.toString();
-        if (settingsService.getExcludePattern() != null
-                && settingsService.getExcludePattern().matcher(name).matches()) {
+        Pattern excludePattern = settingsFacade
+            .getCachedPattern(SKeys.musicFolder.exclusion.excludePatternString);
+        if (excludePattern != null && excludePattern.matcher(name).matches()) {
             info("Excluding file which matches exclude pattern %s : %s"
-                .formatted(settingsService.getExcludePatternString(), path));
+                .formatted(settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString),
+                        path));
             return true;
         }
 

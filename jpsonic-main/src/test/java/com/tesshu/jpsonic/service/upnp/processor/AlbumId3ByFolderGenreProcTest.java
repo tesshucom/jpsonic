@@ -48,9 +48,11 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrFGAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
@@ -68,7 +70,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 class AlbumId3ByFolderGenreProcTest {
 
     private UpnpProcessorUtil util;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SearchService searchService;
     private AlbumDao albumDao;
     private AlbumId3ByFolderGenreProc proc;
@@ -77,23 +79,26 @@ class AlbumId3ByFolderGenreProcTest {
     void setup() {
         albumDao = mock(AlbumDao.class);
         util = mock(UpnpProcessorUtil.class);
-        settingsService = mock(SettingsService.class);
-        when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+            .build();
+
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-            .fromUriString(
-                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
+                    + ViewName.COVER_ART.value())
             .queryParam("id", "99")
             .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
         when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
             .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
                 mock(MediaFileService.class), mock(PlayerService.class),
                 mock(TranscodingService.class));
         searchService = mock(SearchService.class);
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
-        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService,
-                albumDao, deligate);
+        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsFacade, searchService, albumDao,
+                deligate);
     }
 
     @Test
@@ -105,8 +110,8 @@ class AlbumId3ByFolderGenreProcTest {
     void testCreateContainer() {
         UpnpDIDLFactory factory = mock(UpnpDIDLFactory.class);
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
-        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsService, searchService,
-                albumDao, deligate);
+        proc = new AlbumId3ByFolderGenreProc(util, factory, settingsFacade, searchService, albumDao,
+                deligate);
 
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrGenre = new FolderOrFGenre(folder);

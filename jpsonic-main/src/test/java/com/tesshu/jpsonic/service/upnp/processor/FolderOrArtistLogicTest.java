@@ -35,8 +35,9 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +58,8 @@ class FolderOrArtistLogicTest {
     void setup() {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(mock(SettingsService.class),
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
                 mock(JWTSecurityService.class), mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
         logic = new FolderOrArtistLogic(util, factory, artistDao);

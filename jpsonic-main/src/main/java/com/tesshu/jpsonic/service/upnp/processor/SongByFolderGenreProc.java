@@ -27,10 +27,11 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFGenre;
@@ -44,15 +45,15 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
     protected static final Scope SCOPE = GenreMasterCriteria.Scope.SONG;
     static final MediaType[] TYPES = { MediaType.MUSIC };
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SearchService searchService;
     private final UpnpDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
 
-    public SongByFolderGenreProc(SettingsService settingsService, SearchService searchService,
+    public SongByFolderGenreProc(SettingsFacade settingsFacade, SearchService searchService,
             UpnpDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.searchService = searchService;
         this.factory = factory;
         this.deligate = folderOrGenreLogic;
@@ -64,7 +65,7 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
     }
 
     protected Sort getSort() {
-        return Sort.of(settingsService.getUPnPSongGenreSort());
+        return Sort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort));
     }
 
     @Override

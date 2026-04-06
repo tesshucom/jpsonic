@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
 import com.tesshu.jpsonic.service.scanner.FileMetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
@@ -45,6 +44,7 @@ import com.tesshu.jpsonic.service.scanner.PostScanProcedure;
 import com.tesshu.jpsonic.service.scanner.PreScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanHelper;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     protected MusicFolderDao musicFolderDao;
     @Autowired
-    protected SettingsService settingsService;
+    protected SettingsFacade settingsFacade;
     @Autowired
     protected MusicFolderServiceImpl musicFolderService;
     @Autowired
@@ -108,7 +108,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+        mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                 preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc, scanHelper,
                 staticsDao, scanExecutor);
     }
@@ -232,13 +232,4 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         }
 
     }
-
-    protected void setSortAlphanum(boolean isSortStrict) {
-        settingsService.setSortAlphanum(true);
-    }
-
-    protected void setSortStrict(boolean isSortStrict) {
-        settingsService.setSortStrict(isSortStrict);
-    }
-
 }

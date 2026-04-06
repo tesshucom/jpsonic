@@ -50,10 +50,12 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -69,7 +71,7 @@ class SongByGenreProcTest {
     @Nested
     @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private UpnpProcessorUtil util;
         private UpnpDIDLFactory factory;
         private SearchService searchService;
@@ -77,17 +79,18 @@ class SongByGenreProcTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+            factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
                     playerService, transcodingService);
             searchService = mock(SearchService.class);
             util = new UpnpProcessorUtil(mock(MusicFolderService.class),
-                    mock(SecurityService.class), settingsService, mock(JpsonicComparators.class));
-            proc = new SongByGenreProc(settingsService, util, factory, searchService);
+                    mock(SecurityService.class), settingsFacade, mock(JpsonicComparators.class));
+            proc = new SongByGenreProc(settingsFacade, util, factory, searchService);
         }
 
         @Test
@@ -147,7 +150,7 @@ class SongByGenreProcTest {
             DIDLContent content = new DIDLContent();
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new SongByGenreProc(mock(SettingsService.class), util, factory, searchService);
+            proc = new SongByGenreProc(settingsFacade, util, factory, searchService);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());
@@ -173,10 +176,9 @@ class SongByGenreProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setSortGenresByAlphabet(false);
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(SKeys.general.sort.genresByAlphabet, false);
+            settingsFacade.commitAll();
             populateDatabaseOnlyOnce();
         }
 

@@ -37,9 +37,10 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.validator.UserSettingsValidator;
@@ -71,19 +72,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/userSettings", "/userSettings.view" })
 public class UserSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final PlayerService playerService;
 
-    public UserSettingsController(SettingsService settingsService,
+    public UserSettingsController(SettingsFacade settingsFacade,
             MusicFolderService musicFolderService, SecurityService securityService,
             TranscodingService transcodingService, ShareService shareService,
             PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
@@ -93,7 +94,7 @@ public class UserSettingsController {
 
     @InitBinder
     protected void initBinder(WebDataBinder binder, HttpServletRequest request) {
-        binder.addValidators(new UserSettingsValidator(securityService, settingsService, request));
+        binder.addValidators(new UserSettingsValidator(securityService, settingsFacade, request));
     }
 
     @GetMapping
@@ -131,7 +132,7 @@ public class UserSettingsController {
             }
         }
 
-        command.setLdapEnabled(settingsService.isLdapEnabled());
+        command.setLdapEnabled(settingsFacade.get(SKeys.advanced.ldap.enabled));
         command
             .setUsers(securityService
                 .getAllUsers()
@@ -142,7 +143,7 @@ public class UserSettingsController {
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 

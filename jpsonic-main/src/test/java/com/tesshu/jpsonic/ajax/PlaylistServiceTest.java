@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
@@ -37,6 +38,8 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -53,12 +56,16 @@ class PlaylistServiceTest {
 
     @BeforeEach
     void setup() {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        SecurityService securityService = mock(SecurityService.class);
+        AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(securityService,
+                serverLocaleService);
         deligate = mock(com.tesshu.jpsonic.service.PlaylistService.class);
         playerService = mock(PlayerService.class);
-        playlistService = new PlaylistService(mock(MusicFolderService.class),
-                mock(SecurityService.class), mock(MediaFileService.class), deligate,
-                mock(MediaFileDao.class), playerService, mock(AirsonicLocaleResolver.class),
-                AjaxMockUtils.mock(AjaxHelper.class));
+        playlistService = new PlaylistService(mock(MusicFolderService.class), securityService,
+                mock(MediaFileService.class), deligate, mock(MediaFileDao.class), playerService,
+                airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)

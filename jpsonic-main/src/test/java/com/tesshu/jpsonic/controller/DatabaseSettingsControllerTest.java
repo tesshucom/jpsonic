@@ -27,8 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -45,10 +46,11 @@ class DatabaseSettingsControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new DatabaseSettingsController(mock(SettingsService.class),
-                    mock(SecurityService.class), mock(ShareService.class),
-                    mock(OutlineHelpSelector.class)))
+            .standaloneSetup(
+                    new DatabaseSettingsController(settingsFacade, mock(SecurityService.class),
+                            mock(ShareService.class), mock(OutlineHelpSelector.class)))
             .build();
     }
 

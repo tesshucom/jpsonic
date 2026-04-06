@@ -35,9 +35,11 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -62,20 +64,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/playerSettings", "/playerSettings.view" })
 public class PlayerSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
+    private final UPnPSubnet subnet;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PlayerSettingsController(SettingsService settingsService,
-            SecurityService securityService, PlayerService playerService,
-            TranscodingService transcodingService, ShareService shareService,
-            OutlineHelpSelector outlineHelpSelector) {
+    public PlayerSettingsController(SettingsFacade settingsFacade, SecurityService securityService,
+            UPnPSubnet subnet, PlayerService playerService, TranscodingService transcodingService,
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
+        this.subnet = subnet;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
@@ -120,7 +123,7 @@ public class PlayerSettingsController {
             command
                 .setAnonymous(
                         JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
-            command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
+            command.setSameSegment(subnet.isInUPnPRange(player.getIpAddress()));
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             UserSettings userSettings = securityService.getUserSettings(player.getUsername());
             command.setMaxBitrate(userSettings.getTranscodeScheme());
@@ -142,7 +145,7 @@ public class PlayerSettingsController {
         // for view page control
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command

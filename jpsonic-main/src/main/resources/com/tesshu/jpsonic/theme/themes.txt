@@ -1,9 +1,7 @@
 # List of available themes.
 #
 # Format:
-# theme_id theme_description theme_parent_id
-#
-# Author: Sindre Mehus
+# theme_id theme_description
 
 # The Jpsonic theme.
 jpsonic "Jpsonic"

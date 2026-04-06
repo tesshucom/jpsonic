@@ -44,9 +44,10 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -86,17 +87,17 @@ public class UploadController {
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ScannerStateService scannerStateService;
 
     public UploadController(SecurityService securityService, PlayerService playerService,
-            StatusService statusService, SettingsService settingsService,
+            StatusService statusService, SettingsFacade settingsFacade,
             ScannerStateService scannerStateService) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.scannerStateService = scannerStateService;
     }
 
@@ -176,7 +177,7 @@ public class UploadController {
             throws FileUploadException {
         DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
         JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
-        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsService));
+        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsFacade));
         return upload.parseRequest(request);
     }
 
@@ -332,16 +333,16 @@ public class UploadController {
 
         private final TransferStatus status;
         private final StatusService statusService;
-        private final SettingsService settingsService;
+        private final SettingsFacade settingsFacade;
         private final long startTime;
 
         private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
 
         UploadListenerImpl(TransferStatus status, StatusService statusService,
-                SettingsService settingsService) {
+                SettingsFacade settingsFacade) {
             this.status = status;
             this.statusService = statusService;
-            this.settingsService = settingsService;
+            this.settingsFacade = settingsFacade;
             this.startTime = Instant.now().toEpochMilli();
         }
 
@@ -375,7 +376,7 @@ public class UploadController {
         }
 
         private long getBitrateLimit() {
-            return 1024L * this.settingsService.getUploadBitrateLimit()
+            return 1024L * this.settingsFacade.get(SKeys.advanced.bandwidth.uploadBitrateLimit)
                     / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }

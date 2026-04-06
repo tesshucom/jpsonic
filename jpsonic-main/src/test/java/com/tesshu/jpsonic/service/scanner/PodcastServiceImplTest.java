@@ -33,14 +33,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,17 +50,22 @@ import org.mockito.Mockito;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class PodcastServiceImplTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
     private PodcastServiceImpl podcastService;
 
     @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         securityService = mock(SecurityService.class);
-        MediaFileService mediaFlieService = new MediaFileService(settingsService, null, null, null,
+        MediaFileService mediaFlieService = new MediaFileService(settingsFacade, null, null, null,
                 null, null);
-        podcastService = new PodcastServiceImpl(null, settingsService, securityService,
+        podcastService = new PodcastServiceImpl(null, settingsFacade, securityService,
                 mediaFlieService, mock(WritableMediaFileService.class), null, null, null, null,
                 null);
     }
@@ -138,12 +144,12 @@ class PodcastServiceImplTest {
 
     @Test
     void testIsAudioEpisode() {
-
-        Mockito
-            .when(settingsService.getMusicFileTypesAsArray())
-            .thenReturn(Arrays
-                .asList("mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd"
-                    .split("\\s+")));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.general.extension.musicFileTypes,
+                    "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd")
+            .build();
+        init();
 
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.mp3"));
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.m4a"));
@@ -167,7 +173,11 @@ class PodcastServiceImplTest {
 
             Path podcastFolder = Path
                 .of(PodcastServiceImplTest.class.getResource("/MEDIAS/Podcast").toURI());
-            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastFolder.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.podcast.folder, podcastFolder.toString())
+                .build();
+            init();
             Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
 
             final String channelTitle = "chTitle";
@@ -215,10 +225,13 @@ class PodcastServiceImplTest {
         // the filename.
         @Test
         void testDotAtTheEnd() throws URISyntaxException {
-
             Path podcastFolder = Path
                 .of(PodcastServiceImplTest.class.getResource("/MEDIAS/Podcast").toURI());
-            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastFolder.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.podcast.folder, podcastFolder.toString())
+                .build();
+            init();
             Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
 
             final String channelTitle = "chTitleIf...";
@@ -265,7 +278,11 @@ class PodcastServiceImplTest {
 
             Path podcastFolder = Path
                 .of(PodcastServiceImplTest.class.getResource("/MEDIAS/Podcast").toURI());
-            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastFolder.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.podcast.folder, podcastFolder.toString())
+                .build();
+            init();
             Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
 
             final String channelTitle = "chTitle";

@@ -43,8 +43,10 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,8 +69,10 @@ class WMPProcTest {
     void setup() throws URISyntaxException {
         mediaFileService = mock(MediaFileService.class);
         util = mock(UpnpProcessorUtil.class);
-        SettingsService settingsService = mock(SettingsService.class);
-        when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
+        SettingsFacade settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+            .build();
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
         UriComponents components = mock(UriComponents.class);
@@ -79,7 +83,7 @@ class WMPProcTest {
         when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class))).thenReturn(builder);
         PlayerService playerService = mock(PlayerService.class);
         TranscodingService transcodingService = mock(TranscodingService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
                 mediaFileService, playerService, transcodingService);
         wmpProcessor = new WMPProc(util, factory, mediaFileService);
         TestCaseUtils.setLogLevel(WMPProc.class, Level.DEBUG);

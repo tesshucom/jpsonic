@@ -28,8 +28,9 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -55,17 +56,17 @@ public class AdvancedSettingsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
 
-    public AdvancedSettingsController(SettingsService settingsService,
+    public AdvancedSettingsController(SettingsFacade settingsFacade,
             SecurityService securityService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -77,47 +78,55 @@ public class AdvancedSettingsController {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
         // Bandwidth control
-        command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
-        command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
-        command.setBufferSize(String.valueOf(settingsService.getBufferSize()));
+
+        command
+            .setDownloadLimit(String
+                .valueOf(settingsFacade.get(SKeys.advanced.bandwidth.downloadBitrateLimit)));
+        command
+            .setUploadLimit(String
+                .valueOf(settingsFacade.get(SKeys.advanced.bandwidth.uploadBitrateLimit)));
+        command
+            .setBufferSize(String.valueOf(settingsFacade.get(SKeys.advanced.bandwidth.bufferSize)));
 
         // Email notification
-        command.setSmtpFrom(settingsService.getSmtpFrom());
-        command.setSmtpServer(settingsService.getSmtpServer());
-        command.setSmtpPort(settingsService.getSmtpPort());
-        command.setSmtpEncryption(settingsService.getSmtpEncryption());
-        command.setSmtpUser(settingsService.getSmtpUser());
+        command.setSmtpFrom(settingsFacade.get(SKeys.advanced.smtp.from));
+        command.setSmtpServer(settingsFacade.get(SKeys.advanced.smtp.server));
+        command.setSmtpPort(settingsFacade.get(SKeys.advanced.smtp.port));
+        command.setSmtpEncryption(settingsFacade.get(SKeys.advanced.smtp.encryption));
+        command.setSmtpUser(settingsFacade.get(SKeys.advanced.smtp.user));
 
         // LDAP authentication
-        command.setLdapEnabled(settingsService.isLdapEnabled());
-        command.setLdapUrl(settingsService.getLdapUrl());
-        command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
-        command.setLdapManagerDn(settingsService.getLdapManagerDn());
-        command.setLdapAutoShadowing(settingsService.isLdapAutoShadowing());
+        command.setLdapEnabled(settingsFacade.get(SKeys.advanced.ldap.enabled));
+        command.setLdapUrl(settingsFacade.get(SKeys.advanced.ldap.url));
+        command.setLdapSearchFilter(settingsFacade.get(SKeys.advanced.ldap.searchFilter));
+        command.setLdapManagerDn(settingsFacade.get(SKeys.advanced.ldap.managerDn));
+        command.setLdapAutoShadowing(settingsFacade.get(SKeys.advanced.ldap.autoShadowing));
         command.setBrand(EnvironmentProvider.getInstance().getBrand());
 
         // Account recovery assistant
-        command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
-        command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
+        command.setCaptchaEnabled(settingsFacade.get(SKeys.advanced.captcha.enabled));
+        command.setRecaptchaSiteKey(settingsFacade.get(SKeys.advanced.captcha.siteKey));
 
         // Scan log
-        command.setUseScanLog(settingsService.isUseScanLog());
-        command.setScanLogRetention(settingsService.getScanLogRetention());
-        command.setUseScanEvents(settingsService.isUseScanEvents());
-        command.setMeasureMemory(settingsService.isMeasureMemory());
+        command.setUseScanLog(settingsFacade.get(SKeys.advanced.scanLog.useScanLog));
+        command.setScanLogRetention(settingsFacade.get(SKeys.advanced.scanLog.scanLogRetention));
+        command.setUseScanEvents(settingsFacade.get(SKeys.advanced.scanLog.useScanEvents));
+        command.setMeasureMemory(settingsFacade.get(SKeys.advanced.scanLog.measureMemory));
 
         // Danger Zone
-        command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
+        command
+            .setIndexScheme(
+                    IndexScheme.valueOf(settingsFacade.get(SKeys.advanced.index.indexSchemeName)));
         command
             .setForceInternalValueInsteadOfTags(
-                    settingsService.isForceInternalValueInsteadOfTags());
-        command.setSortAlphanum(settingsService.isSortAlphanum());
-        command.setSortStrict(settingsService.isSortStrict());
-        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
+                    settingsFacade.get(SKeys.advanced.index.forceInternalValueInsteadOfTags));
+        command.setSortAlphanum(settingsFacade.get(SKeys.advanced.sort.alphanum));
+        command.setSortStrict(settingsFacade.get(SKeys.advanced.sort.strict));
+        command.setDefaultSortAlphanum(SKeys.advanced.sort.alphanum.defaultValue());
+        command.setDefaultSortStrict(SKeys.advanced.sort.strict.defaultValue());
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUserStrict(request);
         command
@@ -137,9 +146,15 @@ public class AdvancedSettingsController {
 
         // Bandwidth control
         try {
-            settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
-            settingsService.setUploadBitrateLimit(Long.parseLong(command.getUploadLimit()));
-            settingsService.setBufferSize(Integer.parseInt(command.getBufferSize()));
+            settingsFacade
+                .staging(SKeys.advanced.bandwidth.downloadBitrateLimit,
+                        Long.parseLong(command.getDownloadLimit()));
+            settingsFacade
+                .staging(SKeys.advanced.bandwidth.uploadBitrateLimit,
+                        Long.parseLong(command.getUploadLimit()));
+            settingsFacade
+                .staging(SKeys.advanced.bandwidth.bufferSize,
+                        Integer.parseInt(command.getBufferSize()));
         } catch (NumberFormatException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Error in parse of bitrateLimit or bufferSize.", e);
@@ -147,30 +162,30 @@ public class AdvancedSettingsController {
         }
 
         // Email notification
-        settingsService.setSmtpFrom(command.getSmtpFrom());
-        settingsService.setSmtpServer(command.getSmtpServer());
-        settingsService.setSmtpPort(command.getSmtpPort());
-        settingsService.setSmtpEncryption(command.getSmtpEncryption());
-        settingsService.setSmtpUser(command.getSmtpUser());
-        if (StringUtils.isNotEmpty(command.getSmtpPassword())) {
-            settingsService.setSmtpPassword(command.getSmtpPassword());
-        }
+        settingsFacade.staging(SKeys.advanced.smtp.from, command.getSmtpFrom());
+        settingsFacade.staging(SKeys.advanced.smtp.server, command.getSmtpServer());
+        settingsFacade.staging(SKeys.advanced.smtp.port, command.getSmtpPort());
+        settingsFacade.staging(SKeys.advanced.smtp.encryption, command.getSmtpEncryption());
+        settingsFacade.staging(SKeys.advanced.smtp.user, command.getSmtpUser());
+        settingsFacade
+            .stagingEncodedString(SKeys.advanced.smtp.password, command.getSmtpPassword());
 
         // LDAP authentication
-        settingsService.setLdapEnabled(command.isLdapEnabled());
-        settingsService.setLdapUrl(command.getLdapUrl());
-        settingsService.setLdapSearchFilter(command.getLdapSearchFilter());
-        settingsService.setLdapManagerDn(command.getLdapManagerDn());
-        if (StringUtils.isNotEmpty(command.getLdapManagerPassword())) {
-            settingsService.setLdapManagerPassword(command.getLdapManagerPassword());
-        }
-        settingsService.setLdapAutoShadowing(command.isLdapAutoShadowing());
+        settingsFacade.staging(SKeys.advanced.ldap.enabled, command.isLdapEnabled());
+        settingsFacade.staging(SKeys.advanced.ldap.url, command.getLdapUrl());
+        settingsFacade.staging(SKeys.advanced.ldap.searchFilter, command.getLdapSearchFilter());
+        settingsFacade.staging(SKeys.advanced.ldap.managerDn, command.getLdapManagerDn());
+        settingsFacade
+            .stagingEncodedString(SKeys.advanced.ldap.managerPassword,
+                    command.getLdapManagerPassword());
+        settingsFacade.staging(SKeys.advanced.ldap.autoShadowing, command.isLdapAutoShadowing());
 
         // Account recovery assistant
-        settingsService.setCaptchaEnabled(command.isCaptchaEnabled());
-        settingsService.setRecaptchaSiteKey(command.getRecaptchaSiteKey());
+        settingsFacade.staging(SKeys.advanced.captcha.enabled, command.isCaptchaEnabled());
+        settingsFacade.staging(SKeys.advanced.captcha.siteKey, command.getRecaptchaSiteKey());
         if (StringUtils.isNotEmpty(command.getRecaptchaSecretKey())) {
-            settingsService.setRecaptchaSecretKey(command.getRecaptchaSecretKey());
+            settingsFacade
+                .staging(SKeys.advanced.captcha.secretKey, command.getRecaptchaSecretKey());
         }
 
         // Scan log
@@ -183,7 +198,7 @@ public class AdvancedSettingsController {
             setDangerZone(command);
         }
 
-        settingsService.save();
+        settingsFacade.commitAll();
 
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
@@ -193,39 +208,42 @@ public class AdvancedSettingsController {
     }
 
     void setScanLog(AdvancedSettingsCommand command) {
-        settingsService.setUseScanLog(command.isUseScanLog());
+        settingsFacade.staging(SKeys.advanced.scanLog.useScanLog, command.isUseScanLog());
         if (command.isUseScanLog()) {
-            settingsService.setScanLogRetention(command.getScanLogRetention());
-            settingsService.setUseScanEvents(command.isUseScanEvents());
-            settingsService.setMeasureMemory(command.isMeasureMemory());
+            settingsFacade
+                .staging(SKeys.advanced.scanLog.scanLogRetention, command.getScanLogRetention());
+            settingsFacade.staging(SKeys.advanced.scanLog.useScanEvents, command.isUseScanEvents());
+            settingsFacade.staging(SKeys.advanced.scanLog.measureMemory, command.isMeasureMemory());
         } else {
-            settingsService.setScanLogRetention(settingsService.getDefaultScanLogRetention());
-            settingsService.setUseScanEvents(false);
-            settingsService.setMeasureMemory(false);
+            settingsFacade.stagingDefault(SKeys.advanced.scanLog.scanLogRetention);
+            settingsFacade
+                .stagingDefault(SKeys.advanced.scanLog.useScanEvents,
+                        SKeys.advanced.scanLog.measureMemory);
         }
     }
 
     private void setDangerZone(AdvancedSettingsCommand command) {
 
         IndexScheme scheme = command.getIndexScheme();
-        settingsService.setIndexSchemeName(scheme.name());
+        settingsFacade.staging(SKeys.advanced.index.indexSchemeName, scheme.name());
 
         if (scheme == IndexScheme.NATIVE_JAPANESE) {
-            settingsService.setForceInternalValueInsteadOfTags(false);
-            settingsService.setDeleteDiacritic(true);
-            settingsService.setIgnoreFullWidth(true);
+            settingsFacade.staging(SKeys.advanced.index.forceInternalValueInsteadOfTags, false);
+            settingsFacade.staging(SKeys.advanced.index.deleteDiacritic, true);
+            settingsFacade.staging(SKeys.advanced.index.ignoreFullWidth, true);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
-            settingsService
-                .setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
-            settingsService.setDeleteDiacritic(false);
-            settingsService.setIgnoreFullWidth(true);
+            settingsFacade
+                .staging(SKeys.advanced.index.forceInternalValueInsteadOfTags,
+                        command.isForceInternalValueInsteadOfTags());
+            settingsFacade.staging(SKeys.advanced.index.deleteDiacritic, false);
+            settingsFacade.staging(SKeys.advanced.index.ignoreFullWidth, true);
         } else {
-            settingsService.setForceInternalValueInsteadOfTags(false);
-            settingsService.setDeleteDiacritic(false);
-            settingsService.setIgnoreFullWidth(false);
+            settingsFacade.staging(SKeys.advanced.index.forceInternalValueInsteadOfTags, false);
+            settingsFacade.staging(SKeys.advanced.index.deleteDiacritic, false);
+            settingsFacade.staging(SKeys.advanced.index.ignoreFullWidth, false);
         }
 
-        settingsService.setSortAlphanum(command.isSortAlphanum());
-        settingsService.setSortStrict(command.isSortStrict());
+        settingsFacade.staging(SKeys.advanced.sort.alphanum, command.isSortAlphanum());
+        settingsFacade.staging(SKeys.advanced.sort.strict, command.isSortStrict());
     }
 }

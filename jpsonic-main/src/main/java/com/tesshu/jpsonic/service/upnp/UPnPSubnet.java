@@ -1,5 +1,5 @@
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.upnp;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 

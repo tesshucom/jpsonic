@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.apache.lucene.analysis.TokenStream;
@@ -70,7 +71,7 @@ import org.apache.lucene.search.TermQuery;
 public class LuceneQueryBuilder {
 
     private final AnalyzerFactory analyzerFactory;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
 
     private static final float DEFAULT_BOOST_MULTIPLIER = 2.0f;
 
@@ -86,11 +87,11 @@ public class LuceneQueryBuilder {
      * Constructs a new LuceneQueryBuilder.
      *
      * @param analyzerFactory the analyzer factory
-     * @param settingsService the settings service
+     * @param settingsFacade  the settings service
      */
-    public LuceneQueryBuilder(AnalyzerFactory analyzerFactory, SettingsService settingsService) {
+    public LuceneQueryBuilder(AnalyzerFactory analyzerFactory, SettingsFacade settingsFacade) {
         this.analyzerFactory = analyzerFactory;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
     }
 
     /**
@@ -162,8 +163,8 @@ public class LuceneQueryBuilder {
     public Optional<Query> buildMultiFieldQueryWithBoost(List<String> fieldNames,
             @Nonnull String queryString, Map<String, Float> boosts, boolean includeComposer)
             throws IOException {
-
-        boolean effectiveIncludeComposer = includeComposer || settingsService.isSearchComposer();
+        boolean effectiveIncludeComposer = includeComposer
+                || settingsFacade.get(SKeys.general.search.searchComposer);
         List<String> filteredFields = filterFields(fieldNames, effectiveIncludeComposer);
         if (filteredFields.isEmpty()) {
             return Optional.empty();
@@ -217,7 +218,8 @@ public class LuceneQueryBuilder {
      * @return a filtered list of field names
      */
     List<String> filterFields(List<String> fields, boolean includeComposer) {
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        IndexScheme scheme = IndexScheme
+            .of(settingsFacade.get(SKeys.advanced.index.indexSchemeName));
         return fields
             .stream()
             .filter(field -> includeComposer || !COMPOSER_FIELDS.contains(field))

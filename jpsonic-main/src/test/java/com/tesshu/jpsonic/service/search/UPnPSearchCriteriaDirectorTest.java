@@ -31,12 +31,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.i18n.I18nSKeys;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -224,7 +230,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
     }
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private UpnpProcessorUtil util;
     private MusicFolderService musicFolderService;
     private UPnPSearchCriteriaDirector director;
@@ -235,10 +241,19 @@ public class UPnPSearchCriteriaDirectorTest {
     @BeforeEach
     void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
-        settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
-        Mockito.when(settingsService.getUPnPSearchMethod()).thenReturn(UPnPSearchMethod.ID3.name());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(SKeys.general.search.searchComposer, true)
+            .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        init();
+    }
 
+    @Ignore
+    void init() {
         List<MusicFolder> musicFolders = new ArrayList<>();
         musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now(), 1, false));
         musicFolderService = mock(MusicFolderService.class);
@@ -246,6 +261,8 @@ public class UPnPSearchCriteriaDirectorTest {
             .when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST))
             .thenReturn(musicFolders);
 
+        path = "";
+        fid = "";
         for (MusicFolder m : musicFolders) {
             path = path.concat("f:").concat(m.getPathString()).concat(" ");
             fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
@@ -254,10 +271,10 @@ public class UPnPSearchCriteriaDirectorTest {
         fid = fid.trim();
 
         util = new UpnpProcessorUtil(musicFolderService, mock(SecurityService.class),
-                settingsService, null);
+                settingsFacade, null);
         director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
                 util.getGuestFolders(),
-                new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+                new QueryFactory(settingsFacade, new AnalyzerFactory(settingsFacade)));
     }
 
     @Nested
@@ -374,12 +391,13 @@ public class UPnPSearchCriteriaDirectorTest {
             @DirectorDecisions.Result.Criteria.TargetType.Artist
             @Test
             public void h08() {
-                Mockito
-                    .when(settingsService.getUPnPSearchMethod())
-                    .thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
-                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
-                        util.getGuestFolders(),
-                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.general.search.searchComposer, true)
+                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                            UPnPSearchMethod.FILE_STRUCTURE.name())
+                    .build();
+                init();
 
                 UPnPSearchCriteria criteria = director
                     .construct(0, 50,
@@ -395,12 +413,13 @@ public class UPnPSearchCriteriaDirectorTest {
             @DirectorDecisions.Result.Criteria.TargetType.Album
             @Test
             public void h09() {
-                Mockito
-                    .when(settingsService.getUPnPSearchMethod())
-                    .thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
-                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
-                        util.getGuestFolders(),
-                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.general.search.searchComposer, true)
+                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                            UPnPSearchMethod.FILE_STRUCTURE.name())
+                    .build();
+                init();
 
                 UPnPSearchCriteria criteria = director
                     .construct(0, 50,
@@ -538,12 +557,13 @@ public class UPnPSearchCriteriaDirectorTest {
             @DirectorDecisions.Result.Criteria.TargetType.Artist
             @Test
             public void h18() {
-                Mockito
-                    .when(settingsService.getUPnPSearchMethod())
-                    .thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
-                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
-                        util.getGuestFolders(),
-                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.general.search.searchComposer, true)
+                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                            UPnPSearchMethod.FILE_STRUCTURE.name())
+                    .build();
+                init();
 
                 UPnPSearchCriteria criteria = director
                     .construct(0, 50,
@@ -559,12 +579,13 @@ public class UPnPSearchCriteriaDirectorTest {
             @DirectorDecisions.Result.Criteria.TargetType.Album
             @Test
             public void h19() {
-                Mockito
-                    .when(settingsService.getUPnPSearchMethod())
-                    .thenReturn(UPnPSearchMethod.FILE_STRUCTURE.name());
-                director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
-                        util.getGuestFolders(),
-                        new QueryFactory(settingsService, new AnalyzerFactory(settingsService)));
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.general.search.searchComposer, true)
+                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                            UPnPSearchMethod.FILE_STRUCTURE.name())
+                    .build();
+                init();
 
                 UPnPSearchCriteria criteria = director
                     .construct(0, 50,
@@ -939,7 +960,17 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
         @Test
         public void b06() {
-            Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.search.searchComposer, false)
+                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .withString(I18nSKeys.localeLanguage, "ja")
+                .withString(I18nSKeys.localeCountry, "ja")
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.NATIVE_JAPANESE.name())
+                .build();
+            init();
+
             String searchQuery5 = "(upnp:class derivedfrom \"object.item.audioItem\" and (dc:creator contains \"日本語テスト\" or upnp:artist contains \"日本語テスト\"))";
             UPnPSearchCriteria criteria = director.construct(4, 54, searchQuery5);
             assertEquals(IndexType.SONG, criteria.targetType());
@@ -1033,7 +1064,13 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Result.Criteria.TargetType.AlbumId3
         @Test
         public void m03() {
-            Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.search.searchComposer, false)
+                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .build();
+            init();
+
             UPnPSearchCriteria criteria = director
                 .construct(0, 50,
                         """
@@ -1083,7 +1120,13 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Result.Criteria.TargetType.Song
         @Test
         public void m05() {
-            Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.search.searchComposer, false)
+                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .build();
+            init();
+
             UPnPSearchCriteria criteria = director
                 .construct(0, 50,
                         """

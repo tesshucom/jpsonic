@@ -30,7 +30,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
@@ -38,6 +37,8 @@ import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,12 +69,14 @@ class SetMusicFileInfoControllerTest {
         album.setPathString(PATH);
         Mockito.when(mediaFileService.getMediaFileStrict(ID)).thenReturn(album);
 
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+
         mediaFileDao = mock(MediaFileDao.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                 mediaFileDao, scannerStateService, mock(MediaFileService.class),
                 mock(AlbumDao.class), mock(MediaFileCache.class), mock(MusicParser.class),
-                mock(VideoParser.class), mock(SettingsService.class), mock(SecurityService.class),
+                mock(VideoParser.class), settingsFacade, mock(SecurityService.class),
                 mock(JapaneseReadingUtils.class), mock(IndexManager.class),
                 mock(MusicIndexServiceImpl.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);

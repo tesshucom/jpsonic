@@ -35,6 +35,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +72,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.StreamService;
@@ -79,6 +79,10 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -112,7 +116,7 @@ class StreamControllerTest {
     private static final String TEST_URL = "/stream/test";
     private static final String TEST_PATH = "/var/dummy";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
     private PlayerService playerService;
     private StreamService streamService;
@@ -129,7 +133,7 @@ class StreamControllerTest {
         this.transcodingService = ts;
         this.streamService = ss;
 
-        settingsService = mock(SettingsService.class);
+        settingsFacade = SettingsFacadeBuilder.create().build();
         securityService = mock(SecurityService.class);
 
         User user = new User(player.getUsername(), player.getUsername(), "");
@@ -146,7 +150,7 @@ class StreamControllerTest {
         when(statusService.getStreamStatusesForPlayer(nullable(Player.class)))
             .thenReturn(Arrays.asList(transferStatus));
 
-        streamController = new StreamController(settingsService, securityService, playerService, ts,
+        streamController = new StreamController(settingsFacade, securityService, playerService, ts,
                 statusService, ss);
 
         JWTAuthenticationToken token = new JWTAuthenticationToken(Collections.emptyList(),
@@ -862,13 +866,13 @@ class StreamControllerTest {
             player
                 .setUsername(isAnonymous ? JWTAuthenticationToken.USERNAME_ANONYMOUS
                         : ServiceMockUtils.ADMIN_NAME);
-
+            UPnPSubnet subnet = mock(UPnPSubnet.class);
             if (isAnonymous) {
                 User user = new User(JWTAuthenticationToken.USERNAME_ANONYMOUS,
                         JWTAuthenticationToken.USERNAME_ANONYMOUS, "");
                 when(securityService.getUserByName(JWTAuthenticationToken.USERNAME_ANONYMOUS))
                     .thenReturn(user);
-                when(settingsService.isInUPnPRange(nullable(String.class))).thenReturn(true);
+                when(subnet.isInUPnPRange(nullable(String.class))).thenReturn(true);
                 when(playerService.getGuestPlayer(nullable(HttpServletRequest.class)))
                     .thenReturn(player);
             }
@@ -879,10 +883,10 @@ class StreamControllerTest {
                     : Collections.emptyList();
             when(transcodingDao.getTranscodingsForPlayer(anyInt())).thenReturn(allTranscodings);
 
-            TranscodingService ts = new TranscodingService(settingsService, securityService,
+            TranscodingService ts = new TranscodingService(settingsFacade, securityService, subnet,
                     transcodingDao, playerService, null);
             StreamService ss = new StreamService(statusService, null, securityService,
-                    settingsService, ts, null, mediaFileService,
+                    settingsFacade, ts, null, mediaFileService,
                     mock(WritableMediaFileService.class), null, null);
             initMocks(player, ts, ss);
         }
@@ -1019,7 +1023,10 @@ class StreamControllerTest {
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c6() throws Exception {
-            when(settingsService.getPreferredFormat()).thenReturn("mp3");
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormat, "mp3")
+                .build();
             initMocksWithTranscoding(true, false);
             mockMvc
                 .perform(MockMvcRequestBuilders
@@ -1167,7 +1174,10 @@ class StreamControllerTest {
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c6a() throws Exception {
-            when(settingsService.getPreferredFormat()).thenReturn("mp3");
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormat, "mp3")
+                .build();
             initMocksWithTranscoding(true, true);
             mockMvc
                 .perform(MockMvcRequestBuilders
@@ -1528,9 +1538,10 @@ class StreamControllerTest {
         song.setFileSize(3_300L);
         when(streamService.getSingleFile(any(HttpServletRequest.class))).thenReturn(song);
 
+        SettingsFacade spy = spy(settingsFacade);
         doAnswer(invocation -> {
             throw new IOException("testWriteErrorLog1");
-        }).when(settingsService).getBufferSize();
+        }).when(spy).get(SKeys.advanced.bandwidth.bufferSize);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -1539,7 +1550,7 @@ class StreamControllerTest {
 
         doAnswer(invocation -> {
             throw new org.eclipse.jetty.io.EofException("testWriteErrorLog2");
-        }).when(settingsService).getBufferSize();
+        }).when(spy).get(SKeys.advanced.bandwidth.bufferSize);
         clearInvocations(streamService);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
@@ -1549,7 +1560,7 @@ class StreamControllerTest {
 
         doAnswer(invocation -> {
             throw new org.apache.catalina.connector.ClientAbortException("testWriteErrorLog3");
-        }).when(settingsService).getBufferSize();
+        }).when(spy).get(SKeys.advanced.bandwidth.bufferSize);
         clearInvocations(streamService);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))

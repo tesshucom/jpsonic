@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,7 +36,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -46,7 +47,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -58,13 +58,13 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.UseExplicitTypes" })
 class AnalyzerFactoryTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private AnalyzerFactory analyzerFactory;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        analyzerFactory = new AnalyzerFactory(settingsService);
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        analyzerFactory = new AnalyzerFactory(settingsFacade);
     }
 
     @AfterEach
@@ -828,10 +828,12 @@ class AnalyzerFactoryTest {
          */
         @Test
         void helloWorld() {
-
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            analyzerFactory = new AnalyzerFactory(settingsFacade);
 
             String queryEngAndHira = "quick　ぶらうん";
             var tokenized = Arrays.asList("quick", "ぶ", "ら", "う", "ん");
@@ -850,10 +852,12 @@ class AnalyzerFactoryTest {
          */
         @Test
         void testPunctuation1() {
-
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            analyzerFactory = new AnalyzerFactory(settingsFacade);
 
             String query = "B︴C";
             var notTokenized = Arrays.asList(query.toLowerCase(Locale.ENGLISH));
@@ -872,10 +876,12 @@ class AnalyzerFactoryTest {
          */
         @Test
         void testStopward() {
-
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            analyzerFactory = new AnalyzerFactory(settingsFacade);
 
             String queryJpStop = "の に は を た が で て と し れ さ ある いる も する から な こと として い " //
                     + "や れる など なっ ない この ため その あっ よう また もの あり まで " //
@@ -907,10 +913,12 @@ class AnalyzerFactoryTest {
          */
         @Test
         void testUax29() {
-
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            analyzerFactory = new AnalyzerFactory(settingsFacade);
 
             /*
              * Case using test resource name
@@ -956,10 +964,12 @@ class AnalyzerFactoryTest {
          */
         @Test
         void testSingleQuotes() {
-
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            analyzerFactory = new AnalyzerFactory(settingsFacade);
 
             String query = "This is Jpsonic's analysis.";
             var terms = Arrays.asList("this", "is", "jpsonic's", "analysis");

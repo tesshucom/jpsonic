@@ -30,7 +30,8 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -54,13 +55,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/internetRadioSettings", "/internetRadioSettings.view" })
 public class InternetRadioSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final InternetRadioService internetRadioService;
 
-    public InternetRadioSettingsController(SettingsService settingsService,
+    public InternetRadioSettingsController(SettingsFacade settingsFacade,
             InternetRadioService internetRadioService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.internetRadioService = internetRadioService;
     }
 
@@ -69,7 +70,7 @@ public class InternetRadioSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", internetRadioService.getAllInternetRadios(true));
-        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useRadio", settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(b -> map.put("showToast", b));
         model.addAttribute("model", map);
         return "internetRadioSettings";

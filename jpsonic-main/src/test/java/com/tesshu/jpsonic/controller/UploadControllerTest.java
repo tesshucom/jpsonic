@@ -39,10 +39,11 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
@@ -186,9 +187,10 @@ class UploadControllerTest {
         @BeforeEach
         void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             uploadController = new UploadController(mock(SecurityService.class),
-                    mock(PlayerService.class), mock(StatusService.class),
-                    mock(SettingsService.class), scannerStateService);
+                    mock(PlayerService.class), mock(StatusService.class), settingsFacade,
+                    scannerStateService);
         }
 
         @Test

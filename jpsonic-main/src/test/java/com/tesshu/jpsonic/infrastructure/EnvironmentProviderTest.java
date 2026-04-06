@@ -249,7 +249,13 @@ class EnvironmentProviderTest {
 
     @Test
     void testGetRememberMeKey() {
-        System.clearProperty("jpsonic.rememberMeKey");
+        String value = "ZZZ";
+        System.setProperty(EnvKeys.application.rememberMeKey.envVarName, value);
+        assertEquals(EnvironmentProvider.getInstance().getRememberMeKey(), value);
+        value = "";
+        System.setProperty(EnvKeys.application.rememberMeKey.envVarName, value);
+        assertNull(EnvironmentProvider.getInstance().getRememberMeKey());
+        System.clearProperty(EnvKeys.application.rememberMeKey.envVarName);
         assertNull(EnvironmentProvider.getInstance().getRememberMeKey());
     }
 
@@ -280,12 +286,28 @@ class EnvironmentProviderTest {
 
     @Test
     void testGetMemeDsf() {
+        String value = "ZZZ";
+        System.setProperty(EnvKeys.misc.mimeDsf.envVarName, value);
+        assertEquals(EnvironmentProvider.getInstance().getMemeDsf(), value);
+        value = "";
+        System.setProperty(EnvKeys.misc.mimeDsf.envVarName, value);
+        assertEquals(EnvKeys.misc.mimeDsf.defaultValue,
+                EnvironmentProvider.getInstance().getMemeDsf());
+        System.clearProperty(EnvKeys.misc.mimeDsf.envVarName);
         assertEquals(EnvKeys.misc.mimeDsf.defaultValue,
                 EnvironmentProvider.getInstance().getMemeDsf());
     }
 
     @Test
     void testGetMemeDff() {
+        String value = "ZZZ";
+        System.setProperty(EnvKeys.misc.mimeDff.envVarName, value);
+        assertEquals(EnvironmentProvider.getInstance().getMemeDff(), value);
+        value = "";
+        System.setProperty(EnvKeys.misc.mimeDff.envVarName, value);
+        assertEquals(EnvKeys.misc.mimeDff.defaultValue,
+                EnvironmentProvider.getInstance().getMemeDff());
+        System.clearProperty(EnvKeys.misc.mimeDff.envVarName);
         assertEquals(EnvKeys.misc.mimeDff.defaultValue,
                 EnvironmentProvider.getInstance().getMemeDff());
     }

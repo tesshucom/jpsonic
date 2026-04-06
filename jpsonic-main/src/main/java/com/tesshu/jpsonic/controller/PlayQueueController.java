@@ -27,7 +27,8 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,14 +47,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/playQueue", "/playQueue.view" })
 public class PlayQueueController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final PlayerService playerService;
 
-    public PlayQueueController(SettingsService settingsService, SecurityService securityService,
+    public PlayQueueController(SettingsFacade settingsFacade, SecurityService securityService,
             PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.playerService = playerService;
     }
@@ -70,6 +71,6 @@ public class PlayQueueController {
             .of("user", user, "player", player, "players",
                     playerService.getPlayersForUserAndClientId(user.getUsername(), null),
                     "userSettings", userSettings, "coverArtSize", CoverArtScheme.SMALL.getSize(),
-                    "useCast", settingsService.isUseCast()));
+                    "useCast", settingsFacade.get(SKeys.general.legacy.useRadio)));
     }
 }

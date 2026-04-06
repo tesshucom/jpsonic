@@ -33,12 +33,13 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilter;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
@@ -89,10 +90,10 @@ import org.springframework.stereotype.Component;
  *
  * <p>
  * Analyzer behavior can be customized based on configuration provided via
- * {@link SettingsService}, including whether or not to apply Japanese
- * linguistic processing. Legacy compatibility is also considered. Some fields
- * apply normalization filters to match third-party implementations, such as
- * genre tag parsing for ID3 compatibility.
+ * {@link SettingsFacade}, including whether or not to apply Japanese linguistic
+ * processing. Legacy compatibility is also considered. Some fields apply
+ * normalization filters to match third-party implementations, such as genre tag
+ * parsing for ID3 compatibility.
  * </p>
  */
 @Component
@@ -106,12 +107,12 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_REPLACE = "replace";
     private static final String FILTER_ATTR_ALL = "all";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ReentrantLock analyzerLock = new ReentrantLock();
     private Analyzer analyzer;
 
-    public AnalyzerFactory(SettingsService settingsService) {
-        this.settingsService = settingsService;
+    public AnalyzerFactory(SettingsFacade settingsFacade) {
+        this.settingsFacade = settingsFacade;
     }
 
     private static CharArraySet loadWords(String wordsFile) {
@@ -140,7 +141,8 @@ public final class AnalyzerFactory {
      * specifications of legacy servers is applied.
      */
     private Analyzer createDefaultAnalyzer(boolean isArtist) throws IOException {
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        IndexScheme scheme = IndexScheme
+            .of(settingsFacade.get(SKeys.advanced.index.indexSchemeName));
         return CustomAnalyzer
             .builder()
             .withTokenizer(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING

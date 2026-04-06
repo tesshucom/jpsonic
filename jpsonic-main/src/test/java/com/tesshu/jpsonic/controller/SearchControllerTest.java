@@ -31,8 +31,9 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,11 +50,11 @@ class SearchControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new SearchController(mock(SettingsService.class),
-                    mock(MusicFolderService.class), mock(SecurityService.class),
-                    mock(PlayerService.class), mock(SearchService.class),
-                    mock(HttpSearchCriteriaDirector.class)))
+            .standaloneSetup(new SearchController(settingsFacade, mock(MusicFolderService.class),
+                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(SearchService.class), mock(HttpSearchCriteriaDirector.class)))
             .build();
     }
 

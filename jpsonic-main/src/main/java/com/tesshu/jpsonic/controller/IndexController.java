@@ -26,7 +26,6 @@ import java.util.Map;
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;

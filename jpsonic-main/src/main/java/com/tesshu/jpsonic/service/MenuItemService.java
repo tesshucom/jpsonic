@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
@@ -44,23 +45,23 @@ import org.springframework.stereotype.Service;
 public class MenuItemService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MenuItemService.class);
-    private final SettingsService settingsService;
+    private final ServerLocaleService serverLocaleService;
     private final MenuItemDao menuItemDao;
 
     @Resource
     private final MessageSource menuItemSource;
 
-    public MenuItemService(SettingsService settingsService, MenuItemDao menuItemDao,
+    public MenuItemService(ServerLocaleService serverLocaleService, MenuItemDao menuItemDao,
             @Lazy @Qualifier("menuItemSource") MessageSource menuItemSource) {
-        this.settingsService = settingsService;
+        this.serverLocaleService = serverLocaleService;
         this.menuItemDao = menuItemDao;
         this.menuItemSource = menuItemSource;
     }
 
     String getItemName(MenuItemId id) {
-        Locale locale = Locale.JAPAN.getLanguage().equals(settingsService.getLocale().getLanguage())
-                ? Locale.JAPAN
-                : Locale.US;
+        Locale locale = Locale.JAPAN
+            .getLanguage()
+            .equals(serverLocaleService.getLocale().getLanguage()) ? Locale.JAPAN : Locale.US;
         try {
             return menuItemSource
                 .getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT),

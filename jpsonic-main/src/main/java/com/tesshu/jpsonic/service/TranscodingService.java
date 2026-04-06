@@ -50,6 +50,9 @@ import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -80,18 +83,20 @@ public class TranscodingService {
     public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
+    private final UPnPSubnet subnet;
     private final TranscodingDao transcodingDao;
     private final PlayerService playerService;
     private final Executor shortExecutor;
 
-    public TranscodingService(SettingsService settingsService, SecurityService securityService,
-            TranscodingDao transcodingDao, @Lazy PlayerService playerService,
+    public TranscodingService(SettingsFacade settingsFacade, SecurityService securityService,
+            UPnPSubnet subnet, TranscodingDao transcodingDao, @Lazy PlayerService playerService,
             @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
+        this.subnet = subnet;
         this.transcodingDao = transcodingDao;
         this.playerService = playerService;
         this.shortExecutor = shortExecutor;
@@ -233,7 +238,7 @@ public class TranscodingService {
 
         if (hls) {
             return new Transcoding(null, "hls", mediaFile.getFormat(), "ts",
-                    settingsService.getHlsCommand(), null, null, true);
+                    settingsFacade.get(SKeys.transcoding.hlsCommand), null, null, true);
         }
 
         List<Transcoding> applicableTranscodings = new ArrayList<>();
@@ -558,7 +563,7 @@ public class TranscodingService {
          * internal network, but some settings can be made on the player's setting page.
          */
         boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS
-            .equals(player.getUsername()) && settingsService.isInUPnPRange(player.getIpAddress());
+            .equals(player.getUsername()) && subnet.isInUPnPRange(player.getIpAddress());
         final Player playerForTranscode = useGuestPlayer ? playerService.getGuestPlayer(null)
                 : player;
 

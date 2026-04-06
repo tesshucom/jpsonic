@@ -25,7 +25,8 @@ import java.util.List;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FArtistOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
@@ -41,18 +42,18 @@ public class RandomSongByFolderArtistProc extends
     private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
     private final SearchService searchService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final FolderOrArtistLogic deligate;
 
     public RandomSongByFolderArtistProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            ArtistDao artistDao, SearchService searchService, SettingsService settingsService,
+            ArtistDao artistDao, SearchService searchService, SettingsFacade settingsFacade,
             FolderOrArtistLogic folderOrArtistLogic) {
         super();
         this.util = util;
         this.factory = factory;
         this.artistDao = artistDao;
         this.searchService = searchService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.deligate = folderOrArtistLogic;
     }
 
@@ -86,7 +87,7 @@ public class RandomSongByFolderArtistProc extends
             long maxResults) {
         int offset = (int) firstResult;
         if (folderOrArtist.isFolderArtist()) {
-            int randomMax = settingsService.getDlnaRandomMax();
+            int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
             int count = toCount(firstResult, maxResults, randomMax);
             return searchService
                 .getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,

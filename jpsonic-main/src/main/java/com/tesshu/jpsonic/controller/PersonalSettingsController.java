@@ -31,17 +31,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
-import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.system.SupportableBCP47;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.theme.ServerThemeService;
+import com.tesshu.jpsonic.theme.Theme;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -64,18 +67,23 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/personalSettings", "/personalSettings.view" })
 public class PersonalSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
+    private final ServerLocaleService serverLocaleService;
+    private final ServerThemeService serverThemeService;
     private final ShareService shareService;
     private final AvatarService avatarService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PersonalSettingsController(SettingsService settingsService,
-            SecurityService securityService, ShareService shareService, AvatarService avatarService,
-            OutlineHelpSelector outlineHelpSelector) {
+    public PersonalSettingsController(SettingsFacade settingsFacade,
+            SecurityService securityService, ServerLocaleService serverLocaleService,
+            ServerThemeService serverThemeService, ShareService shareService,
+            AvatarService avatarService, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
+        this.serverLocaleService = serverLocaleService;
+        this.serverThemeService = serverThemeService;
         this.shareService = shareService;
         this.avatarService = avatarService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -93,16 +101,16 @@ public class PersonalSettingsController {
 
         // - Default language
         command.setLocaleIndex("-1");
-        settingsService
+        serverLocaleService
             .getAvailableLocales()
             .stream()
-            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .filter(locale -> locale.equals(serverLocaleService.getLocale()))
             .findFirst()
             .ifPresent(locale -> command
                 .setLocaleIndex(
-                        String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+                        String.valueOf(serverLocaleService.getAvailableLocales().indexOf(locale))));
         command
-            .setLocales(settingsService
+            .setLocales(serverLocaleService
                 .getAvailableLocales()
                 .stream()
                 .map(Locale::getDisplayName)
@@ -111,7 +119,7 @@ public class PersonalSettingsController {
         // - Theme
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setThemeIndex("-1");
-        List<Theme> themes = SettingsService.getAvailableThemes();
+        List<Theme> themes = serverThemeService.getAvailableThemes();
         command.setThemes(themes);
         themes
             .stream()
@@ -161,7 +169,7 @@ public class PersonalSettingsController {
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
             command
                 .setIetf(SupportableBCP47
-                    .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale()
+                    .valueOf(isEmpty(userSettings.getLocale()) ? serverLocaleService.getLocale()
                             : userSettings.getLocale())
                     .getValue());
         } else {
@@ -169,10 +177,12 @@ public class PersonalSettingsController {
         }
         if (isEmpty(userSettings.getLocale())) {
             command
-                .setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
+                .setIetfDefault(
+                        SupportableBCP47.valueOf(serverLocaleService.getLocale()).getValue());
             command
-                .setIetfDisplayDefault(
-                        settingsService.getLocale().getDisplayName(settingsService.getLocale()));
+                .setIetfDisplayDefault(serverLocaleService
+                    .getLocale()
+                    .getDisplayName(serverLocaleService.getLocale()));
         } else {
             command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
             command
@@ -198,7 +208,7 @@ public class PersonalSettingsController {
         command.setShowDownload(userSettings.isShowDownload());
         command.setShowShare(userSettings.isShowShare());
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
-        command.setUsePartyMode(settingsService.isUsePartyMode());
+        command.setUsePartyMode(settingsFacade.get(SKeys.general.legacy.usePartyMode));
 
         // Personal image
         command.setAvatarId(getAvatarId(userSettings));
@@ -222,7 +232,7 @@ public class PersonalSettingsController {
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -246,7 +256,7 @@ public class PersonalSettingsController {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
         if (localeIndex != -1) {
-            locale = settingsService.getAvailableLocales().get(localeIndex);
+            locale = serverLocaleService.getAvailableLocales().get(localeIndex);
         }
         settings.setLocale(locale);
 
@@ -254,7 +264,7 @@ public class PersonalSettingsController {
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         String themeId = null;
         if (themeIndex != -1) {
-            themeId = SettingsService.getAvailableThemes().get(themeIndex).getId();
+            themeId = serverThemeService.getAvailableThemes().get(themeIndex).getId();
         }
         settings.setThemeId(themeId);
 

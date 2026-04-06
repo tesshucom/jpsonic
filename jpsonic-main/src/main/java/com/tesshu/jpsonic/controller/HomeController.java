@@ -47,7 +47,8 @@ import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -70,7 +71,7 @@ public class HomeController {
 
     private static final int LIST_SIZE = 40;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
     private final MusicFolderService musicFolderService;
     private final ScannerStateService scannerStateService;
@@ -79,12 +80,12 @@ public class HomeController {
     private final SearchService searchService;
     private final MusicIndexService musicIndexService;
 
-    public HomeController(SettingsService settingsService, SecurityService securityService,
+    public HomeController(SettingsFacade settingsFacade, SecurityService securityService,
             MusicFolderService musicFolderService, ScannerStateService scannerStateService,
             RatingService ratingService, MediaFileService mediaFileService,
             SearchService searchService, MusicIndexService musicIndexService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.securityService = securityService;
         this.musicFolderService = musicFolderService;
         this.scannerStateService = scannerStateService;
@@ -99,7 +100,7 @@ public class HomeController {
             throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUserStrict(request);
-        if (user.isAdminRole() && settingsService.isGettingStartedEnabled()) {
+        if (user.isAdminRole() && settingsFacade.get(SKeys.general.welcome.gettingStartedEnabled)) {
             return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
@@ -175,9 +176,9 @@ public class HomeController {
         map.put("showDownload", userSettings.isShowDownload());
 
         map.put("albums", albums);
-        map.put("welcomeTitle", settingsService.getWelcomeTitle());
-        map.put("welcomeSubtitle", settingsService.getWelcomeSubtitle());
-        map.put("welcomeMessage", settingsService.getWelcomeMessage());
+        map.put("welcomeTitle", settingsFacade.get(SKeys.general.welcome.title));
+        map.put("welcomeSubtitle", settingsFacade.get(SKeys.general.welcome.subtitle));
+        map.put("welcomeMessage", settingsFacade.get(SKeys.general.welcome.message));
         map.put("isIndexBeingCreated", scannerStateService.isScanning());
         map.put("musicFoldersExist", !musicFolderService.getAllMusicFolders().isEmpty());
         map.put("listType", listType.getId());

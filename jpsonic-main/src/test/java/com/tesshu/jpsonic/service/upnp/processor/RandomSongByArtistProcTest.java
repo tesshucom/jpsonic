@@ -36,8 +36,12 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -46,9 +50,13 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,6 +65,7 @@ import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;
 import org.jupnp.support.model.item.MusicTrack;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RandomSongByArtistProcTest {
@@ -69,21 +78,38 @@ class RandomSongByArtistProcTest {
         private UpnpDIDLFactory factory;
         private ArtistDao artistDao;
         private SearchService searchService;
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
 
         private RandomSongByArtistProc proc;
 
         @BeforeEach
         void setup() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+                .build();
+            init();
+        }
+
+        @Ignore
+        void init() {
+            JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
+            UriComponentsBuilder coverArtbuilder = UriComponentsBuilder
+                .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
+                        + ViewName.COVER_ART.value())
+                .queryParam("id", "99")
+                .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
+            when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
+                .thenReturn(coverArtbuilder);
+
             util = mock(UpnpProcessorUtil.class);
-            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
+            factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
                     mock(MediaFileService.class), mock(PlayerService.class),
                     mock(TranscodingService.class));
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
-            settingsService = mock(SettingsService.class);
             proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,
-                    settingsService);
+                    settingsFacade);
         }
 
         @Test
@@ -131,8 +157,18 @@ class RandomSongByArtistProcTest {
 
         @Test
         void testGetChildSizeOf() {
+            AtomicInteger randomMaxCount = new AtomicInteger();
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withIntAnswer(UPnPSKeys.options.randomMax, invocation -> {
+                    randomMaxCount.incrementAndGet();
+                    return 0;
+                })
+                .build();
+            init();
+
             proc.getChildSizeOf(null);
-            verify(settingsService, times(1)).getDlnaRandomMax();
+            assertEquals(1, randomMaxCount.get());
         }
 
         @Test
@@ -141,10 +177,14 @@ class RandomSongByArtistProcTest {
             assertEquals(0, content.getContainers().size());
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,
-                    settingsService);
-
             when(factory.toMusicTrack(song)).thenReturn(new MusicTrack());
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+                .build();
+            init();
+
             proc.addChild(content, song);
             assertEquals(1, content.getItems().size());
         }
@@ -162,6 +202,8 @@ class RandomSongByArtistProcTest {
 
         @Autowired
         private RandomSongByArtistProc randomSongByArtistProc;
+        @Autowired
+        private SettingsFacade settingsFacade;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -170,9 +212,9 @@ class RandomSongByArtistProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.commitAll();
             populateDatabaseOnlyOnce();
         }
 

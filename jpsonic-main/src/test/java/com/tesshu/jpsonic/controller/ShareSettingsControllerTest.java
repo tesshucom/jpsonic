@@ -42,8 +42,9 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -64,8 +65,9 @@ class ShareSettingsControllerTest {
     @BeforeEach
     void setup() throws ExecutionException {
         shareService = mock(ShareService.class);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new ShareSettingsController(mock(SettingsService.class),
+            .standaloneSetup(new ShareSettingsController(settingsFacade,
                     mock(MusicFolderService.class), mock(SecurityService.class), shareService,
                     mock(MediaFileService.class)))
             .build();

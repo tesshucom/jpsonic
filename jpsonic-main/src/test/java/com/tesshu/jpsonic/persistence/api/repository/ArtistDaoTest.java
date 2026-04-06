@@ -50,8 +50,6 @@ class ArtistDaoTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        setSortAlphanum(true);
-        setSortStrict(true);
         populateDatabaseOnlyOnce();
     }
 

@@ -24,22 +24,23 @@ import java.util.List;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final SearchService searchService;
 
-    public RandomSongByGenreProc(SettingsService settingsService, UpnpProcessorUtil util,
+    public RandomSongByGenreProc(SettingsFacade settingsFacade, UpnpProcessorUtil util,
             UpnpDIDLFactory factory, SearchService searchService) {
-        super(settingsService, util, factory, searchService);
-        this.settingsService = settingsService;
+        super(settingsFacade, util, factory, searchService);
+        this.settingsFacade = settingsFacade;
         this.util = util;
         this.factory = factory;
         this.searchService = searchService;
@@ -66,6 +67,6 @@ public class RandomSongByGenreProc extends SongByGenreProc implements CountLimit
 
     @Override
     public int getChildSizeOf(Genre genre) {
-        return Math.min(genre.getSongCount(), settingsService.getDlnaRandomMax());
+        return Math.min(genre.getSongCount(), settingsFacade.get(UPnPSKeys.options.randomMax));
     }
 }

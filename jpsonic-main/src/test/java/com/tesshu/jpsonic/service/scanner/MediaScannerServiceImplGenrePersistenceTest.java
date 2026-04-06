@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.settings.SKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +81,7 @@ class MediaScannerServiceImplGenrePersistenceTest extends AbstractNeedsScan {
                 searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
         assertTrue(assertAlbumGenreCount(
                 searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));

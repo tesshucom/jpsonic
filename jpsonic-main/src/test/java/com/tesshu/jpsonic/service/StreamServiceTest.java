@@ -46,6 +46,10 @@ import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
@@ -66,20 +70,25 @@ class StreamServiceTest {
 
     private StatusService statusService;
     private PlaylistService playlistService;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private SecurityService securityService;
     private MediaFileService mediaFileService;
     private StreamService streamService;
 
     @BeforeEach
     void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         statusService = mock(StatusService.class);
         playlistService = mock(PlaylistService.class);
         securityService = mock(SecurityService.class);
-        settingsService = mock(SettingsService.class);
         mediaFileService = mock(MediaFileService.class);
         streamService = new StreamService(statusService, playlistService, securityService,
-                settingsService, mock(TranscodingService.class), null, mediaFileService,
+                settingsFacade, mock(TranscodingService.class), null, mediaFileService,
                 mock(WritableMediaFileService.class), null, null);
     }
 
@@ -200,9 +209,13 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c3() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.ANNOYMOUS.name())
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
@@ -216,10 +229,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Mp3
         @Test
         void c4() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.ANNOYMOUS.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
@@ -233,9 +250,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c5() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.ANNOYMOUS.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtAac)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
@@ -250,10 +272,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c6() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.ANNOYMOUS.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
@@ -268,9 +294,13 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c7() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertNull(streamService.getFormat(request, player, false));
@@ -283,10 +313,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Mp3
         @Test
         void c8() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertEquals(fmtMp3, streamService.getFormat(request, player, false));
@@ -299,9 +333,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c9() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtAac)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
@@ -315,17 +354,20 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Aac
         @Test
         void c10() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtAac)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
             Player player = new Player();
             assertEquals(fmtAac, streamService.getFormat(request, player, false));
         }
 
-        //
         @GetFormatDecision.Conditions.Param.IsRest.True
         @GetFormatDecision.Conditions.Param.Format.Null
         @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
@@ -333,16 +375,19 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c11() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertNull(streamService.getFormat(request, player, true));
         }
 
-        //
         @GetFormatDecision.Conditions.Param.IsRest.True
         @GetFormatDecision.Conditions.Param.Format.Null
         @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.RequestOnly
@@ -350,10 +395,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c12() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.REQUEST_ONLY.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.REQUEST_ONLY.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertNull(streamService.getFormat(request, player, true));
@@ -366,10 +415,14 @@ class StreamServiceTest {
         @GetFormatDecision.Results.Null
         @Test
         void c13() {
-            Mockito
-                .when(settingsService.getPreferredFormatShemeName())
-                .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
-            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.transcoding.preferredFormatShemeName,
+                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                .withString(SKeys.transcoding.preferredFormat, fmtMp3)
+                .build();
+            init();
+
             MockHttpServletRequest request = new MockHttpServletRequest();
             Player player = new Player();
             assertEquals(fmtMp3, streamService.getFormat(request, player, null));

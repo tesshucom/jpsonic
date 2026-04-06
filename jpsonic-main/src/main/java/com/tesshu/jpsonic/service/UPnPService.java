@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceFactory;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.annotation.PostConstruct;
@@ -42,16 +44,16 @@ public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final UpnpServiceFactory upnpServiceFactory;
     private final AtomicReference<Boolean> running;
     private final ReentrantLock runningLock = new ReentrantLock();
 
     private UpnpService deligate;
 
-    public UPnPService(SettingsService settingsService, UpnpServiceFactory upnpServiceFactory) {
+    public UPnPService(SettingsFacade settingsFacade, UpnpServiceFactory upnpServiceFactory) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.upnpServiceFactory = upnpServiceFactory;
         running = new AtomicReference<>(false);
     }
@@ -70,11 +72,9 @@ public class UPnPService {
 
     @PostConstruct
     public void init() {
-        if (settingsService.isDlnaEnabled() || settingsService.isSonosEnabled()) {
+        if (settingsFacade.get(UPnPSKeys.basic.enabled)) {
             start();
-            if (settingsService.isDlnaEnabled()) {
-                setEnabled(true);
-            }
+            setEnabled(true);
         }
     }
 
@@ -150,8 +150,8 @@ public class UPnPService {
             try {
                 deligate.getRegistry().addDevice(upnpServiceFactory.createServerDevice());
                 infoIfEnabled("Enabling UPnP media server [%s](%s)"
-                    .formatted(settingsService.getDlnaServerName(),
-                            settingsService.getDlnaBaseLANURL()));
+                    .formatted(settingsFacade.get(UPnPSKeys.basic.serverName),
+                            settingsFacade.get(UPnPSKeys.basic.baseLanUrl)));
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);
                 errorIfEnabled("Failed to start UPnP media server.", e);

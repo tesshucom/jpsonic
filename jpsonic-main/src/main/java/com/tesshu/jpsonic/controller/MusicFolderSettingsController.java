@@ -34,9 +34,10 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PathValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -61,19 +62,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/musicFolderSettings", "/musicFolderSettings.view" })
 public class MusicFolderSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderServiceImpl musicFolderService;
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public MusicFolderSettingsController(SettingsService settingsService,
+    public MusicFolderSettingsController(SettingsFacade settingsFacade,
             MusicFolderServiceImpl musicFolderService, SecurityService securityService,
             MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
@@ -114,16 +115,23 @@ public class MusicFolderSettingsController {
 
         // Run a scan
         mediaScannerService.getLastScanEventType().ifPresent(command::setLastScanEventType);
-        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
-        command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
-        command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
+        command
+            .setIgnoreFileTimestamps(
+                    settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps));
+        command
+            .setInterval(String
+                .valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationInterval)));
+        command
+            .setHour(String.valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)));
 
         // Exclusion settings
-        command.setExcludePatternString(settingsService.getExcludePatternString());
-        command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
+        command
+            .setExcludePatternString(
+                    settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString));
+        command.setIgnoreSymLinks(settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
@@ -177,15 +185,22 @@ public class MusicFolderSettingsController {
         });
 
         // Run a scan
-        settingsService.setIgnoreFileTimestamps(command.isIgnoreFileTimestamps());
-        settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
-        settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.ignoreFileTimestamps, command.isIgnoreFileTimestamps());
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.indexCreationInterval,
+                    Integer.parseInt(command.getInterval()));
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.indexCreationHour, Integer.parseInt(command.getHour()));
 
         // Exclusion settings
-        settingsService.setExcludePatternString(command.getExcludePatternString());
-        settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
+        settingsFacade
+            .staging(SKeys.musicFolder.exclusion.excludePatternString,
+                    command.getExcludePatternString());
+        settingsFacade
+            .staging(SKeys.musicFolder.exclusion.ignoreSymlinks, command.isIgnoreSymLinks());
 
-        settingsService.save();
+        settingsFacade.commitAll();
 
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);

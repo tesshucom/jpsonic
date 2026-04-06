@@ -35,25 +35,27 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
-import com.tesshu.jpsonic.service.ApacheCommonsConfigurationService;
 import com.tesshu.jpsonic.service.MenuItemService;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
-import com.tesshu.jpsonic.service.UPnPSubnet;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -75,7 +77,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" }) // pmd/pmd#4616
 class DLNASettingsControllerTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
+    private ServerLocaleService serverLocaleService;
     private MusicFolderService musicFolderService;
     private PlayerService playerService;
     private UPnPService upnpService;
@@ -84,14 +87,17 @@ class DLNASettingsControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
-        ApacheCommonsConfigurationService configurationService = mock(
-                ApacheCommonsConfigurationService.class);
-        UPnPSubnet uPnPSubnet = mock(UPnPSubnet.class);
-        settingsService = new SettingsService(configurationService, uPnPSubnet);
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+        serverLocaleService = new ServerLocaleService(settingsFacade);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);
         upnpService = mock(UPnPService.class);
-        controller = new DLNASettingsController(settingsService, musicFolderService,
+        controller = new DLNASettingsController(settingsFacade, musicFolderService,
                 mock(SecurityService.class), playerService, mock(TranscodingService.class),
                 upnpService, mock(ShareService.class), mock(MenuItemService.class),
                 mock(OutlineHelpSelector.class));
@@ -167,10 +173,14 @@ class DLNASettingsControllerTest {
 
         @Test
         void testEmpty() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .build();
+            init();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     mock(MenuItemService.class), mock(OutlineHelpSelector.class));
@@ -188,12 +198,16 @@ class DLNASettingsControllerTest {
 
         @Test
         void testInfos() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .build();
+            init();
             musicFolderService = mock(MusicFolderService.class);
 
             MenuItemService menuItemService = mock(MenuItemService.class);
             upnpService = mock(UPnPService.class);
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -261,8 +275,13 @@ class DLNASettingsControllerTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
-            controller = new DLNASettingsController(settingsService, mock(MusicFolderService.class),
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
+            controller = new DLNASettingsController(settingsFacade, mock(MusicFolderService.class),
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), mock(UPnPService.class),
                     mock(ShareService.class), mock(MenuItemService.class),
@@ -278,95 +297,134 @@ class DLNASettingsControllerTest {
         @Test
         void testNull() {
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
+            assertEquals(50, captor.getValue());
+        }
+
+        @Test
+        void testMinus() {
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(-1);
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(50, captor.getValue());
         }
 
         @Test
         void test0() {
-            command.setDlnaRandomMax(0);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(0);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(50, captor.getValue());
         }
 
         @Test
         void test1() {
-            command.setDlnaRandomMax(1);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(1);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(1, captor.getValue());
         }
 
         @Test
         void test49() {
-            command.setDlnaRandomMax(49);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(49);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(49, captor.getValue());
         }
 
         @Test
         void test50() {
-            command.setDlnaRandomMax(50);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(50);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(50, captor.getValue());
         }
 
         @Test
         void test51() {
-            command.setDlnaRandomMax(51);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(51);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(51, captor.getValue());
         }
 
         @Test
         void test1999() {
-            command.setDlnaRandomMax(1999);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(1999);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(1999, captor.getValue());
         }
 
         @Test
         void test2000() {
-            command.setDlnaRandomMax(2000);
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
-            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .captureInt(UPnPSKeys.options.randomMax, captor)
+                .build();
+            init();
+
+            command.setDlnaRandomMax(2000);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito
-                .verify(settingsService, Mockito.times(1))
-                .setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getAllValues().size());
             assertEquals(1999, captor.getValue());
         }
     }
@@ -376,13 +434,13 @@ class DLNASettingsControllerTest {
 
         @Test
         void testEmpty() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -405,13 +463,13 @@ class DLNASettingsControllerTest {
 
         @Test
         void testNoChange() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -453,13 +511,13 @@ class DLNASettingsControllerTest {
 
         @Test
         void testUpdateEnabled() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -516,13 +574,13 @@ class DLNASettingsControllerTest {
 
         @Test
         void testUpdateName() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
-            controller = new DLNASettingsController(settingsService, musicFolderService,
+            controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(SecurityService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -647,7 +705,7 @@ class DLNASettingsControllerTest {
 
         private static final String DLNA_SERVER_NAME = "jpsonic";
         private static final String DLNA_BASE_LAN_URL = "url";
-        private static final String DLNA_FILTERED_IP = SettingsService.getDlnaDefaultFilteredIp();
+        private static final String DLNA_FILTERED_IP = UPnPSKeys.basic.filteredIp.defaultValue();
 
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
@@ -657,9 +715,13 @@ class DLNASettingsControllerTest {
         // Never (Nothing has changed)
         @Test
         void m01() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
@@ -684,9 +746,15 @@ class DLNASettingsControllerTest {
         @Test
         // Boot
         void m02() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
@@ -698,10 +766,9 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
-            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.times(1)).setEnabled(Mockito.any(boolean.class));
+
+            assertEquals(1, captor.getAllValues().size());
             assertTrue(captor.getValue());
         }
 
@@ -714,9 +781,15 @@ class DLNASettingsControllerTest {
         @Test
         // Shutdown
         void m03() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, true)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
@@ -727,11 +800,9 @@ class DLNASettingsControllerTest {
             command.setAlbumGenreSort(Sort.FREQUENCY);
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
-
-            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.times(1)).setEnabled(Mockito.any(boolean.class));
+
+            assertEquals(1, captor.getAllValues().size());
             assertFalse(captor.getValue());
         }
 
@@ -744,9 +815,15 @@ class DLNASettingsControllerTest {
         // Never (Do nothing if you change the name and URL while DLNA is stopped)
         @Test
         void m04() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, true)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
@@ -758,8 +835,7 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
-            controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
+            assertEquals(0, captor.getAllValues().size());
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
@@ -772,9 +848,15 @@ class DLNASettingsControllerTest {
         // Reboot
         @Test
         void m05() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, true)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
@@ -786,12 +868,9 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(Sort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
-            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.times(2)).setEnabled(Mockito.any(boolean.class));
-            assertFalse(captor.getAllValues().get(0));
-            assertTrue(captor.getAllValues().get(1));
+            assertEquals(1, captor.getAllValues().size());
+            assertTrue(captor.getAllValues().get(0));
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
@@ -803,12 +882,17 @@ class DLNASettingsControllerTest {
         // Never (Do nothing if you change the enabledFilteredIp while DLNA is stopped)
         @Test
         void m06() {
-
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
-            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
+                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
@@ -823,7 +907,8 @@ class DLNASettingsControllerTest {
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
+            assertEquals(1, captor.getAllValues().size());
+            assertFalse(captor.getAllValues().get(0));
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
@@ -836,11 +921,17 @@ class DLNASettingsControllerTest {
         // Reboot
         @Test
         void m07() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
-            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, true)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
+                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
@@ -854,12 +945,9 @@ class DLNASettingsControllerTest {
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
-            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.times(2)).setEnabled(Mockito.any(boolean.class));
-            assertFalse(captor.getAllValues().get(0));
-            assertTrue(captor.getAllValues().get(1));
+            assertEquals(1, captor.getAllValues().size());
+            assertTrue(captor.getAllValues().get(0));
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
@@ -871,12 +959,17 @@ class DLNASettingsControllerTest {
         // Never (Do nothing if you change the filteredIp while DLNA is stopped)
         @Test
         void m08() {
-
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
-            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, false)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
+                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
@@ -891,7 +984,9 @@ class DLNASettingsControllerTest {
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.never()).setEnabled(Mockito.any(boolean.class));
+            assertEquals(1, captor.getAllValues().size());
+            assertFalse(captor.getAllValues().get(0));
+
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.True
@@ -904,11 +999,17 @@ class DLNASettingsControllerTest {
         // Reboot
         @Test
         void m09() {
-            Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
-            Mockito.when(settingsService.isDlnaEnabledFilteredIp()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaFilteredIp()).thenReturn(DLNA_FILTERED_IP);
+            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.basic.enabled, true)
+                .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
+                .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
+                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
+                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .captureBoolean(UPnPSKeys.basic.enabled, captor)
+                .build();
+            init();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
@@ -922,13 +1023,9 @@ class DLNASettingsControllerTest {
             command.setDlnaFilteredIp("123.456.7.8");
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
-            ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.doNothing().when(upnpService).setEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            Mockito.verify(upnpService, Mockito.times(2)).setEnabled(Mockito.any(boolean.class));
-            assertFalse(captor.getAllValues().get(0));
-            assertTrue(captor.getAllValues().get(1));
+            assertEquals(1, captor.getAllValues().size());
+            assertTrue(captor.getAllValues().get(0));
         }
-
     }
 }

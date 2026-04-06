@@ -21,19 +21,17 @@
 
 package com.tesshu.jpsonic.security;
 
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.EnumSet;
-import java.util.Random;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.security.re.RememberMeKeyManager;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.settings.SKeys;
+import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -64,7 +62,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final String FAILURE_URL = "/login?error=1";
-    private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
     @Bean
     public ServletContextInitializer servletContextInitializer() {
@@ -80,27 +77,28 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public static class AuthenticationManagerConfig {
 
         @Autowired
-        public void configure(SettingsService settingsService, SecurityService securityService,
-                AuthenticationManagerBuilder auth,
+        public void configure(SettingsFacade settingsFacade, SettingsFacade settings,
+                SecurityService securityService, AuthenticationManagerBuilder auth,
                 CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
-            if (settingsService.isLdapEnabled()) {
+            if (settingsFacade.get(SKeys.advanced.ldap.enabled)) {
                 auth
                     .ldapAuthentication()
                     .contextSource()
-                    .managerDn(settingsService.getLdapManagerDn())
-                    .managerPassword(settingsService.getLdapManagerPassword())
-                    .url(settingsService.getLdapUrl())
+                    .managerDn(settingsFacade.get(SKeys.advanced.ldap.managerDn))
+                    .managerPassword(
+                            settingsFacade.getDecodedString(SKeys.advanced.ldap.managerPassword))
+                    .url(settingsFacade.get(SKeys.advanced.ldap.url))
                     .and()
-                    .userSearchFilter(settingsService.getLdapSearchFilter())
+                    .userSearchFilter(settingsFacade.get(SKeys.advanced.ldap.searchFilter))
                     .userDetailsContextMapper(customUserDetailsContextMapper);
             }
             auth.userDetailsService(securityService);
-            String jwtKey = settingsService.getJWTKey();
+
+            String jwtKey = settings.get(SKeys.deprecatedSecrets.jwtKey);
             if (StringUtils.isBlank(jwtKey)) {
                 LoggerFactory.getLogger(GlobalSecurityConfig.class).warn("Generating new jwt key");
                 jwtKey = JWTSecurityService.generateKey();
-                settingsService.setJWTKey(jwtKey);
-                settingsService.save();
+                settings.commit(SKeys.deprecatedSecrets.jwtKey, jwtKey);
             }
             auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
         }
@@ -183,14 +181,14 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         }
 
         @Bean
-        public RememberMeKeyGenerator rememberMeKeyGenerator(SettingsService settingsService) {
-            return new RememberMeKeyGenerator(settingsService);
+        public RememberMeKeyManager rememberMeKeyManager(SettingsFacade settingsFacade) {
+            return new RememberMeKeyManager(settingsFacade);
         }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http,
                 RESTRequestParameterProcessingFilter restRPPFilter,
-                RememberMeKeyGenerator keyGenerator, CsrfSecurityRequestMatcher csrfMatcher)
+                RememberMeKeyManager rememberMeKeyManager, CsrfSecurityRequestMatcher csrfMatcher)
                 throws Exception {
 
             http
@@ -273,7 +271,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"))
 
                 // Configure remember-me with injected key
-                .rememberMe(config -> config.key(keyGenerator.get()))
+                .rememberMe(config -> config.key(rememberMeKeyManager.getKey()))
 
                 // Enable anonymous access handling. Without this, unauthenticated users
                 // have no Authentication object in the SecurityContext, which can cause
@@ -281,63 +279,6 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 .anonymous(Customizer.withDefaults());
 
             return http.build();
-        }
-    }
-
-    public static class RememberMeKeyGenerator {
-
-        private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
-        private final SettingsService settingsService;
-        private final Random random = new SecureRandom();
-
-        public RememberMeKeyGenerator(SettingsService settingsService) {
-            super();
-            this.settingsService = settingsService;
-        }
-
-        private String generateRememberMeKey() {
-            byte[] array = new byte[32];
-            random.nextBytes(array);
-            return new String(array, StandardCharsets.UTF_8);
-        }
-
-        public String get() {
-
-            // Try to load the 'remember me' key.
-            //
-            // Note that using a fixed key compromises security as perfect
-            // forward secrecy is not guaranteed anymore.
-            //
-            // An external entity can then re-use our authentication cookies before
-            // the expiration time, or even, given enough time, recover the password
-            // from the MD5 hash.
-            //
-            // See:
-            // https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html
-
-            String rememberMeKey = settingsService.getRememberMeKey();
-            boolean development = SettingsService.isDevelopmentMode();
-            if (StringUtils.isBlank(rememberMeKey) && !development) {
-                // ...if it is empty, generate a random key on startup (default).
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
-                }
-                rememberMeKey = generateRememberMeKey();
-            } else if (StringUtils.isBlank(rememberMeKey) && development) {
-                // ...if we are in development mode, we can use a fixed key.
-                if (LOG.isWarnEnabled()) {
-                    LOG
-                        .warn("Using a fixed 'remember me' key because we're in development mode, this is INSECURE.");
-                }
-                rememberMeKey = DEVELOPMENT_REMEMBER_ME_KEY;
-            } else {
-                // ...otherwise, use the custom key directly.
-                if (LOG.isInfoEnabled()) {
-                    LOG
-                        .info("Using a fixed 'remember me' key from system properties, this is insecure.");
-                }
-            }
-            return rememberMeKey;
         }
     }
 }
