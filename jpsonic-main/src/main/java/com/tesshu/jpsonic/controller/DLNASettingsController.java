@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;

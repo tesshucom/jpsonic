@@ -27,7 +27,7 @@ import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
 import com.tesshu.jpsonic.filter.RESTFilter;
 import com.tesshu.jpsonic.filter.RequestEncodingFilter;
 import com.tesshu.jpsonic.filter.ResponseHeaderFilter;
-import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.LegacyHsqlUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;

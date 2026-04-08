@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.command.GettingStartedCommand;
 import com.tesshu.jpsonic.i18n.ServerLocaleService;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.service.settings.SKeys;
 import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;

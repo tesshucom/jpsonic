@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.system.Version;
-import com.tesshu.jpsonic.infrastructure.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.VersionService;

@@ -1,6 +1,6 @@
 org.springframework.context.ApplicationListener=\
-  com.tesshu.jpsonic.spring.LoggingFileOverrideListener,\
-  com.tesshu.jpsonic.security.LoginFailureListener
+  com.tesshu.jpsonic.infrastructure.core.LoggingFileOverrideListener,\
+  com.tesshu.jpsonic.auth.event.LoginFailureListener
 
 org.springframework.context.ApplicationContextInitializer=\
-  com.tesshu.jpsonic.spring.CustomPropertySourceConfigurer
+  com.tesshu.jpsonic.infrastructure.core.CustomPropertySourceConfigurer

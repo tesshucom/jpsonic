@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.persistence;
 
-import com.tesshu.jpsonic.infrastructure.NeedsHomeExtension;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHomeExtension;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;

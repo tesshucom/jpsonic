@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 import com.tesshu.jpsonic.domain.system.Version;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import jakarta.annotation.PostConstruct;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;

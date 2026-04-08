@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.VersionService;
