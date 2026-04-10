@@ -138,7 +138,8 @@ class JWTSecurityServiceTest {
 
             assertNotNull(JWTSecurityService
                 .verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
-            Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
+            Throwable t = assertThrows(
+                    com.tesshu.jpsonic.auth.core.exception.TokenExpiredException.class,
                     () -> JWTSecurityService
                         .verify(KEY, JWTSecurityService.createToken(KEY, PATH, before)));
             assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
@@ -149,7 +150,7 @@ class JWTSecurityServiceTest {
             Instant current = now();
             String invalidToken = JWTSecurityService.createToken(KEY, PATH, current);
             Throwable t = assertThrows(
-                    com.tesshu.jpsonic.security.SignatureVerificationException.class,
+                    com.tesshu.jpsonic.auth.core.exception.SignatureVerificationException.class,
                     () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class,
                     t.getCause());

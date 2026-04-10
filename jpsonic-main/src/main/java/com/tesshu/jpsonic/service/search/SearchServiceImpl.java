@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.infrastructure.core.EhcacheConfiguration.RandomCacheKey;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -45,7 +46,6 @@ import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.settings.SKeys;
 import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;

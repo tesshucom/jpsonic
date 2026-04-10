@@ -5,7 +5,7 @@
 <head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.spring.DatabaseConfiguration" %>
+<%@ page import="com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration" %>
 
 <script>
 

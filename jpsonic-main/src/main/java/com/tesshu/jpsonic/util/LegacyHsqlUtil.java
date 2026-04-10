@@ -28,8 +28,8 @@ import java.nio.file.Path;
 import java.sql.Driver;
 import java.util.Properties;
 
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
-import com.tesshu.jpsonic.spring.AirsonicHsqlDatabase;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.db.AirsonicHsqlDatabase;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

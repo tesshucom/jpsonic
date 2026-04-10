@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.infrastructure.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;

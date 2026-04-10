@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tesshu.jpsonic.spring.LifecyclePhase;
+import com.tesshu.jpsonic.infrastructure.core.LifecyclePhase;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.TooManyStaticImports")

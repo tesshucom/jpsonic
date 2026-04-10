@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.persistence;
 import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.INTEGER;
 import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.STRING;
 
+import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
 import com.tesshu.jpsonic.service.settings.SettingKey;
-import com.tesshu.jpsonic.spring.DataSourceConfigType;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })

@@ -26,7 +26,7 @@ import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 
 /**
  * Provides a hierarchical namespace for configuration keys used by Jpsonic.

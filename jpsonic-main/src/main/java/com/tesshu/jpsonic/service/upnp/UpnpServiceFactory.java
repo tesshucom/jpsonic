@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.settings.SettingsFacade;

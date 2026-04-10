@@ -55,7 +55,7 @@ import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest
 import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
-import com.tesshu.jpsonic.infrastructure.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;

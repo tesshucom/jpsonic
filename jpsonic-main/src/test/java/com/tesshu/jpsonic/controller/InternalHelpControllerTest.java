@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.controller.InternalHelpController.FileStatistics;
-import com.tesshu.jpsonic.infrastructure.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

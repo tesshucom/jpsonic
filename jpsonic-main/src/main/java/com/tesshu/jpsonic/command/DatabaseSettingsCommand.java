@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.command;
 
-import com.tesshu.jpsonic.spring.DataSourceConfigType;
+import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class DatabaseSettingsCommand extends SettingsPageCommons {

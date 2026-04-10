@@ -1,7 +1,7 @@
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.infrastructure.core.LifecyclePhase;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
-import com.tesshu.jpsonic.spring.LifecyclePhase;
 import org.springframework.context.SmartLifecycle;
 
 public class StreamDisposer implements SmartLifecycle {

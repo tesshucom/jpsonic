@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static com.tesshu.jpsonic.security.RESTRequestParameterProcessingFilter.decrypt;
+import static com.tesshu.jpsonic.auth.rest.RESTRequestParameterProcessingFilter.decrypt;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;

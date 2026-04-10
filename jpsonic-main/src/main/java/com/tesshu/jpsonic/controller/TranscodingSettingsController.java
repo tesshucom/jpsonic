@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
-import com.tesshu.jpsonic.infrastructure.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
