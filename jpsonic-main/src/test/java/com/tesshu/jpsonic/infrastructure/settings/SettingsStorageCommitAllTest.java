@@ -17,10 +17,8 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service.settings;
+package com.tesshu.jpsonic.infrastructure.settings;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -45,11 +43,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @NeedsHome
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
-class SettingsStorageCleanupTest {
+class SettingsStorageCommitAllTest {
 
     private Path propertyFile;
-    private Configuration config;
     private SettingsStorage storage;
 
     @BeforeEach
@@ -76,6 +72,7 @@ class SettingsStorageCleanupTest {
         FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
                 PropertiesConfiguration.class)
             .configure(params);
+        Configuration config;
         try {
             config = builder.getConfiguration();
         } catch (ConfigurationException e) {
@@ -85,50 +82,16 @@ class SettingsStorageCleanupTest {
     }
 
     @Test
-    void cleanupRemovesObsoleteKey() throws Exception {
-        // PortForwardingPublicPort is an actual key in GraveyardProperties.txt
-        config.setProperty("PortForwardingPublicPort", "1234");
+    void commitAllWritesStagedValuesToFile() throws Exception {
+        SettingKey<String> key = SKeys.SKey.of("k1", SettingKey.ValueType.STRING, "x");
 
-        // write to file
-        storage.save();
+        storage.staging(key, "value");
 
         String before = Files.readString(propertyFile);
-        assertTrue(before.contains("PortForwardingPublicPort"));
-
-        storage.cleanup();
+        storage.commitAll();
         String after = Files.readString(propertyFile);
 
-        assertFalse(config.containsKey("PortForwardingPublicPort"));
-        assertFalse(after.contains("PortForwardingPublicPort"));
+        assertTrue(after.contains("k1"));
         assertNotEquals(before, after);
-        assertFalse(storage.isRunning());
-    }
-
-    @Test
-    void cleanupDoesNothingWhenAlreadyRun() throws Exception {
-        // 1st: prepare obsolete key and persist
-        config.setProperty("PortForwardingPublicPort", "1234");
-        storage.save();
-
-        // first cleanup: key should be removed and running becomes false
-        storage.cleanup();
-        String afterFirst = Files.readString(propertyFile);
-        assertFalse(afterFirst.contains("PortForwardingPublicPort"));
-        assertFalse(storage.isRunning());
-
-        // re-introduce obsolete key after cleanup
-        config.setProperty("PortForwardingPublicPort", "5678");
-        storage.save();
-        String beforeSecondCleanup = Files.readString(propertyFile);
-        assertTrue(beforeSecondCleanup.contains("PortForwardingPublicPort"));
-
-        // second cleanup: should be completely ignored
-        storage.cleanup();
-        String afterSecond = Files.readString(propertyFile);
-
-        // key is still there → second cleanup did nothing
-        assertEquals(beforeSecondCleanup, afterSecond);
-        assertTrue(afterSecond.contains("PortForwardingPublicPort"));
-        assertFalse(storage.isRunning());
     }
 }

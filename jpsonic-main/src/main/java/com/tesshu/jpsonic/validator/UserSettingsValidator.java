@@ -23,9 +23,9 @@ package com.tesshu.jpsonic.validator;
 
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.UserSettingsController;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;

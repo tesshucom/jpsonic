@@ -26,8 +26,8 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

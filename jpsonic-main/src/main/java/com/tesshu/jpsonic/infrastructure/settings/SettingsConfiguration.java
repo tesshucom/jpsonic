@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service.settings;
+package com.tesshu.jpsonic.infrastructure.settings;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

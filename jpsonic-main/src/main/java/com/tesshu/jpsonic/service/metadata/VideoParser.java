@@ -24,10 +24,10 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Path;
 import java.util.Locale;
 
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;

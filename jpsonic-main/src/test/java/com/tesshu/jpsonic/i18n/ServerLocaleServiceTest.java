@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Locale;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

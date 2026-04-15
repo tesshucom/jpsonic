@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.i18n;
 
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.STRING;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
-import com.tesshu.jpsonic.service.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })

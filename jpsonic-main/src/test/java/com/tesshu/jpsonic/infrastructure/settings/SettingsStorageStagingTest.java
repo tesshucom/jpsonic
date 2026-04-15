@@ -17,9 +17,11 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service.settings;
+package com.tesshu.jpsonic.infrastructure.settings;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -43,15 +45,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @NeedsHome
-class SettingsStorageCommitAllTest {
+class SettingsStorageStagingTest {
 
-    private Path propertyFile;
+    private Configuration config;
     private SettingsStorage storage;
 
     @BeforeEach
     void setUp() {
-        propertyFile = EnvironmentProvider.getInstance().getPropertyFilePath();
-
+        Path propertyFile = EnvironmentProvider.getInstance().getPropertyFilePath();
         if (!Files.exists(propertyFile)) {
             try {
                 Files.createFile(propertyFile);
@@ -72,7 +73,6 @@ class SettingsStorageCommitAllTest {
         FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(
                 PropertiesConfiguration.class)
             .configure(params);
-        Configuration config;
         try {
             config = builder.getConfiguration();
         } catch (ConfigurationException e) {
@@ -82,16 +82,34 @@ class SettingsStorageCommitAllTest {
     }
 
     @Test
-    void commitAllWritesStagedValuesToFile() throws Exception {
-        SettingKey<String> key = SKeys.SKey.of("k1", SettingKey.ValueType.STRING, "x");
+    void stagingClearsWhenValueEqualsDefault() {
+        SettingKey<Integer> key = SKeys.SKey.of("k1", SettingKey.ValueType.INTEGER, 10);
+        config.setProperty("k1", 99);
 
-        storage.staging(key, "value");
+        storage.staging(key, 10);
 
-        String before = Files.readString(propertyFile);
-        storage.commitAll();
-        String after = Files.readString(propertyFile);
+        assertFalse(config.containsKey("k1"));
+        assertNull(config.getProperty("k1"));
+    }
 
-        assertTrue(after.contains("k1"));
-        assertNotEquals(before, after);
+    @Test
+    void stagingClearsWhenValueIsNull() {
+        SettingKey<String> key = SKeys.SKey.of("k2", SettingKey.ValueType.STRING, "x");
+        config.setProperty("k2", "value");
+
+        storage.staging(key, null);
+
+        assertFalse(config.containsKey("k2"));
+        assertNull(config.getProperty("k2"));
+    }
+
+    @Test
+    void stagingSetsWhenValueIsNonDefault() {
+        SettingKey<Boolean> key = SKeys.SKey.of("k3", SettingKey.ValueType.BOOLEAN, false);
+
+        storage.staging(key, true);
+
+        assertTrue(config.containsKey("k3"));
+        assertEquals(true, config.getProperty("k3"));
     }
 }

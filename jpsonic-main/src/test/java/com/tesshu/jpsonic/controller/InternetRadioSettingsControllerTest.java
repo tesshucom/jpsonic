@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.Attributes.Request.NameConstants;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

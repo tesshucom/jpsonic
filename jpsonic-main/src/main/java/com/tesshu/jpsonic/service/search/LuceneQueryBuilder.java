@@ -28,9 +28,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.apache.lucene.analysis.TokenStream;

@@ -22,9 +22,9 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

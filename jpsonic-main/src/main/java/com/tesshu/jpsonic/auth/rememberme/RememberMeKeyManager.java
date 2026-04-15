@@ -24,8 +24,8 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 

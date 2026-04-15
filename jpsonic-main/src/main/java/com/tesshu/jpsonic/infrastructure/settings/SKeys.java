@@ -17,12 +17,12 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service.settings;
+package com.tesshu.jpsonic.infrastructure.settings;
 
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.BOOLEAN;
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.INTEGER;
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.LONG;
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.STRING;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.BOOLEAN;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.INTEGER;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.LONG;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;

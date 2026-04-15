@@ -17,9 +17,9 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.service.settings;
+package com.tesshu.jpsonic.infrastructure.settings;
 
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.LONG;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.LONG;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
