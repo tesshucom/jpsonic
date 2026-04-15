@@ -61,6 +61,7 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -107,6 +108,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @NeedsHome
+@NeedsTranscode
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",

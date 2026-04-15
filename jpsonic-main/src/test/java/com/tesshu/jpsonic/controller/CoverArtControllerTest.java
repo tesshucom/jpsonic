@@ -56,6 +56,7 @@ import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -87,6 +88,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @NeedsHome
+@NeedsTranscode
 class CoverArtControllerTest {
 
     private MediaFileService mediaFileService;

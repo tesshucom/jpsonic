@@ -47,6 +47,7 @@ import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -83,6 +84,7 @@ import org.mockito.Mockito;
  * that the logic remains as it is.
  */
 @NeedsHome
+@NeedsTranscode
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports" })

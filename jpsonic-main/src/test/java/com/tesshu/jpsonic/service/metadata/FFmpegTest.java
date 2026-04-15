@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
-import org.apache.commons.lang3.StringUtils;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -42,6 +42,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 @NeedsHome
+@NeedsTranscode
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class FFmpegTest {
@@ -61,10 +62,9 @@ class FFmpegTest {
     @Test
     void testGetVersion() throws URISyntaxException, IOException {
         String version = ffmpeg.getVersion();
-        assertNotEquals(StringUtils.EMPTY, version);
+        assertNotNull(version);
     }
 
-    @NeedsHome
     @Nested
     class CreateImageTest {
 
@@ -100,7 +100,6 @@ class FFmpegTest {
 
         @Order(4)
         @Test
-        @EnabledOnOs(OS.LINUX)
         void testSeekedFrameWithValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));

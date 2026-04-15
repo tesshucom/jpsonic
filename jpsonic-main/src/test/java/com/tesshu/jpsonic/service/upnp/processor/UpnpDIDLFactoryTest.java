@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -48,6 +49,7 @@ import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @NeedsHome
+@NeedsTranscode
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UpnpDIDLFactoryTest {
 
