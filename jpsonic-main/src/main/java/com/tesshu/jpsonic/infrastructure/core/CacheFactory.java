@@ -19,11 +19,11 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.cache;
+package com.tesshu.jpsonic.infrastructure.core;
 
+import java.net.URL;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.Configuration;
@@ -41,7 +41,8 @@ public class CacheFactory implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        Configuration configuration = ConfigurationFactory.parseConfiguration();
+        URL url = CacheFactory.class.getResource("ehcache.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(url);
 
         // Override configuration to make sure cache is stored in home dir.
         Path cacheDir = EnvironmentProvider.getInstance().getEhCacheDirectory();
