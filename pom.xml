@@ -35,7 +35,7 @@
     <versions.checkstyle>12.3.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
-    <versions.commons-configuration2>2.13.0</versions.commons-configuration2>
+    <versions.commons-configuration2>2.14.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.21.0</versions.commons-io>
