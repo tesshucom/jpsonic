@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.command.PersonalSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;

@@ -19,10 +19,10 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.validator;
+package com.tesshu.jpsonic.controller.validator;
 
-import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.UserSettingsController;
+import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.SecurityService;

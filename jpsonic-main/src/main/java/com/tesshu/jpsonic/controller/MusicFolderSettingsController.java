@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;

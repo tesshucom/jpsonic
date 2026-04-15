@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.command.DatabaseSettingsCommand;
+import com.tesshu.jpsonic.controller.form.DatabaseSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;

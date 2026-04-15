@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;

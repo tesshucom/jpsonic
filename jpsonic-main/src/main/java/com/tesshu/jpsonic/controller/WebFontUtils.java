@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.controller;
 
 import static org.springframework.util.StringUtils.hasLength;
 
-import com.tesshu.jpsonic.command.PersonalSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import jakarta.servlet.http.HttpServletRequest;

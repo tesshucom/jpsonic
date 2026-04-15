@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.command.DLNASettingsCommand;
-import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
+import com.tesshu.jpsonic.controller.form.DLNASettingsCommand.SubMenuItemRowInfo;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;

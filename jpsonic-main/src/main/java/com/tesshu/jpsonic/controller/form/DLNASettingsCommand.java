@@ -17,7 +17,7 @@
  * (C) 2021 tesshucom
  */
 
-package com.tesshu.jpsonic.command;
+package com.tesshu.jpsonic.controller.form;
 
 import java.util.List;
 import java.util.Map;

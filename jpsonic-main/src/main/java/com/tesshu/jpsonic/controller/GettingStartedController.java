@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.command.GettingStartedCommand;
+import com.tesshu.jpsonic.controller.form.GettingStartedCommand;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;

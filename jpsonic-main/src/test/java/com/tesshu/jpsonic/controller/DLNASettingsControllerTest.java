@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;

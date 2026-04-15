@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.command;
+package com.tesshu.jpsonic.controller.form;
 
 import java.nio.file.Path;
 import java.util.List;

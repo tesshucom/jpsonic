@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.io.IOException;
 import java.util.List;
 
-import com.tesshu.jpsonic.command.SearchCommand;
+import com.tesshu.jpsonic.controller.form.SearchCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;

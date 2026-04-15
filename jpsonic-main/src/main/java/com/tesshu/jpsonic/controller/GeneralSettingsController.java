@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.command.GeneralSettingsCommand;
+import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;

@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.command.PodcastSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PodcastSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.ScannerStateService;

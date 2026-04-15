@@ -17,7 +17,7 @@
  * (C) 2021 tesshucom
  */
 
-package com.tesshu.jpsonic.command;
+package com.tesshu.jpsonic.controller.form;
 
 /**
  * Properties used for similar purposes on all Setting pages view. The settings

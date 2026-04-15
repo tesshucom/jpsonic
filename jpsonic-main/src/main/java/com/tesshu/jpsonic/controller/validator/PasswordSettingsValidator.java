@@ -19,10 +19,10 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.validator;
+package com.tesshu.jpsonic.controller.validator;
 
-import com.tesshu.jpsonic.command.PasswordSettingsCommand;
 import com.tesshu.jpsonic.controller.PasswordSettingsController;
+import com.tesshu.jpsonic.controller.form.PasswordSettingsCommand;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

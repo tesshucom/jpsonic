@@ -29,7 +29,7 @@ import java.lang.annotation.Documented;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PersonalSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;

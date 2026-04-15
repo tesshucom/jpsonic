@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand.MusicFolderInfo;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;

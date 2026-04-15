@@ -19,12 +19,12 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.validator;
+package com.tesshu.jpsonic.controller.validator;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tesshu.jpsonic.command.PasswordSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PasswordSettingsCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
