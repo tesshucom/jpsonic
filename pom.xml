@@ -26,15 +26,15 @@
     <versions.HikariCP>7.0.2</versions.HikariCP>
 
     <versions.angus>2.0.3</versions.angus>
-    <versions.ant>1.10.16</versions.ant>
+    <versions.ant>1.10.17</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.55.1</versions.checker-qual>
+    <versions.checker-qual>4.0.0</versions.checker-qual>
     <versions.checkstyle>13.4.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
-    <versions.commons-configuration2>2.13.0</versions.commons-configuration2>
+    <versions.commons-configuration2>2.14.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.21.0</versions.commons-io>
@@ -832,7 +832,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>12.2.0</version>
+          <version>12.2.1</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
