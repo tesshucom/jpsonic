@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  * unified entry point to SettingsRuntime and SettingsStorage.
  */
 @Component
-public class SettingsFacade {
+public class SettingsFacade implements SettingsStagingPort {
 
     private final SettingsStorage storage;
     private final SettingsRuntime runtime;
@@ -74,10 +74,12 @@ public class SettingsFacade {
         runtime.stagingEncodedString(key, raw);
     }
 
+    @Override
     public <T> void staging(@NonNull SettingKey<T> key, @Nullable T value) {
         runtime.staging(key, value);
     }
 
+    @Override
     public <T> void stagingDefault(@NonNull SettingKey<T>... keys) {
         Arrays.stream(keys).forEach(k -> staging(k, k.defaultValue()));
     }
