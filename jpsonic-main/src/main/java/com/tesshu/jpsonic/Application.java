@@ -22,12 +22,12 @@
 package com.tesshu.jpsonic;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.filter.FontSchemeFilter;
-import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
-import com.tesshu.jpsonic.filter.RESTFilter;
-import com.tesshu.jpsonic.filter.RequestEncodingFilter;
-import com.tesshu.jpsonic.filter.ResponseHeaderFilter;
+import com.tesshu.jpsonic.feature.ui.FontSchemeFilter;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.infrastructure.web.filter.ParameterDecodingFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.RESTFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.RequestEncodingFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.ResponseHeaderFilter;
 import com.tesshu.jpsonic.util.LegacyHsqlUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;

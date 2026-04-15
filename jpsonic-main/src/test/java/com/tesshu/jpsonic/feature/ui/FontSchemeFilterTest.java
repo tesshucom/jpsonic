@@ -17,7 +17,7 @@
  * (C) 2021 tesshucom
  */
 
-package com.tesshu.jpsonic.filter;
+package com.tesshu.jpsonic.feature.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

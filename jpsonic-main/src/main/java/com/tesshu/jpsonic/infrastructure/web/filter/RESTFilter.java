@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.filter;
+package com.tesshu.jpsonic.infrastructure.web.filter;
 
 import java.io.IOException;
 

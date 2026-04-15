@@ -19,9 +19,10 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.filter;
+package com.tesshu.jpsonic.infrastructure.web.filter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -29,38 +30,41 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Configurable filter for setting the character encoding to use for the HTTP
- * request. Typically used to set UTF-8 encoding when reading request parameters
- * with non-Latin content.
+ * Configurable filter for setting HTTP response headers. Can be used, for
+ * instance, to set cache control directives for certain resources.
  *
  * @author Sindre Mehus
  */
-public class RequestEncodingFilter implements Filter {
+public class ResponseHeaderFilter implements Filter {
 
-    private String encoding;
+    private FilterConfig filterConfig;
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        request.setCharacterEncoding(encoding);
+        HttpServletResponse response = (HttpServletResponse) res;
 
-        // Pass the request/response on
-        chain.doFilter(req, res);
+        // Sets the provided HTTP response parameters
+        for (Enumeration<String> e = filterConfig.getInitParameterNames(); e.hasMoreElements();) {
+            String headerName = e.nextElement();
+            response.setHeader(headerName, filterConfig.getInitParameter(headerName));
+        }
+
+        // pass the request/response on
+        chain.doFilter(req, response);
     }
 
     @Override
     public void init(FilterConfig filterConfig) {
-        encoding = filterConfig.getInitParameter("encoding");
+        this.filterConfig = filterConfig;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (encoding) Intentional allocation to destroy
+    @SuppressWarnings("PMD.NullAssignment") // (filterConfig) Intentional allocation to destroy
     @Override
     public void destroy() {
-        encoding = null;
+        this.filterConfig = null;
     }
-
 }

@@ -17,7 +17,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.filter;
+package com.tesshu.jpsonic.feature.ui;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
