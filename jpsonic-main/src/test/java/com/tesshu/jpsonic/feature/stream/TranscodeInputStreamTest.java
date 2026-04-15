@@ -17,7 +17,7 @@
  * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.io;
+package com.tesshu.jpsonic.feature.stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.tesshu.jpsonic.io.TranscodeInputStream.DeleteTmpFileTask;
+import com.tesshu.jpsonic.feature.stream.TranscodeInputStream.DeleteTmpFileTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

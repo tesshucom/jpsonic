@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.io;
+package com.tesshu.jpsonic.feature.stream;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;

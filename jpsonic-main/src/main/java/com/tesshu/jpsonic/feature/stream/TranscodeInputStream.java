@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.io;
+package com.tesshu.jpsonic.feature.stream;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -192,7 +192,7 @@ public final class TranscodeInputStream extends InputStream {
      * product will not shut down for a very long time. Therefore, it will retry and
      * delete it as soon as possible.
      */
-    static class DeleteTmpFileTask implements Runnable {
+    public static class DeleteTmpFileTask implements Runnable {
 
         private final Path tmpFile;
         private static final int TRIAL_MAX = 3;
