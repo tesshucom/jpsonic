@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.theme;
+package com.tesshu.jpsonic.feature.theme;
 
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.taglib.CssUrlProvider;

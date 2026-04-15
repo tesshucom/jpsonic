@@ -27,10 +27,10 @@ import com.tesshu.jpsonic.controller.PersonalSettingsController;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.feature.theme.Theme;
 import com.tesshu.jpsonic.persistence.api.entity.Avatar;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.theme.Theme;
 
 /**
  * Command used in {@link PersonalSettingsController}.

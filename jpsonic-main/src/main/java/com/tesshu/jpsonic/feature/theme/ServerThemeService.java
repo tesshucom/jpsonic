@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.theme;
+package com.tesshu.jpsonic.feature.theme;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +54,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServerThemeService {
 
-    private static final String THEMES_FILE = "/com/tesshu/jpsonic/theme/themes.txt";
+    private static final String THEMES_FILE = "/com/tesshu/jpsonic/feature/theme/themes.txt";
 
     private final SettingsFacade settingsFacade;
 

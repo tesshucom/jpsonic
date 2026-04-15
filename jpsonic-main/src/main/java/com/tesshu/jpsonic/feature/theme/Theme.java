@@ -14,28 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2025 tesshucom
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.theme;
-
-import java.awt.Color;
+package com.tesshu.jpsonic.feature.theme;
 
 /**
- * Default chart colors used across all chart types.
+ * Contains the ID and name for a theme.
  */
-public enum ChartColor {
-    BACKGROUND(new Color(0xFF, 0xFF, 0xFF)), // ffffff
-    TEXT(new Color(0x33, 0x33, 0x33)), // 333333
-    STROKE(new Color(0x79, 0xA2, 0xD4)); // 79a2d4
+public class Theme {
 
-    private final Color color;
+    private final String id;
+    private final String name;
 
-    ChartColor(Color color) {
-        this.color = color;
+    public Theme(String id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    public Color get() {
-        return color;
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 }
