@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.security;
+package com.tesshu.jpsonic.feature.security;
 
 import java.util.EnumSet;
 

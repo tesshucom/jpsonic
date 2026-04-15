@@ -17,7 +17,7 @@
  * (C) 2025 tesshucom
  */
 
-package com.tesshu.jpsonic.security;
+package com.tesshu.jpsonic.feature.security;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
