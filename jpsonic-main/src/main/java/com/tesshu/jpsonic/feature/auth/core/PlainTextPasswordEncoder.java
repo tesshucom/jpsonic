@@ -14,22 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2022 tesshucom
+ * (C) 2025 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.core.exception;
+package com.tesshu.jpsonic.feature.auth.core;
 
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class TokenExpiredException extends AuthenticationException {
+public class PlainTextPasswordEncoder implements PasswordEncoder {
 
-    private static final long serialVersionUID = 1L;
-
-    public TokenExpiredException(String msg) {
-        super(msg);
+    @Override
+    public String encode(CharSequence rawPassword) {
+        return rawPassword.toString();
     }
 
-    public TokenExpiredException(String msg, Throwable cause) {
-        super(msg, cause);
+    @Override
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return rawPassword.toString().equals(encodedPassword);
     }
 }

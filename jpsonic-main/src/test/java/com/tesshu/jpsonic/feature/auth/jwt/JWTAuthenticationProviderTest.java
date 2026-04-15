@@ -17,7 +17,7 @@
  * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.jwt;
+package com.tesshu.jpsonic.feature.auth.jwt;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

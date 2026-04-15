@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.jwt;
+package com.tesshu.jpsonic.feature.auth.jwt;
 
 import java.util.Collection;
 

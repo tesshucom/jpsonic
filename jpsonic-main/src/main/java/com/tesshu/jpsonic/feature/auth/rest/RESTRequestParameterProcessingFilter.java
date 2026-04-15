@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.rest;
+package com.tesshu.jpsonic.feature.auth.rest;
 
 import java.io.IOException;
 

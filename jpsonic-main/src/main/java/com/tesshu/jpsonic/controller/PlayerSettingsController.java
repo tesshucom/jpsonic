@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Player;

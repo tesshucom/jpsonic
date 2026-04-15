@@ -34,7 +34,7 @@
  * limitations under the License.
  */
 
-package com.tesshu.jpsonic.auth.core;
+package com.tesshu.jpsonic.feature.auth.core;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;

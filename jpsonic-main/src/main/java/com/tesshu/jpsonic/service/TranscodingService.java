@@ -38,10 +38,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;

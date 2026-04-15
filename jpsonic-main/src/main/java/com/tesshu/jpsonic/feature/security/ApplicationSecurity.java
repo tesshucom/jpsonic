@@ -23,13 +23,13 @@ package com.tesshu.jpsonic.feature.security;
 
 import java.util.EnumSet;
 
-import com.tesshu.jpsonic.auth.core.CustomUserDetailsContextMapper;
-import com.tesshu.jpsonic.auth.core.PlainTextPasswordEncoder;
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationProvider;
-import com.tesshu.jpsonic.auth.jwt.JWTRequestParameterProcessingFilter;
-import com.tesshu.jpsonic.auth.rememberme.RememberMeKeyManager;
-import com.tesshu.jpsonic.auth.rest.RESTRequestParameterProcessingFilter;
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.feature.auth.core.CustomUserDetailsContextMapper;
+import com.tesshu.jpsonic.feature.auth.core.PlainTextPasswordEncoder;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationProvider;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTRequestParameterProcessingFilter;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
+import com.tesshu.jpsonic.feature.auth.rest.RESTRequestParameterProcessingFilter;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.JWTSecurityService;

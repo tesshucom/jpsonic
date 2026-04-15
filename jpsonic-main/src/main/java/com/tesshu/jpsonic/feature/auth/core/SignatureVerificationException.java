@@ -14,22 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2025 tesshucom
+ * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.core;
+package com.tesshu.jpsonic.feature.auth.core;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.AuthenticationException;
 
-public class PlainTextPasswordEncoder implements PasswordEncoder {
+public class SignatureVerificationException extends AuthenticationException {
 
-    @Override
-    public String encode(CharSequence rawPassword) {
-        return rawPassword.toString();
+    private static final long serialVersionUID = 1L;
+
+    public SignatureVerificationException(String msg) {
+        super(msg);
     }
 
-    @Override
-    public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return rawPassword.toString().equals(encodedPassword);
+    public SignatureVerificationException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }

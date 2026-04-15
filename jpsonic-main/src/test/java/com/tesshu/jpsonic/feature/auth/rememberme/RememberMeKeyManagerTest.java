@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.rememberme;
+package com.tesshu.jpsonic.feature.auth.rememberme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

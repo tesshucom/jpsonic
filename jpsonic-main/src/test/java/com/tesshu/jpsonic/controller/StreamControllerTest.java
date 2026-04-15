@@ -57,8 +57,8 @@ import java.util.concurrent.ExecutionException;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;

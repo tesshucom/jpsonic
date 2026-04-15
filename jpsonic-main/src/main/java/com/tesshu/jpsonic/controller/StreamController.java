@@ -31,8 +31,8 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.controller.Attributes.Request;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.bootstrap.LoggingExceptionResolver;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;

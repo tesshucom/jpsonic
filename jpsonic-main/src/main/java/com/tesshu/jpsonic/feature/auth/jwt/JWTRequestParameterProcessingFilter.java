@@ -19,13 +19,13 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.jwt;
+package com.tesshu.jpsonic.feature.auth.jwt;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import com.tesshu.jpsonic.auth.core.exception.SignatureVerificationException;
-import com.tesshu.jpsonic.auth.core.exception.TokenExpiredException;
+import com.tesshu.jpsonic.feature.auth.core.SignatureVerificationException;
+import com.tesshu.jpsonic.feature.auth.core.TokenExpiredException;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

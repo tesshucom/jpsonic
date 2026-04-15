@@ -42,8 +42,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.PlayerDao;

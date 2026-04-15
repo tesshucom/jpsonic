@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.service;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;

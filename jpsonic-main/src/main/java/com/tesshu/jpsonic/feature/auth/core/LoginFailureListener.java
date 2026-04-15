@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.event;
+package com.tesshu.jpsonic.feature.auth.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

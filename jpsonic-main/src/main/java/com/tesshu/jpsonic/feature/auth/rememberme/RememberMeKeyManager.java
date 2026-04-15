@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.rememberme;
+package com.tesshu.jpsonic.feature.auth.rememberme;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;

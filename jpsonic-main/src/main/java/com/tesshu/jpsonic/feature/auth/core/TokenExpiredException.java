@@ -17,19 +17,19 @@
  * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.auth.core.exception;
+package com.tesshu.jpsonic.feature.auth.core;
 
 import org.springframework.security.core.AuthenticationException;
 
-public class SignatureVerificationException extends AuthenticationException {
+public class TokenExpiredException extends AuthenticationException {
 
     private static final long serialVersionUID = 1L;
 
-    public SignatureVerificationException(String msg) {
+    public TokenExpiredException(String msg) {
         super(msg);
     }
 
-    public SignatureVerificationException(String msg, Throwable cause) {
+    public TokenExpiredException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }
