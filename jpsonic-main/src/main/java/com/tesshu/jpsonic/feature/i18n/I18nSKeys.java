@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.i18n;
+package com.tesshu.jpsonic.feature.i18n;
 
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 

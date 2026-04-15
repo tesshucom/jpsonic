@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.i18n.I18nSKeys;
+import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;

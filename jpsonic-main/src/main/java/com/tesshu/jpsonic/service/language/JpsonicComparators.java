@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;

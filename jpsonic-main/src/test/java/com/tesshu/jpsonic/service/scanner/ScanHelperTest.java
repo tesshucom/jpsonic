@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;

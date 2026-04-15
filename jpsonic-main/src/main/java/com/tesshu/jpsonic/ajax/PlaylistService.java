@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -178,7 +178,7 @@ public class PlaylistService {
         playlist.setShared(false);
 
         ResourceBundle bundle = ResourceBundle
-            .getBundle("com.tesshu.jpsonic.i18n.ResourceBundle", locale);
+            .getBundle("com.tesshu.jpsonic.feature.i18n.ResourceBundle", locale);
         DateTimeFormatter formatter = DateTimeFormatter
             .ofPattern("yyyy-MM-dd HH:mm")
             .withZone(ZoneId.systemDefault());

@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.i18n;
+package com.tesshu.jpsonic.feature.i18n;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +59,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServerLocaleService {
 
-    static final String LOCALES_FILE = "/com/tesshu/jpsonic/i18n/locales.txt";
+    static final String LOCALES_FILE = "/com/tesshu/jpsonic/feature/i18n/locales.txt";
 
     private final SettingsFacade settingsFacade;
 

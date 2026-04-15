@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.i18n;
+package com.tesshu.jpsonic.feature.i18n;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;

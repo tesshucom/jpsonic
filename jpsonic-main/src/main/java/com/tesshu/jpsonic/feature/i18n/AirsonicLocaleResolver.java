@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.i18n;
+package com.tesshu.jpsonic.feature.i18n;
 
 import java.util.Locale;
 

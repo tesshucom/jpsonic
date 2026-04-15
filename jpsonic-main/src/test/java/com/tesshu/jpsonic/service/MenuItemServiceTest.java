@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;

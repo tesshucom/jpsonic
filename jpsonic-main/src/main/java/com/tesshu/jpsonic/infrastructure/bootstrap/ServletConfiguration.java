@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.infrastructure.bootstrap;
 
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
