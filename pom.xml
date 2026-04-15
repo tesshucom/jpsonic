@@ -85,7 +85,7 @@
     <versions.spring-security>6.5.9</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.3.0</versions.tika>
-    <versions.tomcat>10.1.52</versions.tomcat>
+    <versions.tomcat>10.1.54</versions.tomcat>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
