@@ -27,7 +27,7 @@
     <project.inceptionYear>2018</project.inceptionYear>
     <versions.HikariCP>7.0.2</versions.HikariCP>
 
-    <versions.ant>1.10.16</versions.ant>
+    <versions.ant>1.10.17</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
