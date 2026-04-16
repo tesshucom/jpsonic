@@ -35,8 +35,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -111,10 +111,10 @@ public class JWTSecurityService {
                         : token);
             return verifier.verify(decoded);
         } catch (TokenExpiredException e) {
-            throw new com.tesshu.jpsonic.auth.core.exception.TokenExpiredException(
+            throw new com.tesshu.jpsonic.feature.auth.core.TokenExpiredException(
                     "The token has expired.", e);
         } catch (SignatureVerificationException e) {
-            throw new com.tesshu.jpsonic.auth.core.exception.SignatureVerificationException(
+            throw new com.tesshu.jpsonic.feature.auth.core.SignatureVerificationException(
                     "The token's signature resulted invalid.", e);
         } catch (JWTVerificationException e) {
             throw new BadCredentialsException("The token is incorrect.", e);

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.PlayerSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.PlayerSettingsCommand"--%>
 
 <html><head>
 <%@ include file="head.jsp" %>

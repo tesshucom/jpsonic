@@ -1,11 +1,11 @@
 package com.tesshu.jpsonic.service.upnp;
 
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.BOOLEAN;
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.INTEGER;
-import static com.tesshu.jpsonic.service.settings.SettingKey.ValueType.STRING;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.BOOLEAN;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.INTEGER;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.service.settings.SettingKey;
 
 /* UPnP / DLNA settings (UI category). */
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",

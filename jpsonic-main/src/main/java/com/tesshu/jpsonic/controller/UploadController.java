@@ -40,14 +40,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;

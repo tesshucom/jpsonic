@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -39,8 +41,6 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;

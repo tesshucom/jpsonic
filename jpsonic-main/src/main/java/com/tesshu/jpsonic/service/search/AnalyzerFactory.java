@@ -33,13 +33,13 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilter;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;

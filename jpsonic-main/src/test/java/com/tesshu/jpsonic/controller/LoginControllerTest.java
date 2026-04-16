@@ -35,13 +35,13 @@ import java.util.concurrent.ExecutionException;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.feature.security.ApplicationSecurity;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
-import com.tesshu.jpsonic.security.ApplicationSecurity;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;

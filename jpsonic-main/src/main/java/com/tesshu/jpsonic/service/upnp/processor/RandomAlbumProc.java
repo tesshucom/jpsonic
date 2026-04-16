@@ -21,11 +21,11 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.springframework.stereotype.Service;
 

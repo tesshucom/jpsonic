@@ -21,14 +21,14 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.command.DatabaseSettingsCommand;
+import com.tesshu.jpsonic.controller.form.DatabaseSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -43,9 +43,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.VersionService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.upnp.processor.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.transport.JpsonicUpnpServiceConf;
 import org.jupnp.UpnpService;

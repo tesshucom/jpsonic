@@ -31,7 +31,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
@@ -39,7 +40,6 @@ import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

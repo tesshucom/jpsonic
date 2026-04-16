@@ -44,9 +44,9 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -139,7 +139,7 @@ class JWTSecurityServiceTest {
             assertNotNull(JWTSecurityService
                 .verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
             Throwable t = assertThrows(
-                    com.tesshu.jpsonic.auth.core.exception.TokenExpiredException.class,
+                    com.tesshu.jpsonic.feature.auth.core.TokenExpiredException.class,
                     () -> JWTSecurityService
                         .verify(KEY, JWTSecurityService.createToken(KEY, PATH, before)));
             assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
@@ -150,7 +150,7 @@ class JWTSecurityServiceTest {
             Instant current = now();
             String invalidToken = JWTSecurityService.createToken(KEY, PATH, current);
             Throwable t = assertThrows(
-                    com.tesshu.jpsonic.auth.core.exception.SignatureVerificationException.class,
+                    com.tesshu.jpsonic.feature.auth.core.SignatureVerificationException.class,
                     () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class,
                     t.getCause());

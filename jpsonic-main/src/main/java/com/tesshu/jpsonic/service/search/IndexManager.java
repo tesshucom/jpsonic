@@ -45,6 +45,8 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -55,8 +57,6 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.search.SearchServiceUtilities.LegacyGenreCriteria;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
@@ -44,7 +45,6 @@ import com.tesshu.jpsonic.service.scanner.PostScanProcedure;
 import com.tesshu.jpsonic.service.scanner.PreScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanHelper;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

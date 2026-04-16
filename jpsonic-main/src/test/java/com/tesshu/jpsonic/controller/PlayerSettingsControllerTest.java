@@ -27,7 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PlayerSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PlayerSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
@@ -36,7 +37,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

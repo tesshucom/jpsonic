@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -28,7 +29,6 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;

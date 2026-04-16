@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.infrastructure.core;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.tesshu.jpsonic.cache.CacheFactory;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.slf4j.Logger;

@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static com.tesshu.jpsonic.auth.rest.RESTRequestParameterProcessingFilter.decrypt;
+import static com.tesshu.jpsonic.feature.auth.rest.RESTRequestParameterProcessingFilter.decrypt;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
@@ -44,11 +44,15 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
-import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.Attributes.Request;
+import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.stream.DownloadController;
+import com.tesshu.jpsonic.feature.stream.StreamController;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.AlbumNotes;
 import com.tesshu.jpsonic.persistence.api.entity.ArtistBio;
@@ -89,8 +93,6 @@ import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;

@@ -24,14 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PersonalSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.FontScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;

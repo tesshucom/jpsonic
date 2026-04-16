@@ -675,7 +675,8 @@
             <configuration>
               <target>
                 <tstamp></tstamp>
-                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"></copy>
+                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/feature/i18n/ResourceBundle_en.properties"
+                  tofile="${project.build.directory}/classes/com/tesshu/jpsonic/feature/i18n/ResourceBundle.properties"></copy>
                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                 <!--suppress MavenModelInspection -->
                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>

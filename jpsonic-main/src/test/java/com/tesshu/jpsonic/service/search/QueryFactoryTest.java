@@ -30,11 +30,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import org.apache.lucene.search.Query;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;

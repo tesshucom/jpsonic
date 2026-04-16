@@ -21,11 +21,11 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;

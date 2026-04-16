@@ -30,12 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.i18n.I18nSKeys;
+import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.search.ParamSearchResult;
-import com.tesshu.jpsonic.service.settings.SKeys;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

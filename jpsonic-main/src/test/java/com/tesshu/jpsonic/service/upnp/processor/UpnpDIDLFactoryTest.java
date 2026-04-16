@@ -28,6 +28,9 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
@@ -36,8 +39,6 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
@@ -48,6 +49,7 @@ import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @NeedsHome
+@NeedsTranscode
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UpnpDIDLFactoryTest {
 

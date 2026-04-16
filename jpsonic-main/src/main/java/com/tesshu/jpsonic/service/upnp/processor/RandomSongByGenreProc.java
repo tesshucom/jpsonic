@@ -21,10 +21,10 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;

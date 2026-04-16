@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PasswordSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PasswordSettingsCommand;
+import com.tesshu.jpsonic.controller.validator.PasswordSettingsValidator;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.validator.PasswordSettingsValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

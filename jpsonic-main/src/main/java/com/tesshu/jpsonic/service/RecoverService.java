@@ -24,9 +24,9 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import java.util.Date;
 import java.util.Properties;
 
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.settings.SKeys;
-import com.tesshu.jpsonic.service.settings.SettingsFacade;
 import de.triology.recaptchav2java.ReCaptcha;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
