@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>114.2.26</version>
+  <version>114.2.27</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -27,15 +27,15 @@
     <project.inceptionYear>2018</project.inceptionYear>
     <versions.HikariCP>7.0.2</versions.HikariCP>
 
-    <versions.ant>1.10.16</versions.ant>
+    <versions.ant>1.10.17</versions.ant>
     <versions.antlr>4.13.2</versions.antlr>
     <versions.asm>9.9.1</versions.asm>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checker-qual>3.55.1</versions.checker-qual>
+    <versions.checker-qual>4.0.0</versions.checker-qual>
     <versions.checkstyle>12.3.0</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
-    <versions.commons-configuration2>2.13.0</versions.commons-configuration2>
+    <versions.commons-configuration2>2.14.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.21.0</versions.commons-io>
@@ -80,12 +80,12 @@
     <versions.postgresql>42.7.10</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
     <versions.spotbugs>4.9.8</versions.spotbugs>
-    <versions.spring-boot>3.5.12</versions.spring-boot>
+    <versions.spring-boot>3.5.13</versions.spring-boot>
     <versions.spring-framework>6.2.17</versions.spring-framework>
     <versions.spring-security>6.5.9</versions.spring-security>
     <versions.stax-ex>2.1.0</versions.stax-ex>
     <versions.tika>3.3.0</versions.tika>
-    <versions.tomcat>10.1.52</versions.tomcat>
+    <versions.tomcat>10.1.54</versions.tomcat>
     <versions.yuicompressor>2.4.8</versions.yuicompressor>
   </properties>
 
@@ -963,7 +963,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>12.2.0</version>
+          <version>12.2.1</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
