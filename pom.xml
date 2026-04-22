@@ -103,6 +103,11 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-web-server</artifactId>
+        <version>${versions.spring-boot}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.checkerframework</groupId>
