@@ -21,16 +21,22 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
 import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeStagingApplier;
 import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -63,16 +69,19 @@ public class AdvancedSettingsController {
 
     private final SettingsFacade settingsFacade;
     private final SecurityService securityService;
+    private final RememberMeKeyManager rememberMeKeyManager;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
 
     public AdvancedSettingsController(SettingsFacade settingsFacade,
-            SecurityService securityService, ShareService shareService,
-            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService) {
+            SecurityService securityService, RememberMeKeyManager rememberMeKeyManager,
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector,
+            ScannerStateService scannerStateService) {
         super();
         this.settingsFacade = settingsFacade;
         this.securityService = securityService;
+        this.rememberMeKeyManager = rememberMeKeyManager;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
@@ -82,7 +91,6 @@ public class AdvancedSettingsController {
     protected String get(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
-        // RememberMe
         command.setRememberMeEnable(settingsFacade.get(RMSKeys.enable));
         command
             .setRememberMeKeyRotationType(
@@ -94,6 +102,15 @@ public class AdvancedSettingsController {
             .setRememberMeTokenValidityPeriod(
                     TokenValidityPeriod.of(settingsFacade.get(RMSKeys.tokenValidityPeriod)));
         command.setSlidingExpirationEnabled(settingsFacade.get(RMSKeys.slidingExpirationEnable));
+
+        AuthKey rememberMeKey = rememberMeKeyManager.getAuthKey();
+        LocalDateTime lastUpdate = rememberMeKey
+            .getLastUpdate()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime();
+        command
+            .setRememberMeLastUpdate(
+                    lastUpdate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         // Bandwidth control
         command
@@ -154,6 +171,12 @@ public class AdvancedSettingsController {
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "advancedSettings";
+    }
+
+    @PostMapping("/rotate")
+    protected String postRotate() {
+        rememberMeKeyManager.rotate();
+        return "redirect:/advancedSettings.view";
     }
 
     @PostMapping

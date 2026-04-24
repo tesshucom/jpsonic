@@ -5,9 +5,23 @@
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
 <%@ page import="com.tesshu.jpsonic.domain.system.IndexScheme" %>
+<%@ page import="com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys" %>
+<%@ page import="com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType" %>
+<%@ page import="com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod" %>
+<%@ page import="com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 const scanning = ${command.scanning};
+
+
+function resetRememberMe() {
+    $("#rememberMeEnable").prop('checked', true);
+    $("#rememberMeKeyRotationType").prop("selectedIndex", 1);
+    $("#rememberMeKeyRotationPeriod").prop("selectedIndex", 2);
+    $("#rememberMeTokenValidityPeriod").prop("selectedIndex", 1);
+    $("#slidingExpirationEnabled").prop('checked', true);
+    onRememberMeEnabled();
+}
 
 function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
@@ -26,11 +40,35 @@ function resetScanLog() {
     $("#measurememory").prop({'disabled': true, 'checked': false});
 }
 
+function onRememberMeEnabled() {
+    if ($("#rememberMeEnable").prop("checked")) {
+        $("#rememberMeKeyRotationType").prop('disabled', false);
+        $("#rememberMeKeyRotationPeriod").prop('disabled', false);
+        $("#rememberMeTokenValidityPeriod").prop('disabled', false);
+        $("#slidingExpirationEnabled").prop('disabled', false);
+        $("#rotateNow").prop('disabled', false);
+    } else {
+        $("#rememberMeKeyRotationType").prop('disabled', true);
+        $("#rememberMeKeyRotationPeriod").prop('disabled', true);
+        $("#rememberMeTokenValidityPeriod").prop('disabled', true);
+        $("#slidingExpirationEnabled").prop('disabled', true);
+        $("#rotateNow").prop('disabled', true);
+    }
+}
+
+function rememberMeKeyRotationTypeChanged() {
+    if (!$("#rememberMeEnable").prop("checked")) {
+        return;
+    }
+    var value = $("#rememberMeKeyRotationType").val();
+    $("#rememberMeKeyRotationPeriod").prop('disabled', value !== '${KeyRotationType.PERIOD.name()}');
+}
+
 function onUseScanLogStateChanged() {
     if(scanning) {
         return;
     }
-	if($("#usescanlog").prop("checked")){
+    if($("#usescanlog").prop("checked")){
         $("#scanlogretention").prop('disabled', false);
         $("#usescanevents").prop({'disabled': false});
         $("#measurememory").prop({'disabled': false});
@@ -49,6 +87,16 @@ document.addEventListener('DOMContentLoaded', function () {
         onUseScanLogStateChanged();
     });
 
+    onRememberMeEnabled();
+    $("#rememberMeEnable").on('change', function(e){
+        onRememberMeEnabled();
+    });
+
+    rememberMeKeyRotationTypeChanged();
+    $("#rememberMeKeyRotationType").on('change', function(e){
+        rememberMeKeyRotationTypeChanged();
+    });
+
     $("#radio1-1").on('change', function(e){
         $("#readGreekInJapanese").prop({'disabled': false, 'checked': true});
         $("#forceInternalValueInsteadOfTags").prop({'disabled': true, 'checked': false});
@@ -62,6 +110,10 @@ document.addEventListener('DOMContentLoaded', function () {
         $("#forceInternalValueInsteadOfTags").prop({'disabled': true, 'checked': false});
     });
 }, false);
+
+function postRotate() {
+    document.getElementById('rotateForm').submit();
+}
 
 </script>
 </head>
@@ -88,11 +140,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <div class="actions">
             <ul class="controls">
+                <li><a href="javascript:resetRememberMe()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
+        <summary class="jpsonic">Remember Me</summary>
+        <dl>
+            <dt>
+                <fmt:message key="advancedsettings.rememberme.enable"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-enable"/></c:import>
+            </dt>
+            <dd>
+                <form:checkbox path="rememberMeEnable" id="rememberMeEnable"/>
+                <label for="rememberMeEnable"><fmt:message key="advancedsettings.rememberme.on"/></label>
+            </dd>
+            <dt>
+                <fmt:message key="advancedsettings.rememberme.rotation-type"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-rotation-type"/></c:import>
+            </dt>
+            <dd>
+                <form:select path="rememberMeKeyRotationType" id="rememberMeKeyRotationType">
+                    <c:forEach items="${KeyRotationType.values()}" var="keyRotationType">
+                        <c:set var="keyRotationTypeViewName">
+                            <fmt:message key="advancedsettings.rememberme.rotation-type.${fn:toLowerCase(keyRotationType)}"/>
+                        </c:set>
+                        <form:option value="${keyRotationType}" label="${keyRotationTypeViewName}"/>
+                    </c:forEach>
+                </form:select>
+            </dd>
+            <dt>
+                <fmt:message key="advancedsettings.rememberme.rotation-period"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-rotation-period"/></c:import>
+            </dt>
+            <dd>
+                <form:select path="rememberMeKeyRotationPeriod" id="rememberMeKeyRotationPeriod">
+                    <c:forEach items="${KeyRotationPeriod.values()}" var="keyRotationPeriod">
+                        <c:set var="keyRotationPeriodViewName">
+                            <fmt:message key="advancedsettings.rememberme.rotation-period.${fn:toLowerCase(keyRotationPeriod)}"/>
+                        </c:set>
+                        <form:option value="${keyRotationPeriod}" label="${keyRotationPeriodViewName}"/>
+                    </c:forEach>
+                </form:select>
+            </dd>
+            <dt>
+                <fmt:message key="advancedsettings.rememberme.token-validity-period"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-token-validity-period"/></c:import>
+            </dt>
+            <dd>
+                <form:select path="rememberMeTokenValidityPeriod" id="rememberMeTokenValidityPeriod">
+                    <c:forEach items="${TokenValidityPeriod.values()}" var="tokenValidityPeriod">
+                        <c:set var="tokenValidityPeriodViewName">
+                            <fmt:message key="advancedsettings.rememberme.token-validity-period.${fn:toLowerCase(tokenValidityPeriod)}"/>
+                        </c:set>
+                        <form:option value="${tokenValidityPeriod}" label="${tokenValidityPeriodViewName}"/>
+                    </c:forEach>
+                </form:select>
+            </dd>
+            <dt>
+                <fmt:message key="advancedsettings.rememberme.sliding-expiration-enable"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-sliding-expiration-enable"/></c:import>
+            </dt>
+            <dd>
+                <form:checkbox path="slidingExpirationEnabled" id="slidingExpirationEnabled"/>
+                <label for="slidingExpirationEnabled"><fmt:message key="advancedsettings.rememberme.on"/></label>
+            </dd>
+            <dt><fmt:message key='advancedsettings.rememberme.key-lastupdate'/></dt>
+            <dd>${command.rememberMeLastUpdate}
+            </dd>
+            <dt>
+                <fmt:message key='advancedsettings.rememberme.key-rotate'/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-exec-rotation"/></c:import>
+            </dt>
+            <dd>
+                <div>
+                    <input id="rotateNow" type="button" onClick="postRotate()" value="<fmt:message key='advancedsettings.rememberme.exec-key-rotate'/>"/>
+                </div>
+            </dd>
+        </dl>
+    </details>
+
+    <details ${isOpen}>
+        <summary class="jpsonic"><fmt:message key="advancedsettings.bandwidth"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
                 <li><a href="javascript:resetBandwidth()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
             </ul>
         </div>
 
-        <summary class="jpsonic"><fmt:message key="advancedsettings.bandwidth"/></summary>
         <dl>
             <dt><fmt:message key="advancedsettings.downloadlimit"/></dt>
             <dd>
@@ -329,6 +464,8 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 
 </form:form>
+
+<form id="rotateForm" action="advancedSettings/rotate" method="post" style="display:none;"></form>
 
 <c:if test="${settings_reload}">
     <script>
