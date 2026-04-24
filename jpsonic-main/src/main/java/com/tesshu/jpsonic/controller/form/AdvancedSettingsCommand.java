@@ -23,6 +23,9 @@ package com.tesshu.jpsonic.controller.form;
 
 import com.tesshu.jpsonic.controller.AdvancedSettingsController;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
+import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
+import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
 
 /**
  * Command used in {@link AdvancedSettingsController}.
@@ -30,6 +33,14 @@ import com.tesshu.jpsonic.domain.system.IndexScheme;
  * @author Sindre Mehus
  */
 public class AdvancedSettingsCommand extends SettingsPageCommons {
+
+    // Remember Me
+    private boolean rememberMeEnable;
+    private KeyRotationType rememberMeKeyRotationType;
+    private KeyRotationPeriod rememberMeKeyRotationPeriod;
+    private TokenValidityPeriod rememberMeTokenValidityPeriod;
+    private boolean slidingExpirationEnabled;
+    private String rememberMeLastUpdate;
 
     // Bandwidth control
     private String downloadLimit;
@@ -71,6 +82,55 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private boolean sortStrict;
     private boolean defaultSortAlphanum;
     private boolean defaultSortStrict;
+
+    public boolean isRememberMeEnable() {
+        return rememberMeEnable;
+    }
+
+    public void setRememberMeEnable(boolean rememberMeEnable) {
+        this.rememberMeEnable = rememberMeEnable;
+    }
+
+    public KeyRotationType getRememberMeKeyRotationType() {
+        return rememberMeKeyRotationType;
+    }
+
+    public void setRememberMeKeyRotationType(KeyRotationType rememberMeRotationType) {
+        this.rememberMeKeyRotationType = rememberMeRotationType;
+    }
+
+    public KeyRotationPeriod getRememberMeKeyRotationPeriod() {
+        return rememberMeKeyRotationPeriod;
+    }
+
+    public void setRememberMeKeyRotationPeriod(KeyRotationPeriod rememberMeRotationPeriod) {
+        this.rememberMeKeyRotationPeriod = rememberMeRotationPeriod;
+    }
+
+    public TokenValidityPeriod getRememberMeTokenValidityPeriod() {
+        return rememberMeTokenValidityPeriod;
+    }
+
+    public void setRememberMeTokenValidityPeriod(
+            TokenValidityPeriod rememberMeTokenValidityPeriod) {
+        this.rememberMeTokenValidityPeriod = rememberMeTokenValidityPeriod;
+    }
+
+    public boolean isSlidingExpirationEnabled() {
+        return slidingExpirationEnabled;
+    }
+
+    public void setSlidingExpirationEnabled(boolean slidingExpirationEnabled) {
+        this.slidingExpirationEnabled = slidingExpirationEnabled;
+    }
+
+    public String getRememberMeLastUpdate() {
+        return rememberMeLastUpdate;
+    }
+
+    public void setRememberMeLastUpdate(String rememberMeLastUpdate) {
+        this.rememberMeLastUpdate = rememberMeLastUpdate;
+    }
 
     public String getDownloadLimit() {
         return downloadLimit;

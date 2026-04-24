@@ -28,10 +28,13 @@ import com.tesshu.jpsonic.feature.auth.core.CustomUserDetailsContextMapper;
 import com.tesshu.jpsonic.feature.auth.core.PlainTextPasswordEncoder;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationProvider;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTRequestParameterProcessingFilter;
+import com.tesshu.jpsonic.feature.auth.rememberme.AdaptiveRememberMeAuthenticationProvider;
+import com.tesshu.jpsonic.feature.auth.rememberme.AdaptiveRememberMeServices;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.feature.auth.rest.RESTRequestParameterProcessingFilter;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
 import jakarta.servlet.DispatcherType;
@@ -39,6 +42,7 @@ import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +59,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -63,6 +68,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 @DependsOn("liquibase")
 @Configuration
+@ConditionalOnProperty(name = "jpsonic.feature.security", havingValue = "true", matchIfMissing = true)
 @EnableMethodSecurity(securedEnabled = true)
 public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
 
@@ -186,13 +192,22 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
         }
 
         @Bean
-        public RememberMeKeyManager rememberMeKeyManager(SettingsFacade settingsFacade) {
-            return new RememberMeKeyManager(settingsFacade);
+        public RememberMeKeyManager rememberMeKeyManager(SettingsFacade settingsFacade,
+                AuthKeyDao authKeyDao) {
+            return new RememberMeKeyManager(settingsFacade, authKeyDao);
+        }
+
+        @Bean
+        public AdaptiveRememberMeServices adaptiveRememberMeServices(SettingsFacade settingsFacade,
+                UserDetailsService userDetailsService, RememberMeKeyManager rememberMeKeyManager) {
+            return new AdaptiveRememberMeServices(settingsFacade, userDetailsService,
+                    rememberMeKeyManager);
         }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http,
                 RESTRequestParameterProcessingFilter restRPPFilter,
+                AdaptiveRememberMeServices adaptiveRememberMeServices,
                 RememberMeKeyManager rememberMeKeyManager, CsrfSecurityRequestMatcher csrfMatcher)
                 throws Exception {
 
@@ -273,10 +288,15 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
                                                                                // name
 
                 // Configure logout(POST Only)
-                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"))
+                .logout(logout -> logout
+                    .logoutUrl("/logout")
+                    .addLogoutHandler(adaptiveRememberMeServices)
+                    .logoutSuccessUrl("/login?logout"))
 
-                // Configure remember-me with injected key
-                .rememberMe(config -> config.key(rememberMeKeyManager.getKey()))
+                // Configure remember-me
+                .rememberMe(config -> config.rememberMeServices(adaptiveRememberMeServices))
+                .authenticationProvider(
+                        new AdaptiveRememberMeAuthenticationProvider(rememberMeKeyManager))
 
                 // Enable anonymous access handling. Without this, unauthenticated users
                 // have no Authentication object in the SecurityContext, which can cause

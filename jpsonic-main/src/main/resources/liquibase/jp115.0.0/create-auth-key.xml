@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd">
+	<changeSet id="create-auth-key" author="tesshucom">
+		<createTable tableName="auth_key">
+			<column name="key_type" type="int">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+
+			<column name="value" type="${varchar_type}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update" type="${timestamp_type}">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+</databaseChangeLog>

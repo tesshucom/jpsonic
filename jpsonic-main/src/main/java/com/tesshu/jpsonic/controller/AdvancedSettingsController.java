@@ -23,6 +23,11 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
+import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
+import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeStagingApplier;
+import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -77,8 +82,20 @@ public class AdvancedSettingsController {
     protected String get(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
-        // Bandwidth control
+        // RememberMe
+        command.setRememberMeEnable(settingsFacade.get(RMSKeys.enable));
+        command
+            .setRememberMeKeyRotationType(
+                    KeyRotationType.of(settingsFacade.get(RMSKeys.rotationType)));
+        command
+            .setRememberMeKeyRotationPeriod(
+                    KeyRotationPeriod.of(settingsFacade.get(RMSKeys.rotationPeriod)));
+        command
+            .setRememberMeTokenValidityPeriod(
+                    TokenValidityPeriod.of(settingsFacade.get(RMSKeys.tokenValidityPeriod)));
+        command.setSlidingExpirationEnabled(settingsFacade.get(RMSKeys.slidingExpirationEnable));
 
+        // Bandwidth control
         command
             .setDownloadLimit(String
                 .valueOf(settingsFacade.get(SKeys.advanced.bandwidth.downloadBitrateLimit)));
@@ -143,6 +160,9 @@ public class AdvancedSettingsController {
     protected ModelAndView post(
             @ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
+
+        // RememberMe
+        new RememberMeStagingApplier().apply(command, settingsFacade);
 
         // Bandwidth control
         try {
