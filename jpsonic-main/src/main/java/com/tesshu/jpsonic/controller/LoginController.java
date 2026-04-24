@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -77,8 +78,8 @@ public class LoginController {
             .of("logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
                     request.getParameter(Attributes.Request.ERROR.value()) != null, "brand",
                     EnvironmentProvider.getInstance().getBrand(), "loginMessage",
-                    settingsFacade.get(SKeys.general.welcome.loginMessage), "showRememberMe",
-                    settingsFacade.get(SKeys.general.legacy.showRememberMe));
+                    settingsFacade.get(SKeys.general.welcome.loginMessage), "rememberMeEnable",
+                    settingsFacade.get(RMSKeys.enable));
 
         User admin = securityService.getUserByName("admin");
         if (admin != null && admin.getUsername().equals(admin.getPassword())) {

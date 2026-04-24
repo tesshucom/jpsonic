@@ -177,9 +177,6 @@ public final class SKeys {
         /** Legacy UI options (UI category). */
         public static final class legacy {
 
-            public static final SettingKey<Boolean> showRememberMe = SKey
-                .of("ShowRememberMe", BOOLEAN, false);
-
             public static final SettingKey<Boolean> useRadio = SKey.of("UseRadio", BOOLEAN, false);
 
             public static final SettingKey<Boolean> useJsonp = SKey.of("UseJsonp", BOOLEAN, false);

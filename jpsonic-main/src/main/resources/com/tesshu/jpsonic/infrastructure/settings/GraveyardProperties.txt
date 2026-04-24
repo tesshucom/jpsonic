@@ -74,3 +74,4 @@ RedundantFolderCheck
 UseCopyOfAsciiUnprintable
 UseExternalPlayer
 OthersPlayingEnabled
+ShowRememberMe

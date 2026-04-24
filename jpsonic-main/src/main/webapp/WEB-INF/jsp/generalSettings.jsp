@@ -208,12 +208,6 @@ function resetExtension() {
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="showRememberMe" id="showRememberMe"/>
-                <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
                 <form:checkbox path="useRadio" id="useRadio"/>
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
