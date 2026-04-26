@@ -19,51 +19,172 @@
 
 package com.tesshu.jpsonic.feature.auth.rememberme;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Random;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.feature.auth.AuthKeyType;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import org.apache.commons.lang3.StringUtils;
+import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
+import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RememberMeKeyManager {
 
-    private final SettingsFacade settingsFacade;
-    private final Random random = new SecureRandom();
+    private static final Logger LOG = LoggerFactory.getLogger(RememberMeKeyManager.class);
 
-    public RememberMeKeyManager(SettingsFacade settingsFacade) {
+    private final SettingsFacade settingsFacade;
+    private final AuthKeyDao authKeyDao;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+
+    private String key = "NOT READY";
+
+    public RememberMeKeyManager(SettingsFacade settingsFacade, AuthKeyDao authKeyDao) {
         super();
         this.settingsFacade = settingsFacade;
+        this.authKeyDao = authKeyDao;
     }
 
-    /*
-     * This three-step logic for generating the RememberMe key is migrated from
-     * Airsonic. However, it is incomplete. Therefore, in Jpsonic the RememberMeKey
-     * is treated as a legacy feature, and it cannot be used unless the
-     * administrator explicitly enables it.
-     * 
-     * In later versions, this RememberMeKeyManager will be redesigned, the feature
-     * suppression will be removed, and it will return as a normal part of the
-     * system.
-     */
+    boolean isRunning() {
+        return running.get();
+    }
+
+    @NonNull
+    String generateKey() {
+        byte[] keyBytes = new byte[32];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(keyBytes);
+        return new String(Hex.encode(keyBytes));
+    }
+
+    void init() {
+        AuthKey authKey = getAuthKey();
+        if (authKey != null) {
+            KeyRotationType rotationType = KeyRotationType
+                .of(settingsFacade.get(RMSKeys.rotationType));
+
+            switch (rotationType) {
+            case PERIOD, FIXED -> key = authKey.getValue();
+            case RESTART -> {
+                performRotation(Instant.now());
+                authKey = getAuthKey();
+                key = authKey.getValue();
+            }
+            }
+
+        } else {
+            String newKey = generateKey();
+            authKeyDao.create(AuthKeyType.REMEMBERME.value(), newKey, Instant.now());
+            key = newKey;
+        }
+        running.set(true);
+    }
+
     @NonNull
     public String getKey() {
+        if (!(running.get() && settingsFacade.get(RMSKeys.enable))) {
+            throw new IllegalAccessError("""
+                    Security Invariant Violation: \
+                    Attempted to access RememberMe server key \
+                    while the system is in an unready or disabled state. \
+                    Filter-level guards must prevent this call.
+                    """);
+        }
+        return key;
+    }
 
-        String envKey = EnvironmentProvider.getInstance().getRememberMeKey();
-        if (StringUtils.isNotBlank(envKey)) {
-            return envKey;
+    public AuthKey getAuthKey() {
+        return authKeyDao.get(AuthKeyType.REMEMBERME.value());
+    }
+
+    void performRotation(Instant lastUpdate) {
+        AuthKey authKey = getAuthKey();
+        assert authKey != null;
+        String newKey = generateKey();
+        authKey.setValue(newKey);
+        authKey.setLastUpdate(lastUpdate);
+        authKeyDao.update(authKey);
+        this.key = newKey;
+    }
+
+    /**
+     * Core rotation logic that persists a new key with a specific baseline.
+     * 
+     * @param lastUpdate The timestamp to be recorded (factual 'now' or normalized
+     *                   'midnight').
+     */
+    void rotate(Instant lastUpdate) {
+        if (!(running.get() && settingsFacade.get(RMSKeys.enable))) {
+            LOG.warn("""
+                    Rotation skipped: \
+                    The state changed to inactive just before execution. \
+                    This may be due to a concurrent administrative \
+                    action or task overlap.
+                    """);
+            return;
+        }
+        performRotation(lastUpdate);
+    }
+
+    /**
+     * Standard rotation triggered by manual action or legacy calls. Records the
+     * current timestamp as the factual update time.
+     */
+    public void rotate() {
+        rotate(Instant.now());
+    }
+
+    /**
+     * Adaptive rotation check used by the scheduler. Normalizes the baseline to
+     * midnight if a scheduled period has elapsed.
+     */
+    void rotateIfNecessary() {
+        rotateIfNecessary(Instant.now());
+    }
+
+    void rotateIfNecessary(@NonNull Instant now) {
+        if (!(running.get() && settingsFacade.get(RMSKeys.enable))) {
+            return;
         }
 
-        String settingsKey = settingsFacade.get(SKeys.deprecatedSecrets.rememberMeKey);
-        if (StringUtils.isNotBlank(settingsKey)) {
-            return settingsKey;
+        if (settingsFacade.get(RMSKeys.rotationType) != KeyRotationType.PERIOD.value()) {
+            return;
         }
 
-        byte[] array = new byte[32];
-        random.nextBytes(new byte[32]);
-        return new String(array, StandardCharsets.UTF_8);
+        AuthKey authKey = getAuthKey();
+        if (authKey == null) {
+            return;
+        }
+
+        KeyRotationPeriod period = KeyRotationPeriod.of(settingsFacade.get(RMSKeys.rotationPeriod));
+        ZonedDateTime lastUpdate = authKey.getLastUpdate().atZone(ZoneId.systemDefault());
+        ZonedDateTime threshold = switch (period) {
+        case DAILY -> lastUpdate.plus(1, ChronoUnit.DAYS);
+        case WEEKLY -> lastUpdate.plus(1, ChronoUnit.WEEKS);
+        case MONTHLY -> lastUpdate.plus(1, ChronoUnit.MONTHS);
+        };
+
+        if (now.plus(1, ChronoUnit.HOURS).isAfter(threshold.toInstant())) {
+            LOG.info("Automatic key rotation triggered by schedule ({}).", period);
+
+            Instant midnight = LocalDate
+                .now(ZoneId.systemDefault())
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant();
+            rotate(midnight);
+        }
+    }
+
+    void stop() {
+        running.set(false);
     }
 }

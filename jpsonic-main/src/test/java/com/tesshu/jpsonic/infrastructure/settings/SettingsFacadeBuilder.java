@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
 import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.feature.theme.ThemeSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
@@ -219,6 +220,7 @@ public class SettingsFacadeBuilder {
         registerDefaultsIfNull(collectNonNullDefaults(I18nSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(ThemeSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(UPnPSKeys.class), storage);
+        registerDefaultsIfNull(collectNonNullDefaults(RMSKeys.class), storage);
         SettingsRuntime runtime = new SettingsRuntime(storage);
         return new SettingsFacade(storage, runtime);
     }

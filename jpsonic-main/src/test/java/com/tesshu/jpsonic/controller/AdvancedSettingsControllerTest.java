@@ -25,13 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.auth.AuthKeyType;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -71,8 +75,11 @@ class AdvancedSettingsControllerTest {
 
     @Ignore
     void init() {
+        RememberMeKeyManager rememberMeKeyManager = mock(RememberMeKeyManager.class);
+        AuthKey authKey = new AuthKey(AuthKeyType.REMEMBERME.value(), "XXX", Instant.now());
+        Mockito.when(rememberMeKeyManager.getAuthKey()).thenReturn(authKey);
         controller = new AdvancedSettingsController(settingsFacade, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class),
+                rememberMeKeyManager, mock(ShareService.class), mock(OutlineHelpSelector.class),
                 mock(ScannerStateService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

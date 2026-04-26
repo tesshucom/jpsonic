@@ -37,8 +37,9 @@ public enum LifecyclePhase {
     SCAN(Integer.MAX_VALUE / 2 - 300),
     SEARCHER(Integer.MAX_VALUE / 2 - 400),
     CACHE(Integer.MAX_VALUE / 2 - 500),
-    DATABASE(Integer.MAX_VALUE / 2 - 600),
-    PROPERTY(Integer.MAX_VALUE / 2 - 700);
+    REMEMBERME(Integer.MAX_VALUE / 2 - 600),
+    DATABASE(Integer.MAX_VALUE / 2 - 700),
+    PROPERTY(Integer.MAX_VALUE / 2 - 800);
 
     // spotless:on
 

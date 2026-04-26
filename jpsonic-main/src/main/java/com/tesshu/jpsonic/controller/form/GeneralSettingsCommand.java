@@ -62,7 +62,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean outputSearchQuery;
 
     // Suppressed legacy features
-    private boolean showRememberMe;
     private boolean useJsonp;
     private boolean showIndexDetails;
     private boolean showDBDetails;
@@ -240,14 +239,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setOutputSearchQuery(boolean outputSearchQuery) {
         this.outputSearchQuery = outputSearchQuery;
-    }
-
-    public boolean isShowRememberMe() {
-        return showRememberMe;
-    }
-
-    public void setShowRememberMe(boolean showRememberMe) {
-        this.showRememberMe = showRememberMe;
     }
 
     public boolean isUseJsonp() {

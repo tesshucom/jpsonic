@@ -150,7 +150,6 @@ public class GeneralSettingsController {
         command.setOutputSearchQuery(settingsFacade.get(SKeys.general.search.outputSearchQuery));
 
         // Suppressed legacy features
-        command.setShowRememberMe(settingsFacade.get(SKeys.general.legacy.showRememberMe));
         command.setUseJsonp(settingsFacade.get(SKeys.general.legacy.useJsonp));
         command.setShowIndexDetails(settingsFacade.get(SKeys.general.legacy.showIndexDetails));
         command.setShowDBDetails(settingsFacade.get(SKeys.general.legacy.showDbDetails));
@@ -273,7 +272,6 @@ public class GeneralSettingsController {
             .staging(SKeys.general.search.outputSearchQuery, command.isOutputSearchQuery());
 
         // Suppressed legacy features
-        settingsFacade.staging(SKeys.general.legacy.showRememberMe, command.isShowRememberMe());
         settingsFacade.staging(SKeys.general.legacy.useRadio, command.isUseRadio());
         settingsFacade.staging(SKeys.general.legacy.useJsonp, command.isUseJsonp());
         settingsFacade.staging(SKeys.general.legacy.showIndexDetails, command.isShowIndexDetails());
