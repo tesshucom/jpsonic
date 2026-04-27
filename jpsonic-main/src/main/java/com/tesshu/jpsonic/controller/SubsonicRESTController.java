@@ -47,10 +47,12 @@ import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -191,6 +193,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     private final SettingsFacade settingsFacade;
     private final ServerLocaleService serverLocaleService;
     private final MusicFolderService musicFolderService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
@@ -227,16 +230,17 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     public SubsonicRESTController(SettingsFacade settingsFacade,
             ServerLocaleService serverLocaleService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService,
-            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            LastFmService lastFmService, MusicIndexService musicIndexService,
-            TranscodingService transcodingService, DownloadController downloadController,
-            CoverArtController coverArtController, AvatarController avatarController,
-            UserSettingsController userSettingsController, TopController topController,
-            StatusService statusService, StreamController streamController,
-            HLSController hlsController, ShareService shareService, PlaylistService playlistService,
-            LyricsService lyricsService, AudioScrobblerService audioScrobblerService,
-            PodcastService podcastService, RatingService ratingService, SearchService searchService,
+            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
+            PlayerService playerService, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService, LastFmService lastFmService,
+            MusicIndexService musicIndexService, TranscodingService transcodingService,
+            DownloadController downloadController, CoverArtController coverArtController,
+            AvatarController avatarController, UserSettingsController userSettingsController,
+            TopController topController, StatusService statusService,
+            StreamController streamController, HLSController hlsController,
+            ShareService shareService, PlaylistService playlistService, LyricsService lyricsService,
+            AudioScrobblerService audioScrobblerService, PodcastService podcastService,
+            RatingService ratingService, SearchService searchService,
             InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
             ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
             PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
@@ -245,6 +249,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         this.settingsFacade = settingsFacade;
         this.serverLocaleService = serverLocaleService;
         this.musicFolderService = musicFolderService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.securityService = securityService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
@@ -804,7 +809,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         String username = securityService.getCurrentUsername(request);
-        if (!securityService.isFolderAccessAllowed(song, username)) {
+        if (!libraryAccessPolicy.isFolderAccessAllowed(song, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
@@ -828,7 +833,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         String username = securityService.getCurrentUsername(request);
-        if (!securityService.isFolderAccessAllowed(dir, username)) {
+        if (!libraryAccessPolicy.isFolderAccessAllowed(dir, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
@@ -1098,7 +1103,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         Player player = playerService.getPlayer(request, response);
         PlaylistWithSongs result = createJaxbPlaylist(new PlaylistWithSongs(), playlist);
         for (MediaFile mediaFile : playlistService.getFilesInPlaylist(id)) {
-            if (securityService.isFolderAccessAllowed(mediaFile, username)) {
+            if (libraryAccessPolicy.isFolderAccessAllowed(mediaFile, username)) {
                 result.getEntry().add(createJaxbChild(player, mediaFile, username));
             }
         }
@@ -1526,7 +1531,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             child.setSize(mediaFile.getFileSize());
             String suffix = mediaFile.getFormat();
             child.setSuffix(suffix);
-            child.setContentType(StringUtil.getMimeType(suffix));
+            child.setContentType(MediaTypeDetector.getMimeType(suffix));
             child.setIsVideo(mediaFile.isVideo());
             child.setPath(getRelativePath(mediaFile, serverLocaleService, musicFolderService));
 
@@ -1556,7 +1561,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             if (transcodingService.isTranscodingRequired(mediaFile, player)) {
                 String transcodedSuffix = transcodingService.getSuffix(player, mediaFile, null);
                 child.setTranscodedSuffix(transcodedSuffix);
-                child.setTranscodedContentType(StringUtil.getMimeType(transcodedSuffix));
+                child.setTranscodedContentType(MediaTypeDetector.getMimeType(transcodedSuffix));
             }
         }
         return child;
@@ -1668,7 +1673,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             writeError(request, response, ErrorCode.NOT_FOUND, "Video not found.");
             return;
         }
-        if (!securityService.isFolderAccessAllowed(video, user.getUsername())) {
+        if (!libraryAccessPolicy.isFolderAccessAllowed(video, user.getUsername())) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }

@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.feature.stream;
 
-import static com.tesshu.jpsonic.util.StringUtil.getMimeType;
 import static org.springframework.web.bind.ServletRequestUtils.getBooleanParameter;
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 
@@ -34,7 +33,9 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.bootstrap.LoggingExceptionResolver;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -79,17 +80,20 @@ public class StreamController {
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
 
     private final SettingsFacade settingsFacade;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final StatusService statusService;
     private final StreamService streamService;
 
-    public StreamController(SettingsFacade settingsFacade, SecurityService securityService,
-            PlayerService playerService, TranscodingService transcodingService,
-            StatusService statusService, StreamService streamService) {
+    public StreamController(SettingsFacade settingsFacade, LibraryAccessPolicy libraryAccessPolicy,
+            SecurityService securityService, PlayerService playerService,
+            TranscodingService transcodingService, StatusService statusService,
+            StreamService streamService) {
         super();
         this.settingsFacade = settingsFacade;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.securityService = securityService;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
@@ -127,7 +131,7 @@ public class StreamController {
             throws ServletRequestBindingException {
 
         if (!(authentication instanceof JWTAuthenticationToken)
-                && !securityService.isFolderAccessAllowed(file, user.getUsername())) {
+                && !libraryAccessPolicy.isFolderAccessAllowed(file, user.getUsername())) {
             sendForbidden(response, "Access to file " + file.getId() + " is forbidden for user "
                     + user.getUsername());
             return new PrepareResponseResult(true, null, null, null);
@@ -275,10 +279,10 @@ public class StreamController {
     private void applyContentType(HttpServletResponse response, boolean isHls, Transcoding toBeUsed,
             MediaFile file) {
         if (isHls) {
-            response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
+            response.setContentType(MediaTypeDetector.getMimeType("ts")); // HLS is always MPEG TS.
         } else {
             String targetFormat = toBeUsed == null ? file.getFormat() : toBeUsed.getTargetFormat();
-            response.setContentType(getMimeType(targetFormat));
+            response.setContentType(MediaTypeDetector.getMimeType(targetFormat));
             applyContentDuration(response, file);
         }
     }
@@ -427,7 +431,8 @@ public class StreamController {
         }
 
         // Processing for all responses
-        String contentType = getMimeType(req.getParameter(Attributes.Request.SUFFIX.value()));
+        String contentType = MediaTypeDetector
+            .getMimeType(req.getParameter(Attributes.Request.SUFFIX.value()));
         res.setContentType(contentType);
 
         // Processing for Podcast response only

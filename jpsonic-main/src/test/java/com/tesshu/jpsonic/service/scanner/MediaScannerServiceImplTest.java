@@ -47,6 +47,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -69,7 +72,6 @@ import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
@@ -77,7 +79,6 @@ import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -216,8 +217,8 @@ class MediaScannerServiceImplTest {
             writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                     scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
                     mock(MusicParser.class), mock(VideoParser.class), settingsFacade,
-                    mock(SecurityService.class), null, mock(IndexManager.class),
-                    mock(MusicIndexServiceImpl.class));
+                    mock(LibraryAccessPolicy.class), new ScanningExclusionPolicy(settingsFacade),
+                    null, mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
 
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final PlaylistService playlistService = mock(PlaylistService.class);
@@ -649,7 +650,7 @@ class MediaScannerServiceImplTest {
                 String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
 
                 Path artistDir = Path.of(tempDirPath.toString(), directoryName);
-                FileUtil.createDirectories(artistDir);
+                FileOperations.createDirectories(artistDir);
 
                 musicPath = Path.of(artistDir.toString(), fileName);
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
@@ -757,7 +758,8 @@ class MediaScannerServiceImplTest {
             final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsFacade, mock(SecurityService.class), null, mock(IndexManager.class),
+                    settingsFacade, mock(LibraryAccessPolicy.class),
+                    new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
@@ -1000,7 +1002,8 @@ class MediaScannerServiceImplTest {
             final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsFacade, mock(SecurityService.class), null, mock(IndexManager.class),
+                    settingsFacade, mock(LibraryAccessPolicy.class),
+                    new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final JpsonicComparators comparators = mock(JpsonicComparators.class);

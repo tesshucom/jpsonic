@@ -24,11 +24,11 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Path;
 import java.util.Locale;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -100,7 +100,7 @@ public class VideoParser extends MetaDataParser {
         if (fileName == null) {
             throw new IllegalArgumentException("Illegal path specified: " + path);
         }
-        String extension = FilenameUtils.getExtension(fileName.toString());
+        String extension = PathInspector.getExtension(fileName);
         if (extension.isEmpty()) {
             return false;
         }

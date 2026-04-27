@@ -64,9 +64,9 @@ import org.springframework.web.servlet.ModelAndView;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class TopControllerTest {
 
-    private SecurityService securityService;
     private MusicFolderService musicFolderService;
     private ScannerStateServiceImpl scannerState;
+    private SecurityService securityService;
     private TopController controller;
 
     private MockMvc mockMvc;
@@ -74,14 +74,13 @@ class TopControllerTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setup() throws ExecutionException {
-        securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);
         MusicIndexService musicIndexService = mock(MusicIndexService.class);
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
         ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
-        SecurityService securityService = mock(SecurityService.class);
+        securityService = mock(SecurityService.class);
         AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(securityService,
                 serverLocaleService);
 

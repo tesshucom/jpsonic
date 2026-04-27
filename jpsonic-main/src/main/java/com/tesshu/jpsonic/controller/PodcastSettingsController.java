@@ -22,10 +22,10 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.controller.form.PodcastSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.util.PathValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,7 +89,7 @@ public class PodcastSettingsController {
             settingsFacade
                 .staging(SKeys.podcast.episodeDownloadCount,
                         Integer.parseInt(command.getEpisodeDownloadCount()));
-            PathValidator
+            RootPathEntryGuard
                 .validateFolderPath(command.getFolder())
                 .ifPresent(folder -> settingsFacade.staging(SKeys.podcast.folder, folder));
 

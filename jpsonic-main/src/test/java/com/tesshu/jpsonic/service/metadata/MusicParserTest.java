@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.function.Function;
 
-import org.apache.commons.io.FilenameUtils;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -817,7 +817,7 @@ class MusicParserTest {
 
             Function<Path, String> notsupportedMsg = (file) -> {
                 return "No Reader associated with this extension:"
-                    .concat(FilenameUtils.getExtension(file.toString()));
+                    .concat(PathInspector.getExtension(file));
             };
 
             Path aac = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.aac");

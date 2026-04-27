@@ -31,6 +31,7 @@ import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;
 import com.tesshu.jpsonic.feature.theme.Theme;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
@@ -39,7 +40,6 @@ import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
-import com.tesshu.jpsonic.util.PathValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -291,7 +291,7 @@ public class GeneralSettingsController {
                 .staging(SKeys.general.extension.coverArtFileTypes, command.getCoverArtFileTypes());
             settingsFacade
                 .staging(SKeys.general.extension.excludedCoverArt, command.getExcludedCoverArts());
-            PathValidator
+            RootPathEntryGuard
                 .validateFolderPath(command.getPlaylistFolder())
                 .ifPresent(pathStr -> settingsFacade
                     .staging(SKeys.general.extension.playlistFolder, pathStr));

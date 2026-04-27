@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -65,17 +66,20 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MainController {
 
     private final SettingsFacade settingsFacade;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final SecurityService securityService;
     private final JpsonicComparators jpsonicComparator;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public MainController(SettingsFacade settingsFacade, SecurityService securityService,
-            JpsonicComparators jpsonicComparator, RatingService ratingService,
-            MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
+    public MainController(SettingsFacade settingsFacade, LibraryAccessPolicy libraryAccessPolicy,
+            SecurityService securityService, JpsonicComparators jpsonicComparator,
+            RatingService ratingService, MediaFileService mediaFileService,
+            ViewAsListSelector viewSelector) {
         super();
         this.settingsFacade = settingsFacade;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.securityService = securityService;
         this.jpsonicComparator = jpsonicComparator;
         this.ratingService = ratingService;
@@ -102,7 +106,7 @@ public class MainController {
         }
 
         final String username = securityService.getCurrentUsernameStrict(request);
-        if (!securityService.isFolderAccessAllowed(dir, username)) {
+        if (!libraryAccessPolicy.isFolderAccessAllowed(dir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
@@ -116,7 +120,7 @@ public class MainController {
         map.put("userRating", getUserRating(username, dir));
         map.put("averageRating", getAverageRating(dir));
         map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
-        if (!securityService.isInPodcastFolder(dir.toPath())) {
+        if (!libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(dir);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
@@ -316,7 +320,7 @@ public class MainController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         List<MediaFile> result = new ArrayList<>();
-        if (securityService.isInPodcastFolder(dir.toPath())) {
+        if (libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }

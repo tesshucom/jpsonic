@@ -29,9 +29,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.JAXBWriter;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,7 @@ public final class TestCaseUtils {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.toString());
             }
-            FileUtil.deleteDirectory(jpsonicHomeDir);
+            FileOperations.deleteDirectory(jpsonicHomeDir);
         }
     }
 

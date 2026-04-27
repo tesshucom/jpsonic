@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -36,7 +37,6 @@ import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
 import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,8 +82,8 @@ public class ImportPlaylistController {
                     if (FIELD_NAME_FILE.equals(item.getFieldName())
                             && !StringUtils.isBlank(item.getName())) {
                         playListSizeCheck(item);
-                        String playlistName = FilenameUtils.getBaseName(item.getName());
-                        String fileName = FilenameUtils.getName(item.getName());
+                        String playlistName = PathInspector.getBaseName(item.getPath());
+                        String fileName = PathInspector.getBaseName(item.getName());
                         String username = securityService.getCurrentUsername(request);
                         Playlist playlist = playlistService
                             .importPlaylist(username, playlistName, fileName, item.getInputStream(),

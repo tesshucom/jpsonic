@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,15 +63,15 @@ public class HLSController {
 
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final JWTSecurityService jwtSecurityService;
 
     public HLSController(PlayerService playerService, MediaFileService mediaFileService,
-            SecurityService securityService, JWTSecurityService jwtSecurityService) {
+            LibraryAccessPolicy libraryAccessPolicy, JWTSecurityService jwtSecurityService) {
         super();
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.jwtSecurityService = jwtSecurityService;
     }
 
@@ -92,7 +92,7 @@ public class HLSController {
 
         Player player = playerService.getPlayer(request, response);
         String username = player.getUsername();
-        if (username != null && !securityService.isFolderAccessAllowed(mediaFile, username)) {
+        if (username != null && !libraryAccessPolicy.isFolderAccessAllowed(mediaFile, username)) {
             sendError(response, HttpServletResponse.SC_FORBIDDEN,
                     "Access to file " + mediaFile.getId() + " is forbidden for user " + username);
             return;

@@ -24,10 +24,10 @@ package com.tesshu.jpsonic.controller;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileNameSanitizer;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -73,7 +73,7 @@ public class ExportPlayListController {
         response.setContentType("application/x-download");
         response
             .setHeader("Content-Disposition", "attachment; filename=\""
-                    + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
+                    + FileNameSanitizer.sanitize(playlist.getName()) + ".m3u8\"");
         try {
             playlistService.exportPlaylist(id, response.getOutputStream());
         } catch (IOException e) {

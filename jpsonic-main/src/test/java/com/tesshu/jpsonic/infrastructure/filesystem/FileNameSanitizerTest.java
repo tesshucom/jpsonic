@@ -14,34 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2022 tesshucom
+ * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.util;
+package com.tesshu.jpsonic.infrastructure.filesystem;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.File;
-import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 
-class FileUtilTest {
+class FileNameSanitizerTest {
 
     @Test
-    void testGetShortPath() {
-
-        assertNull(FileUtil.getShortPath(null));
-
-        assertEquals("", FileUtil.getShortPath(Path.of("/")));
-
-        assertEquals(File.separator + "child.mp3", FileUtil.getShortPath(Path.of("/child.mp3")));
-
-        assertEquals("MusicFolder" + File.separator + "artist",
-                FileUtil.getShortPath(Path.of("/MusicFolder/artist")));
-
-        assertEquals("artist" + File.separator + "child.mp3",
-                FileUtil.getShortPath(Path.of("/MusicFolder/artist/child.mp3")));
+    void testSanitize() {
+        assertEquals("foo", FileNameSanitizer.sanitize("foo"));
+        assertEquals("foo.mp3", FileNameSanitizer.sanitize("foo.mp3"));
+        assertEquals("foo.mp3", FileNameSanitizer.sanitize("foo.mp3..."));
+        assertEquals("foo-bar", FileNameSanitizer.sanitize("foo/bar"));
+        assertEquals("foo-bar", FileNameSanitizer.sanitize("foo\\bar"));
+        assertEquals("foo-bar", FileNameSanitizer.sanitize("foo:bar"));
     }
 }

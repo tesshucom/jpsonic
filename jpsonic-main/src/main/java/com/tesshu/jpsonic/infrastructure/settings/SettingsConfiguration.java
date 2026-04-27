@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -34,7 +35,6 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.sync.ReadWriteSynchronizer;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.springframework.context.annotation.Bean;
 
@@ -47,7 +47,7 @@ public class SettingsConfiguration {
 
         if (!Files.exists(propertyFile)) {
             try {
-                FileUtils.touch(propertyFile.toFile());
+                FileOperations.touch(propertyFile);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

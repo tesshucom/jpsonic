@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -188,9 +189,9 @@ class UploadControllerTest {
         void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-            uploadController = new UploadController(mock(SecurityService.class),
-                    mock(PlayerService.class), mock(StatusService.class), settingsFacade,
-                    scannerStateService);
+            uploadController = new UploadController(mock(LibraryAccessPolicy.class),
+                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(StatusService.class), settingsFacade, scannerStateService);
         }
 
         @Test

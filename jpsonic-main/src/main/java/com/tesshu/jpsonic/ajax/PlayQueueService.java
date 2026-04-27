@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -727,7 +728,7 @@ public class PlayQueueService {
     }
 
     private String formatContentType(String format) {
-        return StringUtil.getMimeType(format);
+        return MediaTypeDetector.getMimeType(format);
     }
 
     private String formatBitRate(MediaFile mediaFile) {

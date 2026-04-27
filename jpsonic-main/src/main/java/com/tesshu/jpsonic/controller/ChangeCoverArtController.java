@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -49,12 +50,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class ChangeCoverArtController {
 
     private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileService mediaFileService;
 
     public ChangeCoverArtController(SecurityService securityService,
-            MediaFileService mediaFileService) {
+            LibraryAccessPolicy libraryAccessPolicy, MediaFileService mediaFileService) {
         super();
         this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileService = mediaFileService;
     }
 
@@ -85,7 +88,7 @@ public class ChangeCoverArtController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         List<MediaFile> result = new ArrayList<>();
-        if (securityService.isInPodcastFolder(dir.toPath())) {
+        if (libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }

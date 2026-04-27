@@ -38,6 +38,8 @@ import java.util.concurrent.ExecutionException;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -52,7 +54,6 @@ import com.tesshu.jpsonic.service.playlist.PlaylistImportHandler;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -79,18 +80,21 @@ public class PlaylistService {
     private final PlaylistDao playlistDao;
     private final SecurityService securityService;
     private final SettingsFacade settingsFacade;
+    private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final List<PlaylistExportHandler> exportHandlers;
     private final List<PlaylistImportHandler> importHandlers;
     private final JpsonicComparators comparators;
 
     public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao,
             SecurityService securityService, SettingsFacade settingsFacade,
+            ScanningExclusionPolicy scanningExclusionPolicy,
             List<PlaylistExportHandler> exportHandlers, List<PlaylistImportHandler> importHandlers,
             JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
         this.securityService = securityService;
         this.settingsFacade = settingsFacade;
+        this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.exportHandlers = exportHandlers;
         this.importHandlers = importHandlers;
         this.comparators = comparators;
@@ -310,7 +314,7 @@ public class PlaylistService {
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(playlistFolder)) {
             for (Path child : ds) {
 
-                if (securityService.isExcluded(child)) {
+                if (scanningExclusionPolicy.isExcluded(child)) {
                     continue;
                 }
 
@@ -357,9 +361,8 @@ public class PlaylistService {
             // is no longer
             // a specific account to use for auto-imported playlists, so use the first admin
             // account
-            importPlaylist(securityService.getAdminUsername(),
-                    FilenameUtils.getBaseName(fileName.toString()), fileName.toString(), in,
-                    existingPlaylist);
+            importPlaylist(securityService.getAdminUsername(), PathInspector.getBaseName(fileName),
+                    fileName.toString(), in, existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }

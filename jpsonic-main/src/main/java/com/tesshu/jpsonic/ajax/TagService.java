@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -33,7 +34,6 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,15 +83,15 @@ public class TagService {
     public String updateTags(int id, String trackStr, String artistStr, String albumStr,
             String titleStr, String yearStr, String genreStr) {
 
-        MediaFile file = mediaFileService.getMediaFileStrict(id);
-        if (file == null || scannerStateService.isScanning()) {
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
+        if (mediaFile == null || scannerStateService.isScanning()) {
             return "SKIPPED";
         }
 
-        Path path = file.toPath();
+        Path path = mediaFile.toPath();
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser == null || !parser.isEditingSupported(path)) {
-            return "Tag editing of " + FilenameUtils.getExtension(file.getPathString())
+            return "Tag editing of " + PathInspector.getExtension(mediaFile.getPathString())
                     + " files is not supported.";
         }
 
@@ -103,12 +103,12 @@ public class TagService {
         Integer trackNumber = getTrackNumber(track);
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
-        if (StringUtil.equals(artist, file.getArtist())
-                && StringUtil.equals(album, file.getAlbumName())
-                && StringUtil.equals(title, file.getTitle())
-                && Objects.equals(yearNumber, file.getYear())
-                && StringUtil.equals(genre, file.getGenre())
-                && Objects.equals(trackNumber, file.getTrackNumber())) {
+        if (StringUtil.equals(artist, mediaFile.getArtist())
+                && StringUtil.equals(album, mediaFile.getAlbumName())
+                && StringUtil.equals(title, mediaFile.getTitle())
+                && Objects.equals(yearNumber, mediaFile.getYear())
+                && StringUtil.equals(genre, mediaFile.getGenre())
+                && Objects.equals(trackNumber, mediaFile.getTrackNumber())) {
             return "SKIPPED";
         }
 
@@ -123,14 +123,14 @@ public class TagService {
         newMetaData.setTrackNumber(trackNumber);
 
         try {
-            parser.setMetaData(file, newMetaData);
+            parser.setMetaData(mediaFile, newMetaData);
         } catch (CompletionException | IllegalArgumentException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to update tags for " + id, e);
             }
             return e.getMessage();
         }
-        writableMediaFileService.updateTags(file);
+        writableMediaFileService.updateTags(mediaFile);
         return "UPDATED";
     }
 

@@ -34,10 +34,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.logging.LogManager;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.util.FileUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -128,10 +127,10 @@ public class MusicParser extends MetaDataParser {
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read file: " + FileUtil.getShortPath(path), e);
+                LOG.debug("Unable to read file: " + PathInspector.toIdentityName(path), e);
             } else if (LOG.isWarnEnabled()) {
                 LOG
-                    .warn("Unable to read " + FileUtil.getShortPath(path) + ": [{}]",
+                    .warn("Unable to read " + PathInspector.toIdentityName(path) + ": [{}]",
                             e.getMessage().trim());
             }
             return metaData;
@@ -147,7 +146,7 @@ public class MusicParser extends MetaDataParser {
             return metaData;
         } else if (tag instanceof WavTag wavTag && !wavTag.isExistingId3Tag()) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Only ID3 chunk is supported: {}", FileUtil.getShortPath(path));
+                LOG.info("Only ID3 chunk is supported: {}", PathInspector.toIdentityName(path));
             }
             return metaData;
         }
@@ -236,7 +235,7 @@ public class MusicParser extends MetaDataParser {
         if (fileName == null) {
             return false;
         }
-        String extension = FilenameUtils.getExtension(fileName.toString());
+        String extension = PathInspector.getExtension(fileName);
         return extension != null && APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
@@ -249,7 +248,7 @@ public class MusicParser extends MetaDataParser {
         if (fileName == null) {
             return false;
         }
-        String extension = FilenameUtils.getExtension(fileName.toString());
+        String extension = PathInspector.getExtension(fileName);
         if (extension == null) {
             return false;
         }

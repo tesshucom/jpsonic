@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -63,9 +64,10 @@ class PlaylistServiceTest {
                 serverLocaleService);
         deligate = mock(com.tesshu.jpsonic.service.PlaylistService.class);
         playerService = mock(PlayerService.class);
-        playlistService = new PlaylistService(mock(MusicFolderService.class), securityService,
-                mock(MediaFileService.class), deligate, mock(MediaFileDao.class), playerService,
-                airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
+        playlistService = new PlaylistService(mock(MusicFolderService.class),
+                mock(LibraryAccessPolicy.class), securityService, mock(MediaFileService.class),
+                deligate, mock(MediaFileDao.class), playerService, airsonicLocaleResolver,
+                AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)

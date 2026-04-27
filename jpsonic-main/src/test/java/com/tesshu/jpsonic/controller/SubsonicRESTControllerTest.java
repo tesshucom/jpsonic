@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
@@ -174,11 +175,11 @@ class SubsonicRESTControllerTest {
                     AirsonicLocaleResolver.class);
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
-                    musicFolderService, securityService, playerService, mediaFileService,
-                    writableMediaFileService, lastFmService, musicIndexService, transcodingService,
-                    downloadController, coverArtController, avatarController,
-                    userSettingsController, topController, statusService, streamController,
-                    hlsController, shareService, playlistService, lyricsService,
+                    musicFolderService, mock(LibraryAccessPolicy.class), securityService,
+                    playerService, mediaFileService, writableMediaFileService, lastFmService,
+                    musicIndexService, transcodingService, downloadController, coverArtController,
+                    avatarController, userSettingsController, topController, statusService,
+                    streamController, hlsController, shareService, playlistService, lyricsService,
                     audioScrobblerService, podcastService, ratingService, searchService,
                     internetRadioService, mediaFileDao, artistDao, albumDao, bookmarkService,
                     playQueueDao, mediaScannerService, airsonicLocaleResolver, director);

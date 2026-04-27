@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -60,14 +61,17 @@ public class VideoPlayerController {
             5000 };
 
     private final SettingsFacade settingsFacade;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
-    public VideoPlayerController(SettingsFacade settingsFacade, SecurityService securityService,
+    public VideoPlayerController(SettingsFacade settingsFacade,
+            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
             MediaFileService mediaFileService, PlayerService playerService) {
         super();
         this.settingsFacade = settingsFacade;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
@@ -84,7 +88,7 @@ public class VideoPlayerController {
         MediaFile parentDir = mediaFileService.getParentOf(file);
 
         String username = securityService.getCurrentUsernameStrict(request);
-        if (parentDir != null && !securityService.isFolderAccessAllowed(parentDir, username)) {
+        if (parentDir != null && !libraryAccessPolicy.isFolderAccessAllowed(parentDir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
@@ -113,7 +117,7 @@ public class VideoPlayerController {
         map.put("isShowDownload", userSettings.isShowDownload());
         map.put("isShowShare", userSettings.isShowShare());
 
-        if (parentDir != null && !securityService.isInPodcastFolder(parentDir.toPath())) {
+        if (parentDir != null && !libraryAccessPolicy.isInPodcastFolder(parentDir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));

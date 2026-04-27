@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
+import static com.tesshu.jpsonic.infrastructure.filesystem.PathInspector.toIdentityName;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -39,8 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -195,8 +195,8 @@ public final class ParserUtils {
         if (fileName == null) {
             return false;
         }
-        String extension = FilenameUtils.getExtension(fileName.toString());
-        return FilenameUtils.getExtension(fileName.toString()) != null
+        String extension = PathInspector.getExtension(fileName);
+        return PathInspector.getExtension(fileName) != null
                 && IMG_APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
@@ -212,10 +212,10 @@ public final class ParserUtils {
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read cover art: " + getShortPath(path), e);
+                LOG.debug("Unable to read cover art: " + toIdentityName(path), e);
             } else if (LOG.isWarnEnabled()) {
                 LOG
-                    .warn("Unable to read cover art in " + getShortPath(path) + ": [{}]",
+                    .warn("Unable to read cover art in " + toIdentityName(path) + ": [{}]",
                             e.getMessage().trim());
             }
             return Optional.empty();
@@ -226,7 +226,7 @@ public final class ParserUtils {
             return Optional.empty();
         } else if (tag instanceof WavTag wavTag && !wavTag.isExistingId3Tag()) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Cover art is only supported in ID3 chunks: {}", getShortPath(path));
+                LOG.info("Cover art is only supported in ID3 chunks: {}", toIdentityName(path));
             }
             return Optional.empty();
         }

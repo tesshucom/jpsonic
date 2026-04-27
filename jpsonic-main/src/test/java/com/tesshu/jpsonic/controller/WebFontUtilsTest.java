@@ -26,8 +26,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.system.FontScheme;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -53,9 +51,7 @@ class WebFontUtilsTest {
 
     @BeforeEach
     void setup() {
-        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        securityService = new SecurityService(mock(UserDao.class), settingsFacade,
-                mock(MusicFolderService.class));
+        securityService = new SecurityService(mock(UserDao.class), mock(MusicFolderService.class));
     }
 
     @Order(1)

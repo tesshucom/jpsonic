@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -28,7 +30,6 @@ import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistImportHandler;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -67,6 +68,7 @@ class PlaylistServiceTest {
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
             playlistService = new PlaylistService(mediaFileDao, jPlaylistDao,
                     mock(SecurityService.class), settingsFacade,
+                    new ScanningExclusionPolicy(settingsFacade),
                     Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
@@ -146,7 +148,8 @@ class PlaylistServiceTest {
                     mediaFileService);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    mock(SecurityService.class), settingsFacade, Collections.emptyList(),
+                    mock(SecurityService.class), settingsFacade,
+                    new ScanningExclusionPolicy(settingsFacade), Collections.emptyList(),
                     Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
@@ -160,11 +163,11 @@ class PlaylistServiceTest {
             StringBuilder builder = new StringBuilder();
             builder.append("#EXTM3U\n");
             Path mf1 = Path.of(tempDir.toString(), "EXTM3U-mf1");
-            FileUtil.touch(mf1);
+            FileOperations.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "EXTM3U-mf2");
-            FileUtil.touch(mf2);
+            FileOperations.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "EXTM3U-mf3");
-            FileUtil.touch(mf3);
+            FileOperations.touch(mf3);
             builder
                 .append(mf1.toUri().toString())
                 .append('\n')
@@ -215,11 +218,11 @@ class PlaylistServiceTest {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             Path mf1 = Path.of(tempDir.toString(), "PLS-mf1");
-            FileUtil.touch(mf1);
+            FileOperations.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "PLS-mf2");
-            FileUtil.touch(mf2);
+            FileOperations.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "PLS-mf3");
-            FileUtil.touch(mf3);
+            FileOperations.touch(mf3);
             StringBuilder builder = new StringBuilder(40);
             builder
                 .append("[playlist]\nFile1=")
@@ -269,11 +272,11 @@ class PlaylistServiceTest {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
-            FileUtil.touch(mf1);
+            FileOperations.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
-            FileUtil.touch(mf2);
+            FileOperations.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
-            FileUtil.touch(mf3);
+            FileOperations.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
             builder
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
@@ -354,12 +357,12 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
             SecurityService securityService = new SecurityService(mock(UserDao.class),
-                    settingsFacade, mock(MusicFolderService.class));
+                    mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
                     mediaFileService);
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    securityService, settingsFacade, Collections.emptyList(),
-                    Arrays.asList(importHandler), null);
+                    securityService, settingsFacade, new ScanningExclusionPolicy(settingsFacade),
+                    Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
         @Test
@@ -373,11 +376,11 @@ class PlaylistServiceTest {
             init();
 
             Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
-            FileUtil.touch(mf1);
+            FileOperations.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
-            FileUtil.touch(mf2);
+            FileOperations.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
-            FileUtil.touch(mf3);
+            FileOperations.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
             builder
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")

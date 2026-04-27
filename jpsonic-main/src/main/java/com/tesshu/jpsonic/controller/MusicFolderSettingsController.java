@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -38,7 +39,6 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
-import com.tesshu.jpsonic.util.PathValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -210,7 +210,7 @@ public class MusicFolderSettingsController {
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
-        Optional<String> validated = PathValidator
+        Optional<String> validated = RootPathEntryGuard
             .validateFolderPath(StringUtils.trimToNull(info.getPath()));
         if (validated.isEmpty()) {
             return Optional.empty();

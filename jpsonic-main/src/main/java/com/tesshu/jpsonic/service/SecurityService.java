@@ -22,23 +22,15 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
@@ -59,9 +51,13 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.stereotype.Service;
 
 /**
- * Provides security-related services for authentication and authorization.
- *
- * @author Sindre Mehus
+ * Service for managing user accounts, authentication context, and personal
+ * settings.
+ * <p>
+ * This class serves as the primary authority for user-centric data and
+ * lifecycle management, including profile updates, security roles, and
+ * session-specific state such as the selected music folder cursor.
+ * </p>
  */
 @Service
 @DependsOn("musicFolderService")
@@ -69,36 +65,13 @@ public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
-    // https://kb.synology.com/en-in/DSM/help/FileStation/connect?version=7
-    private static final List<String> SYNOLOGY_RESERVED_WORDS = List
-        .of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir", "@sharebin", "@tmp",
-                ".SynologyWorkingDirectory");
-
     private final UserDao userDao;
-    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
 
-    private static final Pattern DOTS_IN_SLASH = Pattern.compile(".*(/|\\\\)\\.\\.(/|\\\\|$).*");
-
-    public SecurityService(UserDao userDao, SettingsFacade settingsFacade,
-            MusicFolderService musicFolderService) {
+    public SecurityService(UserDao userDao, MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
-        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-    }
-
-    /**
-     * Returns the selected music folder for a given user, or {@code null} if all
-     * music folders should be displayed.
-     */
-    public @Nullable MusicFolder getSelectedMusicFolder(String username) {
-        UserSettings settings = getUserSettings(username);
-        int musicFolderId = settings.getSelectedMusicFolderId();
-
-        MusicFolder musicFolder = musicFolderService.getMusicFolderById(musicFolderId);
-        List<MusicFolder> allowedMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        return allowedMusicFolders.contains(musicFolder) ? musicFolder : null;
     }
 
     /**
@@ -371,220 +344,23 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns whether the given file may be read.
-     *
-     * @return Whether the given file may be read.
+     * Although this functions as a folder cursor, it explicitly re-verifies access
+     * to handle cases where an admin revokes permissions during a user's session.
      */
-    public boolean isReadAllowed(@NonNull Path path) {
-        // Allowed to read from both music folder and podcast folder.
-        return isInMusicFolder(path.toString()) || isInPodcastFolder(path);
+    @Nullable
+    MusicFolder resolveAllowedMusicFolder(MusicFolder musicFolder, String username) {
+        List<MusicFolder> allowedMusicFolders = musicFolderService.getMusicFoldersForUser(username);
+        return allowedMusicFolders.contains(musicFolder) ? musicFolder : null;
     }
 
     /**
-     * Returns whether the given file may be written, created or deleted.
-     *
-     * @return Whether the given file may be written, created or deleted.
+     * Returns the selected music folder for a given user, or {@code null} if all
+     * music folders should be displayed.
      */
-    public boolean isWriteAllowed(@NonNull Path path) {
-        if (path == null) {
-            throw new IllegalArgumentException("Illegal path specified: " + path);
-        }
-        Path fileName = path.getFileName();
-        if (fileName == null) {
-            throw new IllegalArgumentException("Illegal path specified: " + path);
-        }
-        // Only allowed to write podcasts or cover art.
-        boolean isPodcast = isInPodcastFolder(path);
-        boolean isCoverArt = isInMusicFolder(path.toString())
-                && fileName.toString().startsWith("cover.");
-        return isPodcast || isCoverArt;
-    }
-
-    /**
-     * Returns whether the given file may be uploaded.
-     *
-     * @return Whether the given file may be uploaded.
-     */
-    public boolean isUploadAllowed(Path path) {
-        return isInMusicFolder(path.toString()) && !Files.exists(path);
-    }
-
-    /**
-     * Returns whether the given file is located in one of the music folders (or any
-     * of their sub-folders).
-     *
-     * @param path The file in question.
-     *
-     * @return Whether the given file is located in one of the music folders.
-     */
-    private boolean isInMusicFolder(String path) {
-        return getMusicFolderForFile(path) != null;
-    }
-
-    private MusicFolder getMusicFolderForFile(String path) {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, true);
-        for (MusicFolder folder : folders) {
-            if (isFileInFolder(path, folder.getPathString())) {
-                return folder;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns whether the given file is located in the Podcast folder (or any of
-     * its sub-folders).
-     *
-     * @param path The file in question.
-     *
-     * @return Whether the given file is located in the Podcast folder.
-     */
-    public boolean isInPodcastFolder(Path path) {
-        String podcastFolder = settingsFacade.get(SKeys.podcast.folder);
-        return isFileInFolder(path.toString(), podcastFolder);
-    }
-
-    private boolean isInPodcastFolder(String path) {
-        String podcastFolder = settingsFacade.get(SKeys.podcast.folder);
-        return isFileInFolder(path, podcastFolder);
-    }
-
-    public String getRootFolderForFile(String path) {
-        MusicFolder folder = getMusicFolderForFile(path);
-        if (folder != null) {
-            return folder.getPathString();
-        }
-
-        if (isInPodcastFolder(path)) {
-            return settingsFacade.get(SKeys.podcast.folder);
-        }
-        return null;
-    }
-
-    public String getRootFolderForFile(Path path) {
-        MusicFolder folder = getMusicFolderForFile(path.toString());
-        if (folder != null) {
-            return folder.getPathString();
-        }
-
-        if (isInPodcastFolder(path)) {
-            return settingsFacade.get(SKeys.podcast.folder);
-        }
-        return null;
-    }
-
-    public boolean isFolderAccessAllowed(@NonNull MediaFile file, String username) {
-        if (isInPodcastFolder(file.toPath())) {
-            return true;
-        }
-
-        for (MusicFolder musicFolder : musicFolderService.getMusicFoldersForUser(username)) {
-            if (musicFolder.getPathString().equals(file.getFolder())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns whether the given file is located in the given folder (or any of its
-     * sub-folders). If the given file contains the expression ".." (indicating a
-     * reference to the parent directory), this method will return
-     * <code>false</code>.
-     *
-     * @param file   The file in question.
-     * @param folder The folder in question.
-     *
-     * @return Whether the given file is located in the given folder.
-     */
-    protected boolean isFileInFolder(final String file, final String folder) {
-        if (isEmpty(file)) {
-            return false;
-        } else if (file.length() > 1_000 && LOG.isWarnEnabled()) {
-            LOG
-                .warn("File path exceeds 1000 characters　:{}", file.substring(0, 10) + " ... "
-                        + file.substring(file.length() - 10, file.length()));
-        }
-
-        // Deny access if file contains ".." surrounded by slashes (or end of line).
-        if (DOTS_IN_SLASH.matcher(file).matches()) {
-            return false;
-        }
-
-        Iterator<Path> fileIterator = Path.of(file).iterator();
-        Iterator<Path> folderIterator = Path.of(folder).iterator();
-        while (folderIterator.hasNext() && fileIterator.hasNext()) {
-            String prefix = fileIterator.next().toString();
-            String suffix = folderIterator.next().toString();
-            if (prefix.length() != suffix.length()) {
-                return false;
-            }
-            if (!prefix.regionMatches(true, 0, suffix, 0, suffix.length())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void info(String msg) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info(msg);
-        }
-    }
-
-    private void warn(String msg) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(msg);
-        }
-    }
-
-    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.SimplifyBooleanReturns" })
-    // NPathComplexity : Redundantly coded for readability, but not difficult to
-    // understand
-    public boolean isExcluded(Path path) {
-        if (settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks)
-                && Files.isSymbolicLink(path)) {
-            info("Excluding symbolic link %s".formatted(path));
-            return true;
-        }
-
-        Path fileName = path.getFileName();
-        if (fileName == null) {
-            return true;
-        }
-
-        // Exclude those that match a user-specified pattern
-        String name = fileName.toString();
-        Pattern excludePattern = settingsFacade
-            .getCachedPattern(SKeys.musicFolder.exclusion.excludePatternString);
-        if (excludePattern != null && excludePattern.matcher(name).matches()) {
-            info("Excluding file which matches exclude pattern %s : %s"
-                .formatted(settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString),
-                        path));
-            return true;
-        }
-
-        // Exclude all hidden files starting with a single "."
-        if (name.charAt(0) == '.' && !name.startsWith("..")) {
-            return true;
-        }
-
-        // Exclude files end with a dot (Windows prohibitions)
-        if (name.endsWith(".")) {
-            warn("""
-                    Excluding files ending with Dot. \
-                    Recommended to replace with a UNICODE String \
-                    like One dot leader or Horizontal Ellipsis. : %s\
-                    """.formatted(path));
-            return true;
-        }
-
-        // Exclude Thumbnail on Windows
-        if ("Thumbs.db".equals(name)) {
-            return true;
-        }
-
-        // Exclude files or dir created on Synology devices
-        return SYNOLOGY_RESERVED_WORDS.stream().anyMatch(name::equals);
+    public @Nullable MusicFolder getSelectedMusicFolder(String username) {
+        UserSettings settings = getUserSettings(username);
+        MusicFolder musicFolder = musicFolderService
+            .getMusicFolderById(settings.getSelectedMusicFolderId());
+        return resolveAllowedMusicFolder(musicFolder, username);
     }
 }

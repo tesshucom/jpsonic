@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.RatingDao;
@@ -40,14 +41,14 @@ import org.springframework.stereotype.Service;
 public class RatingService {
 
     private final RatingDao ratingDao;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileService mediaFileService;
 
-    public RatingService(RatingDao ratingDao, SecurityService securityService,
+    public RatingService(RatingDao ratingDao, LibraryAccessPolicy libraryAccessPolicy,
             MediaFileService mediaFileService) {
         super();
         this.ratingDao = ratingDao;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileService = mediaFileService;
     }
 
@@ -66,7 +67,7 @@ public class RatingService {
         List<MediaFile> result = new ArrayList<>();
         for (String highestRated : highestRateds) {
             Path path = Path.of(highestRated);
-            if (Files.exists(path) && securityService.isReadAllowed(path)) {
+            if (Files.exists(path) && libraryAccessPolicy.isReadAllowed(path)) {
                 result.add(mediaFileService.getMediaFile(path));
             }
         }

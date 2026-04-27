@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -58,6 +59,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 public class PlaylistService {
 
     private final MusicFolderService musicFolderService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final com.tesshu.jpsonic.service.PlaylistService deligate;
@@ -66,13 +68,15 @@ public class PlaylistService {
     private final AirsonicLocaleResolver airsonicLocaleResolver;
     private final AjaxHelper ajaxHelper;
 
-    public PlaylistService(MusicFolderService musicFolderService, SecurityService securityService,
+    public PlaylistService(MusicFolderService musicFolderService,
+            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
             MediaFileService mediaFileService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
             MediaFileDao mediaFileDao, PlayerService playerService,
             AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.deligate = deligate;
@@ -119,7 +123,7 @@ public class PlaylistService {
 
     private void populateAccess(List<MediaFile> files, String username) {
         for (MediaFile file : files) {
-            if (!securityService.isFolderAccessAllowed(file, username)) {
+            if (!libraryAccessPolicy.isFolderAccessAllowed(file, username)) {
                 file.setPresent(false);
             }
         }

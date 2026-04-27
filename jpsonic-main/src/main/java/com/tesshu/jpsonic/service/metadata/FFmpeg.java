@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
+import static com.tesshu.jpsonic.infrastructure.filesystem.PathInspector.toIdentityName;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.awt.image.BufferedImage;
@@ -132,7 +132,9 @@ public class FFmpeg {
             }
         } catch (IOException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to create thumbnail({}): {}", getShortPath(path), e.getMessage());
+                LOG
+                    .warn("Failed to create thumbnail({}): {}", toIdentityName(path),
+                            e.getMessage());
             }
             return null;
         }

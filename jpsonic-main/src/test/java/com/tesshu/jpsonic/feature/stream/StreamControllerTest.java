@@ -60,6 +60,7 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -119,6 +120,7 @@ class StreamControllerTest {
     private static final String TEST_PATH = "/var/dummy";
 
     private SettingsFacade settingsFacade;
+    private LibraryAccessPolicy accessPolicy;
     private SecurityService securityService;
     private PlayerService playerService;
     private StreamService streamService;
@@ -137,6 +139,7 @@ class StreamControllerTest {
 
         settingsFacade = SettingsFacadeBuilder.create().build();
         securityService = mock(SecurityService.class);
+        accessPolicy = mock(LibraryAccessPolicy.class);
 
         User user = new User(player.getUsername(), player.getUsername(), "");
         when(securityService.getUserByName(player.getUsername())).thenReturn(user);
@@ -152,8 +155,8 @@ class StreamControllerTest {
         when(statusService.getStreamStatusesForPlayer(nullable(Player.class)))
             .thenReturn(Arrays.asList(transferStatus));
 
-        streamController = new StreamController(settingsFacade, securityService, playerService, ts,
-                statusService, ss);
+        streamController = new StreamController(settingsFacade, accessPolicy, securityService,
+                playerService, ts, statusService, ss);
 
         JWTAuthenticationToken token = new JWTAuthenticationToken(Collections.emptyList(),
                 ServiceMockUtils.ADMIN_NAME, null);
@@ -308,7 +311,7 @@ class StreamControllerTest {
             when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
 
             // No folder access permission
-            when(securityService.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
+            when(accessPolicy.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
                 .thenReturn(false);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))
@@ -321,7 +324,7 @@ class StreamControllerTest {
                 .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 
             // With folder access permission
-            when(securityService.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
+            when(accessPolicy.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
                 .thenReturn(true);
             mockMvc
                 .perform(MockMvcRequestBuilders.get(TEST_URL))

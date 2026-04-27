@@ -22,39 +22,22 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
-import com.tesshu.jpsonic.util.PathValidator;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 /**
  * Unit test of {@link SecurityService}.
@@ -65,19 +48,11 @@ import org.mockito.Mockito;
 class SecurityServiceTest {
 
     private SecurityService service;
-    private SettingsFacade settingsFacade;
-    private MusicFolderService musicFolderService;
 
     @BeforeEach
     void setup() {
-        settingsFacade = SettingsFacadeBuilder.create().build();
-        init();
-    }
-
-    @Ignore
-    void init() {
-        musicFolderService = mock(MusicFolderService.class);
-        service = new SecurityService(mock(UserDao.class), settingsFacade, musicFolderService);
+        MusicFolderService musicFolderService = mock(MusicFolderService.class);
+        service = new SecurityService(mock(UserDao.class), musicFolderService);
     }
 
     @Nested
@@ -225,192 +200,5 @@ class SecurityServiceTest {
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, smartphoneSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, smartphoneSettings.getFontSize());
         assertEquals(101, smartphoneSettings.getSystemAvatarId());
-    }
-
-    @Test
-    void testIsWriteAllowed() {
-        settingsFacade = SettingsFacadeBuilder
-            .create()
-            .withString(SKeys.podcast.folder, "")
-            .build();
-        init();
-        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(null));
-        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
-        assertFalse(service.isWriteAllowed(Path.of("")));
-        Mockito
-            .when(musicFolderService.getAllMusicFolders(false, true))
-            .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null, false)));
-        assertTrue(service.isWriteAllowed(Path.of("/test/cover.jpg")));
-    }
-
-    @Nested
-    class IsFileInFolderTest {
-
-        @Test
-        void testIsFileInFolder() {
-
-            /*
-             * The parameters of this function are not completely free strings. Any
-             * file/folder strings will be filtered to PathValidator#validateFolderPath.
-             * (Sub-paths with string patterns that cannot be registered in MusicFolder will
-             * not be generated during scanning.)
-             */
-            PathValidator.validateFolderPath("\\").ifPresent(folder -> Assertions.fail());
-            PathValidator.validateFolderPath("/").ifPresent(folder -> Assertions.fail());
-            PathValidator.validateFolderPath("\\music").ifPresent(folder -> Assertions.fail());
-            PathValidator.validateFolderPath("\\music\\").ifPresent(folder -> Assertions.fail());
-
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
-            assertFalse(service.isFileInFolder("", "/tmp"));
-            assertFalse(service.isFileInFolder("foo.mp3", "/tmp"));
-            assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp"));
-            assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp/music"));
-
-            // Test that references to the parent directory (..) is not allowed.
-            assertTrue(service.isFileInFolder("/music/foo..mp3", "/music"));
-            assertTrue(service.isFileInFolder("/music/foo..", "/music"));
-            assertTrue(service.isFileInFolder("/music/foo.../", "/music"));
-            assertFalse(service.isFileInFolder("/music/foo/..", "/music"));
-            assertFalse(service.isFileInFolder("../music/foo", "/music"));
-            assertFalse(service.isFileInFolder("/music/../foo", "/music"));
-            assertFalse(service.isFileInFolder("/music/../bar/../foo", "/music"));
-            assertFalse(service.isFileInFolder("/music\\foo\\..", "/music"));
-            assertFalse(service.isFileInFolder("..\\music/foo", "/music"));
-            assertFalse(service.isFileInFolder("/music\\../foo", "/music"));
-            assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
-
-            // Number of characters and number of layers
-            assertFalse(service.isFileInFolder("/musik/foo.mp3", "/music"));
-            assertFalse(service.isFileInFolder("/music/sub/sub.mp3", "/music/sub/sub/sub"));
-            assertFalse(service.isFileInFolder("/".concat("A".repeat(1001)), "/music"));
-        }
-
-        /*
-         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+
-         * appropriate+locale+when+ comparing+locale-dependent+data
-         */
-        @Test
-        void testIsFileInFolderSTR02J() {
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
-            assertTrue(service
-                .isFileInFolder("/\u0130\u0049/foo.mp3", // İI
-                        "/\u0069\u0131")); // iı
-        }
-
-        /*
-         * In the previous implementation, the pattern that misjudgment by startwith
-         * occurs.
-         */
-        @EnabledOnOs(OS.LINUX)
-        @Test
-        void testEmbeddedPathString4Linux() {
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
-            assertFalse(service.isFileInFolder("/music/foo.mp3", "/music2"));
-            assertFalse(service.isFileInFolder("/music2/foo.mp3", "/music"));
-            assertTrue(service.isFileInFolder("/music2/foo.mp3", "/music2"));
-        }
-
-        /*
-         * In the previous implementation, the pattern that misjudgment by startwith
-         * occurs.
-         */
-        @EnabledOnOs(OS.WINDOWS)
-        @Test
-        void testEmbeddedPathString4Win() {
-            assertTrue(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music"));
-            assertFalse(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music2"));
-            assertFalse(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music"));
-            assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music2"));
-        }
-    }
-
-    @Nested
-    class IsExcludedTest {
-
-        /**
-         * @deprecated This test verified that the media scanner correctly ignores
-         *             symbolic links to prevent directory traversal loops. The
-         *             implementation still behaves correctly, but modern UNIX-like
-         *             environments (including CI runners, containerized filesystems,
-         *             tmpfs, APFS, and overlayfs) increasingly restrict or forbid
-         *             creating symbolic links.
-         *
-         *             As a result, the test environment can no longer guarantee the
-         *             creation of a stable symlink, even though the scanner logic
-         *             itself remains valid.
-         *
-         *             In short: the feature is correct, but the test has become
-         *             non-portable.
-         */
-
-        @Deprecated
-        @Ignore
-        void testSymbolicLink(@TempDir Path tmpDir) throws IOException {
-            Path concrete = Files.createFile(Paths.get(tmpDir.toString(), "testSymbolic.txt"));
-            Path link = Files
-                .createSymbolicLink(Paths.get(tmpDir.toString(), "testSymbolicLink.txt"), concrete);
-
-            assertFalse(settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks));
-            assertFalse(service.isExcluded(concrete));
-            assertFalse(service.isExcluded(link));
-
-            settingsFacade = SettingsFacadeBuilder
-                .create()
-                .withBoolean(SKeys.musicFolder.exclusion.ignoreSymlinks, true)
-                .build();
-            assertFalse(service.isExcluded(concrete));
-            assertTrue(service.isExcluded(link));
-        }
-
-        @Test
-        void testNullName() {
-            assertTrue(service.isExcluded(Path.of("/", "")));
-        }
-
-        @Test
-        void testExcludePattern() throws IOException {
-            assertNull(settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString));
-            Path song = Path.of("foo.mp3");
-            assertFalse(service.isExcluded(song));
-
-            settingsFacade = SettingsFacadeBuilder
-                .create()
-                .withString(SKeys.musicFolder.exclusion.excludePatternString, "foo.flac")
-                .build();
-            init();
-            assertFalse(service.isExcluded(song));
-
-            settingsFacade = SettingsFacadeBuilder
-                .create()
-                .withString(SKeys.musicFolder.exclusion.excludePatternString, "foo.mp3")
-                .build();
-            init();
-            assertTrue(service.isExcluded(song));
-        }
-
-        @Test
-        void testFixedExcludePattern() throws IOException {
-            assertFalse(service.isExcluded(Path.of("foo.mp3")));
-            assertFalse(service.isExcluded(Path.of("..foo.mp3")));
-
-            assertTrue(service.isExcluded(Path.of("Thumbs.db")));
-
-            assertTrue(service.isExcluded(Path.of(".foo.mp3")));
-            assertTrue(service.isExcluded(Path.of("foo.mp3.")));
-            assertFalse(service.isExcluded(Path.of("foo.mp3․"))); // The end is not dot (one dot
-                                                                  // leader)
-            assertTrue(service.isExcluded(Path.of("If...")));
-            assertFalse(service.isExcluded(Path.of("If․․․"))); // The end is not dot (one dot
-                                                               // leader)
-            assertFalse(service.isExcluded(Path.of("If…"))); // The end is not dot (Horizontal
-                                                             // Ellipsis)
-            assertTrue(service.isExcluded(Path.of("._foo.mp3")));
-            assertTrue(service.isExcluded(Path.of(".SYNOPPSDB")));
-            assertTrue(service.isExcluded(Path.of(".DS_Store")));
-            assertTrue(service.isExcluded(Path.of("@eaDir")));
-            assertTrue(service.isExcluded(Path.of("@sharebin")));
-            assertTrue(service.isExcluded(Path.of("@tmp")));
-            assertTrue(service.isExcluded(Path.of(".SynologyWorkingDirectory")));
-        }
     }
 }

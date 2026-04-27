@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -48,7 +50,7 @@ import org.mockito.Mockito;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MediaFileServiceTest {
 
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private MediaFileDao mediaFileDao;
     private MediaFileService mediaFileService;
 
@@ -60,12 +62,13 @@ class MediaFileServiceTest {
             .withString(SKeys.general.extension.excludedCoverArt,
                     "AlbumArtSmall.jpg small.jpg large.jpg")
             .build();
-        securityService = mock(SecurityService.class);
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
         mediaFileDao = mock(MediaFileDao.class);
-        mediaFileService = new MediaFileService(settingsFacade, mock(MusicFolderService.class),
-                securityService, mock(MediaFileCache.class), mediaFileDao,
+        mediaFileService = new MediaFileService(settingsFacade,
+                new ScanningExclusionPolicy(settingsFacade), mock(MusicFolderService.class),
+                libraryAccessPolicy, mock(MediaFileCache.class), mediaFileDao,
                 mock(JpsonicComparators.class));
-        Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+        Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 
     @Nested
@@ -116,7 +119,9 @@ class MediaFileServiceTest {
         @DisabledOnOs(OS.LINUX)
         void testIsEmbeddedArtworkApplicableOnWin() throws ExecutionException, URISyntaxException {
 
-            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+            Mockito
+                .when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class)))
+                .thenReturn(true);
 
             // coverArt(Since it depends on NIO, it is OS dependent. That's the
             // specification.)
