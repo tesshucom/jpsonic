@@ -609,9 +609,9 @@ class TranscodingServiceTest {
         @Order(2)
         @Test
         void testCTI2() throws IOException {
-            Integer maxBitRate = null;
-            VideoTranscodingSettings videoTranscodingSettings = new VideoTranscodingSettings(640,
-                    480, 0, 120, false);
+            final Integer maxBitRate = null;
+            final VideoTranscodingSettings videoTranscodingSettings = new VideoTranscodingSettings(
+                    640, 480, 0, 120, false);
             MediaFile mediaFile = new MediaFile();
             mediaFile.setTitle("Title");
             mediaFile.setAlbumName("Album");
