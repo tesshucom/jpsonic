@@ -288,8 +288,6 @@ public class DownloadController {
             return;
         }
 
-        boolean coverEmbedded = false;
-
         writeLog("Starting to download", zipFileName, status.getPlayer());
         response.setContentType("application/x-download");
         response
@@ -301,6 +299,7 @@ public class DownloadController {
 
             out.setMethod(ZipOutputStream.STORED); // No compression.
 
+            boolean coverEmbedded = false;
             Set<MediaFile> filesToDownload = createFilesToDownload(indexes, files);
             for (MediaFile mediaFile : filesToDownload) {
                 zip(out, Path.of(mediaFile.getParentPathString()), mediaFile.toPath(), status,
@@ -359,7 +358,7 @@ public class DownloadController {
             long lastLimitCheck = 0;
 
             while (true) {
-                long before = Instant.now().toEpochMilli();
+                final long before = Instant.now().toEpochMilli();
                 int n = in.read(buf);
                 if (n == -1) {
                     break;

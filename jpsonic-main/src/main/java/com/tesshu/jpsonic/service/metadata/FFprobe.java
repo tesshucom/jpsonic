@@ -143,7 +143,7 @@ public class FFprobe {
     @SafeVarargs
     final MetaData parse(@NonNull Path path, Consumer<Long>... startTimeCallback) {
 
-        MetaData result = new MetaData();
+        final MetaData result = new MetaData();
 
         ProcessBuilder pb = new ProcessBuilder();
         pb
