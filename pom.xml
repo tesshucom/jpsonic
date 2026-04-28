@@ -45,7 +45,8 @@
     <versions.ecj>3.45.0</versions.ecj>
     <versions.ehcache>2.6.11</versions.ehcache>
     <versions.hsqldb>2.7.4</versions.hsqldb>
-    <versions.httpclient5>5.5.1</versions.httpclient5>
+    <versions.httpclient5>5.6.1</versions.httpclient5>
+    <versions.httpcore5>5.4.2</versions.httpcore5>
     <versions.icu4j>78.3</versions.icu4j>
     <versions.jakarta.servlet-api>6.1.0</versions.jakarta.servlet-api>
     <versions.jakarta.servlet.jsp-api>4.0.0</versions.jakarta.servlet.jsp-api>
@@ -593,6 +594,11 @@
         <artifactId>httpclient5</artifactId>
         <version>${versions.httpclient5}</version>
       </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
+        <version>${versions.httpcore5}</version>
+    </dependency>
 
       <dependency>
         <groupId>org.jfree</groupId>
