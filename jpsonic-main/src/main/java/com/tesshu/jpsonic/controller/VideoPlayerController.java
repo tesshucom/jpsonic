@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,17 +62,17 @@ public class VideoPlayerController {
 
     private final SettingsFacade settingsFacade;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
     public VideoPlayerController(SettingsFacade settingsFacade,
-            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             MediaFileService mediaFileService, PlayerService playerService) {
         super();
         this.settingsFacade = settingsFacade;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
     }
@@ -87,12 +87,12 @@ public class VideoPlayerController {
         MediaFile file = mediaFileService.getMediaFileStrict(id);
         MediaFile parentDir = mediaFileService.getParentOf(file);
 
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         if (parentDir != null && !libraryAccessPolicy.isFolderAccessAllowed(parentDir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         mediaFileService.populateStarredDate(file, user.getUsername());
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
@@ -100,12 +100,12 @@ public class VideoPlayerController {
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId
                 + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", parentDir);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(user.getUsername()));
+        map.put("selectedMusicFolder", userService.getSelectedMusicFolder(user.getUsername()));
         map.put("video", file);
         map.put("streamUrl", streamUrl);
         map.put("remoteStreamUrl", streamUrl);

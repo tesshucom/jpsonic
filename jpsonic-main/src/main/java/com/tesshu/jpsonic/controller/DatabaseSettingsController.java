@@ -27,8 +27,8 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,16 +46,15 @@ import org.springframework.web.servlet.view.RedirectView;
 public class DatabaseSettingsController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public DatabaseSettingsController(SettingsFacade settingsFacade,
-            SecurityService securityService, ShareService shareService,
-            OutlineHelpSelector outlineHelpSelector) {
+    public DatabaseSettingsController(SettingsFacade settingsFacade, UserService userService,
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
@@ -81,7 +80,7 @@ public class DatabaseSettingsController {
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command.setShareCount(shareService.getAllShares().size());
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);

@@ -47,12 +47,12 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class SecurityServiceTest {
 
-    private SecurityService service;
+    private UserService userService;
 
     @BeforeEach
     void setup() {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        service = new SecurityService(mock(UserDao.class), musicFolderService);
+        userService = new UserService(mock(UserDao.class), musicFolderService);
     }
 
     @Nested
@@ -60,12 +60,12 @@ class SecurityServiceTest {
 
         @Test
         void testLanguageAndTheme() throws ExecutionException {
-            assertEquals("DEFAULT", service.getUserSettings("").getFontSchemeName());
+            assertEquals("DEFAULT", userService.getUserSettings("").getFontSchemeName());
         }
 
         @Test
         void testSettings4DesktopPC() throws ExecutionException {
-            UserSettings userSettings = service.getUserSettings("");
+            UserSettings userSettings = userService.getUserSettings("");
             assertTrue(userSettings.isKeyboardShortcutsEnabled());
             assertEquals(AlbumListType.RANDOM, userSettings.getDefaultAlbumList());
             assertFalse(userSettings.isPutMenuInDrawer());
@@ -95,7 +95,7 @@ class SecurityServiceTest {
 
         @Test
         void testDisplay() throws Exception {
-            UserSettings userSettings = service.getUserSettings("");
+            UserSettings userSettings = userService.getUserSettings("");
             assertTrue(userSettings.getMainVisibility().isTrackNumberVisible());
             assertTrue(userSettings.getMainVisibility().isArtistVisible());
             assertFalse(userSettings.getMainVisibility().isAlbumVisible());
@@ -121,7 +121,7 @@ class SecurityServiceTest {
 
         @Test
         void testAdditionalDisplay() throws ExecutionException {
-            UserSettings userSettings = service.getUserSettings("");
+            UserSettings userSettings = userService.getUserSettings("");
             assertFalse(userSettings.isNowPlayingAllowed());
             assertFalse(userSettings.isShowArtistInfoEnabled());
             assertFalse(userSettings.isForceBio2Eng());
@@ -144,7 +144,7 @@ class SecurityServiceTest {
 
     @Test
     void testCreateDefaultTabletUserSettings() {
-        UserSettings tabletSettings = service.createDefaultTabletUserSettings("");
+        UserSettings tabletSettings = userService.createDefaultTabletUserSettings("");
         assertFalse(tabletSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.RANDOM, tabletSettings.getDefaultAlbumList());
         assertFalse(tabletSettings.isPutMenuInDrawer());
@@ -174,7 +174,7 @@ class SecurityServiceTest {
 
     @Test
     void testCreateDefaultSmartphoneUserSettings() {
-        UserSettings smartphoneSettings = service.createDefaultSmartphoneUserSettings("");
+        UserSettings smartphoneSettings = userService.createDefaultSmartphoneUserSettings("");
         assertFalse(smartphoneSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.INDEX, smartphoneSettings.getDefaultAlbumList());
         assertTrue(smartphoneSettings.isPutMenuInDrawer());

@@ -52,9 +52,9 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,20 +86,20 @@ public class DownloadController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlaylistService playlistService;
     private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
 
     public DownloadController(PlayerService playerService, StatusService statusService,
-            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             PlaylistService playlistService, SettingsFacade settingsFacade,
             MediaFileService mediaFileService) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playlistService = playlistService;
         this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
@@ -124,7 +124,7 @@ public class DownloadController {
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         TransferStatus status = null;
         try {
 
@@ -184,7 +184,7 @@ public class DownloadController {
         } finally {
             if (status != null) {
                 statusService.removeDownloadStatus(status);
-                securityService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
+                userService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
             }
         }
     }

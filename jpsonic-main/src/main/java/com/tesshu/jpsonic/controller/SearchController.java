@@ -33,7 +33,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
@@ -62,18 +62,18 @@ public class SearchController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final SearchService searchService;
     private final HttpSearchCriteriaDirector director;
 
     public SearchController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService,
-            SearchService searchService, HttpSearchCriteriaDirector director) {
+            UserService userService, PlayerService playerService, SearchService searchService,
+            HttpSearchCriteriaDirector director) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.searchService = searchService;
         this.director = director;
@@ -94,8 +94,8 @@ public class SearchController {
             @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command)
             throws ServletRequestBindingException, IOException {
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setUser(user);
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setComposerVisible(userSettings.getMainVisibility().isComposerVisible());

@@ -53,15 +53,15 @@ public class ShareService {
     private static final Logger LOG = LoggerFactory.getLogger(ShareService.class);
 
     private final ShareDao shareDao;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final JWTSecurityService jwtSecurityService;
 
-    public ShareService(ShareDao shareDao, SecurityService securityService,
+    public ShareService(ShareDao shareDao, UserService userService,
             MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
         super();
         this.shareDao = shareDao;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.jwtSecurityService = jwtSecurityService;
     }
@@ -115,7 +115,7 @@ public class ShareService {
         Share share = new Share();
         share.setName(random);
         share.setCreated(now());
-        share.setUsername(securityService.getCurrentUsername(request));
+        share.setUsername(userService.getCurrentUsername(request));
         share.setExpires(now().plus(365, ChronoUnit.DAYS));
         shareDao.createShare(share);
         for (MediaFile file : files) {

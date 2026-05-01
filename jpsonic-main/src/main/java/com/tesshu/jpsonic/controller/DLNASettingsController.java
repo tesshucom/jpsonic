@@ -52,10 +52,10 @@ import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
@@ -88,7 +88,7 @@ public class DLNASettingsController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final UPnPService upnpService;
@@ -97,14 +97,14 @@ public class DLNASettingsController {
     private final OutlineHelpSelector outlineHelpSelector;
 
     public DLNASettingsController(SettingsFacade settingsFacade,
-            MusicFolderService musicFolderService, SecurityService securityService,
+            MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, TranscodingService transcodingService,
             UPnPService upnpService, ShareService shareService, MenuItemService menuItemService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
         this.upnpService = upnpService;
@@ -129,7 +129,7 @@ public class DLNASettingsController {
         command.setDlnaServerName(settingsFacade.get(UPnPSKeys.basic.serverName));
         command.setDlnaBaseLANURL(settingsFacade.get(UPnPSKeys.basic.baseLanUrl));
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
-        User guestUser = securityService.getGuestUser();
+        User guestUser = userService.getGuestUser();
         command
             .setAllowedMusicFolderIds(musicFolderService
                 .getMusicFoldersForUser(guestUser.getUsername())
@@ -194,8 +194,8 @@ public class DLNASettingsController {
                     UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod)));
 
         // for view page control
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
@@ -284,9 +284,9 @@ public class DLNASettingsController {
          */
 
         // UPnP basic settings
-        User guestUser = securityService.getGuestUser();
+        User guestUser = userService.getGuestUser();
         musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
-        UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
+        UserSettings userSettings = userService.getUserSettings(guestUser.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(now());
         Player guestPlayer = playerService.getUPnPPlayer();

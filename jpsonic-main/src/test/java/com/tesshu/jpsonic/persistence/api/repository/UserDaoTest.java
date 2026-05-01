@@ -38,7 +38,7 @@ import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -201,7 +201,7 @@ class UserDaoTest {
     @Test
     void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null);
+        UserService mockService = new UserService(Mockito.mock(UserDao.class), null);
         UserSettings userSettings = mockService.getUserSettings("sindre");
         Assertions
             .assertThrows(DataIntegrityViolationException.class,
@@ -213,7 +213,7 @@ class UserDaoTest {
         userDao.createUser(new User("sindre", "secret", null));
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
 
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null);
+        UserService mockService = new UserService(Mockito.mock(UserDao.class), null);
         userDao.updateUserSettings(mockService.getUserSettings("sindre"));
 
         UserSettings userSettings = userDao.getUserSettings("sindre");

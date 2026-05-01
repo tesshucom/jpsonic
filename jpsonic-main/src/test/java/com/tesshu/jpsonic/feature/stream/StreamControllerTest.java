@@ -76,13 +76,13 @@ import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.ServletException;
@@ -121,7 +121,7 @@ class StreamControllerTest {
 
     private SettingsFacade settingsFacade;
     private LibraryAccessPolicy accessPolicy;
-    private SecurityService securityService;
+    private UserService userService;
     private PlayerService playerService;
     private StreamService streamService;
     private StatusService statusService;
@@ -138,11 +138,11 @@ class StreamControllerTest {
         this.streamService = ss;
 
         settingsFacade = SettingsFacadeBuilder.create().build();
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         accessPolicy = mock(LibraryAccessPolicy.class);
 
         User user = new User(player.getUsername(), player.getUsername(), "");
-        when(securityService.getUserByName(player.getUsername())).thenReturn(user);
+        when(userService.getUserByName(player.getUsername())).thenReturn(user);
         playerService = mock(PlayerService.class);
         when(playerService.getPlayer(any(), any(), anyBoolean(), anyBoolean())).thenReturn(player);
 
@@ -155,7 +155,7 @@ class StreamControllerTest {
         when(statusService.getStreamStatusesForPlayer(nullable(Player.class)))
             .thenReturn(Arrays.asList(transferStatus));
 
-        streamController = new StreamController(settingsFacade, accessPolicy, securityService,
+        streamController = new StreamController(settingsFacade, accessPolicy, userService,
                 playerService, ts, statusService, ss);
 
         JWTAuthenticationToken token = new JWTAuthenticationToken(Collections.emptyList(),
@@ -197,7 +197,7 @@ class StreamControllerTest {
         // no stream role
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
         user.setStreamRole(false);
-        when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+        when(userService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -215,7 +215,7 @@ class StreamControllerTest {
 
         // no-jwt with stream role
         user.setStreamRole(true);
-        when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+        when(userService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
         mockMvc
             .perform(MockMvcRequestBuilders.get(TEST_URL))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -308,7 +308,7 @@ class StreamControllerTest {
             SecurityContextHolder.getContext().setAuthentication(null);
             User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
             user.setStreamRole(true);
-            when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+            when(userService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
 
             // No folder access permission
             when(accessPolicy.isFolderAccessAllowed(any(MediaFile.class), any(String.class)))
@@ -875,7 +875,7 @@ class StreamControllerTest {
             if (isAnonymous) {
                 User user = new User(JWTAuthenticationToken.USERNAME_ANONYMOUS,
                         JWTAuthenticationToken.USERNAME_ANONYMOUS, "");
-                when(securityService.getUserByName(JWTAuthenticationToken.USERNAME_ANONYMOUS))
+                when(userService.getUserByName(JWTAuthenticationToken.USERNAME_ANONYMOUS))
                     .thenReturn(user);
                 when(subnet.isInUPnPRange(nullable(String.class))).thenReturn(true);
                 when(playerService.getGuestPlayer(nullable(HttpServletRequest.class)))
@@ -888,11 +888,10 @@ class StreamControllerTest {
                     : Collections.emptyList();
             when(transcodingDao.getTranscodingsForPlayer(anyInt())).thenReturn(allTranscodings);
 
-            TranscodingService ts = new TranscodingService(settingsFacade, securityService, subnet,
+            TranscodingService ts = new TranscodingService(settingsFacade, userService, subnet,
                     transcodingDao, playerService, null);
-            StreamService ss = new StreamService(statusService, null, securityService,
-                    settingsFacade, ts, null, mediaFileService,
-                    mock(WritableMediaFileService.class), null, null);
+            StreamService ss = new StreamService(statusService, null, userService, settingsFacade,
+                    ts, null, mediaFileService, mock(WritableMediaFileService.class), null, null);
             initMocks(player, ts, ss);
         }
 

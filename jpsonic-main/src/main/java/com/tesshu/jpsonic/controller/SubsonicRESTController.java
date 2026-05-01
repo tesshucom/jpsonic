@@ -86,11 +86,11 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.PlayStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
@@ -194,7 +194,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     private final ServerLocaleService serverLocaleService;
     private final MusicFolderService musicFolderService;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
@@ -230,7 +230,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
     public SubsonicRESTController(SettingsFacade settingsFacade,
             ServerLocaleService serverLocaleService, MusicFolderService musicFolderService,
-            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             PlayerService playerService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, LastFmService lastFmService,
             MusicIndexService musicIndexService, TranscodingService transcodingService,
@@ -250,7 +250,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         this.serverLocaleService = serverLocaleService;
         this.musicFolderService = musicFolderService;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
@@ -323,7 +323,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
 
         MusicFolders musicFolders = new MusicFolders();
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         for (com.tesshu.jpsonic.persistence.api.entity.MusicFolder musicFolder : musicFolderService
             .getMusicFoldersForUser(user.getUsername())) {
             org.subsonic.restapi.MusicFolder mf = new org.subsonic.restapi.MusicFolder();
@@ -350,7 +350,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUserStrict(request).getUsername();
+        String username = userService.getCurrentUserStrict(request).getUsername();
         Indexes indexes = new Indexes();
         indexes.setLastModified(lastModified);
         indexes.setIgnoredArticles(settingsFacade.get(SKeys.general.index.ignoredArticles));
@@ -437,7 +437,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         Songs songs = new Songs();
 
@@ -467,7 +467,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     @RequestMapping({ "/getArtists", "/getArtists.view" })
     public void getArtists(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         ArtistsID3 result = new ArtistsID3();
         result.setIgnoredArticles(settingsFacade.get(SKeys.general.index.ignoredArticles));
@@ -507,7 +507,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs result = new SimilarSongs();
@@ -539,7 +539,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs2 result = new SimilarSongs2();
@@ -560,7 +560,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getTopSongs(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         String artist = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.ARTIST.value());
@@ -601,7 +601,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         ArtistInfo result = new ArtistInfo();
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
         List<MediaFile> similarArtists = lastFmService
@@ -610,7 +610,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             result.getSimilarArtist().add(createJaxbArtist(similarArtist, user.getUsername()));
         }
 
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
                 : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
@@ -646,7 +646,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         boolean includeNotPresent = ServletRequestUtils
             .getBooleanParameter(request, Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
         ArtistInfo2 result = new ArtistInfo2();
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
         List<com.tesshu.jpsonic.persistence.api.entity.Artist> similarArtists = lastFmService
@@ -657,7 +657,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 .add(createJaxbArtist(new ArtistID3(), similarArtist, user.getUsername()));
         }
 
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
                 : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(artist, locale);
@@ -711,7 +711,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username);
@@ -783,7 +783,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         AlbumWithSongsID3 result = createJaxbAlbum(new AlbumWithSongsID3(), album, username);
         for (MediaFile mediaFile : mediaFileDao
             .getSongsForAlbum(0L, Integer.MAX_VALUE, album.getArtist(), album.getName())) {
@@ -808,7 +808,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (!libraryAccessPolicy.isFolderAccessAllowed(song, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
@@ -832,7 +832,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (!libraryAccessPolicy.isFolderAccessAllowed(dir, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
@@ -900,10 +900,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
             .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
-                || securityService
+                || userService
                     .getUserSettings(user.getUsername())
                     .getMainVisibility()
                     .isComposerVisible();
@@ -932,7 +932,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void search2(HttpServletRequest req, HttpServletResponse response)
             throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -946,10 +946,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
-                || securityService
-                    .getUserSettings(username)
-                    .getMainVisibility()
-                    .isComposerVisible();
+                || userService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username, musicFolderId);
 
@@ -993,7 +990,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void search3(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -1007,10 +1004,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
-                || securityService
-                    .getUserSettings(username)
-                    .getMainVisibility()
-                    .isComposerVisible();
+                || userService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username, musicFolderId);
 
@@ -1055,7 +1049,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getPlaylists(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String authenticatedUsername = user.getUsername();
         String requestedUsername = request.getParameter(Attributes.Request.USER_NAME.value());
 
@@ -1094,7 +1088,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (!playlistService.isReadAllowed(playlist, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
@@ -1133,7 +1127,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         com.tesshu.jpsonic.persistence.api.entity.Playlist playlist;
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (playlistId == null) {
             playlist = new com.tesshu.jpsonic.persistence.api.entity.Playlist();
             playlist.setName(name);
@@ -1184,7 +1178,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
@@ -1254,7 +1248,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
@@ -1268,7 +1262,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getAlbumList(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, ExecutionException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         int size = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.SIZE.value(), 10);
@@ -1343,7 +1337,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         size = Math.max(0, Math.min(size, 500));
         String type = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.TYPE.value());
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         Integer musicFolderId = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
@@ -1377,7 +1371,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         } else if ("starred".equals(type)) {
             albums = albumDao
                 .getStarredAlbums(offset, size,
-                        securityService.getCurrentUserStrict(request).getUsername(), musicFolders);
+                        userService.getCurrentUserStrict(request).getUsername(), musicFolders);
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbumsId3(size, musicFolders);
         } else {
@@ -1397,7 +1391,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         int size = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.SIZE.value(), 10);
@@ -1433,7 +1427,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         int size = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
@@ -1465,7 +1459,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 continue;
             }
 
-            UserSettings userSettings = securityService.getUserSettings(username);
+            UserSettings userSettings = userService.getUserSettings(username);
             if (!userSettings.isNowPlayingAllowed()) {
                 continue;
             }
@@ -1620,7 +1614,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void download(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isDownloadRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to download files.");
@@ -1646,7 +1640,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void stream(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isStreamRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to play files.");
@@ -1660,7 +1654,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void hls(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isStreamRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to play files.");
@@ -1708,7 +1702,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             Instant time = times.length == 0 ? now() : Instant.ofEpochMilli(times[i]);
             statusService.addRemotePlay(new PlayStatus(file, player, time));
             writableMediaFileService.incrementPlayCount(file);
-            if (securityService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
+            if (userService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
                 audioScrobblerService.register(file, player.getUsername(), submission, time);
             }
         }
@@ -1730,7 +1724,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     private void starOrUnstar(HttpServletRequest req, HttpServletResponse response, boolean star) {
         HttpServletRequest request = wrapRequest(req);
 
-        String username = securityService.getCurrentUserStrict(request).getUsername();
+        String username = userService.getCurrentUserStrict(request).getUsername();
         for (int id : ServletRequestUtils
             .getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileDao.getMediaFile(id);
@@ -1777,7 +1771,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -1807,7 +1801,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -1837,7 +1831,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         boolean includeEpisodes = ServletRequestUtils
             .getBooleanParameter(request, Attributes.Request.INCLUDE_EPISODES.value(), true);
         Integer channelId = ServletRequestUtils
@@ -1880,7 +1874,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
 
         int count = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.COUNT.value(), 20);
@@ -1928,7 +1922,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -1948,7 +1942,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -1965,7 +1959,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -1982,7 +1976,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -2005,7 +1999,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -2049,7 +2043,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         Bookmarks result = new Bookmarks();
         for (Bookmark bookmark : bookmarkService.getBookmarks(user.getUsername())) {
@@ -2076,7 +2070,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void createBookmark(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         int mediaFileId = ServletRequestUtils
             .getRequiredIntParameter(request, Attributes.Request.ID.value());
         long position = ServletRequestUtils
@@ -2094,7 +2088,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         int mediaFileId = ServletRequestUtils
             .getRequiredIntParameter(request, Attributes.Request.ID.value());
         bookmarkService.deleteBookmark(username, mediaFileId);
@@ -2107,7 +2101,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getPlayQueue(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         SavedPlayQueue playQueue = playQueueDao.getPlayQueue(username);
         if (playQueue == null) {
             writeEmptyResponse(request, response);
@@ -2149,7 +2143,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         Long position = ServletRequestUtils
             .getLongParameter(request, Attributes.Request.POSITION.value());
         Instant changed = now();
@@ -2167,7 +2161,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
 
@@ -2190,7 +2184,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void createShare(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isShareRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to share media.");
@@ -2218,7 +2212,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         result.getShare().add(s);
 
         Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (username == null) {
             writeError(request, response, ErrorCode.NOT_AUTHENTICATED, "Wrong username.");
         }
@@ -2246,7 +2240,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not authorized to delete shared media.");
@@ -2270,7 +2264,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not authorized to modify shared media.");
@@ -2319,7 +2313,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        User authUser = securityService.getCurrentUserStrict(request);
+        User authUser = userService.getCurrentUserStrict(request);
         String username = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         boolean allowed = authUser.isAdminRole()
@@ -2330,14 +2324,14 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        User user = securityService.getUserByName(username);
+        User user = userService.getUserByName(username);
         if (user == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         }
         String newPass = decrypt(ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
-        securityService.updatePassword(user, newPass, user.isLdapAuthenticated());
+        userService.updatePassword(user, newPass, user.isLdapAuthenticated());
         writeEmptyResponse(request, response);
     }
 
@@ -2349,14 +2343,14 @@ public class SubsonicRESTController implements CoverArtPresentation {
         String username = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
 
-        User currentUser = securityService.getCurrentUserStrict(request);
+        User currentUser = userService.getCurrentUserStrict(request);
         if (!username.equals(currentUser.getUsername()) && !currentUser.isAdminRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername()
                     + " is not authorized to get details for other users.");
             return;
         }
 
-        User requestedUser = securityService.getUserByName(username);
+        User requestedUser = userService.getUserByName(username);
         if (requestedUser == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
@@ -2371,7 +2365,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getUsers(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
-        User currentUser = securityService.getCurrentUserStrict(request);
+        User currentUser = userService.getCurrentUserStrict(request);
         if (!currentUser.isAdminRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername()
                     + " is not authorized to get details for other users.");
@@ -2379,7 +2373,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
 
         Users result = new Users();
-        for (User user : securityService.getAllUsers()) {
+        for (User user : userService.getAllUsers()) {
             result.getUser().add(createJaxbUser(user));
         }
 
@@ -2389,7 +2383,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     private org.subsonic.restapi.User createJaxbUser(User user) {
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
         org.subsonic.restapi.User result = new org.subsonic.restapi.User();
         result.setUsername(user.getUsername());
@@ -2428,7 +2422,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void createUser(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isAdminRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to create new users.");
@@ -2496,7 +2490,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isAdminRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to update users.");
@@ -2505,7 +2499,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         String username = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
-        User u = securityService.getUserByName(username);
+        User u = userService.getUserByName(username);
         if (u == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
@@ -2513,7 +2507,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not allowed to change own user");
             return;
-        } else if (securityService.isAdmin(username)) {
+        } else if (userService.isAdmin(username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not allowed to change admin user");
             return;
@@ -2565,7 +2559,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 .getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(),
                         u.isShareRole()));
 
-        UserSettings s = securityService.getUserSettings(username);
+        UserSettings s = userService.getUserSettings(username);
         int maxBitRate = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
                     s.getTranscodeScheme().getMaxBitRate());
@@ -2602,7 +2596,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void deleteUser(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (!user.isAdminRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     user.getUsername() + " is not authorized to delete users.");
@@ -2611,7 +2605,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
 
         String username = ServletRequestUtils
             .getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
-        User u = securityService.getUserByName(username);
+        User u = userService.getUserByName(username);
 
         if (u == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
@@ -2620,13 +2614,13 @@ public class SubsonicRESTController implements CoverArtPresentation {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not allowed to delete own user");
             return;
-        } else if (securityService.isAdmin(username)) {
+        } else if (userService.isAdmin(username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED,
                     "Not allowed to delete admin user");
             return;
         }
 
-        securityService.deleteUser(username);
+        userService.deleteUser(username);
 
         writeEmptyResponse(request, response);
     }
@@ -2679,7 +2673,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
 
         writeEmptyResponse(request, response);

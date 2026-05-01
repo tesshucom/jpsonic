@@ -34,8 +34,8 @@ import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
 import com.tesshu.jpsonic.service.scanner.FileMetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
@@ -83,7 +83,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     protected MusicFolderServiceImpl musicFolderService;
     @Autowired
-    protected SecurityService securityService;
+    protected UserService userService;
     @Autowired
     private ScannerStateServiceImpl scannerStateService;
     @Autowired

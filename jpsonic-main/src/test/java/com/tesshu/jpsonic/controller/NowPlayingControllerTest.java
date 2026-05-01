@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,9 +63,8 @@ class NowPlayingControllerTest {
         statusService = mock(StatusService.class);
         mediaFileService = mock(MediaFileService.class);
         libraryAccessPolicy = mock(LibraryAccessPolicy.class);
-        SecurityService securityService = mock(SecurityService.class);
         controller = new NowPlayingController(playerService, statusService, mediaFileService,
-                libraryAccessPolicy, securityService);
+                libraryAccessPolicy);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

@@ -42,7 +42,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,7 +60,7 @@ public class PlaylistService {
 
     private final MusicFolderService musicFolderService;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final com.tesshu.jpsonic.service.PlaylistService deligate;
     private final MediaFileDao mediaFileDao;
@@ -69,7 +69,7 @@ public class PlaylistService {
     private final AjaxHelper ajaxHelper;
 
     public PlaylistService(MusicFolderService musicFolderService,
-            LibraryAccessPolicy libraryAccessPolicy, SecurityService securityService,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             MediaFileService mediaFileService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
             MediaFileDao mediaFileDao, PlayerService playerService,
@@ -77,7 +77,7 @@ public class PlaylistService {
         super();
         this.musicFolderService = musicFolderService;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.deligate = deligate;
         this.mediaFileDao = mediaFileDao;
@@ -88,13 +88,13 @@ public class PlaylistService {
 
     public List<Playlist> getReadablePlaylists() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         return deligate.getReadablePlaylistsForUser(username);
     }
 
     public List<Playlist> getWritablePlaylists() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         return deligate.getWritablePlaylistsForUser(username);
     }
 
@@ -115,7 +115,7 @@ public class PlaylistService {
 
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         mediaFileService.populateStarredDate(files, username);
         populateAccess(files, username);
         return new PlaylistInfo(playlist, createEntries(files));
@@ -137,7 +137,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        playlist.setUsername(securityService.getCurrentUsername(request));
+        playlist.setUsername(userService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
@@ -155,7 +155,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        playlist.setUsername(securityService.getCurrentUsername(request));
+        playlist.setUsername(userService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
@@ -175,7 +175,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         playlist.setUsername(username);
         playlist.setCreated(now);
         playlist.setChanged(now);
@@ -222,7 +222,7 @@ public class PlaylistService {
 
     public PlaylistInfo toggleStar(int id, int index) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile file = files.get(index);
 

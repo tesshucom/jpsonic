@@ -112,7 +112,7 @@ class TranscodingServiceTest {
     private PlayerService playerService;
     private TranscodingDao transcodingDao;
     private static ExecutorService executor;
-    private SecurityService securityService;
+    private UserService userService;
 
     @BeforeAll
     static void beforeAll() {
@@ -133,17 +133,17 @@ class TranscodingServiceTest {
                 .toURI())
             .toString();
         transcodingDao = mock(TranscodingDao.class);
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         Mockito
-            .when(securityService.getUserSettings(Mockito.nullable(String.class)))
+            .when(userService.getUserSettings(Mockito.nullable(String.class)))
             .thenReturn(new UserSettings());
         SettingsFacade settingsFacade = mock(SettingsFacade.class);
-        transcodingService = new TranscodingService(settingsFacade, securityService,
+        transcodingService = new TranscodingService(settingsFacade, userService,
                 mock(UPnPSubnet.class), transcodingDao, playerService, executor);
         playerDao = mock(PlayerDao.class);
-        playerService = new PlayerService(playerDao, null, securityService, transcodingService);
+        playerService = new PlayerService(playerDao, null, userService, transcodingService);
         // for lazy
-        transcodingService = new TranscodingService(settingsFacade, securityService,
+        transcodingService = new TranscodingService(settingsFacade, userService,
                 mock(UPnPSubnet.class), transcodingDao, playerService, executor);
     }
 
@@ -243,9 +243,7 @@ class TranscodingServiceTest {
             player.setUsername("setTranscodingsTest");
             UserSettings settings = new UserSettings();
             settings.setTranscodeScheme(TranscodeScheme.MAX_256);
-            Mockito
-                .when(securityService.getUserSettings(player.getUsername()))
-                .thenReturn(settings);
+            Mockito.when(userService.getUserSettings(player.getUsername())).thenReturn(settings);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
@@ -269,7 +267,7 @@ class TranscodingServiceTest {
             player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
             UserSettings settings = new UserSettings();
             settings.setTranscodeScheme(TranscodeScheme.MAX_128);
-            Mockito.when(securityService.getUserSettings(User.USERNAME_GUEST)).thenReturn(settings);
+            Mockito.when(userService.getUserSettings(User.USERNAME_GUEST)).thenReturn(settings);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
@@ -1076,7 +1074,7 @@ class TranscodingServiceTest {
             Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
             UserSettings userSettings = new UserSettings();
             userSettings.setTranscodeScheme(TranscodeScheme.OFF);
-            Mockito.when(securityService.getUserSettings(username)).thenReturn(userSettings);
+            Mockito.when(userService.getUserSettings(username)).thenReturn(userSettings);
             List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
             Mockito
                 .when(transcodingDao.getTranscodingsForPlayer(player.getId()))

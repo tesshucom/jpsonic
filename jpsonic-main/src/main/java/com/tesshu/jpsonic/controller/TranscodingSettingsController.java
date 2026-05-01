@@ -29,9 +29,9 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -56,17 +56,17 @@ import org.springframework.web.servlet.view.RedirectView;
 public class TranscodingSettingsController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public TranscodingSettingsController(SettingsFacade settingsFacade,
-            SecurityService securityService, TranscodingService transcodingService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+    public TranscodingSettingsController(SettingsFacade settingsFacade, UserService userService,
+            TranscodingService transcodingService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -75,8 +75,8 @@ public class TranscodingSettingsController {
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
         model
             .addAttribute("model", LegacyMap

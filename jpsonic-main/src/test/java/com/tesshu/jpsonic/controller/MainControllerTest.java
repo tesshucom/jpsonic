@@ -38,8 +38,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,11 +65,11 @@ class MainControllerTest {
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException {
         libraryAccessPolicy = mock(LibraryAccessPolicy.class);
-        SecurityService securityService = mock(SecurityService.class);
+        UserService userService = mock(UserService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         MainController controller = new MainController(settingsFacade, libraryAccessPolicy,
-                securityService, mock(JpsonicComparators.class), mock(RatingService.class),
+                userService, mock(JpsonicComparators.class), mock(RatingService.class),
                 mediaFileService, mock(ViewAsListSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 

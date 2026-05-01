@@ -47,9 +47,9 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -86,19 +86,18 @@ public class UploadController {
     private static final String NOT_ALLOWED_MSG = "The root path is other than the Musicfolder, or the file already exists: ";
 
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsFacade settingsFacade;
     private final ScannerStateService scannerStateService;
 
-    public UploadController(LibraryAccessPolicy libraryAccessPolicy,
-            SecurityService securityService, PlayerService playerService,
-            StatusService statusService, SettingsFacade settingsFacade,
+    public UploadController(LibraryAccessPolicy libraryAccessPolicy, UserService userService,
+            PlayerService playerService, StatusService statusService, SettingsFacade settingsFacade,
             ScannerStateService scannerStateService) {
         super();
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsFacade = settingsFacade;
@@ -189,8 +188,8 @@ public class UploadController {
         if (status != null) {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
-            User user = securityService.getCurrentUserStrict(request);
-            securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
+            User user = userService.getCurrentUserStrict(request);
+            userService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
 

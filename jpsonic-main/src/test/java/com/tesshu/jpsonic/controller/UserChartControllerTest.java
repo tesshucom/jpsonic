@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ class UserChartControllerTest {
     @BeforeEach
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new UserChartController(mock(SecurityService.class), fontLoader))
+            .standaloneSetup(new UserChartController(mock(UserService.class), fontLoader))
             .build();
     }
 

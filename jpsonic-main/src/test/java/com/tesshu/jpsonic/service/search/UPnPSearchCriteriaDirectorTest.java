@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import org.junit.Ignore;
@@ -270,8 +270,8 @@ public class UPnPSearchCriteriaDirectorTest {
         path = path.trim();
         fid = fid.trim();
 
-        util = new UpnpProcessorUtil(musicFolderService, mock(SecurityService.class),
-                settingsFacade, null);
+        util = new UpnpProcessorUtil(musicFolderService, mock(UserService.class), settingsFacade,
+                null);
         director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
                 util.getGuestFolders(),
                 new QueryFactory(settingsFacade, new AnalyzerFactory(settingsFacade)));

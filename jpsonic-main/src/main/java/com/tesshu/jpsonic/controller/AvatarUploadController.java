@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
@@ -53,12 +53,12 @@ public class AvatarUploadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final AvatarService avatarService;
 
-    public AvatarUploadController(SecurityService securityService, AvatarService avatarService) {
+    public AvatarUploadController(UserService userService, AvatarService avatarService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.avatarService = avatarService;
     }
 
@@ -73,7 +73,7 @@ public class AvatarUploadController {
             throw new IllegalArgumentException("Illegal request.");
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
 
         FileItemFactory factory = DiskFileItemFactory.builder().get();
         JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);

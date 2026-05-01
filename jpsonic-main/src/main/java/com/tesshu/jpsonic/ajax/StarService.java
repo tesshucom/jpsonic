@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.ajax;
 
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -36,14 +36,13 @@ import org.springframework.stereotype.Service;
 @Service("ajaxStarService")
 public class StarService {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileDao mediaFileDao;
     private final AjaxHelper ajaxHelper;
 
-    public StarService(SecurityService securityService, MediaFileDao mediaFileDao,
-            AjaxHelper ajaxHelper) {
+    public StarService(UserService userService, MediaFileDao mediaFileDao, AjaxHelper ajaxHelper) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileDao = mediaFileDao;
         this.ajaxHelper = ajaxHelper;
     }
@@ -57,7 +56,7 @@ public class StarService {
     }
 
     private String getUser() {
-        User user = securityService.getCurrentUserStrict(ajaxHelper.getHttpServletRequest());
+        User user = userService.getCurrentUserStrict(ajaxHelper.getHttpServletRequest());
         return user.getUsername();
     }
 }

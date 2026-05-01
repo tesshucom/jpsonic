@@ -33,8 +33,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -84,7 +84,7 @@ class VideoPlayerControllerTest {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
             .standaloneSetup(new VideoPlayerController(settingsFacade, accessPolicy,
-                    mock(SecurityService.class), mediaFileService, playerService))
+                    mock(UserService.class), mediaFileService, playerService))
             .build();
     }
 

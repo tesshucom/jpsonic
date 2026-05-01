@@ -37,7 +37,7 @@ import java.util.Map;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,12 +62,12 @@ public class HelpController {
     private static final int LOG_LINES_TO_SHOW = 50;
 
     private final VersionService versionService;
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public HelpController(VersionService versionService, SecurityService securityService) {
+    public HelpController(VersionService versionService, UserService userService) {
         super();
         this.versionService = versionService;
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -83,9 +83,9 @@ public class HelpController {
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         map.put("user", user);
-        map.put("admin", securityService.isAdmin(user.getUsername()));
+        map.put("admin", userService.isAdmin(user.getUsername()));
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());

@@ -29,10 +29,10 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.StatusController.TransferStatusHolder;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -51,7 +51,7 @@ class StatusControllerTest {
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(
-                    new StatusController(mock(SecurityService.class), mock(StatusService.class)))
+                    new StatusController(mock(UserService.class), mock(StatusService.class)))
             .build();
     }
 

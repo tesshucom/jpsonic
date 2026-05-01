@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,17 +54,14 @@ public class NowPlayingController {
     private final StatusService statusService;
     private final MediaFileService mediaFileService;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
 
     public NowPlayingController(PlayerService playerService, StatusService statusService,
-            MediaFileService mediaFileService, LibraryAccessPolicy libraryAccessPolicy,
-            SecurityService securityService) {
+            MediaFileService mediaFileService, LibraryAccessPolicy libraryAccessPolicy) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.mediaFileService = mediaFileService;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
     }
 
     @GetMapping

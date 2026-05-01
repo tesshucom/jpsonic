@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,14 +52,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/playlist", "/playlist.view" })
 public class PlaylistController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlaylistService playlistService;
     private final PlayerService playerService;
 
-    public PlaylistController(SecurityService securityService, PlaylistService playlistService,
+    public PlaylistController(UserService userService, PlaylistService playlistService,
             PlayerService playerService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.playlistService = playlistService;
         this.playerService = playerService;
     }
@@ -75,9 +75,9 @@ public class PlaylistController {
             return new ModelAndView(new RedirectView("notFound"));
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playlist", "model",
@@ -87,7 +87,7 @@ public class PlaylistController {
                             "user", user, "visibility", userSettings.getMainVisibility(), "player",
                             player, "editAllowed",
                             username.equals(playlist.getUsername())
-                                    || securityService.isAdmin(username),
+                                    || userService.isAdmin(username),
                             "coverArtSize", CoverArtScheme.LARGE.getSize(), "partyMode",
                             userSettings.isPartyModeEnabled(), "simpleDisplay",
                             userSettings.isSimpleDisplay()));

@@ -32,8 +32,8 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.RecoverService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ class RecoverControllerTest {
     private static final String RECAPTCHA_SITE_KEY = "testRecaptchaSiteKey";
 
     private SettingsFacade settingsFacade;
-    private SecurityService securityService;
+    private UserService userService;
     private RecoverService recoverService;
     private RecoverController controller;
     private MockMvc mockMvc;
@@ -69,9 +69,9 @@ class RecoverControllerTest {
 
     @Ignore
     void init() {
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         recoverService = mock(RecoverService.class);
-        controller = new RecoverController(settingsFacade, securityService, recoverService);
+        controller = new RecoverController(settingsFacade, userService, recoverService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -180,7 +180,7 @@ class RecoverControllerTest {
         assertNotNull(model);
         Assertions.assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
         Assertions.assertFalse(model.containsKey(ATTR_SITE_KEY));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.Null
@@ -210,7 +210,7 @@ class RecoverControllerTest {
 
         Assertions.assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -238,7 +238,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.invalidcaptcha", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -268,7 +268,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.usernotfound", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -302,7 +302,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.noemail", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -339,7 +339,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -376,7 +376,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -416,7 +416,7 @@ class RecoverControllerTest {
                 model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
+        Mockito.verify(userService, Mockito.never()).updateUser(Mockito.any());
     }
 
     @RecoverDecision.Conditions.UsernameOrEmail.NotNull
@@ -456,7 +456,7 @@ class RecoverControllerTest {
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         Assertions.assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
         Mockito
-            .verify(securityService, Mockito.times(1))
+            .verify(userService, Mockito.times(1))
             .updatePassword(Mockito.any(User.class), Mockito.anyString(), Mockito.anyBoolean());
     }
 }

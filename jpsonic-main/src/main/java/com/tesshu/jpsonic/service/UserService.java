@@ -61,14 +61,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @DependsOn("musicFolderService")
-public class SecurityService implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     private final UserDao userDao;
     private final MusicFolderService musicFolderService;
 
-    public SecurityService(UserDao userDao, MusicFolderService musicFolderService) {
+    public UserService(UserDao userDao, MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
         this.musicFolderService = musicFolderService;

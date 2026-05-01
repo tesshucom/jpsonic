@@ -43,8 +43,8 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -68,20 +68,20 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PersonalSettingsController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ServerLocaleService serverLocaleService;
     private final ServerThemeService serverThemeService;
     private final ShareService shareService;
     private final AvatarService avatarService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PersonalSettingsController(SettingsFacade settingsFacade,
-            SecurityService securityService, ServerLocaleService serverLocaleService,
-            ServerThemeService serverThemeService, ShareService shareService,
-            AvatarService avatarService, OutlineHelpSelector outlineHelpSelector) {
+    public PersonalSettingsController(SettingsFacade settingsFacade, UserService userService,
+            ServerLocaleService serverLocaleService, ServerThemeService serverThemeService,
+            ShareService shareService, AvatarService avatarService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.serverLocaleService = serverLocaleService;
         this.serverThemeService = serverThemeService;
         this.shareService = shareService;
@@ -94,7 +94,7 @@ public class PersonalSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command.setUser(user);
 
         // Language and theme
@@ -117,7 +117,7 @@ public class PersonalSettingsController {
                 .collect(Collectors.toList()));
 
         // - Theme
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setThemeIndex("-1");
         List<Theme> themes = serverThemeService.getAvailableThemes();
         command.setThemes(themes);
@@ -138,9 +138,9 @@ public class PersonalSettingsController {
         command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
 
         // Options related to display and playing control
-        command.setDefaultSettings(securityService.getUserSettings(""));
-        command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
-        command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
+        command.setDefaultSettings(userService.getUserSettings(""));
+        command.setTabletSettings(userService.createDefaultTabletUserSettings(""));
+        command.setSmartphoneSettings(userService.createDefaultSmartphoneUserSettings(""));
         command.setKeyboardShortcutsEnabled(userSettings.isKeyboardShortcutsEnabled());
         command.setAlbumLists(Arrays.asList(AlbumListType.values()));
         command.setAlbumListId(userSettings.getDefaultAlbumList().getId());
@@ -248,7 +248,7 @@ public class PersonalSettingsController {
             RedirectAttributes redirectAttributes) {
 
         String username = command.getUser().getUsername();
-        UserSettings settings = securityService.getUserSettings(username);
+        UserSettings settings = userService.getUserSettings(username);
 
         // Language and theme
 
@@ -342,7 +342,7 @@ public class PersonalSettingsController {
         settings.setChanged(now());
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
-        securityService.updateUserSettings(settings);
+        userService.updateUserSettings(settings);
 
         return new ModelAndView(new RedirectView(ViewName.PERSONAL_SETTINGS.value()));
     }

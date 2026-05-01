@@ -33,10 +33,10 @@ import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +76,7 @@ class PlayerSettingsControllerTest {
             .thenReturn(allTranscodings);
 
         PlayerSettingsController controller = new PlayerSettingsController(
-                SettingsFacadeBuilder.create().build(), mock(SecurityService.class),
+                SettingsFacadeBuilder.create().build(), mock(UserService.class),
                 mock(UPnPSubnet.class), playerService, transcodingService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

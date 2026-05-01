@@ -26,7 +26,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -39,21 +39,21 @@ import org.springframework.web.servlet.ModelAndView;
 public class UploadEntryController {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ScannerStateService scannerStateService;
 
-    public UploadEntryController(MusicFolderService musicFolderService,
-            SecurityService securityService, ScannerStateService scannerStateService) {
+    public UploadEntryController(MusicFolderService musicFolderService, UserService userService,
+            ScannerStateService scannerStateService) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService

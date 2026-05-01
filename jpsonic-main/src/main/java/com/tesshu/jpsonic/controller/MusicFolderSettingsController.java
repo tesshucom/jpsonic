@@ -37,8 +37,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -65,19 +65,19 @@ public class MusicFolderSettingsController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderServiceImpl musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public MusicFolderSettingsController(SettingsFacade settingsFacade,
-            MusicFolderServiceImpl musicFolderService, SecurityService securityService,
+            MusicFolderServiceImpl musicFolderService, UserService userService,
             MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaScannerService = mediaScannerService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -134,10 +134,10 @@ public class MusicFolderSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
         command.setCancel(mediaScannerService.isCancel());

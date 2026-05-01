@@ -44,11 +44,11 @@ import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.annotation.Nullable;
@@ -81,20 +81,20 @@ public class StreamController {
 
     private final SettingsFacade settingsFacade;
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final StatusService statusService;
     private final StreamService streamService;
 
     public StreamController(SettingsFacade settingsFacade, LibraryAccessPolicy libraryAccessPolicy,
-            SecurityService securityService, PlayerService playerService,
+            UserService userService, PlayerService playerService,
             TranscodingService transcodingService, StatusService statusService,
             StreamService streamService) {
         super();
         this.settingsFacade = settingsFacade;
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
         this.statusService = statusService;
@@ -422,7 +422,7 @@ public class StreamController {
             throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
-        final User user = securityService.getUserByName(player.getUsername());
+        final User user = userService.getUserByName(player.getUsername());
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isWithoutRole = user != null && !user.isStreamRole();
         if (!(auth instanceof JWTAuthenticationToken) && isWithoutRole) {

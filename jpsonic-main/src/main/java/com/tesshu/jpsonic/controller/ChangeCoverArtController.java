@@ -28,7 +28,7 @@ import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,14 +49,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/changeCoverArt", "/changeCoverArt.view" })
 public class ChangeCoverArtController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileService mediaFileService;
 
-    public ChangeCoverArtController(SecurityService securityService,
+    public ChangeCoverArtController(UserService userService,
             LibraryAccessPolicy libraryAccessPolicy, MediaFileService mediaFileService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileService = mediaFileService;
     }
@@ -78,12 +78,13 @@ public class ChangeCoverArtController {
             album = dir.getAlbumName();
         }
 
-        String username = securityService.getCurrentUsernameStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(username);
-        return new ModelAndView("changeCoverArt", "model", LegacyMap
-            .of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
-                    "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir,
-                    "selectedMusicFolder", securityService.getSelectedMusicFolder(username)));
+        String username = userService.getCurrentUsernameStrict(request);
+        UserSettings userSettings = userService.getUserSettings(username);
+        return new ModelAndView("changeCoverArt", "model",
+                LegacyMap
+                    .of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
+                            "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir,
+                            "selectedMusicFolder", userService.getSelectedMusicFolder(username)));
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {

@@ -38,8 +38,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.Ignore;
@@ -77,8 +77,8 @@ class RandomSongByGenreProcTest {
             factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
                     playerService, transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class),
-                    mock(SecurityService.class), settingsFacade, mock(JpsonicComparators.class));
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
+                    settingsFacade, mock(JpsonicComparators.class));
             proc = new RandomSongByGenreProc(settingsFacade, util, factory, searchService);
         }
 

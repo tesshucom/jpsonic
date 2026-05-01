@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
@@ -55,17 +55,17 @@ import org.springframework.web.servlet.ModelAndView;
 public class EditTagsController {
 
     private final LibraryAccessPolicy libraryAccessPolicy;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
     private final ScannerStateService scannerStateService;
 
-    public EditTagsController(LibraryAccessPolicy libraryAccessPolicy,
-            SecurityService securityService, MetaDataParserFactory metaDataParserFactory,
-            MediaFileService mediaFileService, ScannerStateService scannerStateService) {
+    public EditTagsController(LibraryAccessPolicy libraryAccessPolicy, UserService userService,
+            MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
+            ScannerStateService scannerStateService) {
         super();
         this.libraryAccessPolicy = libraryAccessPolicy;
-        this.securityService = securityService;
+        this.userService = userService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
         this.scannerStateService = scannerStateService;
@@ -98,11 +98,11 @@ public class EditTagsController {
         map.put("songs", parsedSongs);
         map.put("ancestors", getAncestors(dir));
 
-        String username = securityService.getCurrentUsernameStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(username);
+        String username = userService.getCurrentUsernameStrict(request);
+        UserSettings userSettings = userService.getUserSettings(username);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("dir", dir);
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
+        map.put("selectedMusicFolder", userService.getSelectedMusicFolder(username));
 
         return new ModelAndView("editTags", "model", map);
     }

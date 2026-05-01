@@ -36,8 +36,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -59,8 +59,8 @@ class MoreControllerTest {
         SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new MoreController(musicFolderService, mock(SecurityService.class),
-                    searchService))
+            .standaloneSetup(
+                    new MoreController(musicFolderService, mock(UserService.class), searchService))
             .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito

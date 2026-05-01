@@ -38,8 +38,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Share;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -64,17 +64,17 @@ public class ShareSettingsController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ShareService shareService;
     private final MediaFileService mediaFileService;
 
     public ShareSettingsController(SettingsFacade settingsFacade,
-            MusicFolderService musicFolderService, SecurityService securityService,
+            MusicFolderService musicFolderService, UserService userService,
             ShareService shareService, MediaFileService mediaFileService) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.shareService = shareService;
         this.mediaFileService = mediaFileService;
     }
@@ -85,7 +85,7 @@ public class ShareSettingsController {
             .addAttribute("model",
                     LegacyMap
                         .of("shareInfos", getShareInfos(request), "user",
-                                securityService.getCurrentUserStrict(request), "useRadio",
+                                userService.getCurrentUserStrict(request), "useRadio",
                                 settingsFacade.get(SKeys.general.legacy.useRadio), "shareCount",
                                 shareService.getAllShares().size()));
         return "shareSettings";
@@ -99,7 +99,7 @@ public class ShareSettingsController {
     }
 
     private void handleParameters(HttpServletRequest request) {
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         for (Share share : shareService.getSharesForUser(user)) {
             int id = share.getId();
 
@@ -133,7 +133,7 @@ public class ShareSettingsController {
 
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         List<MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername());
 

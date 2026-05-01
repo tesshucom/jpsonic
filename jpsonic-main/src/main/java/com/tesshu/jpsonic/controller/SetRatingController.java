@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.controller;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -43,14 +43,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/setRating.view")
 public class SetRatingController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
 
-    public SetRatingController(SecurityService securityService, RatingService ratingService,
+    public SetRatingController(UserService userService, RatingService ratingService,
             MediaFileService mediaFileService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
     }
@@ -67,7 +67,7 @@ public class SetRatingController {
             rating = null;
         }
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
         return new ModelAndView(new RedirectView(
                 ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id));

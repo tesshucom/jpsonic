@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,18 +47,18 @@ class WebFontUtilsTest {
     private static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
-    private SecurityService securityService;
+    private UserService userService;
 
     @BeforeEach
     void setup() {
-        securityService = new SecurityService(mock(UserDao.class), mock(MusicFolderService.class));
+        userService = new UserService(mock(UserDao.class), mock(MusicFolderService.class));
     }
 
     @Order(1)
     @Test
     void testSetToRequest() throws ExecutionException {
 
-        UserSettings settings = securityService.getUserSettings("");
+        UserSettings settings = userService.getUserSettings("");
 
         // DEFAULT
         HttpServletRequest request = new MockHttpServletRequest();
@@ -95,7 +95,7 @@ class WebFontUtilsTest {
         // CUSTOM
         request = new MockHttpServletRequest();
         command = new PersonalSettingsCommand();
-        WebFontUtils.setToCommand(securityService.getUserSettings(""), command);
+        WebFontUtils.setToCommand(userService.getUserSettings(""), command);
 
         command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
@@ -128,7 +128,7 @@ class WebFontUtilsTest {
     @Test
     void testSetToCommand() throws ExecutionException {
 
-        UserSettings from = securityService.getUserSettings("");
+        UserSettings from = userService.getUserSettings("");
 
         PersonalSettingsCommand to = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(from, to);
@@ -179,7 +179,7 @@ class WebFontUtilsTest {
         WebFontUtils.setToCommand(new UserSettings(""), command);
 
         @Unsigned
-        UserSettings to = securityService.getUserSettings("");
+        UserSettings to = userService.getUserSettings("");
 
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());

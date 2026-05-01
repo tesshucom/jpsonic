@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.feature.i18n;
 import java.util.Locale;
 
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -40,13 +40,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ServerLocaleService serverLocaleService;
 
-    public AirsonicLocaleResolver(SecurityService securityService,
+    public AirsonicLocaleResolver(UserService userService,
             ServerLocaleService serverLocaleService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.serverLocaleService = serverLocaleService;
     }
 
@@ -75,9 +75,9 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
         Locale locale = null;
 
         // Look for user-specific locale.
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (username != null) {
-            UserSettings userSettings = securityService.getUserSettings(username);
+            UserSettings userSettings = userService.getUserSettings(username);
             if (userSettings != null) {
                 locale = userSettings.getLocale();
             }

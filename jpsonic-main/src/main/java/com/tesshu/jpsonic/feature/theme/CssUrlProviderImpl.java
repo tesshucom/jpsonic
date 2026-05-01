@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.feature.theme;
 
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.taglib.CssUrlProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspContext;
@@ -37,12 +37,11 @@ public class CssUrlProviderImpl implements CssUrlProvider {
     private static final String CSS_SUFFIX = ".css";
     private static final String DEFAULT_THEME_ID = "jpsonic";
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ServerThemeService serverThemeService;
 
-    public CssUrlProviderImpl(SecurityService securityService,
-            ServerThemeService serverThemeService) {
-        this.securityService = securityService;
+    public CssUrlProviderImpl(UserService userService, ServerThemeService serverThemeService) {
+        this.userService = userService;
         this.serverThemeService = serverThemeService;
     }
 
@@ -58,8 +57,8 @@ public class CssUrlProviderImpl implements CssUrlProvider {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
         String contextPath = request.getContextPath();
-        String username = securityService.getCurrentUsername(request);
-        String themeId = username != null ? securityService.getUserSettings(username).getThemeId()
+        String username = userService.getCurrentUsername(request);
+        String themeId = username != null ? userService.getUserSettings(username).getThemeId()
                 : serverThemeService.getThemeId();
 
         return generateCssPath(contextPath, themeId);

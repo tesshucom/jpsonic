@@ -25,7 +25,7 @@ import com.tesshu.jpsonic.controller.UserSettingsController;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
@@ -44,13 +44,13 @@ public class UserSettingsValidator implements Validator {
     private static final String REJECTED_FIELD_DELETEUSER = "deleteUser";
     private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SettingsFacade settingsFacade;
     private final HttpServletRequest request;
 
-    public UserSettingsValidator(SecurityService securityService, SettingsFacade settingsFacade,
+    public UserSettingsValidator(UserService userService, SettingsFacade settingsFacade,
             HttpServletRequest request) {
-        this.securityService = securityService;
+        this.userService = userService;
         this.settingsFacade = settingsFacade;
         this.request = request;
     }
@@ -82,7 +82,7 @@ public class UserSettingsValidator implements Validator {
             String password = StringUtils.trimToNull(command.getPassword());
             if (username == null || username.isEmpty()) {
                 errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.nousername");
-            } else if (securityService.getUserByName(username) != null) {
+            } else if (userService.getUserByName(username) != null) {
                 errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.useralreadyexists");
             } else if (email == null) {
                 errors.rejectValue(REJECTED_FIELD_EMAIL, "usersettings.noemail");
@@ -117,7 +117,7 @@ public class UserSettingsValidator implements Validator {
 
     void validateCurrentUser(UserSettingsCommand command, Errors errors) {
         String username = command.getUsername();
-        if (securityService.getCurrentUserStrict(request).getUsername().equals(username)) {
+        if (userService.getCurrentUserStrict(request).getUsername().equals(username)) {
             if (command.isDeleteUser()) {
                 errors.rejectValue(REJECTED_FIELD_DELETEUSER, "usersettings.cantdeleteuser");
             }

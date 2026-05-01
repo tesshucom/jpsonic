@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -46,21 +46,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping({ "/playlists", "/playlists.view", })
 public class PlaylistsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlaylistService playlistService;
     private final ViewAsListSelector viewSelector;
 
-    public PlaylistsController(SecurityService securityService, PlaylistService playlistService,
+    public PlaylistsController(UserService userService, PlaylistService playlistService,
             ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.playlistService = playlistService;
         this.viewSelector = viewSelector;
     }
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         List<com.tesshu.jpsonic.persistence.api.entity.Playlist> playlists = playlistService
             .getReadablePlaylistsForUser(user.getUsername());
         model

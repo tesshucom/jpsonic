@@ -43,8 +43,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +66,7 @@ class TopControllerTest {
 
     private MusicFolderService musicFolderService;
     private ScannerStateServiceImpl scannerState;
-    private SecurityService securityService;
+    private UserService userService;
     private TopController controller;
 
     private MockMvc mockMvc;
@@ -80,14 +80,14 @@ class TopControllerTest {
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
         ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
-        securityService = mock(SecurityService.class);
-        AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(securityService,
+        userService = mock(UserService.class);
+        AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(userService,
                 serverLocaleService);
 
         Mockito
             .when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
             .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-        controller = new TopController(settingsFacade, musicFolderService, securityService,
+        controller = new TopController(settingsFacade, musicFolderService, userService,
                 scannerState, musicIndexService, mock(VersionService.class),
                 mock(InternetRadioService.class), airsonicLocaleResolver);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -166,7 +166,7 @@ class TopControllerTest {
                 .when(musicFolderService.getMusicFoldersForUser(Mockito.anyString()))
                 .thenReturn(musicFolders);
             Mockito
-                .when(securityService.getSelectedMusicFolder(Mockito.anyString()))
+                .when(userService.getSelectedMusicFolder(Mockito.anyString()))
                 .thenReturn(musicFolders.get(0));
 
             MockHttpServletRequest request = mock(MockHttpServletRequest.class);

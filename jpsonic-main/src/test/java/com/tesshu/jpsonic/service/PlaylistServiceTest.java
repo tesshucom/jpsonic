@@ -67,7 +67,7 @@ class PlaylistServiceTest {
             mediaFileDao = mock(MediaFileDao.class);
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
             playlistService = new PlaylistService(mediaFileDao, jPlaylistDao,
-                    mock(SecurityService.class), settingsFacade,
+                    mock(UserService.class), settingsFacade,
                     new ScanningExclusionPolicy(settingsFacade),
                     Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
@@ -148,7 +148,7 @@ class PlaylistServiceTest {
                     mediaFileService);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    mock(SecurityService.class), settingsFacade,
+                    mock(UserService.class), settingsFacade,
                     new ScanningExclusionPolicy(settingsFacade), Collections.emptyList(),
                     Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
@@ -356,12 +356,12 @@ class PlaylistServiceTest {
         void init() {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
-            SecurityService securityService = new SecurityService(mock(UserDao.class),
+            UserService userService = new UserService(mock(UserDao.class),
                     mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(
                     mediaFileService);
             playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao,
-                    securityService, settingsFacade, new ScanningExclusionPolicy(settingsFacade),
+                    userService, settingsFacade, new ScanningExclusionPolicy(settingsFacade),
                     Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 

@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -46,7 +46,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class FontSchemeFilter implements Filter {
 
     private SettingsFacade settingsFacade;
-    private SecurityService securityService;
+    private UserService userService;
 
     private final List<String> excludes;
 
@@ -59,9 +59,9 @@ public class FontSchemeFilter implements Filter {
         settingsFacade = WebApplicationContextUtils
             .getRequiredWebApplicationContext(filterConfig.getServletContext())
             .getBean(SettingsFacade.class);
-        securityService = WebApplicationContextUtils
+        userService = WebApplicationContextUtils
             .getRequiredWebApplicationContext(filterConfig.getServletContext())
-            .getBean(SecurityService.class);
+            .getBean(UserService.class);
     }
 
     @Override
@@ -75,11 +75,11 @@ public class FontSchemeFilter implements Filter {
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
         if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsFacade)
-                && !isEmpty(securityService)) {
+                && !isEmpty(userService)) {
             @Nullable
-            User user = securityService.getCurrentUser(request);
+            User user = userService.getCurrentUser(request);
             UserSettings settings = user == null ? null
-                    : securityService.getUserSettings(user.getUsername());
+                    : userService.getUserSettings(user.getUsername());
             WebFontUtils.setToRequest(settings, request);
         }
         chain.doFilter(request, res);

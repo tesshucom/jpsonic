@@ -33,9 +33,9 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -65,7 +65,7 @@ class GeneralSettingsControllerTest {
     void init() {
         ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
         ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
-        controller = new GeneralSettingsController(settingsFacade, mock(SecurityService.class),
+        controller = new GeneralSettingsController(settingsFacade, mock(UserService.class),
                 serverLocaleService, serverThemeService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class), mock(ScannerStateService.class),
                 mock(MusicIndexService.class));

@@ -28,7 +28,7 @@ import java.util.Locale;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,15 +36,15 @@ import org.springframework.mock.web.MockHttpServletRequest;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class AirsonicLocaleResolverTest {
 
-    private SecurityService securityService;
+    private UserService userService;
     private AirsonicLocaleResolver resolver;
 
     @BeforeEach
     void setUp() {
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
         ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
-        resolver = new AirsonicLocaleResolver(securityService, serverLocaleService);
+        resolver = new AirsonicLocaleResolver(userService, serverLocaleService);
     }
 
     @Test
@@ -58,10 +58,10 @@ class AirsonicLocaleResolverTest {
     @Test
     void userLocaleSupported() {
         MockHttpServletRequest req = new MockHttpServletRequest();
-        when(securityService.getCurrentUsername(req)).thenReturn("admin");
+        when(userService.getCurrentUsername(req)).thenReturn("admin");
         UserSettings settings = new UserSettings();
         settings.setLocale(Locale.JAPANESE);
-        when(securityService.getUserSettings("admin")).thenReturn(settings);
+        when(userService.getUserSettings("admin")).thenReturn(settings);
         Locale result = resolver.resolveLocale(req);
         assertEquals(Locale.JAPAN, result);
     }
@@ -69,12 +69,12 @@ class AirsonicLocaleResolverTest {
     @Test
     void userLocaleUnsupportedFallsBackToSystemLocale() {
         MockHttpServletRequest req = new MockHttpServletRequest();
-        when(securityService.getCurrentUsername(req)).thenReturn("admin");
+        when(userService.getCurrentUsername(req)).thenReturn("admin");
         UserSettings settings = new UserSettings();
         settings
             .setLocale(
                     new Locale.Builder().setLanguage("zz").setRegion("ZZ").setVariant("").build());
-        when(securityService.getUserSettings("admin")).thenReturn(settings);
+        when(userService.getUserSettings("admin")).thenReturn(settings);
         Locale result = resolver.resolveLocale(req);
         assertEquals(Locale.JAPAN, result);
     }

@@ -74,17 +74,17 @@ public class PlayerService implements ReadWriteLockSupport {
 
     private final PlayerDao playerDao;
     private final StatusService statusService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final TranscodingService transcodingService;
 
     private final ReentrantReadWriteLock playerLock = new ReentrantReadWriteLock();
 
-    public PlayerService(PlayerDao playerDao, StatusService statusService,
-            SecurityService securityService, TranscodingService transcodingService) {
+    public PlayerService(PlayerDao playerDao, StatusService statusService, UserService userService,
+            TranscodingService transcodingService) {
         super();
         this.playerDao = playerDao;
         this.statusService = statusService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.transcodingService = transcodingService;
     }
 
@@ -94,7 +94,7 @@ public class PlayerService implements ReadWriteLockSupport {
         try {
             playerDao.deleteOldPlayers(60);
             Player upnpPlayer = getUPnPPlayer();
-            User guestUser = securityService.getGuestUser();
+            User guestUser = userService.getGuestUser();
             getPlayersForUserAndClientId(guestUser.getUsername(), null)
                 .stream()
                 .filter(p -> p.getId().equals(upnpPlayer.getId()))
@@ -143,7 +143,7 @@ public class PlayerService implements ReadWriteLockSupport {
 
             // Set cookie in response.
             if (response != null) {
-                String username = securityService.getCurrentUsername(request);
+                String username = userService.getCurrentUsername(request);
                 String cookieName = COOKIE_NAME + "-" + StringUtil.utf8HexEncode(username);
                 Cookie cookie = new Cookie(cookieName, String.valueOf(player.getId()));
                 cookie.setMaxAge(COOKIE_EXPIRY);
@@ -172,7 +172,7 @@ public class PlayerService implements ReadWriteLockSupport {
 
     private @NonNull Player findOrCreatePlayer(HttpServletRequest request,
             boolean remoteControlEnabled) {
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         Player player = findPlayer(request, remoteControlEnabled, username);
 
         // Look for player with same IP address and user name.
@@ -226,7 +226,7 @@ public class PlayerService implements ReadWriteLockSupport {
     boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest,
             @NonNull Player player) {
         boolean isToBeUpdate = false;
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         if (username != null && player.getUsername() == null) {
             player.setUsername(username);
             isToBeUpdate = true;
@@ -441,7 +441,7 @@ public class PlayerService implements ReadWriteLockSupport {
     private void createPlayer(Player player, boolean isInitTranscoding) {
         writeLock(playerLock);
         try {
-            UserSettings userSettings = securityService
+            UserSettings userSettings = userService
                 .getUserSettings(
                         JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                                 ? User.USERNAME_GUEST
@@ -468,7 +468,7 @@ public class PlayerService implements ReadWriteLockSupport {
      */
     public Player getGuestPlayer(HttpServletRequest request) {
 
-        User user = securityService.getGuestUser();
+        User user = userService.getGuestUser();
         Instant now = now();
 
         // Look for existing player.
@@ -504,7 +504,7 @@ public class PlayerService implements ReadWriteLockSupport {
     }
 
     public Player getUPnPPlayer() {
-        User user = securityService.getGuestUser();
+        User user = userService.getGuestUser();
         Player player = getPlayersForUserAndClientId(user.getUsername(), UPNP_PLAYER_ID)
             .stream()
             .findFirst()

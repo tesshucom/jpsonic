@@ -44,11 +44,11 @@ import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -74,7 +74,7 @@ public class StreamService {
 
     private final StatusService statusService;
     private final PlaylistService playlistService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SettingsFacade settingsFacade;
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
@@ -85,7 +85,7 @@ public class StreamService {
     private final AsyncTaskExecutor shortExecutor;
 
     public StreamService(StatusService statusService, PlaylistService playlistService,
-            SecurityService securityService, SettingsFacade settingsFacade,
+            UserService userService, SettingsFacade settingsFacade,
             TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
             SearchService searchService,
@@ -93,7 +93,7 @@ public class StreamService {
         super();
         this.statusService = statusService;
         this.playlistService = playlistService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.settingsFacade = settingsFacade;
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
@@ -280,7 +280,7 @@ public class StreamService {
 
     public void removeStreamStatus(@NonNull User user, @Nullable TransferStatus status) {
         if (status != null) {
-            securityService.updateUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
+            userService.updateUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
             statusService.removeStreamStatus(status);
         }
     }

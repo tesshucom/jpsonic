@@ -56,7 +56,7 @@ import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
@@ -89,19 +89,19 @@ public class InternalHelpController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
     private final Environment environment;
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
-    public InternalHelpController(SettingsFacade settingsFacade, SecurityService securityService,
+    public InternalHelpController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
             Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
@@ -116,8 +116,8 @@ public class InternalHelpController {
 
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map
-            .put("admin", securityService
-                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+            .put("admin",
+                    userService.isAdmin(userService.getCurrentUserStrict(request).getUsername()));
 
         // Gather internal information
         gatherPlatfomInfo(request, map);

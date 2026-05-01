@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.PageContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CssUrlProviderImplTest {
 
     @Mock
-    private SecurityService securityService;
+    private UserService userService;
     @Mock
     private PageContext pageContext;
     @Mock
@@ -59,7 +59,7 @@ class CssUrlProviderImplTest {
     void setUp() {
         settingsFacade = SettingsFacadeBuilder.create().build();
         ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
-        provider = new CssUrlProviderImpl(securityService, serverThemeService);
+        provider = new CssUrlProviderImpl(userService, serverThemeService);
         when(pageContext.getRequest()).thenReturn(request);
     }
 
@@ -72,8 +72,8 @@ class CssUrlProviderImplTest {
     @Test
     void returnsUserThemeCssPathWhenUserIsAuthenticated() {
         when(request.getContextPath()).thenReturn("/jpsonic");
-        when(securityService.getCurrentUsername(request)).thenReturn("alice");
-        when(securityService.getUserSettings("alice")).thenReturn(userSettings);
+        when(userService.getCurrentUsername(request)).thenReturn("alice");
+        when(userService.getUserSettings("alice")).thenReturn(userSettings);
         when(userSettings.getThemeId()).thenReturn("dark");
 
         String cssUrl = provider.getCssUrl(pageContext);
@@ -90,13 +90,13 @@ class CssUrlProviderImplTest {
     @Test
     void returnsSystemThemeCssPathWhenUserIsNotAuthenticated() {
         when(request.getContextPath()).thenReturn("");
-        when(securityService.getCurrentUsername(request)).thenReturn(null);
+        when(userService.getCurrentUsername(request)).thenReturn(null);
         settingsFacade = SettingsFacadeBuilder
             .create()
             .withString(ThemeSKeys.themeId, "testTheme")
             .build();
         ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
-        provider = new CssUrlProviderImpl(securityService, serverThemeService);
+        provider = new CssUrlProviderImpl(userService, serverThemeService);
 
         String cssUrl = provider.getCssUrl(pageContext);
 
@@ -110,8 +110,8 @@ class CssUrlProviderImplTest {
     @Test
     void fallsBackToSystemThemeWhenUserThemeIsBlank() {
         when(request.getContextPath()).thenReturn("/jpsonic");
-        when(securityService.getCurrentUsername(request)).thenReturn("bob");
-        when(securityService.getUserSettings("bob")).thenReturn(userSettings);
+        when(userService.getCurrentUsername(request)).thenReturn("bob");
+        when(userService.getUserSettings("bob")).thenReturn(userSettings);
         when(userSettings.getThemeId()).thenReturn("   ");
 
         String cssUrl = provider.getCssUrl(pageContext);
@@ -121,8 +121,8 @@ class CssUrlProviderImplTest {
     @Test
     void returnsDefaultThemeWhenUserThemeIdIsNull() {
         when(request.getContextPath()).thenReturn("/context");
-        when(securityService.getCurrentUsername(request)).thenReturn("user");
-        when(securityService.getUserSettings("user")).thenReturn(userSettings);
+        when(userService.getCurrentUsername(request)).thenReturn("user");
+        when(userService.getUserSettings("user")).thenReturn(userSettings);
         when(userSettings.getThemeId()).thenReturn(null);
 
         String cssUrl = provider.getCssUrl(pageContext);
@@ -133,8 +133,8 @@ class CssUrlProviderImplTest {
     @Test
     void returnsDefaultThemeWhenUserThemeIdIsEmpty() {
         when(request.getContextPath()).thenReturn("/context");
-        when(securityService.getCurrentUsername(request)).thenReturn("user");
-        when(securityService.getUserSettings("user")).thenReturn(userSettings);
+        when(userService.getCurrentUsername(request)).thenReturn("user");
+        when(userService.getUserSettings("user")).thenReturn(userSettings);
         when(userSettings.getThemeId()).thenReturn("");
 
         String cssUrl = provider.getCssUrl(pageContext);

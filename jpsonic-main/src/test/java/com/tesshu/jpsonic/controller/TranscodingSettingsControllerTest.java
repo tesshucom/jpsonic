@@ -37,9 +37,9 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
@@ -80,11 +80,11 @@ class TranscodingSettingsControllerTest {
 
     @Ignore
     void init() {
-        SecurityService securityService = mock(SecurityService.class);
+        UserService userService = mock(UserService.class);
         transcodingDao = mock(TranscodingDao.class);
-        transcodingService = new TranscodingService(settingsFacade, securityService,
+        transcodingService = new TranscodingService(settingsFacade, userService,
                 mock(UPnPSubnet.class), transcodingDao, mock(PlayerService.class), null);
-        controller = new TranscodingSettingsController(settingsFacade, securityService,
+        controller = new TranscodingSettingsController(settingsFacade, userService,
                 transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

@@ -28,9 +28,9 @@ import java.util.Locale;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,12 +51,12 @@ public class StatusController {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final StatusService statusService;
 
-    public StatusController(SecurityService securityService, StatusService statusService) {
+    public StatusController(UserService userService, StatusService statusService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.statusService = statusService;
     }
 
@@ -88,13 +88,14 @@ public class StatusController {
                 .add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i,
                         locale));
         }
-        return new ModelAndView("status", "model", LegacyMap
-            .of("brand", EnvironmentProvider.getInstance().getBrand(), "admin",
-                    securityService
-                        .isAdmin(securityService.getCurrentUserStrict(request).getUsername()),
-                    "transferStatuses", transferStatuses, "chartWidth",
-                    StatusChartController.IMAGE_WIDTH, "chartHeight",
-                    StatusChartController.IMAGE_HEIGHT));
+        return new ModelAndView("status", "model",
+                LegacyMap
+                    .of("brand", EnvironmentProvider.getInstance().getBrand(), "admin",
+                            userService
+                                .isAdmin(userService.getCurrentUserStrict(request).getUsername()),
+                            "transferStatuses", transferStatuses, "chartWidth",
+                            StatusChartController.IMAGE_WIDTH, "chartHeight",
+                            StatusChartController.IMAGE_HEIGHT));
     }
 
     public static class TransferStatusHolder {

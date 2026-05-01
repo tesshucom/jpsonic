@@ -39,10 +39,10 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ import org.springframework.web.servlet.ModelAndView;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class UserSettingsControllerTest {
 
-    private SecurityService securityService;
+    private UserService userService;
     private MusicFolderService musicFolderService;
     private PlayerService playerService;
     private UserSettingsController controller;
@@ -67,11 +67,11 @@ class UserSettingsControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        controller = new UserSettingsController(settingsFacade, musicFolderService, securityService,
+        controller = new UserSettingsController(settingsFacade, musicFolderService, userService,
                 mock(TranscodingService.class), mock(ShareService.class), playerService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -99,9 +99,9 @@ class UserSettingsControllerTest {
         User user1 = new User("user1", null, null);
         User user2 = new User("user2", null, null);
         List<User> users = Arrays.asList(user0, user1, user2);
-        Mockito.when(securityService.getAllUsers()).thenReturn(users);
+        Mockito.when(userService.getAllUsers()).thenReturn(users);
         Mockito
-            .when(securityService.getUserSettings(anyString()))
+            .when(userService.getUserSettings(anyString()))
             .thenReturn(new UserSettings(user2.getUsername()));
         result = mockMvc
             .perform(MockMvcRequestBuilders
@@ -154,9 +154,9 @@ class UserSettingsControllerTest {
         void testUpdateUser() throws Exception {
 
             User user = new User("updateTest", "notChangedPassword", "");
-            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
+            Mockito.when(userService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
-            Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
+            Mockito.when(userService.getUserSettings(user.getUsername())).thenReturn(settings);
 
             UserSettingsCommand command = new UserSettingsCommand();
             command.setUsername(user.getUsername());
@@ -177,10 +177,10 @@ class UserSettingsControllerTest {
             command.setAllowedMusicFolderIds(1, 2, 3);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-            Mockito.doNothing().when(securityService).updateUser(userCaptor.capture());
+            Mockito.doNothing().when(userService).updateUser(userCaptor.capture());
             ArgumentCaptor<UserSettings> settingsCaptor = ArgumentCaptor
                 .forClass(UserSettings.class);
-            Mockito.doNothing().when(securityService).updateUserSettings(settingsCaptor.capture());
+            Mockito.doNothing().when(userService).updateUserSettings(settingsCaptor.capture());
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<Integer>> idsCaptor = ArgumentCaptor.forClass(List.class);
             Mockito
@@ -213,9 +213,9 @@ class UserSettingsControllerTest {
         void testUpdateUserChangePass() throws Exception {
 
             User user = new User("changePass", "", "");
-            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
+            Mockito.when(userService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
-            Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
+            Mockito.when(userService.getUserSettings(user.getUsername())).thenReturn(settings);
 
             UserSettingsCommand command = new UserSettingsCommand();
             command.setUsername(user.getUsername());
@@ -224,7 +224,7 @@ class UserSettingsControllerTest {
             command.setPassword("updatedPassword");
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-            Mockito.doNothing().when(securityService).updateUser(userCaptor.capture());
+            Mockito.doNothing().when(userService).updateUser(userCaptor.capture());
 
             controller.updateUser(command);
 
@@ -240,9 +240,9 @@ class UserSettingsControllerTest {
         void testUpdateUserChangeTranscodeScheme() throws Exception {
 
             User user = new User("changeTranscode", "", "");
-            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
+            Mockito.when(userService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
-            Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
+            Mockito.when(userService.getUserSettings(user.getUsername())).thenReturn(settings);
 
             final List<Player> players = new ArrayList<>();
             Player player1 = new Player();

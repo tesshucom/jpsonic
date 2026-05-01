@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
@@ -52,18 +52,18 @@ import org.springframework.stereotype.Service;
 public class MultiService {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
     private final AjaxHelper ajaxHelper;
 
-    public MultiService(MusicFolderService musicFolderService, SecurityService securityService,
+    public MultiService(MusicFolderService musicFolderService, UserService userService,
             MediaFileService mediaFileService, LastFmService lastFmService,
             AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
@@ -73,8 +73,8 @@ public class MultiService {
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH
                 : airsonicLocaleResolver.resolveLocale(request);
 
@@ -89,7 +89,7 @@ public class MultiService {
 
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         List<TopSong> result = new ArrayList<>();
@@ -106,7 +106,7 @@ public class MultiService {
 
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         MediaFile artist = mediaFileService.getMediaFile(mediaFileId);
@@ -122,10 +122,10 @@ public class MultiService {
 
     public void setCloseDrawer(boolean b) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
-        UserSettings userSettings = securityService.getUserSettings(username);
+        String username = userService.getCurrentUsername(request);
+        UserSettings userSettings = userService.getUserSettings(username);
         userSettings.setCloseDrawer(b);
         userSettings.setChanged(now());
-        securityService.updateUserSettings(userSettings);
+        userService.updateUserSettings(userSettings);
     }
 }

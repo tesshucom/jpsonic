@@ -38,8 +38,8 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -79,7 +79,7 @@ public class GeneralSettingsController {
             """; // JP Index
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ServerLocaleService serverLocaleService;
     private final ServerThemeService serverThemeService;
     private final ShareService shareService;
@@ -87,13 +87,13 @@ public class GeneralSettingsController {
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
 
-    public GeneralSettingsController(SettingsFacade settingsFacade, SecurityService securityService,
+    public GeneralSettingsController(SettingsFacade settingsFacade, UserService userService,
             ServerLocaleService serverLocaleService, ServerThemeService serverThemeService,
             ShareService shareService, OutlineHelpSelector outlineHelpSelector,
             ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.serverLocaleService = serverLocaleService;
         this.serverThemeService = serverThemeService;
         this.shareService = shareService;
@@ -187,12 +187,12 @@ public class GeneralSettingsController {
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(scannerStateService.isScanning());
 

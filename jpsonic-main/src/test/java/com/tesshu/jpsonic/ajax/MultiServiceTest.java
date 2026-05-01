@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Autowired
     private LastFmService lastFmService;
     @Autowired
-    private SecurityService securityService;
+    private UserService userService;
     @Autowired
     private AirsonicLocaleResolver airsonicLocaleResolver;
     @Autowired
@@ -75,7 +75,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     @BeforeEach
     void setup() {
         populateDatabaseOnlyOnce();
-        multiService = new MultiService(musicFolderService, securityService, mediaFileService,
+        multiService = new MultiService(musicFolderService, userService, mediaFileService,
                 lastFmService, airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
@@ -92,10 +92,10 @@ class MultiServiceTest extends AbstractNeedsScan {
     @WithMockUser(username = ADMIN_NAME)
     @Test
     void testSetCloseDrawer() {
-        UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ADMIN_NAME);
         assertFalse(userSettings.isCloseDrawer());
         multiService.setCloseDrawer(true);
-        userSettings = securityService.getUserSettings(ADMIN_NAME);
+        userSettings = userService.getUserSettings(ADMIN_NAME);
         assertTrue(userSettings.isCloseDrawer());
     }
 }

@@ -47,12 +47,12 @@ import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,7 @@ class StreamServiceTest {
     private StatusService statusService;
     private PlaylistService playlistService;
     private SettingsFacade settingsFacade;
-    private SecurityService securityService;
+    private UserService userService;
     private MediaFileService mediaFileService;
     private StreamService streamService;
 
@@ -90,9 +90,9 @@ class StreamServiceTest {
     void init() {
         statusService = mock(StatusService.class);
         playlistService = mock(PlaylistService.class);
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         mediaFileService = mock(MediaFileService.class);
-        streamService = new StreamService(statusService, playlistService, securityService,
+        streamService = new StreamService(statusService, playlistService, userService,
                 settingsFacade, mock(TranscodingService.class), null, mediaFileService,
                 mock(WritableMediaFileService.class), null, null);
     }
@@ -675,17 +675,17 @@ class StreamServiceTest {
         status.setBytesTransfered(100);
         streamService.removeStreamStatus(user, null);
         Mockito
-            .verify(securityService, Mockito.never())
+            .verify(userService, Mockito.never())
             .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
                     Mockito.anyLong());
         Mockito
             .verify(statusService, Mockito.never())
             .removeStreamStatus(Mockito.any(TransferStatus.class));
 
-        Mockito.clearInvocations(securityService, statusService);
+        Mockito.clearInvocations(userService, statusService);
         streamService.removeStreamStatus(user, status);
         Mockito
-            .verify(securityService, Mockito.times(1))
+            .verify(userService, Mockito.times(1))
             .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
                     Mockito.anyLong());
         Mockito

@@ -33,7 +33,7 @@ import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,15 +51,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/podcastChannels", "/podcastChannels.view" })
 public class PodcastChannelsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PodcastService podcastService;
     private final ScannerStateService scannerStateService;
     private final ViewAsListSelector viewSelector;
 
-    public PodcastChannelsController(SecurityService securityService, PodcastService podcastService,
+    public PodcastChannelsController(UserService userService, PodcastService podcastService,
             ScannerStateService scannerStateService, ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.podcastService = podcastService;
         this.scannerStateService = scannerStateService;
         this.viewSelector = viewSelector;
@@ -79,9 +79,9 @@ public class PodcastChannelsController {
             channelMap.put(channel.getId(), channel);
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         Map<String, Object> map = LegacyMap
-            .of("user", securityService.getCurrentUserStrict(request), "channels", channels,
+            .of("user", userService.getCurrentUserStrict(request), "channels", channels,
                     "channelMap", channelMap, "newestEpisodes",
                     podcastService
                         .getNewestEpisodes(10)

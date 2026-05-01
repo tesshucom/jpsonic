@@ -60,32 +60,31 @@ public final class ServiceMockUtils {
     @SuppressWarnings("unchecked")
     public static <T> T mock(Class<T> classToMock) {
         Object mock;
-        if (SecurityService.class == classToMock) {
-            SecurityService securityService = Mockito.mock(SecurityService.class);
+        if (UserService.class == classToMock) {
+            UserService userService = Mockito.mock(UserService.class);
             Mockito
-                .when(securityService
+                .when(userService
                     .getCurrentUsernameStrict(Mockito.nullable(HttpServletRequest.class)))
                 .thenReturn(ADMIN_NAME);
             Mockito
-                .when(securityService
-                    .getCurrentUserStrict(Mockito.nullable(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.nullable(HttpServletRequest.class)))
                 .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
             Mockito
-                .when(securityService.getUserSettings(ADMIN_NAME))
+                .when(userService.getUserSettings(ADMIN_NAME))
                 .thenReturn(new UserSettings(ADMIN_NAME));
 
             User guestUser = new User(User.USERNAME_GUEST, User.USERNAME_GUEST, "");
             guestUser.setStreamRole(true);
-            Mockito.when(securityService.getGuestUser()).thenReturn(guestUser);
+            Mockito.when(userService.getGuestUser()).thenReturn(guestUser);
             Mockito
-                .when(securityService.getUserSettings(User.USERNAME_GUEST))
+                .when(userService.getUserSettings(User.USERNAME_GUEST))
                 .thenReturn(new UserSettings(User.USERNAME_GUEST));
 
             Mockito
-                .when(securityService.getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS))
+                .when(userService.getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS))
                 .thenReturn(new UserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS));
 
-            mock = securityService;
+            mock = userService;
         } else if (PlayerService.class == classToMock) {
             PlayerService playerService = Mockito.mock(PlayerService.class);
             Player player = new Player();

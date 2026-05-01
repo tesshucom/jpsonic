@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileNameSanitizer;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -45,13 +45,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class ExportPlayListController {
 
     private final PlaylistService playlistService;
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public ExportPlayListController(PlaylistService playlistService,
-            SecurityService securityService) {
+    public ExportPlayListController(PlaylistService playlistService, UserService userService) {
         super();
         this.playlistService = playlistService;
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -61,7 +60,7 @@ public class ExportPlayListController {
         int id = ServletRequestUtils
             .getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
-        if (!playlistService.isReadAllowed(playlist, securityService.getCurrentUsername(request))) {
+        if (!playlistService.isReadAllowed(playlist, userService.getCurrentUsername(request))) {
             try {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             } catch (IOException e) {

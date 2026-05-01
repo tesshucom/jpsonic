@@ -78,7 +78,7 @@ public class PlaylistService {
 
     private final MediaFileDao mediaFileDao;
     private final PlaylistDao playlistDao;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SettingsFacade settingsFacade;
     private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final List<PlaylistExportHandler> exportHandlers;
@@ -86,13 +86,13 @@ public class PlaylistService {
     private final JpsonicComparators comparators;
 
     public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao,
-            SecurityService securityService, SettingsFacade settingsFacade,
+            UserService userService, SettingsFacade settingsFacade,
             ScanningExclusionPolicy scanningExclusionPolicy,
             List<PlaylistExportHandler> exportHandlers, List<PlaylistImportHandler> importHandlers,
             JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
-        this.securityService = securityService;
+        this.userService = userService;
         this.settingsFacade = settingsFacade;
         this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.exportHandlers = exportHandlers;
@@ -118,7 +118,7 @@ public class PlaylistService {
     public List<Playlist> getWritablePlaylistsForUser(String username) {
 
         // Admin users are allowed to modify all playlists that are visible to them.
-        if (securityService.isAdmin(username)) {
+        if (userService.isAdmin(username)) {
             return getReadablePlaylistsForUser(username);
         }
 
@@ -361,7 +361,7 @@ public class PlaylistService {
             // is no longer
             // a specific account to use for auto-imported playlists, so use the first admin
             // account
-            importPlaylist(securityService.getAdminUsername(), PathInspector.getBaseName(fileName),
+            importPlaylist(userService.getAdminUsername(), PathInspector.getBaseName(fileName),
                     fileName.toString(), in, existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);

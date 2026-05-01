@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -30,22 +30,22 @@ import org.springframework.web.bind.ServletRequestUtils;
 @Component
 public class ViewAsListSelector {
 
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public ViewAsListSelector(SecurityService securityService) {
+    public ViewAsListSelector(UserService userService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     public boolean isViewAsList(HttpServletRequest request, String username) {
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         boolean viewAsList = ServletRequestUtils
             .getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(),
                     userSettings.isViewAsList());
         if (viewAsList != userSettings.isViewAsList()) {
             userSettings.setViewAsList(viewAsList);
             userSettings.setChanged(now());
-            securityService.updateUserSettings(userSettings);
+            userService.updateUserSettings(userSettings);
         }
         return viewAsList;
     }
