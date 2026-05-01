@@ -62,16 +62,6 @@ public final class SKeys {
          */
         @Deprecated
         public static final SettingKey<String> jwtKey = SKey.of("JWTKey", STRING, null);
-
-        /**
-         * Temporary secret used for Remember-Me token signing.
-         * <p>
-         * This key is deprecated and will be removed once the secret is stored in the
-         * database instead of the properties file.
-         */
-        @Deprecated
-        public static final SettingKey<String> rememberMeKey = SKey
-            .of("RememberMeKey", STRING, null);
     }
 
     /** Settings for music folder configuration (UI category). */
