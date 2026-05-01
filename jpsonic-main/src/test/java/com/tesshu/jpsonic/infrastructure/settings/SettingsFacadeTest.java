@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -78,7 +79,7 @@ class SettingsFacadeTest {
 
     @Test
     void testGetCachedPatternDelegatesCorrectly() {
-        SettingKey<String> key = SKeys.musicFolder.exclusion.excludePatternString;
+        SettingKey<String> key = FileSystemSKeys.excludePatternString;
         Pattern p = Pattern.compile(".*");
         when(runtime.getCachedPattern(key)).thenReturn(p);
 

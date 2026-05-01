@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -179,7 +180,7 @@ class SettingsRuntimeTest {
 
     @Test
     void testGetCachedPatternCachesAfterFirstCall() {
-        SettingKey<String> key = SKeys.musicFolder.exclusion.excludePatternString;
+        SettingKey<String> key = FileSystemSKeys.excludePatternString;
 
         when(storage.getString(key)).thenReturn("foo.*");
 
@@ -192,7 +193,7 @@ class SettingsRuntimeTest {
 
     @Test
     void testGetCachedPatternReturnsNullWhenDefaultNull() {
-        SettingKey<String> key = SKeys.musicFolder.exclusion.excludePatternString;
+        SettingKey<String> key = FileSystemSKeys.excludePatternString;
 
         when(storage.getString(key)).thenReturn("");
 

@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.feature.theme.ThemeSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.apache.commons.configuration2.Configuration;
@@ -221,6 +222,7 @@ public class SettingsFacadeBuilder {
         registerDefaultsIfNull(collectNonNullDefaults(ThemeSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(UPnPSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(RMSKeys.class), storage);
+        registerDefaultsIfNull(collectNonNullDefaults(FileSystemSKeys.class), storage);
         SettingsRuntime runtime = new SettingsRuntime(storage);
         return new SettingsFacade(storage, runtime);
     }

@@ -93,19 +93,6 @@ public final class SKeys {
             }
         }
 
-        /** Exclusion rules for music folder scanning (UI category). */
-        public static final class exclusion {
-
-            public static final SettingKey<String> excludePatternString = SKey
-                .of("ExcludePattern", STRING, null);
-
-            public static final SettingKey<Boolean> ignoreSymlinks = SKey
-                .of("IgnoreSymLinks", BOOLEAN, false);
-
-            private exclusion() {
-            }
-        }
-
         private musicFolder() {
         }
     }

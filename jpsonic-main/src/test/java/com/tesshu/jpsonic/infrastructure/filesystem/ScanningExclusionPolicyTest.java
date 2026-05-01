@@ -74,13 +74,13 @@ class ScanningExclusionPolicyTest {
         Path link = Files
             .createSymbolicLink(Paths.get(tmpDir.toString(), "testSymbolicLink.txt"), concrete);
 
-        assertFalse(settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks));
+        assertFalse(settingsFacade.get(FileSystemSKeys.ignoreSymlinks));
         assertFalse(exclusionPolicy.isExcluded(concrete));
         assertFalse(exclusionPolicy.isExcluded(link));
 
         settingsFacade = SettingsFacadeBuilder
             .create()
-            .withBoolean(SKeys.musicFolder.exclusion.ignoreSymlinks, true)
+            .withBoolean(FileSystemSKeys.ignoreSymlinks, true)
             .build();
         assertFalse(exclusionPolicy.isExcluded(concrete));
         assertTrue(exclusionPolicy.isExcluded(link));
@@ -93,20 +93,20 @@ class ScanningExclusionPolicyTest {
 
     @Test
     void testExcludePattern() throws IOException {
-        assertNull(settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString));
+        assertNull(settingsFacade.get(FileSystemSKeys.excludePatternString));
         Path song = Path.of("foo.mp3");
         assertFalse(exclusionPolicy.isExcluded(song));
 
         settingsFacade = SettingsFacadeBuilder
             .create()
-            .withString(SKeys.musicFolder.exclusion.excludePatternString, "foo.flac")
+            .withString(FileSystemSKeys.excludePatternString, "foo.flac")
             .build();
         init();
         assertFalse(exclusionPolicy.isExcluded(song));
 
         settingsFacade = SettingsFacadeBuilder
             .create()
-            .withString(SKeys.musicFolder.exclusion.excludePatternString, "foo.mp3")
+            .withString(FileSystemSKeys.excludePatternString, "foo.mp3")
             .build();
         init();
         assertTrue(exclusionPolicy.isExcluded(song));

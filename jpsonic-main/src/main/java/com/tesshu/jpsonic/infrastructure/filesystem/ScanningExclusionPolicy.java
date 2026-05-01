@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +80,7 @@ public class ScanningExclusionPolicy {
      */
     @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean isExcluded(Path path) {
-        if (settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks)
-                && Files.isSymbolicLink(path)) {
+        if (settingsFacade.get(FileSystemSKeys.ignoreSymlinks) && Files.isSymbolicLink(path)) {
             LOG.info("Excluding symbolic link %s".formatted(path));
             return true;
         }
@@ -95,12 +93,11 @@ public class ScanningExclusionPolicy {
         // Exclude those that match a user-specified pattern
         String name = fileName.toString();
         Pattern excludePattern = settingsFacade
-            .getCachedPattern(SKeys.musicFolder.exclusion.excludePatternString);
+            .getCachedPattern(FileSystemSKeys.excludePatternString);
         if (excludePattern != null && excludePattern.matcher(name).matches()) {
             LOG
                 .info("Excluding file which matches exclude pattern %s : %s"
-                    .formatted(settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString),
-                            path));
+                    .formatted(settingsFacade.get(FileSystemSKeys.excludePatternString), path));
             return true;
         }
 

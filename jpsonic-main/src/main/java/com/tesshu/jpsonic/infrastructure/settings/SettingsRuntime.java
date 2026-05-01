@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +138,7 @@ final class SettingsRuntime {
     }
 
     void invalidateIfChanged(@NonNull SettingKey<String> key, @Nullable String newValue) {
-        if (SKeys.musicFolder.exclusion.excludePatternString.equals(key)
+        if (FileSystemSKeys.excludePatternString.equals(key)
                 && !Objects.equals(newValue, get(key))) {
             excludePattern.set(null);
             return;
@@ -208,7 +209,7 @@ final class SettingsRuntime {
 
     @Nullable
     Pattern getCachedPattern(@NonNull SettingKey<String> key) {
-        if (!SKeys.musicFolder.exclusion.excludePatternString.equals(key)) {
+        if (!FileSystemSKeys.excludePatternString.equals(key)) {
             throw new IllegalArgumentException("Unsupported pattern key: " + key);
         }
 
@@ -217,9 +218,9 @@ final class SettingsRuntime {
             return cached;
         }
 
-        String raw = storage.getString(SKeys.musicFolder.exclusion.excludePatternString);
+        String raw = storage.getString(FileSystemSKeys.excludePatternString);
         if (StringUtils.isBlank(raw)) {
-            raw = SKeys.musicFolder.exclusion.excludePatternString.defaultValue();
+            raw = FileSystemSKeys.excludePatternString.defaultValue();
             if (raw == null) {
                 return null;
             }

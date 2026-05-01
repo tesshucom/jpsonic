@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -125,10 +126,8 @@ public class MusicFolderSettingsController {
             .setHour(String.valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)));
 
         // Exclusion settings
-        command
-            .setExcludePatternString(
-                    settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString));
-        command.setIgnoreSymLinks(settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks));
+        command.setExcludePatternString(settingsFacade.get(FileSystemSKeys.excludePatternString));
+        command.setIgnoreSymLinks(settingsFacade.get(FileSystemSKeys.ignoreSymlinks));
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
@@ -195,10 +194,8 @@ public class MusicFolderSettingsController {
 
         // Exclusion settings
         settingsFacade
-            .staging(SKeys.musicFolder.exclusion.excludePatternString,
-                    command.getExcludePatternString());
-        settingsFacade
-            .staging(SKeys.musicFolder.exclusion.ignoreSymlinks, command.isIgnoreSymLinks());
+            .staging(FileSystemSKeys.excludePatternString, command.getExcludePatternString());
+        settingsFacade.staging(FileSystemSKeys.ignoreSymlinks, command.isIgnoreSymLinks());
 
         settingsFacade.commitAll();
 
