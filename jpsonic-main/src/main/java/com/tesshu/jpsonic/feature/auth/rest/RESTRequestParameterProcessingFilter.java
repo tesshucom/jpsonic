@@ -28,7 +28,7 @@ import com.tesshu.jpsonic.controller.JAXBWriter;
 import com.tesshu.jpsonic.controller.SubsonicRESTController;
 import com.tesshu.jpsonic.domain.system.Version;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -69,15 +69,15 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
 
     private final JAXBWriter jaxbWriter = new JAXBWriter(null);
     private final AuthenticationManager authenticationManager;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
     public RESTRequestParameterProcessingFilter(AuthenticationManager authenticationManager,
-            SecurityService securityService, ApplicationEventPublisher eventPublisher) {
+            UserService userService, ApplicationEventPublisher eventPublisher) {
         super();
         this.authenticationManager = authenticationManager;
-        this.securityService = securityService;
+        this.userService = userService;
         this.eventPublisher = eventPublisher;
         authenticationDetailsSource = new WebAuthenticationDetailsSource();
     }
@@ -163,7 +163,7 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
         String pass = password;
 
         if (salt != null && token != null) {
-            User user = securityService.getUserByName(username);
+            User user = userService.getUserByName(username);
             if (user == null) {
                 return SubsonicRESTController.ErrorCode.NOT_AUTHENTICATED;
             }

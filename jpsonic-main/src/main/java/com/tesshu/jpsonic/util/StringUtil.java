@@ -42,7 +42,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -59,25 +58,7 @@ public final class StringUtil {
 
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-    private static final String MP4 = "audio/mp4";
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
-    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*",
-            "|" };
-    private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
-            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" },
-            { "aac", MP4 }, { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" },
-            { "wav", "audio/x-wav" }, { "wma", "audio/x-ms-wma" },
-            { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
-            { "shn", "audio/x-shn" }, { "dsf", EnvironmentProvider.getInstance().getMemeDsf() },
-            { "dff", EnvironmentProvider.getInstance().getMemeDff() }, { "flv", "video/x-flv" },
-            { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
-            { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
-            { "mov", "video/quicktime" }, { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" },
-            { "divx", "video/divx" }, { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" },
-            { "webm", "video/webm" },
-
-            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
-            { "png", "image/png" }, { "bmp", "image/bmp" }, };
 
     private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
@@ -85,39 +66,6 @@ public final class StringUtil {
      * Disallow external instantiation.
      */
     private StringUtil() {
-    }
-
-    /**
-     * Returns the proper MIME type for the given suffix.
-     *
-     * @param suffix The suffix, e.g., "mp3" or ".mp3".
-     *
-     * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is
-     *         found, <code>application/octet-stream</code> is returned.
-     */
-    public static String getMimeType(String suffix) {
-        for (String[] typeAndValue : MIME_TYPES) {
-            String type = typeAndValue[0];
-            String value = typeAndValue[1];
-            if (type.equalsIgnoreCase(suffix)) {
-                return value;
-            } else {
-                String typeWithDot = '.' + type;
-                if (typeWithDot.equalsIgnoreCase(suffix)) {
-                    return typeAndValue[1];
-                }
-            }
-        }
-        return "application/octet-stream";
-    }
-
-    public static String getSuffix(String mimeType) {
-        for (String[] map : MIME_TYPES) {
-            if (map[1].equalsIgnoreCase(mimeType)) {
-                return map[0];
-            }
-        }
-        return null;
     }
 
     public static String formatBytes(long byteCount, Locale locale) {
@@ -324,22 +272,6 @@ public final class StringUtil {
         } catch (MalformedURLException x) {
             return null;
         }
-    }
-
-    /**
-     * Makes a given filename safe by replacing special characters like slashes ("/"
-     * and "\") with dashes ("-").
-     *
-     * @param filename The filename in question.
-     *
-     * @return The filename with special characters replaced by underscores.
-     */
-    public static String fileSystemSafe(final String filename) {
-        String result = filename;
-        for (String s : FILE_SYSTEM_UNSAFE) {
-            result = result.replaceAll("\\.$", "").replace(s, "-");
-        }
-        return result;
     }
 
     public static @Nullable String removeMarkup(String s) {

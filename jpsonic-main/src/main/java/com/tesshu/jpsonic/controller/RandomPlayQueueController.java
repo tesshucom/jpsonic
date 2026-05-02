@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -68,17 +68,17 @@ public class RandomPlayQueueController {
     private static final String REQUEST_VALUE_ANY = "any";
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
     private final IndexManager indexManager;
 
-    public RandomPlayQueueController(MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService,
-            MediaFileService mediaFileService, IndexManager indexManager) {
+    public RandomPlayQueueController(MusicFolderService musicFolderService, UserService userService,
+            PlayerService playerService, MediaFileService mediaFileService,
+            IndexManager indexManager) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
         this.indexManager = indexManager;
@@ -123,7 +123,7 @@ public class RandomPlayQueueController {
                 playCount.getMaxPlayCount(), rating.isDoesShowStarredSongs(),
                 rating.isDoesShowUnstarredSongs(), format);
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         Player player = playerService.getPlayer(request, response);
         PlayQueue playQueue = player.getPlayQueue();
         // Do we add to the current playlist or do we replace it?
@@ -392,7 +392,7 @@ public class RandomPlayQueueController {
                                             // param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request)
             throws ServletRequestBindingException {
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         Integer selectedMusicFolderId = ServletRequestUtils
             .getRequiredIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (selectedMusicFolderId == -1) {

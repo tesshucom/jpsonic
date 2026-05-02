@@ -38,9 +38,9 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +65,7 @@ class LegacyDatabaseStartupTest {
     @BeforeAll
     static void beforeAll() throws IOException {
         Path dbDirectory = Path.of(System.getProperty("jpsonic.home"), "/db");
-        FileUtil.createDirectories(dbDirectory);
+        FileOperations.createDirectories(dbDirectory);
         copyResourcesRecursively(
                 LegacyDatabaseStartupTest.class.getResource("/db/pre-liquibase/db"), dbDirectory);
     }
@@ -92,7 +92,7 @@ class LegacyDatabaseStartupTest {
 
         if (Files.isDirectory(source)) {
             final Path newDestDir = Path.of(destDir.toString(), sourceFileName.toString());
-            if (!Files.exists(newDestDir) && FileUtil.createDirectories(newDestDir) == null) {
+            if (!Files.exists(newDestDir) && FileOperations.createDirectories(newDestDir) == null) {
                 return false;
             }
             try (DirectoryStream<Path> ds = Files.newDirectoryStream(source)) {
@@ -186,7 +186,7 @@ class LegacyDatabaseStartupTest {
     }
 
     private static boolean ensureDirectoryExists(final Path f) {
-        return Files.exists(f) || FileUtil.createDirectories(f) != null;
+        return Files.exists(f) || FileOperations.createDirectories(f) != null;
     }
 
 }

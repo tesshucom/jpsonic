@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,7 +42,7 @@ class AvatarControllerTest {
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(
-                    new AvatarController(mock(SecurityService.class), mock(AvatarService.class)))
+                    new AvatarController(mock(UserService.class), mock(AvatarService.class)))
             .build();
     }
 

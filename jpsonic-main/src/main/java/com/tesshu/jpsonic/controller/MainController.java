@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -41,7 +42,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,18 +66,21 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MainController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final JpsonicComparators jpsonicComparator;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public MainController(SettingsFacade settingsFacade, SecurityService securityService,
-            JpsonicComparators jpsonicComparator, RatingService ratingService,
-            MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
+    public MainController(SettingsFacade settingsFacade, LibraryAccessPolicy libraryAccessPolicy,
+            UserService userService, JpsonicComparators jpsonicComparator,
+            RatingService ratingService, MediaFileService mediaFileService,
+            ViewAsListSelector viewSelector) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.jpsonicComparator = jpsonicComparator;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
@@ -101,8 +105,8 @@ public class MainController {
             return new ModelAndView(new RedirectView(ViewName.HOME.value() + "?"));
         }
 
-        final String username = securityService.getCurrentUsernameStrict(request);
-        if (!securityService.isFolderAccessAllowed(dir, username)) {
+        final String username = userService.getCurrentUsernameStrict(request);
+        if (!libraryAccessPolicy.isFolderAccessAllowed(dir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
@@ -116,7 +120,7 @@ public class MainController {
         map.put("userRating", getUserRating(username, dir));
         map.put("averageRating", getAverageRating(dir));
         map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
-        if (!securityService.isInPodcastFolder(dir.toPath())) {
+        if (!libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(dir);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
@@ -137,7 +141,7 @@ public class MainController {
             .collect(Collectors.toList());
         map.put("subDirs", subDirs);
 
-        final UserSettings userSettings = securityService.getUserSettings(username);
+        final UserSettings userSettings = userService.getUserSettings(username);
         final int userPaginationPreference = userSettings.getPaginationSize();
         boolean thereIsMoreSiblingAlbums = false;
         final boolean isShowAll = userPaginationPreference <= 0 || null != showAll && showAll;
@@ -157,8 +161,8 @@ public class MainController {
                     userPaginationPreference));
 
         // others
-        map.put("user", securityService.getCurrentUserStrict(request));
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
+        map.put("user", userService.getCurrentUserStrict(request));
+        map.put("selectedMusicFolder", userService.getSelectedMusicFolder(username));
         map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
 
         map.put("visibility", userSettings.getMainVisibility());
@@ -316,7 +320,7 @@ public class MainController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         List<MediaFile> result = new ArrayList<>();
-        if (securityService.isInPodcastFolder(dir.toPath())) {
+        if (libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }

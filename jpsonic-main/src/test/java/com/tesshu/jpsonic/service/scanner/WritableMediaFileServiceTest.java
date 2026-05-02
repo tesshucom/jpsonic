@@ -43,6 +43,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -53,7 +55,6 @@ import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.MetaData;
@@ -72,7 +73,7 @@ class WritableMediaFileServiceTest {
 
     private MediaFileDao mediaFileDao;
     private SettingsFacade settingsFacade;
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private WritableMediaFileService writableMediaFileService;
 
     @BeforeEach
@@ -89,22 +90,22 @@ class WritableMediaFileServiceTest {
     @Ignore
     void init() {
 
-        securityService = mock(SecurityService.class);
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
         mediaFileDao = mock(MediaFileDao.class);
         MusicParser musicParser = new MusicParser(mock(MusicFolderService.class));
         MediaFileCache mediaFileCache = mock(MediaFileCache.class);
         MediaFileService mediaFileService = new MediaFileService(settingsFacade,
-                mock(MusicFolderService.class), securityService, mediaFileCache, mediaFileDao,
-                mock(JpsonicComparators.class));
+                new ScanningExclusionPolicy(settingsFacade), mock(MusicFolderService.class),
+                libraryAccessPolicy, mediaFileCache, mediaFileDao, mock(JpsonicComparators.class));
         AlbumDao albumDao = mock(AlbumDao.class);
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 mock(ScannerStateService.class), mediaFileService, albumDao, mediaFileCache,
-                musicParser, mock(VideoParser.class), settingsFacade, securityService, readingUtils,
-                mock(IndexManager.class),
+                musicParser, mock(VideoParser.class), settingsFacade, libraryAccessPolicy,
+                new ScanningExclusionPolicy(settingsFacade), readingUtils, mock(IndexManager.class),
                 new MusicIndexServiceImpl(settingsFacade, null, null, readingUtils));
 
-        Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+        Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 
     private Path createPath(String path) throws URISyntaxException {
@@ -836,7 +837,9 @@ class WritableMediaFileServiceTest {
             Mockito
                 .when(musicParser.getMetaData(Mockito.any(Path.class)))
                 .thenReturn(new MetaData());
-            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+            Mockito
+                .when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class)))
+                .thenReturn(true);
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
             assertTrue(Files.isDirectory(dir));

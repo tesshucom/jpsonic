@@ -41,16 +41,16 @@ import tools.jackson.databind.ObjectMapper;
 @DependsOn({ "settingsFacade", "shortExecutor" })
 public class AudioScrobblerService {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final Executor shortExecutor;
     private final ObjectMapper objectMapper;
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
 
-    public AudioScrobblerService(SecurityService securityService,
+    public AudioScrobblerService(UserService userService,
             @Qualifier("shortExecutor") Executor shortExecutor, ObjectMapper objectMapper) {
-        this.securityService = securityService;
+        this.userService = userService;
         this.shortExecutor = shortExecutor;
         this.objectMapper = objectMapper;
     }
@@ -69,7 +69,7 @@ public class AudioScrobblerService {
             return;
         }
 
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null
                 && userSettings.getLastFmPassword() != null) {
             if (lastFMScrobbler == null) {

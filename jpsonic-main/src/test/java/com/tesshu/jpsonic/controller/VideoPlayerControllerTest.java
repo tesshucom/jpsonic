@@ -26,14 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -66,10 +67,10 @@ class VideoPlayerControllerTest {
             .when(mediaFileService)
             .populateStarredDate(Mockito.any(MediaFile.class), Mockito.any());
 
-        SecurityService securityService = mock(SecurityService.class);
-        Mockito.when(securityService.isInPodcastFolder(Mockito.any())).thenReturn(true);
+        LibraryAccessPolicy accessPolicy = mock(LibraryAccessPolicy.class);
+        Mockito.when(accessPolicy.isInPodcastFolder(Mockito.any())).thenReturn(true);
         Mockito
-            .when(securityService.isFolderAccessAllowed(dir, ServiceMockUtils.ADMIN_NAME))
+            .when(accessPolicy.isFolderAccessAllowed(dir, ServiceMockUtils.ADMIN_NAME))
             .thenReturn(true);
 
         PlayerService playerService = Mockito.mock(PlayerService.class);
@@ -82,8 +83,8 @@ class VideoPlayerControllerTest {
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new VideoPlayerController(settingsFacade, securityService,
-                    mediaFileService, playerService))
+            .standaloneSetup(new VideoPlayerController(settingsFacade, accessPolicy,
+                    mock(UserService.class), mediaFileService, playerService))
             .build();
     }
 

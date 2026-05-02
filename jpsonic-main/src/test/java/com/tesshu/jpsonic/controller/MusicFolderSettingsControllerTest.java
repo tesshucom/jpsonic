@@ -41,9 +41,9 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,7 +88,7 @@ class MusicFolderSettingsControllerTest {
         musicFolderService = mock(MusicFolderServiceImpl.class);
         mediaScannerService = mock(MediaScannerService.class);
         controller = new MusicFolderSettingsController(settingsFacade, musicFolderService,
-                mock(SecurityService.class), mediaScannerService, mock(ShareService.class),
+                mock(UserService.class), mediaScannerService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

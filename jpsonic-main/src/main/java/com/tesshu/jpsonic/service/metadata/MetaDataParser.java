@@ -24,10 +24,10 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -154,7 +154,7 @@ public abstract class MetaDataParser {
      * Guesses the title for the given file.
      */
     public String guessTitle(@NonNull Path path) {
-        return StringUtils.trim(FilenameUtils.getBaseName(path.toString()));
+        return StringUtils.trim(PathInspector.getBaseName(path));
     }
 
     protected boolean isRoot(Path path) {

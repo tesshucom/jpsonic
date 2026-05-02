@@ -39,6 +39,8 @@ import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
 import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.feature.theme.ThemeSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import com.tesshu.jpsonic.persistence.DBSKeys;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.apache.commons.configuration2.Configuration;
@@ -50,7 +52,6 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.sync.ReadWriteSynchronizer;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.apache.commons.lang3.exception.UncheckedIllegalAccessException;
 import org.mockito.ArgumentCaptor;
@@ -221,6 +222,7 @@ public class SettingsFacadeBuilder {
         registerDefaultsIfNull(collectNonNullDefaults(ThemeSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(UPnPSKeys.class), storage);
         registerDefaultsIfNull(collectNonNullDefaults(RMSKeys.class), storage);
+        registerDefaultsIfNull(collectNonNullDefaults(FileSystemSKeys.class), storage);
         SettingsRuntime runtime = new SettingsRuntime(storage);
         return new SettingsFacade(storage, runtime);
     }
@@ -245,7 +247,7 @@ public class SettingsFacadeBuilder {
 
         if (!Files.exists(propertyFile)) {
             try {
-                FileUtils.touch(propertyFile.toFile());
+                FileOperations.touch(propertyFile);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.RecoverService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -53,15 +53,15 @@ public class RecoverController {
     private static final int PASSWORD_LENGTH = 32;
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final RecoverService recoverService;
     private final SecureRandom random;
 
-    public RecoverController(SettingsFacade settingsFacade, SecurityService securityService,
+    public RecoverController(SettingsFacade settingsFacade, UserService userService,
             RecoverService recoverService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.recoverService = recoverService;
         this.random = new SecureRandom();
     }
@@ -94,7 +94,7 @@ public class RecoverController {
             String newPass = sb.toString();
             if (sendEmail(user.getUsername(), user.getEmail())) {
                 map.put("sentTo", user.getEmail());
-                securityService.updatePassword(user, newPass, false);
+                userService.updatePassword(user, newPass, false);
             } else {
                 map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
             }

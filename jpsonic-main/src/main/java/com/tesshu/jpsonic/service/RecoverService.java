@@ -47,12 +47,12 @@ public class RecoverService {
     private static final String SESSION_VALUE_TRUE = "true";
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public RecoverService(SettingsFacade settingsFacade, SecurityService securityService) {
+    public RecoverService(SettingsFacade settingsFacade, UserService userService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     public boolean validateCaptcha(String captchaResponseToken) {
@@ -65,11 +65,11 @@ public class RecoverService {
 
     public User getUserByUsernameOrEmail(String usernameOrEmail) {
         if (usernameOrEmail != null) {
-            User user = securityService.getUserByName(usernameOrEmail);
+            User user = userService.getUserByName(usernameOrEmail);
             if (user != null) {
                 return user;
             }
-            return securityService.getUserByEmail(usernameOrEmail);
+            return userService.getUserByEmail(usernameOrEmail);
         }
         return null;
     }

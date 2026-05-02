@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -31,7 +33,6 @@ import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
@@ -76,9 +77,9 @@ class SetMusicFileInfoControllerTest {
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                 mediaFileDao, scannerStateService, mock(MediaFileService.class),
                 mock(AlbumDao.class), mock(MediaFileCache.class), mock(MusicParser.class),
-                mock(VideoParser.class), settingsFacade, mock(SecurityService.class),
-                mock(JapaneseReadingUtils.class), mock(IndexManager.class),
-                mock(MusicIndexServiceImpl.class));
+                mock(VideoParser.class), settingsFacade, mock(LibraryAccessPolicy.class),
+                new ScanningExclusionPolicy(settingsFacade), mock(JapaneseReadingUtils.class),
+                mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

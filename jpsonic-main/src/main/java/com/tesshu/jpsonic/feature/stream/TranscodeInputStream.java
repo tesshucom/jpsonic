@@ -29,11 +29,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -183,48 +183,7 @@ public final class TranscodeInputStream extends InputStream {
         }
 
         if (!isEmpty(tmpFile)) {
-            executor.execute(new DeleteTmpFileTask(tmpFile.get()));
-        }
-    }
-
-    /*
-     * If it fails, will be removed when the VM is shut down, but once started, this
-     * product will not shut down for a very long time. Therefore, it will retry and
-     * delete it as soon as possible.
-     */
-    public static class DeleteTmpFileTask implements Runnable {
-
-        private final Path tmpFile;
-        private static final int TRIAL_MAX = 3;
-
-        DeleteTmpFileTask(Path tmpFile) {
-            super();
-            this.tmpFile = tmpFile;
-        }
-
-        @SuppressWarnings("PMD.GuardLogStatement")
-        @Override
-        public void run() {
-            for (int i = 0; i < TRIAL_MAX; i++) {
-                try {
-                    if (Files.deleteIfExists(tmpFile)) {
-                        break;
-                    } else {
-                        Thread.sleep(3000);
-                    }
-                } catch (IOException | SecurityException e) {
-                    if (i == TRIAL_MAX - 1) {
-                        LOG.warn("Failed to delete tmp file: " + tmpFile);
-                        break;
-                    }
-                } catch (InterruptedException e) {
-                    LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile, e);
-                    break;
-                }
-            }
-            if (Files.exists(tmpFile)) {
-                LOG.warn("Failed to delete tmp file: " + tmpFile);
-            }
+            executor.execute(new FileOperations.DeleteTmpFileTask(tmpFile.get()));
         }
     }
 }

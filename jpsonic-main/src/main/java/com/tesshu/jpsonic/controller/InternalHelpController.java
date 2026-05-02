@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.controller;
 import static com.jsoftbiz.utils.OS.OS;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
@@ -37,7 +36,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -49,6 +47,8 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.infrastructure.filesystem.ExecutableResolver;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -56,11 +56,10 @@ import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -90,19 +89,19 @@ public class InternalHelpController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
     private final Environment environment;
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
-    public InternalHelpController(SettingsFacade settingsFacade, SecurityService securityService,
+    public InternalHelpController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
             Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
@@ -117,8 +116,8 @@ public class InternalHelpController {
 
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map
-            .put("admin", securityService
-                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+            .put("admin",
+                    userService.isAdmin(userService.getCurrentUserStrict(request).getUsername()));
 
         // Gather internal information
         gatherPlatfomInfo(request, map);
@@ -163,7 +162,7 @@ public class InternalHelpController {
                             folder.getName(), stat.getArtistCount(), stat.getAlbumCount(),
                             stat.getSongCount(), stat.getVideoCount(),
                             StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
-                            FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
+                            PathInspector.byteCountToDisplaySize(stat.getTotalSize()));
                     result.add(vo);
                 });
         });
@@ -301,14 +300,16 @@ public class InternalHelpController {
                         Files.exists(EnvironmentProvider.getInstance().getLocalDatabaseDirectory())
                                 ? info.sizeBytes()
                                 : 0);
-            map.put("dbDirectorySize", FileUtil.byteCountToDisplaySize(info.sizeBytes()));
+            map.put("dbDirectorySize", PathInspector.byteCountToDisplaySize(info.sizeBytes()));
             Path dbLogFile = EnvironmentProvider.getInstance().getDatabaseLogFilePath();
             try {
                 map.put("dbLogSizeBytes", Files.exists(dbLogFile) ? Files.size(dbLogFile) : 0);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-            map.put("dbLogSize", FileUtil.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
+            map
+                .put("dbLogSize",
+                        PathInspector.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
         } else {
             map.put("dbIsLegacy", false);
         }
@@ -318,11 +319,11 @@ public class InternalHelpController {
     private void gatherFilesystemInfo(Map<String, Object> map) {
         DirectoryInfo info = EnvironmentProvider.getInstance().getJpsonicHomeInfo();
         map.put("fsHomeDirectorySizeBytes", info.sizeBytes());
-        map.put("fsHomeDirectorySize", FileUtil.byteCountToDisplaySize(info.sizeBytes()));
+        map.put("fsHomeDirectorySize", PathInspector.byteCountToDisplaySize(info.sizeBytes()));
         map.put("fsHomeUsableSpaceBytes", info.usableSpaceBytes());
-        map.put("fsHomeUsableSpace", FileUtil.byteCountToDisplaySize(info.usableSpaceBytes()));
+        map.put("fsHomeUsableSpace", PathInspector.byteCountToDisplaySize(info.usableSpaceBytes()));
         map.put("fsHomeTotalSpaceBytes", info.totalSpaceBytes());
-        map.put("fsHomeTotalSpace", FileUtil.byteCountToDisplaySize(info.totalSpaceBytes()));
+        map.put("fsHomeTotalSpace", PathInspector.byteCountToDisplaySize(info.totalSpaceBytes()));
 
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
         for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
@@ -384,43 +385,9 @@ public class InternalHelpController {
         map.put("ffmpegVersion", formatFFmpegVersion(version));
     }
 
-    private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(File.pathSeparator, -1)) {
-            Path file = Path.of(path, executableName);
-            if (Files.exists(file)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found {} in {}", executableName, path);
-                }
-                return file;
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Looking for {} in {} (not found)", executableName, path);
-                }
-            }
-        }
-        return null;
-    }
-
-    private Path lookForTranscodingExecutable(String executableName) {
-        for (String name : Arrays.asList(executableName, "%s.exe".formatted(executableName))) {
-            Path executableLocation = EnvironmentProvider
-                .getInstance()
-                .getTranscodeDirectory()
-                .resolve(name);
-            if (Files.exists(executableLocation)) {
-                return executableLocation;
-            }
-            executableLocation = lookForExecutable(executableName);
-            if (executableLocation != null && Files.exists(executableLocation)) {
-                return executableLocation;
-            }
-        }
-        return null;
-    }
-
     private FileStatistics gatherStatisticsForTranscodingExecutable(String executableName) {
         FileStatistics executableStatistics = null;
-        Path executableLocation = lookForTranscodingExecutable(executableName);
+        Path executableLocation = ExecutableResolver.lookForTranscodingExecutable(executableName);
         if (executableLocation != null) {
             executableStatistics = new FileStatistics();
             executableStatistics.setFromPath(executableLocation);
@@ -533,10 +500,10 @@ public class InternalHelpController {
                 FileStore store = Files.getFileStore(path);
                 this
                     .setFreeFilesystemSizeBytes(
-                            FileUtil.byteCountToDisplaySize(store.getUsableSpace()));
+                            PathInspector.byteCountToDisplaySize(store.getUsableSpace()));
                 this
                     .setTotalFilesystemSizeBytes(
-                            FileUtil.byteCountToDisplaySize(store.getTotalSpace()));
+                            PathInspector.byteCountToDisplaySize(store.getTotalSpace()));
             } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
                     LOG

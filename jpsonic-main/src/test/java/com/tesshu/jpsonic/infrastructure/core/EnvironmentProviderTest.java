@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -346,7 +346,7 @@ class EnvironmentProviderTest {
         Path f = home.resolve("lucene2");
         Path d = home.resolve("lucene3");
         Files.createFile(f);
-        FileUtil.createDirectories(d);
+        FileOperations.createDirectories(d);
 
         EnvironmentProvider.getInstance().deleteLegacyFiles();
 
@@ -358,7 +358,7 @@ class EnvironmentProviderTest {
     void testDeleteOldFiles() throws IOException {
         Path home = EnvironmentProvider.getInstance().getJpsonicHome();
         Path d = home.resolve("index-JP22");
-        FileUtil.createDirectories(d);
+        FileOperations.createDirectories(d);
 
         EnvironmentProvider.getInstance().deleteOldFiles();
 

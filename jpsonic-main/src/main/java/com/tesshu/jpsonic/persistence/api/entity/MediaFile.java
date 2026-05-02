@@ -29,11 +29,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.persistence.contract.Orderable;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -265,9 +265,9 @@ public class MediaFile implements Orderable, Indexable {
     @Override
     public @NonNull String getName() {
         if (isFile()) {
-            return PlayerUtils.defaultIfNull(title, FilenameUtils.getBaseName(pathString));
+            return PlayerUtils.defaultIfNull(title, PathInspector.getBaseName(pathString));
         }
-        return FilenameUtils.getName(pathString);
+        return PathInspector.getBaseName(pathString);
     }
 
     public @Nullable Integer getDiscNumber() {

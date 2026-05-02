@@ -31,8 +31,8 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,8 +53,8 @@ class SearchControllerTest {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
             .standaloneSetup(new SearchController(settingsFacade, mock(MusicFolderService.class),
-                    mock(SecurityService.class), mock(PlayerService.class),
-                    mock(SearchService.class), mock(HttpSearchCriteriaDirector.class)))
+                    mock(UserService.class), mock(PlayerService.class), mock(SearchService.class),
+                    mock(HttpSearchCriteriaDirector.class)))
             .build();
     }
 

@@ -46,7 +46,7 @@ import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,7 +80,7 @@ public class TopController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
     private final VersionService versionService;
@@ -88,13 +88,13 @@ public class TopController {
     private final AirsonicLocaleResolver localeResolver;
 
     public TopController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
-            SecurityService securityService, ScannerStateService scannerStateService,
+            UserService userService, ScannerStateService scannerStateService,
             MusicIndexService musicIndexService, VersionService versionService,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
         this.versionService = versionService;
@@ -111,8 +111,8 @@ public class TopController {
 
         Map<String, Object> map = LegacyMap.of();
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         map.put("user", user);
         map.put("showCurrentSongInfo", userSettings.isShowCurrentSongInfo());
         map.put("closeDrawer", userSettings.isCloseDrawer());
@@ -133,11 +133,11 @@ public class TopController {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         }
 
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
 
@@ -165,7 +165,7 @@ public class TopController {
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
-        map.put("user", securityService.getCurrentUserStrict(request));
+        map.put("user", userService.getCurrentUserStrict(request));
         mainView.ifPresent(v -> {
             if (validateMainViewName(v)) {
                 map.put("mainView", v);
@@ -192,11 +192,11 @@ public class TopController {
         }
 
         long lastModified = Instant.now().toEpochMilli();
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
 
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 try {
@@ -228,7 +228,7 @@ public class TopController {
         }
 
         // When was user settings last changed?
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         lastModified = Math.max(lastModified, userSettings.getChanged().toEpochMilli());
 
         return lastModified;
@@ -244,10 +244,10 @@ public class TopController {
         // Note: UserSettings.setChanged() is intentionally not called. This would break
         // browser caching
         // of the left frame.
-        UserSettings settings = securityService
-            .getUserSettings(securityService.getCurrentUsernameStrict(request));
+        UserSettings settings = userService
+            .getUserSettings(userService.getCurrentUsernameStrict(request));
         settings.setSelectedMusicFolderId(musicFolderId);
-        securityService.updateUserSettings(settings);
+        userService.updateUserSettings(settings);
 
         return true;
     }

@@ -69,8 +69,8 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -89,7 +89,7 @@ class PlayQueueServiceTest {
     private Player player;
     private MediaFileService mediaFileService;
     private PlayQueueService playQueueService;
-    private SecurityService securityService;
+    private UserService userService;
     private PlayQueueDao playQueueDao;
     private InternetRadioDao internetRadioDao;
     private InternetRadioService internetRadioService;
@@ -119,8 +119,8 @@ class PlayQueueServiceTest {
             .thenReturn(mock(PodcastEpisode.class));
         when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
         mediaFileService = mock(MediaFileService.class);
-        securityService = mock(SecurityService.class);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+        userService = mock(UserService.class);
+        when(userService.getCurrentUsername(any(HttpServletRequest.class)))
             .thenReturn(ServiceMockUtils.ADMIN_NAME);
         playQueueDao = mock(PlayQueueDao.class);
         internetRadioDao = mock(InternetRadioDao.class);
@@ -132,7 +132,7 @@ class PlayQueueServiceTest {
         searchService = mock(SearchService.class);
         ajaxHelper = AjaxMockUtils.mock(AjaxHelper.class);
         comparators = mock(JpsonicComparators.class);
-        playQueueService = new PlayQueueService(mock(MusicFolderService.class), securityService,
+        playQueueService = new PlayQueueService(mock(MusicFolderService.class), userService,
                 playerService, comparators, mediaFileService, lastFmService, searchService,
                 ratingService, podcastService, playlistService, mediaFileDao, playQueueDao,
                 internetRadioDao, mock(JWTSecurityService.class), internetRadioService, ajaxHelper);
@@ -239,7 +239,7 @@ class PlayQueueServiceTest {
 
         MediaFile file = new MediaFile();
         file.setId(99);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+        when(userService.getCurrentUsername(any(HttpServletRequest.class)))
             .thenReturn(ServiceMockUtils.ADMIN_NAME);
         SavedPlayQueue savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME,
                 List.of(file.getId()), null, null, PlayerUtils.now(), "");
@@ -319,8 +319,7 @@ class PlayQueueServiceTest {
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         void c02() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService
-                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile song = new MediaFile();
             song.setId(0);
@@ -334,8 +333,7 @@ class PlayQueueServiceTest {
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         void c03() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService
-                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile parent = new MediaFile();
             parent.setId(0);
@@ -457,7 +455,7 @@ class PlayQueueServiceTest {
         playQueueService.playPlaylist(0, 0);
 
         // Present with StartIndex, QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playPlaylist(0, 0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -492,7 +490,7 @@ class PlayQueueServiceTest {
         playQueueService.playTopSong(0, 0);
 
         // Present with StartIndex, QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playTopSong(0, 0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -554,7 +552,7 @@ class PlayQueueServiceTest {
         playQueueService.playPodcastEpisode(episode.getId());
 
         // COMPLETED && present && QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playPodcastEpisode(episode.getId());
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -583,7 +581,7 @@ class PlayQueueServiceTest {
         playQueueService.playNewestPodcastEpisode(0);
 
         // With StartIndex && QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playNewestPodcastEpisode(0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());

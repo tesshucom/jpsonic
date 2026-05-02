@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -44,7 +44,7 @@ class ImportPlaylistControllerTest {
     @BeforeEach
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new ImportPlaylistController(mock(SecurityService.class),
+            .standaloneSetup(new ImportPlaylistController(mock(UserService.class),
                     mock(PlaylistService.class)))
             .build();
     }

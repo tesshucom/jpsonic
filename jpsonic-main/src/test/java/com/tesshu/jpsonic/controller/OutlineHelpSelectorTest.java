@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,7 +36,7 @@ class OutlineHelpSelectorTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
-        outlineHelpSelector = new OutlineHelpSelector(mock(SecurityService.class));
+        outlineHelpSelector = new OutlineHelpSelector(mock(UserService.class));
     }
 
     @Test

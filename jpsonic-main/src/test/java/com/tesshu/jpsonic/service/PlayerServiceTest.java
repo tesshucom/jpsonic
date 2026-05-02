@@ -84,7 +84,7 @@ class PlayerServiceTest {
         when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         playerService = new PlayerService(playerDao, null,
-                new SecurityService(userDao, null, musicFolderService), transcodingService);
+                new UserService(userDao, musicFolderService), transcodingService);
     }
 
     @Test

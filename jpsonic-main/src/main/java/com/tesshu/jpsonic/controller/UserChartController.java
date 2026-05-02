@@ -33,7 +33,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.feature.theme.ChartColor;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jfree.chart.ChartFactory;
@@ -72,12 +72,12 @@ public class UserChartController {
     public static final int IMAGE_MIN_HEIGHT = 200;
     private static final long BYTES_PER_MB = 1024L * 1024L;
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final FontLoader fontLoader;
 
-    public UserChartController(SecurityService securityService, FontLoader fontLoader) {
+    public UserChartController(UserService userService, FontLoader fontLoader) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.fontLoader = fontLoader;
     }
 
@@ -103,7 +103,7 @@ public class UserChartController {
 
     private CategoryDataset createDataset(String type) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        List<User> users = securityService.getAllUsers();
+        List<User> users = userService.getAllUsers();
         for (User user : users) {
             double value;
             if ("stream".equals(type)) {

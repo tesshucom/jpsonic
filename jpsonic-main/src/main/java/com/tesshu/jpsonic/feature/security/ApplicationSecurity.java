@@ -36,7 +36,7 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +89,7 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
 
         @Autowired
         public void configure(SettingsFacade settingsFacade, SettingsFacade settings,
-                SecurityService securityService, AuthenticationManagerBuilder auth,
+                UserService userService, AuthenticationManagerBuilder auth,
                 CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
             if (settingsFacade.get(SKeys.advanced.ldap.enabled)) {
                 auth
@@ -103,7 +103,7 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
                     .userSearchFilter(settingsFacade.get(SKeys.advanced.ldap.searchFilter))
                     .userDetailsContextMapper(customUserDetailsContextMapper);
             }
-            auth.userDetailsService(securityService);
+            auth.userDetailsService(userService);
 
             String jwtKey = settings.get(SKeys.deprecatedSecrets.jwtKey);
             if (StringUtils.isBlank(jwtKey)) {
@@ -186,9 +186,9 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
     public static class SecurityConfig {
 
         @Bean
-        public RESTRequestParameterProcessingFilter restRPPFilter(SecurityService service,
+        public RESTRequestParameterProcessingFilter restRPPFilter(UserService userService,
                 AuthenticationManager manager, ApplicationEventPublisher publisher) {
-            return new RESTRequestParameterProcessingFilter(manager, service, publisher);
+            return new RESTRequestParameterProcessingFilter(manager, userService, publisher);
         }
 
         @Bean

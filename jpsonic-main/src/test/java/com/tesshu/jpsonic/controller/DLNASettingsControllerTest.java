@@ -46,11 +46,11 @@ import com.tesshu.jpsonic.service.MenuItemService;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
@@ -98,8 +98,8 @@ class DLNASettingsControllerTest {
         playerService = mock(PlayerService.class);
         upnpService = mock(UPnPService.class);
         controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                mock(SecurityService.class), playerService, mock(TranscodingService.class),
-                upnpService, mock(ShareService.class), mock(MenuItemService.class),
+                mock(UserService.class), playerService, mock(TranscodingService.class), upnpService,
+                mock(ShareService.class), mock(MenuItemService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -181,7 +181,7 @@ class DLNASettingsControllerTest {
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     mock(MenuItemService.class), mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -208,7 +208,7 @@ class DLNASettingsControllerTest {
             MenuItemService menuItemService = mock(MenuItemService.class);
             upnpService = mock(UPnPService.class);
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -282,7 +282,7 @@ class DLNASettingsControllerTest {
         @Ignore
         void init() {
             controller = new DLNASettingsController(settingsFacade, mock(MusicFolderService.class),
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), mock(UPnPService.class),
                     mock(ShareService.class), mock(MenuItemService.class),
                     mock(OutlineHelpSelector.class));
@@ -441,7 +441,7 @@ class DLNASettingsControllerTest {
             MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -470,7 +470,7 @@ class DLNASettingsControllerTest {
             MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -518,7 +518,7 @@ class DLNASettingsControllerTest {
             MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -581,7 +581,7 @@ class DLNASettingsControllerTest {
             MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
-                    mock(SecurityService.class), mock(PlayerService.class),
+                    mock(UserService.class), mock(PlayerService.class),
                     mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

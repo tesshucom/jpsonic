@@ -23,11 +23,11 @@ package com.tesshu.jpsonic.controller;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,15 +53,15 @@ public class NowPlayingController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final MediaFileService mediaFileService;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
 
     public NowPlayingController(PlayerService playerService, StatusService statusService,
-            MediaFileService mediaFileService, SecurityService securityService) {
+            MediaFileService mediaFileService, LibraryAccessPolicy libraryAccessPolicy) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.mediaFileService = mediaFileService;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
     }
 
     @GetMapping
@@ -85,7 +85,8 @@ public class NowPlayingController {
     @Nullable
     MediaFile getNowPlayingFile(@NonNull Player player) {
         List<TransferStatus> statuses = statusService.getStreamStatusesForPlayer(player);
-        return statuses.isEmpty() || !securityService.isReadAllowed(statuses.get(0).toPath()) ? null
+        return statuses.isEmpty() || !libraryAccessPolicy.isReadAllowed(statuses.get(0).toPath())
+                ? null
                 : mediaFileService.getMediaFile(statuses.get(0).toPath());
     }
 }

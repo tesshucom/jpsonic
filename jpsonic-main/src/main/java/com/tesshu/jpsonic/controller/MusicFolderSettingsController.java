@@ -29,16 +29,17 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
-import com.tesshu.jpsonic.util.PathValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -64,19 +65,19 @@ public class MusicFolderSettingsController {
 
     private final SettingsFacade settingsFacade;
     private final MusicFolderServiceImpl musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public MusicFolderSettingsController(SettingsFacade settingsFacade,
-            MusicFolderServiceImpl musicFolderService, SecurityService securityService,
+            MusicFolderServiceImpl musicFolderService, UserService userService,
             MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaScannerService = mediaScannerService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -125,20 +126,18 @@ public class MusicFolderSettingsController {
             .setHour(String.valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)));
 
         // Exclusion settings
-        command
-            .setExcludePatternString(
-                    settingsFacade.get(SKeys.musicFolder.exclusion.excludePatternString));
-        command.setIgnoreSymLinks(settingsFacade.get(SKeys.musicFolder.exclusion.ignoreSymlinks));
+        command.setExcludePatternString(settingsFacade.get(FileSystemSKeys.excludePatternString));
+        command.setIgnoreSymLinks(settingsFacade.get(FileSystemSKeys.ignoreSymlinks));
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
         command.setCancel(mediaScannerService.isCancel());
@@ -195,10 +194,8 @@ public class MusicFolderSettingsController {
 
         // Exclusion settings
         settingsFacade
-            .staging(SKeys.musicFolder.exclusion.excludePatternString,
-                    command.getExcludePatternString());
-        settingsFacade
-            .staging(SKeys.musicFolder.exclusion.ignoreSymlinks, command.isIgnoreSymLinks());
+            .staging(FileSystemSKeys.excludePatternString, command.getExcludePatternString());
+        settingsFacade.staging(FileSystemSKeys.ignoreSymlinks, command.isIgnoreSymLinks());
 
         settingsFacade.commitAll();
 
@@ -210,7 +207,7 @@ public class MusicFolderSettingsController {
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
-        Optional<String> validated = PathValidator
+        Optional<String> validated = RootPathEntryGuard
             .validateFolderPath(StringUtils.trimToNull(info.getPath()));
         if (validated.isEmpty()) {
             return Optional.empty();

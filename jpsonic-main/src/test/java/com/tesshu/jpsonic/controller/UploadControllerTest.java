@@ -34,14 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -188,9 +189,9 @@ class UploadControllerTest {
         void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-            uploadController = new UploadController(mock(SecurityService.class),
-                    mock(PlayerService.class), mock(StatusService.class), settingsFacade,
-                    scannerStateService);
+            uploadController = new UploadController(mock(LibraryAccessPolicy.class),
+                    mock(UserService.class), mock(PlayerService.class), mock(StatusService.class),
+                    settingsFacade, scannerStateService);
         }
 
         @Test

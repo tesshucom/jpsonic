@@ -26,16 +26,16 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.LastFmService.LastFmCoverArt;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -62,15 +62,16 @@ public class CoverArtService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtService.class);
 
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
     private final LastFmService lastFmService;
 
-    public CoverArtService(SecurityService securityService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, LastFmService lastFmService) {
+    public CoverArtService(LibraryAccessPolicy libraryAccessPolicy,
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            LastFmService lastFmService) {
         super();
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
         this.lastFmService = lastFmService;
@@ -110,13 +111,13 @@ public class CoverArtService {
 
         // Check permissions.
         Path newCoverFile = Path.of(pathString, "cover." + suffix);
-        if (!securityService.isWriteAllowed(newCoverFile)) {
+        if (!libraryAccessPolicy.isWriteAllowed(newCoverFile)) {
             throw new ExecutionException(new GeneralSecurityException("Permission denied: "
                     + StringEscapeUtils.escapeHtml4(newCoverFile.toString())));
         }
 
         // If file exists, create a backup.
-        backup(newCoverFile, Path.of(pathString, "cover." + suffix + ".backup"));
+        FileOperations.atomicMove(newCoverFile, Path.of(pathString, "cover." + suffix + ".backup"));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
 
@@ -197,22 +198,5 @@ public class CoverArtService {
 
     private boolean isMediaFile(Path path) {
         return mediaFileService.includeMediaFile(path);
-    }
-
-    private void backup(Path newCoverFile, Path backup) {
-        if (Files.exists(newCoverFile)) {
-            try {
-                Path path = Files
-                    .move(newCoverFile, backup, StandardCopyOption.REPLACE_EXISTING,
-                            StandardCopyOption.ATOMIC_MOVE);
-                if (path != null && LOG.isInfoEnabled()) {
-                    LOG.info("Backed up old image file to " + path);
-                }
-            } catch (IOException | SecurityException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to create image file backup " + backup);
-                }
-            }
-        }
     }
 }

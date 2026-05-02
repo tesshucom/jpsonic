@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -59,7 +60,7 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -79,7 +80,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 public class PlayQueueService {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final JpsonicComparators comparators;
     private final MediaFileService mediaFileService;
@@ -95,7 +96,7 @@ public class PlayQueueService {
     private final InternetRadioService internetRadioService;
     private final AjaxHelper ajaxHelper;
 
-    public PlayQueueService(MusicFolderService musicFolderService, SecurityService securityService,
+    public PlayQueueService(MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, JpsonicComparators comparators,
             MediaFileService mediaFileService, LastFmService lastFmService,
             SearchService searchService, RatingService ratingService, PodcastService podcastService,
@@ -104,7 +105,7 @@ public class PlayQueueService {
             InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.comparators = comparators;
         this.mediaFileService = mediaFileService;
@@ -233,7 +234,7 @@ public class PlayQueueService {
             return doPlay(player, songs).startPlayerAtAndGetInfo(0);
         }
 
-        boolean queueFollowingSongs = securityService
+        boolean queueFollowingSongs = userService
             .getUserSettings(resolveUsername())
             .isQueueFollowingSongs();
         if (queueFollowingSongs) {
@@ -279,7 +280,7 @@ public class PlayQueueService {
      */
     public PlayQueueInfo playPlaylist(int id, Integer startIndex)
             throws ServletRequestBindingException {
-        boolean queueFollowingSongs = securityService
+        boolean queueFollowingSongs = userService
             .getUserSettings(resolveUsername())
             .isQueueFollowingSongs();
 
@@ -306,9 +307,7 @@ public class PlayQueueService {
     public PlayQueueInfo playTopSong(int id, Integer startIndex)
             throws ServletRequestBindingException {
         String username = resolveUsername();
-        boolean queueFollowingSongs = securityService
-            .getUserSettings(username)
-            .isQueueFollowingSongs();
+        boolean queueFollowingSongs = userService.getUserSettings(username).isQueueFollowingSongs();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> files = lastFmService
             .getTopSongs(mediaFileService.getMediaFileStrict(id), 50, musicFolders);
@@ -343,7 +342,7 @@ public class PlayQueueService {
         PodcastEpisode episode = podcastService.getEpisodeStrict(id, false);
         List<PodcastEpisode> allEpisodes = podcastService.getEpisodes(episode.getChannelId());
         List<MediaFile> files = new ArrayList<>();
-        boolean queueFollowingSongs = securityService
+        boolean queueFollowingSongs = userService
             .getUserSettings(resolveUsername())
             .isQueueFollowingSongs();
 
@@ -368,7 +367,7 @@ public class PlayQueueService {
             .stream()
             .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId()))
             .collect(Collectors.toList());
-        boolean queueFollowingSongs = securityService
+        boolean queueFollowingSongs = userService
             .getUserSettings(resolveUsername())
             .isQueueFollowingSongs();
 
@@ -396,7 +395,7 @@ public class PlayQueueService {
     public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre,
             String decade) throws ServletRequestBindingException {
         String username = resolveUsername();
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(username,
                     selectedMusicFolder == null ? null : selectedMusicFolder.getId());
@@ -727,7 +726,7 @@ public class PlayQueueService {
     }
 
     private String formatContentType(String format) {
-        return StringUtil.getMimeType(format);
+        return MediaTypeDetector.getMimeType(format);
     }
 
     private String formatBitRate(MediaFile mediaFile) {
@@ -741,7 +740,7 @@ public class PlayQueueService {
     }
 
     private String resolveUsername() {
-        return securityService.getCurrentUsername(ajaxHelper.getHttpServletRequest());
+        return userService.getCurrentUsername(ajaxHelper.getHttpServletRequest());
     }
 
     private Player resolvePlayer() throws ServletRequestBindingException {

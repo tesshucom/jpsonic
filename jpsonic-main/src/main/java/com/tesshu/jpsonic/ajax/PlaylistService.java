@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -41,7 +42,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,7 +59,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 public class PlaylistService {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final com.tesshu.jpsonic.service.PlaylistService deligate;
     private final MediaFileDao mediaFileDao;
@@ -66,14 +68,16 @@ public class PlaylistService {
     private final AirsonicLocaleResolver airsonicLocaleResolver;
     private final AjaxHelper ajaxHelper;
 
-    public PlaylistService(MusicFolderService musicFolderService, SecurityService securityService,
+    public PlaylistService(MusicFolderService musicFolderService,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             MediaFileService mediaFileService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
             MediaFileDao mediaFileDao, PlayerService playerService,
             AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.deligate = deligate;
         this.mediaFileDao = mediaFileDao;
@@ -84,13 +88,13 @@ public class PlaylistService {
 
     public List<Playlist> getReadablePlaylists() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         return deligate.getReadablePlaylistsForUser(username);
     }
 
     public List<Playlist> getWritablePlaylists() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         return deligate.getWritablePlaylistsForUser(username);
     }
 
@@ -111,7 +115,7 @@ public class PlaylistService {
 
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
 
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         mediaFileService.populateStarredDate(files, username);
         populateAccess(files, username);
         return new PlaylistInfo(playlist, createEntries(files));
@@ -119,7 +123,7 @@ public class PlaylistService {
 
     private void populateAccess(List<MediaFile> files, String username) {
         for (MediaFile file : files) {
-            if (!securityService.isFolderAccessAllowed(file, username)) {
+            if (!libraryAccessPolicy.isFolderAccessAllowed(file, username)) {
                 file.setPresent(false);
             }
         }
@@ -133,7 +137,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        playlist.setUsername(securityService.getCurrentUsername(request));
+        playlist.setUsername(userService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
@@ -151,7 +155,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        playlist.setUsername(securityService.getCurrentUsername(request));
+        playlist.setUsername(userService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
@@ -171,7 +175,7 @@ public class PlaylistService {
 
         Instant now = now();
         Playlist playlist = new Playlist();
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         playlist.setUsername(username);
         playlist.setCreated(now);
         playlist.setChanged(now);
@@ -218,7 +222,7 @@ public class PlaylistService {
 
     public PlaylistInfo toggleStar(int id, int index) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = userService.getCurrentUsername(request);
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile file = files.get(index);
 

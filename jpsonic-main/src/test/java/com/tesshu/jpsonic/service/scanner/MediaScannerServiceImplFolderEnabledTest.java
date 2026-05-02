@@ -35,10 +35,10 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -62,9 +62,9 @@ class MediaScannerServiceImplFolderEnabledTest extends AbstractNeedsScan {
     @BeforeEach
     void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
         Path artist = Path.of(tempDir.toString(), "ARTIST");
-        assertNotNull(FileUtil.createDirectories(artist));
+        assertNotNull(FileOperations.createDirectories(artist));
         Path album = Path.of(artist.toString(), "ALBUM");
-        assertNotNull(FileUtil.createDirectories(album));
+        assertNotNull(FileOperations.createDirectories(album));
         this.musicFolders = Arrays
             .asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1, false));
         Path sample = Path

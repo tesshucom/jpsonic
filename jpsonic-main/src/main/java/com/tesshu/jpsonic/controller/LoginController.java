@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,12 +49,12 @@ import org.springframework.web.servlet.view.RedirectView;
 public class LoginController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public LoginController(SettingsFacade settingsFacade, SecurityService securityService) {
+    public LoginController(SettingsFacade settingsFacade, UserService userService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -81,7 +81,7 @@ public class LoginController {
                     settingsFacade.get(SKeys.general.welcome.loginMessage), "rememberMeEnable",
                     settingsFacade.get(RMSKeys.enable));
 
-        User admin = securityService.getUserByName("admin");
+        User admin = userService.getUserByName("admin");
         if (admin != null && admin.getUsername().equals(admin.getPassword())) {
             map.put("insecure", true);
         }

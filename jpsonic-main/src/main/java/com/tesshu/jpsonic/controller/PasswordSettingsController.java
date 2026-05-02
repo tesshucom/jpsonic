@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.controller;
 import com.tesshu.jpsonic.controller.form.PasswordSettingsCommand;
 import com.tesshu.jpsonic.controller.validator.PasswordSettingsValidator;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -48,13 +48,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/passwordSettings", "/passwordSettings.view" })
 public class PasswordSettingsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PasswordSettingsValidator passwordSettingsValidator;
 
-    public PasswordSettingsController(SecurityService securityService,
+    public PasswordSettingsController(UserService userService,
             PasswordSettingsValidator passwordSettingsValidator) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.passwordSettingsValidator = passwordSettingsValidator;
     }
 
@@ -66,7 +66,7 @@ public class PasswordSettingsController {
     @GetMapping
     protected ModelAndView get(HttpServletRequest request) {
         PasswordSettingsCommand command = new PasswordSettingsCommand();
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command.setUsername(user.getUsername());
         command.setLdapAuthenticated(user.isLdapAuthenticated());
         return new ModelAndView("passwordSettings", Attributes.Model.Command.VALUE, command);
@@ -79,8 +79,8 @@ public class PasswordSettingsController {
         if (bindingResult.hasErrors()) {
             return new ModelAndView("passwordSettings");
         } else {
-            User user = securityService.getUserByNameStrict(command.getUsername());
-            securityService.updatePassword(user, command.getPassword(), user.isLdapAuthenticated());
+            User user = userService.getUserByNameStrict(command.getUsername());
+            userService.updatePassword(user, command.getPassword(), user.isLdapAuthenticated());
 
             command.setPassword(null);
             command.setConfirmPassword(null);

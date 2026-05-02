@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +37,6 @@ import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
 import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,13 +51,12 @@ public class ImportPlaylistController {
     private static final String FIELD_NAME_FILE = "file";
     private static final long MAX_PLAYLIST_SIZE_MB = 5L;
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlaylistService playlistService;
 
-    public ImportPlaylistController(SecurityService securityService,
-            PlaylistService playlistService) {
+    public ImportPlaylistController(UserService userService, PlaylistService playlistService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.playlistService = playlistService;
     }
 
@@ -82,9 +81,9 @@ public class ImportPlaylistController {
                     if (FIELD_NAME_FILE.equals(item.getFieldName())
                             && !StringUtils.isBlank(item.getName())) {
                         playListSizeCheck(item);
-                        String playlistName = FilenameUtils.getBaseName(item.getName());
-                        String fileName = FilenameUtils.getName(item.getName());
-                        String username = securityService.getCurrentUsername(request);
+                        String playlistName = PathInspector.getBaseName(item.getPath());
+                        String fileName = PathInspector.getBaseName(item.getName());
+                        String username = userService.getCurrentUsername(request);
                         Playlist playlist = playlistService
                             .importPlaylist(username, playlistName, fileName, item.getInputStream(),
                                     null);

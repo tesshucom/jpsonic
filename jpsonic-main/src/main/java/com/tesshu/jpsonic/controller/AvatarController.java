@@ -27,7 +27,7 @@ import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.persistence.api.entity.Avatar;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -44,12 +44,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/avatar.view")
 public class AvatarController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final AvatarService avatarService;
 
-    public AvatarController(SecurityService securityService, AvatarService avatarService) {
+    public AvatarController(UserService userService, AvatarService avatarService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.avatarService = avatarService;
     }
 
@@ -80,7 +80,7 @@ public class AvatarController {
 
         boolean forceCustom = ServletRequestUtils
             .getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(), false);
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
             return avatarService.getCustomAvatar(username);
         }

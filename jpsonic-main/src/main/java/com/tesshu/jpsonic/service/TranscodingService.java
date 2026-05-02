@@ -84,18 +84,18 @@ public class TranscodingService {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final UPnPSubnet subnet;
     private final TranscodingDao transcodingDao;
     private final PlayerService playerService;
     private final Executor shortExecutor;
 
-    public TranscodingService(SettingsFacade settingsFacade, SecurityService securityService,
+    public TranscodingService(SettingsFacade settingsFacade, UserService userService,
             UPnPSubnet subnet, TranscodingDao transcodingDao, @Lazy PlayerService playerService,
             @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.subnet = subnet;
         this.transcodingDao = transcodingDao;
         this.playerService = playerService;
@@ -131,7 +131,7 @@ public class TranscodingService {
      */
     public void setTranscodingsForPlayer(@NonNull Player player, int... transcodingIds) {
         if (transcodingIds.length == 0) {
-            UserSettings userSettings = securityService
+            UserSettings userSettings = userService
                 .getUserSettings(
                         JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                                 ? User.USERNAME_GUEST
@@ -595,7 +595,7 @@ public class TranscodingService {
     private TranscodeScheme getTranscodeScheme(@NonNull Player player) {
         String username = player.getUsername();
         if (username != null) {
-            UserSettings userSettings = securityService.getUserSettings(username);
+            UserSettings userSettings = userService.getUserSettings(username);
             return player.getTranscodeScheme().strictest(userSettings.getTranscodeScheme());
         }
 

@@ -17,7 +17,7 @@
  * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.util;
+package com.tesshu.jpsonic.infrastructure.filesystem;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,13 +29,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-class PathValidatorTest {
+class RootPathEntryGuardTest {
 
     @Test
-    void testIsNoTraversal() {
-        assertTrue(PathValidator.isNoTraversal("/foo/bar"));
-        assertFalse(PathValidator.isNoTraversal("/foo/../bar"));
-        assertFalse(PathValidator.isNoTraversal("C:\\foo\\..\\bar"));
+    void testIsStrictPath() {
+        assertTrue(RootPathEntryGuard.isStrictPath("/foo/bar"));
+        assertFalse(RootPathEntryGuard.isStrictPath("/foo/../bar"));
+        assertFalse(RootPathEntryGuard.isStrictPath("C:\\foo\\..\\bar"));
     }
 
     @Documented
@@ -82,31 +82,31 @@ class PathValidatorTest {
         @ValidatePathDecisions.Conditions.Path.Null
         @ValidatePathDecisions.Results.Empty
         void c01() {
-            assertTrue(PathValidator.validateFolderPath(null).isEmpty());
-            assertTrue(PathValidator.validateFolderPath("").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath(null).isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("").isEmpty());
         }
 
         @Test
         @ValidatePathDecisions.Conditions.Path.NonNull.Traversal
         @ValidatePathDecisions.Results.Empty
         void c02() {
-            assertTrue(PathValidator.validateFolderPath("/../foo").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("/../foo").isEmpty());
         }
 
         @Test
         @ValidatePathDecisions.Conditions.Path.NonNull.NonTraversal
         @ValidatePathDecisions.Results.NotEmpty
         void c03() {
-            assertFalse(PathValidator.validateFolderPath("/foo").isEmpty());
+            assertFalse(RootPathEntryGuard.validateFolderPath("/foo").isEmpty());
         }
 
         @Test
         @ValidatePathDecisions.Conditions.Path.NonNull.Root
         @ValidatePathDecisions.Results.Empty
         void c04() {
-            assertTrue(PathValidator.validateFolderPath("/").isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\").isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\\\test").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("/").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\\\test").isEmpty());
         }
 
         @Test
@@ -114,8 +114,8 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
         void c05() {
-            assertTrue(PathValidator.validateFolderPath("/:").isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\:").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("/:").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\:").isEmpty());
         }
 
         @Test
@@ -123,8 +123,8 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.NotEmpty
         @EnabledOnOs(OS.LINUX)
         void c06() {
-            assertFalse(PathValidator.validateFolderPath("/:").isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\:").isEmpty());
+            assertFalse(RootPathEntryGuard.validateFolderPath("/:").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\:").isEmpty());
         }
 
         @Test
@@ -132,10 +132,10 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.NotEmpty
         @EnabledOnOs(OS.WINDOWS)
         void c07() {
-            assertFalse(PathValidator
+            assertFalse(RootPathEntryGuard
                 .validateFolderPath("\\\\192.168.1.1/shared/testDirectory")
                 .isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
 
         @Test
@@ -143,10 +143,10 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.Empty
         @EnabledOnOs(OS.LINUX)
         void c08() {
-            assertTrue(PathValidator
+            assertTrue(RootPathEntryGuard
                 .validateFolderPath("\\\\192.168.1.1/shared/testDirectory")
                 .isEmpty());
-            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
+            assertTrue(RootPathEntryGuard.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
     }
 }

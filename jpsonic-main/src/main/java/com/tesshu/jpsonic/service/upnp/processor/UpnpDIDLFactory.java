@@ -30,6 +30,8 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
@@ -53,7 +55,6 @@ import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jupnp.support.model.DIDLObject.Property;
@@ -208,9 +209,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPathString())
+        String suffix = song.isVideo() ? PathInspector.getExtension(song.getPathString())
                 : transcodingService.getSuffix(player, song, null);
-        String mimeTypeString = StringUtil.getMimeType(suffix);
+        String mimeTypeString = MediaTypeDetector.getMimeType(suffix);
 
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }

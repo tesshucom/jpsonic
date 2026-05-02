@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
@@ -58,7 +59,7 @@ public class SettingsFacade implements SettingsStagingPort {
     }
 
     public @Nullable Pattern getCachedPattern(@NonNull SettingKey<String> key) {
-        assert SKeys.musicFolder.exclusion.excludePatternString.equals(key);
+        assert FileSystemSKeys.excludePatternString.equals(key);
         return runtime.getCachedPattern(key);
     }
 

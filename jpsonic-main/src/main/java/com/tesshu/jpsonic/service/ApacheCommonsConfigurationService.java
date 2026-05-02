@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
@@ -60,7 +60,7 @@ public class ApacheCommonsConfigurationService {
         Path propertyFile = EnvironmentProvider.getInstance().getPropertyFilePath();
         if (!Files.exists(propertyFile)) {
             try {
-                FileUtil.touch(propertyFile);
+                FileOperations.touch(propertyFile);
             } catch (IOException e) {
                 throw new CompletionException("Could not create new property file", e);
             }

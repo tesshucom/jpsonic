@@ -41,7 +41,7 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.repository.UserDao;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
@@ -114,7 +114,7 @@ class LoginControllerTest {
         void setup() throws ExecutionException {
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             mockMvc = MockMvcBuilders
-                .standaloneSetup(new LoginController(settingsFacade, mock(SecurityService.class)))
+                .standaloneSetup(new LoginController(settingsFacade, mock(UserService.class)))
                 .build();
         }
 

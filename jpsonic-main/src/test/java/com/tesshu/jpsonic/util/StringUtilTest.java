@@ -52,19 +52,6 @@ class StringUtilTest {
     }
 
     @Test
-    void testGetMimeType() {
-        assertEquals("audio/mpeg", StringUtil.getMimeType("mp3"), "Error in getMimeType().");
-        assertEquals("audio/mpeg", StringUtil.getMimeType(".mp3"), "Error in getMimeType().");
-        assertEquals("audio/mpeg", StringUtil.getMimeType(".MP3"), "Error in getMimeType().");
-        assertEquals("application/octet-stream", StringUtil.getMimeType("koko"),
-                "Error in getMimeType().");
-        assertEquals("application/octet-stream", StringUtil.getMimeType(""),
-                "Error in getMimeType().");
-        assertEquals("application/octet-stream", StringUtil.getMimeType(null),
-                "Error in getMimeType().");
-    }
-
-    @Test
     void testFormatDurationMSS() {
         assertEquals("0:00", StringUtil.formatDurationMSS(0), "Error in formatDurationMSS().");
         assertEquals("0:05", StringUtil.formatDurationMSS(5), "Error in formatDurationMSS().");
@@ -189,18 +176,6 @@ class StringUtilTest {
         assertNull(StringUtil.getUrlFile("http://www.asdf.com"), "Error in getUrlFile().");
         assertNull(StringUtil.getUrlFile("http://www.asdf.com/"), "Error in getUrlFile().");
         assertNull(StringUtil.getUrlFile("http://www.asdf.com/foo/"), "Error in getUrlFile().");
-    }
-
-    @Test
-    void testFileSystemSafe() {
-        assertEquals("foo", StringUtil.fileSystemSafe("foo"), "Error in fileSystemSafe().");
-        assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3"), "Error in fileSystemSafe().");
-        assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3..."),
-                "Error in fileSystemSafe().");
-        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo/bar"), "Error in fileSystemSafe().");
-        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo\\bar"),
-                "Error in fileSystemSafe().");
-        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo:bar"), "Error in fileSystemSafe().");
     }
 
     @Test

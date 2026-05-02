@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,16 +39,16 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/settings.view")
 public class SettingsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
 
-    public SettingsController(SecurityService securityService) {
+    public SettingsController(UserService userService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
     }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         // Redirect to music folder settings if admin.
         return new ModelAndView(
                 new RedirectView(user.isAdminRole() ? ViewName.MUSIC_FOLDER_SETTINGS.value()

@@ -28,8 +28,8 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -48,8 +48,8 @@ class ShareManagementControllerTest {
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new ShareManagementController(mock(MediaFileService.class),
-                    mock(SecurityService.class), mock(ShareService.class),
-                    mock(PlayerService.class), mock(PlaylistService.class)))
+                    mock(UserService.class), mock(ShareService.class), mock(PlayerService.class),
+                    mock(PlaylistService.class)))
             .build();
     }
 

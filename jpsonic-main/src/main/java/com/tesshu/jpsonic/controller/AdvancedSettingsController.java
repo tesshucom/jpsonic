@@ -40,8 +40,8 @@ import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -68,19 +68,18 @@ public class AdvancedSettingsController {
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final RememberMeKeyManager rememberMeKeyManager;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
 
-    public AdvancedSettingsController(SettingsFacade settingsFacade,
-            SecurityService securityService, RememberMeKeyManager rememberMeKeyManager,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService) {
+    public AdvancedSettingsController(SettingsFacade settingsFacade, UserService userService,
+            RememberMeKeyManager rememberMeKeyManager, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.rememberMeKeyManager = rememberMeKeyManager;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -162,10 +161,10 @@ public class AdvancedSettingsController {
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command.setShareCount(shareService.getAllShares().size());
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(scannerStateService.isScanning());
 

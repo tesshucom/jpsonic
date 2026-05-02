@@ -37,10 +37,10 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -71,9 +71,9 @@ class MediaScannerServiceImplChangeFolderTest extends AbstractNeedsScan {
     @BeforeEach
     void setup() throws IOException, URISyntaxException {
         artist = Path.of(tempDir1.toString(), "ARTIST");
-        assertNotNull(FileUtil.createDirectories(artist));
+        assertNotNull(FileOperations.createDirectories(artist));
         this.album = Path.of(artist.toString(), "ALBUM");
-        assertNotNull(FileUtil.createDirectories(album));
+        assertNotNull(FileOperations.createDirectories(album));
         this.musicFolders = Arrays
             .asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0, false),
                     new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1, false));
@@ -108,9 +108,9 @@ class MediaScannerServiceImplChangeFolderTest extends AbstractNeedsScan {
 
         // Create a directory and move the files there
         Path artist2 = Path.of(tempDir2.toString(), "ARTIST2");
-        assertNotNull(FileUtil.createDirectories(artist2));
+        assertNotNull(FileOperations.createDirectories(artist2));
         Path album2 = Path.of(artist2.toString(), "ALBUM2");
-        assertNotNull(FileUtil.createDirectories(album2));
+        assertNotNull(FileOperations.createDirectories(album2));
         Path movedSong = Path.of(album2.toString(), "sample.mp3");
         Files.move(this.song, movedSong);
         assertFalse(Files.exists(this.song));

@@ -35,6 +35,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
@@ -43,7 +44,6 @@ import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchResult;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -84,9 +84,9 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
 
         // Create a musicfolder for verification
         artist = Path.of(tempDir.toString(), "ARTIST");
-        assertNotNull(FileUtil.createDirectories(artist));
+        assertNotNull(FileOperations.createDirectories(artist));
         this.album = Path.of(artist.toString(), "ALBUM");
-        assertNotNull(FileUtil.createDirectories(album));
+        assertNotNull(FileOperations.createDirectories(album));
         this.musicFolders = Arrays
             .asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1, false));
 
@@ -125,7 +125,7 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
         assertEquals("ALBUM", song.getAlbumName());
 
         // Copy the song file from the test resource. Tags are registered in this file.
-        FileUtil.deleteIfExists(this.song);
+        FileOperations.deleteIfExists(this.song);
         Path sampleEdited = Path
             .of(MediaScannerServiceImplTest.class
                 .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sampleEdited.mp3")

@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -31,7 +31,7 @@ class ViewAsListSelectorTest {
 
     @Test
     void testIsShowOutlineHelp() throws Exception {
-        ViewAsListSelector selector = new ViewAsListSelector(mock(SecurityService.class));
+        ViewAsListSelector selector = new ViewAsListSelector(mock(UserService.class));
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME);
         req.addParameter(Attributes.Request.VIEW_AS_LIST.value(), Boolean.TRUE.toString());

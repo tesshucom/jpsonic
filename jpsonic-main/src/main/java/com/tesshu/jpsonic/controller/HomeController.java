@@ -48,7 +48,7 @@ import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -72,7 +72,7 @@ public class HomeController {
     private static final int LIST_SIZE = 40;
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MusicFolderService musicFolderService;
     private final ScannerStateService scannerStateService;
     private final RatingService ratingService;
@@ -80,13 +80,13 @@ public class HomeController {
     private final SearchService searchService;
     private final MusicIndexService musicIndexService;
 
-    public HomeController(SettingsFacade settingsFacade, SecurityService securityService,
+    public HomeController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, ScannerStateService scannerStateService,
             RatingService ratingService, MediaFileService mediaFileService,
             SearchService searchService, MusicIndexService musicIndexService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.musicFolderService = musicFolderService;
         this.scannerStateService = scannerStateService;
         this.ratingService = ratingService;
@@ -99,20 +99,19 @@ public class HomeController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request)
             throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         if (user.isAdminRole() && settingsFacade.get(SKeys.general.welcome.gettingStartedEnabled)) {
             return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
         AlbumListType listType = AlbumListType
             .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
         }
 
-        MusicFolder selectedMusicFolder = securityService
-            .getSelectedMusicFolder(user.getUsername());
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(user.getUsername());
         List<MusicFolder> musicFolders = musicFolderService
             .getMusicFoldersForUser(user.getUsername(),
                     selectedMusicFolder == null ? null : selectedMusicFolder.getId());

@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
@@ -74,11 +75,11 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
@@ -128,7 +129,7 @@ class SubsonicRESTControllerTest {
     @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     class UnitTest {
 
-        private SecurityService securityService;
+        private UserService userService;
         private TopController topController;
         private SubsonicRESTController controller;
         private PodcastService podcastService;
@@ -139,7 +140,7 @@ class SubsonicRESTControllerTest {
             final SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
             final ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
-            securityService = mock(SecurityService.class);
+            userService = mock(UserService.class);
             final PlayerService playerService = mock(PlayerService.class);
             final MediaFileService mediaFileService = mock(MediaFileService.class);
             final WritableMediaFileService writableMediaFileService = mock(
@@ -174,9 +175,9 @@ class SubsonicRESTControllerTest {
                     AirsonicLocaleResolver.class);
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
-                    musicFolderService, securityService, playerService, mediaFileService,
-                    writableMediaFileService, lastFmService, musicIndexService, transcodingService,
-                    downloadController, coverArtController, avatarController,
+                    musicFolderService, mock(LibraryAccessPolicy.class), userService, playerService,
+                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService,
+                    transcodingService, downloadController, coverArtController, avatarController,
                     userSettingsController, topController, statusService, streamController,
                     hlsController, shareService, playlistService, lyricsService,
                     audioScrobblerService, podcastService, ratingService, searchService,
@@ -197,7 +198,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
 
             controller.refreshPodcasts(new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -218,7 +219,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             String podcastUrl = "http://boo.foo";
@@ -238,7 +239,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             int episodeId = 99;
@@ -278,7 +279,7 @@ class SubsonicRESTControllerTest {
         @Autowired
         private StatusService statusService;
         @Autowired
-        private SecurityService securityService;
+        private UserService userService;
         @Autowired
         private PlaylistService playlistService;
         @Autowired
@@ -1633,7 +1634,7 @@ class SubsonicRESTControllerTest {
 
                 res = new MockHttpServletResponse();
 
-                UserSettings userSettings = securityService
+                UserSettings userSettings = userService
                     .getUserSettings(ServiceMockUtils.ADMIN_NAME);
                 assertFalse(userSettings.isNowPlayingAllowed()); // default false
                 subsonicRESTController.getNowPlaying(req, res);
@@ -1702,11 +1703,11 @@ class SubsonicRESTControllerTest {
 
                 res = new MockHttpServletResponse();
 
-                UserSettings userSettings = securityService
+                UserSettings userSettings = userService
                     .getUserSettings(ServiceMockUtils.ADMIN_NAME);
                 assertFalse(userSettings.isNowPlayingAllowed()); // default false
                 userSettings.setNowPlayingAllowed(true); // Change to true
-                securityService.updateUserSettings(userSettings);
+                userService.updateUserSettings(userSettings);
                 subsonicRESTController.getNowPlaying(req, res);
 
                 Response response = JAXB

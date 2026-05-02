@@ -17,7 +17,7 @@
  * (C) 2022 tesshucom
  */
 
-package com.tesshu.jpsonic.util;
+package com.tesshu.jpsonic.infrastructure.filesystem;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -26,27 +26,54 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
-public final class PathValidator {
+/**
+ * Validator for primary entry points of the library (Music, Playlist, and
+ * Podcast folders).
+ * <p>
+ * This guard ensures that root-level paths registered in the system are
+ * structurally sound and free from traversal risks or illegal OS-specific
+ * formatting.
+ * </p>
+ */
+@Component
+public final class RootPathEntryGuard {
 
     private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
-    private PathValidator() {
+    private RootPathEntryGuard() {
     }
 
-    public static boolean isNoTraversal(String path) {
+    /**
+     * Verifies that the path string does not contain directory traversal sequences
+     * (../ or ..\).
+     *
+     * @param path The path string to check.
+     * @return true if the path is clean of traversal sequences; false otherwise.
+     */
+    public static boolean isStrictPath(String path) {
         return NO_TRAVERSAL.matcher(path).matches();
     }
 
     /**
-     * Returns a path string pointing to the music, playlist, and podcast folders,
-     * if acceptable. otherwise empty.
+     * Validates and normalizes the given folder path for registration as a system
+     * root.
+     * <p>
+     * Checks for null/empty values, directory traversal, and illegal leading
+     * backslashes (except for Windows UNC paths). Also ensures the path is
+     * recognizable by the NIO provider.
+     * </p>
+     * 
+     * @param folderPath The raw folder path string to validate.
+     * @return An Optional containing the validated path string, or empty if
+     *         unacceptable.
      */
     public static Optional<String> validateFolderPath(String folderPath) {
         if (StringUtils.trimToNull(folderPath) == null) {
             return Optional.empty();
         }
-        if (!isNoTraversal(folderPath)) {
+        if (!isStrictPath(folderPath)) {
             return Optional.empty();
         }
         if ((!EnvironmentProvider.getInstance().isWindows() || !folderPath.startsWith("\\\\"))

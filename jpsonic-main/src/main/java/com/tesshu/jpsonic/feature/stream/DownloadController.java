@@ -40,6 +40,8 @@ import java.util.zip.ZipOutputStream;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -50,15 +52,13 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
-import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,18 +85,21 @@ public class DownloadController {
 
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final PlaylistService playlistService;
     private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
 
     public DownloadController(PlayerService playerService, StatusService statusService,
-            SecurityService securityService, PlaylistService playlistService,
-            SettingsFacade settingsFacade, MediaFileService mediaFileService) {
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
+            PlaylistService playlistService, SettingsFacade settingsFacade,
+            MediaFileService mediaFileService) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.playlistService = playlistService;
         this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
@@ -121,7 +124,7 @@ public class DownloadController {
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         TransferStatus status = null;
         try {
 
@@ -150,7 +153,7 @@ public class DownloadController {
             }
 
             if (mediaFile != null) {
-                if (!securityService.isFolderAccessAllowed(mediaFile, user.getUsername())) {
+                if (!libraryAccessPolicy.isFolderAccessAllowed(mediaFile, user.getUsername())) {
                     response
                         .sendError(HttpServletResponse.SC_FORBIDDEN,
                                 StringEscapeUtils
@@ -181,7 +184,7 @@ public class DownloadController {
         } finally {
             if (status != null) {
                 statusService.removeDownloadStatus(status);
-                securityService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
+                userService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
             }
         }
     }
@@ -192,7 +195,7 @@ public class DownloadController {
             downloadFile(response, status, mediaFile.toPath(), range);
         } else {
             List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false);
-            String zipFileName = FilenameUtils.getBaseName(mediaFile.getPathString()) + ".zip";
+            String zipFileName = PathInspector.getBaseName(mediaFile.getPathString()) + ".zip";
             Path coverArtPath = indexes == null && mediaFile.getCoverArtPathString() != null
                     ? Path.of(mediaFile.getCoverArtPathString())
                     : null;
@@ -225,7 +228,7 @@ public class DownloadController {
     @SuppressLint(value = "PULSE_RESOURCE_LEAK", justification = "Close of response#outputStream is transferred to the container (Servlet API)")
     private void downloadFile(HttpServletResponse response, TransferStatus status, Path path,
             HttpRange range) throws IOException {
-        writeLog("Starting to download", FileUtil.getShortPath(path), status.getPlayer());
+        writeLog("Starting to download", PathInspector.toIdentityName(path), status.getPlayer());
         status.setPathString(path.toString());
 
         response.setContentType("application/x-download");
@@ -242,7 +245,7 @@ public class DownloadController {
 
         copyFileToStream(path, RangeOutputStream.wrap(response.getOutputStream(), range), status,
                 range);
-        writeLog("Downloaded", FileUtil.getShortPath(path), status.getPlayer());
+        writeLog("Downloaded", PathInspector.toIdentityName(path), status.getPlayer());
     }
 
     private String encodeAsRFC5987(String string) {
@@ -348,7 +351,7 @@ public class DownloadController {
      */
     private void copyFileToStream(Path path, OutputStream out, TransferStatus status,
             HttpRange range) throws IOException {
-        writeLog("Downloading", FileUtil.getShortPath(path), status.getPlayer());
+        writeLog("Downloading", PathInspector.toIdentityName(path), status.getPlayer());
 
         final int bufferSize = 16 * 1024; // 16 Kbit
 

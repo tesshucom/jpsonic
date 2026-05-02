@@ -26,17 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -53,16 +54,18 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/editTags", "/editTags.view" })
 public class EditTagsController {
 
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
     private final ScannerStateService scannerStateService;
 
-    public EditTagsController(SecurityService securityService,
+    public EditTagsController(LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
             ScannerStateService scannerStateService) {
         super();
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
         this.scannerStateService = scannerStateService;
@@ -95,18 +98,18 @@ public class EditTagsController {
         map.put("songs", parsedSongs);
         map.put("ancestors", getAncestors(dir));
 
-        String username = securityService.getCurrentUsernameStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(username);
+        String username = userService.getCurrentUsernameStrict(request);
+        UserSettings userSettings = userService.getUserSettings(username);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("dir", dir);
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
+        map.put("selectedMusicFolder", userService.getSelectedMusicFolder(username));
 
         return new ModelAndView("editTags", "model", map);
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         List<MediaFile> result = new ArrayList<>();
-        if (securityService.isInPodcastFolder(dir.toPath())) {
+        if (libraryAccessPolicy.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }
@@ -123,7 +126,7 @@ public class EditTagsController {
     private ParsedSong createParsedSong(MediaFile file, int index) {
         ParsedSong parsedSong = new ParsedSong();
         parsedSong.setId(file.getId());
-        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPathString()));
+        parsedSong.setFileName(PathInspector.getBaseName(file.getPathString()));
         parsedSong.setTrack(file.getTrackNumber());
         parsedSong.setSuggestedTrack(index + 1);
         parsedSong.setTitle(file.getTitle());

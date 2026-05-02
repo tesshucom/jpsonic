@@ -28,7 +28,7 @@ import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,14 +48,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class PlayQueueController {
 
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
 
-    public PlayQueueController(SettingsFacade settingsFacade, SecurityService securityService,
+    public PlayQueueController(SettingsFacade settingsFacade, UserService userService,
             PlayerService playerService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
     }
 
@@ -63,8 +63,8 @@ public class PlayQueueController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playQueue", "model", LegacyMap

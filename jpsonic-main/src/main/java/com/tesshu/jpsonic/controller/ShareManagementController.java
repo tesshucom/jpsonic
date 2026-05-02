@@ -32,8 +32,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Share;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -53,17 +53,17 @@ import org.springframework.web.servlet.ModelAndView;
 public class ShareManagementController {
 
     private final MediaFileService mediaFileService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ShareService shareService;
     private final PlayerService playerService;
     private final PlaylistService playlistService;
 
-    public ShareManagementController(MediaFileService mediaFileService,
-            SecurityService securityService, ShareService shareService, PlayerService playerService,
+    public ShareManagementController(MediaFileService mediaFileService, UserService userService,
+            ShareService shareService, PlayerService playerService,
             PlaylistService playlistService) {
         super();
         this.mediaFileService = mediaFileService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.shareService = shareService;
         this.playerService = playerService;
         this.playlistService = playlistService;
@@ -91,8 +91,8 @@ public class ShareManagementController {
 
         return new ModelAndView("createShare", "model",
                 LegacyMap
-                    .of("dir", dir, "user", securityService.getCurrentUserStrict(request),
-                            "playUrl", shareService.getShareUrl(request, share)));
+                    .of("dir", dir, "user", userService.getCurrentUserStrict(request), "playUrl",
+                            shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request)

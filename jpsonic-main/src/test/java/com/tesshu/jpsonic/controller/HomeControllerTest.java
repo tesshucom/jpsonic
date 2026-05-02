@@ -48,8 +48,8 @@ import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -74,7 +74,7 @@ class HomeControllerTest {
     void setup() throws ExecutionException {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new HomeController(settingsFacade, mock(SecurityService.class),
+            .standaloneSetup(new HomeController(settingsFacade, mock(UserService.class),
                     mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
                     mock(RatingService.class), mock(MediaFileService.class),
                     mock(SearchService.class), mock(MusicIndexService.class)))
@@ -115,9 +115,9 @@ class HomeControllerTest {
             searchService = mock(SearchService.class);
             musicIndexService = mock(MusicIndexService.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-            SecurityService securityService = mock(SecurityService.class);
+            UserService userService = mock(UserService.class);
             ScannerStateService scannerStateService = mock(ScannerStateService.class);
-            controller = new HomeController(settingsFacade, securityService, musicFolderService,
+            controller = new HomeController(settingsFacade, userService, musicFolderService,
                     scannerStateService, ratingService, mediaFileService, searchService,
                     musicIndexService);
         }

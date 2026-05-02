@@ -34,8 +34,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -63,7 +63,7 @@ class PlaylistsControllerTest {
             .when(playlistService.getReadablePlaylistsForUser(Mockito.any()))
             .thenReturn(playlists);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new PlaylistsController(mock(SecurityService.class), playlistService,
+            .standaloneSetup(new PlaylistsController(mock(UserService.class), playlistService,
                     mock(ViewAsListSelector.class)))
             .build();
     }

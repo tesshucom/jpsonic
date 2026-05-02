@@ -24,7 +24,7 @@ import java.util.List;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
@@ -34,21 +34,20 @@ import org.springframework.stereotype.Component;
 public class UpnpProcessorUtil {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SettingsFacade settingsFacade;
     private final JpsonicComparators comparators;
 
-    public UpnpProcessorUtil(MusicFolderService musicFolderService, SecurityService securityService,
+    public UpnpProcessorUtil(MusicFolderService musicFolderService, UserService userService,
             SettingsFacade settingsFacade, JpsonicComparators comparators) {
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.settingsFacade = settingsFacade;
         this.comparators = comparators;
     }
 
     public List<MusicFolder> getGuestFolders() {
-        return musicFolderService
-            .getMusicFoldersForUser(securityService.getGuestUser().getUsername());
+        return musicFolderService.getMusicFoldersForUser(userService.getGuestUser().getUsername());
     }
 
     public boolean isSortAlbumsByYear(String artist) {

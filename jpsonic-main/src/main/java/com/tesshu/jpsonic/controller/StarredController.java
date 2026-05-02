@@ -33,7 +33,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,18 +53,18 @@ import org.springframework.web.servlet.ModelAndView;
 public class StarredController {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final MediaFileDao mediaFileDao;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public StarredController(MusicFolderService musicFolderService, SecurityService securityService,
+    public StarredController(MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, MediaFileDao mediaFileDao,
             MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
@@ -75,7 +75,7 @@ public class StarredController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         String username = user.getUsername();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
@@ -95,7 +95,7 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         return new ModelAndView("starred", "model",
                 LegacyMap
                     .of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(),

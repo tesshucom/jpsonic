@@ -33,11 +33,12 @@ import javax.imageio.ImageIO;
 import com.tesshu.jpsonic.controller.CoverArtController;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.Avatar;
 import com.tesshu.jpsonic.persistence.api.repository.AvatarDao;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
@@ -122,7 +123,7 @@ public class AvatarService {
         }
         int width = image.getWidth();
         int height = image.getHeight();
-        String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(fileName));
+        String mimeType = MediaTypeDetector.getMimeType(PathInspector.getExtension(fileName));
 
         boolean resized = false;
         byte[] imageData = new byte[0];
@@ -135,7 +136,7 @@ public class AvatarService {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(image, "jpeg", out);
             imageData = out.toByteArray();
-            mimeType = StringUtil.getMimeType("jpeg");
+            mimeType = MediaTypeDetector.getMimeType("jpeg");
             resized = true;
         }
         Avatar avatar = new Avatar(0, fileName, now(), mimeType, width, height, imageData);

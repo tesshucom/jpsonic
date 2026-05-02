@@ -62,16 +62,6 @@ public final class SKeys {
          */
         @Deprecated
         public static final SettingKey<String> jwtKey = SKey.of("JWTKey", STRING, null);
-
-        /**
-         * Temporary secret used for Remember-Me token signing.
-         * <p>
-         * This key is deprecated and will be removed once the secret is stored in the
-         * database instead of the properties file.
-         */
-        @Deprecated
-        public static final SettingKey<String> rememberMeKey = SKey
-            .of("RememberMeKey", STRING, null);
     }
 
     /** Settings for music folder configuration (UI category). */
@@ -90,19 +80,6 @@ public final class SKeys {
                 .of("IndexCreationHour", INTEGER, 3);
 
             private scan() {
-            }
-        }
-
-        /** Exclusion rules for music folder scanning (UI category). */
-        public static final class exclusion {
-
-            public static final SettingKey<String> excludePatternString = SKey
-                .of("ExcludePattern", STRING, null);
-
-            public static final SettingKey<Boolean> ignoreSymlinks = SKey
-                .of("IgnoreSymLinks", BOOLEAN, false);
-
-            private exclusion() {
             }
         }
 

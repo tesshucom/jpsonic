@@ -42,7 +42,7 @@ import java.util.Collection;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -63,13 +63,12 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     private static final String ATTRIBUTE_NAME_PASSWORD = "userPassword";
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SettingsFacade settingsFacade;
 
-    public CustomUserDetailsContextMapper(SecurityService securityService,
-            SettingsFacade settingsFacade) {
+    public CustomUserDetailsContextMapper(UserService userService, SettingsFacade settingsFacade) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.settingsFacade = settingsFacade;
     }
 
@@ -83,7 +82,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         }
 
         // User must be defined in Airsonic, unless auto-shadowing is enabled.
-        User user = securityService.getUserByName(username, false);
+        User user = userService.getUserByName(username, false);
 
         if (user == null && !settingsFacade.get(SKeys.advanced.ldap.autoShadowing)) {
             throw new BadCredentialsException("User does not exist.");
@@ -93,11 +92,11 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             User newUser = new User(username, "", null, true, 0L, 0L, 0L);
             newUser.setStreamRole(true);
             newUser.setSettingsRole(true);
-            securityService.createUser(newUser);
+            userService.createUser(newUser);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Created local user '" + username + "' for DN " + dn);
             }
-            user = securityService.getUserByName(username, false);
+            user = userService.getUserByName(username, false);
         }
 
         // LDAP authentication must be enabled for the given user.
@@ -123,7 +122,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         essence.setUsername(userName);
 
         // Add the supplied authorities
-        for (GrantedAuthority authority : securityService.getGrantedAuthorities(userName)) {
+        for (GrantedAuthority authority : userService.getGrantedAuthorities(userName)) {
             essence.addAuthority(authority);
         }
 

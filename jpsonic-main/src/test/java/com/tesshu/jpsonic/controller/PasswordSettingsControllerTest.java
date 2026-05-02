@@ -28,8 +28,8 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.controller.form.PasswordSettingsCommand;
 import com.tesshu.jpsonic.controller.validator.PasswordSettingsValidator;
 import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,14 +46,14 @@ class PasswordSettingsControllerTest {
 
     private MockMvc mockMvc;
 
-    private SecurityService securityService;
+    private UserService userService;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        securityService = mock(SecurityService.class);
+        userService = mock(UserService.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new PasswordSettingsController(securityService,
-                    new PasswordSettingsValidator()))
+            .standaloneSetup(
+                    new PasswordSettingsController(userService, new PasswordSettingsValidator()))
             .build();
     }
 
@@ -91,12 +91,12 @@ class PasswordSettingsControllerTest {
         command.setConfirmPassword(newPass);
 
         User user = new User("user", "pass", "email");
-        Mockito.when(securityService.getUserByNameStrict(command.getUsername())).thenReturn(user);
+        Mockito.when(userService.getUserByNameStrict(command.getUsername())).thenReturn(user);
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         ArgumentCaptor<String> passCaptor = ArgumentCaptor.forClass(String.class);
         Mockito
             .doNothing()
-            .when(securityService)
+            .when(userService)
             .updatePassword(userCaptor.capture(), passCaptor.capture(), Mockito.anyBoolean());
 
         mockMvc

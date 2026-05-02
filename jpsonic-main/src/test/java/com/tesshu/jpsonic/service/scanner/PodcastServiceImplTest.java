@@ -34,13 +34,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -51,7 +52,7 @@ import org.mockito.Mockito;
 class PodcastServiceImplTest {
 
     private SettingsFacade settingsFacade;
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private PodcastServiceImpl podcastService;
 
     @BeforeEach
@@ -62,10 +63,11 @@ class PodcastServiceImplTest {
 
     @Ignore
     void init() {
-        securityService = mock(SecurityService.class);
-        MediaFileService mediaFlieService = new MediaFileService(settingsFacade, null, null, null,
-                null, null);
-        podcastService = new PodcastServiceImpl(null, settingsFacade, securityService,
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
+        MediaFileService mediaFlieService = new MediaFileService(settingsFacade,
+                new ScanningExclusionPolicy(settingsFacade), null, mock(LibraryAccessPolicy.class),
+                null, null, null);
+        podcastService = new PodcastServiceImpl(null, settingsFacade, libraryAccessPolicy,
                 mediaFlieService, mock(WritableMediaFileService.class), null, null, null, null,
                 null);
     }
@@ -178,7 +180,9 @@ class PodcastServiceImplTest {
                 .withString(SKeys.podcast.folder, podcastFolder.toString())
                 .build();
             init();
-            Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
+            Mockito
+                .when(libraryAccessPolicy.isWriteAllowed(Mockito.any(Path.class)))
+                .thenReturn(true);
 
             final String channelTitle = "chTitle";
             final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null,
@@ -232,7 +236,9 @@ class PodcastServiceImplTest {
                 .withString(SKeys.podcast.folder, podcastFolder.toString())
                 .build();
             init();
-            Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
+            Mockito
+                .when(libraryAccessPolicy.isWriteAllowed(Mockito.any(Path.class)))
+                .thenReturn(true);
 
             final String channelTitle = "chTitleIf...";
             final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null,
@@ -283,7 +289,9 @@ class PodcastServiceImplTest {
                 .withString(SKeys.podcast.folder, podcastFolder.toString())
                 .build();
             init();
-            Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
+            Mockito
+                .when(libraryAccessPolicy.isWriteAllowed(Mockito.any(Path.class)))
+                .thenReturn(true);
 
             final String channelTitle = "chTitle";
             final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null,

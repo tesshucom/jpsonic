@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
@@ -42,7 +42,7 @@ class UpnpProcessorUtilTest {
     @BeforeEach
     void setup() {
         settingsFacade = SettingsFacadeBuilder.create().build();
-        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                 settingsFacade, mock(JpsonicComparators.class));
     }
 
@@ -52,7 +52,7 @@ class UpnpProcessorUtilTest {
             .create()
             .withBoolean(UPnPSKeys.options.guestPublish, true)
             .build();
-        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                 settingsFacade, mock(JpsonicComparators.class));
 
         assertNotNull(util.getGuestFolders());
@@ -66,7 +66,7 @@ class UpnpProcessorUtilTest {
             .create()
             .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
             .build();
-        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(SecurityService.class),
+        util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                 settingsFacade, mock(JpsonicComparators.class));
 
         assertEquals(UPnPSearchMethod.ID3, util.getUPnPSearchMethod());

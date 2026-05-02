@@ -29,9 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ class MetaDataParserFactoryTest {
     @BeforeAll
     static void beforeAll() throws IOException {
         Path homePath = Path.of(System.getProperty("jpsonic.home"));
-        FileUtil.createDirectories(homePath);
+        FileOperations.createDirectories(homePath);
         someMp3 = Path.of(homePath.toString(), "some.mp3");
         someFlv = Path.of(homePath.toString(), "some.flv");
         someJunk = Path.of(homePath.toString(), "some.junk");

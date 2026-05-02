@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,16 +58,15 @@ public class ScanLogController {
     private static final DateTimeFormatter DATE_AND_OPTIONAL_MILLI_TIME = DateTimeFormatter
         .ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ScannerStateService scannerStateService;
     private final StaticsDao staticsDao;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public ScanLogController(SecurityService securityService,
-            ScannerStateService scannerStateService, StaticsDao staticsDao,
-            OutlineHelpSelector outlineHelpSelector) {
+    public ScanLogController(UserService userService, ScannerStateService scannerStateService,
+            StaticsDao staticsDao, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.scannerStateService = scannerStateService;
         this.staticsDao = staticsDao;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -82,8 +81,8 @@ public class ScanLogController {
 
         model.put("brand", EnvironmentProvider.getInstance().getBrand());
         model
-            .put("admin", securityService
-                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+            .put("admin",
+                    userService.isAdmin(userService.getCurrentUserStrict(request).getUsername()));
 
         model.put("scanning", scannerStateService.isScanning());
 
@@ -107,15 +106,15 @@ public class ScanLogController {
             model.put("startDate", selectedStartDate);
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         model
             .put("showOutlineHelp",
                     outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         if (userSettings.isShowScannedCount() != Boolean.parseBoolean(reqShowCount)) {
             userSettings.setShowScannedCount(Boolean.parseBoolean(reqShowCount));
-            securityService.updateUserSettings(userSettings);
+            userService.updateUserSettings(userSettings);
         }
         boolean showScannedCount = userSettings.isShowScannedCount();
         model.put("showScannedCount", showScannedCount);

@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -49,9 +53,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.IndexWithCount
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
-import com.tesshu.jpsonic.util.PathValidator;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
@@ -65,19 +67,22 @@ import org.springframework.stereotype.Service;
 public class MediaFileService {
 
     private final SettingsFacade settingsFacade;
+    private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileCache mediaFileCache;
     private final MediaFileDao mediaFileDao;
     private final JpsonicComparators comparators;
 
-    public MediaFileService(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaFileCache mediaFileCache,
+    public MediaFileService(SettingsFacade settingsFacade,
+            ScanningExclusionPolicy scanningExclusionPolicy, MusicFolderService musicFolderService,
+            LibraryAccessPolicy libraryAccessPolicy, MediaFileCache mediaFileCache,
             MediaFileDao mediaFileDao, JpsonicComparators comparators) {
         super();
         this.settingsFacade = settingsFacade;
+        this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileCache = mediaFileCache;
         this.mediaFileDao = mediaFileDao;
         this.comparators = comparators;
@@ -89,7 +94,7 @@ public class MediaFileService {
             return result;
         }
 
-        if (!securityService.isReadAllowed(path)) {
+        if (!libraryAccessPolicy.isReadAllowed(path)) {
             throw new SecurityException("Access denied to file " + path);
         }
 
@@ -103,7 +108,7 @@ public class MediaFileService {
     }
 
     public @Nullable MediaFile getMediaFile(String path) {
-        if (!PathValidator.isNoTraversal(path)) {
+        if (!RootPathEntryGuard.isStrictPath(path)) {
             throw new SecurityException("Access denied to file : " + path);
         }
         return getMediaFile(Path.of(path)); // lgtm [java/path-injection]
@@ -115,7 +120,7 @@ public class MediaFileService {
             return null;
         }
 
-        if (!securityService.isReadAllowed(mediaFile.toPath())) {
+        if (!libraryAccessPolicy.isReadAllowed(mediaFile.toPath())) {
             throw new SecurityException("Access denied to file " + mediaFile);
         }
 
@@ -212,8 +217,8 @@ public class MediaFileService {
         if (fileName == null) {
             return false;
         }
-        String suffix = FilenameUtils.getExtension(fileName.toString()).toLowerCase(Locale.ENGLISH);
-        return !securityService.isExcluded(candidate)
+        String suffix = PathInspector.getExtension(fileName).toLowerCase(Locale.ENGLISH);
+        return !scanningExclusionPolicy.isExcluded(candidate)
                 && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
@@ -240,7 +245,7 @@ public class MediaFileService {
             return Path.of(mediaFile.getCoverArtPathString());
         }
         Path parentPath = mediaFile.getParent();
-        if (parentPath == null || !securityService.isReadAllowed(parentPath)) {
+        if (parentPath == null || !libraryAccessPolicy.isReadAllowed(parentPath)) {
             return null;
         }
         MediaFile parent = getParentOf(mediaFile);

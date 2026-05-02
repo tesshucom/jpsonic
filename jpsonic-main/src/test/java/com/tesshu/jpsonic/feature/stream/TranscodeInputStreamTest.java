@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.tesshu.jpsonic.feature.stream.TranscodeInputStream.DeleteTmpFileTask;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,11 +64,12 @@ class TranscodeInputStreamTest {
             assertEquals(1, Files.list(tempDir).count());
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            DeleteTmpFileTask task = new DeleteTmpFileTask(Path.of(tempFile.toString() + ".dummy"));
+            FileOperations.DeleteTmpFileTask task = new FileOperations.DeleteTmpFileTask(
+                    Path.of(tempFile.toString() + ".dummy"));
             executor.submit(task).get();
             assertEquals(1, Files.list(tempDir).count());
 
-            executor.submit(new DeleteTmpFileTask(tempFile)).get();
+            executor.submit(new FileOperations.DeleteTmpFileTask(tempFile)).get();
             assertEquals(0, Files.list(tempDir).count());
             executor.shutdown();
         }

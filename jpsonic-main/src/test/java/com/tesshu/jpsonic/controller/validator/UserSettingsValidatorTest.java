@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,7 +40,7 @@ class UserSettingsValidatorTest {
     @BeforeEach
     void setup() throws ExecutionException {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        validator = new UserSettingsValidator(mock(SecurityService.class), settingsFacade,
+        validator = new UserSettingsValidator(mock(UserService.class), settingsFacade,
                 mock(MockHttpServletRequest.class));
     }
 

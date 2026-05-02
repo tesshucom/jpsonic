@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.system.IndexGeneration;
-import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.PathValidator;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -181,7 +181,7 @@ public class EnvironmentProvider {
 
     private void ensureDirectoryPresent(Path home) {
         if (!Files.exists(home) && !Files.isDirectory(home)
-                && FileUtil.createDirectories(home) == null) {
+                && FileOperations.createDirectories(home) == null) {
             throw new IllegalStateException("""
                     The directory %s does not exist. \
                     Please create it and make it writable. \
@@ -286,7 +286,7 @@ public class EnvironmentProvider {
 
     private String resolveDefaultFolder(String key, String winDefault, String linuxDefault) {
         String arg = System.getProperty(key);
-        if (PathValidator.validateFolderPath(arg).isEmpty()) {
+        if (RootPathEntryGuard.validateFolderPath(arg).isEmpty()) {
             return isWindows() ? winDefault : linuxDefault;
         }
         return arg;
@@ -344,9 +344,9 @@ public class EnvironmentProvider {
                 LOG.info("Found " + label + ". Try to delete : {}", old);
             }
             if (Files.isRegularFile(old)) {
-                FileUtil.deleteIfExists(old);
+                FileOperations.deleteIfExists(old);
             } else {
-                FileUtil.deleteDirectory(old);
+                FileOperations.deleteDirectory(old);
             }
         }
     }
@@ -396,7 +396,7 @@ public class EnvironmentProvider {
         onFirstCreation.run();
 
         // Attempt to create the index directory
-        if (FileUtil.createDirectories(rootIndexDir) == null && LOG.isWarnEnabled()) {
+        if (FileOperations.createDirectories(rootIndexDir) == null && LOG.isWarnEnabled()) {
             LOG
                 .warn("Failed to create index directory (index version {}).",
                         IndexGeneration.CURRENT.value());

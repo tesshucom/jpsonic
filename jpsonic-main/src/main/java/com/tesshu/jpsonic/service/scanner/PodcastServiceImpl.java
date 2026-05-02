@@ -45,6 +45,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileNameSanitizer;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -53,15 +58,12 @@ import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.persistence.api.repository.PodcastDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.annotation.PostConstruct;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
@@ -116,7 +118,7 @@ public class PodcastServiceImpl implements PodcastService {
 
     private final PodcastDao podcastDao;
     private final SettingsFacade settingsFacade;
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
@@ -130,7 +132,7 @@ public class PodcastServiceImpl implements PodcastService {
     private final ReentrantLock fileLock = new ReentrantLock();
 
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsFacade settingsFacade,
-            SecurityService securityService, MediaFileService mediaFileService,
+            LibraryAccessPolicy libraryAccessPolicy, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService,
             MetaDataParserFactory metaDataParserFactory,
             @Qualifier("podcastDownloadExecutor") ThreadPoolTaskExecutor podcastDownloadExecutor,
@@ -138,7 +140,7 @@ public class PodcastServiceImpl implements PodcastService {
             ScannerStateServiceImpl scannerState, IndexManager indexManager) {
         this.podcastDao = podcastDao;
         this.settingsFacade = settingsFacade;
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
         this.metaDataParserFactory = metaDataParserFactory;
@@ -265,7 +267,7 @@ public class PodcastServiceImpl implements PodcastService {
         List<PodcastEpisode> result = new ArrayList<>(episodes.size());
         for (PodcastEpisode episode : episodes) {
             if (episode.getPath() == null
-                    || securityService.isReadAllowed(Path.of(episode.getPath()))) {
+                    || libraryAccessPolicy.isReadAllowed(Path.of(episode.getPath()))) {
                 result.add(episode);
             }
         }
@@ -477,7 +479,7 @@ public class PodcastServiceImpl implements PodcastService {
         if (contentTypeHeader != null && contentTypeHeader.getValue() != null) {
             ContentType contentType = ContentType.parse(contentTypeHeader.getValue());
             String mimeType = contentType.getMimeType();
-            result = StringUtil.getSuffix(mimeType);
+            result = MediaTypeDetector.getSuffix(mimeType);
         }
         return result == null ? "jpeg" : result;
     }
@@ -582,7 +584,7 @@ public class PodcastServiceImpl implements PodcastService {
     private String getExtension(String url) {
         try {
             URI uri = new URI(url);
-            return FilenameUtils
+            return PathInspector
                 .getExtension(new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null,
                         uri.getFragment())
                     .toString());
@@ -733,7 +735,7 @@ public class PodcastServiceImpl implements PodcastService {
                         if (isEpisodeDeleted(episode)) {
                             writeInfo("Podcast " + episode.getUrl()
                                     + " was deleted. Aborting download.");
-                            FileUtil.deleteIfExists(path);
+                            FileOperations.deleteIfExists(path);
                         } else {
                             addMediaFileIdToEpisodes(Arrays.asList(episode));
                             episode.setBytesDownloaded(bytesDownloaded);
@@ -851,7 +853,7 @@ public class PodcastServiceImpl implements PodcastService {
                 + episode.getTitle();
         filename = filename.substring(0, Math.min(filename.length(), 146));
 
-        filename = StringUtil.fileSystemSafe(filename);
+        filename = FileNameSanitizer.sanitize(filename);
         String extension = getExtension(episode.getUrl());
 
         Path channelDir = getChannelDirectory(channel);
@@ -860,7 +862,7 @@ public class PodcastServiceImpl implements PodcastService {
             file = Path.of(channelDir.toString(), filename + i + "." + extension);
         }
 
-        if (!securityService.isWriteAllowed(file)) {
+        if (!libraryAccessPolicy.isWriteAllowed(file)) {
             throw new SecurityException("Access denied to file " + file);
         }
         return file;
@@ -868,7 +870,7 @@ public class PodcastServiceImpl implements PodcastService {
 
     private Path getChannelDirectory(PodcastChannel channel) {
         Path podcastDir = Path.of(settingsFacade.get(SKeys.podcast.folder));
-        if (!Files.exists(podcastDir) && FileUtil.createDirectories(podcastDir) == null) {
+        if (!Files.exists(podcastDir) && FileOperations.createDirectories(podcastDir) == null) {
             throw new IllegalStateException("Failed to create directory " + podcastDir);
         }
         if (!Files.isWritable(podcastDir)) {
@@ -877,9 +879,9 @@ public class PodcastServiceImpl implements PodcastService {
         }
 
         Path channelDir = Path
-            .of(podcastDir.toString(), StringUtil.fileSystemSafe(channel.getTitle()));
+            .of(podcastDir.toString(), FileNameSanitizer.sanitize(channel.getTitle()));
         if (!Files.exists(channelDir)) {
-            if (FileUtil.createDirectories(channelDir) == null) {
+            if (FileOperations.createDirectories(channelDir) == null) {
                 throw new IllegalStateException("Failed to create directory " + channelDir);
             }
             MediaFile mediaFile = writableMediaFileService.getMediaFile(channelDir);
@@ -925,7 +927,7 @@ public class PodcastServiceImpl implements PodcastService {
         if (episodePath != null) {
             fileLock.lock();
             try {
-                FileUtil.deleteIfExists(Path.of(episodePath));
+                FileOperations.deleteIfExists(Path.of(episodePath));
             } finally {
                 fileLock.unlock();
             }
