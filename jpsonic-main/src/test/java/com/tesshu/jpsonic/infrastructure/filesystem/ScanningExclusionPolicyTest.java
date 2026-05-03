@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.Ignore;
@@ -135,6 +134,59 @@ class ScanningExclusionPolicyTest {
         assertTrue(exclusionPolicy.isExcluded(Path.of("@sharebin")));
         assertTrue(exclusionPolicy.isExcluded(Path.of("@tmp")));
         assertTrue(exclusionPolicy.isExcluded(Path.of(".SynologyWorkingDirectory")));
+    }
+
+    @Test
+    void isExcludedShouldExcludeHiddenFiles() {
+        // [Case] Standard hidden files (dot-prefix)
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/.hidden_folder")));
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/.DSStore")));
+
+        // [Case] Normal files should NOT be excluded
+        assertFalse(exclusionPolicy.isExcluded(Path.of("/music/album/song.mp3")));
+    }
+
+    @Test
+    void isExcludedShouldExcludeReservedNames() {
+        // [Case] Windows specific thumbnail
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/Thumbs.db")));
+
+        // [Case] Synology specific metadata
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/@eaDir")));
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/@tmp")));
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/.SYNOPPSDB")));
+    }
+
+    @Test
+    void isExcludedShouldExcludeTrailingDotFiles() {
+        // [Case] Windows-prohibited trailing dots
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/InvalidName.")));
+    }
+
+    @Test
+    void isExcludedShouldExcludeByUserDefinedPattern() {
+        // [Setup] Mock a custom exclusion pattern (e.g., exclude all 'temp' files)
+        String patternStr = ".*temp.*";
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(FileSystemSKeys.excludePatternString, patternStr)
+            .buildWithDefault();
+        init();
+
+        // [Case] Matches user pattern
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/music/my_temp_recording.mp3")));
+
+        // [Case] Does NOT match user pattern
+        assertFalse(exclusionPolicy.isExcluded(Path.of("/music/permanent_track.mp3")));
+    }
+
+    @Test
+    void isExcludedShouldHandleEdgeCases() {
+        // [Case] Root path (fileName is null)
+        assertTrue(exclusionPolicy.isExcluded(Path.of("/")));
+
+        // [Case] Directory with dot in name (but not at start) should NOT be excluded
+        assertFalse(exclusionPolicy.isExcluded(Path.of("/music/album.2023/song.mp3")));
     }
 
 }

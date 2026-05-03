@@ -20,9 +20,11 @@
 package com.tesshu.jpsonic.infrastructure.filesystem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MediaTypeDetectorTest {
 
     @Test
@@ -33,5 +35,26 @@ class MediaTypeDetectorTest {
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType("koko"));
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(""));
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(null));
+    }
+
+    @Test
+    void testGetMimeTypeShouldResolveCorrectly() {
+        // Test for MediaTypeDetector to ensure O(1) lookups and G1GC-friendly behavior.
+        assertEquals("audio/mpeg", MediaTypeDetector.getMimeType("mp3"));
+        assertEquals("audio/flac", MediaTypeDetector.getMimeType("flac"));
+        assertEquals("video/mp4", MediaTypeDetector.getMimeType("mp4"));
+        assertEquals("video/x-matroska", MediaTypeDetector.getMimeType("mkv"));
+        assertEquals("image/jpeg", MediaTypeDetector.getMimeType("jpg"));
+        assertEquals("application/octet-stream", MediaTypeDetector.getMimeType("unknown"));
+        assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(""));
+        assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(null));
+    }
+
+    @Test
+    void testGetSuffixShouldResolveCanonicalExtension() {
+        assertEquals("mp3", MediaTypeDetector.getSuffix("audio/mpeg"));
+        assertEquals("aac", MediaTypeDetector.getSuffix("audio/mp4"));
+        assertNull(MediaTypeDetector.getSuffix("application/pdf"));
+        assertNull(MediaTypeDetector.getSuffix(null));
     }
 }
