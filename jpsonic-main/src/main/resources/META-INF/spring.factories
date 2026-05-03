@@ -3,4 +3,4 @@ org.springframework.context.ApplicationListener=\
   com.tesshu.jpsonic.feature.auth.core.LoginFailureListener
 
 org.springframework.context.ApplicationContextInitializer=\
-  com.tesshu.jpsonic.infrastructure.core.CustomPropertySourceConfigurer
+  com.tesshu.jpsonic.infrastructure.settings.PropertySourceInitializer
