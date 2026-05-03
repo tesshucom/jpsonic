@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.infrastructure.filesystem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
@@ -30,11 +31,13 @@ class MediaTypeDetectorTest {
     @Test
     void testGetMimeType() {
         assertEquals("audio/mpeg", MediaTypeDetector.getMimeType("mp3"));
-        assertEquals("audio/mpeg", MediaTypeDetector.getMimeType(".mp3"));
-        assertEquals("audio/mpeg", MediaTypeDetector.getMimeType(".MP3"));
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType("koko"));
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(""));
         assertEquals("application/octet-stream", MediaTypeDetector.getMimeType(null));
+
+        // The only input value is the return value of PathInspector#getExtension.
+        assertNotEquals("audio/mpeg", MediaTypeDetector.getMimeType(".MP3"));
+        assertNotEquals("audio/mpeg", MediaTypeDetector.getMimeType(".mp3"));
     }
 
     @Test

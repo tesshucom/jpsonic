@@ -46,9 +46,16 @@ public class FileNameSanitizer {
      *         are removed or replaced.
      */
     public static String sanitize(final String filename) {
-        String result = filename;
+        // Trim trailing dots
+        int end = filename.length();
+        while (end > 0 && filename.charAt(end - 1) == '.') {
+            end--;
+        }
+        String result = (end == filename.length()) ? filename : filename.substring(0, end);
+
+        // replace all unsafe characters
         for (String s : FILE_SYSTEM_UNSAFE) {
-            result = result.replaceAll("\\.$", "").replace(s, "-");
+            result = result.replace(s, "-");
         }
         return result;
     }

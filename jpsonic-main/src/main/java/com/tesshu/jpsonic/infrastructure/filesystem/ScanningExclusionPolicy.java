@@ -21,7 +21,9 @@ package com.tesshu.jpsonic.infrastructure.filesystem;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -51,9 +53,15 @@ public class ScanningExclusionPolicy {
      *      "https://kb.synology.com/en-in/DSM/help/FileStation/connect?version=7">Synology
      *      Knowledge Base:Remote Connection</a>
      */
-    private static final List<String> SYNOLOGY_RESERVED_WORDS = List
-        .of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir", "@sharebin", "@tmp",
-                ".SynologyWorkingDirectory");
+    private static final Set<String> SYNOLOGY_SET;
+
+    static {
+        final List<String> synologyReservedWords = List
+            .of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir", "@sharebin", "@tmp",
+                    ".SynologyWorkingDirectory");
+        Set<String> set = new HashSet<>(synologyReservedWords);
+        SYNOLOGY_SET = Set.copyOf(set);
+    }
 
     private final SettingsFacade settingsFacade;
 
@@ -80,33 +88,24 @@ public class ScanningExclusionPolicy {
      */
     @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean isExcluded(Path path) {
-        if (settingsFacade.get(FileSystemSKeys.ignoreSymlinks) && Files.isSymbolicLink(path)) {
-            LOG.info("Excluding symbolic link %s".formatted(path));
-            return true;
-        }
-
         Path fileName = path.getFileName();
         if (fileName == null) {
             return true;
         }
-
-        // Exclude those that match a user-specified pattern
         String name = fileName.toString();
-        Pattern excludePattern = settingsFacade
-            .getCachedPattern(FileSystemSKeys.excludePatternString);
-        if (excludePattern != null && excludePattern.matcher(name).matches()) {
-            LOG
-                .info("Excluding file which matches exclude pattern %s : %s"
-                    .formatted(settingsFacade.get(FileSystemSKeys.excludePatternString), path));
-            return true;
-        }
 
-        // Exclude all hidden files starting with a single "."
         if (name.charAt(0) == '.' && !name.startsWith("..")) {
             return true;
         }
 
-        // Exclude files end with a dot (Windows prohibitions)
+        if ("Thumbs.db".equals(name)) {
+            return true;
+        }
+
+        if (SYNOLOGY_SET.contains(name)) {
+            return true;
+        }
+
         if (name.endsWith(".")) {
             LOG.warn("""
                     Excluding files ending with Dot. \
@@ -116,12 +115,20 @@ public class ScanningExclusionPolicy {
             return true;
         }
 
-        // Exclude Thumbnail on Windows
-        if ("Thumbs.db".equals(name)) {
+        Pattern excludePattern = settingsFacade
+            .getCachedPattern(FileSystemSKeys.excludePatternString);
+        if (excludePattern != null && excludePattern.matcher(name).matches()) {
+            LOG
+                .info("Excluding file which matches exclude pattern %s : %s"
+                    .formatted(settingsFacade.get(FileSystemSKeys.excludePatternString), path));
             return true;
         }
 
-        // Exclude files or dir created on Synology devices
-        return SYNOLOGY_RESERVED_WORDS.stream().anyMatch(name::equals);
+        if (settingsFacade.get(FileSystemSKeys.ignoreSymlinks) && Files.isSymbolicLink(path)) {
+            LOG.info("Excluding symbolic link %s".formatted(path));
+            return true;
+        }
+
+        return false;
     }
 }
