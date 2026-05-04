@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.PathGeometry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -69,14 +69,16 @@ public final class RootPathEntryGuard {
      * @return An Optional containing the validated path string, or empty if
      *         unacceptable.
      */
-    public static Optional<String> validateFolderPath(String folderPath) {
+    @SuppressWarnings("PMD.CognitiveComplexity")
+    public static Optional<String> validateFolderPath(PathGeometry pathGeometry,
+            String folderPath) {
         if (StringUtils.trimToNull(folderPath) == null) {
             return Optional.empty();
         }
         if (!isStrictPath(folderPath)) {
             return Optional.empty();
         }
-        if ((!EnvironmentProvider.getInstance().isWindows() || !folderPath.startsWith("\\\\"))
+        if ((pathGeometry != PathGeometry.WINDOWS || !folderPath.startsWith("\\\\"))
                 && folderPath.charAt(0) == '\\') {
             return Optional.empty();
         }
@@ -85,6 +87,22 @@ public final class RootPathEntryGuard {
             if (path.getFileName() == null) {
                 return Optional.empty();
             }
+
+            if (pathGeometry == PathGeometry.WSL) {
+                // Full segment scan to reject any node starting with '.'
+                for (Path segment : path) {
+                    if (segment.toString().charAt(0) == '.') {
+                        return Optional.empty();
+                    }
+                }
+
+                // Enforce strict hierarchy depth
+                int minCount = path.isAbsolute() ? 2 : 1;
+                if (path.getNameCount() <= minCount) {
+                    return Optional.empty();
+                }
+            }
+
             return Optional.of(path.toString());
         } catch (InvalidPathException e) {
             return Optional.empty();

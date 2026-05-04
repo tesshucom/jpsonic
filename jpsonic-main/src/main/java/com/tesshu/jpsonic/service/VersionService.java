@@ -101,12 +101,10 @@ public class VersionService {
 
     @PostConstruct
     public void init() {
-        if (LOG.isInfoEnabled()) {
-            LOG
-                .info("Starting Jpsonic " + getLocalVersion() + " (" + getLocalBuildNumber()
-                        + "), Java: " + EnvironmentProvider.getInstance().getJavaVersion()
-                        + ", OS: " + EnvironmentProvider.getInstance().getOsName());
-        }
+        LOG
+            .info("Starting Jpsonic {} ({}), Java: {}, Path Geometry: {}", getLocalVersion(),
+                    getLocalBuildNumber(), EnvironmentProvider.getInstance().getJavaVersion(),
+                    EnvironmentProvider.getInstance().getPathGeometry());
     }
 
     /**

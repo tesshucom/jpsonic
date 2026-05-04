@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,10 @@ import org.slf4j.LoggerFactory;
  */
 public class EnvironmentProvider {
 
+    public enum PathGeometry {
+        WINDOWS, LINUX, WSL
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentProvider.class);
     private static final EnvironmentProvider INSTANCE = new EnvironmentProvider();
 
@@ -87,6 +92,7 @@ public class EnvironmentProvider {
 
     private final ReentrantLock homeLock = new ReentrantLock();
     private Path cachedHome;
+    private PathGeometry pathGeometry;
 
     public static EnvironmentProvider getInstance() {
         return INSTANCE;
@@ -118,11 +124,40 @@ public class EnvironmentProvider {
     // 1. OS / Execution Environment
     // ============================================================
 
-    public boolean isWindows() {
+    boolean isWindows() {
         return SystemUtils.IS_OS_WINDOWS;
     }
 
-    public String getOsName() {
+    boolean isWsl() {
+        // 1. Fast check: WSL-specific runtime directory
+        if (Files.exists(Path.of("/run/WSL"))) {
+            return true;
+        }
+
+        // 2. Fallback: Parse kernel version string
+        try {
+            String version = Files.readString(Paths.get("/proc/version")).toLowerCase(Locale.ROOT);
+            return version.contains("microsoft") || version.contains("wsl");
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public PathGeometry getPathGeometry() {
+        if (pathGeometry != null) {
+            return pathGeometry;
+        }
+
+        if (isWsl()) {
+            return PathGeometry.WSL;
+        } else if (isWindows()) {
+            return PathGeometry.WINDOWS;
+        }
+        pathGeometry = PathGeometry.LINUX;
+        return pathGeometry;
+    }
+
+    String getOsName() {
         return System.getProperty("os.name");
     }
 
@@ -284,27 +319,40 @@ public class EnvironmentProvider {
         return StringUtils.isBlank(key) ? null : key;
     }
 
-    private String resolveDefaultFolder(String key, String winDefault, String linuxDefault) {
-        String arg = System.getProperty(key);
-        if (RootPathEntryGuard.validateFolderPath(arg).isEmpty()) {
-            return isWindows() ? winDefault : linuxDefault;
-        }
-        return arg;
-    }
-
     public String getDefaultMusicFolder() {
-        return resolveDefaultFolder(EnvKeys.application.defaultMusicFolder.envVarName, "c:\\music",
-                "/var/music");
+        String arg = System.getProperty(EnvKeys.application.defaultMusicFolder.envVarName);
+        if (RootPathEntryGuard.validateFolderPath(getPathGeometry(), arg).isPresent()) {
+            return arg;
+        }
+        return switch (getPathGeometry()) {
+        case WINDOWS -> "c:\\Music";
+        case WSL -> "/mnt/c/Music";
+        case LINUX -> "/var/Music";
+        };
     }
 
     public String getDefaultPodcastFolder() {
-        return resolveDefaultFolder(EnvKeys.application.defaultPodcastFolder.envVarName,
-                "c:\\music\\Podcast", "/var/music/Podcast");
+        String arg = System.getProperty(EnvKeys.application.defaultPodcastFolder.envVarName);
+        if (RootPathEntryGuard.validateFolderPath(getPathGeometry(), arg).isPresent()) {
+            return arg;
+        }
+        return switch (getPathGeometry()) {
+        case WINDOWS -> "c:\\music\\Podcast";
+        case WSL -> "/mnt/c/music/Podcast";
+        case LINUX -> "/var/music/Podcast";
+        };
     }
 
     public String getDefaultPlaylistFolder() {
-        return resolveDefaultFolder(EnvKeys.application.defaultPlaylistFolder.envVarName,
-                "c:\\playlists", "/var/playlists");
+        String arg = System.getProperty(EnvKeys.application.defaultPlaylistFolder.envVarName);
+        if (RootPathEntryGuard.validateFolderPath(getPathGeometry(), arg).isPresent()) {
+            return arg;
+        }
+        return switch (getPathGeometry()) {
+        case WINDOWS -> "c:\\Playlists";
+        case WSL -> "/mnt/c/Playlists";
+        case LINUX -> "/var/Playlists";
+        };
     }
 
     @NonNull

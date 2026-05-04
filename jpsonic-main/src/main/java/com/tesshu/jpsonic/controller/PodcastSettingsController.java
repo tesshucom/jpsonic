@@ -22,6 +22,8 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.controller.form.PodcastSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.PathGeometry;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -89,8 +91,9 @@ public class PodcastSettingsController {
             settingsFacade
                 .staging(SKeys.podcast.episodeDownloadCount,
                         Integer.parseInt(command.getEpisodeDownloadCount()));
+            PathGeometry pathGeometry = EnvironmentProvider.getInstance().getPathGeometry();
             RootPathEntryGuard
-                .validateFolderPath(command.getFolder())
+                .validateFolderPath(pathGeometry, command.getFolder())
                 .ifPresent(folder -> settingsFacade.staging(SKeys.podcast.folder, folder));
 
             settingsFacade.commitAll();

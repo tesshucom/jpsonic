@@ -29,6 +29,8 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.PathGeometry;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -207,8 +209,9 @@ public class MusicFolderSettingsController {
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
+        PathGeometry pathGeometry = EnvironmentProvider.getInstance().getPathGeometry();
         Optional<String> validated = RootPathEntryGuard
-            .validateFolderPath(StringUtils.trimToNull(info.getPath()));
+            .validateFolderPath(pathGeometry, StringUtils.trimToNull(info.getPath()));
         if (validated.isEmpty()) {
             return Optional.empty();
         }

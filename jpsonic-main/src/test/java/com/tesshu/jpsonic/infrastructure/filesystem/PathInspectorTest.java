@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Path;
 
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.PathGeometry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -46,10 +48,19 @@ class PathInspectorTest {
          * RootPathEntryGuard#validateFolderPath. (Sub-paths with string patterns that
          * cannot be registered in MusicFolder will not be generated during scanning.)
          */
-        RootPathEntryGuard.validateFolderPath("\\").ifPresent(folder -> Assertions.fail());
-        RootPathEntryGuard.validateFolderPath("/").ifPresent(folder -> Assertions.fail());
-        RootPathEntryGuard.validateFolderPath("\\music").ifPresent(folder -> Assertions.fail());
-        RootPathEntryGuard.validateFolderPath("\\music\\").ifPresent(folder -> Assertions.fail());
+        PathGeometry pathGeometry = EnvironmentProvider.getInstance().getPathGeometry();
+        RootPathEntryGuard
+            .validateFolderPath(pathGeometry, "\\")
+            .ifPresent(folder -> Assertions.fail());
+        RootPathEntryGuard
+            .validateFolderPath(pathGeometry, "/")
+            .ifPresent(folder -> Assertions.fail());
+        RootPathEntryGuard
+            .validateFolderPath(pathGeometry, "\\music")
+            .ifPresent(folder -> Assertions.fail());
+        RootPathEntryGuard
+            .validateFolderPath(pathGeometry, "\\music\\")
+            .ifPresent(folder -> Assertions.fail());
 
         assertTrue(pathInspector.isWithinHierarchy("/music/foo.mp3", "/music"));
         assertFalse(pathInspector.isWithinHierarchy("", "/tmp"));

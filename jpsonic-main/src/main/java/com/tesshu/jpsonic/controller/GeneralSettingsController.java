@@ -31,6 +31,8 @@ import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;
 import com.tesshu.jpsonic.feature.theme.Theme;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.PathGeometry;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -291,8 +293,10 @@ public class GeneralSettingsController {
                 .staging(SKeys.general.extension.coverArtFileTypes, command.getCoverArtFileTypes());
             settingsFacade
                 .staging(SKeys.general.extension.excludedCoverArt, command.getExcludedCoverArts());
+
+            PathGeometry pathGeometry = EnvironmentProvider.getInstance().getPathGeometry();
             RootPathEntryGuard
-                .validateFolderPath(command.getPlaylistFolder())
+                .validateFolderPath(pathGeometry, command.getPlaylistFolder())
                 .ifPresent(pathStr -> settingsFacade
                     .staging(SKeys.general.extension.playlistFolder, pathStr));
             settingsFacade.staging(SKeys.general.extension.shortcuts, command.getShortcuts());
