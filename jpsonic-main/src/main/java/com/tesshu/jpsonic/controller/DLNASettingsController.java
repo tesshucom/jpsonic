@@ -126,6 +126,7 @@ public class DLNASettingsController {
         // UPnP basic settings
 
         command.setDlnaEnabled(settingsFacade.get(UPnPSKeys.basic.enabled));
+        command.setWsl(EnvironmentProvider.getInstance().isWsl());
         command.setDlnaServerName(settingsFacade.get(UPnPSKeys.basic.serverName));
         command.setDlnaBaseLANURL(settingsFacade.get(UPnPSKeys.basic.baseLanUrl));
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());

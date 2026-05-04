@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
@@ -120,6 +121,21 @@ public class EnvironmentProvider {
 
     public boolean isWindows() {
         return SystemUtils.IS_OS_WINDOWS;
+    }
+
+    public boolean isWsl() {
+        // 1. Fast check: WSL-specific runtime directory
+        if (Files.exists(Path.of("/run/WSL"))) {
+            return true;
+        }
+
+        // 2. Fallback: Parse kernel version string
+        try {
+            String version = Files.readString(Paths.get("/proc/version")).toLowerCase(Locale.ROOT);
+            return version.contains("microsoft") || version.contains("wsl");
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public String getOsName() {
