@@ -1178,9 +1178,9 @@
       </properties>
     </profile>
     <profile>
-      <id>release25</id>
+      <id>release26</id>
       <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
       </properties>
     </profile>
