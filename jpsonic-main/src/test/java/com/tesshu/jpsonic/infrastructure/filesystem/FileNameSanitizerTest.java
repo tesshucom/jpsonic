@@ -34,4 +34,27 @@ class FileNameSanitizerTest {
         assertEquals("foo-bar", FileNameSanitizer.sanitize("foo\\bar"));
         assertEquals("foo-bar", FileNameSanitizer.sanitize("foo:bar"));
     }
+
+    @Test
+    void sanitizeShouldEnsureCrossPlatformCompatibility() {
+        // [Case 1] Standard replacement of OS-unsafe characters (e.g., Colon)
+        assertEquals("Artist-Album", FileNameSanitizer.sanitize("Artist:Album"),
+                "Should replace colons with hyphens for cross-platform safety.");
+
+        // [Case 2] Multiple different unsafe characters in a single name
+        assertEquals("What-s-Next-", FileNameSanitizer.sanitize("What?s*Next|"),
+                "Should handle multiple different unsafe characters.");
+
+        // [Case 3] Single trailing dot removal
+        assertEquals("Space Oddity", FileNameSanitizer.sanitize("Space Oddity."),
+                "Should remove a single trailing dot.");
+
+        // [Case 4] Multiple trailing dots removal (New implementation check)
+        assertEquals("Extreme-Condition", FileNameSanitizer.sanitize("Extreme:Condition..."),
+                "Should remove all consecutive trailing dots in one pass.");
+
+        // [Case 5] Internal dots should be preserved
+        assertEquals("Track.01", FileNameSanitizer.sanitize("Track.01"),
+                "Should preserve dots that are not at the end of the filename.");
+    }
 }

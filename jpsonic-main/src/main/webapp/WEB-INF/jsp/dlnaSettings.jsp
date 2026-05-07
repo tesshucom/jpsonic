@@ -96,6 +96,9 @@
                 <form:checkbox path="dlnaEnabled" id="dlnaEnabled"/>
                 <label for="dlnaEnabled"><fmt:message key="dlnasettings.enabled"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaenable"/></c:import>
+                <c:if test="${command.wsl}">
+                    <strong><fmt:message key="dlnasettings.wsl"/></strong>
+                </c:if>
             </dd>
             <dt><fmt:message key="dlnasettings.servername"/></dt>
             <dd>

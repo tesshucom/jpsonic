@@ -19,7 +19,12 @@
 
 package com.tesshu.jpsonic.infrastructure.filesystem;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utility for mapping file extensions to MIME types and vice versa.
@@ -29,24 +34,67 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
  * image formats.
  * </p>
  */
+@SuppressWarnings("PMD.UseConcurrentHashMap")
 public final class MediaTypeDetector {
 
-    private static final String MIME_MP4 = "audio/mp4";
-    private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
-            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" },
-            { "aac", MIME_MP4 }, { "m4a", MIME_MP4 }, { "m4b", MIME_MP4 }, { "flac", "audio/flac" },
-            { "wav", "audio/x-wav" }, { "wma", "audio/x-ms-wma" },
-            { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
-            { "shn", "audio/x-shn" }, { "dsf", EnvironmentProvider.getInstance().getMemeDsf() },
-            { "dff", EnvironmentProvider.getInstance().getMemeDff() }, { "flv", "video/x-flv" },
-            { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
-            { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
-            { "mov", "video/quicktime" }, { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" },
-            { "divx", "video/divx" }, { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" },
-            { "webm", "video/webm" },
+    private static final Map<String, String> EXT_TO_MIME;
+    private static final Map<String, String> MIME_TO_EXT;
 
-            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
-            { "png", "image/png" }, { "bmp", "image/bmp" }, };
+    static {
+
+        final String mimeMp4 = "audio/mp4";
+        final String[][] rawData = {
+                // spotless:off
+                { "mp3", "audio/mpeg" },
+                { "ogg", "audio/ogg" },
+                { "oga", "audio/ogg" },
+                { "opus", "audio/ogg" },
+                { "ogx", "application/ogg" },
+                { "aac", mimeMp4 },
+                { "m4a", mimeMp4 },
+                { "m4b", mimeMp4 },
+                { "flac", "audio/flac" },
+                { "wav", "audio/x-wav" }, 
+                { "wma", "audio/x-ms-wma" },
+                { "ape", "audio/x-monkeys-audio" },
+                { "mpc", "audio/x-musepack" },
+                { "shn", "audio/x-shn" },
+                { "dsf", EnvironmentProvider.getInstance().getMemeDsf() },
+                { "dff", EnvironmentProvider.getInstance().getMemeDff() },
+                { "flv", "video/x-flv" },
+                { "avi", "video/avi" },
+                { "mpg", "video/mpeg" },
+                { "mpeg", "video/mpeg" },
+                { "mp4", "video/mp4" },
+                { "m4v", "video/x-m4v" },
+                { "mkv", "video/x-matroska" },
+                { "mov", "video/quicktime" },
+                { "wmv", "video/x-ms-wmv" },
+                { "ogv", "video/ogg" },
+                { "divx", "video/divx" },
+                { "m2ts", "video/MP2T" },
+                { "ts", "video/MP2T" },
+                { "webm", "video/webm" },
+        
+                { "gif", "image/gif" },
+                { "jpg", "image/jpeg" },
+                { "jpeg", "image/jpeg" },
+                { "png", "image/png" },
+                { "bmp", "image/bmp" }
+                };
+                // spotless:on
+
+        Map<String, String> e2m = new HashMap<>(rawData.length * 2);
+        Map<String, String> m2e = new HashMap<>(rawData.length * 2);
+        for (String[] entry : rawData) {
+            String ext = entry[0];
+            String mime = entry[1];
+            e2m.put(ext, mime);
+            m2e.putIfAbsent(mime, ext);
+        }
+        EXT_TO_MIME = Map.copyOf(e2m);
+        MIME_TO_EXT = Map.copyOf(m2e);
+    }
 
     private MediaTypeDetector() {
         // no-op
@@ -63,20 +111,13 @@ public final class MediaTypeDetector {
      * @return The corresponding MIME type, or "application/octet-stream" if no
      *         match is found.
      */
-    public static String getMimeType(String suffix) {
-        for (String[] typeAndValue : MIME_TYPES) {
-            String type = typeAndValue[0];
-            String value = typeAndValue[1];
-            if (type.equalsIgnoreCase(suffix)) {
-                return value;
-            } else {
-                String typeWithDot = '.' + type;
-                if (typeWithDot.equalsIgnoreCase(suffix)) {
-                    return typeAndValue[1];
-                }
-            }
+    public static @NonNull String getMimeType(String suffix) {
+        if (suffix == null) {
+            return "application/octet-stream";
         }
-        return "application/octet-stream";
+        // Pure O(1) lookup. No allocation, no casing logic, no redundancy.
+        String mime = EXT_TO_MIME.get(suffix);
+        return (mime != null) ? mime : "application/octet-stream";
     }
 
     /**
@@ -86,12 +127,10 @@ public final class MediaTypeDetector {
      * @return The canonical extension without a dot (e.g., "mp3"), or null if
      *         unknown.
      */
-    public static String getSuffix(String mimeType) {
-        for (String[] map : MIME_TYPES) {
-            if (map[1].equalsIgnoreCase(mimeType)) {
-                return map[0];
-            }
+    public static @Nullable String getSuffix(String mimeType) {
+        if (mimeType == null) {
+            return null;
         }
-        return null;
+        return MIME_TO_EXT.get(mimeType);
     }
 }

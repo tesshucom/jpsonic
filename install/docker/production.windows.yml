@@ -1,50 +1,91 @@
-# 
-# This is a JPSONIC boot configuration sample in Windows or in Mac or in Linux without UPnP.
+#
+# This is a JPSONIC boot configuration sample in Windows.
 # You can easily start Jpsonic by changing the volume, port and so on.
 #
-# usege: 
+# usage: 
+#   docker compose -f production.windows.yml up -d
+#   or
 #   docker-compose -f production.windows.yml up -d
 #
+# Please note that the commands may differ
+# depending on the version of Docker you are using.
+# https://docs.docker.com/compose/migrate/
+#
+# [Note for Windows Users]
+# 1. Path: Docker can't interpret UNC paths directly.
+#    NAS mounting is technically possible but impractical for most users.
+# 2. I/O: Desperately slow due to the 9P protocol overhead on Windows.
+# 3. Network: Host mode is unavailable. UDP/UPnP features will not work.
+#
+# @since 114.2.0
+#
 
-version: '3.9'
 services:
   app:
     image: 'jpsonic/jpsonic:latest'
     container_name: 'jpsonic'
 
-    # The host networking driver only works on Linux hosts,
-    # and is not supported on Docker Desktop for Mac Docker Desktop for Windows,
-    # or Docker EE for Windows Server.
-    # https://docs.docker.com/network/host/
-    network_mode: 'bridge'
-    hostname: 'jpsonic'
+    # Not required. However, if you specify, please specify the correct name.
+    # hostname: 'WinLocal'
 
-    # <host>:<internal>
-    # Please set "the port of host" properly.
-    ports:
+    # This image is automatically updated by watchtower.
+    # See docker-compose.watchtower.yml
+    labels:
+     - "com.centurylinklabs.watchtower.enable=true"
 
-     # Port for Jpsonic. 
-     - '8080:4040'
-
-     # Port for JMX. The "ea" tag image is required to use JMX.
-     # - 3333:3333
-
-    pid: host
     volumes:
      # <host>:<internal>
      # Please rewrite "the path of host" appropriately.
-     - '/c/tmp/jpsonic/data:/jpsonic/data'
-     - '/c/tmp/jpsonic/music:/jpsonic/music'
-     - '/c/tmp/jpsonic/podcasts:/jpsonic/podcasts'
-     - '/c/tmp/jpsonic/playlists:/jpsonic/playlists'
+     - 'C:/jpsonic:/jpsonic/data'
+     - 'C:/Music:/jpsonic/music'
+     - 'C:/Podcasts:/jpsonic/podcasts'
+     - 'C:/Playlists:/jpsonic/playlists'
 
-    # If the UID/GUI is not correct, Jpsonic will not start.
-    # If you need to check the permissions of the data directory,
-    # rewrite the entrypoint and check it.
-    # 
-    # entrypoint: ls -n /jpsonic/data
+    # If you want to add a large number of music folders, add more volumes.
+    # Please add <internal> from Settings pages as Music foldres after login.
+    #
+    # - 'C:/Music2:/jpsonic/music2'
+    # - 'C:/Music3:/jpsonic/music3'
+
+    # If you use Audiobook,
+    # we recommend that you include the audiobook string in the entry path.
+    # In Subsonic's direct lineage servers, it is used for shuffle exclusion, etc.
+    # In Jpsonic, you can separate music and audiobook genres (with UPnP).
+    #
+    # - 'C:/SomeDir:/jpsonic/audiobook'
+
+    # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
+    # Please change this depending on the number of songs in your library.
+    # Note that you need to change both Java and Docker memory settings.
+    #
+    # ---------------------------------------------------------
+    # Songs count    Java(Xms, Xmx)  Docker(mem_limit)
+    # 70K            512m            896m
+    # 100K           640m            1024m
+    # 130K           768m            1152m
+    # 200K           1024m           1.5g
+    # 300K           1280m           1.75g
+    # 400K           1536m           2g
+    # ---------------------------------------------------------
+    mem_limit: 1024m
 
     environment:
+     # Specify the appropriate Java options.
+     #
+     # When using a CPU with lower performance than DS220+(Intel Celeron J4025),
+     # please remove the -XX:+UseG1GC Option. Or specify -XX:+UseSerialGC.
+     # Jpsonic has been tested for both Serial GC and G1 GC.
+
+     JAVA_OPTS: >
+       -Xms640m
+       -Xmx640m
+       -XX:+UseG1GC
+       -XX:MaxGCPauseMillis=500
+
+     # Set the jpsonic and upnp ports.
+     # Containers share the host networking name space,
+     # so be careful not to overlap with existing ports.
+     JPSONIC_PORT: &port "4040"
 
      # Set the appropriate UID/GID.
      USER_ID: '0'
@@ -56,41 +97,63 @@ services:
      # Jpsonic context path.
      CONTEXT_PATH: '/'
 
+     # Advanced Options ###############################################
+
      # Whether to log the logo at startup. [OFF|CONSOLE|LOG]
-     BANNER_MODE: 'OFF'
+     #
+     #BANNER_MODE: 'OFF'
 
      # Granularity of output logs. [ERROR|WARN|INFO|DEBUG|TRACE]
-     LOG_LEVEL: 'WARN'
+     #
+     #LOG_LEVEL: 'WARN'
 
      # Whether to scan at startup. False is recommended for Docker.
-     SCAN_ON_BOOT: 'false'
+     #
+     #SCAN_ON_BOOT: 'false'
 
      # If false, use the logical font of JRE (JDK) for Cover Art.
      # If true, preferentially use embedded fonts.
-     EMBEDDED_FONT: 'false'
+     #
+     #EMBEDDED_FONT: 'false'
 
      # You can override the MIME of DSD according to your device.
-     MIME_DSF: 'audio/x-dsd'
-     MIME_DFF: 'audio/x-dsd'
+     #
+     #MIME_DSF: 'audio/x-dsd'
+     #MIME_DFF: 'audio/x-dsd'
 
-     # Specify the appropriate Java options.
-     # Currently, Jpsonic will not require extremely large memory.
-     # If you are using 32 bit OS please specify -Xmx256m
-     JAVA_OPTS: '-Xmx512m'
-
-     #　Option example when using JMX. The "ea" tag image is required to use JMX.
-     #　For VisualVM, you need to specify the port in File-Add JMX Connection.
-     #　e.g. localhost:3333
-     #　
+     # Option example when using JMX. The "ea" tag image is required to use JMX.
+     # Note that port 3333 is free on "ea" !!
+     # For VisualVM, you need to specify the port in File-Add JMX Connection.
+     # e.g. localhost:3333
+     #
      #JAVA_OPTS: >
+     #  -Xms512m
      #  -Xmx512m
-     #  -Dcom.sun.management.jmxremote
+     #  -XX:+UseG1GC
+     #  -XX:MaxGCPauseMillis=500
+     #  -Dcom.sun.management.jmxremote=true
      #  -Dcom.sun.management.jmxremote.port=3333
      #  -Dcom.sun.management.jmxremote.rmi.port=3333
      #  -Dcom.sun.management.jmxremote.local.only=false
      #  -Dcom.sun.management.jmxremote.ssl=false
      #  -Dcom.sun.management.jmxremote.authenticate=false
-     #  -Djava.rmi.server.hostname=localhost
+     #  -Djava.rmi.server.hostname=SynologyNAS
+
+     # It is possible to override some of the UPnP server parameters.
+     # Synology DS220+ and general network spec are assumed.
+     # If Timout occurs during UPnP Browsing, consider increasing these values.
+     # https://docs.oracle.com/en/java/javase/21/docs/api/jdk.httpserver/module-summary.html
+     # Please note that these apply only to UPnP communication.
+     # Communication of images and media files is not controlled.
+     #
+     #UPNP_IDLE_INTERVAL: '30'
+     #UPNP_MAX_CONNECTIONS: '50'
+     #UPNP_MAX_IDLE_CONNECTIONS: '30'
+     #UPNP_DRAIN_AMOUNT: '65536'
+     #UPNP_MAX_REQ_HEADERS: '200'
+     #UPNP_MAX_REQ_TIME: '500'
+     #UPNP_MAX_RSP_TIME: '500'
+     #UPNP_NODELAY: 'true'
 
     # Usually no need to change.
     # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
@@ -99,3 +162,8 @@ services:
     # there may be a wait time of up to 30 seconds to protect data.
      TINI_SUBREAPER: 'true'
     stop_grace_period: '30s'
+
+    # Please do not change it.
+    ports:
+      - target: *port
+        published: *port

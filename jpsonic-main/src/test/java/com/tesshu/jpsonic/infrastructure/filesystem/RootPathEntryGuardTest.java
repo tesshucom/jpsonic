@@ -149,4 +149,38 @@ class RootPathEntryGuardTest {
             assertTrue(RootPathEntryGuard.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
     }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void validateFolderPathShouldStrictlyRejectRelativeAndRootOnlyPathsOnWin() {
+        // [Case 1] Drive letter only (considered as a relative path in NIO)
+        assertFalse(RootPathEntryGuard.validateFolderPath("C:").isPresent(),
+                "Should reject relative drive-letter-only paths.");
+
+        // [Case 2] Single root only (getFileName() returns null)
+        assertFalse(RootPathEntryGuard.validateFolderPath("C:\\").isPresent(),
+                "Should reject root-only paths to enforce directory-level management.");
+
+        // [Case 3] Valid absolute directory path
+        assertTrue(RootPathEntryGuard.validateFolderPath("C:\\Music").isPresent(),
+                "Should accept valid absolute Windows paths.");
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void validateFolderPathShouldStrictlyRejectRelativeAndRootOnlyPathsOnLinux() {
+        // [Case 1] Simple relative path
+        assertTrue(RootPathEntryGuard.validateFolderPath("music/rock").isPresent(), """
+                Relative paths are not explicitly prohibited at this stage;
+                verification is deferred to downstream physical existence checks.
+                """);
+
+        // [Case 2] POSIX Root only (getFileName() returns null)
+        assertFalse(RootPathEntryGuard.validateFolderPath("/").isPresent(),
+                "Should reject root-only paths.");
+
+        // [Case 3] Valid absolute directory path
+        assertTrue(RootPathEntryGuard.validateFolderPath("/home/user/music").isPresent(),
+                "Should accept valid absolute POSIX paths.");
+    }
 }

@@ -35,6 +35,7 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     // UPnP basic settings
     private boolean dlnaEnabled;
+    private boolean wsl;
     private String dlnaServerName;
     private String dlnaBaseLANURL;
     private List<MusicFolder> allMusicFolders;
@@ -73,6 +74,14 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaEnabled(boolean dlnaEnabled) {
         this.dlnaEnabled = dlnaEnabled;
+    }
+
+    public boolean isWsl() {
+        return wsl;
+    }
+
+    public void setWsl(boolean wsl) {
+        this.wsl = wsl;
     }
 
     public String getDlnaServerName() {
