@@ -87,26 +87,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         }
         UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
         UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
-        return Objects.equals(expected.getPath(), requested.getPath())
-                && expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
-    }
-
-    static boolean expectedJWTParam(@NonNull Map<String, List<String>> left,
-            @NonNull Map<String, List<String>> right) {
-
-        if (left.size() + 1 != right.size() // Size
-                || left.values().stream().anyMatch(Objects::isNull) // Null
-                || right.values().stream().anyMatch(Objects::isNull) // Null
-                || !right.containsKey(JWTSecurityService.JWT_PARAM_NAME)) { // hasParam
-            return false;
-        }
-
-        // Equivalence
-        Map<String, List<String>> sortedLeft = new ConcurrentHashMap<>(left);
-        Map<String, List<String>> sortedRight = new ConcurrentHashMap<>(right);
-        sortedRight.remove(JWTSecurityService.JWT_PARAM_NAME);
-        return Arrays.equals(sortedLeft.keySet().toArray(), sortedRight.keySet().toArray())
-                && Arrays.deepEquals(sortedLeft.values().toArray(), sortedRight.values().toArray());
+        return Objects.equals(expected.getPath(), requested.getPath());
     }
 
     @Override
