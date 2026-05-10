@@ -162,7 +162,7 @@ class EnvironmentProviderTest {
     @Test
     void testGetImageCacheDirectory() {
         Path home = EnvironmentProvider.getInstance().getJpsonicHome();
-        assertEquals(home.resolve("thumbs200"),
+        assertEquals(home.resolve("thumbs").resolve("200"),
                 EnvironmentProvider.getInstance().getImageCacheDirectory(200));
     }
 
