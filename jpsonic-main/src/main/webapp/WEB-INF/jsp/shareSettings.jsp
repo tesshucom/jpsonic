@@ -17,8 +17,7 @@
         <c:param name="existsShare" value="${model.shareCount ne 0}"/>
     </c:import>
 
-    <form method="post" action="shareSettings.view">
-        <sec:csrfInput />
+    <form:form method="post" action="shareSettings.view">
 
 		<c:if test="${not empty model.shareInfos}">
 	        <table class="tabular share-settings">
@@ -89,7 +88,7 @@
             </c:if>
         </div>
 
-    </form>
+    </form:form>
 
 </body>
 </html>

@@ -23,7 +23,7 @@
     <p><strong><fmt:message key="importPlaylist.error"><fmt:param value="${model.error}"/></fmt:message></strong></p>
 </c:if>
 
-<form method="post" enctype="multipart/form-data" action="importPlaylist.view?${_csrf.parameterName}=${_csrf.token}">
+<form:form method="post" enctype="multipart/form-data" action="importPlaylist.view?">
 	<dl class="single">
 		<dt><fmt:message key="importPlaylist.text"/></dt>
 		<dd><input type="file" id="file" name="file"/></dd>
@@ -31,6 +31,6 @@
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.ok'/>">
     </div>
-</form>
+</form:form>
 
 </body></html>

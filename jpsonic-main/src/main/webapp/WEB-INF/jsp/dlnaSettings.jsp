@@ -73,7 +73,6 @@
 </c:import>
 
 <form:form method="post" action="dlnaSettings.view" modelAttribute="command">
-    <sec:csrfInput />
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
