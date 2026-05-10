@@ -706,10 +706,10 @@ document.addEventListener('DOMContentLoaded', function () {
     <dl class="single">
         <dt></dt>
         <dd>
-            <form method="post" enctype="multipart/form-data" action="avatarUpload.view?${_csrf.parameterName}=${_csrf.token}">
+            <form:form method="post" enctype="multipart/form-data" action="avatarUpload.view">
                 <input type="file" id="file" name="file" mode="deleteText"/>
                 <input type="submit" value="<fmt:message key='personalsettings.avatar.upload'/>" />
-            </form>
+            </form:form>
         </dd>
     </dl>
 </details>

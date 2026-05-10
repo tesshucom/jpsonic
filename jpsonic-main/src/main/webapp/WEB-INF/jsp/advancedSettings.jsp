@@ -465,7 +465,7 @@ function postRotate() {
 
 </form:form>
 
-<form id="rotateForm" action="advancedSettings/rotate" method="post" style="display:none;"></form>
+<form:form id="rotateForm" action="advancedSettings/rotate" method="post" style="display:none;" />
 
 <c:if test="${settings_reload}">
     <script>

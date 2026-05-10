@@ -278,13 +278,12 @@ function toggleComment() {
 <div id="comment" class="comment-input">${model.dir.comment}</div>
 
 <div id="commentForm">
-    <form method="post" action="setMusicFileInfo.view">
-        <sec:csrfInput />
+    <form:form method="post" action="setMusicFileInfo.view">
         <input type="hidden" name="action" value="comment">
         <input type="hidden" name="id" value="${model.dir.id}">
         <textarea name="comment" rows="6" cols="70">${model.dir.comment}</textarea>
         <input type="submit" value="<fmt:message key='common.save'/>">
-    </form>
+    </form:form>
 </div>
 
 <c:set var="songClass" value="song" />

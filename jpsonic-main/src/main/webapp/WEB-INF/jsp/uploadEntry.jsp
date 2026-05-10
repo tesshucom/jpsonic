@@ -67,7 +67,7 @@ $(function() {
 </c:if>
 
 <c:if test="${model.user.uploadRole}">
-    <form method="post" enctype="multipart/form-data" action="upload.view?${_csrf.parameterName}=${_csrf.token}">
+    <form:form method="post" enctype="multipart/form-data" action="upload.view">
 
         <dl>
             <dt><fmt:message key="more.upload.source"/></dt>
@@ -92,7 +92,7 @@ $(function() {
             <input type="submit" value="<fmt:message key='more.upload.ok'/>" ${model.scanning ? 'disabled' : ''}/>
         </div>
 
-    </form>
+    </form:form>
 </c:if>
 
 </body></html>

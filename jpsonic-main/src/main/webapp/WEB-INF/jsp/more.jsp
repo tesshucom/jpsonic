@@ -91,8 +91,7 @@ $(function() {
 
 <c:if test="${model.user.streamRole}">
 
-    <form id="randomPlayQueue" method="post" action="randomPlayQueue.view?">
-        <sec:csrfInput />
+    <form:form id="randomPlayQueue" method="post" action="randomPlayQueue.view?">
         <dl>
             <dt><fmt:message key="more.random.text"/></dt>
             <dd>
@@ -210,7 +209,7 @@ $(function() {
                   <input type="submit" name="autoRandom" value="<fmt:message key='more.random.radio'/>">
             </c:if>
         </div>
-    </form>
+    </form:form>
 </c:if>
 
 </body>

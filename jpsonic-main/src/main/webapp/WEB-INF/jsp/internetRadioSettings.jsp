@@ -12,8 +12,7 @@
     <c:param name="useRadio" value="${model.useRadio}"/>
 </c:import>
 
-<form method="post" action="internetRadioSettings.view">
-	<sec:csrfInput />
+<form:form method="post" action="internetRadioSettings.view">
 
 	<c:if test="${not empty model.internetRadios}">
 	    <details open>
@@ -80,7 +79,7 @@
         <input type="submit" value="<fmt:message key='common.save'/>">
     </div>
 
-</form>
+</form:form>
 
 <c:if test="${not empty error}">
     <p><strong><fmt:message key="${error}"/></strong></p>
