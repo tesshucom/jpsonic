@@ -63,7 +63,7 @@
     <versions.lastfm>0.1.2</versions.lastfm>
     <versions.liquibase-core>5.0.2</versions.liquibase-core>
     <versions.liquibase-slf4j>5.1.0</versions.liquibase-slf4j>
-    <versions.log4j>2.25.4</versions.log4j>
+    <versions.log4j>2.26.0</versions.log4j>
     <versions.logback>1.5.32</versions.logback>
     <versions.lucene>10.4.0</versions.lucene>
     <versions.maven-artifact>3.9.15</versions.maven-artifact>
