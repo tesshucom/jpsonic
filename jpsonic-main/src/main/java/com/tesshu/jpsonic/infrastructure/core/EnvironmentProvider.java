@@ -233,7 +233,7 @@ public class EnvironmentProvider {
     }
 
     public Path getImageCacheDirectory(int size) {
-        return getJpsonicHome().resolve("thumbs" + size);
+        return getJpsonicHome().resolve("thumbs").resolve(Integer.toString(size));
     }
 
     public Path getEhCacheDirectory() {
