@@ -167,7 +167,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 21, 24, 26 ]
+        java: [ 21, 24, 25, 26 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -195,10 +195,10 @@ jobs:
       - name: Create jetty.war
         run: |
           mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease${{ matrix.java }}
-          gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
+          cp jpsonic-main/target/jpsonic.war jpsonic-main/target/jpsonic-java${{ matrix.java }}.war
+          sha256sum jpsonic-main/target/jpsonic-java${{ matrix.java }}.war | sed 's|jpsonic-main/target/||' > jpsonic-main/target/jpsonic-java${{ matrix.java }}.sha
+          gpg2 --clearsign jpsonic-main/target/jpsonic-java${{ matrix.java }}.sha
       - name: Copy README
-        # Due to the specifications of actions/upload-artifact@v2.
-        # When loading different hierarchies of artifacts, each directory is created.
         run: cp install/keys/README.txt jpsonic-main/target
       - name: Get current date
         id: date
@@ -209,9 +209,64 @@ jobs:
           name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.current }}
           path: |
             jpsonic-main/target/jpsonic.war
-            jpsonic-main/target/artifacts-checksums.sha.asc
+            jpsonic-main/target/jpsonic-java${{ matrix.java }}.war
+            jpsonic-main/target/jpsonic-java${{ matrix.java }}.sha.asc
             jpsonic-main/target/README.txt
           retention-days: 90
+  ##########################################################################
+  ship-war-to-release-page:
+    name: Promote Artifacts to Release
+    needs: [ship-war]
+    if: github.ref == 'refs/heads/master' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: jpsonic-jetty-embedded-for-jdk*-${{ steps.date.outputs.current }}
+          path: all-assets
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Java to evaluate Maven version
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - name: Get Maven version and fix patch version to zero
+        id: get_version
+        run: |
+          # Extract the precise project version from pom.xml
+          FULL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          # Force the 3rd digits (patch version) to '0' to align with Jpsonic's release policy (e.g., 114.2.x -> 114.2.0)
+          # This regex preserves pre-release labels like -alpha.1 or -beta.2 if they exist
+          FIXED_VERSION=$(echo $FULL_VERSION | sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+(.*)/\1.0\2/')
+          # Append 'v' prefix to match standard git tag formatting (e.g., v114.2.0)
+          echo "VERSION=v${FIXED_VERSION}" >> $GITHUB_OUTPUT
+      - name: Organize, Rename and Fix Signatures
+        run: |
+          mkdir -p upload
+          for jdk in 21 24 26; do
+            SRC_DIR=$(find all-assets -name "*jdk${jdk}-*" -type d | head -n 1)
+            if [ -n "$SRC_DIR" ]; then
+              echo "Collecting JDK $jdk assets from $SRC_DIR..."
+              cp "$SRC_DIR/jpsonic-java${jdk}.war" "upload/"
+              cp "$SRC_DIR/jpsonic-java${jdk}.sha.asc" "upload/"
+            fi
+          done
+          find all-assets -name "README.txt" | head -n 1 | xargs -I {} cp {} upload/
+      - name: Push to Release Page
+        uses: softprops/action-gh-release@v1
+        with:
+          repository: jpsonic/jpsonic
+          token: ${{ secrets.RELEASE_TO_JPSONIC_TOKEN }}
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          files: upload/*
+          overwrite: true
+          generate_release_notes: false
+          append_body: true
   ##########################################################################
   ship-docker-image:
     name: Docker(alpine-amd, arm)
