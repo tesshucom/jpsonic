@@ -28,20 +28,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.command.UserSettingsCommand;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
+import com.tesshu.jpsonic.controller.validator.UserSettingsValidator;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.PlayerUtils;
-import com.tesshu.jpsonic.validator.UserSettingsValidator;
+import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -70,21 +72,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/userSettings", "/userSettings.view" })
 public class UserSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final PlayerService playerService;
 
-    public UserSettingsController(SettingsService settingsService,
-            MusicFolderService musicFolderService, SecurityService securityService,
+    public UserSettingsController(SettingsFacade settingsFacade,
+            MusicFolderService musicFolderService, UserService userService,
             TranscodingService transcodingService, ShareService shareService,
             PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
         this.playerService = playerService;
@@ -92,7 +94,7 @@ public class UserSettingsController {
 
     @InitBinder
     protected void initBinder(WebDataBinder binder, HttpServletRequest request) {
-        binder.addValidators(new UserSettingsValidator(securityService, settingsService, request));
+        binder.addValidators(new UserSettingsValidator(userService, settingsFacade, request));
     }
 
     @GetMapping
@@ -116,13 +118,13 @@ public class UserSettingsController {
                 // User update
                 command.setUser(user);
                 command.setEmail(user.getEmail());
-                UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+                UserSettings userSettings = userService.getUserSettings(user.getUsername());
                 command.setTranscodeScheme(userSettings.getTranscodeScheme());
                 command
                     .setAllowedMusicFolderIds(
                             PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command
-                    .setCurrentUser(securityService
+                    .setCurrentUser(userService
                         .getCurrentUserStrict(request)
                         .getUsername()
                         .equals(user.getUsername()));
@@ -130,9 +132,9 @@ public class UserSettingsController {
             }
         }
 
-        command.setLdapEnabled(settingsService.isLdapEnabled());
+        command.setLdapEnabled(settingsFacade.get(SKeys.advanced.ldap.enabled));
         command
-            .setUsers(securityService
+            .setUsers(userService
                 .getAllUsers()
                 .stream()
                 .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
@@ -141,7 +143,7 @@ public class UserSettingsController {
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
@@ -153,7 +155,7 @@ public class UserSettingsController {
         Integer userIndex = ServletRequestUtils
             .getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
-            List<User> users = securityService
+            List<User> users = userService
                 .getAllUsers()
                 .stream()
                 .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
@@ -205,13 +207,13 @@ public class UserSettingsController {
     }
 
     private Integer getUserIndex(String userName) {
-        List<User> users = securityService
+        List<User> users = userService
             .getAllUsers()
             .stream()
             .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
             .collect(Collectors.toList());
         for (int i = 0; i < users.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
+            if (StringUtil.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
             }
         }
@@ -219,19 +221,19 @@ public class UserSettingsController {
     }
 
     public void deleteUser(UserSettingsCommand command) {
-        securityService.deleteUser(command.getUsername());
+        userService.deleteUser(command.getUsername());
     }
 
     public void createUser(UserSettingsCommand command) {
         User user = new User(command.getUsername(), command.getPassword(),
                 StringUtils.trimToNull(command.getEmail()));
         user.setLdapAuthenticated(command.isLdapAuthenticated());
-        securityService.createUser(user);
+        userService.createUser(user);
         updateUser(command);
     }
 
     public void updateUser(UserSettingsCommand command) {
-        User user = securityService.getUserByNameStrict(command.getUsername());
+        User user = userService.getUserByNameStrict(command.getUsername());
         user.setLdapAuthenticated(command.isLdapAuthenticated());
         if (command.isPasswordChange()) {
             user.setPassword(command.getPassword());
@@ -247,9 +249,9 @@ public class UserSettingsController {
         user.setCommentRole(command.isCommentRole());
         user.setPodcastRole(command.isPodcastRole());
 
-        securityService.updateUser(user);
+        userService.updateUser(user);
 
-        UserSettings userSettings = securityService.getUserSettings(command.getUsername());
+        UserSettings userSettings = userService.getUserSettings(command.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         if (command.getTranscodeScheme() != TranscodeScheme.OFF) {
             List<Player> userPlayers = playerService
@@ -268,7 +270,7 @@ public class UserSettingsController {
         }
         userSettings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         userSettings.setChanged(now());
-        securityService.updateUserSettings(userSettings);
+        userService.updateUserSettings(userSettings);
 
         List<Integer> allowedMusicFolderIds = PlayerUtils
             .toIntegerList(command.getAllowedMusicFolderIds());

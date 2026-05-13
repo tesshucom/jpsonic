@@ -24,10 +24,11 @@ package com.tesshu.jpsonic.service.metadata;
 import java.nio.file.Path;
 import java.util.Locale;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -40,14 +41,14 @@ import org.springframework.stereotype.Service;
 @Order(100)
 public class VideoParser extends MetaDataParser {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final FFprobe ffprobe;
 
-    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService,
+    public VideoParser(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             FFprobe ffprobe) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.ffprobe = ffprobe;
     }
@@ -99,13 +100,13 @@ public class VideoParser extends MetaDataParser {
         if (fileName == null) {
             throw new IllegalArgumentException("Illegal path specified: " + path);
         }
-        String extension = FilenameUtils.getExtension(fileName.toString());
+        String extension = PathInspector.getExtension(fileName);
         if (extension.isEmpty()) {
             return false;
         }
         String format = extension.toLowerCase(Locale.ENGLISH);
-        return settingsService
-            .getVideoFileTypesAsArray()
+        return settingsFacade
+            .getCachedList(SKeys.general.extension.videoFileTypes)
             .stream()
             .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
     }

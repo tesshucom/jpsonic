@@ -1,16 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.DatabaseSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.DatabaseSettingsCommand"--%>
 
 <html>
 <head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.spring.DatabaseConfiguration" %>
+<%@ page import="com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration" %>
 
 <script>
 
 const driverNamePostgres = "org.postgresql.Driver";
-const driverNamePgJdbcNg = "com.impossibl.postgres.jdbc.PGDriver";
 const driverNameMariaDB = "org.mariadb.jdbc.Driver";
 const driverNameMySQL = "com.mysql.jdbc.Driver";
 
@@ -20,10 +19,6 @@ function getJdbcURL(name, host, port, dbName) {
         return "jdbc:postgresql://"
                 + (!host ? "127.0.0.1" : host) + ":" + (!port ? "5432" : port)
                 + "/" + dbName + "?stringtype=unspecified";
-    } else if(name == 'PGJDBC-NG') {
-        return "jdbc:pgsql://"
-                + (!host ? "127.0.0.1" : host) + ":" + (!port ? "5432" : port)
-                + "/" + dbName;
     } else if(name == 'MariaDB') {
         return "jdbc:mariadb://"
                 + (!host ? "127.0.0.1" : host) + ":" + (!port ? "3306" : port)
@@ -42,10 +37,6 @@ function updateHelperContent(name) {
     var driverName;
     if(name == 'Postgres') {
         driverName = driverNamePostgres;
-        $("#mysqlVarcharMaxlength").val("0");
-        $("#usertableQuote").val("\"");
-    } else if(name == 'PGJDBC-NG') {
-        driverName = driverNamePgJdbcNg;
         $("#mysqlVarcharMaxlength").val("0");
         $("#usertableQuote").val("\"");
     } else if(name == 'MariaDB') {
@@ -179,7 +170,6 @@ $(document).ready(function () {
             <dd id="driverDd">
                 <ul class="driverPreset">
                     <li><a href="javascript:updateHelperContent('Postgres');">Postgres</a></li>
-                    <li><a href="javascript:updateHelperContent('PGJDBC-NG');">Postgres(PGJDBC-NG)</a></li>
                     <li><a href="javascript:updateHelperContent('MariaDB');">MariaDB</a></li>
                     <li><a href="javascript:updateHelperContent('MySQL');">MySQL</a></li>
                 </ul>

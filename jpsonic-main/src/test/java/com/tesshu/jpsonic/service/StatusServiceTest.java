@@ -21,21 +21,27 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.service.StatusService.PlayStatus;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Unit test of {@link StatusService}.
@@ -43,8 +49,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@ActiveProfiles("test")
+@NeedsHome
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class StatusServiceTest {
 
     @Autowired
@@ -119,5 +126,36 @@ class StatusServiceTest {
                 "Wrong list of statuses.");
         assertEquals(Arrays.asList(statusC), statusService.getStreamStatusesForPlayer(player1),
                 "Wrong list of statuses.");
+    }
+
+    @Nested
+    class PlayStatusTest {
+
+        @Test
+        void testIsExpired() {
+            PlayStatus withinBoundaries = new PlayStatus(null, null,
+                    now().minus(5, ChronoUnit.HOURS).minus(59, ChronoUnit.MINUTES));
+            assertTrue(withinBoundaries.isExpired());
+
+            PlayStatus outOfBoundaries = new PlayStatus(null, null,
+                    now().minus(6, ChronoUnit.HOURS));
+            assertFalse(outOfBoundaries.isExpired());
+        }
+
+        /*
+         * this class cannot be fully tested due to the design. However, rigor is not
+         * required and is not a big deal in most cases. Ubuntu may calculate slightly
+         * shorter in some cases
+         */
+        @DisabledOnOs(OS.LINUX)
+        @Test
+        void testGetMinutesAgo() {
+            assertEquals(5L,
+                    new PlayStatus(null, null, now().plus(5, ChronoUnit.MINUTES)).getMinutesAgo());
+            assertEquals(60L,
+                    new PlayStatus(null, null, now().plus(1, ChronoUnit.HOURS)).getMinutesAgo());
+            assertEquals(1440L,
+                    new PlayStatus(null, null, now().plus(1, ChronoUnit.DAYS)).getMinutesAgo());
+        }
     }
 }

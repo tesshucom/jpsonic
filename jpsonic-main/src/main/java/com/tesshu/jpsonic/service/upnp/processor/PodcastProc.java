@@ -21,8 +21,8 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.PodcastService;
 import net.sf.ehcache.util.FindBugsSuppressWarnings;
 import org.jupnp.support.model.DIDLContent;

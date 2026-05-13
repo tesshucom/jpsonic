@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,13 +47,13 @@ class SetRatingControllerTest {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(Mockito.anyInt())).thenReturn(new MediaFile());
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new SetRatingController(mock(SecurityService.class),
+            .standaloneSetup(new SetRatingController(mock(UserService.class),
                     mock(RatingService.class), mediaFileService))
             .build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

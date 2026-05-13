@@ -35,20 +35,21 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicFolderContent;
+import com.tesshu.jpsonic.domain.system.AlbumListType;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -71,17 +72,17 @@ class HomeControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(
-                    new HomeController(mock(SettingsService.class), mock(SecurityService.class),
-                            mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
-                            mock(RatingService.class), mock(MediaFileService.class),
-                            mock(SearchService.class), mock(MusicIndexService.class)))
+            .standaloneSetup(new HomeController(settingsFacade, mock(UserService.class),
+                    mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
+                    mock(RatingService.class), mock(MediaFileService.class),
+                    mock(SearchService.class), mock(MusicIndexService.class)))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.HOME.value()))
@@ -113,10 +114,10 @@ class HomeControllerTest {
             mediaFileService = mock(MediaFileService.class);
             searchService = mock(SearchService.class);
             musicIndexService = mock(MusicIndexService.class);
-            SettingsService settingsService = mock(SettingsService.class);
-            SecurityService securityService = mock(SecurityService.class);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+            UserService userService = mock(UserService.class);
             ScannerStateService scannerStateService = mock(ScannerStateService.class);
-            controller = new HomeController(settingsService, securityService, musicFolderService,
+            controller = new HomeController(settingsFacade, userService, musicFolderService,
                     scannerStateService, ratingService, mediaFileService, searchService,
                     musicIndexService);
         }

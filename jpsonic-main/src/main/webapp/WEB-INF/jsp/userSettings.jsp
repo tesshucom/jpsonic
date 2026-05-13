@@ -1,10 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.UserSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.UserSettingsCommand"--%>
 
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
+    <%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
     <script src="<c:url value='/script/utils.js'/>"></script>
     <script>
         <c:if test="${settings_reload}">

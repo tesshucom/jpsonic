@@ -25,14 +25,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,16 +60,19 @@ public class VideoPlayerController {
     private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000,
             5000 };
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
-    public VideoPlayerController(SettingsService settingsService, SecurityService securityService,
+    public VideoPlayerController(SettingsFacade settingsFacade,
+            LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             MediaFileService mediaFileService, PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
     }
@@ -82,12 +87,12 @@ public class VideoPlayerController {
         MediaFile file = mediaFileService.getMediaFileStrict(id);
         MediaFile parentDir = mediaFileService.getParentOf(file);
 
-        String username = securityService.getCurrentUsernameStrict(request);
-        if (parentDir != null && !securityService.isFolderAccessAllowed(parentDir, username)) {
+        String username = userService.getCurrentUsernameStrict(request);
+        if (parentDir != null && !libraryAccessPolicy.isFolderAccessAllowed(parentDir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         mediaFileService.populateStarredDate(file, user.getUsername());
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
@@ -95,12 +100,12 @@ public class VideoPlayerController {
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId
                 + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", parentDir);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(user.getUsername()));
+        map.put("selectedMusicFolder", userService.getSelectedMusicFolder(user.getUsername()));
         map.put("video", file);
         map.put("streamUrl", streamUrl);
         map.put("remoteStreamUrl", streamUrl);
@@ -112,13 +117,13 @@ public class VideoPlayerController {
         map.put("isShowDownload", userSettings.isShowDownload());
         map.put("isShowShare", userSettings.isShowShare());
 
-        if (parentDir != null && !securityService.isInPodcastFolder(parentDir.toPath())) {
+        if (parentDir != null && !libraryAccessPolicy.isInPodcastFolder(parentDir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
         }
 
-        map.put("useCast", settingsService.isUseCast());
+        map.put("useCast", settingsFacade.get(SKeys.general.legacy.useCast));
 
         return new ModelAndView("videoPlayer", "model", map);
     }

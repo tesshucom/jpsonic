@@ -27,17 +27,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +46,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Miscellaneous string utility methods.
@@ -55,74 +56,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public final class StringUtil {
 
-    private static final Pair<String> ENV_MIME_DSF = Pair.of("jpsonic.mime.dsf", "audio/x-dsd");
-    private static final Pair<String> ENV_MIME_DFF = Pair.of("jpsonic.mime.dff", "audio/x-dsd");
-
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-    private static final String MP4 = "audio/mp4";
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
-    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*",
-            "|" };
-    private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
-            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" },
-            { "aac", MP4 }, { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" },
-            { "wav", "audio/x-wav" }, { "wma", "audio/x-ms-wma" },
-            { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
-            { "shn", "audio/x-shn" },
-            { "dsf", Optional
-                .ofNullable(System.getProperty(ENV_MIME_DSF.key))
-                .orElse(ENV_MIME_DSF.defaultValue) },
-            { "dff", Optional
-                .ofNullable(System.getProperty(ENV_MIME_DFF.key))
-                .orElse(ENV_MIME_DFF.defaultValue) },
 
-            { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" },
-            { "mpeg", "video/mpeg" }, { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" },
-            { "mkv", "video/x-matroska" }, { "mov", "video/quicktime" },
-            { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" }, { "divx", "video/divx" },
-            { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" }, { "webm", "video/webm" },
-
-            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" },
-            { "png", "image/png" }, { "bmp", "image/bmp" }, };
+    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
     /**
      * Disallow external instantiation.
      */
     private StringUtil() {
-    }
-
-    /**
-     * Returns the proper MIME type for the given suffix.
-     *
-     * @param suffix The suffix, e.g., "mp3" or ".mp3".
-     *
-     * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is
-     *         found, <code>application/octet-stream</code> is returned.
-     */
-    public static String getMimeType(String suffix) {
-        for (String[] typeAndValue : MIME_TYPES) {
-            String type = typeAndValue[0];
-            String value = typeAndValue[1];
-            if (type.equalsIgnoreCase(suffix)) {
-                return value;
-            } else {
-                String typeWithDot = '.' + type;
-                if (typeWithDot.equalsIgnoreCase(suffix)) {
-                    return typeAndValue[1];
-                }
-            }
-        }
-        return "application/octet-stream";
-    }
-
-    public static String getSuffix(String mimeType) {
-        for (String[] map : MIME_TYPES) {
-            if (map[1].equalsIgnoreCase(mimeType)) {
-                return map[0];
-            }
-        }
-        return null;
     }
 
     public static String formatBytes(long byteCount, Locale locale) {
@@ -239,16 +182,30 @@ public final class StringUtil {
      *
      * @return The locale.
      */
-    public static @Nullable Locale parseLocale(String s) {
-        if (s == null) {
-            return null;
+    public static @NonNull Locale parseLocale(String s) {
+        if (s == null || s.isEmpty() || "_".equals(s)) {
+            return Locale.getDefault();
         }
 
-        List<String> elements = new ArrayList<>(Arrays.asList(s.split("_", 3)));
-        while (elements.size() < 3) {
-            elements.add("");
+        try {
+            return new Locale.Builder().setLanguageTag(s.replace('_', '-')).build();
+        } catch (java.util.IllformedLocaleException e) {
+            return Locale.getDefault();
         }
-        return new Locale(elements.get(0), elements.get(1), elements.get(2));
+    }
+
+    public static @Nullable URL parseURL(String s) throws MalformedURLException {
+        if (StringUtils.isBlank(s)) {
+            return null;
+        }
+        try {
+            return URI.create(s).toURL();
+        } catch (IllegalArgumentException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Invalid URL rejected by strict parsing (Java 20+): [{}]", s, e);
+            }
+            return null;
+        }
     }
 
     /**
@@ -294,9 +251,13 @@ public final class StringUtil {
      *
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
-    public static @Nullable String getUrlFile(String url) {
+    public static @Nullable String getUrlFile(String urlStr) {
         try {
-            String pathString = new URL(url).getPath();
+            URL url = parseURL(urlStr);
+            if (url == null) {
+                return null;
+            }
+            String pathString = url.getPath();
             if (StringUtils.isBlank(pathString) || pathString.endsWith("/")) {
                 return null;
             }
@@ -311,22 +272,6 @@ public final class StringUtil {
         } catch (MalformedURLException x) {
             return null;
         }
-    }
-
-    /**
-     * Makes a given filename safe by replacing special characters like slashes ("/"
-     * and "\") with dashes ("-").
-     *
-     * @param filename The filename in question.
-     *
-     * @return The filename with special characters replaced by underscores.
-     */
-    public static String fileSystemSafe(final String filename) {
-        String result = filename;
-        for (String s : FILE_SYSTEM_UNSAFE) {
-            result = result.replaceAll("\\.$", "").replace(s, "-");
-        }
-        return result;
     }
 
     public static @Nullable String removeMarkup(String s) {
@@ -350,5 +295,135 @@ public final class StringUtil {
         static <V> Pair<V> of(String key, V defaultValue) {
             return new Pair<>(key, defaultValue);
         }
+    }
+
+    /**
+     * Compares two strings for equality, considering nulls. This method performs a
+     * case-sensitive comparison.
+     *
+     * @param a first string, may be null
+     * @param b second string, may be null
+     * @return true if both are null or equal by {@link String#equals(Object)}
+     */
+    @SuppressWarnings("PMD.UseEqualsToCompareStrings")
+    public static boolean equals(String a, String b) {
+        return a == b || (a != null && a.equals(b));
+    }
+
+    /*
+     * Utility methods for string comparisons ignoring case differences, implemented
+     * similarly to Apache Commons Lang3 but without locale-sensitive handling.
+     * These methods use {@link String#regionMatches(boolean, int, String, int,
+     * int)} with case-insensitive flag for comparisons.
+     *
+     * <p><b>Note:</b> These implementations do not consider locale-specific case
+     * mappings (e.g., Turkish dotted/dotless I, German ß). Therefore, comparisons
+     * may yield unexpected results in such locales.
+     *
+     * <p>This is a simplified replacement for deprecated Lang3 methods like {@code
+     * StringUtils.equalsIgnoreCase} and similar, aimed to reduce dependencies.
+     * Locale-aware comparison can be added later if needed.
+     */
+
+    /**
+     * Compares two strings for equality ignoring case differences.
+     * <p>
+     * Uses {@link String#regionMatches(boolean, int, String, int, int)} with
+     * case-insensitive flag, but does NOT handle locale-specific rules.
+     *
+     * @param a first string, may be null
+     * @param b second string, may be null
+     * @return true if both strings are equal ignoring case, or both null
+     */
+    public static boolean equalsIgnoreCase(String a, String b) {
+        if (a == null && b == null) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        return a.length() == b.length() && a.regionMatches(true, 0, b, 0, a.length());
+    }
+
+    /**
+     * Checks if {@code str} contains {@code searchStr} ignoring case.
+     * <p>
+     * Uses {@link String#regionMatches(boolean, int, String, int, int)} for
+     * comparison, without locale-specific case mapping.
+     *
+     * @param str       string to search in, may be null
+     * @param searchStr string to search for, may be null
+     * @return true if {@code searchStr} is found within {@code str} ignoring case
+     */
+    public static boolean containsIgnoreCase(String str, String searchStr) {
+        if (str == null || searchStr == null) {
+            return false;
+        }
+        final int length = searchStr.length();
+        final int max = str.length() - length;
+        for (int i = 0; i <= max; i++) {
+            if (str.regionMatches(true, i, searchStr, 0, length)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if {@code str} starts with {@code prefix} ignoring case.
+     * <p>
+     * Uses {@link String#regionMatches(boolean, int, String, int, int)} with
+     * case-insensitive flag, without locale-specific rules.
+     *
+     * @param str    string to check, may be null
+     * @param prefix prefix to find, may be null
+     * @return true if {@code str} starts with {@code prefix} ignoring case
+     */
+    public static boolean startsWithIgnoreCase(String str, String prefix) {
+        return str != null && prefix != null && prefix.length() <= str.length()
+                && str.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    /**
+     * Checks if {@code str} ends with {@code suffix} ignoring case.
+     * <p>
+     * Uses {@link String#regionMatches(boolean, int, String, int, int)} with
+     * case-insensitive flag, without locale-specific rules.
+     *
+     * @param str    string to check, may be null
+     * @param suffix suffix to find, may be null
+     * @return true if {@code str} ends with {@code suffix} ignoring case
+     */
+    public static boolean endsWithIgnoreCase(String str, String suffix) {
+        if (str == null || suffix == null) {
+            return false;
+        }
+
+        int strLen = str.length();
+        int suffixLen = suffix.length();
+        return suffixLen <= strLen
+                && str.regionMatches(true, strLen - suffixLen, suffix, 0, suffixLen);
+    }
+
+    /**
+     * Removes the specified prefix from the start of the given string, if present.
+     * <p>
+     * If {@code str} starts with {@code remove}, the prefix is removed and the
+     * resulting substring is returned. Otherwise, the original string is returned
+     * unchanged.
+     * <p>
+     * If either {@code str} or {@code remove} is {@code null}, the original
+     * {@code str} is returned.
+     *
+     * @param str    the string to process, may be {@code null}
+     * @param remove the prefix to remove, may be {@code null}
+     * @return the substring without the prefix if present, or the original string
+     *         if not; returns {@code null} if {@code str} is {@code null}
+     */
+    public static String removeStart(String str, String remove) {
+        if (str != null && remove != null && str.startsWith(remove)) {
+            return str.substring(remove.length());
+        }
+        return str;
     }
 }

@@ -42,33 +42,76 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 
 /**
- * Class for writing MediaFile. Package-private methods will be used from the
- * scanning thread. Public methods may be used from outside the scanning thread,
- * so concurrency will need to be taken care of.
+ * A service interface that provides write operations—such as registering,
+ * updating, and deleting media files—during the scanning process.
+ *
+ * <p>
+ * This service is primarily used during scan phases to persistently reflect
+ * media files detected and analyzed through various scan procedures. In
+ * particular, it plays a central role in recording results from metadata
+ * analysis phases.
+ * </p>
+ *
+ * <h3>Primary Responsibilities</h3>
+ * <ul>
+ * <li>Registering newly detected media files during a scan</li>
+ * <li>Updating or deleting existing media files as needed</li>
+ * </ul>
+ *
+ * <p>
+ * Each update is applied incrementally as the scan progresses. Overall
+ * integrity and consistency across the scan process is ensured through
+ * cooperation with other related services.
+ * </p>
+ *
+ * <h3>Design Notes</h3>
+ * <p>
+ * This interface was designed to specialize in write operations that occur
+ * during scanning, ensuring that batch updates from a scan do not conflict with
+ * ordinary updates performed outside of scanning. <br>
+ * By clearly separating these responsibilities, the design provides a safe and
+ * predictable update mechanism, even in concurrent environments.
+ * </p>
+ * <ul>
+ * <li>Non-scan updates are limited to updating only specific fields, avoiding
+ * full record overwrites</li>
+ * <li>Updates that could affect scan results are protected through mutual
+ * exclusion using {@link ScannerStateService}</li>
+ * </ul>
+ * <p>
+ * This design helps maintain consistent data structures throughout scanning and
+ * prevents unintended overwrites or data inconsistencies.
+ * </p>
+ *
+ * @see MediaFile
+ * @see ScanContext
+ * @see ScannerStateService
  */
 @Service
 public class WritableMediaFileService {
@@ -81,8 +124,9 @@ public class WritableMediaFileService {
     private final MusicParser musicParser;
     private final VideoParser videoParser;
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final JapaneseReadingUtils readingUtils;
     private final IndexManager indexManager;
     private final MusicIndexServiceImpl musicIndexService;
@@ -90,8 +134,9 @@ public class WritableMediaFileService {
     public WritableMediaFileService(MediaFileDao mediaFileDao,
             ScannerStateService scannerStateService, MediaFileService mediaFileService,
             AlbumDao albumDao, MediaFileCache mediaFileCache, MusicParser musicParser,
-            VideoParser videoParser, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils,
+            VideoParser videoParser, SettingsFacade settingsFacade,
+            LibraryAccessPolicy libraryAccessPolicy,
+            ScanningExclusionPolicy scanningExclusionPolicy, JapaneseReadingUtils readingUtils,
             IndexManager indexManager, MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
@@ -101,8 +146,9 @@ public class WritableMediaFileService {
         this.mediaFileCache = mediaFileCache;
         this.musicParser = musicParser;
         this.videoParser = videoParser;
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.readingUtils = readingUtils;
         this.indexManager = indexManager;
         this.musicIndexService = musicIndexService;
@@ -143,7 +189,7 @@ public class WritableMediaFileService {
 
         if (path == null || !Files.exists(path)) {
             return null;
-        } else if (!securityService.isReadAllowed(path)) {
+        } else if (!libraryAccessPolicy.isReadAllowed(path)) {
             throw new SecurityException("Access denied to file " + path);
         }
 
@@ -214,7 +260,8 @@ public class WritableMediaFileService {
             .collect(Collectors.toMap(MediaFile::getPathString, mf -> mf));
 
         LongAdder updateCount = new LongAdder();
-        CoverArtDetector coverArtDetector = new CoverArtDetector(securityService, mediaFileService);
+        CoverArtDetector coverArtDetector = new CoverArtDetector(scanningExclusionPolicy,
+                mediaFileService);
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
 
@@ -325,14 +372,15 @@ public class WritableMediaFileService {
 
     Optional<MediaFile> checkLastModified(@NonNull Instant scanDate,
             @NonNull final MediaFile mediaFile) {
+        boolean ignoreFileTimestamps = settingsFacade
+            .get(SKeys.musicFolder.scan.ignoreFileTimestamps);
         if (scanDate.equals(mediaFile.getLastScanned())
                 || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
             return Optional.empty();
         } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            if (settingsService.isIgnoreFileTimestamps()
-                    && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+            if (ignoreFileTimestamps && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                 return Optional.empty();
-            } else if (!settingsService.isIgnoreFileTimestamps()
+            } else if (!ignoreFileTimestamps
                     && !mediaFile.getChanged().isBefore(getLastModified(mediaFile.toPath()))
                     && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                 return Optional.empty();
@@ -382,7 +430,7 @@ public class WritableMediaFileService {
         mediaFile.setChildrenLastUpdated(FAR_PAST);
 
         mediaFile.setPathString(path.toString());
-        mediaFile.setFolder(securityService.getRootFolderForFile(path));
+        mediaFile.setFolder(libraryAccessPolicy.getRootFolderForFile(path));
 
         Path parent = path.getParent();
         if (parent == null) {
@@ -435,7 +483,7 @@ public class WritableMediaFileService {
         }
 
         String format = StringUtils
-            .trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
+            .trimToNull(StringUtils.lowerCase(PathInspector.getExtension(to.getPathString())));
         to.setFormat(format);
         try {
             to.setFileSize(Files.size(path));
@@ -453,7 +501,7 @@ public class WritableMediaFileService {
                 to.setLastScanned(FAR_FUTURE);
             }, () -> {
                 to.setArtist(dirPath.getFileName().toString());
-                if (!settingsService.isSortStrict()) {
+                if (!settingsFacade.get(SKeys.advanced.sort.strict)) {
                     String index = musicIndexService.getParser().getIndex(to).getIndex();
                     to.setMusicIndex(index);
                 }
@@ -617,19 +665,20 @@ public class WritableMediaFileService {
 
     private static class CoverArtDetector {
 
-        private final SecurityService securityService;
+        private final ScanningExclusionPolicy scanningExclusionPolicy;
         private final MediaFileService mediaFileService;
         private Path coverArtAvailable;
         private Path firstCoverArtEmbeddable;
 
-        CoverArtDetector(SecurityService securityService, MediaFileService mediaFileService) {
-            this.securityService = securityService;
+        CoverArtDetector(ScanningExclusionPolicy scanningExclusionPolicy,
+                MediaFileService mediaFileService) {
+            this.scanningExclusionPolicy = scanningExclusionPolicy;
             this.mediaFileService = mediaFileService;
         }
 
         void setChildFilePath(Path childPath) {
             try {
-                if (coverArtAvailable == null && !securityService.isExcluded(childPath)
+                if (coverArtAvailable == null && !scanningExclusionPolicy.isExcluded(childPath)
                         && mediaFileService
                             .isAvailableCoverArtPath(childPath,
                                     Files.readAttributes(childPath, BasicFileAttributes.class))) {
@@ -649,7 +698,7 @@ public class WritableMediaFileService {
 
         Optional<Path> getCoverArtAvailable() {
             return Optional
-                .ofNullable(ObjectUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
+                .ofNullable(PlayerUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
         }
     }
 }

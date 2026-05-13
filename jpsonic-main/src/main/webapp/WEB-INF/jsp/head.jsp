@@ -1,7 +1,6 @@
 <%@ include file="include.jsp" %>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<c:set var="styleSheet"><spring:theme code="styleSheet"/></c:set>
 <link rel="apple-touch-icon" sizes="180x180" href="<c:url value='/icons/apple-touch-icon.png'/>"/>
 <link rel="icon" type="image/png" sizes="32x32" href="<c:url value='/icons/favicon-32x32.png'/>"/>
 <link rel="icon" type="image/png" sizes="16x16" href="<c:url value='/icons/favicon-16x16.png'/>"/>
@@ -19,7 +18,8 @@ html {
   font-size: <%= (Integer) request.getAttribute("viewhint.fontSize") %>px;
 }
 </style>
-<link rel="stylesheet" href="<c:url value='/${styleSheet}'/>" type="text/css">
+<link rel="stylesheet" href="<sub:cssUrl />" type="text/css">
+
 <title>Jpsonic</title>
 
 <script id="preferencesConfig" type="application/x-configuration">

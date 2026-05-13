@@ -42,7 +42,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.upnp.processor.CustomContentDirectory;
@@ -82,20 +83,20 @@ public class UpnpServiceFactory {
      */
     private static final int MIN_ADVERTISEMENT_AGE_SECONDS = 60 * 60 * 24;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final VersionService versionService;
     private final CustomContentDirectory dispatchingContentDirectory;
     private final ExecutorService defaultExecutorService;
     private final ExecutorService asyncExecutorService;
     private final Executor registryMaintainerExecutor;
 
-    public UpnpServiceFactory(SettingsService settingsService, VersionService versionService,
+    public UpnpServiceFactory(SettingsFacade settingsFacade, VersionService versionService,
             @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory,
             @Qualifier("upnpExecutorService") ExecutorService defaultExecutorService,
             @Qualifier("asyncProtocolExecutorService") ExecutorService asyncExecutorService,
             @Qualifier("registryMaintainerExecutor") Executor registryMaintainerExecutor) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.versionService = versionService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
         this.defaultExecutorService = defaultExecutorService;
@@ -105,10 +106,12 @@ public class UpnpServiceFactory {
 
     public UpnpService createUpnpService() {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService,
-                asyncExecutorService, registryMaintainerExecutor, SettingsService.getBrand(),
-                versionService.getLocalVersion());
+                asyncExecutorService, registryMaintainerExecutor,
+                EnvironmentProvider.getInstance().getBrand(), versionService.getLocalVersion());
+
         return new UpnpServiceImpl(conf,
-                settingsService.isDlnaEnabledFilteredIp() ? settingsService.getDlnaFilteredIp()
+                settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp)
+                        ? settingsFacade.get(UPnPSKeys.basic.filteredIp)
                         : null);
     }
 
@@ -159,12 +162,12 @@ public class UpnpServiceFactory {
             throw new ExecutionException("Icon cannot be generated", e);
         }
 
-        String serverName = settingsService.getDlnaServerName();
+        String serverName = settingsFacade.get(UPnPSKeys.basic.serverName);
         String serialNumber = versionService.getLocalBuildNumber();
         DLNADoc[] dlnaDocs = { new DLNADoc("DMS", DLNADoc.Version.V1_5) };
         URI modelURI = URI.create("https://github.com/jpsonic");
         URI manufacturerURI = URI.create("https://github.com/jpsonic/jpsonic");
-        URI presentationURI = URI.create(settingsService.getDlnaBaseLANURL());
+        URI presentationURI = URI.create(settingsFacade.get(UPnPSKeys.basic.baseLanUrl));
         ManufacturerDetails manufacturerDetails = new ManufacturerDetails(serverName, modelURI);
         ModelDetails modelDetails = new ModelDetails(serverName, null,
                 versionService.getLocalVersion().toString(), manufacturerURI);

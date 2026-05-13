@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -55,13 +55,13 @@ class PlaylistControllerTest {
         playlist.setCreated(now());
         Mockito.when(playlistService.getPlaylist(PLAYLIST_ID)).thenReturn(playlist);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new PlaylistController(mock(SecurityService.class), playlistService,
+            .standaloneSetup(new PlaylistController(mock(UserService.class), playlistService,
                     mock(PlayerService.class)))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testFormBackingObject() throws Exception {
 
         MvcResult result = mockMvc

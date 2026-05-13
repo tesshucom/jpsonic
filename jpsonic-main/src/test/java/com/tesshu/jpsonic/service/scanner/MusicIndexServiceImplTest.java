@@ -34,22 +34,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.SortedMap;
-import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicFolderContent;
-import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
+import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl.MusicIndexParser;
-import com.tesshu.jpsonic.util.StringUtil;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -63,26 +65,33 @@ import org.mockito.Mockito;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicIndexServiceImplTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private MediaFileService mediaFileService;
     private MusicIndexServiceImpl musicIndexService;
     private ArtistDao artistDao;
+    private static final String INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
+    private static final String IGNORED_ARTICLES = "The El La Las Le Les";
 
     @BeforeEach
-    void setup() throws ExecutionException {
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.general.index.indexString, INDEX_STRING)
+            .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(I18nSKeys.localeVariant, "")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         mediaFileService = mock(MediaFileService.class);
         artistDao = mock(ArtistDao.class);
-        settingsService = mock(SettingsService.class);
-        String ignoredArticles = "The El La Las Le Les";
-        Mockito.when(settingsService.getIgnoredArticles()).thenReturn(ignoredArticles);
-        Mockito
-            .when(settingsService.getIgnoredArticlesAsArray())
-            .thenReturn(Arrays.asList(ignoredArticles.split("\\s+")));
-        String indexString = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
-        Mockito.when(settingsService.getIndexString()).thenReturn(indexString);
-        Mockito.when(settingsService.getLocale()).thenReturn(new Locale("ja", "jp", ""));
-        JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
-        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao,
+        JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
+        musicIndexService = new MusicIndexServiceImpl(settingsFacade, mediaFileService, artistDao,
                 readingUtils);
     }
 
@@ -155,9 +164,19 @@ class MusicIndexServiceImplTest {
 
     @Test
     void testGetShortcuts() throws URISyntaxException {
-        Mockito
-            .when(settingsService.getShortcutsAsArray())
-            .thenReturn(StringUtil.split("Shortcuts \"New Incoming\" Podcast Metadata"));
+
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.general.index.indexString, INDEX_STRING)
+            .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+            .withString(SKeys.general.extension.shortcuts, "Shortcuts Podcast Metadata")
+            .withString(I18nSKeys.localeLanguage, "ja")
+            .withString(I18nSKeys.localeCountry, "ja")
+            .withString(I18nSKeys.localeVariant, "")
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        init();
+
         MusicFolder folder = new MusicFolder(Path
             .of(MusicIndexServiceImplTest.class.getResource("/MEDIAS/Music").toURI())
             .toString(), "Music", true, now(), false);
@@ -189,7 +208,17 @@ class MusicIndexServiceImplTest {
 
             @Test
             void testCreateIndexesFromSingleTokenExpression() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "A")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
                 List<MusicIndex> indexes = musicIndexService.getParser().getIndexes();
                 assertEquals(1, indexes.size());
                 MusicIndex index = indexes.get(0);
@@ -197,7 +226,17 @@ class MusicIndexServiceImplTest {
                 assertEquals(1, index.getPrefixes().size());
                 assertEquals("A", index.getPrefixes().get(0));
 
-                Mockito.when(settingsService.getIndexString()).thenReturn("The");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "The")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
                 musicIndexService.clear();
                 indexes = musicIndexService.getParser().getIndexes();
                 assertEquals(1, indexes.size());
@@ -207,7 +246,17 @@ class MusicIndexServiceImplTest {
                 assertEquals(1, index.getPrefixes().size());
                 assertEquals("The", index.getPrefixes().get(0));
 
-                Mockito.when(settingsService.getIndexString()).thenReturn("X-Z(XYZ)");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "X-Z(XYZ)")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
                 musicIndexService.clear();
                 indexes = musicIndexService.getParser().getIndexes();
                 assertEquals(1, indexes.size());
@@ -221,7 +270,18 @@ class MusicIndexServiceImplTest {
 
             @Test
             void testCreateIndexesFromMultipleTokensExpression() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A B  The X-Z(XYZ)");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "A B  The X-Z(XYZ)")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
+
                 List<MusicIndex> indexes = musicIndexService.getParser().getIndexes();
                 assertEquals(4, indexes.size());
 
@@ -250,7 +310,18 @@ class MusicIndexServiceImplTest {
 
             @Test
             void testLatin() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A B C");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "A B C")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
+
                 MusicIndexParser musicIndexParser = musicIndexService.getParser();
 
                 Artist artist = new Artist();
@@ -269,9 +340,19 @@ class MusicIndexServiceImplTest {
 
             @Test
             void testLatinJapanese() {
-                Mockito
-                    .when(settingsService.getIndexString())
-                    .thenReturn("A B C あ(ア) い(ア) う(ア) え(ア) お(ア) か(カ) き(キ) く(ク) け(ケ) こ(コ) は(ハヒフヘホ)");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString,
+                            "A B C あ(ア) い(ア) う(ア) え(ア) お(ア) か(カ) き(キ) く(ク) け(ケ) こ(コ) は(ハヒフヘホ)")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
+
                 MusicIndexParser musicIndexParser = musicIndexService.getParser();
 
                 Artist artist = new Artist();
@@ -306,7 +387,18 @@ class MusicIndexServiceImplTest {
              */
             @Test
             void testGetIndexSTR02J() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A i ı");
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withString(SKeys.general.index.indexString, "A i ı")
+                    .withString(SKeys.general.index.ignoredArticles, IGNORED_ARTICLES)
+                    .withString(I18nSKeys.localeLanguage, "ja")
+                    .withString(I18nSKeys.localeCountry, "ja")
+                    .withString(I18nSKeys.localeVariant, "")
+                    .withString(SKeys.advanced.index.indexSchemeName,
+                            IndexScheme.NATIVE_JAPANESE.name())
+                    .build();
+                init();
+
                 MusicIndexParser musicIndexParser = musicIndexService.getParser();
 
                 Artist artist = new Artist();

@@ -38,9 +38,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,8 +130,6 @@ class RecentAlbumId3ProcTest {
 
         @BeforeEach
         void setup() {
-            setSortStrict(true);
-            setSortAlphanum(true);
             populateDatabaseOnlyOnce();
         }
 

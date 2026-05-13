@@ -23,8 +23,8 @@ package com.tesshu.jpsonic.controller;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.util.StringUtil;

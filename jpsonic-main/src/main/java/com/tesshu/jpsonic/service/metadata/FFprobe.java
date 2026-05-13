@@ -19,8 +19,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
-import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
+import static com.tesshu.jpsonic.infrastructure.filesystem.PathInspector.toIdentityName;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -28,7 +27,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Map;
@@ -36,32 +34,23 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.util.PlayerUtils;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class FFprobe {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);
-
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-show_format",
             "-show_streams", "-print_format", "json" };
-
     private static final String CODEC_TYPE_VIDEO = "video";
-
-    private final TranscodingService transcodingService;
-
-    public FFprobe(TranscodingService transcodingService) {
-        super();
-        this.transcodingService = transcodingService;
-    }
 
     enum FFmpegFieldKey {
 
@@ -79,32 +68,29 @@ public class FFprobe {
         }
     }
 
+    private final ObjectMapper objectMapper;
+
+    public FFprobe(ObjectMapper objectMapper) {
+        super();
+        this.objectMapper = objectMapper;
+    }
+
     private Optional<String> getField(JsonNode tags, FFmpegFieldKey fieldKey) {
         JsonNode node = tags.get(fieldKey.value);
         if (isEmpty(node)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asText()));
-    }
-
-    private @Nullable String getCommandPath() {
-        Path cmdFile = Path
-            .of(transcodingService.getTranscodeDirectory().toString(),
-                    PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
-        if (Files.exists(cmdFile)) {
-            return cmdFile.toString();
-        }
-        return null;
+        return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asString()));
     }
 
     private MetaData parse(@NonNull JsonNode node, @NonNull MetaData result) {
 
         // ### streams
         for (JsonNode stream : node.at("/streams")) {
-            String codec = stream.get("codec_type").asText();
+            String codec = stream.get("codec_type").asString();
             if (CODEC_TYPE_VIDEO.equals(codec) && stream.has("width") && stream.has("height")) {
-                result.setWidth(ParserUtils.parseInt(stream.get("width").asText()));
-                result.setHeight(ParserUtils.parseInt(stream.get("height").asText()));
+                result.setWidth(ParserUtils.parseInt(stream.get("width").asString()));
+                result.setHeight(ParserUtils.parseInt(stream.get("height").asString()));
                 break;
             }
         }
@@ -114,18 +100,24 @@ public class FFprobe {
         if (isEmpty(format)) {
             return result;
         }
-        Optional.ofNullable(format.at("/duration")).ifPresent(duration -> {
-            int value = duration.asInt();
-            if (value != 0) {
-                result.setDurationSeconds(value);
+
+        JsonNode durationNode = format.at("/duration");
+        if (!isEmpty(durationNode) && durationNode.isValueNode()) {
+            double value = durationNode.asDouble();
+            int rounded = (int) Math.floor(value);
+            if (rounded != 0) {
+                result.setDurationSeconds(rounded);
             }
-        });
-        Optional.ofNullable(format.at("/bit_rate")).ifPresent(bitRate -> {
-            int value = bitRate.asInt();
-            if (value != 0) {
-                result.setBitRate(value / 1000);
+        }
+
+        JsonNode bitRateNode = format.at("/bit_rate");
+        if (!isEmpty(bitRateNode) && bitRateNode.isValueNode()) {
+            double value = bitRateNode.asDouble();
+            int rounded = (int) Math.floor(value / 1000.0);
+            if (rounded != 0) {
+                result.setBitRate(rounded);
             }
-        });
+        }
 
         // ### format/tags
         JsonNode tags = format.at("/tags");
@@ -151,14 +143,12 @@ public class FFprobe {
     @SafeVarargs
     final MetaData parse(@NonNull Path path, Consumer<Long>... startTimeCallback) {
 
-        MetaData result = new MetaData();
-        String cmdPath = getCommandPath();
-        if (isEmpty(cmdPath)) {
-            return result;
-        }
+        final MetaData result = new MetaData();
 
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command().add(cmdPath);
+        pb
+            .command()
+            .add(EnvironmentProvider.getInstance().getFfprobePath().toAbsolutePath().toString());
         Stream.of(FFPROBE_OPTIONS).forEach(op -> pb.command().add(op));
         pb.command().add(path.toString());
 
@@ -171,7 +161,7 @@ public class FFprobe {
                     OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream();
                     BufferedInputStream bis = new BufferedInputStream(is);) {
-                node = OBJECT_MAPPER.readTree(bis);
+                node = objectMapper.readTree(bis);
                 os.close();
                 es.close();
             } finally {
@@ -181,7 +171,7 @@ public class FFprobe {
             // Exceptions to this class are self-explanatory, avoiding redundant trace
             // output
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to execute ffprobe({}): {}", getShortPath(path), e.getMessage());
+                LOG.warn("Failed to execute ffprobe({}): {}", toIdentityName(path), e.getMessage());
             }
             return result;
         }

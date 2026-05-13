@@ -169,7 +169,7 @@ class ScannerDisposerTest {
 
         @Test
         void testGetPhase() {
-            assertEquals(com.tesshu.jpsonic.spring.LifecyclePhase.SCAN.getValue(),
+            assertEquals(com.tesshu.jpsonic.infrastructure.core.LifecyclePhase.SCAN.getValue(),
                     disposer.getPhase());
         }
     }

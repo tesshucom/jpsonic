@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.MusicFolderSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand"--%>
 
 <html>
 <head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.ScanEvent.ScanEventType" %>
+<%@ page import="com.tesshu.jpsonic.persistence.core.entity.ScanEvent" %>
 
 <script>
 const scanning = ${command.scanning};

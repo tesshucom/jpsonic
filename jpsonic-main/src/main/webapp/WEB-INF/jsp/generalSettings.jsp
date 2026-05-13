@@ -1,10 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.GeneralSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.GeneralSettingsCommand"--%>
 
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 const scanning = ${command.scanning};
@@ -206,12 +206,6 @@ function resetExtension() {
         </c:if>
 
         <dl>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="showRememberMe" id="showRememberMe"/>
-                <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
-            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="useRadio" id="useRadio"/>

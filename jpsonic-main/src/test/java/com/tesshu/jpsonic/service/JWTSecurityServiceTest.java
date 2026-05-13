@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,6 +44,9 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,13 +56,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class JWTSecurityServiceTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private JWTSecurityService jwtSecurityService;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        jwtSecurityService = new JWTSecurityService(settingsFacade);
     }
 
     @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.UnnecessaryVarargsArrayCreation" }) // false
@@ -82,7 +84,8 @@ class JWTSecurityServiceTest {
                     .build()
                     .getQueryParams()
                     .getFirst(JWTSecurityService.JWT_PARAM_NAME);
-                Algorithm algorithm = JWTSecurityService.getAlgorithm(settingsService.getJWTKey());
+                Algorithm algorithm = JWTSecurityService
+                    .getAlgorithm(settingsFacade.get(SKeys.deprecatedSecrets.jwtKey));
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT verify = verifier.verify(jwtToken);
                 Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
@@ -135,7 +138,8 @@ class JWTSecurityServiceTest {
 
             assertNotNull(JWTSecurityService
                 .verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
-            Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
+            Throwable t = assertThrows(
+                    com.tesshu.jpsonic.feature.auth.core.TokenExpiredException.class,
                     () -> JWTSecurityService
                         .verify(KEY, JWTSecurityService.createToken(KEY, PATH, before)));
             assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
@@ -146,7 +150,7 @@ class JWTSecurityServiceTest {
             Instant current = now();
             String invalidToken = JWTSecurityService.createToken(KEY, PATH, current);
             Throwable t = assertThrows(
-                    com.tesshu.jpsonic.security.SignatureVerificationException.class,
+                    com.tesshu.jpsonic.feature.auth.core.SignatureVerificationException.class,
                     () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class,
                     t.getCause());

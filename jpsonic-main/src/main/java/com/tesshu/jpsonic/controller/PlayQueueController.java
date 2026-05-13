@@ -21,13 +21,14 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,15 +47,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/playQueue", "/playQueue.view" })
 public class PlayQueueController {
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final UserService userService;
     private final PlayerService playerService;
 
-    public PlayQueueController(SettingsService settingsService, SecurityService securityService,
+    public PlayQueueController(SettingsFacade settingsFacade, UserService userService,
             PlayerService playerService) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.userService = userService;
         this.playerService = playerService;
     }
 
@@ -62,14 +63,14 @@ public class PlayQueueController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playQueue", "model", LegacyMap
             .of("user", user, "player", player, "players",
                     playerService.getPlayersForUserAndClientId(user.getUsername(), null),
                     "userSettings", userSettings, "coverArtSize", CoverArtScheme.SMALL.getSize(),
-                    "useCast", settingsService.isUseCast()));
+                    "useCast", settingsFacade.get(SKeys.general.legacy.useRadio)));
     }
 }

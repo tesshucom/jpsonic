@@ -30,29 +30,34 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.MenuItemDao;
-import com.tesshu.jpsonic.dao.base.TemplateWrapper;
-import com.tesshu.jpsonic.domain.MenuItem;
-import com.tesshu.jpsonic.domain.MenuItem.ViewType;
-import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.NeedsDB;
+import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
+import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
+@NeedsDB
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MenuItemServiceTest {
 
     @Autowired
-    private SettingsService settingsService;
+    private ServerLocaleService serverLocaleService;
+    @Autowired
+    private SettingsFacade settingsFacade;
     @Autowired
     MenuItemDao menuItemDao;
     @Autowired
@@ -62,10 +67,10 @@ class MenuItemServiceTest {
 
     @BeforeEach
     void setup() throws URISyntaxException {
-        Locale otherThanEnJp = settingsService.getAvailableLocales().get(5);
+        Locale otherThanEnJp = serverLocaleService.getAvailableLocales().get(5);
         assertEquals("ca", otherThanEnJp.getLanguage());
-        settingsService.setLocale(otherThanEnJp);
-        settingsService.save();
+        serverLocaleService.stagingLocale(otherThanEnJp);
+        settingsFacade.commitAll();
     }
 
     @Test

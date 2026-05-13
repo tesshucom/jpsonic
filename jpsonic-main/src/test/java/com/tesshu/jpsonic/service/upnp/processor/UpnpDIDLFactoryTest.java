@@ -27,56 +27,79 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.Res;
 import org.mockito.Mockito;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@NeedsHome
+@NeedsTranscode
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UpnpDIDLFactoryTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private TranscodingDao transcodingDao;
     private PlayerService playerService;
     private UpnpDIDLFactory factory;
 
     @BeforeEach
     void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        init();
+    }
+
+    @Ignore
+    void init() {
         transcodingDao = mock(TranscodingDao.class);
-        settingsService = mock(SettingsService.class);
         playerService = mock(PlayerService.class);
-        factory = new UpnpDIDLFactory(settingsService, new JWTSecurityService(settingsService),
-                mock(MediaFileService.class), playerService,
-                new TranscodingService(settingsService, null, transcodingDao, playerService, null));
+        factory = new UpnpDIDLFactory(settingsFacade, new JWTSecurityService(settingsFacade),
+                mock(MediaFileService.class), playerService, new TranscodingService(settingsFacade,
+                        null, null, transcodingDao, playerService, null));
     }
 
     @Test
     void testCreateURIStringWithToken() {
 
-        MediaFile song = new MediaFile();
+        final MediaFile song = new MediaFile();
         song.setFormat("flac");
-        assertFalse(settingsService.isUriWithFileExtensions());
+
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, false)
+            .buildWithDefault();
+        init();
+        assertFalse(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions));
+
         Mockito
             .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
             .thenReturn(Collections.emptyList());
-
         UriComponentsBuilder builder = UriComponentsBuilder
-            .fromHttpUrl("http://192.168.1.1/ext/stream")
+            .fromUriString("http://192.168.1.1/ext/stream")
             .queryParam("id", 0)
             .queryParam("player", 0);
         assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
 
-        Mockito.when(settingsService.isUriWithFileExtensions()).thenReturn(true);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, true)
+            .buildWithDefault();
+        init();
         assertTrue(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
         song.setFormat(null);
 
@@ -95,7 +118,11 @@ class UpnpDIDLFactoryTest {
         Mockito
             .when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class)))
             .thenReturn(player);
-        Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("http://192.168.1.1");
+
+        Mockito.when(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions)).thenReturn(false);
+        Mockito
+            .when(settingsFacade.get(UPnPSKeys.basic.baseLanUrl))
+            .thenReturn("http://192.168.1.1");
         MediaFile song = new MediaFile();
         song.setFileSize(123L);
         Res res = factory.toRes(song);

@@ -37,12 +37,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
@@ -384,7 +384,7 @@ public class LastFMScrobbler {
             this.artist = mediaFile.getArtist();
             this.album = mediaFile.getAlbumName();
             this.title = mediaFile.getTitle();
-            this.duration = ObjectUtils.defaultIfNull(mediaFile.getDurationSeconds(), 0);
+            this.duration = PlayerUtils.defaultIfNull(mediaFile.getDurationSeconds(), 0);
             this.time = time == null ? now() : time;
             this.submission = submission;
         }

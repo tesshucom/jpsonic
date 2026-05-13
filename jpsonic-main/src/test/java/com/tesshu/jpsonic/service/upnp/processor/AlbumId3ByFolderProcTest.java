@@ -32,16 +32,18 @@ import java.util.List;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
@@ -63,18 +65,21 @@ class AlbumId3ByFolderProcTest {
         mediaFileService = mock(MediaFileService.class);
         albumDao = mock(AlbumDao.class);
         UpnpProcessorUtil util = mock(UpnpProcessorUtil.class);
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
+        SettingsFacade settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+            .build();
+
         JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
         UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-            .fromUriString(
-                    settingsService.getDlnaBaseLANURL() + "/ext/" + ViewName.COVER_ART.value())
+            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
+                    + ViewName.COVER_ART.value())
             .queryParam("id", "99")
             .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
         Mockito
             .when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
             .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService,
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
                 mock(MediaFileService.class), mock(PlayerService.class),
                 mock(TranscodingService.class));
         FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);

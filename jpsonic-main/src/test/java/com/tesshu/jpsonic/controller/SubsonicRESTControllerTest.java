@@ -38,24 +38,30 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.ajax.LyricsService;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.PlayQueueDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.Share;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.domain.system.AlbumListType;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.stream.DownloadController;
+import com.tesshu.jpsonic.feature.stream.StreamController;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.entity.Share;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
 import com.tesshu.jpsonic.service.InternetRadioService;
@@ -69,14 +75,14 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
@@ -88,7 +94,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -119,11 +125,11 @@ class SubsonicRESTControllerTest {
 
     private final String apiVerion = TestCaseUtils.restApiVersion();
 
-    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     @Nested
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     class UnitTest {
 
-        private SecurityService securityService;
+        private UserService userService;
         private TopController topController;
         private SubsonicRESTController controller;
         private PodcastService podcastService;
@@ -131,9 +137,10 @@ class SubsonicRESTControllerTest {
 
         @BeforeEach
         void setup() {
-            final SettingsService settingsService = mock(SettingsService.class);
+            final SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+            final ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
-            securityService = mock(SecurityService.class);
+            userService = mock(UserService.class);
             final PlayerService playerService = mock(PlayerService.class);
             final MediaFileService mediaFileService = mock(MediaFileService.class);
             final WritableMediaFileService writableMediaFileService = mock(
@@ -166,16 +173,16 @@ class SubsonicRESTControllerTest {
             mediaScannerService = mock(MediaScannerService.class);
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(
                     AirsonicLocaleResolver.class);
-            final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
-            controller = new SubsonicRESTController(settingsService, musicFolderService,
-                    securityService, playerService, mediaFileService, writableMediaFileService,
-                    lastFmService, musicIndexService, transcodingService, downloadController,
-                    coverArtController, avatarController, userSettingsController, topController,
-                    statusService, streamController, hlsController, shareService, playlistService,
-                    lyricsService, audioScrobblerService, podcastService, ratingService,
-                    searchService, internetRadioService, mediaFileDao, artistDao, albumDao,
-                    bookmarkService, playQueueDao, mediaScannerService, airsonicLocaleResolver,
-                    director);
+            final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
+            controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
+                    musicFolderService, mock(LibraryAccessPolicy.class), userService, playerService,
+                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService,
+                    transcodingService, downloadController, coverArtController, avatarController,
+                    userSettingsController, topController, statusService, streamController,
+                    hlsController, shareService, playlistService, lyricsService,
+                    audioScrobblerService, podcastService, ratingService, searchService,
+                    internetRadioService, mediaFileDao, artistDao, albumDao, bookmarkService,
+                    playQueueDao, mediaScannerService, airsonicLocaleResolver, director);
         }
 
         @Test
@@ -191,7 +198,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
 
             controller.refreshPodcasts(new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -212,7 +219,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             String podcastUrl = "http://boo.foo";
@@ -232,7 +239,7 @@ class SubsonicRESTControllerTest {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
             Mockito
-                .when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class)))
                 .thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             int episodeId = 99;
@@ -272,7 +279,7 @@ class SubsonicRESTControllerTest {
         @Autowired
         private StatusService statusService;
         @Autowired
-        private SecurityService securityService;
+        private UserService userService;
         @Autowired
         private PlaylistService playlistService;
         @Autowired
@@ -291,7 +298,10 @@ class SubsonicRESTControllerTest {
 
         @BeforeEach
         void setup() {
-            settingsService.setDlnaGuestPublish(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(UPnPSKeys.options.guestPublish, false)
+                .build();
             populateDatabaseOnlyOnce();
         }
 
@@ -592,7 +602,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testGetSimilarSongs() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -719,7 +729,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testGetArtistInfo() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -889,7 +899,7 @@ class SubsonicRESTControllerTest {
         void testGetSong() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1260,8 +1270,8 @@ class SubsonicRESTControllerTest {
             try {
 
                 String playlistName = "UpdatePlaylist";
-                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false,
-                        playlistName, "comment", 0, 0, now(), now(), null);
+                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, true, playlistName,
+                        "comment", 0, 0, now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService
                     .getAllPlaylists()
@@ -1317,12 +1327,13 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void testDeletePlaylist() throws ExecutionException {
             try {
 
                 String playlistName = "DeletePlaylist";
-                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false,
-                        playlistName, "comment", 0, 0, now(), now(), null);
+                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, true, playlistName,
+                        "comment", 0, 0, now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService
                     .getAllPlaylists()
@@ -1367,7 +1378,7 @@ class SubsonicRESTControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             } catch (Exception e) {
-                Assertions.fail();
+//                Assertions.fail();
                 throw new ExecutionException(e);
             }
         }
@@ -1580,9 +1591,9 @@ class SubsonicRESTControllerTest {
             /*
              * @see #1048
              */
-            @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(1)
+            @Test
             void testGetNowPlayingWithoutNowPlayingAllowed()
                     throws ServletRequestBindingException, IOException {
 
@@ -1599,7 +1610,7 @@ class SubsonicRESTControllerTest {
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolderDao.getAllMusicFolders());
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1623,7 +1634,7 @@ class SubsonicRESTControllerTest {
 
                 res = new MockHttpServletResponse();
 
-                UserSettings userSettings = securityService
+                UserSettings userSettings = userService
                     .getUserSettings(ServiceMockUtils.ADMIN_NAME);
                 assertFalse(userSettings.isNowPlayingAllowed()); // default false
                 subsonicRESTController.getNowPlaying(req, res);
@@ -1647,13 +1658,11 @@ class SubsonicRESTControllerTest {
                         assertNotNull(status.toPath());
                         assertEquals(song.toPath(), status.toPath());
                     }, Assertions::fail);
-
-                res.getOutputStream().close();
             }
 
-            @Test
             @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
             @Order(2)
+            @Test
             void testGetNowPlayingWithNowPlayingAllowed()
                     throws ServletRequestBindingException, IOException {
 
@@ -1670,7 +1679,7 @@ class SubsonicRESTControllerTest {
                 assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
                 assertEquals(0, player.getPlayQueue().getFiles().size());
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolderDao.getAllMusicFolders());
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1694,11 +1703,11 @@ class SubsonicRESTControllerTest {
 
                 res = new MockHttpServletResponse();
 
-                UserSettings userSettings = securityService
+                UserSettings userSettings = userService
                     .getUserSettings(ServiceMockUtils.ADMIN_NAME);
                 assertFalse(userSettings.isNowPlayingAllowed()); // default false
                 userSettings.setNowPlayingAllowed(true); // Change to true
-                securityService.updateUserSettings(userSettings);
+                userService.updateUserSettings(userSettings);
                 subsonicRESTController.getNowPlaying(req, res);
 
                 Response response = JAXB
@@ -1720,15 +1729,13 @@ class SubsonicRESTControllerTest {
                         assertNotNull(status.toPath());
                         assertEquals(song.toPath(), status.toPath());
                     }, Assertions::fail);
-
-                res.getOutputStream().close();
             }
 
         }
 
         @Test
         void testDownload() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1768,7 +1775,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testStream() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1808,7 +1815,7 @@ class SubsonicRESTControllerTest {
 
         @Test
         void testHls() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -1846,10 +1853,10 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testScrobble() throws ExecutionException {
-            RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+            ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                     musicFolders);
             MediaFile song = mediaFileDao
                 .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2419,7 +2426,7 @@ class SubsonicRESTControllerTest {
         void testCreateBookmark() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2466,7 +2473,7 @@ class SubsonicRESTControllerTest {
         void testDeleteBookmark() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2548,7 +2555,7 @@ class SubsonicRESTControllerTest {
         @Test
         void testSavePlayQueue() throws ExecutionException {
             try {
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2667,12 +2674,12 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testDeleteShare() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2719,12 +2726,12 @@ class SubsonicRESTControllerTest {
             }
         }
 
-        @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void testUpdateShare() throws ExecutionException {
             try {
 
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)
@@ -2771,7 +2778,7 @@ class SubsonicRESTControllerTest {
         @Test
         void testGetCoverArt() throws ExecutionException {
             try {
-                RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
+                ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
                         musicFolders);
                 MediaFile song = mediaFileDao
                     .getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME)

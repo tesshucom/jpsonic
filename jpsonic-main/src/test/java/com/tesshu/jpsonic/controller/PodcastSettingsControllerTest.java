@@ -23,14 +23,16 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.concurrent.ExecutionException;
-
-import com.tesshu.jpsonic.command.PodcastSettingsCommand;
+import com.tesshu.jpsonic.controller.form.PodcastSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,20 +45,25 @@ import org.springframework.web.servlet.ModelAndView;
 class PodcastSettingsControllerTest {
 
     private MockMvc mockMvc;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private ScannerStateServiceImpl scannerStateService;
 
     @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         scannerStateService = mock(ScannerStateServiceImpl.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new PodcastSettingsController(settingsService, scannerStateService))
+            .standaloneSetup(new PodcastSettingsController(settingsFacade, scannerStateService))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
@@ -72,9 +79,16 @@ class PodcastSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureInt(SKeys.podcast.updateInterval, captor)
+            .build();
+        init();
+
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_SETTINGS.value()))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -97,10 +111,16 @@ class PodcastSettingsControllerTest {
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
             .andReturn();
         assertNotNull(result);
-        Mockito.verify(settingsService, Mockito.times(1)).save();
-        Mockito.clearInvocations(settingsService);
+        assertEquals(1, captor.getAllValues().size());
 
+        captor = ArgumentCaptor.forClass(Integer.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureInt(SKeys.podcast.updateInterval, captor)
+            .build();
+        init();
         Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+
         result = mockMvc
             .perform(MockMvcRequestBuilders
                 .post("/" + ViewName.PODCAST_SETTINGS.value())
@@ -110,6 +130,6 @@ class PodcastSettingsControllerTest {
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
             .andReturn();
         assertNotNull(result);
-        Mockito.verify(settingsService, Mockito.never()).save();
+        assertEquals(0, captor.getAllValues().size());
     }
 }

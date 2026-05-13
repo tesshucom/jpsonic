@@ -32,10 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -63,14 +63,14 @@ class PlaylistsControllerTest {
             .when(playlistService.getReadablePlaylistsForUser(Mockito.any()))
             .thenReturn(playlists);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new PlaylistsController(mock(SecurityService.class), playlistService,
+            .standaloneSetup(new PlaylistsController(mock(UserService.class), playlistService,
                     mock(ViewAsListSelector.class)))
             .build();
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/playlists.view"))

@@ -34,13 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,7 +52,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -62,11 +63,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Execution(ExecutionMode.CONCURRENT)
-@ExtendWith(NeedsHome.class)
+@NeedsHome
 class UploadControllerTest {
 
     @Autowired
@@ -86,10 +89,10 @@ class UploadControllerTest {
     private static final String BOUNDARY = "265001916915724";
     private static final String SEPA = "\r\n";
 
-    @SuppressWarnings("unchecked")
-    @Test
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
+    @Test
+    @SuppressWarnings("unchecked")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath)
             throws IOException, URISyntaxException {
 
@@ -122,9 +125,9 @@ class UploadControllerTest {
         assertEquals(0, ((List<Path>) model.get("unzippedFiles")).size());
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = "admin")
+    @Test
+    @SuppressWarnings("unchecked")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
         MusicFolder musicFolder = new MusicFolder(10, tempDirPath.toString(), "Incoming2", true,
@@ -185,9 +188,10 @@ class UploadControllerTest {
         @BeforeEach
         void setup() throws ExecutionException {
             scannerStateService = mock(ScannerStateServiceImpl.class);
-            uploadController = new UploadController(mock(SecurityService.class),
-                    mock(PlayerService.class), mock(StatusService.class),
-                    mock(SettingsService.class), scannerStateService);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+            uploadController = new UploadController(mock(LibraryAccessPolicy.class),
+                    mock(UserService.class), mock(PlayerService.class), mock(StatusService.class),
+                    settingsFacade, scannerStateService);
         }
 
         @Test

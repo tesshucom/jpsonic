@@ -23,7 +23,7 @@ package com.tesshu.jpsonic;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 
 /**
  * Test case interface for scanning MusicFolder.

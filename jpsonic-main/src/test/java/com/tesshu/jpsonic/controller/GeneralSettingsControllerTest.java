@@ -24,17 +24,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.ExecutionException;
-
-import com.tesshu.jpsonic.command.GeneralSettingsCommand;
-import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.theme.ServerThemeService;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
-import org.junit.jupiter.api.BeforeEach;
+import com.tesshu.jpsonic.service.UserService;
+import org.junit.Ignore;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -55,23 +57,28 @@ class GeneralSettingsControllerTest {
 
     private static final String VIEW_NAME = "generalSettings";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private GeneralSettingsController controller;
     private MockMvc mockMvc;
 
-    @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class),
-                mock(ScannerStateService.class), mock(MusicIndexService.class));
+    @Ignore
+    void init() {
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        ServerThemeService serverThemeService = new ServerThemeService(settingsFacade);
+        controller = new GeneralSettingsController(settingsFacade, mock(UserService.class),
+                serverLocaleService, serverThemeService, mock(ShareService.class),
+                mock(OutlineHelpSelector.class), mock(ScannerStateService.class),
+                mock(MusicIndexService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(1)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
+
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
 
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
@@ -88,10 +95,13 @@ class GeneralSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(2)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
+
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        init();
 
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
@@ -125,10 +135,13 @@ class GeneralSettingsControllerTest {
         assertNotNull(result);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testReload() throws Exception {
+
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        init();
 
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
@@ -149,10 +162,15 @@ class GeneralSettingsControllerTest {
         controller.post(command, Mockito.mock(RedirectAttributes.class));
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPostWithIndexOptions() throws Exception {
+
+        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        init();
+        assertEquals(SKeys.general.index.indexString.defaultValue(),
+                settingsFacade.get(SKeys.general.index.indexString));
 
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
@@ -174,8 +192,15 @@ class GeneralSettingsControllerTest {
         command.setIgnoreFullWidth(false);
         ArgumentCaptor<Boolean> deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
         ArgumentCaptor<Boolean> ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
-        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.advanced.index.deleteDiacritic, deleteDiacritic)
+            .captureBoolean(SKeys.advanced.index.ignoreFullWidth, ignoreFullWidth)
+            .buildWithDefault();
+        init();
+        assertEquals(SKeys.general.index.indexString.defaultValue(),
+                settingsFacade.get(SKeys.general.index.indexString));
+
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(deleteDiacritic.getValue());
         assertTrue(ignoreFullWidth.getValue());
@@ -185,8 +210,12 @@ class GeneralSettingsControllerTest {
         command.setIgnoreFullWidth(false);
         deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
         ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
-        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.advanced.index.deleteDiacritic, deleteDiacritic)
+            .captureBoolean(SKeys.advanced.index.ignoreFullWidth, ignoreFullWidth)
+            .buildWithDefault();
+        init();
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(deleteDiacritic.getValue());
         assertTrue(ignoreFullWidth.getValue());
@@ -196,8 +225,12 @@ class GeneralSettingsControllerTest {
         command.setIgnoreFullWidth(true);
         deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
         ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
-        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.advanced.index.deleteDiacritic, deleteDiacritic)
+            .captureBoolean(SKeys.advanced.index.ignoreFullWidth, ignoreFullWidth)
+            .buildWithDefault();
+        init();
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(deleteDiacritic.getValue());
         assertTrue(ignoreFullWidth.getValue());

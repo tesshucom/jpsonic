@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service.search.analysis;
 
-import static com.tesshu.jpsonic.domain.JapaneseReadingUtils.isPunctuation;
+import static com.tesshu.jpsonic.service.language.JapaneseReadingUtils.isPunctuation;
 
 import java.io.IOException;
 

@@ -26,13 +26,15 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
@@ -68,9 +70,31 @@ import org.apache.lucene.util.IOUtils;
 import org.springframework.stereotype.Component;
 
 /**
- * Analyzer provider. This class is a division of what was once part of
- * SearchService and added functionality. Analyzer can be closed but is a reuse
- * premise. It is held in this class.
+ * A factory class that constructs and provides field-specific {@link Analyzer}
+ * instances for Lucene.
+ * <p>
+ * This class is a refactored component originally part of the SearchService. It
+ * encapsulates all analyzer-related logic and adheres to the single
+ * responsibility principle. Analyzers are lazily initialized and reused,
+ * ensuring thread safety.
+ * </p>
+ *
+ * <p>
+ * Each analyzer is configured differently depending on the target field, such
+ * as artist name, phonetic reading, genre, or romanized representation.
+ * Language-specific processing (especially for Japanese) includes support for
+ * CJK filters, part-of-speech filtering, kana normalization, and n-gram
+ * tokenization. These configurations are designed with practical search
+ * usability and index size trade-offs in mind.
+ * </p>
+ *
+ * <p>
+ * Analyzer behavior can be customized based on configuration provided via
+ * {@link SettingsFacade}, including whether or not to apply Japanese linguistic
+ * processing. Legacy compatibility is also considered. Some fields apply
+ * normalization filters to match third-party implementations, such as genre tag
+ * parsing for ID3 compatibility.
+ * </p>
  */
 @Component
 public final class AnalyzerFactory {
@@ -83,12 +107,12 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_REPLACE = "replace";
     private static final String FILTER_ATTR_ALL = "all";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ReentrantLock analyzerLock = new ReentrantLock();
     private Analyzer analyzer;
 
-    public AnalyzerFactory(SettingsService settingsService) {
-        this.settingsService = settingsService;
+    public AnalyzerFactory(SettingsFacade settingsFacade) {
+        this.settingsFacade = settingsFacade;
     }
 
     private static CharArraySet loadWords(String wordsFile) {
@@ -97,8 +121,7 @@ public final class AnalyzerFactory {
                     UTF_8)) {
             return WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
         } catch (IOException e) {
-            // Usually unreachable due to classpath resources
-            throw new IllegalArgumentException("Failed to get the stopword file.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -118,7 +141,8 @@ public final class AnalyzerFactory {
      * specifications of legacy servers is applied.
      */
     private Analyzer createDefaultAnalyzer(boolean isArtist) throws IOException {
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        IndexScheme scheme = IndexScheme
+            .of(settingsFacade.get(SKeys.advanced.index.indexSchemeName));
         return CustomAnalyzer
             .builder()
             .withTokenizer(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING
@@ -126,19 +150,14 @@ public final class AnalyzerFactory {
                     : JapaneseTokenizerFactory.class)
             .addTokenFilter(CJKWidthFilterFactory.class)
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
-            .addTokenFilter(LowerCaseFilterFactory.class) //
-            .addTokenFilter(StopFilterFactory.class, //
-                    "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WORDS, //
-                    "ignoreCase", "true")
+            .addTokenFilter(LowerCaseFilterFactory.class)
+            .addTokenFilter(StopFilterFactory.class, "words",
+                    isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WORDS, "ignoreCase", "true")
             .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "^\\_", //
-                    FILTER_ATTR_REPLACEMENT, "", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL) //
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\_$", //
-                    FILTER_ATTR_REPLACEMENT, "", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "^\\_",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\_$",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .build();
     }
 
@@ -240,21 +259,20 @@ public final class AnalyzerFactory {
     private Analyzer createGenreAnalyzer() throws IOException {
         return CustomAnalyzer
             .builder()
-            .withTokenizer(GenreTokenizerFactory.class) //
+            .withTokenizer(GenreTokenizerFactory.class)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\(",
+                    FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\(", FILTER_ATTR_REPLACEMENT, "", //
+                    FILTER_ATTR_PATTERN, "\\)$", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE,
+                    FILTER_ATTR_ALL)
+            .addTokenFilter(PatternReplaceFilterFactory.class, FILTER_ATTR_PATTERN, "\\)",
+                    FILTER_ATTR_REPLACEMENT, " ", //
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\)$", FILTER_ATTR_REPLACEMENT, "", //
+                    FILTER_ATTR_PATTERN, "\\{\\}", FILTER_ATTR_REPLACEMENT, "\\{ \\}",
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\)", FILTER_ATTR_REPLACEMENT, " ", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\{\\}", FILTER_ATTR_REPLACEMENT, "\\{ \\}", //
-                    FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
-            .addTokenFilter(PatternReplaceFilterFactory.class, //
-                    FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]", //
+                    FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]",
                     FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(CJKWidthFilterFactory.class) //
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
@@ -288,20 +306,17 @@ public final class AnalyzerFactory {
                     Analyzer artistReadingAnalyzer = createArtistReadingAnalyzer();
                     Analyzer romanizedAnalyzer = createRomanizedAnalyzer();
 
-                    Map<String, Analyzer> fieldAnalyzers = //
-                            LegacyMap
-                                .of(FieldNamesConstants.ARTIST, artistAnalyzer, //
-                                        FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
-                                        FieldNamesConstants.ARTIST_READING_ROMANIZED,
-                                        romanizedAnalyzer, //
-                                        FieldNamesConstants.COMPOSER, artistAnalyzer, //
-                                        FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
-                                        FieldNamesConstants.COMPOSER_READING_ROMANIZED,
-                                        romanizedAnalyzer, //
-                                        FieldNamesConstants.ALBUM_READING, readingAnalyzer, //
-                                        FieldNamesConstants.TITLE_READING, readingAnalyzer, //
-                                        FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
-                                        FieldNamesConstants.GENRE, createGenreAnalyzer());
+                    Map<String, Analyzer> fieldAnalyzers = LegacyMap
+                        .of(FieldNamesConstants.ARTIST, artistAnalyzer,
+                                FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer,
+                                FieldNamesConstants.ARTIST_READING_ROMANIZED, romanizedAnalyzer,
+                                FieldNamesConstants.COMPOSER, artistAnalyzer,
+                                FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer,
+                                FieldNamesConstants.COMPOSER_READING_ROMANIZED, romanizedAnalyzer,
+                                FieldNamesConstants.ALBUM_READING, readingAnalyzer,
+                                FieldNamesConstants.TITLE_READING, readingAnalyzer,
+                                FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(),
+                                FieldNamesConstants.GENRE, createGenreAnalyzer());
 
                     this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, fieldAnalyzers);
 

@@ -30,36 +30,60 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Indexable;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicFolderContent;
-import com.tesshu.jpsonic.domain.MusicFolderContent.Counts;
-import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent.Counts;
+import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Service class for classifying and retrieving artists and directories in music
+ * folders using indexed keys ({@link MusicIndex}).
+ * <p>
+ * Similar to Subsonic, it classifies entries based on artist names. However,
+ * this implementation assumes a dual-language index (Japanese and English),
+ * incorporating phonetic readings and alphabetical order. Optimizations are
+ * applied to improve classification speed.
+ *
+ * <h3>Main Responsibilities</h3>
+ * <ul>
+ * <li>{@link #getMusicFolderContent(List, MediaType...)} Retrieves and
+ * classifies directories and standalone files from the specified music folders,
+ * returning them as a {@code MusicFolderContent} object.</li>
+ * <li>{@link #getIndexedId3Artists(List)} Loads artists based on ID3 tags and
+ * classifies them under each {@code MusicIndex}.</li>
+ * <li>{@link #getShortcuts(List)} Retrieves shortcut information for the
+ * specified music folders.</li>
+ * </ul>
+ *
+ * @see MusicIndex
+ * @see MusicFolderContent
+ */
 @Service
 public class MusicIndexServiceImpl implements MusicIndexService {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
     private final JapaneseReadingUtils readingUtils;
 
     private MusicIndexParser parser;
 
-    public MusicIndexServiceImpl(SettingsService settingsService, MediaFileService mediaFileService,
+    public MusicIndexServiceImpl(SettingsFacade settingsFacade, MediaFileService mediaFileService,
             ArtistDao artistDao, JapaneseReadingUtils readingUtils) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
         this.artistDao = artistDao;
         this.readingUtils = readingUtils;
@@ -99,7 +123,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     @Override
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
-        settingsService.getShortcutsAsArray().forEach(shortcuts -> {
+        settingsFacade.getCachedList(SKeys.general.extension.shortcuts).forEach(shortcuts -> {
             musicFolders.forEach(musicFolder -> {
                 MediaFile shortcut = mediaFileService
                     .getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
@@ -117,7 +141,9 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         if (parser != null) {
             return parser;
         }
-        parser = new MusicIndexParser(settingsService.getIndexString(), readingUtils);
+
+        parser = new MusicIndexParser(settingsFacade.get(SKeys.general.index.indexString),
+                readingUtils);
         return parser;
     }
 

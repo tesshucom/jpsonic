@@ -25,10 +25,11 @@ import java.security.SecureRandom;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.RecoverService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -51,16 +52,16 @@ public class RecoverController {
     private static final String SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     private static final int PASSWORD_LENGTH = 32;
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final UserService userService;
     private final RecoverService recoverService;
     private final SecureRandom random;
 
-    public RecoverController(SettingsService settingsService, SecurityService securityService,
+    public RecoverController(SettingsFacade settingsFacade, UserService userService,
             RecoverService recoverService) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.userService = userService;
         this.recoverService = recoverService;
         this.random = new SecureRandom();
     }
@@ -68,8 +69,8 @@ public class RecoverController {
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
-        if (settingsService.isCaptchaEnabled()) {
-            map.put("recaptchaSiteKey", settingsService.getRecaptchaSiteKey());
+        if (settingsFacade.get(SKeys.advanced.captcha.enabled)) {
+            map.put("recaptchaSiteKey", settingsFacade.get(SKeys.advanced.captcha.siteKey));
         }
         return new ModelAndView("recover", "model", map);
     }
@@ -93,7 +94,7 @@ public class RecoverController {
             String newPass = sb.toString();
             if (sendEmail(user.getUsername(), user.getEmail())) {
                 map.put("sentTo", user.getEmail());
-                securityService.updatePassword(user, newPass, false);
+                userService.updatePassword(user, newPass, false);
             } else {
                 map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
             }
@@ -101,8 +102,8 @@ public class RecoverController {
             map.put(Attributes.Model.ERROR.getValue(), errorMsg);
         }
 
-        if (settingsService.isCaptchaEnabled()) {
-            map.put("recaptchaSiteKey", settingsService.getRecaptchaSiteKey());
+        if (settingsFacade.get(SKeys.advanced.captcha.enabled)) {
+            map.put("recaptchaSiteKey", settingsFacade.get(SKeys.advanced.captcha.siteKey));
         }
 
         return new ModelAndView("recover", "model", map);
@@ -130,8 +131,8 @@ public class RecoverController {
      */
     private boolean sendEmail(String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
-
-        if (settingsService.getSmtpServer() == null || settingsService.getSmtpServer().isEmpty()) {
+        String smtpServer = settingsFacade.get(SKeys.advanced.smtp.server);
+        if (smtpServer == null || smtpServer.isEmpty()) {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }

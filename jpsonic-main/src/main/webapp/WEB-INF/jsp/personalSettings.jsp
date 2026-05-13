@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="com.tesshu.jpsonic.command.PersonalSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.controller.form.PersonalSettingsCommand"--%>
 
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.FontScheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.SpeechToTextLangScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.FontScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
@@ -706,10 +706,10 @@ document.addEventListener('DOMContentLoaded', function () {
     <dl class="single">
         <dt></dt>
         <dd>
-            <form method="post" enctype="multipart/form-data" action="avatarUpload.view?${_csrf.parameterName}=${_csrf.token}">
+            <form:form method="post" enctype="multipart/form-data" action="avatarUpload.view">
                 <input type="file" id="file" name="file" mode="deleteText"/>
                 <input type="submit" value="<fmt:message key='personalsettings.avatar.upload'/>" />
-            </form>
+            </form:form>
         </dd>
     </dl>
 </details>

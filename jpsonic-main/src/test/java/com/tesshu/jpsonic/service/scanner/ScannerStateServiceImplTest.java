@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.annotation.Documented;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

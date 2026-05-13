@@ -31,14 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -52,7 +54,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 class MainControllerTest {
 
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private MockMvc mockMvc;
 
     private MediaFile root;
@@ -62,12 +64,13 @@ class MainControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException {
-
-        securityService = mock(SecurityService.class);
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
+        UserService userService = mock(UserService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
-        MainController controller = new MainController(mock(SettingsService.class), securityService,
-                mock(JpsonicComparators.class), mock(RatingService.class), mediaFileService,
-                mock(ViewAsListSelector.class));
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        MainController controller = new MainController(settingsFacade, libraryAccessPolicy,
+                userService, mock(JpsonicComparators.class), mock(RatingService.class),
+                mediaFileService, mock(ViewAsListSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         root = new MediaFile();
@@ -93,7 +96,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(artistId)).thenReturn(artist);
         Mockito.when(mediaFileService.isRoot(artist)).thenReturn(false);
         Mockito
-            .when(securityService.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME))
+            .when(libraryAccessPolicy.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME))
             .thenReturn(true);
         Mockito
             .when(mediaFileService.getChildrenOf(artist, true, true))
@@ -115,7 +118,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(albumId)).thenReturn(album);
         Mockito.when(mediaFileService.isRoot(album)).thenReturn(false);
         Mockito
-            .when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
+            .when(libraryAccessPolicy.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
             .thenReturn(true);
         Mockito
             .when(mediaFileService.getChildrenOf(artist, true, true))
@@ -141,9 +144,9 @@ class MainControllerTest {
             .thenReturn(Arrays.asList(song));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGet() throws Exception {
 
         // with ID
@@ -191,9 +194,9 @@ class MainControllerTest {
     /*
      * Verify the properties related to Children of the target media file
      */
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGetForChildren() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
@@ -217,8 +220,8 @@ class MainControllerTest {
         assertFalse((Boolean) model.get("navigateUpAllowed"));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testGetFail() throws Exception {
 
@@ -230,7 +233,7 @@ class MainControllerTest {
             .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.NOTFOUND.value()));
 
         Mockito
-            .when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
+            .when(libraryAccessPolicy.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME))
             .thenReturn(false);
         mockMvc
             .perform(MockMvcRequestBuilders

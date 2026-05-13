@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.domain.MenuItem;
-import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.service.MenuItemService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -43,25 +43,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.InternetRadioDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.PlayQueueDao;
-import com.tesshu.jpsonic.domain.InternetRadio;
-import com.tesshu.jpsonic.domain.InternetRadioSource;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.PlayQueue.Status;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.SavedPlayQueue;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue.Status;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.PlayQueueDao;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
+import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.InternetRadioService;
+import com.tesshu.jpsonic.service.InternetRadioService.InternetRadioSource;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -71,8 +69,10 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -89,7 +89,7 @@ class PlayQueueServiceTest {
     private Player player;
     private MediaFileService mediaFileService;
     private PlayQueueService playQueueService;
-    private SecurityService securityService;
+    private UserService userService;
     private PlayQueueDao playQueueDao;
     private InternetRadioDao internetRadioDao;
     private InternetRadioService internetRadioService;
@@ -119,8 +119,8 @@ class PlayQueueServiceTest {
             .thenReturn(mock(PodcastEpisode.class));
         when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
         mediaFileService = mock(MediaFileService.class);
-        securityService = mock(SecurityService.class);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+        userService = mock(UserService.class);
+        when(userService.getCurrentUsername(any(HttpServletRequest.class)))
             .thenReturn(ServiceMockUtils.ADMIN_NAME);
         playQueueDao = mock(PlayQueueDao.class);
         internetRadioDao = mock(InternetRadioDao.class);
@@ -132,7 +132,7 @@ class PlayQueueServiceTest {
         searchService = mock(SearchService.class);
         ajaxHelper = AjaxMockUtils.mock(AjaxHelper.class);
         comparators = mock(JpsonicComparators.class);
-        playQueueService = new PlayQueueService(mock(MusicFolderService.class), securityService,
+        playQueueService = new PlayQueueService(mock(MusicFolderService.class), userService,
                 playerService, comparators, mediaFileService, lastFmService, searchService,
                 ratingService, podcastService, playlistService, mediaFileDao, playQueueDao,
                 internetRadioDao, mock(JWTSecurityService.class), internetRadioService, ajaxHelper);
@@ -209,8 +209,8 @@ class PlayQueueServiceTest {
         verify(player.getPlayQueue(), never())
             .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
 
-        RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null);
-        when(player.getPlayQueue().getRandomSearchCriteria()).thenReturn(criteria);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(0, null, null, null, null);
+        when(player.getPlayQueue().getShuffleSelectionParam()).thenReturn(criteria);
         playQueueService.reloadSearchCriteria();
         verify(player.getPlayQueue(), times(1))
             .addFiles(anyBoolean(), ArgumentMatchers.<MediaFile>anyIterable());
@@ -239,7 +239,7 @@ class PlayQueueServiceTest {
 
         MediaFile file = new MediaFile();
         file.setId(99);
-        when(securityService.getCurrentUsername(any(HttpServletRequest.class)))
+        when(userService.getCurrentUsername(any(HttpServletRequest.class)))
             .thenReturn(ServiceMockUtils.ADMIN_NAME);
         SavedPlayQueue savedPlayQueue = new SavedPlayQueue(0, ServiceMockUtils.ADMIN_NAME,
                 List.of(file.getId()), null, null, PlayerUtils.now(), "");
@@ -302,10 +302,10 @@ class PlayQueueServiceTest {
     @Nested
     class PlayTest {
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.UserSettings.IsQueueFollowingSongs.False
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c01() throws ServletRequestBindingException {
             MediaFile song = new MediaFile();
             song.setId(0);
@@ -313,14 +313,13 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.MediaFile.Parent.Null
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c02() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService
-                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile song = new MediaFile();
             song.setId(0);
@@ -328,14 +327,13 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.True
         @PlayDecision.MediaFile.Parent.NonNull
         @PlayDecision.UserSettings.IsQueueFollowingSongs.True
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c03() throws ServletRequestBindingException {
-            UserSettings mockedSetting = securityService
-                .getUserSettings(ServiceMockUtils.ADMIN_NAME);
+            UserSettings mockedSetting = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             mockedSetting.setQueueFollowingSongs(true);
             MediaFile parent = new MediaFile();
             parent.setId(0);
@@ -352,9 +350,9 @@ class PlayQueueServiceTest {
             assertNotNull(playQueueService.play(song1.getId()));
         }
 
-        @Test
         @PlayDecision.MediaFile.IsFile.False
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+        @Test
         void c04() throws ServletRequestBindingException {
             MediaFile dir = new MediaFile();
             dir.setId(0);
@@ -457,7 +455,7 @@ class PlayQueueServiceTest {
         playQueueService.playPlaylist(0, 0);
 
         // Present with StartIndex, QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playPlaylist(0, 0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -492,7 +490,7 @@ class PlayQueueServiceTest {
         playQueueService.playTopSong(0, 0);
 
         // Present with StartIndex, QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playTopSong(0, 0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -554,7 +552,7 @@ class PlayQueueServiceTest {
         playQueueService.playPodcastEpisode(episode.getId());
 
         // COMPLETED && present && QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playPodcastEpisode(episode.getId());
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -583,7 +581,7 @@ class PlayQueueServiceTest {
         playQueueService.playNewestPodcastEpisode(0);
 
         // With StartIndex && QueueFollowing
-        UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
         userSettings.setQueueFollowingSongs(true);
         PlayQueueInfo playQueueInfo = playQueueService.playNewestPodcastEpisode(0);
         assertEquals(0, playQueueInfo.getStartPlayerAt());
@@ -817,14 +815,14 @@ class PlayQueueServiceTest {
     void testToggleRepeat() throws ServletRequestBindingException {
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), never())
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         clearInvocations(player.getPlayQueue());
         when(player.getPlayQueue().isRepeatEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), never())
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
 
         // ShuffleRadioEnabled
@@ -832,7 +830,7 @@ class PlayQueueServiceTest {
         when(player.getPlayQueue().isShuffleRadioEnabled()).thenReturn(true);
         playQueueService.toggleRepeat();
         verify(player.getPlayQueue(), times(1))
-            .setRandomSearchCriteria(nullable(RandomSearchCriteria.class));
+            .setShuffleSelectionParam(nullable(ShuffleSelectionParam.class));
         verify(player.getPlayQueue(), times(1)).setRepeatEnabled(anyBoolean());
     }
 

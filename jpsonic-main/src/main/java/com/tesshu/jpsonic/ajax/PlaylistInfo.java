@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.ajax;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 
 /**
  * The playlist of a player.

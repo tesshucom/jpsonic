@@ -28,10 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.AvatarDao;
-import com.tesshu.jpsonic.domain.Avatar;
-import com.tesshu.jpsonic.domain.AvatarScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.domain.system.AvatarScheme;
+import com.tesshu.jpsonic.persistence.api.entity.Avatar;
+import com.tesshu.jpsonic.persistence.api.repository.AvatarDao;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

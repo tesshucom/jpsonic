@@ -12,8 +12,7 @@
     <h1 class="key"><fmt:message key="recover.title"/></h1>
 </section>
 
-<form action="recover.view" method="POST">
-    <sec:csrfInput />
+<form:form action="recover.view" method="POST">
 
         <dl class="single">
             <dt><fmt:message key="recover.text"/></dt>
@@ -40,7 +39,6 @@
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 
-
-</form>
+</form:form>
 </body>
 </html>

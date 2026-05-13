@@ -31,24 +31,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -66,21 +65,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/" + ViewName.ViewNameConstants.RANDOM_PLAYQUEUE)
 public class RandomPlayQueueController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
     private static final String REQUEST_VALUE_ANY = "any";
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
     private final IndexManager indexManager;
 
-    public RandomPlayQueueController(MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService,
-            MediaFileService mediaFileService, IndexManager indexManager) {
+    public RandomPlayQueueController(MusicFolderService musicFolderService, UserService userService,
+            PlayerService playerService, MediaFileService mediaFileService,
+            IndexManager indexManager) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
         this.indexManager = indexManager;
@@ -107,25 +105,25 @@ public class RandomPlayQueueController {
         int size = sizeParam == null ? 24 : sizeParam;
         List<MusicFolder> musicFolders = getMusicFolders(request);
         LastPlayed lastPlayed = getLastPlayed(lastPlayedValue, lastPlayedComp);
-        String genre = StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null
+        String genre = StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null
                 : genreParam;
         List<String> genres = parseGenre(genre);
         InceptionYear year = getInceptionYear(yearParam);
         AlbumRating albumRating = getAlbumRating(albumRatingValue, albumRatingComp);
         PlayCount playCount = getPlayCount(playCountValue, playCountComp);
         SongRating rating = getSongRating(songRating);
-        String format = StringUtils.equalsIgnoreCase(formatParam, REQUEST_VALUE_ANY) ? null
+        String format = StringUtil.equalsIgnoreCase(formatParam, REQUEST_VALUE_ANY) ? null
                 : formatParam;
 
         // Create instance of Criteria from parsed request parameters
-        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, year.getFromYear(),
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(size, genres, year.getFromYear(),
                 year.getToYear(), musicFolders, lastPlayed.getMinLastPlayedDate(),
                 lastPlayed.getMaxLastPlayedDate(), albumRating.getMinAlbumRating(),
                 albumRating.getMaxAlbumRating(), playCount.getMinPlayCount(),
                 playCount.getMaxPlayCount(), rating.isDoesShowStarredSongs(),
                 rating.isDoesShowUnstarredSongs(), format);
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         Player player = playerService.getPlayer(request, response);
         PlayQueue playQueue = player.getPlayQueue();
         // Do we add to the current playlist or do we replace it?
@@ -136,7 +134,7 @@ public class RandomPlayQueueController {
             .addFiles(shouldAddToPlayList,
                     mediaFileService.getRandomSongs(criteria, user.getUsername()));
         if (autoRandom != null) {
-            playQueue.setRandomSearchCriteria(criteria);
+            playQueue.setShuffleSelectionParam(criteria);
             playQueue.setInternetRadio(null);
         }
 
@@ -152,7 +150,7 @@ public class RandomPlayQueueController {
     private InceptionYear getInceptionYear(String year) {
         Integer fromYear = null;
         Integer toYear = null;
-        if (!StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
+        if (!StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
             String[] tmp = StringUtils.split(year);
             fromYear = Integer.parseInt(tmp[0]);
             toYear = Integer.parseInt(tmp[1]);
@@ -351,12 +349,12 @@ public class RandomPlayQueueController {
     private SongRating getSongRating(String songRating) {
         boolean doesShowStarredSongs = false;
         boolean doesShowUnstarredSongs = false;
-        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
+        if (StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
             doesShowStarredSongs = true;
             doesShowUnstarredSongs = true;
-        } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
+        } else if (StringUtil.equalsIgnoreCase("starred", songRating)) {
             doesShowStarredSongs = true;
-        } else if (StringUtils.equalsIgnoreCase("unstarred", songRating)) {
+        } else if (StringUtil.equalsIgnoreCase("unstarred", songRating)) {
             doesShowUnstarredSongs = true;
         }
         return new SongRating(doesShowStarredSongs, doesShowUnstarredSongs);
@@ -394,7 +392,7 @@ public class RandomPlayQueueController {
                                             // param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request)
             throws ServletRequestBindingException {
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         Integer selectedMusicFolderId = ServletRequestUtils
             .getRequiredIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (selectedMusicFolderId == -1) {

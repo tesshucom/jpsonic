@@ -38,18 +38,22 @@ import java.util.concurrent.ExecutionException;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.PlaylistDao;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.playlist.PlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.PlaylistImportHandler;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -74,20 +78,23 @@ public class PlaylistService {
 
     private final MediaFileDao mediaFileDao;
     private final PlaylistDao playlistDao;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final UserService userService;
+    private final SettingsFacade settingsFacade;
+    private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final List<PlaylistExportHandler> exportHandlers;
     private final List<PlaylistImportHandler> importHandlers;
     private final JpsonicComparators comparators;
 
     public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao,
-            SecurityService securityService, SettingsService settingsService,
+            UserService userService, SettingsFacade settingsFacade,
+            ScanningExclusionPolicy scanningExclusionPolicy,
             List<PlaylistExportHandler> exportHandlers, List<PlaylistImportHandler> importHandlers,
             JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.userService = userService;
+        this.settingsFacade = settingsFacade;
+        this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.exportHandlers = exportHandlers;
         this.importHandlers = importHandlers;
         this.comparators = comparators;
@@ -98,7 +105,7 @@ public class PlaylistService {
     }
 
     public List<Playlist> getAllPlaylists() {
-        if (settingsService.isDlnaGuestPublish()) {
+        if (settingsFacade.get(UPnPSKeys.options.guestPublish)) {
             return sort(playlistDao.getReadablePlaylistsForUser(User.USERNAME_GUEST));
         }
         return sort(playlistDao.getAllPlaylists());
@@ -111,7 +118,7 @@ public class PlaylistService {
     public List<Playlist> getWritablePlaylistsForUser(String username) {
 
         // Admin users are allowed to modify all playlists that are visible to them.
-        if (securityService.isAdmin(username)) {
+        if (userService.isAdmin(username)) {
             return getReadablePlaylistsForUser(username);
         }
 
@@ -294,7 +301,7 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        String playlistFolderPath = settingsService.getPlaylistFolder();
+        String playlistFolderPath = settingsFacade.get(SKeys.general.extension.playlistFolder);
         if (playlistFolderPath == null) {
             return;
         }
@@ -307,7 +314,7 @@ public class PlaylistService {
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(playlistFolder)) {
             for (Path child : ds) {
 
-                if (securityService.isExcluded(child)) {
+                if (scanningExclusionPolicy.isExcluded(child)) {
                     continue;
                 }
 
@@ -354,9 +361,8 @@ public class PlaylistService {
             // is no longer
             // a specific account to use for auto-imported playlists, so use the first admin
             // account
-            importPlaylist(securityService.getAdminUsername(),
-                    FilenameUtils.getBaseName(fileName.toString()), fileName.toString(), in,
-                    existingPlaylist);
+            importPlaylist(userService.getAdminUsername(), PathInspector.getBaseName(fileName),
+                    fileName.toString(), in, existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }

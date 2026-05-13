@@ -33,8 +33,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.PlayerUtils;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,21 +46,23 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.subsonic.restapi.Response;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JAXBWriterTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private JAXBWriter writer;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        writer = new JAXBWriter(settingsService);
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        writer = new JAXBWriter(settingsFacade);
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testConvertDate() throws Exception {
 
         Instant dateInDB = ZonedDateTime
@@ -88,7 +91,8 @@ class JAXBWriterTest {
 
         // With modern Jackson parsers, it doesn't really matter whether the
         // intermediate format is normalized or not.
-        XMLGregorianCalendar parsedLocal = PlayerUtils.OBJECT_MAPPER
+        ObjectMapper mapper = JsonMapper.builder().build();
+        XMLGregorianCalendar parsedLocal = mapper
             .convertValue(converted.toXMLFormat(), XMLGregorianCalendar.class);
 
         // The format is different. Simply because Jackson defaults to nanoseconds.
@@ -141,7 +145,13 @@ class JAXBWriterTest {
 
         @Test
         void testContentTypeWithJsonp() {
-            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.legacy.useJsonp, true)
+                .build();
+            writer = new JAXBWriter(settingsFacade);
+
             HttpServletRequest request = mock(MockHttpServletRequest.class);
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
             Mockito
@@ -165,8 +175,11 @@ class JAXBWriterTest {
             writer.writeResponse(request, httpResponse, response);
             assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
 
-            writer = new JAXBWriter(settingsService);
-            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.legacy.useJsonp, true)
+                .build();
+            writer = new JAXBWriter(settingsFacade);
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("xml");
             writer.writeResponse(request, httpResponse, response);
             assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());

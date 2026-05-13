@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,13 +64,13 @@ class UploadEntryControllerTest {
             .when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME))
             .thenReturn(musicFolders);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new UploadEntryController(musicFolderService,
-                    mock(SecurityService.class), mock(ScannerStateServiceImpl.class)))
+            .standaloneSetup(new UploadEntryController(musicFolderService, mock(UserService.class),
+                    mock(ScannerStateServiceImpl.class)))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/uploadEntry.view"))

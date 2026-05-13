@@ -32,7 +32,7 @@ import chameleon.playlist.Playlist;
 import chameleon.playlist.PlaylistVisitor;
 import chameleon.playlist.Sequence;
 import chameleon.playlist.SpecificPlaylist;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;

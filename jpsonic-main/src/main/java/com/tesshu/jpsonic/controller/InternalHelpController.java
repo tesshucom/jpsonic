@@ -24,13 +24,9 @@ package com.tesshu.jpsonic.controller;
 import static com.jsoftbiz.utils.OS.OS;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryManagerMXBean;
-import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,34 +35,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.base.DaoHelper;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
+import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.infrastructure.filesystem.ExecutableResolver;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.Version;
@@ -91,27 +87,24 @@ public class InternalHelpController {
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
     private static final String TABLE_TYPE_TABLE = "table";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
-    private final TranscodingService transcodingService;
     private final Environment environment;
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
-    public InternalHelpController(SettingsService settingsService, SecurityService securityService,
+    public InternalHelpController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
-            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao,
-            FFmpeg ffmpeg) {
+            Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.userService = userService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
-        this.transcodingService = transcodingService;
         this.environment = environment;
         this.staticsDao = staticsDao;
         this.ffmpeg = ffmpeg;
@@ -121,10 +114,10 @@ public class InternalHelpController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
-        map.put("brand", SettingsService.getBrand());
+        map.put("brand", EnvironmentProvider.getInstance().getBrand());
         map
-            .put("admin", securityService
-                .isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+            .put("admin",
+                    userService.isAdmin(userService.getCurrentUserStrict(request).getUsername()));
 
         // Gather internal information
         gatherPlatfomInfo(request, map);
@@ -135,8 +128,8 @@ public class InternalHelpController {
         gatherIndexInfo(map);
         gatherStats(map);
 
-        map.put("showIndexDetails", settingsService.isShowIndexDetails());
-        map.put("showDBDetails", settingsService.isShowDBDetails());
+        map.put("showIndexDetails", settingsFacade.get(SKeys.general.legacy.showIndexDetails));
+        map.put("showDBDetails", settingsFacade.get(SKeys.general.legacy.showDbDetails));
 
         return new ModelAndView("internalhelp", "model", map);
     }
@@ -146,30 +139,12 @@ public class InternalHelpController {
         map.put("osName", OS.getName());
         map.put("osVersion", OS.getVersion());
         map.put("osArc", OS.getArch());
-        map.put("javaVersion", System.getProperty("java.version"));
+        map.put("javaVersion", EnvironmentProvider.getInstance().getJavaVersion());
         long totalMemory = Runtime.getRuntime().totalMemory();
         map.put("totalMemory", totalMemory);
         map.put("usedMemory", totalMemory - Runtime.getRuntime().freeMemory());
-        map.put("gc", guessGCName());
+        map.put("gc", EnvironmentProvider.getInstance().guessGCName());
         map.put("applicationServer", request.getSession().getServletContext().getServerInfo());
-    }
-
-    private String guessGCName() {
-        List<String> names = ManagementFactory
-            .getGarbageCollectorMXBeans()
-            .stream()
-            .map(MemoryManagerMXBean::getName)
-            .toList();
-        if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
-            return "Z GC";
-        } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {
-            return "G1 GC";
-        } else if (names.contains("PS MarkSweep") && names.contains("PS Scavenge")) {
-            return "Parallel GC";
-        } else if (names.contains("Copy") && names.contains("MarkSweepCompact")) {
-            return "Serial GC";
-        }
-        return null;
     }
 
     private void gatherStats(Map<String, Object> map) {
@@ -187,7 +162,7 @@ public class InternalHelpController {
                             folder.getName(), stat.getArtistCount(), stat.getAlbumCount(),
                             stat.getSongCount(), stat.getVideoCount(),
                             StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
-                            FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
+                            PathInspector.byteCountToDisplaySize(stat.getTotalSize()));
                     result.add(vo);
                 });
         });
@@ -203,7 +178,7 @@ public class InternalHelpController {
      */
     private void gatherIndexInfo(Map<String, Object> map) {
         map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
-        if (!settingsService.isShowIndexDetails()) {
+        if (!settingsFacade.get(SKeys.general.legacy.showIndexDetails)) {
             return;
         }
 
@@ -239,29 +214,29 @@ public class InternalHelpController {
      */
     boolean doesLocaleSupportUtf8(String locale) {
         return locale != null
-                && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
+                && StringUtil.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
     }
 
     private void gatherLocaleInfo(Map<String, Object> map) {
-        map.put("localeDefault", Locale.getDefault());
-        map.put("localeUserLanguage", System.getProperty("user.language"));
-        map.put("localeUserCountry", System.getProperty("user.country"));
-        map.put("localeFileEncoding", System.getProperty("file.encoding"));
-        map.put("localeSunJnuEncoding", System.getProperty("sun.jnu.encoding"));
-        map.put("localeSunIoUnicodeEncoding", System.getProperty("sun.io.unicode.encoding"));
-        map.put("localeLang", System.getenv("LANG"));
-        map.put("localeLcAll", System.getenv("LC_ALL"));
-        map.put("localeDefaultCharset", Charset.defaultCharset().toString());
-        map.put("localeDefaultZoneOffset", ZoneOffset.systemDefault());
+        LocaleInfo info = EnvironmentProvider.getInstance().getLocaleInfo();
 
-        map
-            .put("localeFileEncodingSupportsUtf8",
-                    doesLocaleSupportUtf8(System.getProperty("file.encoding")));
-        map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LANG")));
-        map.put("localeLcAllSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LC_ALL")));
+        map.put("localeDefault", info.localeDefault());
+        map.put("localeUserLanguage", info.localeUserLanguage());
+        map.put("localeUserCountry", info.localeUserCountry());
+        map.put("localeFileEncoding", info.localeFileEncoding());
+        map.put("localeSunJnuEncoding", info.localeSunJnuEncoding());
+        map.put("localeSunIoUnicodeEncoding", info.localeSunIoUnicodeEncoding());
+        map.put("localeLang", info.localeLang());
+        map.put("localeLcAll", info.localeLcAll());
+        map.put("localeDefaultCharset", info.localeDefaultCharset());
+        map.put("localeDefaultZoneOffset", info.localeDefaultZoneOffset());
+
+        map.put("localeFileEncodingSupportsUtf8", doesLocaleSupportUtf8(info.localeFileEncoding()));
+        map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(info.localeLang()));
+        map.put("localeLcAllSupportsUtf8", doesLocaleSupportUtf8(info.localeLcAll()));
         map
             .put("localeDefaultCharsetSupportsUtf8",
-                    doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
+                    doesLocaleSupportUtf8(info.localeDefaultCharset()));
     }
 
     @SuppressFBWarnings(value = { "CRLF_INJECTION_LOGS",
@@ -275,7 +250,7 @@ public class InternalHelpController {
             map.put("dbDriverVersion", conn.getMetaData().getDriverVersion());
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
 
-            if (!settingsService.isShowDBDetails()) {
+            if (!settingsFacade.get(SKeys.general.legacy.showDbDetails)) {
                 return;
             }
 
@@ -318,42 +293,38 @@ public class InternalHelpController {
     private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
         if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))) {
             map.put("dbIsLegacy", true);
-            Path dbDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "db");
+            DirectoryInfo info = EnvironmentProvider.getInstance().getDatabaseDirectoryInfo();
+
             map
                 .put("dbDirectorySizeBytes",
-                        Files.exists(dbDirectory) ? FileUtil.sizeOfDirectory(dbDirectory) : 0);
-            map
-                .put("dbDirectorySize",
-                        FileUtil.byteCountToDisplaySize((long) map.get("dbDirectorySizeBytes")));
-            Path dbLogFile = Path.of(dbDirectory.toString(), "airsonic.log");
+                        Files.exists(EnvironmentProvider.getInstance().getLocalDatabaseDirectory())
+                                ? info.sizeBytes()
+                                : 0);
+            map.put("dbDirectorySize", PathInspector.byteCountToDisplaySize(info.sizeBytes()));
+            Path dbLogFile = EnvironmentProvider.getInstance().getDatabaseLogFilePath();
             try {
                 map.put("dbLogSizeBytes", Files.exists(dbLogFile) ? Files.size(dbLogFile) : 0);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-            map.put("dbLogSize", FileUtil.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
+            map
+                .put("dbLogSize",
+                        PathInspector.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
         } else {
             map.put("dbIsLegacy", false);
         }
-
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
     private void gatherFilesystemInfo(Map<String, Object> map) {
-        long directorySize = FileUtil.sizeOfDirectory(SettingsService.getJpsonicHome());
-        map.put("fsHomeDirectorySizeBytes", directorySize);
-        map.put("fsHomeDirectorySize", FileUtil.byteCountToDisplaySize(directorySize));
-        try {
-            FileStore store = Files.getFileStore(SettingsService.getJpsonicHome());
-            long usableSpace = store.getUsableSpace();
-            map.put("fsHomeUsableSpaceBytes", usableSpace);
-            map.put("fsHomeUsableSpace", FileUtil.byteCountToDisplaySize(usableSpace));
-            long totalSpace = store.getTotalSpace();
-            map.put("fsHomeTotalSpaceBytes", totalSpace);
-            map.put("fsHomeTotalSpace", FileUtil.byteCountToDisplaySize(totalSpace));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        DirectoryInfo info = EnvironmentProvider.getInstance().getJpsonicHomeInfo();
+        map.put("fsHomeDirectorySizeBytes", info.sizeBytes());
+        map.put("fsHomeDirectorySize", PathInspector.byteCountToDisplaySize(info.sizeBytes()));
+        map.put("fsHomeUsableSpaceBytes", info.usableSpaceBytes());
+        map.put("fsHomeUsableSpace", PathInspector.byteCountToDisplaySize(info.usableSpaceBytes()));
+        map.put("fsHomeTotalSpaceBytes", info.totalSpaceBytes());
+        map.put("fsHomeTotalSpace", PathInspector.byteCountToDisplaySize(info.totalSpaceBytes()));
+
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
         for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
             FileStatistics stat = new FileStatistics();
@@ -414,41 +385,9 @@ public class InternalHelpController {
         map.put("ffmpegVersion", formatFFmpegVersion(version));
     }
 
-    private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(File.pathSeparator, -1)) {
-            Path file = Path.of(path, executableName);
-            if (Files.exists(file)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found {} in {}", executableName, path);
-                }
-                return file;
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Looking for {} in {} (not found)", executableName, path);
-                }
-            }
-        }
-        return null;
-    }
-
-    private Path lookForTranscodingExecutable(String executableName) {
-        for (String name : Arrays.asList(executableName, "%s.exe".formatted(executableName))) {
-            Path executableLocation = Path
-                .of(transcodingService.getTranscodeDirectory().toString(), name);
-            if (Files.exists(executableLocation)) {
-                return executableLocation;
-            }
-            executableLocation = lookForExecutable(executableName);
-            if (executableLocation != null && Files.exists(executableLocation)) {
-                return executableLocation;
-            }
-        }
-        return null;
-    }
-
     private FileStatistics gatherStatisticsForTranscodingExecutable(String executableName) {
         FileStatistics executableStatistics = null;
-        Path executableLocation = lookForTranscodingExecutable(executableName);
+        Path executableLocation = ExecutableResolver.lookForTranscodingExecutable(executableName);
         if (executableLocation != null) {
             executableStatistics = new FileStatistics();
             executableStatistics.setFromPath(executableLocation);
@@ -561,10 +500,10 @@ public class InternalHelpController {
                 FileStore store = Files.getFileStore(path);
                 this
                     .setFreeFilesystemSizeBytes(
-                            FileUtil.byteCountToDisplaySize(store.getUsableSpace()));
+                            PathInspector.byteCountToDisplaySize(store.getUsableSpace()));
                 this
                     .setTotalFilesystemSizeBytes(
-                            FileUtil.byteCountToDisplaySize(store.getTotalSpace()));
+                            PathInspector.byteCountToDisplaySize(store.getTotalSpace()));
             } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
                     LOG

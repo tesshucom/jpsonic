@@ -31,10 +31,11 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.Attributes.Request.NameConstants;
-import com.tesshu.jpsonic.dao.InternetRadioDao;
-import com.tesshu.jpsonic.domain.InternetRadio;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.SettingsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -62,13 +63,13 @@ class InternetRadioSettingsControllerTest {
         internetRadioDao = mock(InternetRadioDao.class);
         Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Arrays.asList(radio));
         InternetRadioService internetRadioService = new InternetRadioService(internetRadioDao);
-        controller = new InternetRadioSettingsController(mock(SettingsService.class),
-                internetRadioService);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        controller = new InternetRadioSettingsController(settingsFacade, internetRadioService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Test
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     void testDoGet() throws Exception {
         mockMvc
             .perform(MockMvcRequestBuilders.get("/internetRadioSettings.view"))

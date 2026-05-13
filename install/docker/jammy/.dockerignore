@@ -1,5 +1,0 @@
-.gitignore
-pom.xml
-production.yml
-target/
-!target/dependency/*

@@ -25,14 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.SearchCommand;
+import com.tesshu.jpsonic.controller.form.SearchCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,16 +50,16 @@ class SearchControllerTest {
 
     @BeforeEach
     void setup() throws ExecutionException {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new SearchController(mock(SettingsService.class),
-                    mock(MusicFolderService.class), mock(SecurityService.class),
-                    mock(PlayerService.class), mock(SearchService.class),
-                    mock(SearchCriteriaDirector.class)))
+            .standaloneSetup(new SearchController(settingsFacade, mock(MusicFolderService.class),
+                    mock(UserService.class), mock(PlayerService.class), mock(SearchService.class),
+                    mock(HttpSearchCriteriaDirector.class)))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/search.view"))
@@ -74,8 +75,8 @@ class SearchControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testOnSubmit() throws Exception {
 
         SearchCommand command = new SearchCommand();

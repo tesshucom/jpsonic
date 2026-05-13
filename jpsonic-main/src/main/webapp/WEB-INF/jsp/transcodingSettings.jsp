@@ -4,8 +4,8 @@
 <head>
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
-<%@ page import="com.tesshu.jpsonic.domain.PreferredFormatSheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.Transcodings" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.PreferredFormatSheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <c:if test="${model.showOutlineHelp}">
                 <div class="outlineHelp">
                     <fmt:message key="transcodingsettings.info">
-                        <fmt:param value="${model.transcodeDirectory}" />
+                        <fmt:param value="&lt;DATADIR&gt;/transcode" />
                         <fmt:param value="${model.brand}" />
                     </fmt:message>
                 <p>

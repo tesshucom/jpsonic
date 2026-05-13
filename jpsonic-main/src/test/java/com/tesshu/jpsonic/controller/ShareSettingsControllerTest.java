@@ -35,15 +35,16 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.ShareSettingsController.ShareInfo;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Share;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Share;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -64,16 +65,17 @@ class ShareSettingsControllerTest {
     @BeforeEach
     void setup() throws ExecutionException {
         shareService = mock(ShareService.class);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new ShareSettingsController(mock(SettingsService.class),
-                    mock(MusicFolderService.class), mock(SecurityService.class), shareService,
-                    mock(MediaFileService.class)))
+            .standaloneSetup(
+                    new ShareSettingsController(settingsFacade, mock(MusicFolderService.class),
+                            mock(UserService.class), shareService, mock(MediaFileService.class)))
             .build();
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testDoGet() throws Exception {
 
         Instant now = now();
@@ -130,8 +132,8 @@ class ShareSettingsControllerTest {
         Mockito.clearInvocations(shareService);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

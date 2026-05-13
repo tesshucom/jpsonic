@@ -32,15 +32,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import java.time.Instant;
 import java.util.Arrays;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
@@ -65,8 +66,8 @@ class ArtistByFolderProcTest {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);
-        SettingsService settingsService = mock(SettingsService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService,
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
                 mock(JWTSecurityService.class), mock(MediaFileService.class),
                 mock(PlayerService.class), mock(TranscodingService.class));
         folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);

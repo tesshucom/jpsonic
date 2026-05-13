@@ -43,8 +43,8 @@ class NotFoundControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(new NotFoundController()).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.NOTFOUND.value()))

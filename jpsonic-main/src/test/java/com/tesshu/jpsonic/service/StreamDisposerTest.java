@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

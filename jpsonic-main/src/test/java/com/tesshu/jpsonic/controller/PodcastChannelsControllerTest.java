@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.PodcastEpisode;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,15 +64,14 @@ class PodcastChannelsControllerTest {
         Mockito.when(podcastService.getNewestEpisodes(10)).thenReturn(Arrays.asList(episode));
 
         mockMvc = MockMvcBuilders
-            .standaloneSetup(
-                    new PodcastChannelsController(mock(SecurityService.class), podcastService,
-                            mock(ScannerStateServiceImpl.class), mock(ViewAsListSelector.class)))
+            .standaloneSetup(new PodcastChannelsController(mock(UserService.class), podcastService,
+                    mock(ScannerStateServiceImpl.class), mock(ViewAsListSelector.class)))
             .build();
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
+    @SuppressWarnings("unchecked")
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_CHANNELS.value()))

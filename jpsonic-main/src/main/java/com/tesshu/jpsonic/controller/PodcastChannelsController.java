@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,15 +51,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/podcastChannels", "/podcastChannels.view" })
 public class PodcastChannelsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PodcastService podcastService;
     private final ScannerStateService scannerStateService;
     private final ViewAsListSelector viewSelector;
 
-    public PodcastChannelsController(SecurityService securityService, PodcastService podcastService,
+    public PodcastChannelsController(UserService userService, PodcastService podcastService,
             ScannerStateService scannerStateService, ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.podcastService = podcastService;
         this.scannerStateService = scannerStateService;
         this.viewSelector = viewSelector;
@@ -72,16 +72,16 @@ public class PodcastChannelsController {
      */
     protected ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<PodcastChannel, List<com.tesshu.jpsonic.domain.PodcastEpisode>> channels = new LinkedHashMap<>();
+        Map<PodcastChannel, List<com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode>> channels = new LinkedHashMap<>();
         Map<Integer, PodcastChannel> channelMap = LegacyMap.of();
         for (PodcastChannel channel : podcastService.getAllChannels()) {
             channels.put(channel, podcastService.getEpisodes(channel.getId()));
             channelMap.put(channel.getId(), channel);
         }
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         Map<String, Object> map = LegacyMap
-            .of("user", securityService.getCurrentUserStrict(request), "channels", channels,
+            .of("user", userService.getCurrentUserStrict(request), "channels", channels,
                     "channelMap", channelMap, "newestEpisodes",
                     podcastService
                         .getNewestEpisodes(10)
@@ -98,9 +98,10 @@ public class PodcastChannelsController {
     }
 
     // VO
-    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+    public static class PodcastEpisode
+            extends com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode {
 
-        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+        public PodcastEpisode(com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode episode) {
             super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
                     episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
                     episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),

@@ -28,10 +28,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -40,8 +40,38 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * The class containing MusicFolder-related methods extracted from the legacy
- * server's SettingsService.
+ * Service class responsible for CRUD operations and cache management of music
+ * folders.
+ * <p>
+ * Provides access to folder listings, per-user folder assignments, and
+ * in-memory caching. All cache access is managed in a thread-safe manner using
+ * {@link java.util.concurrent.locks.ReentrantReadWriteLock}.
+ *
+ * <h3>Main Responsibilities</h3>
+ * <ul>
+ * <li>{@link #getAllMusicFolders(boolean, boolean)} Retrieves all registered
+ * music folders. Invalid or nonexistent paths can be optionally excluded.</li>
+ * <li>{@link #getMusicFoldersForUser(String)} Retrieves folders assigned to a
+ * specific user.</li>
+ * <li>{@link #createMusicFolder(Instant, MusicFolder)} /
+ * {@link #deleteMusicFolder(Instant, int)} Creates or deletes a folder.
+ * Operations are protected by scan-state locks and are logged as scan events.
+ * </li>
+ * <li>{@link #setMusicFoldersForUser(String, List)} Updates the folder
+ * assignments for a given user.</li>
+ * </ul>
+ *
+ * <h3>Notes</h3>
+ * <ul>
+ * <li>To prevent conflicts during scanning, folder creation and deletion are
+ * guarded by scan-state locking.</li>
+ * <li>When a folder is created, the internal {@code folderOrder} is
+ * reconstructed to maintain order consistency.</li>
+ * <li>Folder operations are logged as events.</li>
+ * </ul>
+ *
+ * @see MusicFolderDao
+ * @see ScannerStateServiceImpl
  */
 @Service("musicFolderService")
 @DependsOn("scannerStateService")

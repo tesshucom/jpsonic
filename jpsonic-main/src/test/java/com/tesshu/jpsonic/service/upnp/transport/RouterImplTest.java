@@ -27,8 +27,8 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.tesshu.jpsonic.domain.Version;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.domain.system.Version;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.service.upnp.UpnpServiceImpl;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,8 +45,8 @@ import org.jupnp.model.message.UpnpRequest.Method;
 import org.jupnp.transport.Router;
 import org.jupnp.transport.RouterException;
 
-@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 @TestInstance(Lifecycle.PER_CLASS)
+@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 class RouterImplTest {
 
     private ExecutorService executor;
@@ -60,7 +60,7 @@ class RouterImplTest {
     @BeforeEach
     void setUp() throws RouterException {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(executor, executor, executor,
-                SettingsService.getBrand(), new Version("99"));
+                EnvironmentProvider.getInstance().getBrand(), new Version("99"));
         UpnpServiceImpl upnpService = new UpnpServiceImpl(conf, "172.17.16.1");
         upnpService.startup();
         router = upnpService.getRouter();

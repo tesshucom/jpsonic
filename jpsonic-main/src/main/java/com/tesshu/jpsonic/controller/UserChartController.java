@@ -31,8 +31,9 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.feature.theme.ChartColor;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jfree.chart.ChartFactory;
@@ -63,7 +64,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/userChart.view")
-public class UserChartController extends AbstractChartController {
+public class UserChartController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserChartController.class);
 
@@ -71,22 +72,21 @@ public class UserChartController extends AbstractChartController {
     public static final int IMAGE_MIN_HEIGHT = 200;
     private static final long BYTES_PER_MB = 1024L * 1024L;
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final FontLoader fontLoader;
 
-    public UserChartController(SecurityService securityService, FontLoader fontLoader) {
+    public UserChartController(UserService userService, FontLoader fontLoader) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.fontLoader = fontLoader;
     }
 
-    @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         String type = request.getParameter(Attributes.Request.TYPE.value());
         CategoryDataset dataset = createDataset(type);
-        JFreeChart chart = createChart(dataset, request);
+        JFreeChart chart = createChart(dataset);
 
         int imageHeight = Math.max(IMAGE_MIN_HEIGHT, 15 * dataset.getColumnCount());
 
@@ -103,7 +103,7 @@ public class UserChartController extends AbstractChartController {
 
     private CategoryDataset createDataset(String type) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        List<User> users = securityService.getAllUsers();
+        List<User> users = userService.getAllUsers();
         for (User user : users) {
             double value;
             if ("stream".equals(type)) {
@@ -126,7 +126,7 @@ public class UserChartController extends AbstractChartController {
         return dataset;
     }
 
-    private JFreeChart createChart(CategoryDataset dataset, HttpServletRequest request) {
+    private JFreeChart createChart(CategoryDataset dataset) {
 
         JFreeChart chart = ChartFactory
             .createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false, false,
@@ -139,19 +139,19 @@ public class UserChartController extends AbstractChartController {
         theme.setSmallFont(font);
         theme.apply(chart);
 
-        Color bgColor = getBackground(request);
+        Color bgColor = ChartColor.BACKGROUND.get();
         chart.setBackgroundPaint(bgColor);
 
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint(bgColor);
-        Color fgColor = getForeground(request);
+        Color fgColor = ChartColor.TEXT.get();
         plot.setOutlinePaint(fgColor);
         plot.setRangeGridlinePaint(fgColor);
         plot.setRangeGridlineStroke(new BasicStroke(0.2f));
         plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
 
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        Color stColor = getStroke(request);
+        Color stColor = ChartColor.STROKE.get();
         renderer.setBarPainter(new BarPainter() {
             @Override
             public void paintBarShadow(Graphics2D g2, BarRenderer ren, int row, int col,

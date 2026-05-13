@@ -26,17 +26,20 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.command.GeneralSettingsCommand;
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.Theme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.theme.ServerThemeService;
+import com.tesshu.jpsonic.feature.theme.Theme;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
-import com.tesshu.jpsonic.util.PathValidator;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,32 +64,38 @@ public class GeneralSettingsController {
     /*
      * It's EN and JP(consonant)
      */
-    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
-            + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
-            + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
-            + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
-            + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
-            + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
-            + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
-            + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
-            + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
-            + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
-            + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
+    static final String SIMPLE_INDEX_STRING = """
+            A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)\s\
+            \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA)\s\
+            \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3)\s\
+            \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD)\s\
+            \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8)\s\
+            \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE)\s\
+            \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB)\s\
+            \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2)\s\
+            \u3084(\u30E4\u30E6\u30E8)\s\
+            \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED)\s\
+            \u308F(\u30EF\u30F2\u30F3)\
+            """; // JP Index
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final UserService userService;
+    private final ServerLocaleService serverLocaleService;
+    private final ServerThemeService serverThemeService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
 
-    public GeneralSettingsController(SettingsService settingsService,
-            SecurityService securityService, ShareService shareService,
-            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService,
-            MusicIndexService musicIndexService) {
+    public GeneralSettingsController(SettingsFacade settingsFacade, UserService userService,
+            ServerLocaleService serverLocaleService, ServerThemeService serverThemeService,
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector,
+            ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.userService = userService;
+        this.serverLocaleService = serverLocaleService;
+        this.serverThemeService = serverThemeService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
@@ -99,84 +108,91 @@ public class GeneralSettingsController {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
 
         // Language and theme
-        List<Theme> themes = SettingsService.getAvailableThemes();
+        List<Theme> themes = serverThemeService.getAvailableThemes();
         themes
             .stream()
-            .filter(theme -> theme.getId().equals(settingsService.getThemeId()))
+            .filter(theme -> theme.getId().equals(serverThemeService.getThemeId()))
             .findFirst()
             .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
         command.setThemes(themes);
 
-        List<Locale> locales = settingsService.getAvailableLocales();
+        List<Locale> locales = serverLocaleService.getAvailableLocales();
         locales
             .stream()
-            .filter(locale -> locale.equals(settingsService.getLocale()))
+            .filter(locale -> locale.equals(serverLocaleService.getLocale()))
             .findFirst()
             .ifPresent(locale -> command.setLocaleIndex(String.valueOf(locales.indexOf(locale))));
         command
             .setLocales(locales.stream().map(Locale::getDisplayName).collect(Collectors.toList()));
-
-        command.setIndexScheme(IndexScheme.of(settingsService.getIndexSchemeName()));
+        command
+            .setIndexScheme(
+                    IndexScheme.of(settingsFacade.get(SKeys.advanced.index.indexSchemeName)));
 
         // Index settings
-        command.setDefaultIndexString(SettingsService.getDefaultIndexString());
+        command.setDefaultIndexString(SKeys.general.index.indexString.defaultValue());
         command.setSimpleIndexString(SIMPLE_INDEX_STRING);
-        command.setIndex(settingsService.getIndexString());
-        command.setIgnoredArticles(settingsService.getIgnoredArticles());
-        command.setDeleteDiacritic(settingsService.isDeleteDiacritic());
-        command.setIgnoreFullWidth(settingsService.isIgnoreFullWidth());
+        command.setIndex(settingsFacade.get(SKeys.general.index.indexString));
+        command.setIgnoredArticles(settingsFacade.get(SKeys.general.index.ignoredArticles));
+        command.setDeleteDiacritic(settingsFacade.get(SKeys.advanced.index.deleteDiacritic));
+        command.setIgnoreFullWidth(settingsFacade.get(SKeys.advanced.index.ignoreFullWidth));
 
         // Sort settings
-        command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
-        command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
-        command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
-        command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
-        command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
-        command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
+        command.setSortAlbumsByYear(settingsFacade.get(SKeys.general.sort.albumsByYear));
+        command.setSortGenresByAlphabet(settingsFacade.get(SKeys.general.sort.genresByAlphabet));
+        command.setProhibitSortVarious(settingsFacade.get(SKeys.general.sort.prohibitSortVarious));
+        command.setDefaultSortAlbumsByYear(SKeys.general.sort.albumsByYear.defaultValue());
+        command.setDefaultSortGenresByAlphabet(SKeys.general.sort.genresByAlphabet.defaultValue());
+        command
+            .setDefaultProhibitSortVarious(SKeys.general.sort.prohibitSortVarious.defaultValue());
 
         // Search settings
-        command.setSearchComposer(settingsService.isSearchComposer());
-        command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
+        command.setSearchComposer(settingsFacade.get(SKeys.general.search.searchComposer));
+        command.setOutputSearchQuery(settingsFacade.get(SKeys.general.search.outputSearchQuery));
 
         // Suppressed legacy features
-        command.setShowRememberMe(settingsService.isShowRememberMe());
-        command.setUseJsonp(settingsService.isUseJsonp());
-        command.setShowIndexDetails(settingsService.isShowIndexDetails());
-        command.setShowDBDetails(settingsService.isShowDBDetails());
-        command.setUseCast(settingsService.isUseCast());
-        command.setUsePartyMode(settingsService.isUsePartyMode());
+        command.setUseJsonp(settingsFacade.get(SKeys.general.legacy.useJsonp));
+        command.setShowIndexDetails(settingsFacade.get(SKeys.general.legacy.showIndexDetails));
+        command.setShowDBDetails(settingsFacade.get(SKeys.general.legacy.showDbDetails));
+        command.setUseCast(settingsFacade.get(SKeys.general.legacy.useCast));
+        command.setUsePartyMode(settingsFacade.get(SKeys.general.legacy.usePartyMode));
 
         // Extensions and shortcuts
-        command.setMusicFileTypes(settingsService.getMusicFileTypes());
-        command.setVideoFileTypes(settingsService.getVideoFileTypes());
-        command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
-        command.setExcludedCoverArts(settingsService.getExcludedCoverArts());
-        command.setPlaylistFolder(settingsService.getPlaylistFolder());
-        command.setShortcuts(settingsService.getShortcuts());
-        command.setDefaultMusicFileTypes(settingsService.getDefaultMusicFileTypes());
-        command.setDefaultVideoFileTypes(settingsService.getDefaultVideoFileTypes());
-        command.setDefaultCoverArtFileTypes(settingsService.getDefaultCoverArtFileTypes());
-        command.setDefaultExcludedCoverArts(settingsService.getDefaultExcludedCoverArts());
+        command.setMusicFileTypes(settingsFacade.get(SKeys.general.extension.musicFileTypes));
+        command.setVideoFileTypes(settingsFacade.get(SKeys.general.extension.videoFileTypes));
+        command.setCoverArtFileTypes(settingsFacade.get(SKeys.general.extension.coverArtFileTypes));
+        command.setExcludedCoverArts(settingsFacade.get(SKeys.general.extension.excludedCoverArt));
+        command.setPlaylistFolder(settingsFacade.get(SKeys.general.extension.playlistFolder));
+        command.setShortcuts(settingsFacade.get(SKeys.general.extension.shortcuts));
+
+        command.setDefaultMusicFileTypes(SKeys.general.extension.musicFileTypes.defaultValue());
+        command.setDefaultVideoFileTypes(SKeys.general.extension.videoFileTypes.defaultValue());
         command
-            .setDefaultPlaylistFolder(
-                    settingsService.getDefaultPlaylistFolder().replaceAll("\\\\", "\\\\\\\\"));
-        command.setDefaultShortcuts(settingsService.getDefaultShortcuts());
+            .setDefaultCoverArtFileTypes(SKeys.general.extension.coverArtFileTypes.defaultValue());
+        command
+            .setDefaultExcludedCoverArts(SKeys.general.extension.excludedCoverArt.defaultValue());
+        command
+            .setDefaultPlaylistFolder(SKeys.general.extension.playlistFolder
+                .defaultValue()
+                .replaceAll("\\\\", "\\\\\\\\"));
+        command.setDefaultShortcuts(SKeys.general.extension.shortcuts.defaultValue());
 
         // Welcom message
-        command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
-        command.setWelcomeTitle(settingsService.getWelcomeTitle());
-        command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
-        command.setWelcomeMessage(settingsService.getWelcomeMessage());
-        command.setLoginMessage(settingsService.getLoginMessage());
+        command
+            .setGettingStartedEnabled(
+                    settingsFacade.get(SKeys.general.welcome.gettingStartedEnabled));
+        command.setWelcomeTitle(settingsFacade.get(SKeys.general.welcome.title));
+        command.setWelcomeSubtitle(settingsFacade.get(SKeys.general.welcome.subtitle));
+        command.setWelcomeMessage(settingsFacade.get(SKeys.general.welcome.message));
+        command.setLoginMessage(settingsFacade.get(SKeys.general.welcome.loginMessage));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
-        User user = securityService.getCurrentUserStrict(request);
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(scannerStateService.isScanning());
 
@@ -196,83 +212,103 @@ public class GeneralSettingsController {
 
         // Language and theme
         int themeIndex = Integer.parseInt(command.getThemeIndex());
-        Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
+        Theme theme = serverThemeService.getAvailableThemes().get(themeIndex);
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
-        Locale locale = settingsService.getAvailableLocales().get(localeIndex);
+        Locale locale = serverLocaleService.getAvailableLocales().get(localeIndex);
 
         /*
          * To transition the mainframe after reloading the entire web page, not a simple
          * transition. (Compare before reflecting settings)
          */
-        boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
-                || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
-                || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale);
+        boolean isReload = !settingsFacade
+            .get(SKeys.general.index.indexString)
+            .equals(command.getIndex())
+                || !settingsFacade
+                    .get(SKeys.general.index.ignoredArticles)
+                    .equals(command.getIgnoredArticles())
+                || !settingsFacade
+                    .get(SKeys.general.extension.shortcuts)
+                    .equals(command.getShortcuts())
+                || !serverThemeService.getThemeId().equals(theme.getId())
+                || !serverLocaleService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
 
-        settingsService.setThemeId(theme.getId());
-        settingsService.setLocale(locale);
+        serverThemeService.stagingThemeId(theme.getId());
+        serverLocaleService.stagingLocale(locale);
 
         // Index settings
-        if (command.getIndex() != null
-                && !command.getIndex().equals(settingsService.getIndexString())) {
-            settingsService.setIndexString(command.getIndex());
+        if (settingsFacade.get(SKeys.general.index.indexString) != null && !command
+            .getIndex()
+            .equals(settingsFacade.get(SKeys.general.index.indexString))) {
+            settingsFacade.staging(SKeys.general.index.indexString, command.getIndex());
             musicIndexService.clear();
         }
-        settingsService.setIgnoredArticles(command.getIgnoredArticles());
+        settingsFacade.staging(SKeys.general.index.ignoredArticles, command.getIgnoredArticles());
 
         if (command.getIndexScheme() == IndexScheme.NATIVE_JAPANESE) {
-            settingsService.setDeleteDiacritic(true);
-            settingsService.setIgnoreFullWidth(true);
+            settingsFacade.staging(SKeys.advanced.index.deleteDiacritic, true);
+            settingsFacade.staging(SKeys.advanced.index.ignoreFullWidth, true);
         } else if (command.getIndexScheme() == IndexScheme.ROMANIZED_JAPANESE) {
-            settingsService.setDeleteDiacritic(command.isDeleteDiacritic());
-            settingsService.setIgnoreFullWidth(true);
+            settingsFacade
+                .staging(SKeys.advanced.index.deleteDiacritic, command.isDeleteDiacritic());
+            settingsFacade.staging(SKeys.advanced.index.ignoreFullWidth, true);
         } else if (command.getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
-            settingsService.setDeleteDiacritic(command.isDeleteDiacritic());
-            settingsService.setIgnoreFullWidth(command.isIgnoreFullWidth());
+            settingsFacade
+                .staging(SKeys.advanced.index.deleteDiacritic, command.isDeleteDiacritic());
+            settingsFacade
+                .staging(SKeys.advanced.index.ignoreFullWidth, command.isIgnoreFullWidth());
         }
 
         // Sort settings
-        settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
-        settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
-        settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
+        settingsFacade.staging(SKeys.general.sort.albumsByYear, command.isSortAlbumsByYear());
+        settingsFacade
+            .staging(SKeys.general.sort.genresByAlphabet, command.isSortGenresByAlphabet());
+        settingsFacade
+            .staging(SKeys.general.sort.prohibitSortVarious, command.isProhibitSortVarious());
 
         // Search settings
-        settingsService.setSearchComposer(command.isSearchComposer());
-        settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
+        settingsFacade.staging(SKeys.general.search.searchComposer, command.isSearchComposer());
+        settingsFacade
+            .staging(SKeys.general.search.outputSearchQuery, command.isOutputSearchQuery());
 
         // Suppressed legacy features
-        settingsService.setShowRememberMe(command.isShowRememberMe());
-        settingsService.setUseJsonp(command.isUseJsonp());
-        settingsService.setShowIndexDetails(command.isShowIndexDetails());
-        settingsService.setShowDBDetails(command.isShowDBDetails());
-        settingsService.setUseCast(command.isUseCast());
-        settingsService.setUsePartyMode(command.isUsePartyMode());
+        settingsFacade.staging(SKeys.general.legacy.useRadio, command.isUseRadio());
+        settingsFacade.staging(SKeys.general.legacy.useJsonp, command.isUseJsonp());
+        settingsFacade.staging(SKeys.general.legacy.showIndexDetails, command.isShowIndexDetails());
+        settingsFacade.staging(SKeys.general.legacy.showDbDetails, command.isShowDBDetails());
+        settingsFacade.staging(SKeys.general.legacy.useCast, command.isUseCast());
+        settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
+        settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
 
         // Extensions and shortcuts
         if (!scannerStateService.isScanning()) {
-            settingsService.setMusicFileTypes(command.getMusicFileTypes());
-            settingsService.setVideoFileTypes(command.getVideoFileTypes());
-            settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
-            settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
-            PathValidator
+
+            settingsFacade
+                .staging(SKeys.general.extension.musicFileTypes, command.getMusicFileTypes());
+            settingsFacade
+                .staging(SKeys.general.extension.videoFileTypes, command.getVideoFileTypes());
+            settingsFacade
+                .staging(SKeys.general.extension.coverArtFileTypes, command.getCoverArtFileTypes());
+            settingsFacade
+                .staging(SKeys.general.extension.excludedCoverArt, command.getExcludedCoverArts());
+            RootPathEntryGuard
                 .validateFolderPath(command.getPlaylistFolder())
-                .ifPresent(settingsService::setPlaylistFolder);
-            settingsService.setShortcuts(command.getShortcuts());
+                .ifPresent(pathStr -> settingsFacade
+                    .staging(SKeys.general.extension.playlistFolder, pathStr));
+            settingsFacade.staging(SKeys.general.extension.shortcuts, command.getShortcuts());
         }
 
         // Welcom message
-        settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
-        settingsService.setWelcomeTitle(command.getWelcomeTitle());
-        settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
-        settingsService.setWelcomeMessage(command.getWelcomeMessage());
-        settingsService.setLoginMessage(command.getLoginMessage());
+        settingsFacade
+            .staging(SKeys.general.welcome.gettingStartedEnabled,
+                    command.isGettingStartedEnabled());
+        settingsFacade.staging(SKeys.general.welcome.title, command.getWelcomeTitle());
+        settingsFacade.staging(SKeys.general.welcome.subtitle, command.getWelcomeSubtitle());
+        settingsFacade.staging(SKeys.general.welcome.message, command.getWelcomeMessage());
+        settingsFacade.staging(SKeys.general.welcome.loginMessage, command.getLoginMessage());
 
-        settingsService.save();
+        settingsFacade.commitAll();
 
-        // for view page control
-        settingsService.setUseRadio(command.isUseRadio());
         if (!isReload) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }
