@@ -31,21 +31,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.InternalHelpController.FileStatistics;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@NeedsHome
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
 class InternalHelpControllerTest {
 
@@ -53,18 +54,24 @@ class InternalHelpControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     void testOkForAdmins() throws Exception {
+        // Boot 4 migration: @WithMockUser is no longer reapplied across requests.
         mockMvc
-            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .perform(get("/internalhelp")
+                .with(SecurityMockMvcRequestPostProcessors
+                    .user("admin")
+                    .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
             .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {
+        // Boot 4 migration: @WithMockUser is no longer reapplied across requests.
         mockMvc
-            .perform(get("/internalhelp").contentType(MediaType.TEXT_HTML))
+            .perform(get("/internalhelp")
+                .with(SecurityMockMvcRequestPostProcessors
+                    .user("user")
+                    .authorities(new SimpleGrantedAuthority("USER"))))
             .andExpect(status().isForbidden());
     }
 
@@ -100,7 +107,7 @@ class InternalHelpControllerTest {
                 libpostproc    57.  3.100 / 57.  3.100
                 """;
         InternalHelpController controller = new InternalHelpController(null, null, null, null, null,
-                null, null, null, null);
+                null, null, null);
 
         assertEquals("""
                 ffmpeg version 6.1.2
@@ -179,7 +186,7 @@ class InternalHelpControllerTest {
     class DoesLocaleSupportUtf8Test {
 
         private final InternalHelpController controller = new InternalHelpController(null, null,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null);
 
         @Test
         void testNull() {

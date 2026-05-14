@@ -3,7 +3,72 @@
 # jpsonic/jpsonic
 # -->
 
-## v114.2.0
+## v115.0.0
+
+<details>
+<summary>🆙  Platform Updates & CI/CD Release Management</summary>
+
+  - JDK
+    - Handle Java 21 strict Locale/URL parsing([#2814](https://github.com/tesshucom/jpsonic/issues/2814))
+    - Migration to JVM 25([#2829](https://github.com/tesshucom/jpsonic/issues/2829))
+    - Migration to JVM 26([#2871](https://github.com/tesshucom/jpsonic/issues/2871))
+  - Migration to Spring Boot 4.x, Jakarta EE 11 compatible Servlet Containers, Lucene 10, Migration to Liquibase 5.x
+    - Remove legacy Spring Theme API([#2816](https://github.com/tesshucom/jpsonic/issues/2816))
+    - Remove NoOpPasswordEncoder([#2819](https://github.com/tesshucom/jpsonic/issues/2819))
+    - Fix logout handling([#2795](https://github.com/tesshucom/jpsonic/issues/2795))
+    - Update design and replace deprecated API usage([#2764](https://github.com/tesshucom/jpsonic/issues/2764))
+    - Fix CSRF([#2873](https://github.com/tesshucom/jpsonic/issues/2873))
+    - Refactor WebServerFactoryCustomizer for Spring Boot 4.x to Maintain Universal Portability([#2864](https://github.com/tesshucom/jpsonic/issues/2864))
+    - Bump lucene from 9.12.0 to 10.0.0([#2709](https://github.com/tesshucom/jpsonic/issues/2709))
+  - Docker
+    - Change for faster startup with CDS([#2702](https://github.com/tesshucom/jpsonic/issues/2702))
+    - Fix to temporarily exclude Ubuntu Jammy from the CI([#2741](https://github.com/tesshucom/jpsonic/issues/2741))
+    - CI rotation: drop Java 17 support and update Docker targets([#2813](https://github.com/tesshucom/jpsonic/issues/2813))
+    - Add FFmpeg version to Help page([#2752](https://github.com/tesshucom/jpsonic/issues/2752))
+
+</details>
+<details>
+<summary>🔒 Security & Authentication</summary>
+
+ - Improve RememberMe Implementation([#2865](https://github.com/tesshucom/jpsonic/issues/2865))
+
+</details>
+<details>
+<summary>📡 UPnP / DLNA / Networking</summary>
+
+ - Add a setting to prevent UPnP from accessing the default gateway([#2759](https://github.com/tesshucom/jpsonic/issues/2759))
+ - Change to make FileStructure/ID3 selectable in UPnP search([#2718](https://github.com/tesshucom/jpsonic/issues/2718))
+ - Improve path matching logic in JWTAuthenticationProvider to resolve 403 errors on Linux([#2875](https://github.com/tesshucom/jpsonic/issues/2875))
+
+</details>
+<details>
+<summary>🐛 Bug Fixes & Improvements</summary>
+
+ - Improve URL validation for DlnaBaseLANURL([#2747](https://github.com/tesshucom/jpsonic/issues/2747))
+ - Fix to filter unknown menus([#2757](https://github.com/tesshucom/jpsonic/issues/2757))
+ - Add trailing slash to ListenBrainz endpoint and harden test behavior([#2840](https://github.com/tesshucom/jpsonic/issues/2840))
+ - Fix bug that UPnP:By Folder(ID3) did not work([#2715](https://github.com/tesshucom/jpsonic/issues/2715))
+ - Fix bug regarding ID3 album stars([#2713](https://github.com/tesshucom/jpsonic/issues/2713))
+
+</details>
+<details>
+<summary>🛠️ Internal Architecture & Refactoring</summary>
+
+ - Internal Architecture Cleanup: Package Reorganization([#2838](https://github.com/tesshucom/jpsonic/issues/2838))
+ - Internal Architecture Cleanup: Package Reorganization([#2861](https://github.com/tesshucom/jpsonic/issues/2861))
+ - Internal Architecture Cleanup: Package Reorganization([#2862](https://github.com/tesshucom/jpsonic/issues/2862))
+ - Introduce EnvironmentProvider and EnvKeys([#2853](https://github.com/tesshucom/jpsonic/issues/2853))
+ - Redesign of SettingsService([#2859](https://github.com/tesshucom/jpsonic/issues/2859))
+ - Redesign of File System Infrastructure([#2868](https://github.com/tesshucom/jpsonic/issues/2868))
+ - Improving the Shutdown Process([#2803](https://github.com/tesshucom/jpsonic/issues/2803))
+ - Remove PGJDBC-NG([#2874](https://github.com/tesshucom/jpsonic/issues/2874))
+
+</details>
+
+[More...](https://github.com/tesshucom/jpsonic/milestone/74)
+
+<details>
+<summary>v114.2.0</summary>
 
 #### Bug fixes
 
@@ -56,7 +121,7 @@
   - [v114.1.11](https://github.com/tesshucom/jpsonic/issues/2690)
   - [v114.1.12](https://github.com/tesshucom/jpsonic/issues/2696)
 
-
+</details>
 <details>
 <summary>v114.1.0</summary>
 

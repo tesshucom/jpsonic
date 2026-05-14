@@ -25,7 +25,7 @@
             <input name="submit" type="submit" value="<fmt:message key='login.login'/>" tabindex="4">
 
             <div class="details">
-            	<c:if test="${model.showRememberMe}">
+            	<c:if test="${model.rememberMeEnable}">
 	                <div id="loginremember">
 	                    <label for="remember"><fmt:message key="login.remember"/></label>
 	                    <input type="checkbox" name="remember-me" id="remember" tabindex="3">

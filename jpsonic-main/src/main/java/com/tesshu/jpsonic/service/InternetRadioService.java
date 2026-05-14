@@ -43,9 +43,9 @@ import chameleon.playlist.Sequence;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.InternetRadioDao;
-import com.tesshu.jpsonic.domain.InternetRadio;
-import com.tesshu.jpsonic.domain.InternetRadioSource;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.api.repository.InternetRadioDao;
+import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
@@ -282,7 +282,7 @@ public class InternetRadioService {
         }
         URL url;
         try {
-            url = new URL(playlistUrl);
+            url = StringUtil.parseURL(playlistUrl);
         } catch (MalformedURLException e) {
             throw new ExecutionException("Unable to generate playlist URI.", e);
         }
@@ -397,7 +397,11 @@ public class InternetRadioService {
         try (InputStream in = urlConnection.getInputStream()) {
             String contentEncoding = urlConnection.getContentEncoding();
             if (maxByteSize > 0) {
-                try (BoundedInputStream bis = new BoundedInputStream(in, maxByteSize)) {
+                try (BoundedInputStream bis = BoundedInputStream
+                    .builder()
+                    .setInputStream(in)
+                    .setMaxCount(maxByteSize)
+                    .get()) {
                     playlist = SpecificPlaylistFactory.getInstance().readFrom(bis, contentEncoding);
                 }
             } else {
@@ -449,7 +453,7 @@ public class InternetRadioService {
                 }
 
                 // Reconnect to the new URL.
-                currentURL = new URL(connection.getHeaderField("Location"));
+                currentURL = StringUtil.parseURL(connection.getHeaderField("Location"));
                 connection.disconnect();
                 connection = connectToURL(currentURL);
             }
@@ -487,5 +491,19 @@ public class InternetRadioService {
         urlConnection.setUseCaches(true);
         urlConnection.connect();
         return urlConnection;
+    }
+
+    // VO
+    public static final class InternetRadioSource {
+
+        private final String streamUrl;
+
+        public InternetRadioSource(String streamUrl) {
+            this.streamUrl = streamUrl;
+        }
+
+        public String getStreamUrl() {
+            return streamUrl;
+        }
     }
 }

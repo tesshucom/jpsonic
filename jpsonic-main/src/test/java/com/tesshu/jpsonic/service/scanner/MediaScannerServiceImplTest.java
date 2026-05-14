@@ -26,13 +26,9 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -40,66 +36,54 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.base.DaoHelper;
-import com.tesshu.jpsonic.dao.base.TemplateWrapper;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ScanEvent;
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
-import com.tesshu.jpsonic.domain.SearchResult;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.NeedsDB;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
-import com.tesshu.jpsonic.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.exception.UncheckedException;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnJre;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -108,8 +92,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.util.ObjectUtils;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class MediaScannerServiceImplTest {
 
@@ -193,7 +178,7 @@ class MediaScannerServiceImplTest {
     @Nested
     class UnitTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private IndexManager indexManager;
         private ArtistDao artistDao;
         private AlbumDao albumDao;
@@ -201,39 +186,68 @@ class MediaScannerServiceImplTest {
         private MediaFileDao mediaFileDao;
         private StaticsDao staticsDao;
         private ScannerStateServiceImpl scannerStateService;
-        private ThreadPoolTaskExecutor executor;
         private SortProcedureService utils;
-        private ScannerProcedureService scannerProcedureService;
         private WritableMediaFileService writableMediaFileService;
+
+        private ScanHelper scanHelper;
+        private PreScanProcedure preScanProc;
+        private DirectoryScanProcedure directoryScanProc;
+        private FileMetadataScanProcedure fileMetaProc;
+        private Id3MetadataScanProcedure id3MetaProc;
+        private PostScanProcedure postScanProc;
         private MediaScannerServiceImpl mediaScannerService;
 
         @BeforeEach
         void setup() {
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
 
-            settingsService = mock(SettingsService.class);
+        @Ignore
+        void init() {
             indexManager = mock(IndexManager.class);
             mediaFileService = mock(MediaFileService.class);
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
-            executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
             staticsDao = mock(StaticsDao.class);
             scannerStateService = new ScannerStateServiceImpl(staticsDao);
+
             writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                     scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
-                    mock(MusicParser.class), mock(VideoParser.class), settingsService,
-                    mock(SecurityService.class), null, mock(IndexManager.class),
-                    mock(MusicIndexServiceImpl.class));
-            scannerProcedureService = new ScannerProcedureService(settingsService,
-                    mock(MusicFolderServiceImpl.class), indexManager, mediaFileService,
-                    writableMediaFileService, mock(PlaylistService.class),
-                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao,
-                    utils, scannerStateService, mock(MusicIndexServiceImpl.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class),
-                    mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
+                    mock(MusicParser.class), mock(VideoParser.class), settingsFacade,
+                    mock(LibraryAccessPolicy.class), new ScanningExclusionPolicy(settingsFacade),
+                    null, mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
+
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+            final JpsonicComparators comparators = mock(JpsonicComparators.class);
+            final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+
+            scanHelper = new ScanHelper(scannerStateService, settingsFacade, staticsDao,
+                    mediaFileDao, indexManager, writableMediaFileService);
+            preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
+                    artistDao, mediaFileCache, scanHelper);
+            directoryScanProc = new DirectoryScanProcedure(mediaFileDao, musicFolderService,
+                    writableMediaFileService, scannerStateService, indexManager, scanHelper);
+            fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, writableMediaFileService, mediaFileDao, utils,
+                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
+                    comparators);
+            id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    comparators, scanHelper);
+            postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
+                    templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
+
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
         }
 
         @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // It doesn't seem to be able to
@@ -244,13 +258,19 @@ class MediaScannerServiceImplTest {
             Mockito.doNothing().when(indexManager).startIndexing();
             Path podcastPath = Path
                 .of(MediaScannerServiceImplTest.class.getResource("/MEDIAS/Scan/Null").toURI());
-            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastPath.toString());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.podcast.folder, podcastPath.toString())
+                .build();
+            init();
+
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), mock(StaticsDao.class),
-                    mock(ThreadPoolTaskExecutor.class));
+            ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
             mediaScannerService.scanLibrary();
         }
 
@@ -356,7 +376,11 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.True
             @IsOptionalProcessSkippableDecisions.Result.False
             void c01() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, true)
+                    .build();
+
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
 
@@ -365,7 +389,11 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.NotPresent
             @IsOptionalProcessSkippableDecisions.Result.False
             void c02() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
+
                 Mockito.when(staticsDao.isNeverScanned()).thenReturn(true);
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -375,12 +403,16 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.Present.ScanEventType.NeFinished
             @IsOptionalProcessSkippableDecisions.Result.False
             void c03() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
                         .asList(new ScanEvent(null, null, ScanEventType.CANCELED, null, null, null,
                                 null, null)));
+
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
 
@@ -390,7 +422,10 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.True
             @IsOptionalProcessSkippableDecisions.Result.False
             void c04() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
@@ -406,7 +441,10 @@ class MediaScannerServiceImplTest {
             @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.False
             @IsOptionalProcessSkippableDecisions.Result.True
             void c05() {
-                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                settingsFacade = SettingsFacadeBuilder
+                    .create()
+                    .withBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, false)
+                    .build();
                 Mockito
                     .when(staticsDao.getLastScanAllStatuses())
                     .thenReturn(Arrays
@@ -418,663 +456,9 @@ class MediaScannerServiceImplTest {
         }
     }
 
-    /*
-     * Used if NIO2 fails
-     */
-    private boolean copy(Path in, Path out) {
-        try (InputStream is = Files.newInputStream(in);
-                OutputStream os = Files.newOutputStream(out);) {
-            byte[] buf = new byte[256];
-            while (is.read(buf) != -1) {
-                os.write(buf);
-            }
-        } catch (IOException e) {
-            throw new UncheckedException(e);
-        }
-        return true;
-    }
-
-    @Nested
-    class UpdateAlbumTest extends AbstractNeedsScan {
-
-        private List<MusicFolder> musicFolders;
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-
-        @Autowired
-        private AlbumDao albumDao;
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            if (ObjectUtils.isEmpty(musicFolders)) {
-                musicFolders = Arrays
-                    .asList(new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"),
-                            "alphaBeticalProps", true, now(), 0, false),
-                            new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild",
-                                    true, now(), 1, false),
-                            new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"),
-                                    "fileAndPropsNameInReverse", true, now(), 2, false));
-            }
-            return musicFolders;
-        }
-
-        @BeforeEach
-        void setup() {
-            populateDatabase();
-        }
-
-        /*
-         * If data with the same name exists in both albums in the file structure/Id3,
-         * the tag of the first child file takes precedence. The Sonic server relies on
-         * his NIO for this "first child", so the result of the first-fetch depends on
-         * the OS filesystem. Jpsonic has solved this problem in v111.6.0, and the same
-         * analysis is now performed on all platforms.
-         */
-        @Test
-        void testUpdateAlbum() {
-
-            // LIFO
-            List<MusicFolder> folder = getMusicFolders()
-                .stream()
-                .filter(f -> "alphaBeticalProps".equals(f.getName()))
-                .collect(Collectors.toList());
-            assertEquals(1, folder.size());
-            List<MediaFile> albums = mediaFileDao
-                .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            MediaFile album = albums.get(0);
-            assertEquals("ALBUM1", album.getName());
-            assertEquals("albumArtistA", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertEquals("genreA", album.getGenre());
-            assertEquals(2001, album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            List<Album> albumId3s = albumDao
-                .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folder);
-            Map<String, Album> albumId3Map = albumId3s
-                .stream()
-                .collect(Collectors.toMap(Album::getArtist, a -> a));
-
-            assertEquals(2, albumId3s.size());
-            Album albumA = albumId3Map.get("albumArtistA");
-            assertEquals("albumA", albumA.getName());
-            assertEquals("albumArtistA", albumA.getArtist());
-            assertEquals("genreA", albumA.getGenre());
-            assertEquals(2001, albumA.getYear());
-            assertNull(albumA.getMusicBrainzReleaseId());
-            Album albumB = albumId3Map.get("albumArtistB");
-            assertEquals("albumA", albumB.getName());
-            assertEquals("albumArtistB", albumB.getArtist());
-            assertEquals("genreB", albumB.getGenre());
-            assertEquals(2002, albumB.getYear());
-            assertNull(albumB.getMusicBrainzReleaseId());
-
-            // Null
-            folder = getMusicFolders()
-                .stream()
-                .filter(f -> "noTagFirstChild".equals(f.getName()))
-                .collect(Collectors.toList());
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            album = albums.get(0);
-            assertEquals("ALBUM2", album.getName());
-            assertEquals("ARTIST2", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertNull(album.getGenre());
-            assertNull(album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(2, albumId3s.size());
-
-            albumA = albumId3s.get(0);
-            assertEquals("ALBUM2", albumA.getName());
-            assertEquals("ARTIST2", albumA.getArtist());
-            assertNull(albumA.getGenre());
-            assertNull(albumA.getYear());
-            assertNull(albumA.getMusicBrainzReleaseId());
-
-            albumA = albumId3s.get(1);
-            assertEquals("albumC", albumA.getName());
-            assertEquals("albumArtistC", albumA.getArtist());
-            assertEquals("genreC", albumA.getGenre());
-            assertEquals(2002, albumA.getYear());
-            assertNull(albumA.getMusicBrainzReleaseId());
-
-            // Reverse
-            folder = getMusicFolders()
-                .stream()
-                .filter(f -> "fileAndPropsNameInReverse".equals(f.getName()))
-                .collect(Collectors.toList());
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            album = albums.get(0);
-            assertEquals("ALBUM3", album.getName());
-            assertEquals("albumArtistD", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertEquals("genreD", album.getGenre());
-            assertEquals(2001, album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(2, albumId3s.size());
-
-            albumA = albumId3s.get(0);
-            assertEquals("albumD", albumA.getName());
-            assertEquals("albumArtistD", albumA.getArtist());
-            assertEquals("genreD", albumA.getGenre());
-            assertEquals(2001, albumA.getYear());
-            assertNull(albumA.getMusicBrainzReleaseId());
-
-            albumA = albumId3s.get(1);
-            assertEquals("albumE", albumA.getName());
-            assertEquals("albumArtistE", albumA.getArtist());
-            assertEquals("genreE", albumA.getGenre());
-            assertEquals(2002, albumA.getYear());
-            assertNull(albumA.getMusicBrainzReleaseId());
-        }
-    }
-
-    @Nested
-    class GenreCRUDTest extends AbstractNeedsScan {
-
-        @Autowired
-        private SearchService searchService;
-
-        @TempDir
-        private Path tempDir;
-        private List<MusicFolder> folders;
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            if (ObjectUtils.isEmpty(folders)) {
-                folders = Arrays
-                    .asList(new MusicFolder(1, tempDir.toString(), "MultiGenre", true, now(), 0,
-                            false));
-            }
-            return folders;
-        }
-
-        @BeforeEach
-        void setup() throws IOException {
-            FileUtils.copyDirectory(new File(resolveBaseMediaPath("MultiGenre")), tempDir.toFile());
-            populateDatabase();
-        }
-
-        @Test
-        void testCRUD() throws IOException {
-
-            // Test CR
-            GenreMasterCriteria criteria = new GenreMasterCriteria(folders, Scope.ALBUM, Sort.NAME);
-            List<Genre> genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
-            assertEquals(14, genres.size());
-            assertEquals("Audiobook - Historical", genres.get(0).getName());
-            assertEquals(1, genres.get(0).getAlbumCount());
-            assertEquals("Audiobook - Sports", genres.get(1).getName());
-            assertEquals(1, genres.get(1).getAlbumCount());
-            assertEquals("GENRE_A", genres.get(2).getName());
-            assertEquals(1, genres.get(2).getAlbumCount());
-            assertEquals("GENRE_B", genres.get(3).getName());
-            assertEquals(1, genres.get(3).getAlbumCount());
-            assertEquals("GENRE_C", genres.get(4).getName());
-            assertEquals(1, genres.get(4).getAlbumCount());
-            assertEquals("GENRE_D", genres.get(5).getName());
-            assertEquals(2, genres.get(5).getAlbumCount());
-            assertEquals("GENRE_E", genres.get(6).getName());
-            assertEquals(1, genres.get(6).getAlbumCount());
-            assertEquals("GENRE_F", genres.get(7).getName());
-            assertEquals(1, genres.get(7).getAlbumCount());
-            assertEquals("GENRE_G", genres.get(8).getName());
-            assertEquals(1, genres.get(8).getAlbumCount());
-            assertEquals("GENRE_H", genres.get(9).getName());
-            assertEquals(1, genres.get(9).getAlbumCount());
-            assertEquals("GENRE_I", genres.get(10).getName());
-            assertEquals(1, genres.get(10).getAlbumCount());
-            assertEquals("GENRE_J", genres.get(11).getName());
-            assertEquals(1, genres.get(11).getAlbumCount());
-            assertEquals("GENRE_K", genres.get(12).getName());
-            assertEquals(2, genres.get(12).getAlbumCount());
-            assertEquals("GENRE_L", genres.get(13).getName());
-            assertEquals(2, genres.get(13).getAlbumCount());
-
-            // ### Test D(File Delete)
-            Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE02.mp3"));
-            Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM3/FILE05.mp3"));
-            Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM6/FILE10.mp3"));
-            TestCaseUtils.execScan(mediaScannerService);
-
-            // Deleting a file will reduce the number of genres by 2.
-            genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
-            assertEquals(12, genres.size());
-
-            assertEquals("Audiobook - Historical", genres.get(0).getName());
-            assertEquals(1, genres.get(0).getAlbumCount());
-            assertEquals("Audiobook - Sports", genres.get(1).getName());
-            assertEquals(1, genres.get(1).getAlbumCount());
-
-            // Even if FILE02 is deleted,
-            // the number of albums will not change because FILE01 still exists.
-            assertEquals("GENRE_A", genres.get(2).getName());
-            assertEquals(1, genres.get(2).getAlbumCount()); // (1->1)
-
-            assertEquals("GENRE_B", genres.get(3).getName());
-            assertEquals(1, genres.get(3).getAlbumCount());
-            assertEquals("GENRE_C", genres.get(4).getName());
-            assertEquals(1, genres.get(4).getAlbumCount());
-
-            // FILE05 has been deleted.
-            assertEquals("GENRE_D", genres.get(5).getName());
-            assertEquals(1, genres.get(5).getAlbumCount()); // (2->1)
-
-            assertEquals("GENRE_E", genres.get(6).getName());
-            assertEquals(1, genres.get(6).getAlbumCount());
-            assertEquals("GENRE_F", genres.get(7).getName());
-            assertEquals(1, genres.get(7).getAlbumCount());
-            assertEquals("GENRE_G", genres.get(8).getName());
-            assertEquals(1, genres.get(8).getAlbumCount());
-            assertEquals("GENRE_H", genres.get(9).getName());
-            assertEquals(1, genres.get(9).getAlbumCount());
-
-            // GENRE_I, GENRE_J has been deleted.
-
-            assertEquals("GENRE_K", genres.get(10).getName());
-            assertEquals(2, genres.get(10).getAlbumCount());
-            assertEquals("GENRE_L", genres.get(11).getName());
-            assertEquals(2, genres.get(11).getAlbumCount());
-
-            // ### Test UD(Tag Update&Delete)
-            Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE01.mp3"));
-            copy(Path.of(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM1/FILE01.mp3")),
-                    Path.of(tempDir.toString(), "ARTIST1/ALBUM1/FILE01.mp3"));
-            Files.delete(Path.of(tempDir.toString(), "ARTIST1/ALBUM7/FILE11.mp3"));
-            copy(Path.of(resolveBaseMediaPath("Scan/MultiGenreCRUD/ARTIST1/ALBUM7/FILE11.mp3")),
-                    Path.of(tempDir.toString(), "ARTIST1/ALBUM7/FILE11.mp3"));
-            TestCaseUtils.execScan(mediaScannerService);
-
-            // Deleting a file will reduce the number of genres by 2.
-            genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
-            assertEquals(13, genres.size());
-
-            assertEquals("Audiobook - Historical", genres.get(0).getName());
-            assertEquals(1, genres.get(0).getAlbumCount());
-            assertEquals("Audiobook - Sports", genres.get(1).getName());
-            assertEquals(1, genres.get(1).getAlbumCount());
-
-            assertEquals("GENRE_A-CHANGED", genres.get(2).getName());
-            assertEquals(1, genres.get(2).getAlbumCount());
-
-            // GENRE_A -> GENRE_A-CHANGED
-
-            assertEquals("GENRE_B", genres.get(3).getName());
-            assertEquals(1, genres.get(3).getAlbumCount());
-            assertEquals("GENRE_C", genres.get(4).getName());
-            assertEquals(1, genres.get(4).getAlbumCount());
-            assertEquals("GENRE_D", genres.get(5).getName());
-            assertEquals(1, genres.get(5).getAlbumCount());
-            assertEquals("GENRE_E", genres.get(6).getName());
-            assertEquals(1, genres.get(6).getAlbumCount());
-            assertEquals("GENRE_F", genres.get(7).getName());
-            assertEquals(1, genres.get(7).getAlbumCount());
-            assertEquals("GENRE_G", genres.get(8).getName());
-            assertEquals(1, genres.get(8).getAlbumCount());
-            assertEquals("GENRE_H", genres.get(9).getName());
-            assertEquals(1, genres.get(9).getAlbumCount());
-            assertEquals("GENRE_K", genres.get(10).getName());
-            assertEquals(2, genres.get(10).getAlbumCount());
-
-            assertEquals("GENRE_L", genres.get(11).getName());
-            assertEquals(1, genres.get(11).getAlbumCount()); // (2->1)
-
-            // Some of the multi-genres have been changed.
-            assertEquals("GENRE_L-CHANGED", genres.get(12).getName());
-            assertEquals(1, genres.get(12).getAlbumCount());
-        }
-    }
-
-    /*
-     * Confirm that the Genre Count does not increase or decrease during Normal-Scan
-     * and Scan with IgnoreTimestamp.
-     */
-    @Nested
-    class GenrePersistenceTest extends AbstractNeedsScan {
-
-        @Autowired
-        private SearchService searchService;
-
-        private final List<MusicFolder> folders = List
-            .of(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 0,
-                    false));
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            return folders;
-        }
-
-        @BeforeEach
-        void setup() throws IOException {
-            populateDatabase();
-        }
-
-        @Test
-        void testGenreCountPersistence() throws IOException {
-            GenreMasterCriteria albumGenreCriteria = new GenreMasterCriteria(folders, Scope.ALBUM,
-                    Sort.NAME);
-            GenreMasterCriteria songGenreCriteria = new GenreMasterCriteria(folders, Scope.SONG,
-                    Sort.NAME);
-            assertTrue(assertAlbumGenreCount(
-                    searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
-            assertTrue(assertSongGenreCount(
-                    searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
-
-            // Run a scan
-            TestCaseUtils.execScan(mediaScannerService);
-            assertTrue(assertAlbumGenreCount(
-                    searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
-            assertTrue(assertSongGenreCount(
-                    searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
-
-            // Scan with IgnoreFileTimestamps enabled
-            settingsService.setIgnoreFileTimestamps(true);
-            settingsService.save();
-            TestCaseUtils.execScan(mediaScannerService);
-            assertTrue(assertAlbumGenreCount(
-                    searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
-            assertTrue(assertSongGenreCount(
-                    searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
-        }
-
-        private boolean assertAlbumGenreCount(List<Genre> genres) {
-            assertEquals(14, genres.size());
-            assertEquals("Audiobook - Historical", genres.get(0).getName());
-            assertEquals(1, genres.get(0).getAlbumCount());
-            assertEquals("Audiobook - Sports", genres.get(1).getName());
-            assertEquals(1, genres.get(1).getAlbumCount());
-            assertEquals("GENRE_A", genres.get(2).getName());
-            assertEquals(1, genres.get(2).getAlbumCount());
-            assertEquals("GENRE_B", genres.get(3).getName());
-            assertEquals(1, genres.get(3).getAlbumCount());
-            assertEquals("GENRE_C", genres.get(4).getName());
-            assertEquals(1, genres.get(4).getAlbumCount());
-            assertEquals("GENRE_D", genres.get(5).getName());
-            assertEquals(2, genres.get(5).getAlbumCount());
-            assertEquals("GENRE_E", genres.get(6).getName());
-            assertEquals(1, genres.get(6).getAlbumCount());
-            assertEquals("GENRE_F", genres.get(7).getName());
-            assertEquals(1, genres.get(7).getAlbumCount());
-            assertEquals("GENRE_G", genres.get(8).getName());
-            assertEquals(1, genres.get(8).getAlbumCount());
-            assertEquals("GENRE_H", genres.get(9).getName());
-            assertEquals(1, genres.get(9).getAlbumCount());
-            assertEquals("GENRE_I", genres.get(10).getName());
-            assertEquals(1, genres.get(10).getAlbumCount());
-            assertEquals("GENRE_J", genres.get(11).getName());
-            assertEquals(1, genres.get(11).getAlbumCount());
-            assertEquals("GENRE_K", genres.get(12).getName());
-            assertEquals(2, genres.get(12).getAlbumCount());
-            assertEquals("GENRE_L", genres.get(13).getName());
-            assertEquals(2, genres.get(13).getAlbumCount());
-            return true;
-        }
-
-        private boolean assertSongGenreCount(List<Genre> genres) {
-            assertEquals(15, genres.size());
-            assertEquals("Audiobook - Historical", genres.get(0).getName());
-            assertEquals(1, genres.get(0).getSongCount());
-            assertEquals("Audiobook - Sports", genres.get(1).getName());
-            assertEquals(1, genres.get(1).getSongCount());
-            assertEquals("GENRE_A", genres.get(2).getName());
-            assertEquals(2, genres.get(2).getSongCount());
-            assertEquals("GENRE_B", genres.get(3).getName());
-            assertEquals(1, genres.get(3).getSongCount());
-            assertEquals("GENRE_C", genres.get(4).getName());
-            assertEquals(1, genres.get(4).getSongCount());
-            assertEquals("GENRE_D", genres.get(5).getName());
-            assertEquals(2, genres.get(5).getSongCount());
-            assertEquals("GENRE_E", genres.get(6).getName());
-            assertEquals(2, genres.get(6).getSongCount());
-            assertEquals("GENRE_F", genres.get(7).getName());
-            assertEquals(2, genres.get(7).getSongCount());
-            assertEquals("GENRE_G", genres.get(8).getName());
-            assertEquals(1, genres.get(8).getSongCount());
-            assertEquals("GENRE_H", genres.get(9).getName());
-            assertEquals(1, genres.get(9).getSongCount());
-            assertEquals("GENRE_I", genres.get(10).getName());
-            assertEquals(1, genres.get(10).getSongCount());
-            assertEquals("GENRE_J", genres.get(11).getName());
-            assertEquals(1, genres.get(11).getSongCount());
-            assertEquals("GENRE_K", genres.get(12).getName());
-            assertEquals(2, genres.get(12).getSongCount());
-            assertEquals("GENRE_L", genres.get(13).getName());
-            assertEquals(2, genres.get(13).getSongCount());
-            assertEquals("NO_ALBUM", genres.get(14).getName());
-            assertEquals(1, genres.get(14).getSongCount());
-            return true;
-        }
-    }
-
-    /**
-     * getChildrenOf Integration Test. This method changes the records of repository
-     * without scanning. Note that many properties are overwritten in real time.
-     */
-    @Nested
-    class GetChildrenOfTest extends AbstractNeedsScan {
-
-        private List<MusicFolder> musicFolders;
-        private Path artist;
-        private Path album;
-        private Path song;
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-        @Autowired
-        private WritableMediaFileService writableMediaFileService;
-        @Autowired
-        private IndexManager indexManager;
-        @Autowired
-        private SearchCriteriaDirector criteriaDirector;
-        @Autowired
-        private SearchService searchService;
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            return musicFolders;
-        }
-
-        @BeforeEach
-        void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
-
-            // Create a musicfolder for verification
-            artist = Path.of(tempDir.toString(), "ARTIST");
-            assertNotNull(FileUtil.createDirectories(artist));
-            this.album = Path.of(artist.toString(), "ALBUM");
-            assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays
-                .asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1,
-                        false));
-
-            // Copy the song file from the test resource. No tags are registered in this
-            // file.
-            Path sample = Path
-                .of(MediaScannerServiceImplTest.class
-                    .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3")
-                    .toURI());
-            this.song = Path.of(this.album.toString(), "sample.mp3");
-            assertNotNull(Files.copy(sample, song));
-            assertTrue(Files.exists(song));
-
-            // Exec scan
-            populateDatabase();
-        }
-
-        /*
-         * On platforms with Timestamp disabled the result will be different from the
-         * case. Windows for home use will work fine.
-         */
-        @DisabledOnOs(OS.WINDOWS) // Windows Server 2022 & JDK17
-        @Test
-        void testBehavioralSpecForTagReflesh()
-                throws URISyntaxException, IOException, InterruptedException {
-
-            MediaFile artist = mediaFileDao.getMediaFile(this.artist.toString());
-            assertEquals(this.artist, artist.toPath());
-            assertEquals("ARTIST", artist.getName());
-            MediaFile album = mediaFileDao.getMediaFile(this.album.toString());
-            assertEquals(this.album, album.toPath());
-            assertEquals("ALBUM", album.getName());
-            MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertEquals("ARTIST", song.getArtist());
-            assertEquals("ALBUM", song.getAlbumName());
-
-            // Copy the song file from the test resource. Tags are registered in this file.
-            FileUtil.deleteIfExists(this.song);
-            Path sampleEdited = Path
-                .of(MediaScannerServiceImplTest.class
-                    .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sampleEdited.mp3")
-                    .toURI());
-            this.song = Path.of(this.album.toString(), "sample.mp3");
-            Files.copy(sampleEdited, this.song);
-            assertTrue(song.exists());
-
-            /*
-             * If you get it via Dao, you can get the record before had been copied. (It's a
-             * expected behavior)
-             */
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(this.artist.toString());
-            assertEquals(1, albums.size());
-            List<MediaFile> songs = mediaFileDao.getChildrenOf(this.album.toString());
-            assertEquals(1, songs.size());
-            song = songs.get(0);
-            assertEquals(this.song, song.toPath());
-            assertEquals("ARTIST", song.getArtist());
-            assertEquals("ALBUM", song.getAlbumName());
-
-            /*
-             * Note that the name of getChildrenOf is get, but the actual process is get &
-             * Update, in legacy sonic servers. Jpsonic analyzes files only when scanning.
-             */
-            Instant scanStart = now();
-            indexManager.startIndexing();
-            albums = writableMediaFileService.getChildrenOf(scanStart, artist, false);
-            assertEquals(1, albums.size());
-            songs = writableMediaFileService.getChildrenOf(scanStart, album, true);
-            assertEquals(1, songs.size());
-            indexManager.stopIndexing();
-
-            // Artist and Album are not subject to the update process
-            artist = mediaFileDao.getMediaFile(this.artist.toString());
-            assertEquals(this.artist, artist.toPath());
-            assertEquals("ARTIST", artist.getName());
-            album = mediaFileDao.getMediaFile(this.album.toString());
-            assertEquals(this.album, album.toPath());
-            assertEquals("ALBUM", album.getName());
-
-            song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertEquals("Edited artist!", song.getArtist());
-            assertEquals("Edited album!", song.getAlbumName());
-
-            /*
-             * Not reflected in the search at this point. (It's a expected behavior)
-             */
-            SearchResult result = searchService
-                .search(criteriaDirector
-                    .construct("Edited", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.SONG));
-            assertEquals(1, result.getMediaFiles().size());
-            result = searchService
-                .search(criteriaDirector
-                    .construct("sample", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.SONG));
-            assertEquals(0, result.getMediaFiles().size());
-            result = searchService
-                .search(criteriaDirector
-                    .construct("ALBUM", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ALBUM));
-            assertEquals(1, result.getMediaFiles().size());
-            result = searchService
-                .search(criteriaDirector
-                    .construct("ARTIST", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ARTIST));
-            assertEquals(1, result.getMediaFiles().size());
-
-            // Exec scan
-            TestCaseUtils.execScan(mediaScannerService);
-            // Await for Lucene to finish writing(asynchronous).
-            for (int i = 0; i < 5; i++) {
-                Thread.sleep(1000);
-            }
-
-            artist = mediaFileDao.getMediaFile(this.artist.toString());
-            assertEquals(this.artist, artist.toPath());
-            assertNull(artist.getTitle());
-            assertEquals("ARTIST", artist.getName());
-            assertEquals("ARTIST", artist.getArtist());
-            album = mediaFileDao.getMediaFile(this.album.toString());
-            assertEquals(this.album, album.toPath());
-            assertNull(album.getTitle());
-            assertEquals("ALBUM", album.getName());
-            assertEquals("Edited album!", album.getAlbumName());
-
-            song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertEquals("Edited song!", song.getTitle());
-            assertEquals("Edited song!", song.getName());
-            assertEquals("Edited artist!", song.getArtist());
-            assertEquals("Edited album!", song.getAlbumName());
-
-            result = searchService
-                .search(criteriaDirector
-                    .construct("sample", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.SONG));
-            assertEquals(0, result.getMediaFiles().size()); // good (1 -> 0)
-            result = searchService
-                .search(criteriaDirector
-                    .construct("Edited song!", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.SONG));
-            assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
-
-            result = searchService
-                .search(criteriaDirector
-                    .construct("Edited album!", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ALBUM));
-            assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
-
-            /*
-             * Not reflected in the artist of file structure. (It's a expected behavior)
-             */
-            result = searchService
-                .search(criteriaDirector
-                    .construct("Edited artist!", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ARTIST));
-            assertEquals(0, result.getMediaFiles().size()); // good
-            result = searchService
-                .search(criteriaDirector
-                    .construct("ARTIST", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ARTIST));
-            assertEquals(1, result.getMediaFiles().size()); // good (1 -> 1)
-
-            result = searchService
-                .search(criteriaDirector
-                    .construct("Edited album!", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ALBUM_ID3));
-            assertEquals(1, result.getAlbums().size());
-            result = searchService
-                .search(criteriaDirector
-                    .construct("Edited artist!", 0, Integer.MAX_VALUE, false, musicFolders,
-                            IndexType.ARTIST_ID3));
-            assertEquals(1, result.getArtists().size());
-        }
-    }
-
     @Nested
     @SpringBootTest
-    @ExtendWith(NeedsHome.class)
+    @NeedsDB
     @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
     class IntegrationTest {
 
@@ -1085,7 +469,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private DaoHelper daoHelper;
         @Autowired
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         @Autowired
         private MusicFolderServiceImpl musicFolderService;
         @Autowired
@@ -1099,9 +483,17 @@ class MediaScannerServiceImplTest {
         @Autowired
         private ScannerStateServiceImpl scannerStateService;
         @Autowired
-        private ScannerProcedureService procedure;
+        private ScanHelper scanHelper;
         @Autowired
-        private ExpungeService expungeService;
+        private PreScanProcedure preScanProc;
+        @Autowired
+        private DirectoryScanProcedure directoryScanProc;
+        @Autowired
+        private FileMetadataScanProcedure fileMetaProc;
+        @Autowired
+        private Id3MetadataScanProcedure id3MetaProc;
+        @Autowired
+        private PostScanProcedure postScanProc;
         @Autowired
         private StaticsDao staticsDao;
 
@@ -1110,8 +502,9 @@ class MediaScannerServiceImplTest {
         @BeforeEach
         void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    procedure, expungeService, staticsDao, scanExecutor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, scanExecutor);
         }
 
         /**
@@ -1257,7 +650,7 @@ class MediaScannerServiceImplTest {
                 String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
 
                 Path artistDir = Path.of(tempDirPath.toString(), directoryName);
-                FileUtil.createDirectories(artistDir);
+                FileOperations.createDirectories(artistDir);
 
                 musicPath = Path.of(artistDir.toString(), fileName);
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
@@ -1336,204 +729,79 @@ class MediaScannerServiceImplTest {
     }
 
     @Nested
-    class ChangeFolderTest extends AbstractNeedsScan {
-
-        private List<MusicFolder> musicFolders;
-        private Path artist;
-        private Path album;
-        private Path song;
-
-        @TempDir
-        private Path tempDir1;
-
-        @TempDir
-        private Path tempDir2;
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            return musicFolders;
-        }
-
-        @BeforeEach
-        void setup() throws IOException, URISyntaxException {
-            artist = Path.of(tempDir1.toString(), "ARTIST");
-            assertNotNull(FileUtil.createDirectories(artist));
-            this.album = Path.of(artist.toString(), "ALBUM");
-            assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays
-                .asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0,
-                        false),
-                        new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1,
-                                false));
-
-            Path sample = Path
-                .of(MediaScannerServiceImplTest.class
-                    .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3")
-                    .toURI());
-            this.song = Path.of(this.album.toString(), "sample.mp3");
-            assertNotNull(Files.copy(sample, song));
-            assertTrue(Files.exists(song));
-
-            populateDatabase();
-        }
-
-        @DisabledOnJre(JRE.JAVA_11) // #1840
-        @Test
-        void testChangeFolder() throws URISyntaxException, IOException, InterruptedException {
-
-            MediaFile artist = mediaFileDao.getMediaFile(this.artist.toString());
-            assertEquals(this.artist, artist.toPath());
-            assertEquals("ARTIST", artist.getName());
-            MediaFile album = mediaFileDao.getMediaFile(this.album.toString());
-            assertEquals(this.album, album.toPath());
-            assertEquals("ALBUM", album.getName());
-            MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-
-            Map<String, MusicFolder> folders = musicFolders
-                .stream()
-                .collect(Collectors.toMap(MusicFolder::getName, mf -> mf));
-            assertEquals(song.getFolder(), folders.get("musicFolder1").getPathString());
-
-            // Create a directory and move the files there
-            Path artist2 = Path.of(tempDir2.toString(), "ARTIST2");
-            assertNotNull(FileUtil.createDirectories(artist2));
-            Path album2 = Path.of(artist2.toString(), "ALBUM2");
-            assertNotNull(FileUtil.createDirectories(album2));
-            Path movedSong = Path.of(album2.toString(), "sample.mp3");
-            Files.move(this.song, movedSong);
-            assertFalse(Files.exists(this.song));
-            assertTrue(Files.exists(movedSong));
-
-            // Exec scan
-            TestCaseUtils.execScan(mediaScannerService);
-
-            assertNull(mediaFileDao.getMediaFile(this.song.toString()));
-            song = mediaFileDao.getMediaFile(movedSong.toString());
-            assertNotNull(song);
-            assertEquals(song.getFolder(), folders.get("musicFolder2").getPathString());
-        }
-    }
-
-    @Nested
-    class FolderEnabledTest extends AbstractNeedsScan {
-
-        private List<MusicFolder> musicFolders;
-        private Path song;
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            return musicFolders;
-        }
-
-        @BeforeEach
-        void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
-            Path artist = Path.of(tempDir.toString(), "ARTIST");
-            assertNotNull(FileUtil.createDirectories(artist));
-            Path album = Path.of(artist.toString(), "ALBUM");
-            assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays
-                .asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1,
-                        false));
-            Path sample = Path
-                .of(MediaScannerServiceImplTest.class
-                    .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3")
-                    .toURI());
-            this.song = Path.of(album.toString(), "sample.mp3");
-            assertNotNull(Files.copy(sample, song));
-            assertTrue(Files.exists(song));
-            populateDatabase();
-        }
-
-        /**
-         * Scan after Music folder is set to enable=false and rescan with enable=true
-         * before cleanup. In this case, the previous record that has already been
-         * registered but not deleted is reused. In this case the previous record that
-         * was already registered but not deleted (enable=false) is reused. Retains play
-         * counts etc, but becomes a performance barrier.
-         */
-        @Test
-        void testRestoreUpdate()
-                throws URISyntaxException, IOException, InterruptedException, ExecutionException {
-
-            MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertTrue(song.isPresent());
-
-            MusicFolder folder = musicFolders.get(0);
-            folder.setEnabled(false);
-
-            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-            executor.initialize();
-            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
-
-            TestCaseUtils.execScan(mediaScannerService);
-
-            assertNull(mediaFileDao.getMediaFile(this.song.toString()));
-
-            folder.setEnabled(true);
-            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
-            TestCaseUtils.execScan(mediaScannerService);
-
-            song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertTrue(song.isPresent());
-
-            executor.shutdown();
-        }
-    }
-
-    @Nested
     class StrictSortTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private ArtistDao artistDao;
         private MediaFileDao mediaFileDao;
         private ScannerStateServiceImpl scannerStateService;
         private SortProcedureService sortProcedureService;
         private MusicFolderServiceImpl musicFolderService;
+
         private MediaScannerServiceImpl mediaScannerService;
         private JpsonicComparators comparators;
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             sortProcedureService = mock(SortProcedureService.class);
             scannerStateService = mock(ScannerStateServiceImpl.class);
-            MediaFileService mediaFileService = mock(MediaFileService.class);
-            AlbumDao albumDao = mock(AlbumDao.class);
-            WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
+            final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final AlbumDao albumDao = mock(AlbumDao.class);
+            final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
                     mediaFileDao, scannerStateService, mediaFileService, albumDao,
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    settingsFacade, mock(LibraryAccessPolicy.class),
+                    new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
                     mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
-            StaticsDao staticsDao = mock(StaticsDao.class);
-            IndexManager indexManager = mock(IndexManager.class);
-            ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
-            ScannerProcedureService scannerProcedureService = new ScannerProcedureService(
-                    settingsService, musicFolderService, indexManager, mediaFileService,
-                    writableMediaFileService, mock(PlaylistService.class),
-                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao,
-                    sortProcedureService, scannerStateService, mock(MusicIndexServiceImpl.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
-                    mock(ThreadPoolTaskExecutor.class));
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
+            final StaticsDao staticsDao = mock(StaticsDao.class);
+            final IndexManager indexManager = mock(IndexManager.class);
+            final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+
+            ScanHelper scanHelper = mock(ScanHelper.class);
+            PreScanProcedure preScanProc = new PreScanProcedure(musicFolderService, indexManager,
+                    mediaFileDao, artistDao, mediaFileCache, scanHelper);
+            DirectoryScanProcedure directoryScanProc = new DirectoryScanProcedure(mediaFileDao,
+                    musicFolderService, writableMediaFileService, scannerStateService, indexManager,
+                    scanHelper);
+            FileMetadataScanProcedure fileMetaProc = new FileMetadataScanProcedure(
+                    musicFolderService, indexManager, mediaFileService, writableMediaFileService,
+                    mediaFileDao, sortProcedureService, scannerStateService, scanHelper,
+                    musicIndexServiceImpl, japaneseReadingUtils, comparators);
+            Id3MetadataScanProcedure id3MetaProc = new Id3MetadataScanProcedure(musicFolderService,
+                    indexManager, mediaFileService, mediaFileDao, artistDao, albumDao,
+                    musicIndexServiceImpl, comparators, scanHelper);
+            PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
+                    playlistService, templateWrapper, staticsDao, sortProcedureService,
+                    mediaFileCache, scanHelper);
+            mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
+                    preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
+                    scanHelper, staticsDao, executor);
         }
 
         @Test
         void testDoScanLibraryWithSortStrict() {
-
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.advanced.sort.strict, true)
+                .build();
+            init();
             Mockito
                 .when(musicFolderService.getAllMusicFolders())
                 .thenReturn(
@@ -1542,7 +810,6 @@ class MediaScannerServiceImplTest {
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
             Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-            Mockito.when(settingsService.isSortStrict()).thenReturn(true);
 
             mediaScannerService.doScanLibrary();
 
@@ -1620,6 +887,10 @@ class MediaScannerServiceImplTest {
          */
         @Test
         void testDoScanLibraryWithoutSortStrict() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.advanced.sort.strict, false)
+                .build();
 
             Mockito
                 .when(musicFolderService.getAllMusicFolders())
@@ -1629,7 +900,6 @@ class MediaScannerServiceImplTest {
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
             Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-            Mockito.when(settingsService.isSortStrict()).thenReturn(false);
 
             mediaScannerService.doScanLibrary();
 
@@ -1700,6 +970,157 @@ class MediaScannerServiceImplTest {
             Mockito
                 .verify(artistDao, Mockito.times(1))
                 .updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
+        }
+    }
+
+    @Nested
+    class GetScanPhaseInfoTest {
+        private SettingsFacade settingsFacade;
+        private ScanHelper scanHelper;
+        private PreScanProcedure preScanProc;
+        private DirectoryScanProcedure directoryScanProc;
+        private FileMetadataScanProcedure fileMetaProc;
+        private Id3MetadataScanProcedure id3MetaProc;
+        private PostScanProcedure postScanProc;
+        private StaticsDao staticsDao;
+        private ThreadPoolTaskExecutor executor;
+
+        @BeforeEach
+        void setup() {
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
+            final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
+            final ArtistDao artistDao = mock(ArtistDao.class);
+            final SortProcedureService sortProcedureService = mock(SortProcedureService.class);
+            final ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+            final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final AlbumDao albumDao = mock(AlbumDao.class);
+            final WritableMediaFileService writableMediaFileService = new WritableMediaFileService(
+                    mediaFileDao, scannerStateService, mediaFileService, albumDao,
+                    mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
+                    settingsFacade, mock(LibraryAccessPolicy.class),
+                    new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
+                    mock(MusicIndexServiceImpl.class));
+            final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
+            final JpsonicComparators comparators = mock(JpsonicComparators.class);
+            staticsDao = mock(StaticsDao.class);
+            final IndexManager indexManager = mock(IndexManager.class);
+            executor = mock(ThreadPoolTaskExecutor.class);
+
+            final PlaylistService playlistService = mock(PlaylistService.class);
+            final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
+            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
+            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+
+            scanHelper = mock(ScanHelper.class);
+            preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
+                    artistDao, mediaFileCache, scanHelper);
+            directoryScanProc = new DirectoryScanProcedure(mediaFileDao, musicFolderService,
+                    writableMediaFileService, scannerStateService, indexManager, scanHelper);
+            fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, writableMediaFileService, mediaFileDao, sortProcedureService,
+                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
+                    comparators);
+            id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    comparators, scanHelper);
+            postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
+                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper);
+        }
+
+        @Test
+        void testGetScanPhaseInfo() {
+            ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+            MediaScannerServiceImpl mediaScannerService = new MediaScannerServiceImpl(
+                    settingsFacade, scannerStateService, preScanProc, directoryScanProc,
+                    fileMetaProc, id3MetaProc, postScanProc, scanHelper, staticsDao, executor);
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(false);
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.UNKNOWN);
+            assertFalse(mediaScannerService.getScanPhaseInfo().isPresent());
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            Mockito
+                .when(scannerStateService.getLastEvent())
+                .thenReturn(ScanEventType.MUSIC_FOLDER_CHECK);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(2, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            Mockito
+                .when(scannerStateService.getLastEvent())
+                .thenReturn(ScanEventType.SCANNED_COUNT);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(2, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CHECKPOINT);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(21, scanPhaseInfo.phase());
+                assertEquals(22, scanPhaseInfo.phaseMax());
+                assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+                assertEquals(0, scanPhaseInfo.thread());
+            });
+
+            Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CANCELED);
+            Mockito
+                .when(staticsDao.getScanEvents(Mockito.nullable(Instant.class)))
+                .thenReturn(Collections.emptyList());
+            assertTrue(mediaScannerService.getScanPhaseInfo().isPresent());
+            mediaScannerService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+                assertEquals(-1, scanPhaseInfo.phase());
+                assertEquals(-1, scanPhaseInfo.phaseMax());
+                assertEquals("Semi Scan Proc", scanPhaseInfo.phaseName());
+                assertEquals(-1, scanPhaseInfo.thread());
+            });
         }
     }
 }

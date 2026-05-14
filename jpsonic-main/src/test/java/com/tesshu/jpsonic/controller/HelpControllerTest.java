@@ -30,16 +30,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.domain.Version;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.domain.system.Version;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.VersionService;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,31 +48,31 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@ExtendWith(NeedsHome.class) // For static access to log files
+@NeedsHome // For access to log files
 class HelpControllerTest {
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException, IOException {
-        SecurityService securityService = mock(SecurityService.class);
+        UserService userService = mock(UserService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new HelpController(versionService, securityService))
+            .standaloneSetup(new HelpController(versionService, userService))
             .build();
 
         Path testLog = Path.of(TestCaseUtils.jpsonicHomePathForTest(), "jpsonic.log");
         if (!Files.exists(testLog)) {
-            FileUtil.createDirectories(Path.of(TestCaseUtils.jpsonicHomePathForTest()));
+            FileOperations.createDirectories(Path.of(TestCaseUtils.jpsonicHomePathForTest()));
             testLog = Files.createFile(testLog);
             Path dummySource = Path.of(HelpControllerTest.class.getResource("/banner.txt").toURI());
             Files.copy(dummySource, testLog, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.HELP.value()))

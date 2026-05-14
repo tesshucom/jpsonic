@@ -48,29 +48,29 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.PodcastChannel;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.bootstrap.LoggingExceptionResolver;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
-import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
-import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -242,8 +242,8 @@ public class CoverArtController implements CoverArtPresentation {
     }
 
     private void sendImage(Path path, HttpServletResponse response) throws ExecutionException {
-        response
-            .setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(path.toString())));
+        String mime = MediaTypeDetector.getMimeType(PathInspector.getExtension(path));
+        response.setContentType(mime);
         try (InputStream in = Files.newInputStream(path)) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
@@ -253,7 +253,7 @@ public class CoverArtController implements CoverArtPresentation {
 
     private void sendFallback(Integer size, HttpServletResponse response) {
         if (response.getContentType() == null) {
-            response.setContentType(StringUtil.getMimeType("jpeg"));
+            response.setContentType(MediaTypeDetector.getMimeType("jpeg"));
         }
         try (InputStream in = CoverArtController.class.getResourceAsStream("default_cover.jpg")) {
             BufferedImage image = ImageIO.read(in);
@@ -366,9 +366,9 @@ public class CoverArtController implements CoverArtPresentation {
                 releaseCacheWriting(cachePath);
             }
         } catch (InterruptedException e) {
-            FileUtil.deleteIfExists(cachePath);
+            FileOperations.deleteIfExists(cachePath);
         } catch (IOException e) {
-            FileUtil.deleteIfExists(cachePath);
+            FileOperations.deleteIfExists(cachePath);
             throw new UncheckedIOException(e);
         }
         return cachePath;
@@ -388,6 +388,11 @@ public class CoverArtController implements CoverArtPresentation {
      * audio file, the embedded album art is returned. In addition returns the mime
      * type
      */
+    /*
+     * False positive. This method is an intermediate function used internally by
+     * createImage, sendUnscaled. The methods calling this method auto-closes the
+     * resource after this method completes.
+     */
     @NonNull
     Pair<InputStream, String> getImageInputStreamWithType(Path path) throws ExecutionException {
 
@@ -403,8 +408,8 @@ public class CoverArtController implements CoverArtPresentation {
                 throw new IllegalArgumentException(
                         "Image cannot be read: The root path was specified");
             }
-            String mimeType = StringUtil
-                .getMimeType(FilenameUtils.getExtension(fileName.toString()));
+
+            String mimeType = MediaTypeDetector.getMimeType(PathInspector.getExtension(fileName));
             return Pair.of(is, mimeType);
         }
 
@@ -425,9 +430,8 @@ public class CoverArtController implements CoverArtPresentation {
 
     @NonNull
     Path getImageCacheDirectory(int size) {
-        Path dir = Path
-            .of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
-        FileUtil.createDirectories(dir);
+        Path dir = EnvironmentProvider.getInstance().getImageCacheDirectory(size);
+        FileOperations.createDirectories(dir);
         return dir;
     }
 

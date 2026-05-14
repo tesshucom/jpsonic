@@ -281,6 +281,7 @@ public final class Attributes {
             public static final String RATING = "rating";
             public static final String REFRESH = "refresh";
             public static final String RESET = "reset";
+            public static final String ROTATE_NOW = "rotateNow";
             public static final String S = "s";
             public static final String SCAN_NOW = "scanNow";
             public static final String SCAN_CANCEL = "scanCancel";

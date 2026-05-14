@@ -21,54 +21,41 @@
 
 package com.tesshu.jpsonic;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.filter.BootstrapVerificationFilter;
-import com.tesshu.jpsonic.filter.FontSchemeFilter;
-import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
-import com.tesshu.jpsonic.filter.RESTFilter;
-import com.tesshu.jpsonic.filter.RequestEncodingFilter;
-import com.tesshu.jpsonic.filter.ResponseHeaderFilter;
-import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.feature.ui.FontSchemeFilter;
+import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.infrastructure.web.filter.ParameterDecodingFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.RESTFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.RequestEncodingFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.ResponseHeaderFilter;
 import com.tesshu.jpsonic.util.LegacyHsqlUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.directwebremoting.servlet.DwrServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
+import org.springframework.boot.servlet.autoconfigure.MultipartAutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.util.ReflectionUtils;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
         MultipartAutoConfiguration.class,
         LiquibaseAutoConfiguration.class }, scanBasePackages = "com.tesshu.jpsonic")
 @EnableScheduling
-public class Application extends SpringBootServletInitializer
-        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+public class Application extends SpringBootServletInitializer {
 
     /**
      * Registers the DWR servlet.
@@ -81,21 +68,6 @@ public class Application extends SpringBootServletInitializer
                 "/dwr/*");
         servlet.addInitParameter("crossDomainSessionSecurity", "false");
         return servlet;
-    }
-
-    @Bean
-    public FilterRegistrationBean<Filter> bootstrapVerificationFilterRegistration() {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(bootstrapVerificationFiler());
-        registration.addUrlPatterns("/*");
-        registration.setName("BootstrapVerificationFilter");
-        registration.setOrder(1);
-        return registration;
-    }
-
-    @Bean
-    public Filter bootstrapVerificationFiler() {
-        return new BootstrapVerificationFilter();
     }
 
     @Bean
@@ -215,58 +187,6 @@ public class Application extends SpringBootServletInitializer
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return doConfigure(application);
-    }
-
-    private void invokeHelper(@NonNull Class<?> helperClass, @NonNull Class<?> factoryClass,
-            @NonNull Object factoryInstance) {
-        Method configure = ReflectionUtils.findMethod(helperClass, "configure", factoryClass);
-        if (configure == null) {
-            throw new IllegalArgumentException(
-                    "Unreachable code: The configure method does not exist in the helper class.");
-        }
-        try {
-            configure.invoke(null, factoryInstance);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Failed to apply ApplicationHelper.", e);
-            }
-        }
-    }
-
-    @Override
-    public void customize(ConfigurableServletWebServerFactory container) {
-
-        Class<?> factoryClass = null;
-        Class<?> helperClass = null;
-        try {
-            factoryClass = Class
-                .forName(
-                        "org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
-            helperClass = Class.forName("com.tesshu.jpsonic.TomcatApplicationHelper");
-        } catch (NoClassDefFoundError | ClassNotFoundException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No tomcat classes found");
-            }
-        }
-        if (factoryClass == null) {
-            try {
-                factoryClass = Class
-                    .forName(
-                            "org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory");
-                helperClass = Class.forName("com.tesshu.jpsonic.JettyApplicationHelper");
-            } catch (NoClassDefFoundError | ClassNotFoundException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No jetty classes found");
-                }
-            }
-        }
-        if (factoryClass == null || helperClass == null) {
-            throw new IllegalArgumentException(
-                    "Unreachable code: There should be a class according to the profile.");
-        }
-
-        invokeHelper(helperClass, factoryClass, factoryClass.cast(container));
-
     }
 
     public static void main(String[] args) {

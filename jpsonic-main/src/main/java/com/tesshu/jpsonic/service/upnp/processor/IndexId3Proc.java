@@ -21,9 +21,9 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;

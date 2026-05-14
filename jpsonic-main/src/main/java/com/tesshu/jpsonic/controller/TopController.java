@@ -31,20 +31,22 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.AvatarScheme;
-import com.tesshu.jpsonic.domain.InternetRadio;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicFolderContent;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.domain.system.AvatarScheme;
+import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,23 +78,23 @@ public class TopController {
                 ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(),
                 ViewName.MORE.value());
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
     private final VersionService versionService;
     private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
-    public TopController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, ScannerStateService scannerStateService,
+    public TopController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
+            UserService userService, ScannerStateService scannerStateService,
             MusicIndexService musicIndexService, VersionService versionService,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
         this.versionService = versionService;
@@ -109,8 +111,8 @@ public class TopController {
 
         Map<String, Object> map = LegacyMap.of();
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         map.put("user", user);
         map.put("showCurrentSongInfo", userSettings.isShowCurrentSongInfo());
         map.put("closeDrawer", userSettings.isCloseDrawer());
@@ -119,7 +121,7 @@ public class TopController {
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
-        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useRadio", settingsFacade.get(SKeys.general.legacy.useRadio));
 
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
@@ -131,11 +133,11 @@ public class TopController {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         }
 
-        String username = securityService.getCurrentUsernameStrict(request);
+        String username = userService.getCurrentUsernameStrict(request);
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
 
@@ -156,14 +158,14 @@ public class TopController {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
-        map.put("brand", SettingsService.getBrand());
+        map.put("brand", EnvironmentProvider.getInstance().getBrand());
 
         MusicFolderContent musicFolderContent = musicIndexService
             .getMusicFolderContent(musicFoldersToUse);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
-        map.put("user", securityService.getCurrentUserStrict(request));
+        map.put("user", userService.getCurrentUserStrict(request));
         mainView.ifPresent(v -> {
             if (validateMainViewName(v)) {
                 map.put("mainView", v);
@@ -190,14 +192,11 @@ public class TopController {
         }
 
         long lastModified = Instant.now().toEpochMilli();
-        String username = securityService.getCurrentUsernameStrict(request);
-
-        // When was settings last changed?
-        lastModified = Math.max(lastModified, settingsService.getSettingsChanged());
+        String username = userService.getCurrentUsernameStrict(request);
 
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = userService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 try {
@@ -229,7 +228,7 @@ public class TopController {
         }
 
         // When was user settings last changed?
-        UserSettings userSettings = securityService.getUserSettings(username);
+        UserSettings userSettings = userService.getUserSettings(username);
         lastModified = Math.max(lastModified, userSettings.getChanged().toEpochMilli());
 
         return lastModified;
@@ -245,10 +244,10 @@ public class TopController {
         // Note: UserSettings.setChanged() is intentionally not called. This would break
         // browser caching
         // of the left frame.
-        UserSettings settings = securityService
-            .getUserSettings(securityService.getCurrentUsernameStrict(request));
+        UserSettings settings = userService
+            .getUserSettings(userService.getCurrentUsernameStrict(request));
         settings.setSelectedMusicFolderId(musicFolderId);
-        securityService.updateUserSettings(settings);
+        userService.updateUserSettings(settings);
 
         return true;
     }

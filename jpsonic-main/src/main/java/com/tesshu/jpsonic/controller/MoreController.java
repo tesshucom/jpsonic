@@ -25,12 +25,12 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,14 +50,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class MoreController {
 
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final SearchService searchService;
 
-    public MoreController(MusicFolderService musicFolderService, SecurityService securityService,
+    public MoreController(MusicFolderService musicFolderService, UserService userService,
             SearchService searchService) {
         super();
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.searchService = searchService;
     }
 
@@ -65,7 +65,7 @@ public class MoreController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
 
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService
@@ -76,12 +76,11 @@ public class MoreController {
 
         ModelAndView result = new ModelAndView();
         result
-            .addObject("model",
-                    LegacyMap
-                        .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                                searchService.getGenres(false), "currentYear",
-                                Calendar.getInstance().get(Calendar.YEAR), "musicFolders",
-                                musicFolders, "brand", SettingsService.getBrand()));
+            .addObject("model", LegacyMap
+                .of("user", user, "uploadDirectory", uploadDirectory, "genres",
+                        searchService.getGenres(false), "currentYear",
+                        Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
+                        "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;
     }
 }

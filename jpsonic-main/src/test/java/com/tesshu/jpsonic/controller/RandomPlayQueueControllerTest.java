@@ -39,13 +39,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -77,13 +77,12 @@ class RandomPlayQueueControllerTest {
         when(indexManager.toPreAnalyzedGenres(anyList(), nullable(Boolean.class)))
             .thenReturn(Collections.emptyList());
         controller = new RandomPlayQueueController(mock(MusicFolderService.class),
-                mock(SecurityService.class), playerService, mock(MediaFileService.class),
-                indexManager);
+                mock(UserService.class), playerService, mock(MediaFileService.class), indexManager);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders

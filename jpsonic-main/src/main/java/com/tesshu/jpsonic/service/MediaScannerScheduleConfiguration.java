@@ -25,6 +25,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -42,19 +45,19 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
         .getLogger(MediaScannerScheduleConfiguration.class);
 
     private final TaskScheduler taskScheduler;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MediaScannerService mediaScannerService;
 
     public MediaScannerScheduleConfiguration(TaskScheduler taskScheduler,
-            SettingsService settingsService, MediaScannerService mediaScannerService) {
+            SettingsFacade settingsFacade, MediaScannerService mediaScannerService) {
         super();
         this.taskScheduler = taskScheduler;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.mediaScannerService = mediaScannerService;
     }
 
     final Instant createFirstTime() {
-        int hour = getSettingsService().getIndexCreationHour();
+        int hour = getSettingsFacade().get(SKeys.musicFolder.scan.indexCreationHour);
         LocalDateTime now = now().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
         if (now.compareTo(nextRun) > 0) {
@@ -64,8 +67,8 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
         return now.plus(initialDelay, ChronoUnit.MILLIS).atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    private SettingsService getSettingsService() {
-        return settingsService;
+    SettingsFacade getSettingsFacade() {
+        return settingsFacade;
     }
 
     @Override
@@ -86,7 +89,8 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
             }
 
             // In addition, create index immediately if it doesn't exist on disk.
-            if (SettingsService.isScanOnBoot() && mediaScannerService.neverScanned()) {
+            if (EnvironmentProvider.getInstance().isScanOnBoot()
+                    && mediaScannerService.neverScanned()) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Media library never scanned. Doing it now.");
                 }

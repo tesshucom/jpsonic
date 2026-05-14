@@ -64,6 +64,9 @@
         -->
         <exclude name="UnnecessaryWarningSuppression" />
 
+        <!-- The log library is no longer scheduled to be changed. -->
+        <exclude name="GuardLogStatement"/>
+
     </rule>
 
     <!-- Java Rules:Code Style -->

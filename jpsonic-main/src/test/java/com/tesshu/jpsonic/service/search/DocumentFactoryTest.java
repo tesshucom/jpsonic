@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,33 +28,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.annotation.Documented;
 
-import com.tesshu.jpsonic.dao.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderTestDataUtils;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import org.apache.lucene.document.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class DocumentFactoryTest {
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private DocumentFactory documentFactory;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        documentFactory = new DocumentFactory(settingsService,
-                new JapaneseReadingUtils(settingsService));
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        documentFactory = new DocumentFactory(settingsFacade,
+                new JapaneseReadingUtils(settingsFacade));
     }
 
     @Test
@@ -326,10 +326,10 @@ class DocumentFactoryTest {
             song.setComposer(null);
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertNull(document.get(FieldNamesConstants.ARTIST));
             assertNull(document.get(FieldNamesConstants.ARTIST_READING));
@@ -347,10 +347,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("Composer");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("Artist", document.get(FieldNamesConstants.ARTIST));
             assertNull(document.get(FieldNamesConstants.ARTIST_READING));
@@ -365,10 +365,10 @@ class DocumentFactoryTest {
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -387,10 +387,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -402,16 +402,21 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
         @Test
         void c05() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -424,9 +429,14 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c06() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistReading("analyzed artist-reading-value");
@@ -436,10 +446,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -454,10 +464,15 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c07() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-            Mockito.when(settingsService.isForceInternalValueInsteadOfTags()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistSort("あーてぃすと");
@@ -467,10 +482,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
@@ -486,16 +501,22 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
         @Test
         void c08() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
             assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
@@ -507,9 +528,15 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c09() {
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .withBoolean(SKeys.advanced.index.forceInternalValueInsteadOfTags, true)
+                .build();
+            documentFactory = new DocumentFactory(settingsFacade,
+                    new JapaneseReadingUtils(settingsFacade));
+
             MediaFile song = createSong();
             song.setArtist("アーティスト");
             song.setArtistSort("あーてぃすと");
@@ -517,10 +544,10 @@ class DocumentFactoryTest {
             song.setComposerSortRaw("サッキョクシャ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory
-                .acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                .applyArtistInfo(document, song.getArtist(), song.getArtistSort(),
                         song.getArtistReading());
             documentFactory
-                .acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                .applyComposerInfo(document, song.getComposer(), song.getComposerSortRaw(),
                         song.getComposerSort());
             assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
             assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));

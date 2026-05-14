@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
+import com.tesshu.jpsonic.infrastructure.web.filter.ParameterDecodingFilter;
 import com.tesshu.jpsonic.util.StringUtilBase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;

@@ -29,8 +29,8 @@ import chameleon.playlist.Media;
 import chameleon.playlist.Playlist;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistProvider;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -32,16 +32,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.connector.api.JsonResult;
 import com.tesshu.jpsonic.util.connector.api.Response;
 import com.tesshu.jpsonic.util.connector.api.Starred;
@@ -52,7 +53,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -81,7 +82,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
     @Autowired
     private MockMvc mvc;
     @Autowired
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     @Autowired
     private MediaFileDao mediaFileDao;
     @Autowired
@@ -123,10 +124,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         }
     }
 
-    @Test
-    @Order(1)
     @Decisions.DataType.FileStructure
     @Decisions.IgnoreTimestamp.False
+    @Order(1)
+    @Test
     void testStarAndUnstar() throws Exception {
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
@@ -232,10 +233,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred.getSong().size());
     }
 
-    @Test
-    @Order(2)
     @Decisions.DataType.FileStructure
     @Decisions.IgnoreTimestamp.True
+    @Order(2)
+    @Test
     void testStarAndUnstarAfterScanWithIgnoreStamp() throws Exception {
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
@@ -276,8 +277,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
             .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
 
         // getStarred
@@ -346,10 +346,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred.getSong().size());
     }
 
-    @Test
-    @Order(3)
     @Decisions.DataType.Id3
     @Decisions.IgnoreTimestamp.False
+    @Order(3)
+    @Test
     void testStarAndUnstar2() throws Exception {
 
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -447,10 +447,10 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
         assertEquals(0, starred2.getSong().size());
     }
 
-    @Test
-    @Order(4)
     @Decisions.DataType.Id3
     @Decisions.IgnoreTimestamp.True
+    @Order(4)
+    @Test
     void testStarAndUnstar2AfterScanWithIgnoreStamp() throws Exception {
 
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -486,8 +486,7 @@ class SubsonicRESTStarredTest extends AbstractNeedsScan {
             .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
         // Scan with IgnoreFileTimestamps enabled
-        settingsService.setIgnoreFileTimestamps(true);
-        settingsService.save();
+        settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
 
         // getStarred

@@ -22,9 +22,9 @@ package com.tesshu.jpsonic.ajax;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,12 +39,12 @@ class StarServiceTest {
     @BeforeEach
     void setup() {
         mediaFileDao = mock(MediaFileDao.class);
-        starService = new StarService(mock(SecurityService.class), mediaFileDao,
+        starService = new StarService(mock(UserService.class), mediaFileDao,
                 AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testStar() {
 
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
@@ -59,8 +59,8 @@ class StarServiceTest {
         assertEquals(ServiceMockUtils.ADMIN_NAME, nameCaptor.getValue());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testUnstar() {
         ArgumentCaptor<Integer> id = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);

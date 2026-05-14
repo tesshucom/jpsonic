@@ -26,10 +26,10 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -46,22 +46,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping({ "/playlists", "/playlists.view", })
 public class PlaylistsController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlaylistService playlistService;
     private final ViewAsListSelector viewSelector;
 
-    public PlaylistsController(SecurityService securityService, PlaylistService playlistService,
+    public PlaylistsController(UserService userService, PlaylistService playlistService,
             ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.playlistService = playlistService;
         this.viewSelector = viewSelector;
     }
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        User user = securityService.getCurrentUserStrict(request);
-        List<com.tesshu.jpsonic.domain.Playlist> playlists = playlistService
+        User user = userService.getCurrentUserStrict(request);
+        List<com.tesshu.jpsonic.persistence.api.entity.Playlist> playlists = playlistService
             .getReadablePlaylistsForUser(user.getUsername());
         model
             .addAttribute("model", LegacyMap
@@ -72,9 +72,9 @@ public class PlaylistsController {
     }
 
     // VO
-    public static class Playlist extends com.tesshu.jpsonic.domain.Playlist {
+    public static class Playlist extends com.tesshu.jpsonic.persistence.api.entity.Playlist {
 
-        Playlist(com.tesshu.jpsonic.domain.Playlist playlist) {
+        Playlist(com.tesshu.jpsonic.persistence.api.entity.Playlist playlist) {
             super(playlist.getId(), playlist.getUsername(), playlist.isShared(), playlist.getName(),
                     playlist.getComment(), playlist.getFileCount(), playlist.getDurationSeconds(),
                     playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());

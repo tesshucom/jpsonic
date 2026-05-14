@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 
 public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album)
         implements CompositeModel {

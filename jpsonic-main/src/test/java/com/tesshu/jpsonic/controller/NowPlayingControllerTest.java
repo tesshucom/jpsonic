@@ -27,13 +27,13 @@ import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.TransferStatus;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +53,7 @@ class NowPlayingControllerTest {
     private PlayerService playerService;
     private StatusService statusService;
     private MediaFileService mediaFileService;
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private NowPlayingController controller;
     private MockMvc mockMvc;
 
@@ -62,14 +62,14 @@ class NowPlayingControllerTest {
         playerService = mock(PlayerService.class);
         statusService = mock(StatusService.class);
         mediaFileService = mock(MediaFileService.class);
-        securityService = mock(SecurityService.class);
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
         controller = new NowPlayingController(playerService, statusService, mediaFileService,
-                securityService);
+                libraryAccessPolicy);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGetToHome() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/nowPlaying.view"))
@@ -80,8 +80,8 @@ class NowPlayingControllerTest {
         assertNotNull(result);
     }
 
-    @Test
     @WithMockUser(username = "admin")
+    @Test
     void testGetToMain() throws Exception {
         Player player = new Player();
         Mockito
@@ -94,7 +94,7 @@ class NowPlayingControllerTest {
         Mockito
             .when(statusService.getStreamStatusesForPlayer(player))
             .thenReturn(Arrays.asList(status));
-        Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
+        Mockito.when(libraryAccessPolicy.isReadAllowed(status.toPath())).thenReturn(true);
         MediaFile nowPlaing = new MediaFile();
         Mockito.when(mediaFileService.getMediaFile(status.toPath())).thenReturn(nowPlaing);
         MediaFile parent = new MediaFile();
@@ -151,18 +151,18 @@ class NowPlayingControllerTest {
     @Nested
     class GetNowPlayingFileTest {
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.Empty
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c1() {
             Player player = new Player();
             assertNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.NotReadAllowed
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c2() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
@@ -170,15 +170,15 @@ class NowPlayingControllerTest {
             Mockito
                 .when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(status));
-            Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(false);
+            Mockito.when(libraryAccessPolicy.isReadAllowed(status.toPath())).thenReturn(false);
             assertNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.ReadAllowed
         @GetNowPlayingFileDecisions.Conditions.MediaFile.NonNull
         @GetNowPlayingFileDecisions.Result.NonNull
+        @Test
         void c3() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
@@ -186,18 +186,18 @@ class NowPlayingControllerTest {
             Mockito
                 .when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(status));
-            Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
+            Mockito.when(libraryAccessPolicy.isReadAllowed(status.toPath())).thenReturn(true);
             Mockito
                 .when(mediaFileService.getMediaFile(status.toPath()))
                 .thenReturn(new MediaFile());
             assertNotNull(controller.getNowPlayingFile(player));
         }
 
-        @Test
         @GetNowPlayingFileDecisions.Conditions.Statuses.NotEmpty
         @GetNowPlayingFileDecisions.Conditions.Statuses.Path.ReadAllowed
         @GetNowPlayingFileDecisions.Conditions.MediaFile.Null
         @GetNowPlayingFileDecisions.Result.Null
+        @Test
         void c4() {
             Player player = new Player();
             TransferStatus status = new TransferStatus();
@@ -205,7 +205,7 @@ class NowPlayingControllerTest {
             Mockito
                 .when(statusService.getStreamStatusesForPlayer(player))
                 .thenReturn(Arrays.asList(status));
-            Mockito.when(securityService.isReadAllowed(status.toPath())).thenReturn(true);
+            Mockito.when(libraryAccessPolicy.isReadAllowed(status.toPath())).thenReturn(true);
             assertNull(controller.getNowPlayingFile(player));
         }
     }

@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.service.search;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.tesshu.jpsonic.spring.LifecyclePhase;
+import com.tesshu.jpsonic.infrastructure.core.LifecyclePhase;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 

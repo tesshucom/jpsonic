@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -50,14 +50,13 @@ class StarredControllerTest {
     void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
             .standaloneSetup(new StarredController(mock(MusicFolderService.class),
-                    mock(SecurityService.class), mock(PlayerService.class),
-                    mock(MediaFileDao.class), mock(MediaFileService.class),
-                    mock(ViewAsListSelector.class)))
+                    mock(UserService.class), mock(PlayerService.class), mock(MediaFileDao.class),
+                    mock(MediaFileService.class), mock(ViewAsListSelector.class)))
             .build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/starred.view"))

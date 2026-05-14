@@ -31,19 +31,21 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand.MusicFolderInfo;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -63,32 +65,37 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class MusicFolderSettingsControllerTest {
 
     private static final String VIEW_NAME = "musicFolderSettings";
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private MusicFolderServiceImpl musicFolderService;
     private MediaScannerService mediaScannerService;
     private MusicFolderSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+    void setup() {
+        settingsFacade = SettingsFacadeBuilder.create().build();
+        init();
+    }
+
+    @Ignore
+    void init() {
         musicFolderService = mock(MusicFolderServiceImpl.class);
         mediaScannerService = mock(MediaScannerService.class);
-        controller = new MusicFolderSettingsController(settingsService, musicFolderService,
-                mock(SecurityService.class), mediaScannerService, mock(ShareService.class),
+        controller = new MusicFolderSettingsController(settingsFacade, musicFolderService,
+                mock(UserService.class), mediaScannerService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @Order(1)
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGet() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -104,9 +111,9 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(2)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoScan() throws Exception {
 
         Mockito.doNothing().when(mediaScannerService).scanLibrary();
@@ -129,34 +136,9 @@ class MusicFolderSettingsControllerTest {
         Mockito.verify(mediaScannerService, Mockito.times(1)).scanLibrary();
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    @Order(3)
-    void testDoExpunge() throws Exception {
-
-        Mockito.doNothing().when(mediaScannerService).expunge();
-
-        MvcResult result = mockMvc
-            .perform(MockMvcRequestBuilders
-                .get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())
-                .param(Attributes.Request.NameConstants.EXPUNGE, "true"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andReturn();
-        assertNotNull(result);
-        ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) modelAndView
-            .getModelMap()
-            .get(Attributes.Model.Command.VALUE);
-        assertNotNull(command);
-
-        Mockito.verify(mediaScannerService, Mockito.times(1)).expunge();
-    }
-
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(4)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testPost() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -182,9 +164,9 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(result);
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(5)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testCreateMusicFolder() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -224,9 +206,9 @@ class MusicFolderSettingsControllerTest {
             .createMusicFolder(Mockito.any(Instant.class), Mockito.nullable(MusicFolder.class));
     }
 
-    @Test
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(6)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testUpdateAndDelteMusicFolder() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -289,10 +271,16 @@ class MusicFolderSettingsControllerTest {
         assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
     }
 
-    @Test
     @Order(11)
+    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfIgnoreFileTimestamps() throws Exception {
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, captor)
+            .build();
+        init();
 
         MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -303,13 +291,15 @@ class MusicFolderSettingsControllerTest {
         assertFalse(command.isIgnoreFileTimestamps());
 
         command.setIgnoreFileTimestamps(true);
-        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(captor.getValue());
 
         captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .captureBoolean(SKeys.musicFolder.scan.ignoreFileTimestamps, captor)
+            .build();
+        init();
         command.setIgnoreFileTimestamps(false);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertFalse(captor.getValue());
@@ -385,17 +375,17 @@ class MusicFolderSettingsControllerTest {
     @Nested
     class ToMusicFolderTest {
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.Null
         @ToMusicFolderDecisions.Results.Empty
+        @Test
         void c01() {
             MusicFolderInfo info = new MusicFolderInfo();
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Traversal
         @ToMusicFolderDecisions.Results.Empty
+        @Test
         void c02() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/../../bar";
@@ -403,9 +393,9 @@ class MusicFolderSettingsControllerTest {
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
         @ToMusicFolderDecisions.Results.Empty
+        @Test
         void c03() {
             List<MusicFolder> oldMusicFolders = Arrays
                 .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
@@ -418,9 +408,9 @@ class MusicFolderSettingsControllerTest {
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NewPathStartWithOldPath
         @ToMusicFolderDecisions.Results.Empty
+        @Test
         void c04() {
             List<MusicFolder> oldMusicFolders = Arrays
                 .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null, 0, false));
@@ -433,10 +423,10 @@ class MusicFolderSettingsControllerTest {
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
+        @Test
         void c05() {
             List<MusicFolder> oldMusicFolders = Arrays
                 .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
@@ -450,10 +440,10 @@ class MusicFolderSettingsControllerTest {
             assertFalse(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.Equals
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
+        @Test
         void c06() {
             List<MusicFolder> oldMusicFolders = Arrays
                 .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
@@ -467,11 +457,11 @@ class MusicFolderSettingsControllerTest {
             assertFalse(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
+        @Test
         void c07() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
@@ -479,11 +469,11 @@ class MusicFolderSettingsControllerTest {
             assertFalse(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Root
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
+        @Test
         void c08() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/";
@@ -491,12 +481,12 @@ class MusicFolderSettingsControllerTest {
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
 
-        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Invalid
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
+        @Test
         void c09() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/:";

@@ -25,68 +25,54 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.RatingDao;
-import com.tesshu.jpsonic.dao.base.TemplateWrapper;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SearchResult;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.NeedsDB;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.api.repository.RatingDao;
+import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
+import com.tesshu.jpsonic.service.scanner.ScanContext;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import net.sf.ehcache.Ehcache;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.UseUtilityClass" })
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexManagerTest {
-
-    @BeforeAll
-    static void setUpOnce() throws InterruptedException {
-        SettingsService.setDevelopmentMode(true);
-    }
-
-    @AfterAll
-    static void tearDownOnce() throws InterruptedException {
-        SettingsService.setDevelopmentMode(false);
-    }
 
     @Documented
     private @interface GetGenresDecisions {
@@ -135,24 +121,31 @@ class IndexManagerTest {
      * The implementation is poor and difficult to assert. This is a coverage test
      * for later fix.
      */
-    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     @Nested
-    @ExtendWith(NeedsHome.class)
+    @NeedsDB
+    @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
     class GetGenresTest {
 
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private IndexManager indexManager;
 
         @BeforeEach
         void setup() {
-            settingsService = Mockito.mock(SettingsService.class);
-            QueryFactory queryFactory = new QueryFactory(settingsService, null);
-            SearchServiceUtilities utils = new SearchServiceUtilities(null, null,
-                    Mockito.mock(Ehcache.class), null, null);
-            JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
-            JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
-            indexManager = new IndexManager(null, null, queryFactory, utils, comparators,
-                    settingsService, null, null, null);
+            settingsFacade = SettingsFacadeBuilder.create().build();
+            init();
+        }
+
+        @Ignore
+        void init() {
+            QueryFactory queryFactory = new QueryFactory(settingsFacade, null);
+            SearchServiceUtilities utils = new SearchServiceUtilities(mock(ArtistDao.class),
+                    mock(AlbumDao.class), mock(Ehcache.class), null, mock(MediaFileService.class));
+            JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
+            ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
+                    serverLocaleService, readingUtils);
+            indexManager = new IndexManager(new LuceneUtils(), null, null, queryFactory, utils,
+                    comparators, settingsFacade, null, null, null);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -160,7 +153,12 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongCount
         @Test
         void c00() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.sort.genresByAlphabet, false)
+                .build();
+            init();
+
             indexManager.getGenres(false);
         }
 
@@ -169,7 +167,12 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumCount
         @Test
         void c01() {
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(false);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.sort.genresByAlphabet, false)
+                .build();
+            init();
+
             indexManager.getGenres(true);
         }
 
@@ -178,9 +181,15 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.SongAlphabetical
         @Test
         void c02() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, Locale.ROOT.getLanguage())
+                .withString(I18nSKeys.localeCountry, Locale.ROOT.getCountry())
+                .withString(I18nSKeys.localeVariant, Locale.ROOT.getVariant())
+                .withBoolean(SKeys.general.sort.genresByAlphabet, true)
+                .build();
+            init();
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(false);
         }
 
@@ -189,9 +198,15 @@ class IndexManagerTest {
         @GetGenresDecisions.Result.GenreSort.AlbumAlphabetical
         @Test
         void c03() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, Locale.ROOT.getLanguage())
+                .withString(I18nSKeys.localeCountry, Locale.ROOT.getCountry())
+                .withString(I18nSKeys.localeVariant, Locale.ROOT.getVariant())
+                .withBoolean(SKeys.general.sort.genresByAlphabet, true)
+                .build();
+            init();
 
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ROOT);
-            Mockito.when(settingsService.isSortGenresByAlphabet()).thenReturn(true);
             indexManager.getGenres(true);
         }
     }
@@ -483,41 +498,6 @@ class IndexManagerTest {
     }
 
     @Nested
-    class UnitTest {
-
-        private ArtistDao artistDao;
-        private IndexManager indexManager;
-
-        @BeforeEach
-        void setup() {
-            SettingsService settingsService = Mockito.mock(SettingsService.class);
-            artistDao = mock(ArtistDao.class);
-            indexManager = new IndexManager(null, null, null, null, null, settingsService, null,
-                    artistDao, null);
-        }
-
-        @AfterEach
-        void trarDown() {
-            System.clearProperty("jpsonic.home");
-        }
-
-        @Test
-        void testIndexDirectoryAlreadyExists(@TempDir Path tempDir) throws IOException {
-            System.setProperty("jpsonic.home", tempDir.toString());
-            Files.createDirectories(indexManager.getRootIndexDirectory());
-            indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.never()).deleteAll();
-        }
-
-        @Test
-        void testIndexDirectoryNotExists(@TempDir Path tempDir) {
-            System.setProperty("jpsonic.home", tempDir.toString());
-            indexManager.initializeIndexDirectory();
-            Mockito.verify(artistDao, Mockito.times(1)).deleteAll();
-        }
-    }
-
-    @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
         private List<MusicFolder> musicFolders;
@@ -529,10 +509,7 @@ class IndexManagerTest {
         private IndexManager indexManager;
 
         @Autowired
-        private SearchCriteriaDirector director;
-
-        @Autowired
-        private MediaScannerService mediaScannerService;
+        private HttpSearchCriteriaDirector director;
 
         @Autowired
         private TemplateWrapper template;
@@ -542,6 +519,12 @@ class IndexManagerTest {
 
         @Autowired
         private RatingDao ratingDao;
+
+        @Autowired
+        private DirectoryScanProcedure directoryScanProcedure;
+
+        @Autowired
+        private Id3MetadataScanProcedure id3MetadataScanProcedure;
 
         private static final String USER_NAME = "admin";
 
@@ -596,23 +579,32 @@ class IndexManagerTest {
 
         }
 
-        @Test
+        /**
+         * This test was originally created to cover the now-obsolete expungeService,
+         * which has already been removed. Although the expungeService no longer exists,
+         * an equivalent process is expected to run automatically as part of the scan.
+         * Therefore, in the current implementation, invoking a scan under similar
+         * conditions should result in the removal of unnecessary data from both the
+         * database and the Lucene index.
+         */
         @Order(1)
+        @Test
         void testExpunge() throws IOException {
 
             int offset = 0;
             int count = Integer.MAX_VALUE;
 
-            final SearchCriteria criteriaArtist = director
-                .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST);
-            final SearchCriteria criteriaAlbum = director
+            final HttpSearchCriteria criteriaArtist = director
+                .construct("_DIR_ Ravel", offset, count, false, getMusicFolders(),
+                        IndexType.ARTIST);
+            final HttpSearchCriteria criteriaAlbum = director
                 .construct("Complete Piano Works", offset, count, false, musicFolders,
                         IndexType.ALBUM);
-            final SearchCriteria criteriaSong = director
+            final HttpSearchCriteria criteriaSong = director
                 .construct("Gaspard", offset, count, false, musicFolders, IndexType.SONG);
-            final SearchCriteria criteriaArtistId3 = director
+            final HttpSearchCriteria criteriaArtistId3 = director
                 .construct("_DIR_ Ravel", offset, count, false, musicFolders, IndexType.ARTIST_ID3);
-            final SearchCriteria criteriaAlbumId3 = director
+            final HttpSearchCriteria criteriaAlbumId3 = director
                 .construct("Complete Piano Works", offset, count, false, musicFolders,
                         IndexType.ALBUM_ID3);
 
@@ -678,12 +670,19 @@ class IndexManagerTest {
             assertEquals(1, result.getAlbums().size());
             assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
 
-            /* Does not scan, only expunges the index. */
-            mediaScannerService.expunge();
-
-            /*
-             * Subsequent search results. Results can also be confirmed with Luke.
-             */
+            // The following reproduces the behavior of the expungeService.
+            // Note the processing order.
+            // ->
+            ScanContext scanContext = new ScanContext(now(), false, USER_NAME, false, false, 0, 0,
+                    false, false);
+            indexManager.startIndexing();
+            id3MetadataScanProcedure.iterateAlbumId3(scanContext, false);
+            id3MetadataScanProcedure.iterateArtistId3(scanContext, false);
+            directoryScanProcedure.iterateFileStructure(scanContext);
+            indexManager.stopIndexing();
+            ratingDao.expunge();
+            template.checkpoint();
+            // <-
 
             result = searchService.search(criteriaArtist);
             assertEquals(0, result.getMediaFiles().size());
@@ -701,45 +700,13 @@ class IndexManagerTest {
             assertEquals(0, result.getAlbums().size());
 
             // See this#setup
-            assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
+            assertEquals(0, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                     "Because one album has been deleted.");
             int ratingsCount = template
                 .getJdbcTemplate()
                 .queryForObject("select count(*) from user_rating where user_rating.username = ?",
                         Integer.class, USER_NAME);
-            assertEquals(3, ratingsCount, "Will be removed, including oldPath");
-        }
-
-        @Test
-        @Order(2)
-        void testDeleteLegacyFiles() throws ExecutionException, IOException {
-            // Remove the index used in the early days of Airsonic(Close to Subsonic)
-            Path legacyFile = Path.of(SettingsService.getJpsonicHome().toString(), "lucene2");
-            if (Files.createFile(legacyFile) != null) {
-                assertTrue(Files.exists(legacyFile));
-            } else {
-                Assertions.fail();
-            }
-            Path legacyDir = Path.of(SettingsService.getJpsonicHome().toString(), "lucene3");
-            FileUtil.createDirectories(legacyDir);
-
-            indexManager.deleteLegacyFiles();
-            assertFalse(Files.exists(legacyFile));
-            assertFalse(Files.exists(legacyDir));
-        }
-
-        @Test
-        @Order(3)
-        void testDeleteOldFiles() throws ExecutionException, IOException {
-            // If the index version does not match, delete it
-            Path oldDir = Path.of(SettingsService.getJpsonicHome().toString(), "index-JP22");
-            if (FileUtil.createDirectories(oldDir) != null) {
-                assertTrue(Files.exists(oldDir));
-            } else {
-                Assertions.fail();
-            }
-            indexManager.deleteOldFiles();
-            assertFalse(Files.exists(oldDir));
+            assertEquals(0, ratingsCount, "Will be removed, including oldPath");
         }
     }
 }

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tesshu.jpsonic.spring.LifecyclePhase;
+import com.tesshu.jpsonic.infrastructure.core.LifecyclePhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,12 +41,6 @@ class PodcastDisposerTest {
     void setUp() {
         podcastService = mock(PodcastServiceImpl.class);
         disposer = new PodcastDisposer(podcastService);
-    }
-
-    @Test
-    void testStartCallsInit() {
-        disposer.start();
-        verify(podcastService).init();
     }
 
     @Test

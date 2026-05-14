@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,28 +29,34 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.domain.system.IndexScheme;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import org.apache.lucene.search.Query;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3. (A slight difference) If you
  * face a problem reaping from 3.x to 7.x It may be faster to look at the query than to look at the
  * API.
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class QueryFactoryTest {
 
+    private LuceneQueryBuilder queryBuilder;
     private QueryFactory queryFactory;
 
     private static final String SEPA = System.getProperty("file.separator");
@@ -71,16 +76,26 @@ class QueryFactoryTest {
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays
         .asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
 
     @BeforeEach
     void setup() {
-        settingsService = mock(SettingsService.class);
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
+            .build();
+        init();
     }
 
-    @Nested
+    @Ignore
+    void init() {
+        AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsFacade);
+        queryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsFacade);
+        queryFactory = new QueryFactory(settingsFacade, analyzerFactory);
+    }
+
     @Order(1)
+    @Nested
     class FilterFieldsTest {
 
         @Test
@@ -90,11 +105,15 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
             assertArrayEquals(notContainsComposer,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withBoolean(SKeys.general.search.searchComposer, true)
+                .build();
+            init();
             String[] containsComposer = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -102,7 +121,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
             assertArrayEquals(containsComposer,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
         }
@@ -110,43 +129,57 @@ class QueryFactoryTest {
         @Test
         void testScheme() {
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.NATIVE_JAPANESE.name())
+                .build();
+            init();
+
             String[] notRomanize = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
             assertArrayEquals(notRomanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            init();
+
             assertArrayEquals(notRomanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            init();
             String[] romanize = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING,
                     FieldNamesConstants.ARTIST_READING_ROMANIZED };
             assertArrayEquals(romanize,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), false)
                         .toArray(new String[0]));
 
             // and Composer
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.NATIVE_JAPANESE.name())
+                .build();
+            init();
             String[] notRomanizeAndCmp = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -154,21 +187,27 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
             assertArrayEquals(notRomanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+                .build();
+            init();
             assertArrayEquals(notRomanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
 
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(SKeys.advanced.index.indexSchemeName,
+                        IndexScheme.ROMANIZED_JAPANESE.name())
+                .build();
+            init();
             String[] romanizeAndCmp = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
@@ -178,7 +217,7 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER_READING, //
                     FieldNamesConstants.COMPOSER_READING_ROMANIZED };
             assertArrayEquals(romanizeAndCmp,
-                    queryFactory
+                    queryBuilder
                         .filterFields(IndexType.SONG.getFields(), true)
                         .toArray(new String[0]));
         }
@@ -187,8 +226,8 @@ class QueryFactoryTest {
     /**
      * Related {@link UPnPSearchCriteriaDirectorTest}
      */
-    @Test
     @Order(2)
+    @Test
     void testCreatePhraseQuery() throws IOException {
         assertEquals(
                 "(tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2",
@@ -204,8 +243,8 @@ class QueryFactoryTest {
                     .toString());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testSearchByPhrase() throws IOException {
 
         assertEquals(
@@ -232,10 +271,12 @@ class QueryFactoryTest {
                     .searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName,
+                    IndexScheme.WITHOUT_JP_LANG_PROCESSING.name())
+            .build();
+        init();
         assertEquals(
                 "+((tit:\"い ぬ と ね こ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"い ぬ と ね こ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2) +(f:"
                         + PATH1 + ")",
@@ -243,10 +284,11 @@ class QueryFactoryTest {
                     .searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito
-            .when(settingsService.getIndexSchemeName())
-            .thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .build();
+        init();
         String query = "Inu to Neko";
 
         assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
@@ -258,7 +300,12 @@ class QueryFactoryTest {
                     .searchByPhrase(query, false, SINGLE_FOLDERS, IndexType.SONG)
                     .toString());
 
-        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.ROMANIZED_JAPANESE.name())
+            .withBoolean(SKeys.general.search.searchComposer, true)
+            .build();
+        init();
         assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
                 + "(art:\"inu to neko\"~1)^4.0 " //
                 + "(artR:\"inu to neko\"~1)^4.2 " //
@@ -272,44 +319,44 @@ class QueryFactoryTest {
                     .toString());
     }
 
-    @Test
     @Order(4)
+    @Test
     void testGetRandomSongs() throws IOException {
-        RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"),
-                1900, 2000, SINGLE_FOLDERS);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(50,
+                Arrays.asList("Classic Rock"), 1900, 2000, SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, 2000,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), 1900, 2000,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(
                 "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, null,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), null, null,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, null,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), 1900, null,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2147483647] +(f:" + PATH1 + " f:"
                 + PATH2 + ")", query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, 2000,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock"), null, 2000,
                 MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +(g:Classic Rock) +y:[-2147483648 TO 2000] +(f:" + PATH1 + " f:"
                 + PATH2 + ")", query.toString());
 
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock", "Rock & Roll"), 1900,
+        criteria = new ShuffleSelectionParam(50, Arrays.asList("Classic Rock", "Rock & Roll"), 1900,
                 2000, SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(
                 "+m:MUSIC +(g:Classic Rock g:Rock & Roll) +y:[1900 TO 2000] +(f:" + PATH1 + ")",
                 query.toString(), "multi genre");
 
-        criteria = new RandomSearchCriteria(50, null, 1900, 2000, SINGLE_FOLDERS);
+        criteria = new ShuffleSelectionParam(50, null, 1900, 2000, SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("+m:MUSIC +y:[1900 TO 2000] +(f:" + PATH1 + ")", query.toString(),
                 "null genre");
@@ -317,7 +364,7 @@ class QueryFactoryTest {
 
     @Order(5)
     @Test
-    void testGetRandomSongsByMusicFolder() {
+    void testGetRandomSongsByMusicFolder() throws IOException {
         Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS);
         assertEquals("+m:MUSIC +(f:" + PATH1 + ")", query.toString());
         query = queryFactory.getRandomSongs(MULTI_FOLDERS);
@@ -326,7 +373,7 @@ class QueryFactoryTest {
 
     @Order(6)
     @Test
-    void testGetRandomSongsByMusicFolderAndGenre() {
+    void testGetRandomSongsByMusicFolderAndGenre() throws IOException {
         Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS, "Rock & Roll", "Pop/Funk");
         assertEquals("+m:MUSIC +(f:" + PATH1 + ") +(g:Rock & Roll g:Pop/Funk)", query.toString());
         query = queryFactory.getRandomSongs(MULTI_FOLDERS, "Rock & Roll", "Pop/Funk");

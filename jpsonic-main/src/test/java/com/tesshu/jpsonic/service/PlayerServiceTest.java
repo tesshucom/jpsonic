@@ -42,15 +42,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.PlayerDao;
-import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
-import com.tesshu.jpsonic.domain.Transcoding;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.security.JWTAuthenticationToken;
+import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.api.repository.PlayerDao;
+import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -84,7 +84,7 @@ class PlayerServiceTest {
         when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         playerService = new PlayerService(playerDao, null,
-                new SecurityService(userDao, null, musicFolderService), transcodingService);
+                new UserService(userDao, musicFolderService), transcodingService);
     }
 
     @Test

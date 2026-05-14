@@ -29,9 +29,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.RatingDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.RatingDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,16 +40,16 @@ import org.mockito.Mockito;
 class RatingServiceTest {
 
     private RatingDao ratingDao;
-    private SecurityService securityService;
+    private LibraryAccessPolicy libraryAccessPolicy;
     private MediaFileService mediaFileService;
     private RatingService ratingService;
 
     @BeforeEach
     void setup() {
         ratingDao = mock(RatingDao.class);
-        securityService = mock(SecurityService.class);
+        libraryAccessPolicy = mock(LibraryAccessPolicy.class);
         mediaFileService = mock(MediaFileService.class);
-        ratingService = new RatingService(ratingDao, securityService, mediaFileService);
+        ratingService = new RatingService(ratingDao, libraryAccessPolicy, mediaFileService);
     }
 
     @Test
@@ -61,7 +62,7 @@ class RatingServiceTest {
             .when(ratingDao
                 .getHighestRatedAlbums(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyList()))
             .thenReturn(Arrays.asList(albumPath.toString()));
-        Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+        Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
         MediaFile album = new MediaFile();
         album.setPathString(albumPath.toString());
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);

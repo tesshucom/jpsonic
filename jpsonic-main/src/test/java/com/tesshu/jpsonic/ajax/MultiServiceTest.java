@@ -29,15 +29,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Autowired
     private LastFmService lastFmService;
     @Autowired
-    private SecurityService securityService;
+    private UserService userService;
     @Autowired
     private AirsonicLocaleResolver airsonicLocaleResolver;
     @Autowired
@@ -75,26 +75,27 @@ class MultiServiceTest extends AbstractNeedsScan {
     @BeforeEach
     void setup() {
         populateDatabaseOnlyOnce();
-        multiService = new MultiService(musicFolderService, securityService, mediaFileService,
+        multiService = new MultiService(musicFolderService, userService, mediaFileService,
                 lastFmService, airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ADMIN_NAME)
+    @Test
     void testGetArtistInfo() {
-        RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, musicFolders);
+        ShuffleSelectionParam criteria = new ShuffleSelectionParam(1, null, null, null,
+                musicFolders);
         MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
         MediaFile artist = mediaFileDao.getSongsByArtist(song.getArtist(), 0, 1).get(0);
         assertNotNull(multiService.getArtistInfo(artist.getId(), 1, 20));
     }
 
-    @Test
     @WithMockUser(username = ADMIN_NAME)
+    @Test
     void testSetCloseDrawer() {
-        UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+        UserSettings userSettings = userService.getUserSettings(ADMIN_NAME);
         assertFalse(userSettings.isCloseDrawer());
         multiService.setCloseDrawer(true);
-        userSettings = securityService.getUserSettings(ADMIN_NAME);
+        userSettings = userService.getUserSettings(ADMIN_NAME);
         assertTrue(userSettings.isCloseDrawer());
     }
 }

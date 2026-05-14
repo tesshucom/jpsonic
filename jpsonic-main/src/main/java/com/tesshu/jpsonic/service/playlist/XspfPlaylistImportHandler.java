@@ -30,7 +30,7 @@ import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.xspf.Location;
 import chameleon.playlist.xspf.Playlist;
 import chameleon.playlist.xspf.StringContainer;
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;

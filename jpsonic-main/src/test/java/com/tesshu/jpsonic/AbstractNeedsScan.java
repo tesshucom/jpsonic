@@ -28,33 +28,39 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.base.DaoHelper;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.NeedsDB;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.persistence.base.DaoHelper;
+import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.scanner.ExpungeService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.service.scanner.FileMetadataScanProcedure;
+import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
-import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
+import com.tesshu.jpsonic.service.scanner.PostScanProcedure;
+import com.tesshu.jpsonic.service.scanner.PreScanProcedure;
+import com.tesshu.jpsonic.service.scanner.ScanHelper;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import jakarta.annotation.PostConstruct;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 /*
  * Abstract class for scanning MusicFolder.
  */
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ActiveProfiles("test")
+@NeedsDB
 public abstract class AbstractNeedsScan implements NeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);
@@ -73,17 +79,26 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     protected MusicFolderDao musicFolderDao;
     @Autowired
-    protected SettingsService settingsService;
+    protected SettingsFacade settingsFacade;
     @Autowired
     protected MusicFolderServiceImpl musicFolderService;
     @Autowired
-    protected SecurityService securityService;
+    protected UserService userService;
     @Autowired
     private ScannerStateServiceImpl scannerStateService;
     @Autowired
-    private ScannerProcedureService procedure;
+    private PreScanProcedure preScanProc;
     @Autowired
-    private ExpungeService expungeService;
+    private DirectoryScanProcedure directoryScanProc;
+    @Autowired
+    private FileMetadataScanProcedure fileMetaProc;
+    @Autowired
+    private Id3MetadataScanProcedure id3MetaProc;
+    @Autowired
+    private PostScanProcedure postScanProc;
+    @Autowired
+    private ScanHelper scanHelper;
+
     @Autowired
     private StaticsDao staticsDao;
 
@@ -93,8 +108,9 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                procedure, expungeService, staticsDao, scanExecutor);
+        mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
+                preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc, scanHelper,
+                staticsDao, scanExecutor);
     }
 
     @FunctionalInterface
@@ -216,13 +232,4 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         }
 
     }
-
-    protected void setSortAlphanum(boolean isSortStrict) {
-        settingsService.setSortAlphanum(true);
-    }
-
-    protected void setSortStrict(boolean isSortStrict) {
-        settingsService.setSortStrict(isSortStrict);
-    }
-
 }

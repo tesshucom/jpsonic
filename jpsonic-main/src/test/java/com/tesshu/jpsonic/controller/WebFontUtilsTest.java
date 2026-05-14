@@ -24,20 +24,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PersonalSettingsCommand;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
+import com.tesshu.jpsonic.domain.system.FontScheme;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class WebFontUtilsTest {
 
@@ -45,19 +47,18 @@ class WebFontUtilsTest {
     private static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
-    private SecurityService securityService;
+    private UserService userService;
 
     @BeforeEach
     void setup() {
-        securityService = new SecurityService(mock(UserDao.class), mock(SettingsService.class),
-                mock(MusicFolderService.class));
+        userService = new UserService(mock(UserDao.class), mock(MusicFolderService.class));
     }
 
-    @Test
     @Order(1)
+    @Test
     void testSetToRequest() throws ExecutionException {
 
-        UserSettings settings = securityService.getUserSettings("");
+        UserSettings settings = userService.getUserSettings("");
 
         // DEFAULT
         HttpServletRequest request = new MockHttpServletRequest();
@@ -94,7 +95,7 @@ class WebFontUtilsTest {
         // CUSTOM
         request = new MockHttpServletRequest();
         command = new PersonalSettingsCommand();
-        WebFontUtils.setToCommand(securityService.getUserSettings(""), command);
+        WebFontUtils.setToCommand(userService.getUserSettings(""), command);
 
         command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
@@ -123,11 +124,11 @@ class WebFontUtilsTest {
         assertEquals(request.getAttribute(FONT_FAMILY_KEY), "Arial");
     }
 
-    @Test
     @Order(2)
+    @Test
     void testSetToCommand() throws ExecutionException {
 
-        UserSettings from = securityService.getUserSettings("");
+        UserSettings from = userService.getUserSettings("");
 
         PersonalSettingsCommand to = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(from, to);
@@ -146,8 +147,8 @@ class WebFontUtilsTest {
         assertEquals("Arial", to.getFontFamily());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testFormatFontFamily() {
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY,
                 WebFontUtils.formatFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY));
@@ -171,14 +172,14 @@ class WebFontUtilsTest {
                 WebFontUtils.formatFontFamily("Ari\"al,  Comi\"c Sans"));
     }
 
-    @Test
     @Order(4)
+    @Test
     void testSetToSettings() throws ExecutionException {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(new UserSettings(""), command);
 
         @Unsigned
-        UserSettings to = securityService.getUserSettings("");
+        UserSettings to = userService.getUserSettings("");
 
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());

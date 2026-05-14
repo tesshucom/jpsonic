@@ -22,9 +22,9 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;

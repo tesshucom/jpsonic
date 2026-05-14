@@ -19,8 +19,8 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
 
 public record GenreAlbum(Genre genre, Album album) implements CompositeModel {
 

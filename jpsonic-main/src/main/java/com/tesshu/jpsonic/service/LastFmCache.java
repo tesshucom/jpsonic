@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Properties;
 
-import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
 import org.apache.commons.io.IOUtils;
@@ -75,13 +75,13 @@ public final class LastFmCache extends Cache {
 
     @Override
     public void remove(String cacheEntryName) {
-        FileUtil.deleteIfExists(getXmlFile(cacheEntryName));
-        FileUtil.deleteIfExists(getMetaFile(cacheEntryName));
+        FileOperations.deleteIfExists(getXmlFile(cacheEntryName));
+        FileOperations.deleteIfExists(getMetaFile(cacheEntryName));
     }
 
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
-        FileUtil.createDirectories(cacheDir);
+        FileOperations.createDirectories(cacheDir);
         Path xmlFile = getXmlFile(cacheEntryName);
         try (OutputStream xmlOut = Files.newOutputStream(xmlFile)) {
 
@@ -130,7 +130,7 @@ public final class LastFmCache extends Cache {
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(cacheDir)) {
             ds.forEach(child -> {
                 if (Files.isRegularFile(child)) {
-                    FileUtil.deleteIfExists(child);
+                    FileOperations.deleteIfExists(child);
                 }
             });
         } catch (IOException e) {

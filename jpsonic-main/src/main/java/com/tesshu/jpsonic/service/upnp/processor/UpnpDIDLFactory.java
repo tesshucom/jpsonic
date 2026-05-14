@@ -28,31 +28,33 @@ import java.util.Arrays;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.domain.PodcastStatus;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jupnp.support.model.DIDLObject.Property;
@@ -86,16 +88,16 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
                 () -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
     private static final String SUB_DIR_EXT = "/ext/";
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final JWTSecurityService jwtSecurityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
 
-    public UpnpDIDLFactory(SettingsService settingsService, JWTSecurityService jwtSecurityService,
+    public UpnpDIDLFactory(SettingsFacade settingsFacade, JWTSecurityService jwtSecurityService,
             MediaFileService mediaFileService, PlayerService playerService,
             TranscodingService transcodingService) {
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.jwtSecurityService = jwtSecurityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
@@ -116,7 +118,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
         String token = addJWTToken(builder).toUriString();
-        if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
+        if (settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions)
+                && !StringUtils.isEmpty(song.getFormat())) {
             Player player = playerService.getUPnPPlayer();
             String fmt = transcodingService.getSuffix(player, song, null);
             token = token.concat(".").concat(fmt);
@@ -129,7 +132,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private String getBaseUrl() {
-        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
+        String dlnaBaseLANURL = settingsFacade.get(UPnPSKeys.basic.baseLanUrl);
         if (StringUtils.isBlank(dlnaBaseLANURL)) {
             throw new IllegalArgumentException("UPnP Base LAN URL is not set correctly");
         }
@@ -206,9 +209,9 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPathString())
+        String suffix = song.isVideo() ? PathInspector.getExtension(song.getPathString())
                 : transcodingService.getSuffix(player, song, null);
-        String mimeTypeString = StringUtil.getMimeType(suffix);
+        String mimeTypeString = MediaTypeDetector.getMimeType(suffix);
 
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }

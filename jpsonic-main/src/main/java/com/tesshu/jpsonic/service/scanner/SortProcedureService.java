@@ -27,23 +27,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.ArtistSortCandidate;
-import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
-import com.tesshu.jpsonic.domain.DuplicateSort;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
+import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate;
+import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate.TargetField;
+import com.tesshu.jpsonic.persistence.result.DuplicateSort;
+import com.tesshu.jpsonic.persistence.result.SortCandidate;
+import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
- * The class to complement sorting and reading. It does not exist in
- * conventional Sonic servers. This class has a large impact on sorting and
- * searching accuracy.
+ * A service that recalculates and reassigns the {@code sortOrder} for all media
+ * files after the intermediate analysis phase of the scan process.
+ *
+ * <p>
+ * Sort order is determined based on user-defined policies or system-default
+ * rules. Tracks are grouped by album, and albums are grouped by artist, with
+ * ordering applied within each group.
+ * </p>
+ *
+ * <h3>Processing Steps</h3>
+ * <ol>
+ * <li>Retrieve all media files and group them by album and artist</li>
+ * <li>Sort each group according to the specified comparison rules</li>
+ * <li>Update each media file with a corresponding {@code sortOrder} value</li>
+ * </ol>
+ *
+ * @see WritableMediaFileService
  */
 @Service
 @DependsOn({ "musicFolderService", "mediaFileDao", "artistDao", "albumDao", "japaneseReadingUtils",

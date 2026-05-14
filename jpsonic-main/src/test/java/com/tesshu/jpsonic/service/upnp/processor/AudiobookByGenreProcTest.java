@@ -39,20 +39,21 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.language.JpsonicComparators;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -65,10 +66,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class AudiobookByGenreProcTest {
 
-    @SuppressWarnings("PMD.SingularField")
     @Nested
+    @SuppressWarnings("PMD.SingularField")
     class UnitTest {
-        private SettingsService settingsService;
+        private SettingsFacade settingsFacade;
         private UpnpProcessorUtil util;
         private UpnpDIDLFactory factory;
         private SearchService searchService;
@@ -76,17 +77,17 @@ class AudiobookByGenreProcTest {
 
         @BeforeEach
         void setup() {
-            settingsService = mock(SettingsService.class);
+            settingsFacade = SettingsFacadeBuilder.create().build();
             JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
             MediaFileService mediaFileService = mock(MediaFileService.class);
             PlayerService playerService = mock(PlayerService.class);
             TranscodingService transcodingService = mock(TranscodingService.class);
-            factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+            factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
                     playerService, transcodingService);
             searchService = mock(SearchService.class);
-            util = new UpnpProcessorUtil(mock(MusicFolderService.class),
-                    mock(SecurityService.class), mock(JpsonicComparators.class));
-            proc = new AudiobookByGenreProc(settingsService, util, factory, searchService);
+            util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
+                    settingsFacade, mock(JpsonicComparators.class));
+            proc = new AudiobookByGenreProc(settingsFacade, util, factory, searchService);
         }
 
         @Test
@@ -147,8 +148,8 @@ class AudiobookByGenreProcTest {
             DIDLContent content = new DIDLContent();
             MediaFile song = new MediaFile();
             factory = mock(UpnpDIDLFactory.class);
-            proc = new AudiobookByGenreProc(mock(SettingsService.class), util, factory,
-                    searchService);
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
+            proc = new AudiobookByGenreProc(settingsFacade, util, factory, searchService);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());

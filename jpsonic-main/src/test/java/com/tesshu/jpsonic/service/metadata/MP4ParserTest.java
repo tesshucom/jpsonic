@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNull;
@@ -32,30 +31,32 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
+@NeedsHome
+@NeedsTranscode
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 class MP4ParserTest {
 
-    private TranscodingService transcodingService;
     private MP4Parser parser;
 
     @BeforeEach
     void setUp() {
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null);
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
     }
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
@@ -94,8 +95,8 @@ class MP4ParserTest {
         assertNull(metaData.getComposerSort());
     }
 
-    @Test
     @Order(1)
+    @Test
     void testGetThreshold() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -105,21 +106,12 @@ class MP4ParserTest {
                 threshold);
     }
 
-    @Test
+    @EnabledOnOs(OS.LINUX)
     @Order(2)
     void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-
-        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
-                null) {
-
-            @Override
-            public @NonNull Path getTranscodeDirectory() {
-                return emptytranscodeDir;
-            }
-
-        };
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
 
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -148,8 +140,8 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate());
     }
 
-    @Test
     @Order(3)
+    @Test
     void testParseWithFFProbe() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -160,8 +152,8 @@ class MP4ParserTest {
         assertEquals(226, metaData.getBitRate()); // FFProbe Only!
     }
 
-    @Test
     @Order(4)
+    @Test
     void testParseWithTika() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -172,27 +164,22 @@ class MP4ParserTest {
         assertNull(metaData.getBitRate()); // None!
     }
 
-    @Test
     @Order(5)
+    @Test
     void testGetRawMetaData(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
-
-        transcodingService = mock(TranscodingService.class);
-        Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
-        parser = new MP4Parser(new FFprobe(transcodingService));
+        ObjectMapper mapper = JsonMapper.builder().build();
+        parser = new MP4Parser(new FFprobe(mapper));
 
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);
         // If the argument is only mediaFile, FFProbe is used
-        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
-        Mockito.clearInvocations(transcodingService);
 
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
         assertThat(parser.getThreshold(mediaFile, statistics),
                 greaterThan(mediaFile.getFileSize()));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is not used for small files
-        Mockito.verify(transcodingService, Mockito.never()).getTranscodeDirectory();
 
         statistics.clear();
         MP4ParseStatistics s = new MP4ParseStatistics();
@@ -203,6 +190,5 @@ class MP4ParserTest {
                 greaterThan(parser.getThreshold(mediaFile, statistics)));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is used for big files
-        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
     }
 }

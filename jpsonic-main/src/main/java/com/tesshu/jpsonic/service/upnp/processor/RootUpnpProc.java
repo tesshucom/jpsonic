@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.MenuItem;
-import com.tesshu.jpsonic.domain.MenuItem.ViewType;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.service.MenuItemService;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;

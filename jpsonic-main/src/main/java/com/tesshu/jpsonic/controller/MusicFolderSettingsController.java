@@ -28,16 +28,18 @@ import java.time.Instant;
 import java.util.Optional;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.controller.form.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
+import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
-import com.tesshu.jpsonic.util.PathValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -61,21 +63,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/musicFolderSettings", "/musicFolderSettings.view" })
 public class MusicFolderSettingsController {
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderServiceImpl musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public MusicFolderSettingsController(SettingsService settingsService,
-            MusicFolderServiceImpl musicFolderService, SecurityService securityService,
+    public MusicFolderSettingsController(SettingsFacade settingsFacade,
+            MusicFolderServiceImpl musicFolderService, UserService userService,
             MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaScannerService = mediaScannerService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
@@ -97,9 +99,6 @@ public class MusicFolderSettingsController {
             mediaScannerService.tryCancel();
 
         }
-        if (!ObjectUtils.isEmpty(expunge)) {
-            mediaScannerService.expunge();
-        }
         if (!ObjectUtils.isEmpty(id)) {
             musicFolderService.updateMusicFolderOrder(now(), id);
         }
@@ -117,23 +116,28 @@ public class MusicFolderSettingsController {
 
         // Run a scan
         mediaScannerService.getLastScanEventType().ifPresent(command::setLastScanEventType);
-        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
-        command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
-        command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
+        command
+            .setIgnoreFileTimestamps(
+                    settingsFacade.get(SKeys.musicFolder.scan.ignoreFileTimestamps));
+        command
+            .setInterval(String
+                .valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationInterval)));
+        command
+            .setHour(String.valueOf(settingsFacade.get(SKeys.musicFolder.scan.indexCreationHour)));
 
         // Exclusion settings
-        command.setExcludePatternString(settingsService.getExcludePatternString());
-        command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
+        command.setExcludePatternString(settingsFacade.get(FileSystemSKeys.excludePatternString));
+        command.setIgnoreSymLinks(settingsFacade.get(FileSystemSKeys.ignoreSymlinks));
 
         // for view page control
-        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
-        User user = securityService.getCurrentUserStrict(request);
+        User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
         command.setCancel(mediaScannerService.isCancel());
@@ -180,15 +184,20 @@ public class MusicFolderSettingsController {
         });
 
         // Run a scan
-        settingsService.setIgnoreFileTimestamps(command.isIgnoreFileTimestamps());
-        settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
-        settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.ignoreFileTimestamps, command.isIgnoreFileTimestamps());
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.indexCreationInterval,
+                    Integer.parseInt(command.getInterval()));
+        settingsFacade
+            .staging(SKeys.musicFolder.scan.indexCreationHour, Integer.parseInt(command.getHour()));
 
         // Exclusion settings
-        settingsService.setExcludePatternString(command.getExcludePatternString());
-        settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
+        settingsFacade
+            .staging(FileSystemSKeys.excludePatternString, command.getExcludePatternString());
+        settingsFacade.staging(FileSystemSKeys.ignoreSymlinks, command.isIgnoreSymLinks());
 
-        settingsService.save();
+        settingsFacade.commitAll();
 
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
@@ -198,7 +207,7 @@ public class MusicFolderSettingsController {
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
-        Optional<String> validated = PathValidator
+        Optional<String> validated = RootPathEntryGuard
             .validateFolderPath(StringUtils.trimToNull(info.getPath()));
         if (validated.isEmpty()) {
             return Optional.empty();

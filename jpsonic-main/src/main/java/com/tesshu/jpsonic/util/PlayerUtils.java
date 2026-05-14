@@ -28,15 +28,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,11 +41,6 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class PlayerUtils {
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .findAndRegisterModules();
-
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
 
     /*
@@ -81,31 +70,6 @@ public final class PlayerUtils {
         // Date precision uses milliseconds.
         // (hsqldb timestamp precision is milliseconds)
         return Instant.now().truncatedTo(ChronoUnit.MILLIS);
-    }
-
-    private static String getDefaultFolder(String key, String winDefault, String linuxDefault) {
-        String arg = System.getProperty(key);
-        if (PathValidator.validateFolderPath(arg).isEmpty()) {
-            return isWindows() ? winDefault : linuxDefault;
-        }
-        return arg;
-    }
-
-    public static String getDefaultMusicFolder() {
-        return getDefaultFolder("jpsonic.defaultMusicFolder", "c:\\music", "/var/music");
-    }
-
-    public static String getDefaultPodcastFolder() {
-        return getDefaultFolder("jpsonic.defaultPodcastFolder", "c:\\music\\Podcast",
-                "/var/music/Podcast");
-    }
-
-    public static String getDefaultPlaylistFolder() {
-        return getDefaultFolder("jpsonic.defaultPlaylistFolder", "c:\\playlists", "/var/playlists");
-    }
-
-    public static boolean isWindows() {
-        return SystemUtils.IS_OS_WINDOWS;
     }
 
     /**
@@ -145,15 +109,6 @@ public final class PlayerUtils {
             result[i] = values.get(i);
         }
         return result;
-    }
-
-    public static String debugObject(Object object) {
-        try {
-            return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            LOG.warn("Cant output debug object", e);
-            return "";
-        }
     }
 
     /**
@@ -201,5 +156,9 @@ public final class PlayerUtils {
         }
 
         return builder.build().toUriString();
+    }
+
+    public static <T> T defaultIfNull(T object, T defaultValue) {
+        return (object != null) ? object : defaultValue;
     }
 }

@@ -40,15 +40,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.TransferStatus;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
-import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.service.StatusService.TransferStatus;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -82,20 +85,22 @@ public class UploadController {
     public static final String FIELD_NAME_UNZIP = "unzip";
     private static final String NOT_ALLOWED_MSG = "The root path is other than the Musicfolder, or the file already exists: ";
 
-    private final SecurityService securityService;
+    private final LibraryAccessPolicy libraryAccessPolicy;
+    private final UserService userService;
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final ScannerStateService scannerStateService;
 
-    public UploadController(SecurityService securityService, PlayerService playerService,
-            StatusService statusService, SettingsService settingsService,
+    public UploadController(LibraryAccessPolicy libraryAccessPolicy, UserService userService,
+            PlayerService playerService, StatusService statusService, SettingsFacade settingsFacade,
             ScannerStateService scannerStateService) {
         super();
-        this.securityService = securityService;
+        this.libraryAccessPolicy = libraryAccessPolicy;
+        this.userService = userService;
         this.playerService = playerService;
         this.statusService = statusService;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.scannerStateService = scannerStateService;
     }
 
@@ -175,7 +180,7 @@ public class UploadController {
             throws FileUploadException {
         DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
         JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
-        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsService));
+        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsFacade));
         return upload.parseRequest(request);
     }
 
@@ -183,8 +188,8 @@ public class UploadController {
         if (status != null) {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
-            User user = securityService.getCurrentUserStrict(request);
-            securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
+            User user = userService.getCurrentUserStrict(request);
+            userService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
 
@@ -213,7 +218,8 @@ public class UploadController {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();
 
-        if (!Files.exists(dir) && FileUtil.createDirectories(dir) == null && LOG.isWarnEnabled()) {
+        if (!Files.exists(dir) && FileOperations.createDirectories(dir) == null
+                && LOG.isWarnEnabled()) {
             LOG.warn("The directory '{}' could not be created.", dir);
         }
 
@@ -228,7 +234,7 @@ public class UploadController {
                     LOG.info("Uploaded " + targetFile);
                 }
 
-                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.toString(), ".zip")) {
+                if (unzip && StringUtil.endsWithIgnoreCase(targetFile.toString(), ".zip")) {
                     unzippedFiles = unzip(targetFile);
                 }
             }
@@ -239,7 +245,7 @@ public class UploadController {
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
     private List<Path> upload(DiskFileItem targetItem, Path targetFile) throws ExecutionException {
 
-        if (!securityService.isUploadAllowed(targetFile)) {
+        if (!libraryAccessPolicy.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
                     NOT_ALLOWED_MSG + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
@@ -281,7 +287,7 @@ public class UploadController {
                 }
             }
             zipFile.close();
-            FileUtil.deleteIfExists(file);
+            FileOperations.deleteIfExists(file);
 
         } catch (IOException e) {
             throw new ExecutionException("Can't unzip.", e);
@@ -292,14 +298,14 @@ public class UploadController {
     private List<Path> unzip(ZipFile zipFile, ZipEntry entry, Path entryFile)
             throws ExecutionException {
 
-        if (!securityService.isUploadAllowed(entryFile)) {
+        if (!libraryAccessPolicy.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
                     NOT_ALLOWED_MSG + StringEscapeUtils.escapeHtml4(entryFile.toString())));
         }
 
         Path parent = entryFile.getParent();
-        if (parent == null || !Files.exists(parent) && FileUtil.createDirectories(parent) == null
-                && LOG.isWarnEnabled()) {
+        if (parent == null || !Files.exists(parent)
+                && FileOperations.createDirectories(parent) == null && LOG.isWarnEnabled()) {
             LOG.warn("The directory '{}' could not be created.", parent);
         }
 
@@ -331,16 +337,16 @@ public class UploadController {
 
         private final TransferStatus status;
         private final StatusService statusService;
-        private final SettingsService settingsService;
+        private final SettingsFacade settingsFacade;
         private final long startTime;
 
         private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
 
         UploadListenerImpl(TransferStatus status, StatusService statusService,
-                SettingsService settingsService) {
+                SettingsFacade settingsFacade) {
             this.status = status;
             this.statusService = statusService;
-            this.settingsService = settingsService;
+            this.settingsFacade = settingsFacade;
             this.startTime = Instant.now().toEpochMilli();
         }
 
@@ -374,7 +380,7 @@ public class UploadController {
         }
 
         private long getBitrateLimit() {
-            return 1024L * this.settingsService.getUploadBitrateLimit()
+            return 1024L * this.settingsFacade.get(SKeys.advanced.bandwidth.uploadBitrateLimit)
                     / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }

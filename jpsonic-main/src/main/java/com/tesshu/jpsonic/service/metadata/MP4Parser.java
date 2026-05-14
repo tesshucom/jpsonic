@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
+import static com.tesshu.jpsonic.infrastructure.filesystem.PathInspector.toIdentityName;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -31,7 +31,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Metadata;
@@ -92,7 +92,7 @@ public class MP4Parser {
         } catch (IOException | SAXException | TikaException e) {
             if (LOG.isWarnEnabled()) {
                 LOG
-                    .warn("Failed to parse the tag({}): {}", getShortPath(mediaFile.toPath()),
+                    .warn("Failed to parse the tag({}): {}", toIdentityName(mediaFile.toPath()),
                             e.getMessage());
             }
             return result;

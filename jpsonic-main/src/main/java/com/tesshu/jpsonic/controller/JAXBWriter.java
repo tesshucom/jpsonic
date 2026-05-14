@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -39,8 +38,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,13 +62,13 @@ public final class JAXBWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JAXBWriter.class);
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final jakarta.xml.bind.JAXBContext jaxbContext;
     private final DatatypeFactory datatypeFactory;
     private final String restProtocolVersion;
 
-    public JAXBWriter(@Nullable SettingsService settingsService) {
-        this.settingsService = settingsService;
+    public JAXBWriter(@Nullable SettingsFacade settingsFacade) {
+        this.settingsFacade = settingsFacade;
         try {
             jaxbContext = JAXBContext.newInstance(Response.class);
             datatypeFactory = DatatypeFactory.newInstance();
@@ -132,7 +131,7 @@ public final class JAXBWriter {
         String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
         String jsonpCallback = request.getParameter(Attributes.Request.CALLBACK.value());
         boolean json = "json".equals(format);
-        boolean jsonp = settingsService != null && settingsService.isUseJsonp()
+        boolean jsonp = settingsFacade != null && settingsFacade.get(SKeys.general.legacy.useJsonp)
                 && "jsonp".equals(format) && jsonpCallback != null;
         Marshaller marshaller;
 

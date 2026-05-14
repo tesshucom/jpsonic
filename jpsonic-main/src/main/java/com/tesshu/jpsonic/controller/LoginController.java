@@ -24,9 +24,12 @@ package com.tesshu.jpsonic.controller;
 import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,13 +48,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/login", "/login.view" })
 public class LoginController {
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
+    private final SettingsFacade settingsFacade;
+    private final UserService userService;
 
-    public LoginController(SettingsService settingsService, SecurityService securityService) {
+    public LoginController(SettingsFacade settingsFacade, UserService userService) {
         super();
-        this.settingsService = settingsService;
-        this.securityService = securityService;
+        this.settingsFacade = settingsFacade;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -74,10 +77,11 @@ public class LoginController {
         Map<String, Object> map = LegacyMap
             .of("logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
                     request.getParameter(Attributes.Request.ERROR.value()) != null, "brand",
-                    SettingsService.getBrand(), "loginMessage", settingsService.getLoginMessage(),
-                    "showRememberMe", settingsService.isShowRememberMe());
+                    EnvironmentProvider.getInstance().getBrand(), "loginMessage",
+                    settingsFacade.get(SKeys.general.welcome.loginMessage), "rememberMeEnable",
+                    settingsFacade.get(RMSKeys.enable));
 
-        User admin = securityService.getUserByName("admin");
+        User admin = userService.getUserByName("admin");
         if (admin != null && admin.getUsername().equals(admin.getPassword())) {
             map.put("insecure", true);
         }

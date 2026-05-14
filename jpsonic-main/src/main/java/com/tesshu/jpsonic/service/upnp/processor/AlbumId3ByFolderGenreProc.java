@@ -24,17 +24,18 @@ import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genre;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.domain.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
+import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrFGAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
@@ -53,18 +54,18 @@ public class AlbumId3ByFolderGenreProc
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final SearchService searchService;
     private final AlbumDao albumDao;
     private final FolderOrGenreLogic deligate;
 
     public AlbumId3ByFolderGenreProc(UpnpProcessorUtil util, UpnpDIDLFactory factory,
-            SettingsService settingsService, SearchService searchService, AlbumDao albumDao,
+            SettingsFacade settingsFacade, SearchService searchService, AlbumDao albumDao,
             FolderOrGenreLogic folderOrGenreLogic) {
         super();
         this.util = util;
         this.factory = factory;
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.searchService = searchService;
         this.albumDao = albumDao;
         this.deligate = folderOrGenreLogic;
@@ -76,7 +77,7 @@ public class AlbumId3ByFolderGenreProc
     }
 
     private Sort getSort() {
-        return Sort.of(settingsService.getUPnPAlbumGenreSort());
+        return Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort));
     }
 
     @Override

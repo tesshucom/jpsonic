@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.service;
 
 import java.util.Optional;
 
-import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 
 /**
  * MediaScanner interface.
@@ -62,9 +62,14 @@ public interface MediaScannerService extends ScannerStateService {
     void scanLibrary();
 
     /**
-     * Remove unnecessary data from the database.
+     * Returns the current scan phase information if a scan is in progress.
      *
-     * @since airsonic
+     * @since jpsonic
+     * @return An Optional containing the current ScanPhaseInfo, or empty if not
+     *         scanning
      */
-    void expunge();
+    Optional<ScanPhaseInfo> getScanPhaseInfo();
+
+    public record ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
+    }
 }

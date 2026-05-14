@@ -23,7 +23,7 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +35,7 @@ class AvatarUploadControllerTest {
 
     @BeforeEach
     void setup() {
-        controller = new AvatarUploadController(mock(SecurityService.class),
-                mock(AvatarService.class));
+        controller = new AvatarUploadController(mock(UserService.class), mock(AvatarService.class));
     }
 
     @Test

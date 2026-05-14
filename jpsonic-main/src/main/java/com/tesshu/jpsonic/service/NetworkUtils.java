@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -103,12 +104,13 @@ public final class NetworkUtils {
     }
 
     private static boolean isValidXForwardedHost(String xForardedHost) {
-        return StringUtils.isNotBlank(xForardedHost) && !StringUtils.equals("null", xForardedHost);
+        return StringUtils.isNotBlank(xForardedHost)
+                && !StringUtil.equalsIgnoreCase("null", xForardedHost);
     }
 
     private static URI calculateNonProxyUri(HttpServletRequest request) throws ExecutionException {
         try {
-            URL url = new URL(request.getRequestURL().toString());
+            URL url = StringUtil.parseURL(request.getRequestURL().toString());
             String host = url.getHost();
             String scheme = url.getProtocol();
             int port = url.getPort();

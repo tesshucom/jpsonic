@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ParamSearchResult;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;

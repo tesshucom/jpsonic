@@ -21,34 +21,13 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import org.apache.lucene.search.Query;
+
 /**
- * Criteria that abstracts field search of UPnP.
- * <p>
- * A UPnP query structure analysis is always required for a UPnP search.
- * Instances of this class are created by Builders that have UPnP message
- * analysis capabilities. The UPnP query for field search including complex
- * compound statements can be obtained with lucene query.
+ * Search criteria used in the UPnP search implementation
+ *
+ * @param input queries based on UPnP Search spec
  */
-public class UPnPSearchCriteria extends LuceneSearchCriteria {
-
-    private Class<?> assignableClass;
-
-    UPnPSearchCriteria(String upnpSearchQuery, int offset, int count) {
-        super(upnpSearchQuery, offset, count);
-    }
-
-    /**
-     * Returns a class that represents the search target and return value. For UPnP
-     * searches, this value can only be determined after parsing UPnP.
-     *
-     * @return T that represents search target and return value
-     */
-    public Class<?> getAssignableClass() {
-        return assignableClass;
-    }
-
-    public void setAssignableClass(Class<?> assignableClass) {
-        this.assignableClass = assignableClass;
-    }
-
+public record UPnPSearchCriteria(String input, Query parsedQuery, int offset, int count,
+        IndexType targetType) implements SearchCriteria {
 }

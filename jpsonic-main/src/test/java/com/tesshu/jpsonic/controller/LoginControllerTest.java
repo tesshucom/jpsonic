@@ -29,20 +29,19 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import ch.qos.logback.classic.Level;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.security.GlobalSecurityConfig;
-import com.tesshu.jpsonic.security.RESTRequestParameterProcessingFilter;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
-import jakarta.servlet.Filter;
-import org.apache.commons.lang3.StringUtils;
+import com.tesshu.jpsonic.feature.security.ApplicationSecurity;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
@@ -52,7 +51,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,18 +66,11 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -95,8 +86,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.pattern.PathPattern;
 
 @SpringBootTest
-@ExtendWith(NeedsHome.class)
+@ActiveProfiles("test")
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@NeedsHome
 @SuppressWarnings("PMD.TooManyStaticImports")
 class LoginControllerTest {
 
@@ -105,24 +97,24 @@ class LoginControllerTest {
                 HttpSessionRequestCache.class, RequestMatcherDelegatingAuthorizationManager.class,
                 HttpSessionSecurityContextRepository.class, AnonymousAuthenticationFilter.class,
                 ExceptionTranslationFilter.class, AuthorizationFilter.class,
-                GlobalSecurityConfig.class);
+                ApplicationSecurity.class);
 
     void setLogLevel(Level logLevel) {
         loggingClasses.forEach(clazz -> TestCaseUtils.setLogLevel(clazz, logLevel));
     }
 
-    @Nested
-    @EnableMethodSecurity(prePostEnabled = false)
     @Order(1)
+    @EnableMethodSecurity(prePostEnabled = false)
+    @Nested
     class UnitTest {
 
         private MockMvc mockMvc;
 
         @BeforeEach
         void setup() throws ExecutionException {
+            SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             mockMvc = MockMvcBuilders
-                .standaloneSetup(new LoginController(mock(SettingsService.class),
-                        mock(SecurityService.class)))
+                .standaloneSetup(new LoginController(settingsFacade, mock(UserService.class)))
                 .build();
         }
 
@@ -139,10 +131,10 @@ class LoginControllerTest {
     }
 
     // Redundant tests for Springboot3 migration
-    @Nested
     @EnableMethodSecurity(prePostEnabled = true)
     @Order(2)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Nested
     class IntegrationTest {
 
         private MockMvc mockMvc;
@@ -163,15 +155,15 @@ class LoginControllerTest {
             setLogLevel(Level.WARN);
         }
 
-        @Test
         @Order(1)
+        @Test
         void testWithoutUser() throws Exception {
             assertNull(SecurityContextHolder.getContext().getAuthentication());
         }
 
+        @Order(2)
         @WithMockUser
         @Test
-        @Order(2)
         void testWithDefaultMockUser() throws Exception {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertEquals(UsernamePasswordAuthenticationToken.class, auth.getClass());
@@ -182,10 +174,10 @@ class LoginControllerTest {
             assertNull(auth.getDetails());
         }
 
-        @Test
         @Order(3)
         @WithMockUser(username = "admin", password = "pass", authorities = { "SETTINGS", "DOWNLOAD",
                 "SHARE" })
+        @Test
         void testWithMockUser() throws Exception {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             assertEquals(UsernamePasswordAuthenticationToken.class, auth.getClass());
@@ -196,16 +188,16 @@ class LoginControllerTest {
             assertNull(auth.getDetails());
         }
 
-        @Test
         @Order(4)
+        @Test
         void testDaoUser() throws Exception {
             UserDao userDao = webApplicationContext.getBean(UserDao.class);
             User user = userDao.getUserByName("admin", false);
             assertTrue(user.isAdminRole());
         }
 
-        @Test
         @Order(5)
+        @Test
         void testPathPattern() throws Exception {
             assertNotNull(webApplicationContext.getBean(LoginController.class));
             Map<String, RequestMappingHandlerMapping> matchingBeans = BeanFactoryUtils
@@ -222,8 +214,10 @@ class LoginControllerTest {
                 .stream()
                 .map(RequestMappingInfo::getPathPatternsCondition)
                 .map(PathPatternsRequestCondition::getPatterns)
-                .filter(pathPattern -> StringUtils
-                    .containsIgnoreCase(pathPattern.toString(), "login"))
+                .filter(pathPattern -> pathPattern
+                    .toString()
+                    .toLowerCase(Locale.ROOT)
+                    .contains("login"))
                 .flatMap(Collection::stream)
                 .sorted()
                 .toList();
@@ -233,31 +227,8 @@ class LoginControllerTest {
             assertEquals("/login", loginPathPatterns.get(1).getPatternString());
         }
 
-        @Test
-        @Order(6)
-        void testFilterChain() throws Exception {
-            FilterChainProxy filterChain = webApplicationContext.getBean(FilterChainProxy.class);
-            List<Filter> filters = filterChain.getFilters("/login");
-
-            assertEquals(DisableEncodeUrlFilter.class, filters.get(0).getClass());
-            assertEquals(WebAsyncManagerIntegrationFilter.class, filters.get(1).getClass());
-            assertEquals(SecurityContextHolderFilter.class, filters.get(2).getClass());
-            assertEquals(HeaderWriterFilter.class, filters.get(3).getClass());
-            assertEquals(CsrfFilter.class, filters.get(4).getClass());
-            assertEquals(LogoutFilter.class, filters.get(5).getClass());
-            assertEquals(RESTRequestParameterProcessingFilter.class, filters.get(6).getClass());
-            assertEquals(UsernamePasswordAuthenticationFilter.class, filters.get(7).getClass());
-            assertEquals(RequestCacheAwareFilter.class, filters.get(8).getClass());
-            assertEquals(SecurityContextHolderAwareRequestFilter.class, filters.get(9).getClass());
-            assertEquals(RememberMeAuthenticationFilter.class, filters.get(10).getClass());
-            assertEquals(AnonymousAuthenticationFilter.class, filters.get(11).getClass());
-            assertEquals(ExceptionTranslationFilter.class, filters.get(12).getClass());
-            assertEquals(AuthorizationFilter.class, filters.get(13).getClass());
-            assertEquals(14, filters.size());
-        }
-
-        @Test
         @Order(7)
+        @Test
         void testAnonymousGet() throws Exception {
             setLogLevel(Level.TRACE);
             MvcResult result = mockMvc

@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.service;
 
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 
 /**
  * A class that the key generation logic of CoverArt. In presentations where

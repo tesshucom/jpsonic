@@ -28,16 +28,21 @@ import java.lang.annotation.Documented;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.domain.PreferredFormatSheme;
-import com.tesshu.jpsonic.domain.Transcoding;
-import com.tesshu.jpsonic.domain.Transcodings;
+import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -58,22 +63,28 @@ class TranscodingSettingsControllerTest {
 
     private TranscodingSettingsController controller;
     private TranscodingService transcodingService;
-    private SettingsService settingsService;
+    private SettingsFacade settingsFacade;
     private TranscodingDao transcodingDao;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
-        Mockito
-            .when(settingsService.getPreferredFormatShemeName())
-            .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
-        SecurityService securityService = mock(SecurityService.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.transcoding.preferredFormat, "mp3")
+            .withString(SKeys.transcoding.preferredFormatShemeName,
+                    PreferredFormatSheme.ANNOYMOUS.name())
+            .build();
+        init();
+    }
+
+    @Ignore
+    void init() {
+        UserService userService = mock(UserService.class);
         transcodingDao = mock(TranscodingDao.class);
-        transcodingService = new TranscodingService(settingsService, securityService,
-                transcodingDao, mock(PlayerService.class), null);
-        controller = new TranscodingSettingsController(settingsService, securityService,
+        transcodingService = new TranscodingService(settingsFacade, userService,
+                mock(UPnPSubnet.class), transcodingDao, mock(PlayerService.class), null);
+        controller = new TranscodingSettingsController(settingsFacade, userService,
                 transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -92,35 +103,62 @@ class TranscodingSettingsControllerTest {
             .getModelAndView()
             .getModel()
             .get("model");
-        assertEquals(10, model.size());
-        assertEquals(settingsService.getHlsCommand(), model.get("hlsCommand"));
+        assertEquals(9, model.size());
+        assertEquals(settingsFacade.get(SKeys.transcoding.hlsCommand), model.get("hlsCommand"));
         assertFalse((Boolean) model.get("isOpenDetailSetting"));
         assertFalse((Boolean) model.get("showOutlineHelp"));
         assertEquals(0, model.get("shareCount"));
         assertFalse((Boolean) model.get("useRadio"));
-        assertEquals(transcodingService.getTranscodeDirectory(), model.get("transcodeDirectory"));
-        assertEquals(settingsService.getPreferredFormat(), model.get("preferredFormat"));
+        assertEquals(settingsFacade.get(SKeys.transcoding.preferredFormat),
+                model.get("preferredFormat"));
         assertEquals(PreferredFormatSheme.ANNOYMOUS, model.get("preferredFormatSheme"));
-        assertEquals(SettingsService.getBrand(), model.get("brand"));
+        assertEquals(EnvironmentProvider.getInstance().getBrand(), model.get("brand"));
         assertEquals(transcodingService.getAllTranscodings(), model.get("transcodings"));
     }
 
     @Test
     void testPreferredFormat() {
-        MockHttpServletRequest req = new MockHttpServletRequest();
+
         ArgumentCaptor<String> formatCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.doNothing().when(settingsService).setPreferredFormat(formatCaptor.capture());
-
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.transcoding.preferredFormat, "mp3")
+            .withString(SKeys.transcoding.preferredFormatShemeName,
+                    PreferredFormatSheme.ANNOYMOUS.name())
+            .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
+            .build();
+        init();
+        MockHttpServletRequest req = new MockHttpServletRequest();
         controller.doPost(req, mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.never()).setPreferredFormat(Mockito.anyString());
+        assertEquals(0, formatCaptor.getAllValues().size());
 
+        formatCaptor = ArgumentCaptor.forClass(String.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.transcoding.preferredFormat, "mp3")
+            .withString(SKeys.transcoding.preferredFormatShemeName,
+                    PreferredFormatSheme.ANNOYMOUS.name())
+            .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
+            .build();
+        init();
+        req = new MockHttpServletRequest();
         req.setParameter("preferredFormat", "ogg");
         controller.doPost(req, mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.never()).setPreferredFormat(Mockito.anyString());
+        assertEquals(0, formatCaptor.getAllValues().size());
 
+        formatCaptor = ArgumentCaptor.forClass(String.class);
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(SKeys.transcoding.preferredFormat, "mp3")
+            .withString(SKeys.transcoding.preferredFormatShemeName,
+                    PreferredFormatSheme.ANNOYMOUS.name())
+            .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
+            .build();
+        init();
+        req = new MockHttpServletRequest();
         req.setParameter("preferredFormat", "mp3");
         controller.doPost(req, mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(1)).setPreferredFormat(Mockito.anyString());
+        assertEquals(1, formatCaptor.getAllValues().size());
         assertEquals("mp3", formatCaptor.getValue());
     }
 

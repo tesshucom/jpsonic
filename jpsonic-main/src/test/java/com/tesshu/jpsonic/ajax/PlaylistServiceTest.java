@@ -27,16 +27,20 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.regex.Pattern;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -53,16 +57,21 @@ class PlaylistServiceTest {
 
     @BeforeEach
     void setup() {
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        UserService userService = mock(UserService.class);
+        AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(userService,
+                serverLocaleService);
         deligate = mock(com.tesshu.jpsonic.service.PlaylistService.class);
         playerService = mock(PlayerService.class);
         playlistService = new PlaylistService(mock(MusicFolderService.class),
-                mock(SecurityService.class), mock(MediaFileService.class), deligate,
-                mock(MediaFileDao.class), playerService, mock(AirsonicLocaleResolver.class),
+                mock(LibraryAccessPolicy.class), userService, mock(MediaFileService.class),
+                deligate, mock(MediaFileDao.class), playerService, airsonicLocaleResolver,
                 AjaxMockUtils.mock(AjaxHelper.class));
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testGetPlaylist() {
         int id = 99;
         Playlist playlist = new Playlist();
@@ -88,8 +97,8 @@ class PlaylistServiceTest {
             .matches());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testCreatePlaylistForPlayQueue() throws ServletRequestBindingException {
         ArgumentCaptor<Playlist> captor = ArgumentCaptor.forClass(Playlist.class);
         Mockito.doNothing().when(deligate).createPlaylist(captor.capture());
@@ -105,8 +114,8 @@ class PlaylistServiceTest {
             .matches());
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testCreatePlaylistForStarredSongs() {
         assertNotEquals(-1, playlistService.createPlaylistForStarredSongs());
     }

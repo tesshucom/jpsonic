@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service.upnp.processor.composite;
 
-import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 
 public class FArtistOrSong {
 

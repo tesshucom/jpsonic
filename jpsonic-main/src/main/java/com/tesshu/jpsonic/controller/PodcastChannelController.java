@@ -25,10 +25,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.CoverArtScheme;
+import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -48,14 +48,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/podcastChannel", "/podcastChannel.view" })
 public class PodcastChannelController {
 
-    private final SecurityService securityService;
+    private final UserService userService;
     private final ScannerStateService scannerStateService;
     private final PodcastService podcastService;
 
-    public PodcastChannelController(SecurityService securityService,
+    public PodcastChannelController(UserService userService,
             ScannerStateService scannerStateService, PodcastService podcastService) {
         super();
-        this.securityService = securityService;
+        this.userService = userService;
         this.scannerStateService = scannerStateService;
         this.podcastService = podcastService;
     }
@@ -70,7 +70,7 @@ public class PodcastChannelController {
         result
             .addObject("model",
                     LegacyMap
-                        .of("user", securityService.getCurrentUserStrict(request), "channel",
+                        .of("user", userService.getCurrentUserStrict(request), "channel",
                                 podcastService.getChannel(channelId), "episodes",
                                 podcastService
                                     .getEpisodes(channelId)
@@ -83,9 +83,10 @@ public class PodcastChannelController {
     }
 
     // VO
-    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+    public static class PodcastEpisode
+            extends com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode {
 
-        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+        public PodcastEpisode(com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode episode) {
             super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(),
                     episode.getTitle(), episode.getDescription(), episode.getPublishDate(),
                     episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),

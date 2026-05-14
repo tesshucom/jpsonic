@@ -49,25 +49,25 @@ import java.util.function.Function;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.CoverArtController.AlbumCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.ArtistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.PodcastChannel;
+import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.Playlist;
+import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.exception.UncheckedException;
@@ -75,7 +75,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -88,7 +87,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
-@ExtendWith(NeedsHome.class)
+@NeedsHome
+@NeedsTranscode
 class CoverArtControllerTest {
 
     private MediaFileService mediaFileService;
@@ -105,9 +105,7 @@ class CoverArtControllerTest {
     void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
         playlistService = mock(PlaylistService.class);
-        TranscodingService transcodingService = new TranscodingService(null, null, null, null,
-                null);
-        FFmpeg ffmpeg = new FFmpeg(transcodingService);
+        FFmpeg ffmpeg = new FFmpeg();
         fontLoader = mock(FontLoader.class);
         controller = new CoverArtController(mediaFileService, ffmpeg, playlistService,
                 mock(PodcastService.class), mock(ArtistDao.class), mock(AlbumDao.class),

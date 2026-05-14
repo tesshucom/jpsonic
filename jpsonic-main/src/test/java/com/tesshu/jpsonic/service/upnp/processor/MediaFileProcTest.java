@@ -45,12 +45,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.ParamSearchResult;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.search.ParamSearchResult;
+import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -296,6 +299,8 @@ class MediaFileProcTest {
 
         @Autowired
         private MediaFileProc mediaFileProc;
+        @Autowired
+        private SettingsFacade settingsFacade;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -313,11 +318,9 @@ class MediaFileProcTest {
                             .toString(),
                         "Artists", true, now(), 1, false));
 
-            setSortStrict(true);
-            setSortAlphanum(true);
-            settingsService.setSortAlbumsByYear(false);
-            settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
-            settingsService.save();
+            settingsFacade.staging(SKeys.general.sort.albumsByYear, false);
+            settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040");
+            settingsFacade.commitAll();
             populateDatabaseOnlyOnce();
         }
 
@@ -395,7 +398,7 @@ class MediaFileProcTest {
         @Test
         void testAlbumByName() {
 
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
 
             List<MediaFile> artists = mediaFileProc
                 .getDirectChildren(0, 100)
@@ -419,8 +422,7 @@ class MediaFileProcTest {
         void testAlbumByYear() {
 
             // The result change depending on the setting
-            settingsService.setSortAlbumsByYear(true);
-            settingsService.save();
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, true);
             List<String> reversedByYear = new ArrayList<>(
                     UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
@@ -445,7 +447,7 @@ class MediaFileProcTest {
         @Test
         void testSongs() {
 
-            settingsService.setSortAlbumsByYear(false);
+            settingsFacade.commit(SKeys.general.sort.albumsByYear, false);
 
             List<MediaFile> artists = mediaFileProc
                 .getDirectChildren(0, 100)

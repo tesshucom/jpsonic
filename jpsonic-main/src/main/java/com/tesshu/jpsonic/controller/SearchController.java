@@ -24,19 +24,20 @@ package com.tesshu.jpsonic.controller;
 import java.io.IOException;
 import java.util.List;
 
-import com.tesshu.jpsonic.command.SearchCommand;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SearchResult;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.controller.form.SearchCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
+import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchCriteria;
-import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.service.search.SearchResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -59,20 +60,20 @@ public class SearchController {
 
     private static final int MATCH_COUNT = 25;
 
-    private final SettingsService settingsService;
+    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final PlayerService playerService;
     private final SearchService searchService;
-    private final SearchCriteriaDirector director;
+    private final HttpSearchCriteriaDirector director;
 
-    public SearchController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService,
-            SearchService searchService, SearchCriteriaDirector director) {
+    public SearchController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
+            UserService userService, PlayerService playerService, SearchService searchService,
+            HttpSearchCriteriaDirector director) {
         super();
-        this.settingsService = settingsService;
+        this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
-        this.securityService = securityService;
+        this.userService = userService;
         this.playerService = playerService;
         this.searchService = searchService;
         this.director = director;
@@ -93,8 +94,8 @@ public class SearchController {
             @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command)
             throws ServletRequestBindingException, IOException {
 
-        User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        User user = userService.getCurrentUserStrict(request);
+        UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setUser(user);
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setComposerVisible(userSettings.getMainVisibility().isComposerVisible());
@@ -109,10 +110,10 @@ public class SearchController {
 
             int offset = 0;
             int count = MATCH_COUNT;
-            boolean includeComposer = settingsService.isSearchComposer()
+            boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer)
                     || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchCriteria criteria = director
+            HttpSearchCriteria criteria = director
                 .construct(query, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
             SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());

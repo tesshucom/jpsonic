@@ -21,17 +21,13 @@ package com.tesshu.jpsonic.service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
-import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.domain.IndexScheme;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Transcoding;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.security.JWTAuthenticationToken;
-import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
+import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import jakarta.servlet.http.HttpServletRequest;
 import org.mockito.Mockito;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -64,32 +60,31 @@ public final class ServiceMockUtils {
     @SuppressWarnings("unchecked")
     public static <T> T mock(Class<T> classToMock) {
         Object mock;
-        if (SecurityService.class == classToMock) {
-            SecurityService securityService = Mockito.mock(SecurityService.class);
+        if (UserService.class == classToMock) {
+            UserService userService = Mockito.mock(UserService.class);
             Mockito
-                .when(securityService
+                .when(userService
                     .getCurrentUsernameStrict(Mockito.nullable(HttpServletRequest.class)))
                 .thenReturn(ADMIN_NAME);
             Mockito
-                .when(securityService
-                    .getCurrentUserStrict(Mockito.nullable(HttpServletRequest.class)))
+                .when(userService.getCurrentUserStrict(Mockito.nullable(HttpServletRequest.class)))
                 .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
             Mockito
-                .when(securityService.getUserSettings(ADMIN_NAME))
+                .when(userService.getUserSettings(ADMIN_NAME))
                 .thenReturn(new UserSettings(ADMIN_NAME));
 
             User guestUser = new User(User.USERNAME_GUEST, User.USERNAME_GUEST, "");
             guestUser.setStreamRole(true);
-            Mockito.when(securityService.getGuestUser()).thenReturn(guestUser);
+            Mockito.when(userService.getGuestUser()).thenReturn(guestUser);
             Mockito
-                .when(securityService.getUserSettings(User.USERNAME_GUEST))
+                .when(userService.getUserSettings(User.USERNAME_GUEST))
                 .thenReturn(new UserSettings(User.USERNAME_GUEST));
 
             Mockito
-                .when(securityService.getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS))
+                .when(userService.getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS))
                 .thenReturn(new UserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS));
 
-            mock = securityService;
+            mock = userService;
         } else if (PlayerService.class == classToMock) {
             PlayerService playerService = Mockito.mock(PlayerService.class);
             Player player = new Player();
@@ -104,61 +99,6 @@ public final class ServiceMockUtils {
             upnpPlayer.setClientId("Jpsonic UPnP Player");
             Mockito.when(playerService.getUPnPPlayer()).thenReturn(upnpPlayer);
             mock = playerService;
-        } else if (SettingsService.class == classToMock) {
-            SettingsService settingsService = Mockito.mock(SettingsService.class);
-            Mockito
-                .when(settingsService.getThemeId())
-                .thenReturn(SettingsConstants.General.ThemeAndLang.THEME_ID.defaultValue);
-            String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
-            String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
-            String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
-            Locale locale = new Locale(language, country, variant);
-            Mockito.when(settingsService.getAvailableLocales()).thenReturn(Arrays.asList(locale));
-            Mockito.when(settingsService.getLocale()).thenReturn(locale);
-            Mockito
-                .when(settingsService.getIndexString())
-                .thenReturn(SettingsConstants.General.Index.INDEX_STRING.defaultValue);
-            Mockito
-                .when(settingsService.getIgnoredArticles())
-                .thenReturn(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue);
-            Mockito
-                .when(settingsService.getShortcuts())
-                .thenReturn(SettingsConstants.General.Extension.SHORTCUTS.defaultValue);
-            Mockito
-                .when(settingsService.getShortcutsAsArray())
-                .thenReturn(StringUtil
-                    .split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue));
-            Mockito.when(settingsService.isGettingStartedEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
-            Mockito
-                .when(settingsService.getIndexSchemeName())
-                .thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
-            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
-            Mockito
-                .when(settingsService.getDefaultPlaylistFolder())
-                .thenReturn(SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue);
-            Mockito
-                .when(settingsService.getCoverArtFileTypesAsArray())
-                .thenReturn(Arrays
-                    .asList(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue
-                        .split(" ")));
-            Mockito
-                .when(settingsService.getIgnoredArticlesAsArray())
-                .thenReturn(Arrays
-                    .asList(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue
-                        .split(" ")));
-            mock = settingsService;
-        } else if (AirsonicLocaleResolver.class == classToMock) {
-            String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
-            String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
-            String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
-            Locale locale = new Locale(language, country, variant);
-            AirsonicLocaleResolver localeResolver = Mockito.mock(AirsonicLocaleResolver.class);
-            Mockito
-                .when(localeResolver.resolveLocale(Mockito.nullable(HttpServletRequest.class)))
-                .thenReturn(locale);
-            mock = localeResolver;
         } else if (TranscodingDao.class == classToMock) {
             TranscodingDao transcodingDao = Mockito.mock(TranscodingDao.class);
             Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(DEFAULT_TRANSCODINGS);

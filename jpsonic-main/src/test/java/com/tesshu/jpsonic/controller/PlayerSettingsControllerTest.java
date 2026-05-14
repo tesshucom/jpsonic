@@ -27,16 +27,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.command.PlayerSettingsCommand;
-import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.controller.form.PlayerSettingsCommand;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -73,14 +74,16 @@ class PlayerSettingsControllerTest {
         Mockito
             .when(transcodingService.getTranscodingsForPlayer(Mockito.any()))
             .thenReturn(allTranscodings);
+
         PlayerSettingsController controller = new PlayerSettingsController(
-                mock(SettingsService.class), mock(SecurityService.class), playerService,
-                transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class));
+                SettingsFacadeBuilder.create().build(), mock(UserService.class),
+                mock(UPnPSubnet.class), playerService, transcodingService, mock(ShareService.class),
+                mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders.get("/" + ViewName.PLAYER_SETTINGS.value()))
@@ -96,8 +99,8 @@ class PlayerSettingsControllerTest {
         assertNotNull(command);
     }
 
-    @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Test
     void testDoSubmitAction() throws Exception {
 
         Player player = playerService

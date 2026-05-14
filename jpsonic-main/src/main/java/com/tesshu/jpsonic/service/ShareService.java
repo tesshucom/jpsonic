@@ -28,13 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.tesshu.jpsonic.dao.ShareDao;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Share;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.Share;
+import com.tesshu.jpsonic.persistence.api.repository.ShareDao;
+import com.tesshu.jpsonic.persistence.core.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.RandomStringGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,15 +53,15 @@ public class ShareService {
     private static final Logger LOG = LoggerFactory.getLogger(ShareService.class);
 
     private final ShareDao shareDao;
-    private final SecurityService securityService;
+    private final UserService userService;
     private final MediaFileService mediaFileService;
     private final JWTSecurityService jwtSecurityService;
 
-    public ShareService(ShareDao shareDao, SecurityService securityService,
+    public ShareService(ShareDao shareDao, UserService userService,
             MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
         super();
         this.shareDao = shareDao;
-        this.securityService = securityService;
+        this.userService = userService;
         this.mediaFileService = mediaFileService;
         this.jwtSecurityService = jwtSecurityService;
     }
@@ -107,12 +107,15 @@ public class ShareService {
 
     public Share createShare(HttpServletRequest request, List<MediaFile> files) {
 
+        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+            .withinRange(new char[] { 'a', 'z' }, new char[] { 'A', 'Z' })
+            .get();
+        String random = generator.generate(5);
+
         Share share = new Share();
-        share
-            .setName(RandomStringUtils
-                .random(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+        share.setName(random);
         share.setCreated(now());
-        share.setUsername(securityService.getCurrentUsername(request));
+        share.setUsername(userService.getCurrentUsername(request));
         share.setExpires(now().plus(365, ChronoUnit.DAYS));
         shareDao.createShare(share);
         for (MediaFile file : files) {
