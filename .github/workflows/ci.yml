@@ -258,7 +258,7 @@ jobs:
           done
           find all-assets -name "README.txt" | head -n 1 | xargs -I {} cp {} upload/
       - name: Push to Release Page
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           repository: jpsonic/jpsonic
           token: ${{ secrets.RELEASE_TO_JPSONIC_TOKEN }}
