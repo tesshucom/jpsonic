@@ -34,7 +34,7 @@
     <versions.checkstyle>13.4.2</versions.checkstyle>
     <versions.commons-beanutils>1.11.0</versions.commons-beanutils>
     <versions.commons-collections4>4.5.0</versions.commons-collections4>
-    <versions.commons-configuration2>2.14.0</versions.commons-configuration2>
+    <versions.commons-configuration2>2.15.0</versions.commons-configuration2>
     <versions.commons-fileupload2-core>2.0.0-M4</versions.commons-fileupload2-core>
     <versions.commons-fileupload2-jakarta>2.0.0-M1</versions.commons-fileupload2-jakarta>
     <versions.commons-io>2.22.0</versions.commons-io>
@@ -804,7 +804,7 @@
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>
-              <toggleOffOn></toggleOffOn>
+              <toggleOffOn/>
               <eclipse>
                 <file>${main.basedir}/jpsonic-main/eclipse-2025-06-formatter.xml</file>
               </eclipse>
@@ -952,7 +952,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
