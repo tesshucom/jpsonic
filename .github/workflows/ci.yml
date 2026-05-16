@@ -45,7 +45,7 @@ jobs:
         language: [ 'java', 'javascript' ]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
@@ -53,7 +53,7 @@ jobs:
         queries: security-and-quality
     - name: Set up java
       if: contains(matrix.language, 'java')
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: 21
@@ -72,30 +72,44 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v2
+        uses: FedericoCarboni/setup-ffmpeg@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
-          path: ~/.m2
+          path: |
+            ~/.m2
+            C:\Users\runneradmin\.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2 
+      - name: Get current date
+        id: cve-date
+        shell: bash
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Cache Dependency-Check NVD Data
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.m2/repository/org/owasp/dependency-check-data
+            C:\Users\runneradmin\.m2\repository\org/owasp/dependency-check-data
+          key: ${{ runner.os }}-dependency-check-12-21-${{ steps.cve-date.outputs.date }}
+          restore-keys: ${{ runner.os }}-dependency-check-12-21-
       - name: Create coverage
         id: create-coverage
         if: contains(matrix.os, 'ubuntu-latest')
-        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease21 clean test jacoco:report
+        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.ffmpeg-path }}" -Prelease21 clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Code coverage report
           path: jpsonic-main/target/site/jacoco
@@ -104,7 +118,7 @@ jobs:
         if: contains(matrix.os, 'windows-latest')
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: mvn -DnvdApiKey=${{ env.NVD_API_KEY }} -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -DfailIfNoTests=false -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.path }}" -Prelease21 clean verify -B -Ptomcat-embed -Punit-test
+        run: mvn -DnvdApiKey=${{ env.NVD_API_KEY }} -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -DfailIfNoTests=false -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.ffmpeg-path }}" -Prelease21 clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
   verify-Java26:
     needs: pre_job
@@ -116,27 +130,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v2
+        uses: FedericoCarboni/setup-ffmpeg@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2 
+      - name: Get current date
+        id: cve-date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Cache Dependency-Check NVD Data
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: ${{ runner.os }}-dependency-check-12-${{ matrix.java }}-${{ steps.cve-date.outputs.date }}
+          restore-keys: ${{ runner.os }}-dependency-check-12-${{ matrix.java }}-
       - name: Verify with Maven
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: mvn -DnvdApiKey=$NVD_API_KEY -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
+        run: mvn -DnvdApiKey=$NVD_API_KEY -DnvdApiDelay=3000 -DnvdMaxRetryCount=10 -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.ffmpeg-path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   send-coverage:
     name: Send coverage to Codacy
@@ -148,14 +171,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 11
       - name: Download coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: Code coverage report
       - name: Send Jacoco report
@@ -171,18 +194,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: ${{ runner.os }}-m2 
+      - name: Get current date
+        id: cve-date
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Cache Dependency-Check NVD Data
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: ${{ runner.os }}-dependency-check-12-${{ matrix.java }}-${{ steps.date.outputs.current }}
+          restore-keys: ${{ runner.os }}-dependency-check-12-
       - name: Configure GPG Key
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
@@ -204,7 +236,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Archive artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.current }}
           path: |
@@ -221,17 +253,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Get current date
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: jpsonic-jetty-embedded-for-jdk*-${{ steps.date.outputs.current }}
           path: all-assets
       - name: Set up Java to evaluate Maven version
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
@@ -248,7 +280,7 @@ jobs:
       - name: Organize, Rename and Fix Signatures
         run: |
           mkdir -p upload
-          for jdk in 21 24 26; do
+          for jdk in 21 24 25 26; do
             SRC_DIR=$(find all-assets -name "*jdk${jdk}-*" -type d | head -n 1)
             if [ -n "$SRC_DIR" ]; then
               echo "Collecting JDK $jdk assets from $SRC_DIR..."
@@ -258,7 +290,7 @@ jobs:
           done
           find all-assets -name "README.txt" | head -n 1 | xargs -I {} cp {} upload/
       - name: Push to Release Page
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           repository: jpsonic/jpsonic
           token: ${{ secrets.RELEASE_TO_JPSONIC_TOKEN }}
@@ -273,14 +305,14 @@ jobs:
     needs: ship-war
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -288,7 +320,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk26-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -350,14 +382,14 @@ jobs:
     needs: ship-war
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -365,7 +397,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk24-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -427,14 +459,14 @@ jobs:
     needs: ship-war
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -442,7 +474,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk26-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -508,10 +540,10 @@ jobs:
       matrix:
         tag: [ latest, latest-ubi9, latest-noble ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: actions/checkout@v6
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -538,10 +570,10 @@ jobs:
       matrix:
         tag: [ ea, ea-ubi9, ea-noble ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: actions/checkout@v6
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
