@@ -1,0 +1,31 @@
+name: "maven-prepare"
+description: "Restore Maven cache and write settings.xml for GitHub Packages"
+
+inputs:
+  gh_user:
+    description: "GitHub Username"
+    required: true
+  gh_pat:
+    description: "GitHub Personal Access Token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache Maven packages
+      uses: actions/cache@v5
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2 
+    - name: Write Maven settings.xml
+      shell: bash
+      env:
+        GH_USER: ${{ inputs.gh_user }}
+        GH_PAT: ${{ inputs.gh_pat }}
+      run: |
+        mkdir -p ~/.m2
+        printf '<settings><servers><server><id>jpsonic-packages-repo</id><username>%s</username><password>%s</password></server></servers></settings>' \
+          "$GH_USER" \
+          "$GH_PAT" \
+          > ~/.m2/settings.xml
