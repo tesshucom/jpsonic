@@ -83,18 +83,16 @@ jobs:
         uses: FedericoCarboni/setup-ffmpeg@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Maven packages
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.m2
-            C:\Users\runneradmin\.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2 
       - name: Get current date
         id: cve-date
         shell: bash
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Cache Dependency-Check NVD Data
         uses: actions/cache@v5
         with:
@@ -141,15 +139,15 @@ jobs:
         uses: FedericoCarboni/setup-ffmpeg@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Maven packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2 
       - name: Get current date
         id: cve-date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Cache Dependency-Check NVD Data
         uses: actions/cache@v5
         with:
@@ -177,6 +175,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Download coverage
         uses: actions/download-artifact@v8
         with:
@@ -200,15 +204,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
-      - name: Cache Maven packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2 
       - name: Get current date
         id: cve-date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Cache Dependency-Check NVD Data
         uses: actions/cache@v5
         with:
@@ -323,6 +327,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk26-${{ steps.date.outputs.current }}
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -400,6 +410,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk24-${{ steps.date.outputs.current }}
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -477,6 +493,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: jpsonic-jetty-embedded-for-jdk26-${{ steps.date.outputs.current }}
+      - name: Prepare Maven m2-Cache And Settings
+        uses:
+          ./.github/actions/maven-prepare
+        with:
+          gh_user: ${{ github.actor }}
+          gh_pat: ${{ secrets.JPSONIC_PACKAGE_TOKEN }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
