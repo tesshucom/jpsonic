@@ -13,16 +13,15 @@
   <name>Jpsonic Main</name>
 
   <properties>
+    <argLine>--enable-native-access=ALL-UNNAMED -XX:+EnableDynamicAgentLoading -Xshare:off -XX:+IgnoreUnrecognizedVMOptions</argLine>
     <main.basedir>${project.parent.basedir}</main.basedir>
     <tomcat.server.scope>provided</tomcat.server.scope>
-    <argLine>--enable-native-access=ALL-UNNAMED -XX:+EnableDynamicAgentLoading -Xshare:off -XX:+IgnoreUnrecognizedVMOptions</argLine>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.tesshu.jpsonic.player</groupId>
+      <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>subsonic-rest-api</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic.player</groupId>
@@ -629,8 +628,7 @@
             <configuration>
               <target>
                 <tstamp></tstamp>
-                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/feature/i18n/ResourceBundle_en.properties"
-                  tofile="${project.build.directory}/classes/com/tesshu/jpsonic/feature/i18n/ResourceBundle.properties"></copy>
+                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/feature/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/feature/i18n/ResourceBundle.properties"></copy>
                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                 <!--suppress MavenModelInspection -->
                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>

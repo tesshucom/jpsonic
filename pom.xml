@@ -9,7 +9,6 @@
   <name>Jpsonic</name>
 
   <modules>
-    <module>subsonic-rest-api</module>
     <module>airsonic-taglibs</module>
     <module>jpsonic-upnp-template</module>
     <module>jpsonic-main</module>
@@ -23,6 +22,8 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
+
+    <version.subsonic-rest-api>1.0.0</version.subsonic-rest-api>
 
     <versions.antlr>4.13.2</versions.antlr>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
@@ -39,6 +40,11 @@
         <version>115.0.2</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>subsonic-rest-api</artifactId>
+        <version>${version.subsonic-rest-api}</version>
       </dependency>
       <dependency>
         <groupId>com.github.muff1nman.chameleon</groupId>
@@ -61,11 +67,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-xjc-plugin</artifactId>
-          <version>4.2.0</version>
-        </plugin>
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
@@ -509,6 +510,9 @@
 
   <repositories>
     <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>local1</id>
       <name>Local Repository</name>
       <url>file://${project.basedir}/../repo</url>
@@ -577,7 +581,6 @@
     <profile>
       <id>unit-test</id>
       <modules>
-        <module>subsonic-rest-api</module>
         <module>jpsonic-upnp-template</module>
         <module>jpsonic-main</module>
       </modules>
