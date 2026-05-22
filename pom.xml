@@ -9,7 +9,6 @@
   <name>Jpsonic</name>
 
   <modules>
-    <module>airsonic-taglibs</module>
     <module>jpsonic-upnp-template</module>
     <module>jpsonic-main</module>
   </modules>
@@ -24,6 +23,7 @@
     <project.inceptionYear>2018</project.inceptionYear>
 
     <version.subsonic-rest-api>1.0.0</version.subsonic-rest-api>
+    <version.airsonic-taglibs>1.0.0</version.airsonic-taglibs>
 
     <versions.antlr>4.13.2</versions.antlr>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
@@ -45,6 +45,11 @@
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>subsonic-rest-api</artifactId>
         <version>${version.subsonic-rest-api}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>airsonic-taglibs</artifactId>
+        <version>${version.airsonic-taglibs}</version>
       </dependency>
       <dependency>
         <groupId>com.github.muff1nman.chameleon</groupId>

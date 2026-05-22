@@ -24,9 +24,8 @@
       <artifactId>subsonic-rest-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.tesshu.jpsonic.player</groupId>
+      <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>airsonic-taglibs</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic.player</groupId>
