@@ -28,9 +28,8 @@
       <artifactId>airsonic-taglibs</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.tesshu.jpsonic.player</groupId>
+      <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>jpsonic-upnp-template</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.muff1nman.chameleon</groupId>
