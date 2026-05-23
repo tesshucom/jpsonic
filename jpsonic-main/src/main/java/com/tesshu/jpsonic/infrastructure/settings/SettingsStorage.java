@@ -19,15 +19,16 @@
 
 package com.tesshu.jpsonic.infrastructure.settings;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -126,19 +127,26 @@ final class SettingsStorage {
         if (!isRunning()) {
             return;
         }
-        List<String> graveyardProperties;
+
         try (InputStream in = SettingsStorage.class
             .getResourceAsStream("GraveyardProperties.txt")) {
-            graveyardProperties = StringUtil.readLines(in);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(in, StandardCharsets.UTF_8))) {
+                reader
+                    .lines()
+                    .map(String::trim)
+                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                    .toList()
+                    .forEach(keyName -> {
+                        if (config.containsKey(keyName)) {
+                            config.clearProperty(keyName);
+                        }
+                    });
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        graveyardProperties.forEach(keyName -> {
-            if (config.containsKey(keyName)) {
-                config.clearProperty(keyName);
-            }
-        });
         save();
         running.set(false);
     }

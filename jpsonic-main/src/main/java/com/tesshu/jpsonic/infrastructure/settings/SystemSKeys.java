@@ -20,12 +20,28 @@
 package com.tesshu.jpsonic.infrastructure.settings;
 
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.LONG;
+import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-class SystemSKeys {
+public class SystemSKeys implements SettingKeyDictionary {
 
     static final SKey<Long> savedAt = SKey.of("SettingsChanged", LONG, 0L);
+
+    /**
+     * Deprecated secrets (temporary keys, scheduled for removal)
+     */
+    public static final class deprecatedSecrets {
+
+        /**
+         * Temporary secret used for JWT signing.
+         * <p>
+         * This key is deprecated and will be removed once the secret is stored in the
+         * database instead of the properties file.
+         */
+        @Deprecated
+        public static final SettingKey<String> jwtKey = SKey.of("JWTKey", STRING, null);
+    }
 
     @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
     static final class SKey<V> implements SettingKey<V> {

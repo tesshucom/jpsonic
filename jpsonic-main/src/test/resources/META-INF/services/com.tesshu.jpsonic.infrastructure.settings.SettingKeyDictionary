@@ -1,0 +1,8 @@
+com.tesshu.jpsonic.infrastructure.settings.SKeys
+com.tesshu.jpsonic.infrastructure.settings.SystemSKeys
+com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys
+com.tesshu.jpsonic.persistence.DBSKeys
+com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys
+com.tesshu.jpsonic.feature.i18n.I18nSKeys
+com.tesshu.jpsonic.feature.theme.ThemeSKeys
+com.tesshu.jpsonic.service.upnp.UPnPSKeys

@@ -23,11 +23,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -35,14 +41,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
-import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
-import com.tesshu.jpsonic.feature.theme.ThemeSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
-import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
-import com.tesshu.jpsonic.persistence.DBSKeys;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -189,6 +189,7 @@ public class SettingsFacadeBuilder {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerDefaultsIfNull(List<SettingKey<?>> keys, SettingsStorage storage) {
         keys.stream().filter(key -> !storage.hasValue(key)).forEach(key -> {
             Object def = key.defaultValue();
@@ -209,20 +210,51 @@ public class SettingsFacadeBuilder {
      * Use this when tests depend on default settings being present.
      * </p>
      */
+    @SuppressWarnings({ "PMD.AvoidAccessibilityAlteration", "PMD.EmptyCatchBlock" })
     public SettingsFacade buildWithDefault() {
-
-        // register default settings
-        if (!storage.hasValue(SKeys.deprecatedSecrets.jwtKey)) {
-            String jwtKey = new BigInteger(130, new SecureRandom()).toString(32);
-            withString(SKeys.deprecatedSecrets.jwtKey, jwtKey);
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        List<String> classNames = new ArrayList<>();
+        try {
+            URL url = cl
+                .getResource(
+                        "META-INF/services/com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary");
+            if (url != null) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        if (!line.isEmpty()) {
+                            classNames.add(line);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        registerDefaultsIfNull(collectNonNullDefaults(SKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(DBSKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(I18nSKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(ThemeSKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(UPnPSKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(RMSKeys.class), storage);
-        registerDefaultsIfNull(collectNonNullDefaults(FileSystemSKeys.class), storage);
+
+        for (String className : classNames) {
+            try {
+                Class<?> clazz = Class.forName(className, false, cl);
+                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                constructor.setAccessible(true);
+                Object dictionary = constructor.newInstance();
+                registerDefaultsIfNull(collectNonNullDefaults(dictionary.getClass()), storage);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                    | SecurityException e) {
+                // no-op
+            }
+        }
+
+        if (!storage.hasValue(SystemSKeys.deprecatedSecrets.jwtKey)) {
+            String jwtKey = new BigInteger(130, new SecureRandom()).toString(32);
+            withString(SystemSKeys.deprecatedSecrets.jwtKey, jwtKey);
+        }
+
         SettingsRuntime runtime = new SettingsRuntime(storage);
         return new SettingsFacade(storage, runtime);
     }

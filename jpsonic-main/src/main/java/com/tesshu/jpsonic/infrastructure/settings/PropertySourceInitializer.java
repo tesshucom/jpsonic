@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.infrastructure.settings;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
@@ -30,7 +31,6 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
-import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.ImmutableConfiguration;
@@ -122,7 +122,7 @@ class PropertySourceInitializer
                 layout.setBlankLinesBefore(key, 0);
             });
 
-            MapConfiguration snapshot = new MapConfiguration(LegacyMap.of());
+            MapConfiguration snapshot = new MapConfiguration(new HashMap<>());
             snapshot.copy(config);
             return snapshot;
         } catch (ConfigurationException e) {

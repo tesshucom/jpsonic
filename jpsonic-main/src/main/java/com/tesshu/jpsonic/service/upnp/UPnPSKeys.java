@@ -5,12 +5,13 @@ import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.IN
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
 /* UPnP / DLNA settings (UI category). */
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public final class UPnPSKeys {
+public final class UPnPSKeys implements SettingKeyDictionary {
 
     /** Basic UPnP server settings (UI category). */
     public static final class basic {

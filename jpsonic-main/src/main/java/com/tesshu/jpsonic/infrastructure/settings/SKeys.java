@@ -47,22 +47,7 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
  */
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public final class SKeys {
-
-    /**
-     * Deprecated secrets (temporary keys, scheduled for removal)
-     */
-    public static final class deprecatedSecrets {
-
-        /**
-         * Temporary secret used for JWT signing.
-         * <p>
-         * This key is deprecated and will be removed once the secret is stored in the
-         * database instead of the properties file.
-         */
-        @Deprecated
-        public static final SettingKey<String> jwtKey = SKey.of("JWTKey", STRING, null);
-    }
+public final class SKeys implements SettingKeyDictionary {
 
     /** Settings for music folder configuration (UI category). */
     public static final class musicFolder {

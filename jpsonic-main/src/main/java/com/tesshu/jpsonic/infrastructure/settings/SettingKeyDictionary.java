@@ -17,32 +17,12 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.infrastructure.db;
+package com.tesshu.jpsonic.infrastructure.settings;
 
-import java.util.Locale;
+/**
+ * Marker interface used for automatic discovery via SPI by test tools. This
+ * interface is not used in production logic.
+ */
+public interface SettingKeyDictionary {
 
-public enum DataSourceConfigType {
-    JNDI("jndi"), URL("url"), HOST("host"), EMBED("embed"), LEGACY("legacy");
-
-    private final String name;
-
-    DataSourceConfigType(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public static DataSourceConfigType of(String name) {
-        if (name == null) {
-            return HOST;
-        }
-        return switch (name.toUpperCase(Locale.ROOT)) {
-        case "HOST", "LEGACY" -> HOST;
-        case "URL", "EMBED" -> URL;
-        case "JNDI" -> JNDI;
-        default -> HOST;
-        };
-    }
 }

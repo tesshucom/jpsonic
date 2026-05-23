@@ -23,10 +23,11 @@ import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.BO
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.INTEGER;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public class RMSKeys {
+public class RMSKeys implements SettingKeyDictionary {
 
     public static final SettingKey<Boolean> enable = SKey.of("RememberMeEnable", BOOLEAN, true);
 

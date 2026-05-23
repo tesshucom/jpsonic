@@ -23,10 +23,11 @@ import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.BO
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public class FileSystemSKeys {
+public class FileSystemSKeys implements SettingKeyDictionary {
 
     public static final SettingKey<String> excludePatternString = SKey
         .of("ExcludePattern", STRING, null);

@@ -21,15 +21,17 @@ package com.tesshu.jpsonic.infrastructure.settings;
 
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.infrastructure.filesystem.FileSystemSKeys;
-import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -43,6 +45,8 @@ import org.springframework.stereotype.Component;
 @Component
 final class SettingsRuntime {
 
+    private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
+    private static final HexFormat HEX = HexFormat.of();
     private final SettingsStorage storage;
 
     /*
@@ -78,7 +82,7 @@ final class SettingsRuntime {
         this.storage = storage;
     }
 
-    @SuppressWarnings("PMD.UnnecessaryBoxing")
+    @SuppressWarnings({ "PMD.UnnecessaryBoxing", "unchecked" })
     @Nullable
     <T> T get(@NonNull SettingKey<T> key) {
         return (T) switch (key.valueType()) {
@@ -91,26 +95,33 @@ final class SettingsRuntime {
 
     @NonNull
     List<String> getCachedList(@NonNull SettingKey<String> key) {
-        if (SKeys.general.index.ignoredArticles.equals(key)) {
-            return ensureListCache(SKeys.general.index.ignoredArticles, ignoredArticles);
-        }
-        if (SKeys.general.extension.musicFileTypes.equals(key)) {
-            return ensureListCache(SKeys.general.extension.musicFileTypes, musicFileTypes);
-        }
-        if (SKeys.general.extension.videoFileTypes.equals(key)) {
-            return ensureListCache(SKeys.general.extension.videoFileTypes, videoFileTypes);
-        }
-        if (SKeys.general.extension.coverArtFileTypes.equals(key)) {
-            return ensureListCache(SKeys.general.extension.coverArtFileTypes, coverArtFileTypes);
-        }
-        if (SKeys.general.extension.excludedCoverArt.equals(key)) {
-            return ensureListCache(SKeys.general.extension.excludedCoverArt, excludedCoverArts);
-        }
-        if (SKeys.general.extension.shortcuts.equals(key)) {
-            return ensureListCache(SKeys.general.extension.shortcuts, shortcuts);
+        return switch (key.name()) {
+        case "IgnoredArticles" -> ensureListCache(key, ignoredArticles);
+        case "MusicFileTypes" -> ensureListCache(key, musicFileTypes);
+        case "VideoFileTypes" -> ensureListCache(key, videoFileTypes);
+        case "CoverArtFileTypes2" -> ensureListCache(key, coverArtFileTypes);
+        case "ExcludedCoverArt" -> ensureListCache(key, excludedCoverArts);
+        case "Shortcuts" -> ensureListCache(key, shortcuts);
+        default -> throw new IllegalArgumentException("Unexpected value: " + key.name());
+        };
+    }
+
+    List<String> split(String input) {
+        if (input == null) {
+            return Collections.emptyList();
         }
 
-        throw new IllegalArgumentException("Unsupported list key: " + key);
+        List<String> result = new ArrayList<>();
+        Matcher m = SPLIT_PATTERN.matcher(input);
+        while (m.find()) {
+            if (m.group(1) == null) {
+                result.add(m.group(2)); // unquoted string
+            } else {
+                result.add(m.group(1)); // quoted string
+            }
+        }
+
+        return Collections.unmodifiableList(result);
     }
 
     @NonNull
@@ -132,7 +143,7 @@ final class SettingsRuntime {
             return empty;
         }
 
-        List<String> parsed = StringUtil.split(raw);
+        List<String> parsed = split(raw);
         cache.set(parsed);
         return parsed;
     }
@@ -168,6 +179,7 @@ final class SettingsRuntime {
         }
     }
 
+    @SuppressWarnings("unchecked")
     <V> void staging(@NonNull SettingKey<V> key, @Nullable V value) {
         V toStore = key.valueType() == STRING && value != null
                 && StringUtils.isBlank((String) value) ? null : value;
@@ -190,9 +202,14 @@ final class SettingsRuntime {
                 && !SKeys.advanced.ldap.managerPassword.equals(key)) {
             throw new IllegalArgumentException("Unsupported decoded string key: " + key);
         }
+        String str = storage.getString(key);
+        if (str == null) {
+            return null;
+        }
+
         try {
-            return StringUtil.utf8HexDecode(storage.getString(key));
-        } catch (DecoderException e) {
+            return new String(HEX.parseHex(str), StandardCharsets.UTF_8);
+        } catch (NumberFormatException e) {
             storage.staging(key, null);
             return null;
         }
@@ -203,7 +220,7 @@ final class SettingsRuntime {
                 && !SKeys.advanced.ldap.managerPassword.equals(key)) {
             throw new IllegalArgumentException("Unsupported encoded string key: " + key);
         }
-        String encoded = raw == null ? null : StringUtil.utf8HexEncode(raw);
+        String encoded = raw == null ? null : HEX.formatHex(raw.getBytes(StandardCharsets.UTF_8));
         staging(key, encoded);
     }
 

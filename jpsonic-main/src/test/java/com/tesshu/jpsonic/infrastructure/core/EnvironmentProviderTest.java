@@ -19,12 +19,12 @@
 
 package com.tesshu.jpsonic.infrastructure.core;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -333,9 +332,15 @@ class EnvironmentProviderTest {
     // 5. Lucene / Index Management
     // ============================================================
 
+    class DummyArtistDao {
+        void deleteAll() {
+            // no-op
+        }
+    }
+
     @Test
     void testInitializeIndexDirectory() {
-        ArtistDao dao = mock(ArtistDao.class);
+        DummyArtistDao dao = mock(DummyArtistDao.class);
         EnvironmentProvider.getInstance().initializeIndexDirectory(dao::deleteAll);
         verify(dao, times(1)).deleteAll();
     }
