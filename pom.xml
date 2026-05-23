@@ -21,11 +21,15 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
 
+    <versions.jpsonic->1.0.0</versions.jpsonic->
+    <versions.jpsonic-domain>1.0.0</versions.jpsonic-domain>
+    <versions.jpsonic-infrastructure>1.0.0</versions.jpsonic-infrastructure>
+    <versions.jpsonic-infrastructure-test>1.0.0</versions.jpsonic-infrastructure-test>
+    <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
+
     <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
     <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-
-    <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
 
     <versions.checkstyle>13.4.2</versions.checkstyle>
     <versions.pmd>7.24.0</versions.pmd>
@@ -41,6 +45,28 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-domain</artifactId>
+        <version>${versions.jpsonic-domain}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure</artifactId>
+        <version>${versions.jpsonic-infrastructure}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure-test</artifactId>
+        <version>${versions.jpsonic-infrastructure-test}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-upnp-template</artifactId>
+        <version>${versions.jpsonic-upnp-template}</version>
+      </dependency>
+
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>subsonic-rest-api</artifactId>
@@ -65,11 +91,6 @@
         <groupId>com.github.muff1nman.chameleon</groupId>
         <artifactId>playlist-all</artifactId>
         <version>${versions.chameleon}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tesshu.jpsonic</groupId>
-        <artifactId>jpsonic-upnp-template</artifactId>
-        <version>${versions.jpsonic-upnp-template}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
