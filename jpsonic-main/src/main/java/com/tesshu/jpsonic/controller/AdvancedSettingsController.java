@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.domain.entity.AuthKey;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
@@ -36,7 +37,6 @@ import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -104,7 +104,7 @@ public class AdvancedSettingsController {
 
         AuthKey rememberMeKey = rememberMeKeyManager.getAuthKey();
         LocalDateTime lastUpdate = rememberMeKey
-            .getLastUpdate()
+            .lastUpdate()
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime();
         command
@@ -249,6 +249,7 @@ public class AdvancedSettingsController {
         return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
     }
 
+    @SuppressWarnings("unchecked")
     void setScanLog(AdvancedSettingsCommand command) {
         settingsFacade.staging(SKeys.advanced.scanLog.useScanLog, command.isUseScanLog());
         if (command.isUseScanLog()) {

@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.auth;
+package com.tesshu.jpsonic.domain.type;
 
 public enum AuthKeyType {
 
@@ -38,4 +38,12 @@ public enum AuthKeyType {
         return keyType;
     }
 
+    public static AuthKeyType of(int value) {
+        for (AuthKeyType type : values()) {
+            if (type.keyType == value) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown AuthKeyType value: " + value);
+    }
 }

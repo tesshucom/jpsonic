@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
@@ -41,11 +40,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-import com.tesshu.jpsonic.feature.auth.AuthKeyType;
+import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.NeedsDB;
-import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,14 +65,14 @@ class RememberMeKeyManagerTest {
     @Resource
     private SettingsFacade settingsFacade;
     @Resource
-    private AuthKeyDao authKeyDao;
+    private AuthKeyRepository authKeyRepository;
 
     private RememberMeKeyManager keyManager;
 
     @BeforeEach
     void setup() {
-        authKeyDao.remove(AuthKeyType.REMEMBERME.value());
-        keyManager = new RememberMeKeyManager(settingsFacade, authKeyDao);
+        authKeyRepository.remove(AuthKeyType.REMEMBERME);
+        keyManager = new RememberMeKeyManager(settingsFacade, authKeyRepository);
     }
 
     @Test
@@ -80,7 +80,7 @@ class RememberMeKeyManagerTest {
         settingsFacade.commit(RMSKeys.enable, false);
         keyManager.init();
 
-        AuthKey stored = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey stored = authKeyRepository.get(AuthKeyType.REMEMBERME);
         assertNotNull(stored);
         assertTrue(keyManager.isRunning());
     }
@@ -89,7 +89,7 @@ class RememberMeKeyManagerTest {
     void initUsesExistingKey() {
         settingsFacade.commit(RMSKeys.enable, true);
         String existing = "existingKey";
-        authKeyDao.create(AuthKeyType.REMEMBERME.value(), existing, Instant.now());
+        authKeyRepository.create(AuthKeyType.REMEMBERME, existing, Instant.now());
 
         keyManager.init();
 
@@ -124,10 +124,10 @@ class RememberMeKeyManagerTest {
         keyManager.rotate();
 
         String after = keyManager.getKey();
-        AuthKey stored = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey stored = authKeyRepository.get(AuthKeyType.REMEMBERME);
 
         assertNotEquals(before, after);
-        assertEquals(after, stored.getValue());
+        assertEquals(after, stored.value());
     }
 
     @Test
@@ -135,13 +135,13 @@ class RememberMeKeyManagerTest {
         settingsFacade.commit(RMSKeys.enable, false);
         keyManager.init();
 
-        AuthKey before = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey before = authKeyRepository.get(AuthKeyType.REMEMBERME);
 
         keyManager.rotate();
 
-        AuthKey after = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey after = authKeyRepository.get(AuthKeyType.REMEMBERME);
 
-        assertEquals(before.getValue(), after.getValue());
+        assertEquals(before.value(), after.value());
     }
 
     @Test
@@ -150,13 +150,13 @@ class RememberMeKeyManagerTest {
         keyManager.init();
         keyManager.stop();
 
-        AuthKey before = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey before = authKeyRepository.get(AuthKeyType.REMEMBERME);
 
         keyManager.rotate();
 
-        AuthKey after = authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        AuthKey after = authKeyRepository.get(AuthKeyType.REMEMBERME);
 
-        assertEquals(before.getValue(), after.getValue());
+        assertEquals(before.value(), after.value());
     }
 
     @Test
@@ -241,13 +241,15 @@ class RememberMeKeyManagerTest {
                 .buildWithDefault();
 
             String existingKey = "disabled-but-exists";
-            when(mockDao.get(anyInt())).thenReturn(new AuthKey(1, existingKey, Instant.now()));
+            when(mockDao.get(any(AuthKeyType.class)))
+                .thenReturn(new AuthKey(AuthKeyType.REMEMBERME, existingKey, Instant.now()));
 
             manager = new RememberMeKeyManager(settings, mockDao);
             manager.init();
 
             assertThat(manager.isRunning()).isTrue();
-            verify(mockDao, never()).update(any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -267,14 +269,17 @@ class RememberMeKeyManagerTest {
                 .build();
 
             String existingKey = "existing-key";
-            when(mockDao.get(anyInt())).thenReturn(new AuthKey(1, existingKey, Instant.now()));
+            when(mockDao.get(any(AuthKeyType.class)))
+                .thenReturn(new AuthKey(AuthKeyType.REMEMBERME, existingKey, Instant.now()));
 
             manager = new RememberMeKeyManager(settings, mockDao);
             manager.init();
 
             assertThat(manager.getKey()).isEqualTo(existingKey);
-            verify(mockDao, never()).update(any());
-            verify(mockDao, never()).create(anyInt(), any(), any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
+            verify(mockDao, never())
+                .create(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -293,14 +298,17 @@ class RememberMeKeyManagerTest {
                 .withInt(RMSKeys.rotationType, KeyRotationType.RESTART.value())
                 .build();
 
-            when(mockDao.get(anyInt())).thenReturn(new AuthKey(1, "old-key", Instant.now()));
+            when(mockDao.get(AuthKeyType.REMEMBERME))
+                .thenReturn(new AuthKey(AuthKeyType.REMEMBERME, "old-key", Instant.now()),
+                        new AuthKey(AuthKeyType.REMEMBERME, "new-key", Instant.now()));
 
             manager = new RememberMeKeyManager(settings, mockDao);
             manager.init();
 
             // Should be rotated, so key must not be "old-key"
             assertThat(manager.getKey()).isNotEqualTo("old-key");
-            verify(mockDao).update(any(AuthKey.class));
+            assertThat(manager.getKey()).isEqualTo("new-key");
+            verify(mockDao).update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -311,14 +319,13 @@ class RememberMeKeyManagerTest {
         @Test
         void i04() {
             SettingsFacade settings = SettingsFacadeBuilder.create().buildWithDefault();
-            when(mockDao.get(anyInt())).thenReturn(null);
+            when(mockDao.get(AuthKeyType.REMEMBERME)).thenReturn(null);
             manager = new RememberMeKeyManager(settings, mockDao);
             manager.init();
 
             assertThat(manager.getKey()).isNotNull();
 
-            verify(mockDao)
-                .create(eq(AuthKeyType.REMEMBERME.value()), anyString(), any(Instant.class));
+            verify(mockDao).create(eq(AuthKeyType.REMEMBERME), anyString(), any(Instant.class));
         }
     }
 
@@ -387,10 +394,10 @@ class RememberMeKeyManagerTest {
         }
 
         private void initManager(SettingsFacade settings, Instant lastUpdate) {
-            when(mockDao.get(anyInt())).thenReturn(new AuthKey(1, "old-key", lastUpdate));
+            when(mockDao.get(AuthKeyType.REMEMBERME))
+                .thenReturn(new AuthKey(AuthKeyType.REMEMBERME, "old-key", lastUpdate));
             manager = new RememberMeKeyManager(settings, mockDao);
             manager.init();
-            // init時の更新(RESTART時など)があればリセットし、判定分のみをカウント可能にする
             clearInvocations(mockDao);
         }
 
@@ -422,7 +429,8 @@ class RememberMeKeyManagerTest {
             initManager(settings, lastUpdate);
             manager.rotateIfNecessary(now);
 
-            verify(mockDao, times(1)).update(any());
+            verify(mockDao, times(1))
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -448,7 +456,8 @@ class RememberMeKeyManagerTest {
             initManager(settings, lastUpdate);
             manager.rotateIfNecessary(now);
 
-            verify(mockDao, never()).update(any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -470,7 +479,8 @@ class RememberMeKeyManagerTest {
 
             manager.rotateIfNecessary(Instant.now());
 
-            verify(mockDao, never()).update(any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -492,7 +502,8 @@ class RememberMeKeyManagerTest {
 
             manager.rotateIfNecessary(Instant.now());
 
-            verify(mockDao, never()).update(any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
 
         /**
@@ -512,7 +523,8 @@ class RememberMeKeyManagerTest {
 
             manager.rotateIfNecessary(Instant.now());
 
-            verify(mockDao, never()).update(any());
+            verify(mockDao, never())
+                .update(any(AuthKeyType.class), anyString(), any(Instant.class));
         }
     }
 }

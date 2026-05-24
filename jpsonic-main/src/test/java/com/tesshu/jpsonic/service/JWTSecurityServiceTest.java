@@ -44,9 +44,9 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.infrastructure.settings.SystemSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -85,7 +85,7 @@ class JWTSecurityServiceTest {
                     .getQueryParams()
                     .getFirst(JWTSecurityService.JWT_PARAM_NAME);
                 Algorithm algorithm = JWTSecurityService
-                    .getAlgorithm(settingsFacade.get(SKeys.deprecatedSecrets.jwtKey));
+                    .getAlgorithm(settingsFacade.get(SystemSKeys.deprecatedSecrets.jwtKey));
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT verify = verifier.verify(jwtToken);
                 Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);

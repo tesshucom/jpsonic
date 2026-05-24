@@ -9,9 +9,6 @@
   <name>Jpsonic</name>
 
   <modules>
-    <module>subsonic-rest-api</module>
-    <module>airsonic-taglibs</module>
-    <module>jpsonic-upnp-template</module>
     <module>jpsonic-main</module>
   </modules>
 
@@ -24,8 +21,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
 
-    <versions.antlr>4.13.2</versions.antlr>
+    <versions.jpsonic->1.0.0</versions.jpsonic->
+    <versions.jpsonic-domain>1.0.0</versions.jpsonic-domain>
+    <versions.jpsonic-infrastructure>1.0.0</versions.jpsonic-infrastructure>
+    <versions.jpsonic-infrastructure-test>1.0.0</versions.jpsonic-infrastructure-test>
+    <versions.jpsonic-feature>1.0.0</versions.jpsonic-feature>
+    <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
+
+    <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
+    <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
+
     <versions.checkstyle>13.4.2</versions.checkstyle>
     <versions.pmd>7.24.0</versions.pmd>
     <versions.spotbugs>4.9.8</versions.spotbugs>
@@ -39,6 +45,43 @@
         <version>115.0.2</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-domain</artifactId>
+        <version>${versions.jpsonic-domain}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure</artifactId>
+        <version>${versions.jpsonic-infrastructure}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure-test</artifactId>
+        <version>${versions.jpsonic-infrastructure-test}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-feature</artifactId>
+        <version>${versions.jpsonic-feature}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-upnp-template</artifactId>
+        <version>${versions.jpsonic-upnp-template}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>subsonic-rest-api</artifactId>
+        <version>${versions.subsonic-rest-api}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>airsonic-taglibs</artifactId>
+        <version>${versions.airsonic-taglibs}</version>
       </dependency>
       <dependency>
         <groupId>com.github.muff1nman.chameleon</groupId>
@@ -61,11 +104,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-xjc-plugin</artifactId>
-          <version>4.2.0</version>
-        </plugin>
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
@@ -285,11 +323,6 @@
           <version>0.8.14</version>
         </plugin>
         <plugin>
-          <groupId>org.antlr</groupId>
-          <artifactId>antlr4-maven-plugin</artifactId>
-          <version>${versions.antlr}</version>
-        </plugin>
-        <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>3.4.0</version>
@@ -322,7 +355,7 @@
           <predefinedSortOrder>custom_1</predefinedSortOrder>
           <lineSeparator>\n</lineSeparator>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <sortProperties>true</sortProperties>
+          <sortProperties>false</sortProperties>
         </configuration>
         <executions>
           <execution>
@@ -509,6 +542,9 @@
 
   <repositories>
     <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>local1</id>
       <name>Local Repository</name>
       <url>file://${project.basedir}/../repo</url>
@@ -577,8 +613,6 @@
     <profile>
       <id>unit-test</id>
       <modules>
-        <module>subsonic-rest-api</module>
-        <module>jpsonic-upnp-template</module>
         <module>jpsonic-main</module>
       </modules>
       <properties>

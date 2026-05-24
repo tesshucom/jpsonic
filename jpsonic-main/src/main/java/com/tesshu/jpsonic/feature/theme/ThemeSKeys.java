@@ -22,10 +22,11 @@ package com.tesshu.jpsonic.feature.theme;
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public class ThemeSKeys {
+public class ThemeSKeys implements SettingKeyDictionary {
 
     public static final SettingKey<String> themeId = SKey.of("Theme", STRING, "jpsonic");
 
