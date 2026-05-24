@@ -29,13 +29,14 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.domain.entity.AuthKey;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.feature.auth.AuthKeyType;
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeForm;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
@@ -76,7 +77,7 @@ class AdvancedSettingsControllerTest {
     @Ignore
     void init() {
         RememberMeKeyManager rememberMeKeyManager = mock(RememberMeKeyManager.class);
-        AuthKey authKey = new AuthKey(AuthKeyType.REMEMBERME.value(), "XXX", Instant.now());
+        AuthKey authKey = new AuthKey(AuthKeyType.REMEMBERME, "XXX", Instant.now());
         Mockito.when(rememberMeKeyManager.getAuthKey()).thenReturn(authKey);
         controller = new AdvancedSettingsController(settingsFacade, mock(UserService.class),
                 rememberMeKeyManager, mock(ShareService.class), mock(OutlineHelpSelector.class),
@@ -95,10 +96,10 @@ class AdvancedSettingsControllerTest {
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView
+        RememberMeForm form = (RememberMeForm) modelAndView
             .getModelMap()
             .get(Attributes.Model.Command.VALUE);
-        assertNotNull(command);
+        assertNotNull(form);
     }
 
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
@@ -112,7 +113,7 @@ class AdvancedSettingsControllerTest {
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView
+        RememberMeForm command = (RememberMeForm) modelAndView
             .getModelMap()
             .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);

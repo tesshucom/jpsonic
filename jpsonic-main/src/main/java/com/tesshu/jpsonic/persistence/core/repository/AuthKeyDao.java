@@ -23,18 +23,20 @@ import java.sql.ResultSet;
 import java.time.Instant;
 
 import com.drew.lang.annotations.Nullable;
+import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
-import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class AuthKeyDao {
+public class AuthKeyDao implements AuthKeyRepository {
 
     private static final String QUERY_COLUMNS = "key_type, value, last_update\s";
 
-    private final RowMapper<AuthKey> rowMapper = (ResultSet rs,
-            int num) -> new AuthKey(rs.getInt(1), rs.getString(2), rs.getTimestamp(3).toInstant());
+    private final RowMapper<AuthKey> rowMapper = (ResultSet rs, int num) -> new AuthKey(
+            AuthKeyType.of(rs.getInt(1)), rs.getString(2), rs.getTimestamp(3).toInstant());
 
     private final TemplateWrapper template;
 
@@ -43,24 +45,28 @@ public class AuthKeyDao {
         this.template = template;
     }
 
-    public void create(int keyType, String value, Instant lastUpdate) {
+    @Override
+    public void create(AuthKeyType keyType, String value, Instant lastUpdate) {
         String sql = "insert into auth_key (%s) values (?, ?, ?)".formatted(QUERY_COLUMNS);
-        template.update(sql, keyType, value, lastUpdate);
+        template.update(sql, keyType.value(), value, lastUpdate);
     }
 
-    public void update(AuthKey key) {
+    @Override
+    public void update(AuthKeyType keyType, String value, Instant lastUpdate) {
         String sql = "update auth_key set value=?, last_update=? where key_type=?";
-        template.update(sql, key.getValue(), key.getLastUpdate(), key.getKeyType());
+        template.update(sql, value, lastUpdate, keyType.value());
     }
 
+    @Override
     @Nullable
-    public AuthKey get(int keyType) {
+    public AuthKey get(AuthKeyType keyType) {
         return template
             .queryOne("select %s from auth_key where key_type=?".formatted(QUERY_COLUMNS),
-                    rowMapper, keyType);
+                    rowMapper, keyType.value());
     }
 
-    public void remove(int keyType) {
-        template.update("delete from auth_key where key_type = ?", keyType);
+    @Override
+    public void remove(AuthKeyType keyType) {
+        template.update("delete from auth_key where key_type = ?", keyType.value());
     }
 }

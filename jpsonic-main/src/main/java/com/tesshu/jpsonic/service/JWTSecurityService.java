@@ -35,8 +35,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SystemSKeys;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Instant expires) {
-        String jwtKey = settingsFacade.get(SKeys.deprecatedSecrets.jwtKey);
+        String jwtKey = settingsFacade.get(SystemSKeys.deprecatedSecrets.jwtKey);
         String token = createToken(jwtKey, builder.toUriString(), expires);
         builder.queryParam(JWT_PARAM_NAME, token);
         return builder;
@@ -122,6 +122,6 @@ public class JWTSecurityService {
     }
 
     public DecodedJWT verify(String credentials) {
-        return verify(settingsFacade.get(SKeys.deprecatedSecrets.jwtKey), credentials);
+        return verify(settingsFacade.get(SystemSKeys.deprecatedSecrets.jwtKey), credentials);
     }
 }
