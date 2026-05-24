@@ -42,6 +42,10 @@
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic</groupId>
+      <artifactId>jpsonic-feature</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>jpsonic-upnp-template</artifactId>
     </dependency>
 

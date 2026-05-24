@@ -25,6 +25,7 @@
     <versions.jpsonic-domain>1.0.0</versions.jpsonic-domain>
     <versions.jpsonic-infrastructure>1.0.0</versions.jpsonic-infrastructure>
     <versions.jpsonic-infrastructure-test>1.0.0</versions.jpsonic-infrastructure-test>
+    <versions.jpsonic-feature>1.0.0</versions.jpsonic-feature>
     <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
 
     <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
@@ -60,6 +61,11 @@
         <artifactId>jpsonic-infrastructure-test</artifactId>
         <version>${versions.jpsonic-infrastructure-test}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-feature</artifactId>
+        <version>${versions.jpsonic-feature}</version>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
