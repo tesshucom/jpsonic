@@ -17,25 +17,20 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.auth;
+package com.tesshu.jpsonic.feature.auth.rememberme;
 
-public enum AuthKeyType {
+public interface RememberMeForm {
 
-    REMEMBERME(0);
+    boolean isRememberMeEnable();
 
-    private final int keyType;
+    KeyRotationType getRememberMeKeyRotationType();
 
-    AuthKeyType(int value) {
-        this.keyType = value;
-    }
+    KeyRotationPeriod getRememberMeKeyRotationPeriod();
 
-    /**
-     * Returns the covert art keyType for this scheme.
-     *
-     * @return the covert art keyType for this scheme.
-     */
-    public int value() {
-        return keyType;
-    }
+    TokenValidityPeriod getRememberMeTokenValidityPeriod();
+
+    boolean isSlidingExpirationEnabled();
+
+    String getRememberMeLastUpdate();
 
 }

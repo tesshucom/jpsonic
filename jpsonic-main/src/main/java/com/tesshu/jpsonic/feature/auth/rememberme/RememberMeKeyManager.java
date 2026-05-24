@@ -27,10 +27,10 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.tesshu.jpsonic.feature.auth.AuthKeyType;
+import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.core.entity.AuthKey;
-import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +43,16 @@ public class RememberMeKeyManager {
     private static final Logger LOG = LoggerFactory.getLogger(RememberMeKeyManager.class);
 
     private final SettingsFacade settingsFacade;
-    private final AuthKeyDao authKeyDao;
+    private final AuthKeyRepository authKeyRepository;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     private String key = "NOT READY";
 
-    public RememberMeKeyManager(SettingsFacade settingsFacade, AuthKeyDao authKeyDao) {
+    public RememberMeKeyManager(SettingsFacade settingsFacade,
+            AuthKeyRepository authKeyRepository) {
         super();
         this.settingsFacade = settingsFacade;
-        this.authKeyDao = authKeyDao;
+        this.authKeyRepository = authKeyRepository;
     }
 
     boolean isRunning() {
@@ -73,17 +74,17 @@ public class RememberMeKeyManager {
                 .of(settingsFacade.get(RMSKeys.rotationType));
 
             switch (rotationType) {
-            case PERIOD, FIXED -> key = authKey.getValue();
+            case PERIOD, FIXED -> key = authKey.value();
             case RESTART -> {
                 performRotation(Instant.now());
                 authKey = getAuthKey();
-                key = authKey.getValue();
+                key = authKey.value();
             }
             }
 
         } else {
             String newKey = generateKey();
-            authKeyDao.create(AuthKeyType.REMEMBERME.value(), newKey, Instant.now());
+            authKeyRepository.create(AuthKeyType.REMEMBERME, newKey, Instant.now());
             key = newKey;
         }
         running.set(true);
@@ -103,16 +104,14 @@ public class RememberMeKeyManager {
     }
 
     public AuthKey getAuthKey() {
-        return authKeyDao.get(AuthKeyType.REMEMBERME.value());
+        return authKeyRepository.get(AuthKeyType.REMEMBERME);
     }
 
     void performRotation(Instant lastUpdate) {
         AuthKey authKey = getAuthKey();
         assert authKey != null;
         String newKey = generateKey();
-        authKey.setValue(newKey);
-        authKey.setLastUpdate(lastUpdate);
-        authKeyDao.update(authKey);
+        authKeyRepository.update(AuthKeyType.REMEMBERME, newKey, lastUpdate);
         this.key = newKey;
     }
 
@@ -166,7 +165,7 @@ public class RememberMeKeyManager {
         }
 
         KeyRotationPeriod period = KeyRotationPeriod.of(settingsFacade.get(RMSKeys.rotationPeriod));
-        ZonedDateTime lastUpdate = authKey.getLastUpdate().atZone(ZoneId.systemDefault());
+        ZonedDateTime lastUpdate = authKey.lastUpdate().atZone(ZoneId.systemDefault());
         ZonedDateTime threshold = switch (period) {
         case DAILY -> lastUpdate.plus(1, ChronoUnit.DAYS);
         case WEEKLY -> lastUpdate.plus(1, ChronoUnit.WEEKS);

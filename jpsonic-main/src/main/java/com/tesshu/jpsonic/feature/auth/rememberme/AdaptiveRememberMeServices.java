@@ -130,21 +130,21 @@ public final class AdaptiveRememberMeServices implements RememberMeServices, Log
             }
             return auth;
 
-        } catch (CookieTheftException ex) {
+        } catch (CookieTheftException e) {
             rememberMeLogic.cancelCookie(request, response);
             handleAuthenticationFailure(request, response);
-            throw ex;
-        } catch (UsernameNotFoundException ex) {
-            LOG.debug("Remember-me login was valid but corresponding user not found.", ex);
+            throw e;
+        } catch (UsernameNotFoundException e) {
+            LOG.debug("Remember-me login was valid but corresponding user not found{}:", e);
             handleAuthenticationFailure(request, response);
-        } catch (InvalidCookieException ex) {
-            LOG.debug("Invalid remember-me cookie: " + ex.getMessage());
+        } catch (InvalidCookieException e) {
+            LOG.debug("Invalid remember-me cookie: {}" + e);
             handleAuthenticationFailure(request, response);
-        } catch (AccountStatusException ex) {
-            LOG.debug("Invalid UserDetails: " + ex.getMessage());
+        } catch (AccountStatusException e) {
+            LOG.debug("Invalid UserDetails: {}" + e.getMessage());
             handleAuthenticationFailure(request, response);
-        } catch (RememberMeAuthenticationException ex) {
-            LOG.debug(ex.getMessage());
+        } catch (RememberMeAuthenticationException e) {
+            LOG.debug(e.getMessage());
             handleAuthenticationFailure(request, response);
         }
         return null;

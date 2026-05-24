@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.feature.security;
 import java.util.EnumSet;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
 import com.tesshu.jpsonic.feature.auth.core.CustomUserDetailsContextMapper;
 import com.tesshu.jpsonic.feature.auth.core.PlainTextPasswordEncoder;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationProvider;
@@ -35,7 +36,6 @@ import com.tesshu.jpsonic.feature.auth.rest.RESTRequestParameterProcessingFilter
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SystemSKeys;
-import com.tesshu.jpsonic.persistence.core.repository.AuthKeyDao;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.DispatcherType;
@@ -194,8 +194,8 @@ public class ApplicationSecurity extends GlobalAuthenticationConfigurerAdapter {
 
         @Bean
         public RememberMeKeyManager rememberMeKeyManager(SettingsFacade settingsFacade,
-                AuthKeyDao authKeyDao) {
-            return new RememberMeKeyManager(settingsFacade, authKeyDao);
+                AuthKeyRepository authKeyRepository) {
+            return new RememberMeKeyManager(settingsFacade, authKeyRepository);
         }
 
         @Bean

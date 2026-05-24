@@ -19,14 +19,14 @@
 
 package com.tesshu.jpsonic.feature.auth.rememberme;
 
-import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsStagingPort;
 import com.tesshu.jpsonic.infrastructure.settings.StagingApplier;
 
-public class RememberMeStagingApplier implements StagingApplier<AdvancedSettingsCommand> {
+public class RememberMeStagingApplier implements StagingApplier<RememberMeForm> {
 
     @Override
-    public void apply(AdvancedSettingsCommand form, SettingsStagingPort stagingPort) {
+    @SuppressWarnings("unchecked")
+    public void apply(RememberMeForm form, SettingsStagingPort stagingPort) {
         stagingPort.staging(RMSKeys.enable, form.isRememberMeEnable());
 
         if (form.isRememberMeEnable()) {

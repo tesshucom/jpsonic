@@ -21,7 +21,6 @@ package com.tesshu.jpsonic.feature.auth.rememberme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsStagingPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +57,7 @@ class RememberMeStagingApplierTest {
 
     @Test
     void enableFalseUsesDefaults() {
-        AdvancedSettingsCommand form = new AdvancedSettingsCommand();
+        RememberMeFormImpl form = new RememberMeFormImpl();
         form.setRememberMeEnable(false);
 
         new RememberMeStagingApplier().apply(form, port);
@@ -72,7 +71,7 @@ class RememberMeStagingApplierTest {
 
     @Test
     void enableTrueWithPeriodUsesFormValues() {
-        AdvancedSettingsCommand form = new AdvancedSettingsCommand();
+        RememberMeFormImpl form = new RememberMeFormImpl();
         form.setRememberMeEnable(true);
         form.setRememberMeKeyRotationType(KeyRotationType.PERIOD);
         form.setRememberMeKeyRotationPeriod(KeyRotationPeriod.DAILY);
@@ -89,7 +88,7 @@ class RememberMeStagingApplierTest {
 
     @Test
     void enableTrueNonPeriodResetsPeriodToDefault() {
-        AdvancedSettingsCommand form = new AdvancedSettingsCommand();
+        RememberMeFormImpl form = new RememberMeFormImpl();
         form.setRememberMeEnable(true);
         form.setRememberMeKeyRotationType(KeyRotationType.RESTART);
         form.setRememberMeTokenValidityPeriod(TokenValidityPeriod.HALF_YEAR);
@@ -104,4 +103,66 @@ class RememberMeStagingApplierTest {
         assertEquals(RMSKeys.rotationPeriod.defaultValue(), rotationPeriodCaptor.getValue());
         assertEquals(TokenValidityPeriod.HALF_YEAR.value(), tokenPeriodCaptor.getValue());
     }
+    
+    @SuppressWarnings("PMD.PublicMemberInNonPublicType")
+    class RememberMeFormImpl implements RememberMeForm {
+
+        private boolean rememberMeEnable;
+        private KeyRotationType rememberMeKeyRotationType;
+        private KeyRotationPeriod rememberMeKeyRotationPeriod;
+        private TokenValidityPeriod rememberMeTokenValidityPeriod;
+        private boolean slidingExpirationEnabled;
+        private String rememberMeLastUpdate;
+
+        public boolean isRememberMeEnable() {
+            return rememberMeEnable;
+        }
+
+        void setRememberMeEnable(boolean rememberMeEnable) {
+            this.rememberMeEnable = rememberMeEnable;
+        }
+
+        public KeyRotationType getRememberMeKeyRotationType() {
+            return rememberMeKeyRotationType;
+        }
+
+        void setRememberMeKeyRotationType(KeyRotationType rememberMeKeyRotationType) {
+            this.rememberMeKeyRotationType = rememberMeKeyRotationType;
+        }
+
+        public KeyRotationPeriod getRememberMeKeyRotationPeriod() {
+            return rememberMeKeyRotationPeriod;
+        }
+
+        void setRememberMeKeyRotationPeriod(KeyRotationPeriod rememberMeKeyRotationPeriod) {
+            this.rememberMeKeyRotationPeriod = rememberMeKeyRotationPeriod;
+        }
+
+        public TokenValidityPeriod getRememberMeTokenValidityPeriod() {
+            return rememberMeTokenValidityPeriod;
+        }
+
+        void setRememberMeTokenValidityPeriod(
+                TokenValidityPeriod rememberMeTokenValidityPeriod) {
+            this.rememberMeTokenValidityPeriod = rememberMeTokenValidityPeriod;
+        }
+
+        public boolean isSlidingExpirationEnabled() {
+            return slidingExpirationEnabled;
+        }
+
+        void setSlidingExpirationEnabled(boolean slidingExpirationEnabled) {
+            this.slidingExpirationEnabled = slidingExpirationEnabled;
+        }
+
+        public String getRememberMeLastUpdate() {
+            return rememberMeLastUpdate;
+        }
+
+        void setRememberMeLastUpdate(String rememberMeLastUpdate) {
+            this.rememberMeLastUpdate = rememberMeLastUpdate;
+        }
+    }
+            
+            
 }
