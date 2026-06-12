@@ -645,7 +645,7 @@ class MediaScannerServiceImplTest {
                 .currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream("MEDIAS/piano.mp3")) {
-                assert resource != null;
+                assertNotNull(resource);
                 String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
                 String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
 

@@ -69,6 +69,15 @@
 
     </rule>
 
+    <rule ref="category/java/codestyle.xml/TooManyStaticImports">
+        <properties>
+            <!-- Suppress warnings for test classes to allow fluent APIs like AssertJ/Mockito -->
+            <property name="violationSuppressRegex" value=".*" />
+            <!-- Match only when the target is inside test directory using normalized PMD paths -->
+            <property name="violationSuppressXPath" value=".[contains(pmd:node-property('File'), '/src/test/')]" />
+        </properties>
+    </rule>
+
     <!-- Java Rules:Code Style -->
     <rule ref="category/java/codestyle.xml">
 

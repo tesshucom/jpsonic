@@ -32,9 +32,9 @@
     <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
 
-    <versions.checkstyle>13.4.2</versions.checkstyle>
-    <versions.pmd>7.24.0</versions.pmd>
-    <versions.spotbugs>4.9.8</versions.spotbugs>
+    <versions.checkstyle>13.5.0</versions.checkstyle>
+    <versions.pmd>7.25.0</versions.pmd>
+    <versions.spotbugs>4.10.2</versions.spotbugs>
   </properties>
 
   <dependencyManagement>
@@ -42,7 +42,7 @@
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-dependencies</artifactId>
-        <version>115.0.2</version>
+        <version>115.0.3-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

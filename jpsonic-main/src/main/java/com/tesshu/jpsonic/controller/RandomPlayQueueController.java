@@ -102,7 +102,6 @@ public class RandomPlayQueueController {
             throws ServletRequestBindingException {
 
         // Parse request parameters. All of these results are params to criteria.
-        int size = sizeParam == null ? 24 : sizeParam;
         List<MusicFolder> musicFolders = getMusicFolders(request);
         LastPlayed lastPlayed = getLastPlayed(lastPlayedValue, lastPlayedComp);
         String genre = StringUtil.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null
@@ -116,6 +115,7 @@ public class RandomPlayQueueController {
                 : formatParam;
 
         // Create instance of Criteria from parsed request parameters
+        int size = sizeParam == null ? 24 : sizeParam;
         ShuffleSelectionParam criteria = new ShuffleSelectionParam(size, genres, year.getFromYear(),
                 year.getToYear(), musicFolders, lastPlayed.getMinLastPlayedDate(),
                 lastPlayed.getMaxLastPlayedDate(), albumRating.getMinAlbumRating(),
