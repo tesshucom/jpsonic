@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>115.0.2</version>
+  <version>115.0.3</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -42,7 +42,7 @@
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-dependencies</artifactId>
-        <version>115.0.3-SNAPSHOT</version>
+        <version>115.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
