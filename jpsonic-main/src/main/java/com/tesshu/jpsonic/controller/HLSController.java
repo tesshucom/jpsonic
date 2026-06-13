@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -106,7 +107,7 @@ public class HLSController {
         }
 
         response.setContentType("application/vnd.apple.mpegurl");
-        response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
+        response.setCharacterEncoding(StandardCharsets.UTF_8);
         List<Pair<Integer, Dimension>> bitRates = parseBitRates(request);
         try (PrintWriter writer = response.getWriter()) {
             if (bitRates.size() > SINGLE_ELEMENT) {

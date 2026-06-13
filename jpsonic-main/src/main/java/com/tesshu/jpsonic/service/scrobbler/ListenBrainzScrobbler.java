@@ -25,6 +25,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +188,7 @@ public class ListenBrainzScrobbler {
     private static boolean executeJsonPostRequest(String url, String token, String json)
             throws ExecutionException {
         HttpPost request = new HttpPost(url);
-        request.setEntity(new StringEntity(json, Charset.forName(StringUtil.ENCODING_UTF8)));
+        request.setEntity(new StringEntity(json, StandardCharsets.UTF_8));
         request.setHeader("Authorization", "token " + token);
         request.setHeader("Content-type", "application/json; charset=utf-8");
         return executeRequest(request);

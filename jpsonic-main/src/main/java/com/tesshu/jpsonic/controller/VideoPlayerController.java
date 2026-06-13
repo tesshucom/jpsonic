@@ -94,10 +94,10 @@ public class VideoPlayerController {
 
         User user = userService.getCurrentUserStrict(request);
         mediaFileService.populateStarredDate(file, user.getUsername());
-        Integer duration = file.getDurationSeconds();
+        final Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
         String url = NetworkUtils.getBaseUrl(request);
-        String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId
+        final String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId
                 + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
         UserSettings userSettings = userService.getUserSettings(user.getUsername());

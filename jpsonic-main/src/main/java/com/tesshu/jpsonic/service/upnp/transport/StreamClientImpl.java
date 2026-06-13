@@ -19,13 +19,11 @@
 
 package com.tesshu.jpsonic.service.upnp.transport;
 
-import static com.tesshu.jpsonic.util.StringUtil.ENCODING_UTF8;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
@@ -134,7 +132,6 @@ public final class StreamClientImpl
         return conf;
     }
 
-    @SuppressWarnings("serial")
     private HttpGet createGet(UpnpRequest.Method method, URI uri) {
         return new HttpGet(uri) {
             @Override
@@ -146,7 +143,6 @@ public final class StreamClientImpl
 
     private HttpPost createPost(StreamRequestMessage message) {
         UpnpRequest operation = message.getOperation();
-        @SuppressWarnings("serial")
         HttpPost post = new HttpPost(operation.getURI()) {
             @Override
             public String getMethod() {
@@ -156,7 +152,7 @@ public final class StreamClientImpl
         try (HttpEntity entity = switch (message.getBodyType()) {
         case BYTES ->
             new ByteArrayEntity(message.getBodyBytes(), ContentType.APPLICATION_OCTET_STREAM);
-        case STRING -> new StringEntity(message.getBodyString(), Charset.forName(ENCODING_UTF8));
+        case STRING -> new StringEntity(message.getBodyString(), StandardCharsets.UTF_8);
         }) {
             post.setEntity(entity);
         } catch (IOException e) {

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -275,7 +276,7 @@ public class PlaylistService {
         PlaylistExportHandler handler = getExportHandler(provider);
         try {
             SpecificPlaylist specificPlaylist = handler.handle(id, provider);
-            specificPlaylist.writeTo(out, StringUtil.ENCODING_UTF8);
+            specificPlaylist.writeTo(out, StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             throw new ExecutionException("Unable to write playlist to stream.", e);
         }

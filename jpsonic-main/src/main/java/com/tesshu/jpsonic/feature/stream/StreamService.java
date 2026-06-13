@@ -161,9 +161,10 @@ public class StreamService {
 
     public VideoTranscodingSettings createVideoTranscodingSettings(MediaFile file,
             HttpServletRequest request) throws ServletRequestBindingException {
-        Integer existingWidth = file.getWidth();
-        Integer existingHeight = file.getHeight();
-        Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
+        final Integer existingWidth = file.getWidth();
+        final Integer existingHeight = file.getHeight();
+        final Integer maxBitRate = getIntParameter(request,
+                Attributes.Request.MAX_BIT_RATE.value());
         int timeOffset = getIntParameter(request, Attributes.Request.TIME_OFFSET.value(), 0);
         Integer ds = file.getDurationSeconds();
         int defaultDuration = ds == null ? Integer.MAX_VALUE : ds - timeOffset;
