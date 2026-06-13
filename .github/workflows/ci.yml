@@ -112,7 +112,7 @@ jobs:
         if: contains(matrix.os, 'ubuntu-latest')
         run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -Djpsonic-transcodePath="${{ steps.ffmpeg.outputs.ffmpeg-path }}" -Prelease21 clean test jacoco:report
       - name: Archive code coverage
-        if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
+        if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')"
         uses: actions/upload-artifact@v7
         with:
           name: Code coverage report
@@ -168,7 +168,7 @@ jobs:
   send-coverage:
     name: Send coverage to Codacy
     needs: [ verify-Java21 ]
-    if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
+    if: "(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')"
     env:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       GITHUB_SHA: ${{ github.sha }}
@@ -195,7 +195,7 @@ jobs:
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
   ship-war:
-    if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker') && github.event_name != 'schedule'"
+    if: "(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker') && github.event_name != 'schedule'"
     needs: [ verify-Java21, verify-Java26 ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
@@ -259,7 +259,7 @@ jobs:
   ship-war-to-release-page:
     name: Promote Artifacts to Release
     needs: [ship-war]
-    if: github.ref == 'refs/heads/master' && github.event_name != 'schedule'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -353,7 +353,7 @@ jobs:
           mkdir -p install/docker/alpine/target/dependency
           mv jpsonic.war install/docker/alpine/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master')"
+        if: "(github.ref == 'refs/heads/main')"
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
@@ -370,7 +370,7 @@ jobs:
             docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
           fi
       - name: Release with Latest Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
@@ -381,7 +381,7 @@ jobs:
             docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest .
           fi
       - name: Release with Alpha/Beta Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
@@ -436,7 +436,7 @@ jobs:
           mkdir -p install/docker/ubi9/target/dependency
           mv jpsonic.war install/docker/ubi9/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master')"
+        if: "(github.ref == 'refs/heads/main')"
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
@@ -453,7 +453,7 @@ jobs:
             docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-ubi9 .
           fi
       - name: Release with Latest Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
@@ -464,7 +464,7 @@ jobs:
             docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest-ubi9 .
           fi
       - name: Release with Alpha/Beta Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/ubi9
@@ -519,7 +519,7 @@ jobs:
           mkdir -p install/docker/noble/target/dependency
           mv jpsonic.war install/docker/noble/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master')"
+        if: "(github.ref == 'refs/heads/main')"
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
@@ -536,7 +536,7 @@ jobs:
             docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-noble .
           fi
       - name: Release with Latest Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
@@ -547,7 +547,7 @@ jobs:
             docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest-noble .
           fi
       - name: Release with Alpha/Beta Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/noble
@@ -568,7 +568,7 @@ jobs:
   run-docker4latest:
     name: Run ${{ matrix.tag }}
     needs: [ ship-docker-image, ship-docker-image-ubi9, ship-docker-image-noble ]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       matrix:
