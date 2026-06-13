@@ -9,9 +9,6 @@
   <name>Jpsonic</name>
 
   <modules>
-    <module>subsonic-rest-api</module>
-    <module>airsonic-taglibs</module>
-    <module>jpsonic-upnp-template</module>
     <module>jpsonic-main</module>
   </modules>
 
@@ -24,11 +21,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
 
-    <versions.antlr>4.13.2</versions.antlr>
+    <versions.jpsonic->1.0.0</versions.jpsonic->
+    <versions.jpsonic-domain>1.0.0</versions.jpsonic-domain>
+    <versions.jpsonic-infrastructure>1.0.0</versions.jpsonic-infrastructure>
+    <versions.jpsonic-infrastructure-test>1.0.0</versions.jpsonic-infrastructure-test>
+    <versions.jpsonic-feature>1.0.0</versions.jpsonic-feature>
+    <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
+
+    <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
+    <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
-    <versions.checkstyle>13.4.2</versions.checkstyle>
-    <versions.pmd>7.24.0</versions.pmd>
-    <versions.spotbugs>4.9.8</versions.spotbugs>
+
+    <versions.checkstyle>13.5.0</versions.checkstyle>
+    <versions.pmd>7.25.0</versions.pmd>
+    <versions.spotbugs>4.10.2</versions.spotbugs>
   </properties>
 
   <dependencyManagement>
@@ -36,9 +42,46 @@
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-dependencies</artifactId>
-        <version>115.0.2</version>
+        <version>115.0.3-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-domain</artifactId>
+        <version>${versions.jpsonic-domain}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure</artifactId>
+        <version>${versions.jpsonic-infrastructure}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-infrastructure-test</artifactId>
+        <version>${versions.jpsonic-infrastructure-test}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-feature</artifactId>
+        <version>${versions.jpsonic-feature}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>jpsonic-upnp-template</artifactId>
+        <version>${versions.jpsonic-upnp-template}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>subsonic-rest-api</artifactId>
+        <version>${versions.subsonic-rest-api}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tesshu.jpsonic</groupId>
+        <artifactId>airsonic-taglibs</artifactId>
+        <version>${versions.airsonic-taglibs}</version>
       </dependency>
       <dependency>
         <groupId>com.github.muff1nman.chameleon</groupId>
@@ -55,17 +98,20 @@
         <artifactId>playlist-all</artifactId>
         <version>${versions.chameleon}</version>
       </dependency>
+
+      <!-- Local Repo -->
+      <dependency>
+        <groupId>org.directwebremoting</groupId>
+        <artifactId>dwr-JakartaEE</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-xjc-plugin</artifactId>
-          <version>4.2.0</version>
-        </plugin>
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
@@ -89,12 +135,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.10.0</version>
+          <version>3.11.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.21.0</version>
+          <version>3.22.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -197,7 +243,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.9.8.3</version>
+          <version>4.10.2.0</version>
           <configuration>
             <plugins>
               <plugin>
@@ -243,7 +289,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.5</version>
+          <version>3.5.6</version>
           <configuration>
             <excludes>${test.excludes}</excludes>
           </configuration>
@@ -282,17 +328,12 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.14</version>
-        </plugin>
-        <plugin>
-          <groupId>org.antlr</groupId>
-          <artifactId>antlr4-maven-plugin</artifactId>
-          <version>${versions.antlr}</version>
+          <version>0.8.15</version>
         </plugin>
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.6.0</version>
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>
@@ -322,7 +363,7 @@
           <predefinedSortOrder>custom_1</predefinedSortOrder>
           <lineSeparator>\n</lineSeparator>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <sortProperties>true</sortProperties>
+          <sortProperties>false</sortProperties>
         </configuration>
         <executions>
           <execution>
@@ -431,7 +472,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.6.3</version>
         <inherited>true</inherited>
         <executions>
           <execution>
@@ -509,6 +550,13 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
       <id>local1</id>
       <name>Local Repository</name>
       <url>file://${project.basedir}/../repo</url>
@@ -577,8 +625,6 @@
     <profile>
       <id>unit-test</id>
       <modules>
-        <module>subsonic-rest-api</module>
-        <module>jpsonic-upnp-template</module>
         <module>jpsonic-main</module>
       </modules>
       <properties>

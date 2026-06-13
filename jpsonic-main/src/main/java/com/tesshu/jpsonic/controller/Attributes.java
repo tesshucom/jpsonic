@@ -27,6 +27,7 @@ package com.tesshu.jpsonic.controller;
  * spelling mistakes, understanding the hierarchical structure, identifying
  * where to use it, and considering better management methods. #820
  */
+@SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public final class Attributes {
 
     public enum Model {
@@ -344,6 +345,9 @@ public final class Attributes {
         public String value() {
             return v;
         }
+    }
+
+    private Attributes() {
     }
 
 }

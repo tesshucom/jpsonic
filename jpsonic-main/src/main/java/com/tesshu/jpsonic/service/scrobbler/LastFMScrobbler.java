@@ -26,7 +26,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,6 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;
-import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -285,8 +284,7 @@ public class LastFMScrobbler {
         }
 
         HttpPost request = new HttpPost(url);
-        request
-            .setEntity(new UrlEncodedFormEntity(params, Charset.forName(StringUtil.ENCODING_UTF8)));
+        request.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
         request.setConfig(REQUEST_CONFIG);
         return executeRequest(request);
     }

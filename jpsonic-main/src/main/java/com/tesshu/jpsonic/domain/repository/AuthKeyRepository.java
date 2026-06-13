@@ -14,28 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2025 tesshucom
+ * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.taglib;
+package com.tesshu.jpsonic.domain.repository;
 
-import jakarta.servlet.jsp.JspContext;
+import java.time.Instant;
 
-/**
- * Interface for providing the CSS URL for the current request or user settings.
- *
- * Implementations are responsible for determining the correct CSS URL based on
- * the current user, request, or application settings.
- *
- * This interface is designed to be used by JSP custom tags such as CssUrlTag.
- */
-public interface CssUrlProvider {
+import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
 
-    /**
-     * Returns the CSS URL for the current request or user settings.
-     *
-     * @param jspContext the current JSP context
-     * @return the resolved CSS URL
-     */
-    String getCssUrl(JspContext jspContext);
+public interface AuthKeyRepository {
+
+    void create(AuthKeyType keyType, String value, Instant lastUpdate);
+
+    void update(AuthKeyType keyType, String value, Instant lastUpdate);
+
+    AuthKey get(AuthKeyType keyType);
+
+    void remove(AuthKeyType keyType);
 }
