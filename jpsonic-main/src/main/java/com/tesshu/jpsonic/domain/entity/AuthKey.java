@@ -14,17 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic;
+package com.tesshu.jpsonic.domain.entity;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.time.Instant;
 
-@Retention(RetentionPolicy.CLASS)
-public @interface SuppressFBWarnings {
-    String[] value() default {};
+import com.tesshu.jpsonic.domain.type.AuthKeyType;
 
-    String justification() default "";
+public record AuthKey(AuthKeyType keyType, String value, Instant lastUpdate) {
 }
