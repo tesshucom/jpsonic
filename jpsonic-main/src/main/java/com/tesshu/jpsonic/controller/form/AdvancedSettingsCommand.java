@@ -25,6 +25,7 @@ import com.tesshu.jpsonic.controller.AdvancedSettingsController;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
+import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeForm;
 import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
 
 /**
@@ -32,7 +33,7 @@ import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
  *
  * @author Sindre Mehus
  */
-public class AdvancedSettingsCommand extends SettingsPageCommons {
+public class AdvancedSettingsCommand extends SettingsPageCommons implements RememberMeForm {
 
     // Remember Me
     private boolean rememberMeEnable;
@@ -83,6 +84,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private boolean defaultSortAlphanum;
     private boolean defaultSortStrict;
 
+    @Override
     public boolean isRememberMeEnable() {
         return rememberMeEnable;
     }
@@ -91,6 +93,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.rememberMeEnable = rememberMeEnable;
     }
 
+    @Override
     public KeyRotationType getRememberMeKeyRotationType() {
         return rememberMeKeyRotationType;
     }
@@ -99,6 +102,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.rememberMeKeyRotationType = rememberMeRotationType;
     }
 
+    @Override
     public KeyRotationPeriod getRememberMeKeyRotationPeriod() {
         return rememberMeKeyRotationPeriod;
     }
@@ -107,6 +111,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.rememberMeKeyRotationPeriod = rememberMeRotationPeriod;
     }
 
+    @Override
     public TokenValidityPeriod getRememberMeTokenValidityPeriod() {
         return rememberMeTokenValidityPeriod;
     }
@@ -116,6 +121,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.rememberMeTokenValidityPeriod = rememberMeTokenValidityPeriod;
     }
 
+    @Override
     public boolean isSlidingExpirationEnabled() {
         return slidingExpirationEnabled;
     }
@@ -124,6 +130,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.slidingExpirationEnabled = slidingExpirationEnabled;
     }
 
+    @Override
     public String getRememberMeLastUpdate() {
         return rememberMeLastUpdate;
     }

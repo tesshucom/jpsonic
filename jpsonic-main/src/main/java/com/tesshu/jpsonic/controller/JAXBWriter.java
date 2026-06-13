@@ -27,6 +27,7 @@ import static org.springframework.web.bind.ServletRequestUtils.getStringParamete
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -82,7 +83,7 @@ public final class JAXBWriter {
         Marshaller marshaller;
         try {
             marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, StringUtil.ENCODING_UTF8);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             return marshaller;
         } catch (JAXBException e) {
@@ -94,7 +95,7 @@ public final class JAXBWriter {
         try {
             Marshaller marshaller;
             marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, StringUtil.ENCODING_UTF8);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
             marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
@@ -146,7 +147,7 @@ public final class JAXBWriter {
             httpResponse.setContentType("text/xml");
         }
 
-        httpResponse.setCharacterEncoding(StringUtil.ENCODING_UTF8);
+        httpResponse.setCharacterEncoding(StandardCharsets.UTF_8);
 
         try {
             StringWriter writer = new StringWriter();

@@ -24,10 +24,11 @@ import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.ST
 
 import com.tesshu.jpsonic.infrastructure.db.DataSourceConfigType;
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public class DBSKeys {
+public class DBSKeys implements SettingKeyDictionary {
 
     public static final SettingKey<String> databaseConfigType = SKey
         .of("DatabaseConfigType", STRING, DataSourceConfigType.HOST.name());

@@ -22,10 +22,11 @@ package com.tesshu.jpsonic.feature.i18n;
 import static com.tesshu.jpsonic.infrastructure.settings.SettingKey.ValueType.STRING;
 
 import com.tesshu.jpsonic.infrastructure.settings.SettingKey;
+import com.tesshu.jpsonic.infrastructure.settings.SettingKeyDictionary;
 
 @SuppressWarnings({ "PMD.ShortClassName", "PMD.ClassNamingConventions",
         "PMD.FieldNamingConventions", "PMD.MissingStaticMethodInNonInstantiatableClass" })
-public class I18nSKeys {
+public class I18nSKeys implements SettingKeyDictionary {
 
     public static final SKey<String> localeLanguage = SKey.of("LocaleLanguage", STRING, "ja");
     public static final SKey<String> localeCountry = SKey.of("LocaleCountry", STRING, "jp");

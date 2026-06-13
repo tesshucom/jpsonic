@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class StringUtil {
 
-    public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
@@ -212,22 +211,14 @@ public final class StringUtil {
      * URL-encodes the input value using UTF-8.
      */
     public static String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, ENCODING_UTF8);
-        } catch (UnsupportedEncodingException x) {
-            throw new CompletionException(x);
-        }
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
     /**
      * URL-decodes the input value using UTF-8.
      */
     public static String urlDecode(String s) {
-        try {
-            return URLDecoder.decode(s, ENCODING_UTF8);
-        } catch (UnsupportedEncodingException x) {
-            throw new CompletionException(x);
-        }
+        return URLDecoder.decode(s, StandardCharsets.UTF_8);
     }
 
     public static @Nullable String utf8HexEncode(String s) {
