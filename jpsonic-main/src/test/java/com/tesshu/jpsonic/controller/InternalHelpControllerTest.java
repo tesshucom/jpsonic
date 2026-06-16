@@ -33,6 +33,7 @@ import java.nio.file.Path;
 
 import com.tesshu.jpsonic.controller.InternalHelpController.FileStatistics;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @NeedsHome
+@NeedsTranscode
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.TooManyStaticImports" }) // pmd/pmd/issues/1084
 class InternalHelpControllerTest {
 
