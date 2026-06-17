@@ -21,12 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
 
-    <versions.jpsonic->1.0.0</versions.jpsonic->
-    <versions.jpsonic-domain>1.0.0</versions.jpsonic-domain>
-    <versions.jpsonic-infrastructure>1.0.0</versions.jpsonic-infrastructure>
-    <versions.jpsonic-infrastructure-test>1.0.0</versions.jpsonic-infrastructure-test>
-    <versions.jpsonic-feature>1.0.0</versions.jpsonic-feature>
-    <versions.jpsonic-upnp-template>1.0.0</versions.jpsonic-upnp-template>
+    <versions.jpsonic-kernel>1.0.1</versions.jpsonic-kernel>
 
     <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
     <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
@@ -42,35 +37,35 @@
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-dependencies</artifactId>
-        <version>115.0.3-SNAPSHOT</version>
+        <version>115.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-domain</artifactId>
-        <version>${versions.jpsonic-domain}</version>
+        <version>${versions.jpsonic-kernel}</version>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-infrastructure</artifactId>
-        <version>${versions.jpsonic-infrastructure}</version>
+        <version>${versions.jpsonic-kernel}</version>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-infrastructure-test</artifactId>
-        <version>${versions.jpsonic-infrastructure-test}</version>
+        <version>${versions.jpsonic-kernel}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-feature</artifactId>
-        <version>${versions.jpsonic-feature}</version>
+        <version>${versions.jpsonic-kernel}</version>
       </dependency>
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-upnp-template</artifactId>
-        <version>${versions.jpsonic-upnp-template}</version>
+        <version>${versions.jpsonic-kernel}</version>
       </dependency>
 
       <dependency>

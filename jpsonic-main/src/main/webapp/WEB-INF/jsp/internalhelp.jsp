@@ -153,7 +153,7 @@
 <details>
     <summary class="
         <c:choose>
-            <c:when test='${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable && model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}'>
+            <c:when test='${model.ffprobeReadable and model.ffprobeExecutable && model.ffmpegReadable and model.ffmpegExecutable}'>
                 statusOK
             </c:when>
             <c:otherwise>
@@ -166,7 +166,7 @@
     <ul>
         <li>
             <c:choose>
-                <c:when test="${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable}">
+                <c:when test="${model.ffprobeReadable and model.ffprobeExecutable}">
                     <fmt:message key="internalhelp.tool.ok"><fmt:param value="ffprobe"/></fmt:message>
                 </c:when>
                 <c:otherwise>
@@ -176,7 +176,7 @@
         </li>
         <li>
             <c:choose>
-                <c:when test="${model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}">
+                <c:when test="${model.ffmpegReadable and model.ffmpegExecutable}">
                     <fmt:message key="internalhelp.tool.ok"><fmt:param value="ffmpeg"/></fmt:message>
                 </c:when>
                 <c:otherwise>
@@ -187,17 +187,17 @@
     </ul>
     <dl>
         <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="FFprobe"/></fmt:message></dt>
-        <dd>${model.fsFfprobeInfo.path}</dd>
+        <dd>${model.ffprobePath}</dd>
         <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="FFprobe"/></fmt:message></dt>
-        <dd>${model.fsFfprobeInfo.readable}</dd>
+        <dd>${model.ffprobeReadable}</dd>
         <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="FFprobe"/></fmt:message></dt>
-        <dd>${model.fsFfprobeInfo.executable}</dd>
+        <dd>${model.ffprobeExecutable}</dd>
         <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="FFmpeg"/></fmt:message></dt>
-        <dd>${model.fsFfmpegInfo.path}</dd>
+        <dd>${model.ffmpegPath}</dd>
         <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="FFmpeg"/></fmt:message></dt>
-        <dd>${model.fsFfmpegInfo.readable}</dd>
+        <dd>${model.ffmpegReadable}</dd>
         <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="FFmpeg"/></fmt:message></dt>
-        <dd>${model.fsFfmpegInfo.executable}</dd>
+        <dd>${model.ffmpegExecutable}</dd>
         <dt><fmt:message key="internalhelp.tool.version"><fmt:param value="FFmpeg"/></fmt:message></dt>
         <dd><pre>${model.ffmpegVersion}</pre></dd>
     </dl>
