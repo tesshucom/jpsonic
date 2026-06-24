@@ -32,10 +32,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
+import com.tesshu.jpsonic.persistence.base.DaoUtils;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -64,6 +65,8 @@ public class PlayerDao {
     private final TemplateWrapper template;
     private final PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
     private final Map<Integer, PlayQueue> playlists;
+    private final RowMapper<com.tesshu.jpsonic.domain.model.Player> domainRowMapper = DaoUtils
+        .createRowMapper(com.tesshu.jpsonic.domain.model.Player.class);
 
     public PlayerDao(TemplateWrapper templateWrapper,
             PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
@@ -105,6 +108,26 @@ public class PlayerDao {
         }
     }
 
+    public com.tesshu.jpsonic.domain.model.Player getDomainPlayers(String username,
+            @Nullable String clientId) {
+        String sql = """
+                select
+                id,
+                username,
+                transcode_scheme,
+                ip_address,
+                last_seen
+                from player
+                where username=? and client_id=?
+                """;
+        return template.queryOne(sql, domainRowMapper, username, clientId);
+    }
+
+    public void updateLastSeen(int id) {
+        String sql = "update player set last_seen=? where id=?";
+        template.update(sql, Instant.now().truncatedTo(ChronoUnit.MILLIS), id);
+    }
+
     public @Nullable Player getPlayerById(int id) {
         String sql = "select " + QUERY_COLUMNS + """
                 from player
@@ -124,7 +147,7 @@ public class PlayerDao {
         template
             .update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(),
                     player.getIpAddress(), false, false, player.getLastSeen(),
-                    CoverArtScheme.MEDIUM.name(), player.getTranscodeScheme().name(),
+                    CoverArtScheme.MEDIUM.name(), player.getBitRateLimit().name(),
                     player.isDynamicIp(), "WEB", player.getClientId(), null);
         addPlaylist(player, playlists, playerDaoPlayQueueFactory);
 
@@ -165,7 +188,7 @@ public class PlayerDao {
         template
             .update(sql, player.getName(), player.getType(), player.getUsername(),
                     player.getIpAddress(), false, false, player.getLastSeen(),
-                    player.getTranscodeScheme().name(), player.isDynamicIp(), "WEB",
+                    player.getBitRateLimit().name(), player.isDynamicIp(), "WEB",
                     player.getClientId(), null, player.getId());
     }
 
@@ -205,7 +228,7 @@ public class PlayerDao {
             col++;
             player.setLastSeen(nullableInstantOf(rs.getTimestamp(col++)));
             col++; // Ignore cover art scheme.
-            player.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
+            player.setBitRateLimit(BitRateLimit.of(rs.getString(col++)));
             player.setDynamicIp(rs.getBoolean(col++));
             col++;
             player.setClientId(rs.getString(col));

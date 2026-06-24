@@ -35,8 +35,8 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -146,7 +146,7 @@ public class DLNASettingsController {
                 .mapToInt(Transcoding::getId)
                 .toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
-        command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
+        command.setBitRateLimit(guestPlayer.getBitRateLimit());
         command.setDlnaDefaultFilteredIp(UPnPSKeys.basic.filteredIp.defaultValue());
         command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp));
         command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.basic.filteredIp));
@@ -288,14 +288,14 @@ public class DLNASettingsController {
         User guestUser = userService.getGuestUser();
         musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
         UserSettings userSettings = userService.getUserSettings(guestUser.getUsername());
-        userSettings.setTranscodeScheme(command.getTranscodeScheme());
+        userSettings.setBitRateLimit(command.getBitRateLimit());
         userSettings.setChanged(now());
         Player guestPlayer = playerService.getUPnPPlayer();
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         if (command.getActiveTranscodingIds().length == 0) {
-            guestPlayer.setTranscodeScheme(TranscodeScheme.OFF);
+            guestPlayer.setBitRateLimit(BitRateLimit.OFF);
         } else {
-            guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
+            guestPlayer.setBitRateLimit(command.getBitRateLimit());
         }
         playerService.updatePlayer(guestPlayer);
 

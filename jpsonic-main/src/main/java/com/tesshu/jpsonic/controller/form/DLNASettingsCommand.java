@@ -22,8 +22,11 @@ package com.tesshu.jpsonic.controller.form;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
+import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpCryptSettingsForm;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
@@ -31,7 +34,7 @@ import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
-public class DLNASettingsCommand extends SettingsPageCommons {
+public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryptSettingsForm {
 
     // UPnP basic settings
     private boolean dlnaEnabled;
@@ -41,13 +44,15 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds = new int[0];
     private List<Transcoding> allTranscodings;
-    private TranscodeScheme transcodeScheme;
+    private BitRateLimit bitRateLimit;
     private int[] activeTranscodingIds = new int[0];
     private boolean transcodingSupported;
     private String dlnaDefaultFilteredIp;
     private boolean dlnaEnabledFilteredIp;
     private String dlnaFilteredIp;
     private boolean uriWithFileExtensions;
+    private KeyRotationType dlnaKeyRotationType;
+    private KeyRotationPeriod dlnaKeyRotationPeriod;
 
     // Menu settings
     private List<MenuItemWithDefaultName> topMenuItems;
@@ -126,12 +131,12 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.allTranscodings = allTranscodings;
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     public int[] getActiveTranscodingIds() {
@@ -182,6 +187,24 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
         this.uriWithFileExtensions = uriWithFileExtensions;
+    }
+
+    @Override
+    public KeyRotationType getDlnaKeyRotationType() {
+        return dlnaKeyRotationType;
+    }
+
+    public void setDlnaKeyRotationType(KeyRotationType dlnaKeyRotationType) {
+        this.dlnaKeyRotationType = dlnaKeyRotationType;
+    }
+
+    @Override
+    public KeyRotationPeriod getDlnaKeyRotationPeriod() {
+        return dlnaKeyRotationPeriod;
+    }
+
+    public void setDlnaKeyRotationPeriod(KeyRotationPeriod dlnaKeyRotationPeriod) {
+        this.dlnaKeyRotationPeriod = dlnaKeyRotationPeriod;
     }
 
     public List<MenuItemWithDefaultName> getTopMenuItems() {

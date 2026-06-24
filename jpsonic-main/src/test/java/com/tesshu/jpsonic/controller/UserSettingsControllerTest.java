@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -173,7 +173,7 @@ class UserSettingsControllerTest {
             command.setCoverArtRole(true);
             command.setCommentRole(true);
             command.setPodcastRole(true);
-            command.setTranscodeScheme(TranscodeScheme.OFF);
+            command.setBitRateLimit(BitRateLimit.OFF);
             command.setAllowedMusicFolderIds(1, 2, 3);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -204,7 +204,7 @@ class UserSettingsControllerTest {
             assertTrue(updatedUser.isCommentRole());
             assertTrue(updatedUser.isPodcastRole());
             UserSettings updatedSettings = settingsCaptor.getValue();
-            assertEquals(TranscodeScheme.OFF, updatedSettings.getTranscodeScheme());
+            assertEquals(BitRateLimit.OFF, updatedSettings.getBitRateLimit());
             assertNotNull(updatedSettings.getChanged());
             assertEquals(Arrays.asList(1, 2, 3), idsCaptor.getValue());
         }
@@ -237,7 +237,7 @@ class UserSettingsControllerTest {
          * be larger than that value is changed to the new value.
          */
         @Test
-        void testUpdateUserChangeTranscodeScheme() throws Exception {
+        void testUpdateUserChangeBitRateLimit() throws Exception {
 
             User user = new User("changeTranscode", "", "");
             Mockito.when(userService.getUserByNameStrict(user.getUsername())).thenReturn(user);
@@ -248,29 +248,29 @@ class UserSettingsControllerTest {
             Player player1 = new Player();
             player1.setId(1);
             player1.setUsername(user.getUsername());
-            player1.setTranscodeScheme(TranscodeScheme.OFF);
+            player1.setBitRateLimit(BitRateLimit.OFF);
             players.add(player1);
             Player player2 = new Player();
             player2.setId(2);
             player2.setUsername(user.getUsername());
-            player2.setTranscodeScheme(TranscodeScheme.MAX_128);
+            player2.setBitRateLimit(BitRateLimit.MAX_128);
             players.add(player2);
             Player player3 = new Player();
             player3.setId(3);
             player3.setUsername(user.getUsername());
-            player3.setTranscodeScheme(TranscodeScheme.MAX_256);
+            player3.setBitRateLimit(BitRateLimit.MAX_256);
             players.add(player3);
             Player player4 = new Player();
             player4.setId(4);
             player4.setUsername(user.getUsername());
-            player4.setTranscodeScheme(TranscodeScheme.MAX_320);
+            player4.setBitRateLimit(BitRateLimit.MAX_320);
             players.add(player4);
             Mockito.when(playerService.getAllPlayers()).thenReturn(players);
 
             // When changed to 256...
             UserSettingsCommand command = new UserSettingsCommand();
             command.setUsername(user.getUsername());
-            command.setTranscodeScheme(TranscodeScheme.MAX_256);
+            command.setBitRateLimit(BitRateLimit.MAX_256);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             Mockito.doNothing().when(playerService).updatePlayer(playerCaptor.capture());
@@ -282,9 +282,9 @@ class UserSettingsControllerTest {
 
             // OFF and 320 will be changed to 256
             assertEquals(1, updatedPlayers.get(0).getId());
-            assertEquals(TranscodeScheme.MAX_256, updatedPlayers.get(0).getTranscodeScheme());
+            assertEquals(BitRateLimit.MAX_256, updatedPlayers.get(0).getBitRateLimit());
             assertEquals(4, updatedPlayers.get(1).getId());
-            assertEquals(TranscodeScheme.MAX_256, updatedPlayers.get(1).getTranscodeScheme());
+            assertEquals(BitRateLimit.MAX_256, updatedPlayers.get(1).getBitRateLimit());
         }
     }
 }

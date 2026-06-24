@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -82,8 +82,8 @@ public class TranscodingSettingsController {
             .addAttribute("model", LegacyMap
                 .of("transcodings", transcodingService.getAllTranscodings(), "preferredFormat",
                         settingsFacade.get(SKeys.transcoding.preferredFormat),
-                        "preferredFormatSheme",
-                        PreferredFormatSheme
+                        "preferredFormatSchemeName",
+                        PreferredFormatScheme
                             .of(settingsFacade.get(SKeys.transcoding.preferredFormatShemeName)),
                         "hlsCommand", settingsFacade.get(SKeys.transcoding.hlsCommand), "brand",
                         EnvironmentProvider.getInstance().getBrand(), "isOpenDetailSetting",
@@ -113,7 +113,8 @@ public class TranscodingSettingsController {
 
         settingsFacade
             .staging(SKeys.transcoding.preferredFormatShemeName,
-                    request.getParameter("preferredFormatShemeName"));
+                    request.getParameter("preferredFormatSchemeName"));
+
         settingsFacade.commitAll();
 
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));

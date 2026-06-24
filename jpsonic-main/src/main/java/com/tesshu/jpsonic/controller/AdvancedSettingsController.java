@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
-import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;

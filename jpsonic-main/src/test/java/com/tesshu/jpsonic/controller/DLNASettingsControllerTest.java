@@ -33,8 +33,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -156,7 +156,7 @@ class DLNASettingsControllerTest {
     void testTranscoding() throws Exception {
         DLNASettingsCommand command = new DLNASettingsCommand();
         command.setActiveTranscodingIds(0);
-        command.setTranscodeScheme(TranscodeScheme.MAX_1411);
+        command.setBitRateLimit(BitRateLimit.MAX_1411);
         command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
         command.setAlbumGenreSort(Sort.FREQUENCY);
@@ -165,7 +165,7 @@ class DLNASettingsControllerTest {
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(playerService, Mockito.times(1)).updatePlayer(playerCaptor.capture());
-        assertEquals(TranscodeScheme.MAX_1411, playerCaptor.getValue().getTranscodeScheme());
+        assertEquals(BitRateLimit.MAX_1411, playerCaptor.getValue().getBitRateLimit());
     }
 
     @Nested

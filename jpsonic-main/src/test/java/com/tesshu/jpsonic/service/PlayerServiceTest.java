@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
@@ -318,7 +318,7 @@ class PlayerServiceTest {
 
             Player createdPlayer = playerCaptor.getValue();
             assertNull(createdPlayer.getUsername());
-            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            assertEquals(BitRateLimit.OFF, createdPlayer.getBitRateLimit());
             assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
         }
 
@@ -338,7 +338,7 @@ class PlayerServiceTest {
 
             Player createdPlayer = playerCaptor.getValue();
             assertEquals(User.USERNAME_GUEST, createdPlayer.getUsername());
-            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            assertEquals(BitRateLimit.OFF, createdPlayer.getBitRateLimit());
             verify(transcodingService, Mockito.never())
                 .setTranscodingsForPlayer(Mockito.any(Player.class), Mockito.any(List.class));
         }
@@ -362,7 +362,7 @@ class PlayerServiceTest {
 
             Player createdPlayer = playerCaptor.getValue();
             assertEquals(JWTAuthenticationToken.USERNAME_ANONYMOUS, createdPlayer.getUsername());
-            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            assertEquals(BitRateLimit.OFF, createdPlayer.getBitRateLimit());
             assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
         }
 
@@ -373,7 +373,7 @@ class PlayerServiceTest {
             player.setUsername("existingUser");
 
             UserSettings settings = new UserSettings();
-            settings.setTranscodeScheme(TranscodeScheme.MAX_128);
+            settings.setBitRateLimit(BitRateLimit.MAX_128);
             when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
 
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
@@ -390,7 +390,7 @@ class PlayerServiceTest {
 
             Player createdPlayer = playerCaptor.getValue();
             assertEquals(player.getUsername(), createdPlayer.getUsername());
-            assertEquals(TranscodeScheme.MAX_128, createdPlayer.getTranscodeScheme());
+            assertEquals(BitRateLimit.MAX_128, createdPlayer.getBitRateLimit());
             assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
         }
     }

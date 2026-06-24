@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -217,7 +217,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.ANNOYMOUS.name())
+                        PreferredFormatScheme.ANNOYMOUS.name())
                 .build();
             init();
 
@@ -237,7 +237,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.ANNOYMOUS.name())
+                        PreferredFormatScheme.ANNOYMOUS.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();
@@ -258,7 +258,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.ANNOYMOUS.name())
+                        PreferredFormatScheme.ANNOYMOUS.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtAac)
                 .build();
             init();
@@ -280,7 +280,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.ANNOYMOUS.name())
+                        PreferredFormatScheme.ANNOYMOUS.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();
@@ -302,7 +302,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .build();
             init();
 
@@ -321,7 +321,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();
@@ -341,7 +341,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtAac)
                 .build();
             init();
@@ -362,7 +362,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtAac)
                 .build();
             init();
@@ -383,7 +383,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();
@@ -403,7 +403,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.REQUEST_ONLY.name())
+                        PreferredFormatScheme.REQUEST_ONLY.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();
@@ -423,7 +423,7 @@ class StreamServiceTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withString(SKeys.transcoding.preferredFormatShemeName,
-                        PreferredFormatSheme.OTHER_THAN_REQUEST.name())
+                        PreferredFormatScheme.OTHER_THAN_REQUEST.name())
                 .withString(SKeys.transcoding.preferredFormat, fmtMp3)
                 .build();
             init();

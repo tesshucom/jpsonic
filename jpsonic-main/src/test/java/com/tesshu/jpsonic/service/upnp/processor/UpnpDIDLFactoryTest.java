@@ -20,112 +20,103 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.time.Instant;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.model.UserSettings;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.provider.TranscodingProvider;
+import com.tesshu.jpsonic.domain.provider.UserProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.Player;
-import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
-import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.Res;
-import org.mockito.Mockito;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @NeedsHome
 @NeedsTranscode
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports", "PMD.SingularField",
+        "PMD.AvoidUsingHardCodedIP" })
 class UpnpDIDLFactoryTest {
 
+    private PlayerProvider playerProvider;
     private SettingsFacade settingsFacade;
-    private TranscodingDao transcodingDao;
-    private PlayerService playerService;
+    private MediaFileProvider mediaFileProvider;
     private UpnpDIDLFactory factory;
 
     @BeforeEach
     void setup() {
-        settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "http://192.168.1.1")
+            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, false)
+            .buildWithDefault();
         init();
     }
 
     @Ignore
     void init() {
-        transcodingDao = mock(TranscodingDao.class);
-        playerService = mock(PlayerService.class);
-        factory = new UpnpDIDLFactory(settingsFacade, new JWTSecurityService(settingsFacade),
-                mock(MediaFileService.class), playerService, new TranscodingService(settingsFacade,
-                        null, null, transcodingDao, playerService, null));
-    }
+        MediaFile mediaFile = mock(MediaFile.class);
+        when(mediaFile.format()).thenReturn(new MediaFile.Format("mp3"));
 
-    @Test
-    void testCreateURIStringWithToken() {
+        playerProvider = mock(PlayerProvider.class);
+        Player player = new Player(0, "guest", BitRateLimit.OFF, "127.0.0.0", Instant.now());
+        when(playerProvider.getUPnPPlayer()).thenReturn(player);
 
-        final MediaFile song = new MediaFile();
-        song.setFormat("flac");
+        UserSettings settings = new UserSettings("guest", BitRateLimit.MAX_128);
+        UserProvider userProvider = mock(UserProvider.class);
+        when(userProvider.getUserSettings(anyString())).thenReturn(settings);
 
-        settingsFacade = SettingsFacadeBuilder
-            .create()
-            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, false)
-            .buildWithDefault();
-        init();
-        assertFalse(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions));
+        TranscodingProvider transcodingProvider = mock(TranscodingProvider.class);
+        final TranscodingParametersPlanner parametersPlanner = new TranscodingParametersPlanner(
+                settingsFacade, userProvider, transcodingProvider);
 
-        Mockito
-            .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
-            .thenReturn(Collections.emptyList());
-        UriComponentsBuilder builder = UriComponentsBuilder
-            .fromUriString("http://192.168.1.1/ext/stream")
-            .queryParam("id", 0)
-            .queryParam("player", 0);
-        assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
+        mediaFileProvider = mock(MediaFileProvider.class);
+        final int id = 0;
+        final int folderId = 0;
+        final String pathString = "path";
+        final String format = "mp3";
+        String type = "MUSIC";
+        Integer bitRate = 256;
+        Integer durationSeconds = 512;
+        long fileSize = 128;
+        String artist = "artist";
+        String album = "album";
+        String title = "title";
+        MediaFile song = new MediaFile(id, folderId, pathString, format, type, bitRate,
+                durationSeconds, fileSize, artist, album, title);
+        when(mediaFileProvider.requireMediaFile(anyInt())).thenReturn(song);
 
-        settingsFacade = SettingsFacadeBuilder
-            .create()
-            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, true)
-            .buildWithDefault();
-        init();
-        assertTrue(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
-        song.setFormat(null);
+        UpnpKeyManager upnpKeyManager = mock(UpnpKeyManager.class);
+        when(upnpKeyManager.getKey()).thenReturn("dummyKey");
+        UpnpPayloadCodec upnpPayloadCodec = new UpnpPayloadCodec(upnpKeyManager);
 
-        assertFalse(factory.createURIStringWithToken(builder, song).endsWith(".flac"));
-        song.setFormat("flac");
-        Transcoding transcoding = new Transcoding(0, "mp3", "flac", "mp3", null, null, null, true);
-        Mockito
-            .when(transcodingDao.getTranscodingsForPlayer(Mockito.anyInt()))
-            .thenReturn(Arrays.asList(transcoding));
-        assertTrue(factory.createURIStringWithToken(builder, song).endsWith(".mp3"));
+        factory = new UpnpDIDLFactory(settingsFacade, upnpPayloadCodec,
+                mock(MediaFileService.class), mediaFileProvider, playerProvider, parametersPlanner);
     }
 
     @Test
     void testToRes() {
-        Player player = new Player();
-        Mockito
-            .when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class)))
-            .thenReturn(player);
+        com.tesshu.jpsonic.persistence.api.entity.MediaFile dummy = new com.tesshu.jpsonic.persistence.api.entity.MediaFile();
+        dummy.setId(0);
 
-        Mockito.when(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions)).thenReturn(false);
-        Mockito
-            .when(settingsFacade.get(UPnPSKeys.basic.baseLanUrl))
-            .thenReturn("http://192.168.1.1");
-        MediaFile song = new MediaFile();
-        song.setFileSize(123L);
-        Res res = factory.toRes(song);
-        assertNull(res.getSize());
+        Res res = factory.toRes(dummy);
+        assertEquals("http://192.168.1.1/ext/upnp/stream/ec24379a1b.mp3", res.getValue());
     }
 }
