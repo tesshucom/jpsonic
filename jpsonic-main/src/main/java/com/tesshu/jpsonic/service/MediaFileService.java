@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
@@ -63,8 +64,8 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
-@Service
-public class MediaFileService {
+@Service("mediaFileService")
+public class MediaFileService implements MediaFileProvider {
 
     private final SettingsFacade settingsFacade;
     private final ScanningExclusionPolicy scanningExclusionPolicy;
@@ -137,6 +138,16 @@ public class MediaFileService {
 
     public @NonNull MediaFile getMediaFileStrict(int id) {
         MediaFile mediaFile = getMediaFile(id);
+        if (mediaFile == null) {
+            throw new IllegalArgumentException("The specified MediaFile cannot be found.");
+        }
+        return mediaFile;
+    }
+
+    @SuppressWarnings("unused")
+    @Override
+    public com.tesshu.jpsonic.domain.model.@NonNull MediaFile requireMediaFile(int id) {
+        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mediaFileDao.getDomainMediaFile(id);
         if (mediaFile == null) {
             throw new IllegalArgumentException("The specified MediaFile cannot be found.");
         }

@@ -174,4 +174,18 @@ public class LibraryAccessPolicy {
         }
         return false;
     }
+
+    public boolean canAccessMediaFile(String username,
+            com.tesshu.jpsonic.domain.model.MediaFile mediaFile) {
+        if (isInPodcastFolder(mediaFile.toPath())) {
+            return true;
+        }
+
+        for (MusicFolder musicFolder : musicFolderService.getMusicFoldersForUser(username)) {
+            if (musicFolder.getId() == mediaFile.folderId()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
