@@ -74,7 +74,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see TranscodeInputStream
  */
-@Service
+@Service("transcodingService")
 @DependsOn("shortExecutor")
 public class TranscodingService {
 
@@ -567,16 +567,17 @@ public class TranscodingService {
         final Player playerForTranscode = useGuestPlayer ? playerService.getGuestPlayer(null)
                 : player;
 
-        final BitRateLimit transcodeScheme = getBitRateLimit(playerForTranscode)
-            .constrainTo(BitRateLimit
-                .fromMaxBitRate(
-                        maxBitRate == null ? BitRateLimit.OFF.getMaxBitRate() : maxBitRate));
+        final BitRateLimit bitRateLimit = airsonicEsqueStrictest(
+                getBitRateLimit(playerForTranscode),
+                BitRateLimit
+                    .fromMaxBitRate(
+                            maxBitRate == null ? BitRateLimit.OFF.getMaxBitRate() : maxBitRate));
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         @Nullable
         final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode,
                 preferredTargetFormat, hls);
-        final int bitRate = createBitrate(mediaFile, transcoding);
-        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
+        final Integer bitRate = mediaFile.getBitRate();
+        final int mb = createMaxBitrate(bitRateLimit, mediaFile, bitRate);
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
         if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
@@ -596,10 +597,22 @@ public class TranscodingService {
         String username = player.getUsername();
         if (username != null) {
             UserSettings userSettings = userService.getUserSettings(username);
-            return player.getBitRateLimit().constrainTo(userSettings.getBitRateLimit());
+            return airsonicEsqueStrictest(player.getBitRateLimit(), userSettings.getBitRateLimit());
         }
 
         return player.getBitRateLimit();
+    }
+
+    public BitRateLimit airsonicEsqueStrictest(@NonNull BitRateLimit base,
+            @Nullable BitRateLimit other) {
+        if (other == null || other == BitRateLimit.OFF) {
+            return base;
+        }
+
+        if (base == BitRateLimit.OFF) {
+            return other;
+        }
+        return base.getMaxBitRate() < other.getMaxBitRate() ? base : other;
     }
 
     @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
@@ -624,18 +637,19 @@ public class TranscodingService {
     }
 
     int createMaxBitrate(@NonNull BitRateLimit bitRateLimit, @NonNull MediaFile mediaFile,
-            int bitRate) {
-        final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE
-                : bitRateLimit.getMaxBitRate();
-        if (mb == 0 || bitRate != 0 && bitRate < mb) {
-            return bitRate;
+            Integer bitRate) {
+        if (mediaFile.isVideo()) {
+            return VideoPlayerController.DEFAULT_BIT_RATE;
         }
-        return mb;
+        return bitRateLimit.constrainTo(mediaFile.getBitRate()).getMaxBitRate();
     }
 
     @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
-    boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
+    boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, Integer bitRate,
             @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
+        if (bitRate == null) {
+            return true;
+        }
         boolean isNeedTranscoding = false;
         if (transcoding != null
                 && (mb != 0 && (bitRate == 0 || bitRate > mb) || preferredTargetFormat != null
