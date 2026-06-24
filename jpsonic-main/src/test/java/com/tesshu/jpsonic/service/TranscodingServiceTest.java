@@ -1062,7 +1062,6 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(15)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class GetParametersTest {
 
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", FMT_FLAC,
@@ -1205,8 +1204,8 @@ class TranscodingServiceTest {
                 .getParameters(mediaFile, player, maxBitRate, preferredTargetFormat,
                         videoTranscodingSettings);
 
-            assertEquals(64_000, parameters.getExpectedLength());
-            assertEquals(256, parameters.getMaxBitRate());
+            assertEquals(40_000, parameters.getExpectedLength());
+            assertEquals(160, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
             assertEquals(Transcodings.MP3.getName(), parameters.getTranscoding().getName());
             assertEquals(videoTranscodingSettings, parameters.getVideoTranscodingSettings());
@@ -1383,7 +1382,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(5000);
             mediaFile.setVariableBitRate(false);
 
-            assertEquals(5000, transcodingService.createBitrate(mediaFile, null));
+            assertEquals(1411, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Order(24)
@@ -1393,7 +1392,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(950);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(1411, transcodingService.createBitrate(mediaFile, null));
+            assertEquals(320, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Order(25)
@@ -1403,7 +1402,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(128);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(256, transcodingService.createBitrate(mediaFile, null));
+            assertEquals(128, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Order(26)
@@ -1424,9 +1423,9 @@ class TranscodingServiceTest {
         void testCMB1() throws ExecutionException {
             BitRateLimit bitRateLimit = BitRateLimit.OFF;
             MediaFile mediaFile = new MediaFile();
-            int bitRate = 0;
+            mediaFile.setBitRate(0);
 
-            assertEquals(0, transcodingService.createMaxBitrate(bitRateLimit, mediaFile, bitRate));
+            assertEquals(0, transcodingService.createMaxBitrate(bitRateLimit, mediaFile));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1438,10 +1437,9 @@ class TranscodingServiceTest {
         void testCMB2() throws ExecutionException {
             BitRateLimit bitRateLimit = BitRateLimit.MAX_320;
             MediaFile mediaFile = new MediaFile();
-            int bitRate = 256;
+            mediaFile.setBitRate(256);
 
-            assertEquals(256,
-                    transcodingService.createMaxBitrate(bitRateLimit, mediaFile, bitRate));
+            assertEquals(256, transcodingService.createMaxBitrate(bitRateLimit, mediaFile));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1453,10 +1451,9 @@ class TranscodingServiceTest {
         void testCMB3() throws ExecutionException {
             BitRateLimit bitRateLimit = BitRateLimit.MAX_256;
             MediaFile mediaFile = new MediaFile();
-            int bitRate = 320;
+            mediaFile.setBitRate(320);
 
-            assertEquals(256,
-                    transcodingService.createMaxBitrate(bitRateLimit, mediaFile, bitRate));
+            assertEquals(256, transcodingService.createMaxBitrate(bitRateLimit, mediaFile));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1467,10 +1464,9 @@ class TranscodingServiceTest {
         void testCMB4() throws ExecutionException {
             BitRateLimit bitRateLimit = BitRateLimit.MAX_256;
             MediaFile mediaFile = new MediaFile();
-            int bitRate = 0;
+            mediaFile.setBitRate(0);
 
-            assertEquals(256,
-                    transcodingService.createMaxBitrate(bitRateLimit, mediaFile, bitRate));
+            assertEquals(256, transcodingService.createMaxBitrate(bitRateLimit, mediaFile));
         }
 
         @Order(41)

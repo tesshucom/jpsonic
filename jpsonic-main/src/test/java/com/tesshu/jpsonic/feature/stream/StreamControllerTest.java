@@ -1012,10 +1012,11 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
+                .andExpect(
+                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -1039,10 +1040,11 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
+                .andExpect(
+                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -1161,10 +1163,11 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
+                .andExpect(
+                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
