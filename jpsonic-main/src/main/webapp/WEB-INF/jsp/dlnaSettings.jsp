@@ -21,7 +21,7 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit" %>
 <%@ page import="com.tesshu.jpsonic.domain.system.MenuItemId" %>
 <%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
 <%@ page import="com.tesshu.jpsonic.service.search.UPnPSearchMethod" %>
@@ -32,12 +32,12 @@
     function checkBitrateAvailability() {
         var c = 0;
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
-        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+        $('[name="bitRateLimit"]').prop("disabled", c == 0);
     }
 
     function resetBasicSettings() {
         Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
-        $('[name="transcodeScheme"]').prop("selectedIndex", 4);
+        $('[name="bitRateLimit"]').prop("selectedIndex", 4);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
         document.getElementsByName('uriWithFileExtensions')[0].checked = true;
         checkBitrateAvailability();
@@ -127,9 +127,10 @@
             </c:if>
             <dt><fmt:message key="playersettings.maxbitrate"/></dt>
             <dd>
-                <form:select path="transcodeScheme">
-                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                <% pageContext.setAttribute("bitRateLimits", BitRateLimit.values()); %>
+                <form:select path="bitRateLimit">
+                    <c:forEach items="${bitRateLimits}" var="bitRate">
+                        <form:option value="${bitRate}" label="${bitRate.toString()}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>

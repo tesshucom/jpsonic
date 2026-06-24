@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -36,15 +37,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
@@ -63,7 +66,6 @@ import org.jupnp.support.model.container.GenreContainer;
 import org.jupnp.support.model.item.Item;
 import org.jupnp.support.model.item.MusicTrack;
 import org.mockito.ArgumentMatchers;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class SongByFolderGenreProcTest {
@@ -85,21 +87,22 @@ class SongByFolderGenreProcTest {
     @Ignore
     void init() {
         util = mock(UpnpProcessorUtil.class);
-
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        UriComponentsBuilder coverArtbuilder = UriComponentsBuilder
-            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
-                    + ViewName.COVER_ART.value())
-            .queryParam("id", "99")
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
-            .thenReturn(coverArtbuilder);
-
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
-                mock(MediaFileService.class), mock(PlayerService.class),
-                mock(TranscodingService.class));
+        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
+        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
+                com.tesshu.jpsonic.domain.model.MediaFile.class);
+        when(mediaFile.format())
+            .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                mediaFile, null, null);
+        when(parametersPlanner
+            .resolveAudioTranscodingParameters(nullable(Player.class),
+                    nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
+                    nullable(Integer.class), nullable(String.class)))
+            .thenReturn(param);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mock(MediaFileService.class), mock(MediaFileProvider.class),
+                mock(PlayerProvider.class), parametersPlanner);
         searchService = mock(SearchService.class);
-
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
         proc = new SongByFolderGenreProc(settingsFacade, searchService, factory, deligate);
     }

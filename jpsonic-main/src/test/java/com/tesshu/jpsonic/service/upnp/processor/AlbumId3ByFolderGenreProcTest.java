@@ -36,9 +36,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -46,11 +47,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrFGAlbum;
@@ -64,7 +62,6 @@ import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.GenreContainer;
 import org.jupnp.support.model.container.MusicAlbum;
 import org.mockito.ArgumentMatchers;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class AlbumId3ByFolderGenreProcTest {
@@ -83,18 +80,9 @@ class AlbumId3ByFolderGenreProcTest {
             .create()
             .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
             .build();
-
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
-                    + ViewName.COVER_ART.value())
-            .queryParam("id", "99")
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
-            .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
-                mock(MediaFileService.class), mock(PlayerService.class),
-                mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mock(MediaFileService.class), mock(MediaFileProvider.class),
+                mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
         searchService = mock(SearchService.class);
         FolderOrGenreLogic deligate = new FolderOrGenreLogic(searchService, util, factory);
         proc = new AlbumId3ByFolderGenreProc(util, factory, settingsFacade, searchService, albumDao,

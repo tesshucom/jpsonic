@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.persistence.api.entity;
 
 import java.time.Instant;
 
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -42,7 +42,7 @@ public class Player {
     private String ipAddress;
     private boolean dynamicIp = true;
     private Instant lastSeen;
-    private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
+    private BitRateLimit bitRateLimit = BitRateLimit.OFF;
     private PlayQueue playQueue;
 
     /**
@@ -155,22 +155,12 @@ public class Player {
         this.lastSeen = lastSeen;
     }
 
-    /**
-     * Returns the transcode scheme.
-     *
-     * @return The transcode scheme.
-     */
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    /**
-     * Sets the transcode scheme.
-     *
-     * @param transcodeScheme The transcode scheme.
-     */
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     /**

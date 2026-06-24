@@ -21,7 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
 
-    <versions.jpsonic-kernel>1.0.1</versions.jpsonic-kernel>
+    <versions.jpsonic-kernel>1.0.2-SNAPSHOT</versions.jpsonic-kernel>
 
     <versions.subsonic-rest-api>1.0.0</versions.subsonic-rest-api>
     <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>

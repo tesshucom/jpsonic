@@ -28,9 +28,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
@@ -97,12 +97,14 @@ public class UserDao {
     private final String userTableQuote;
     private final UserRowMapper userRowMapper;
     private final UserSettingsRowMapper userSettingsRowMapper;
+    private final DomainUserSettingsRowMapper domainUserSettingsRowMapper;
 
     public UserDao(TemplateWrapper templateWrapper, String userTableQuote) {
         template = templateWrapper;
         this.userTableQuote = userTableQuote;
         userRowMapper = new UserRowMapper();
         userSettingsRowMapper = new UserSettingsRowMapper();
+        domainUserSettingsRowMapper = new DomainUserSettingsRowMapper();
     }
 
     /**
@@ -242,6 +244,11 @@ public class UserDao {
         return template.queryOne(sql, userSettingsRowMapper, username);
     }
 
+    public com.tesshu.jpsonic.domain.model.UserSettings getDomainUserSettings(String username) {
+        String sql = "select username, transcode_scheme from user_settings where username=?";
+        return template.queryOne(sql, domainUserSettingsRowMapper, username);
+    }
+
     /**
      * Updates settings for the given username, creating it if necessary.
      *
@@ -269,7 +276,7 @@ public class UserDao {
                     playlist.isFormatVisible(), playlist.isFileSizeVisible(),
                     settings.isLastFmEnabled(), settings.getLastFmUsername(),
                     encrypt(settings.getLastFmPassword()), settings.isListenBrainzEnabled(),
-                    settings.getListenBrainzToken(), settings.getTranscodeScheme().name(), false,
+                    settings.getListenBrainzToken(), settings.getBitRateLimit().name(), false,
                     settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
                     settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(),
                     settings.getSystemAvatarId(), settings.getChanged(),
@@ -390,6 +397,17 @@ public class UserDao {
     }
 
     @SuppressWarnings("PMD.AssignmentInOperand")
+    private static class DomainUserSettingsRowMapper
+            implements RowMapper<com.tesshu.jpsonic.domain.model.UserSettings> {
+        @Override
+        public com.tesshu.jpsonic.domain.model.UserSettings mapRow(ResultSet rs, int rowNum)
+                throws SQLException {
+            return new com.tesshu.jpsonic.domain.model.UserSettings(rs.getString(1),
+                    BitRateLimit.of(rs.getString(2)));
+        }
+    }
+
+    @SuppressWarnings("PMD.AssignmentInOperand")
     // Just use a simple int instead of LongAdder here.
     private static class UserSettingsRowMapper implements RowMapper<UserSettings> {
         @Override
@@ -429,7 +447,7 @@ public class UserDao {
             settings.setListenBrainzEnabled(rs.getBoolean(col++));
             settings.setListenBrainzToken(rs.getString(col++));
 
-            settings.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
+            settings.setBitRateLimit(BitRateLimit.of(rs.getString(col++)));
             col++; // showNowPlayingEnabled (Unused)
             settings.setSelectedMusicFolderId(rs.getInt(col++));
             settings.setPartyModeEnabled(rs.getBoolean(col++));

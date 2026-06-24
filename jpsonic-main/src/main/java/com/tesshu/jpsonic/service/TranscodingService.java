@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
@@ -136,7 +136,7 @@ public class TranscodingService {
                         JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                                 ? User.USERNAME_GUEST
                                 : player.getUsername());
-            player.setTranscodeScheme(userSettings.getTranscodeScheme());
+            player.setBitRateLimit(userSettings.getBitRateLimit());
             playerService.updatePlayer(player);
         }
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingIds);
@@ -567,10 +567,10 @@ public class TranscodingService {
         final Player playerForTranscode = useGuestPlayer ? playerService.getGuestPlayer(null)
                 : player;
 
-        final TranscodeScheme transcodeScheme = getTranscodeScheme(playerForTranscode)
-            .strictest(TranscodeScheme
+        final BitRateLimit transcodeScheme = getBitRateLimit(playerForTranscode)
+            .constrainTo(BitRateLimit
                 .fromMaxBitRate(
-                        maxBitRate == null ? TranscodeScheme.OFF.getMaxBitRate() : maxBitRate));
+                        maxBitRate == null ? BitRateLimit.OFF.getMaxBitRate() : maxBitRate));
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         @Nullable
         final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode,
@@ -592,21 +592,21 @@ public class TranscodingService {
     /**
      * Returns the strictest transcoding scheme defined for the player and the user.
      */
-    private TranscodeScheme getTranscodeScheme(@NonNull Player player) {
+    private BitRateLimit getBitRateLimit(@NonNull Player player) {
         String username = player.getUsername();
         if (username != null) {
             UserSettings userSettings = userService.getUserSettings(username);
-            return player.getTranscodeScheme().strictest(userSettings.getTranscodeScheme());
+            return player.getBitRateLimit().constrainTo(userSettings.getBitRateLimit());
         }
 
-        return player.getTranscodeScheme();
+        return player.getBitRateLimit();
     }
 
     @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
     int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
         Integer br = mediaFile.getBitRate();
-        int bitRate = br == null ? TranscodeScheme.OFF.getMaxBitRate() : br;
+        int bitRate = br == null ? BitRateLimit.OFF.getMaxBitRate() : br;
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate() && transcoding == null || transcoding != null
                     && !FORMAT_FLAC.equalsIgnoreCase(transcoding.getTargetFormat())) {
@@ -615,7 +615,7 @@ public class TranscodingService {
                 bitRate = bitRate * 6 / 5;
             }
             // Make sure bitrate is quantized to valid values for CBR
-            TranscodeScheme quantized = TranscodeScheme.fromMaxBitRate(bitRate);
+            BitRateLimit quantized = BitRateLimit.fromMaxBitRate(bitRate);
             if (quantized != null) {
                 bitRate = quantized.getMaxBitRate();
             }
@@ -623,10 +623,10 @@ public class TranscodingService {
         return bitRate;
     }
 
-    int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile,
+    int createMaxBitrate(@NonNull BitRateLimit bitRateLimit, @NonNull MediaFile mediaFile,
             int bitRate) {
         final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE
-                : transcodeScheme.getMaxBitRate();
+                : bitRateLimit.getMaxBitRate();
         if (mb == 0 || bitRate != 0 && bitRate < mb) {
             return bitRate;
         }

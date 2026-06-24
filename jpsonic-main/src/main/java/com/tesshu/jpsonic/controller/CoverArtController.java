@@ -79,7 +79,6 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -137,7 +136,10 @@ public class CoverArtController implements CoverArtPresentation {
      * To be triaged in #1122.
      */
     public long getLastModified(HttpServletRequest request) {
-        CoverArtRequest coverArtRequest = createCoverArtRequest(request);
+        String id = request.getParameter(Attributes.Request.ID.value());
+        Integer offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        CoverArtRequest coverArtRequest = createCoverArtRequest(id, offset);
         if (null == coverArtRequest) {
             return -1L;
         }
@@ -145,12 +147,18 @@ public class CoverArtController implements CoverArtPresentation {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
-
-        CoverArtRequest coverArtRequest = createCoverArtRequest(request);
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
         Integer size = ServletRequestUtils
-            .getIntParameter(request, Attributes.Request.SIZE.value());
+            .getIntParameter(request, Attributes.Request.SIZE.value(), 300);
+        String id = request.getParameter(Attributes.Request.ID.value());
+        Integer offset = ServletRequestUtils
+            .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        processImageRequest(response, id, size, offset);
+    }
+
+    public void processImageRequest(HttpServletResponse response, String id, Integer size,
+            Integer offset) {
+        CoverArtRequest coverArtRequest = createCoverArtRequest(id, offset);
         if (coverArtRequest == null) {
             sendFallback(size, response);
             return;
@@ -167,10 +175,11 @@ public class CoverArtController implements CoverArtPresentation {
             }
 
             // Send cached image, creating it if necessary.
-            if (size == null) {
-                size = CoverArtScheme.LARGE.getSize() * 2;
+            Integer cachedSize = size;
+            if (cachedSize == null) {
+                cachedSize = CoverArtScheme.LARGE.getSize() * 2;
             }
-            Path cachedImage = getCachedImage(coverArtRequest, size);
+            Path cachedImage = getCachedImage(coverArtRequest, cachedSize);
             sendImage(cachedImage, response);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
@@ -183,8 +192,7 @@ public class CoverArtController implements CoverArtPresentation {
         }
     }
 
-    private CoverArtRequest createCoverArtRequest(HttpServletRequest request) {
-        String id = request.getParameter(Attributes.Request.ID.value());
+    private CoverArtRequest createCoverArtRequest(String id, Integer offset) {
         if (id == null) {
             return null;
         }
@@ -198,9 +206,9 @@ public class CoverArtController implements CoverArtPresentation {
             return createPlaylistCoverArtRequest(toPlaylistId(id));
         }
         if (isPodcastCoverArt(id)) {
-            return createPodcastCoverArtRequest(toPodcastId(id), request);
+            return createPodcastCoverArtRequest(toPodcastId(id), offset);
         }
-        return createMediaFileCoverArtRequest(Integer.parseInt(id), request);
+        return createMediaFileCoverArtRequest(Integer.parseInt(id), offset);
     }
 
     private CoverArtRequest createAlbumCoverArtRequest(int id) {
@@ -220,23 +228,22 @@ public class CoverArtController implements CoverArtPresentation {
                         playlist);
     }
 
-    private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
+    private CoverArtRequest createPodcastCoverArtRequest(int id, Integer offset) {
         PodcastChannel channel = podcastService.getChannel(id);
         if (channel == null || channel.getMediaFileId() == null) {
             return new PodcastCoverArtRequest(this, fontLoader, channel);
         }
-        return createMediaFileCoverArtRequest(channel.getMediaFileId(), request);
+        return createMediaFileCoverArtRequest(channel.getMediaFileId(), offset);
     }
 
-    private CoverArtRequest createMediaFileCoverArtRequest(int id, HttpServletRequest request) {
+    private CoverArtRequest createMediaFileCoverArtRequest(int id, Integer offset) {
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils
-                .getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-            return new VideoCoverArtRequest(this, fontLoader, mediaFile, offset);
+            int realOffset = offset == null ? 0 : offset;
+            return new VideoCoverArtRequest(this, fontLoader, mediaFile, realOffset);
         }
         return new MediaFileCoverArtRequest(this, fontLoader, mediaFileService, mediaFile);
     }

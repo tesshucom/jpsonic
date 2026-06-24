@@ -58,7 +58,7 @@ import java.util.concurrent.ExecutionException;
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
@@ -797,7 +797,7 @@ class StreamControllerTest {
                     }
                 }
 
-                @interface TranscodeScheme {
+                @interface BitRateLimit {
                     @interface OFF {
                     }
 
@@ -865,7 +865,7 @@ class StreamControllerTest {
 
             player = new Player();
             player.setId(101);
-            player.setTranscodeScheme(TranscodeScheme.OFF);
+            player.setBitRateLimit(BitRateLimit.OFF);
             PlayQueue playQueue = new PlayQueue();
             playQueue.setStatus(Status.STOPPED);
             playQueue.addFiles(false, song);
@@ -901,7 +901,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.NotExist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c1() throws Exception {
@@ -925,7 +925,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.Param.MaxBitRate320
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
@@ -936,7 +936,7 @@ class StreamControllerTest {
                     .get("/stream")
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .param(Attributes.Request.MAX_BIT_RATE.value(),
-                            Integer.toString(TranscodeScheme.MAX_320.getMaxBitRate())))
+                            Integer.toString(BitRateLimit.MAX_320.getMaxBitRate())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
@@ -951,12 +951,12 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.MaxBitRate320
+        @HeaderDecision.Conditions.Player.BitRateLimit.MaxBitRate320
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c3() throws Exception {
             initMocksWithTranscoding(true, false);
-            player.setTranscodeScheme(TranscodeScheme.MAX_320);
+            player.setBitRateLimit(BitRateLimit.MAX_320);
             mockMvc
                 .perform(MockMvcRequestBuilders
                     .get("/stream")
@@ -975,7 +975,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.Param.FormatMp3
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
@@ -1000,7 +1000,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.SettingService.PreferredFormat.Null
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
@@ -1012,11 +1012,10 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(
-                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -1024,7 +1023,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.SettingService.PreferredFormat.Mp3
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
@@ -1040,11 +1039,10 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(
-                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -1052,7 +1050,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.NotExist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c1a() throws Exception {
@@ -1076,7 +1074,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.Param.MaxBitRate320
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
@@ -1087,7 +1085,7 @@ class StreamControllerTest {
                     .get("/stream")
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .param(Attributes.Request.MAX_BIT_RATE.value(),
-                            Integer.toString(TranscodeScheme.MAX_320.getMaxBitRate())))
+                            Integer.toString(BitRateLimit.MAX_320.getMaxBitRate())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
@@ -1102,12 +1100,12 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.MaxBitRate320
+        @HeaderDecision.Conditions.Player.BitRateLimit.MaxBitRate320
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
         void c3a() throws Exception {
             initMocksWithTranscoding(true, true);
-            player.setTranscodeScheme(TranscodeScheme.MAX_320);
+            player.setBitRateLimit(BitRateLimit.MAX_320);
             mockMvc
                 .perform(MockMvcRequestBuilders
                     .get("/stream")
@@ -1126,7 +1124,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.Param.FormatMp3
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test
@@ -1151,7 +1149,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.SettingService.PreferredFormat.Null
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
@@ -1163,11 +1161,10 @@ class StreamControllerTest {
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                 .andExpect(
                         MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
-                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
+                .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.ACCEPT_RANGES))
                 .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
-                .andExpect(
-                        MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
+                .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
                 .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -1175,7 +1172,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.File.Flac
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
-        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.Player.BitRateLimit.OFF
         @HeaderDecision.Conditions.SettingService.PreferredFormat.Mp3
         @HeaderDecision.Result.ContentType.AudioMpeg
         @Test

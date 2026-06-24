@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -48,10 +49,12 @@ public class TranscodingDao {
 
     private final TemplateWrapper template;
     private final TranscodingRowMapper rowMapper;
+    private final DomainTranscodingRowMapper domainRowMapper;
 
     public TranscodingDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
         rowMapper = new TranscodingRowMapper();
+        domainRowMapper = new DomainTranscodingRowMapper();
     }
 
     public List<Transcoding> getAllTranscodings() {
@@ -66,6 +69,15 @@ public class TranscodingDao {
                         and player_transcoding2.transcoding_id = transcoding2.id
                 """;
         return template.query(sql, rowMapper, playerId);
+    }
+
+    public List<TranscodingDefinition> getDomainTranscodingsForPlayer(int playerId) {
+        String sql = "select " + QUERY_COLUMNS + """
+                from transcoding2, player_transcoding2
+                where player_transcoding2.player_id = ?
+                        and player_transcoding2.transcoding_id = transcoding2.id
+                """;
+        return template.query(sql, domainRowMapper, playerId);
     }
 
     @Transactional
@@ -126,6 +138,16 @@ public class TranscodingDao {
         public Transcoding mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Transcoding(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
                     rs.getString(5), rs.getString(6), rs.getString(7), rs.getBoolean(8));
+        }
+    }
+
+    private static class DomainTranscodingRowMapper implements RowMapper<TranscodingDefinition> {
+        @Override
+        public TranscodingDefinition mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new TranscodingDefinition(rs.getInt(1), rs.getString(2),
+                    TemplateWrapper.tokenize(rs.getString(3)), rs.getString(4),
+                    TemplateWrapper.createList(rs.getString(5), rs.getString(6), rs.getString(7)),
+                    rs.getBoolean(8));
         }
     }
 }

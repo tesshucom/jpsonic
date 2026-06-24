@@ -46,7 +46,7 @@ import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
@@ -2405,9 +2405,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         // Useless
         result.setAvatarLastChanged(null);
 
-        TranscodeScheme transcodeScheme = userSettings.getTranscodeScheme();
-        if (transcodeScheme != null && transcodeScheme != TranscodeScheme.OFF) {
-            result.setMaxBitRate(transcodeScheme.getMaxBitRate());
+        BitRateLimit bitRateLimit = userSettings.getBitRateLimit();
+        if (bitRateLimit != null && bitRateLimit != BitRateLimit.OFF) {
+            result.setMaxBitRate(bitRateLimit.getMaxBitRate());
         }
 
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
@@ -2470,7 +2470,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         command
             .setShareRole(ServletRequestUtils
                 .getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
-        command.setTranscodeScheme(TranscodeScheme.OFF);
+        command.setBitRateLimit(BitRateLimit.OFF);
 
         int[] folderIds = ServletRequestUtils
             .getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -2562,10 +2562,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
         UserSettings s = userService.getUserSettings(username);
         int maxBitRate = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
-                    s.getTranscodeScheme().getMaxBitRate());
-        TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
-        if (transcodeScheme != null) {
-            command.setTranscodeScheme(transcodeScheme);
+                    s.getBitRateLimit().getMaxBitRate());
+        BitRateLimit bitRateLimit = BitRateLimit.fromMaxBitRate(maxBitRate);
+        if (bitRateLimit != null) {
+            command.setBitRateLimit(bitRateLimit);
         }
 
         if (hasParameter(request, Attributes.Request.PASSWORD.value())) {
