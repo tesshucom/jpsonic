@@ -49,6 +49,7 @@ import javax.imageio.ImageIO;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.type.CoverArtType;
 import com.tesshu.jpsonic.infrastructure.bootstrap.LoggingExceptionResolver;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
@@ -61,7 +62,6 @@ import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
@@ -90,7 +90,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping({ "/coverArt.view", "/ext/coverArt.view" })
-public class CoverArtController implements CoverArtPresentation {
+public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
 
@@ -196,19 +196,17 @@ public class CoverArtController implements CoverArtPresentation {
         if (id == null) {
             return null;
         }
-        if (isAlbumCoverArt(id)) {
-            return createAlbumCoverArtRequest(toAlbumId(id));
-        }
-        if (isArtistCoverArt(id)) {
-            return createArtistCoverArtRequest(toArtistId(id));
-        }
-        if (isPlaylistCoverArt(id)) {
-            return createPlaylistCoverArtRequest(toPlaylistId(id));
-        }
-        if (isPodcastCoverArt(id)) {
-            return createPodcastCoverArtRequest(toPodcastId(id), offset);
-        }
-        return createMediaFileCoverArtRequest(Integer.parseInt(id), offset);
+        CoverArtType coverArtType = CoverArtType.detect(id);
+        int coverArtTypeId = coverArtType.toId(id);
+        CoverArtRequest coverArtRequest = switch (coverArtType) {
+        case CoverArtType.ID3ALBUM -> createAlbumCoverArtRequest(coverArtTypeId);
+        case CoverArtType.ARTIST -> createArtistCoverArtRequest(coverArtTypeId);
+        case CoverArtType.PLAYLIST -> createPlaylistCoverArtRequest(coverArtTypeId);
+        case CoverArtType.PODCAST -> createPodcastCoverArtRequest(coverArtTypeId, offset);
+        case CoverArtType.ALBUM -> createMediaFileCoverArtRequest(coverArtTypeId, offset);
+        };
+        return coverArtRequest == null ? createMediaFileCoverArtRequest(coverArtTypeId, offset)
+                : coverArtRequest;
     }
 
     private CoverArtRequest createAlbumCoverArtRequest(int id) {
@@ -475,7 +473,7 @@ public class CoverArtController implements CoverArtPresentation {
         return thumb;
     }
 
-    private abstract static class CoverArtRequest implements CoverArtPresentation {
+    private abstract static class CoverArtRequest {
 
         protected final CoverArtController controller;
         protected final FontLoader fontLoader;
@@ -559,7 +557,7 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return artist.getCoverArtPath() == null ? createCoverArtKey(artist)
+            return artist.getCoverArtPath() == null ? CoverArtType.ARTIST.createKey(artist.getId())
                     : artist.getCoverArtPath();
         }
 
@@ -591,7 +589,7 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return album.getCoverArtPath() == null ? createCoverArtKey(album)
+            return album.getCoverArtPath() == null ? CoverArtType.ID3ALBUM.createKey(album.getId())
                     : album.getCoverArtPath();
         }
 
@@ -630,7 +628,7 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return createCoverArtKey(playlist);
+            return CoverArtType.PLAYLIST.createKey(playlist.getId());
         }
 
         @Override
@@ -708,7 +706,7 @@ public class CoverArtController implements CoverArtPresentation {
 
         @Override
         public String getKey() {
-            return createCoverArtKey(channel);
+            return CoverArtType.PODCAST.createKey(channel.getId());
         }
 
         @Override
