@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.provider.PlayerProvider;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
+import com.tesshu.jpsonic.domain.type.CoverArtType;
 import com.tesshu.jpsonic.feature.crypt.upnp.StreamPayload.StreamType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
@@ -48,7 +49,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
@@ -84,7 +84,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * multiple ContentProcessors.
  */
 @Component
-public class UpnpDIDLFactory implements CoverArtPresentation {
+public class UpnpDIDLFactory {
 
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
         .withInitial(
@@ -141,7 +141,8 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private Property<URI> toArtistArt(Artist artist) {
-        URI uri = createCoverArtURI(createCoverArtKey(artist), CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(CoverArtType.ARTIST.createKey(artist.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
@@ -152,17 +153,20 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     }
 
     private Property<URI> toAlbumArt(Album album) {
-        URI uri = createCoverArtURI(createCoverArtKey(album), CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(CoverArtType.ID3ALBUM.createKey(album.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPodcastArt(PodcastChannel channel) {
-        URI uri = createCoverArtURI(createCoverArtKey(channel), CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(CoverArtType.PODCAST.createKey(channel.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPlaylistArt(Playlist playlist) {
-        URI uri = createCoverArtURI(createCoverArtKey(playlist), CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(CoverArtType.PLAYLIST.createKey(playlist.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
