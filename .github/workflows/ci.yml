@@ -14,6 +14,7 @@ env:
   ## LANG: "C" 
   ## LC_CTYPE: "en_US.UTF-8"
   LC_ALL: "C.UTF-8"
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 jobs:
   ##########################################################################
