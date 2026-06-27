@@ -47,6 +47,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons implements Reme
     private String downloadLimit;
     private String uploadLimit;
     private String bufferSize;
+    private boolean forceCompatibilityMode;
 
     // Email notification
     private String smtpFrom;
@@ -161,6 +162,14 @@ public class AdvancedSettingsCommand extends SettingsPageCommons implements Reme
 
     public void setBufferSize(String bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public boolean isForceCompatibilityMode() {
+        return forceCompatibilityMode;
+    }
+
+    public void setForceCompatibilityMode(boolean forceCompatibilityMode) {
+        this.forceCompatibilityMode = forceCompatibilityMode;
     }
 
     public String getSmtpFrom() {

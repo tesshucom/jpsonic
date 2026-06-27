@@ -24,6 +24,9 @@ import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -33,9 +36,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrFGAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenreAlbum;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
 public class AlbumId3ByFolderGenreProc
         extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrFGAlbum> {
 
-    private static final Scope SCOPE = GenreMasterCriteria.Scope.ALBUM;
+    private static final GenreMasterScope SCOPE = GenreMasterScope.ALBUM;
     private static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final UpnpProcessorUtil util;
@@ -76,8 +76,8 @@ public class AlbumId3ByFolderGenreProc
         return ProcId.ALBUM_ID3_BY_FOLDER_GENRE;
     }
 
-    private Sort getSort() {
-        return Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort));
+    private GenreMasterSort getSort() {
+        return GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort));
     }
 
     @Override
