@@ -39,7 +39,6 @@
         Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
         $('[name="bitRateLimit"]').prop("selectedIndex", 4);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
-        document.getElementsByName('uriWithFileExtensions')[0].checked = true;
         checkBitrateAvailability();
     }
     
@@ -141,15 +140,10 @@
             <dt></dt>
             <dd>
                 <form:checkbox path="dlnaEnabledFilteredIp" id="dlnaEnabledFilteredIp"/>
-                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.filteredIp"/></label>
+                <label for=dlnaFilteredIp><fmt:message key="dlnasettings.filteredIp"/></label>
                 <input type="text" name="dlnaFilteredIp" id="dlnaFilteredIp"
                         value="<c:out value='${command.dlnaFilteredIp}' escapeXml='true'/>" placeholder="${command.dlnaDefaultFilteredIp}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="filteredIp"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
-                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.uriwithfileextensions"/></label>
             </dd>
         </dl>
     </details>

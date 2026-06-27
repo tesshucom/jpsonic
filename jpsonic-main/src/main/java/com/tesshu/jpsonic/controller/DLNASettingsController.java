@@ -150,7 +150,6 @@ public class DLNASettingsController {
         command.setDlnaDefaultFilteredIp(UPnPSKeys.basic.filteredIp.defaultValue());
         command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp));
         command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.basic.filteredIp));
-        command.setUriWithFileExtensions(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions));
 
         // Menu settings
         List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
@@ -253,9 +252,6 @@ public class DLNASettingsController {
                 ? filteredIpIn
                 : UPnPSKeys.basic.filteredIp.defaultValue();
         settingsFacade.staging(UPnPSKeys.basic.filteredIp, filteredIp);
-
-        settingsFacade
-            .staging(UPnPSKeys.basic.uriWithFileExtensions, command.isUriWithFileExtensions());
 
         // Display options / Access control
         settingsFacade

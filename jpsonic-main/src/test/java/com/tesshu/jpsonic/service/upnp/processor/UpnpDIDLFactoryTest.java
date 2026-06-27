@@ -65,7 +65,6 @@ class UpnpDIDLFactoryTest {
         settingsFacade = SettingsFacadeBuilder
             .create()
             .withString(UPnPSKeys.basic.baseLanUrl, "http://192.168.1.1")
-            .withBoolean(UPnPSKeys.basic.uriWithFileExtensions, false)
             .buildWithDefault();
         init();
     }

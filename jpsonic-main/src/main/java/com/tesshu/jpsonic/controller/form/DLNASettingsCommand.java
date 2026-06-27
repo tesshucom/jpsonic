@@ -50,7 +50,6 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
     private String dlnaDefaultFilteredIp;
     private boolean dlnaEnabledFilteredIp;
     private String dlnaFilteredIp;
-    private boolean uriWithFileExtensions;
     private KeyRotationType dlnaKeyRotationType;
     private KeyRotationPeriod dlnaKeyRotationPeriod;
 
@@ -179,14 +178,6 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
 
     public void setDlnaFilteredIp(String dlnaFilteredIp) {
         this.dlnaFilteredIp = dlnaFilteredIp;
-    }
-
-    public boolean isUriWithFileExtensions() {
-        return uriWithFileExtensions;
-    }
-
-    public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
-        this.uriWithFileExtensions = uriWithFileExtensions;
     }
 
     @Override

@@ -30,9 +30,6 @@ public final class UPnPSKeys implements SettingKeyDictionary {
         public static final SettingKey<String> filteredIp = SKey
             .of("DlnaFilteredIp", STRING, "172.17.16.1");
 
-        public static final SettingKey<Boolean> uriWithFileExtensions = SKey
-            .of("UriWithFileExtensions", BOOLEAN, true);
-
         private basic() {
         }
     }
