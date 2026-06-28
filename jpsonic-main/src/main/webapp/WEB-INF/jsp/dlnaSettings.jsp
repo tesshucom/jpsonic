@@ -24,7 +24,7 @@
 <%@ page import="com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit" %>
 <%@ page import="com.tesshu.jpsonic.domain.system.MenuItemId" %>
 <%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
-<%@ page import="com.tesshu.jpsonic.service.search.UPnPSearchMethod" %>
+<%@ page import="com.tesshu.jpsonic.feature.search.UPnPSearchMethod" %>
 
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>

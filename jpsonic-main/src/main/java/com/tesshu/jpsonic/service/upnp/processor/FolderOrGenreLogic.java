@@ -23,13 +23,13 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFGenre;
 import org.jupnp.support.model.DIDLContent;
@@ -54,27 +54,28 @@ public class FolderOrGenreLogic {
         this.factory = factory;
     }
 
-    private Container createContainer(ProcId procId, FolderGenre folderGenre, Scope scope) {
+    private Container createContainer(ProcId procId, FolderGenre folderGenre,
+            GenreMasterScope scope) {
         int childCount = getChildSizeOf(folderGenre.genre(), scope);
         return factory.toGenre(procId, folderGenre, childCount);
     }
 
-    private Container createContainer(ProcId procId, MusicFolder folder, Scope scope, Sort sort,
-            MediaType... types) {
+    private Container createContainer(ProcId procId, MusicFolder folder, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         int childCount = getChildSizeOf(folder, scope, sort, types);
         return factory.toMusicFolder(procId, folder, childCount);
     }
 
-    Container createContainer(ProcId procId, FolderOrFGenre folderOrGenre, Scope scope, Sort sort,
-            MediaType... types) {
+    Container createContainer(ProcId procId, FolderOrFGenre folderOrGenre, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         if (folderOrGenre.isFolderGenre()) {
             return createContainer(procId, folderOrGenre.getFolderGenre(), scope);
         }
         return createContainer(procId, folderOrGenre.getFolder(), scope, sort, types);
     }
 
-    List<FolderOrFGenre> getDirectChildren(long offset, long count, Scope scope, Sort sort,
-            MediaType... types) {
+    List<FolderOrFGenre> getDirectChildren(long offset, long count, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
@@ -88,7 +89,7 @@ public class FolderOrGenreLogic {
         return folders.stream().skip(offset).limit(count).map(FolderOrFGenre::new).toList();
     }
 
-    int getDirectChildrenCount(Scope scope, Sort sort, MediaType... types) {
+    int getDirectChildrenCount(GenreMasterScope scope, GenreMasterSort sort, MediaType... types) {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
@@ -98,8 +99,8 @@ public class FolderOrGenreLogic {
         return folders.size();
     }
 
-    private FolderOrFGenre getDirectChildGenres(String folderGenreId, Scope scope, Sort sort,
-            MediaType... types) {
+    private FolderOrFGenre getDirectChildGenres(String folderGenreId, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         int folderId = FolderGenre.parseFolderId(folderGenreId);
         MusicFolder folder = util
             .getGuestFolders()
@@ -131,7 +132,8 @@ public class FolderOrGenreLogic {
         return new FolderOrFGenre(folder);
     }
 
-    FolderOrFGenre getDirectChild(String id, Scope scope, Sort sort, MediaType... types) {
+    FolderOrFGenre getDirectChild(String id, GenreMasterScope scope, GenreMasterSort sort,
+            MediaType... types) {
         if (FolderGenre.isCompositeId(id)) {
             return getDirectChildGenres(id, scope, sort, types);
         }
@@ -139,18 +141,18 @@ public class FolderOrGenreLogic {
         return getDirectChildFolder(folderId);
     }
 
-    private int getChildSizeOf(Genre genre, Scope scope) {
-        return Scope.ALBUM == scope ? genre.getAlbumCount() : genre.getSongCount();
+    private int getChildSizeOf(Genre genre, GenreMasterScope scope) {
+        return GenreMasterScope.ALBUM == scope ? genre.getAlbumCount() : genre.getSongCount();
     }
 
-    private int getChildSizeOf(MusicFolder musicFolder, Scope scope, Sort sort,
-            MediaType... types) {
+    private int getChildSizeOf(MusicFolder musicFolder, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         return searchService
             .getGenresCount(new GenreMasterCriteria(asList(musicFolder), scope, sort, types));
     }
 
-    public int getChildSizeOf(FolderOrFGenre folderOrGenre, Scope scope, Sort sort,
-            MediaType... types) {
+    public int getChildSizeOf(FolderOrFGenre folderOrGenre, GenreMasterScope scope,
+            GenreMasterSort sort, MediaType... types) {
         if (folderOrGenre.isFolderGenre()) {
             return getChildSizeOf(folderOrGenre.getFolderGenre().genre(), scope);
         }

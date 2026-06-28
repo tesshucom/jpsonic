@@ -20,38 +20,15 @@
 package com.tesshu.jpsonic.service.search;
 
 import java.util.List;
-import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 
 /**
  * Criteria used when generating Genre Master.
  */
-public record GenreMasterCriteria(List<MusicFolder> folders, Scope scope, Sort sort,
-        MediaType... types) {
-
-    public enum Scope {
-        ALBUM, SONG;
-
-        public static Scope of(String s) {
-            return Stream
-                .of(values())
-                .filter(scope -> scope.name().equals(s))
-                .findFirst()
-                .orElse(ALBUM);
-        }
-    }
-
-    public enum Sort {
-        FREQUENCY, NAME, ALBUM_COUNT, SONG_COUNT;
-
-        public static Sort of(String s) {
-            return Stream
-                .of(values())
-                .filter(sort -> sort.name().equals(s))
-                .findFirst()
-                .orElse(FREQUENCY);
-        }
-    }
+public record GenreMasterCriteria(List<MusicFolder> folders, GenreMasterScope scope,
+        GenreMasterSort sort, MediaType... types) {
 }

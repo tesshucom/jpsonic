@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.infrastructure.core.EhcacheConfiguration.RandomCacheKey;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
@@ -41,8 +43,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import com.tesshu.jpsonic.service.search.SearchServiceUtilities.LegacyGenreCriteria;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -314,14 +314,15 @@ class SearchServiceUtilitiesTest {
 
     @Test
     void testGetCacheGenreMasterCriteria() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(), Scope.ALBUM,
-                Sort.FREQUENCY);
+        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
+                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
         String cacheKey = utilities.createCacheKey(criteria);
         assertEquals("ALBUM,FREQUENCY,[],[]", cacheKey);
 
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
-        criteria = new GenreMasterCriteria(folders, Scope.ALBUM, Sort.FREQUENCY);
+        criteria = new GenreMasterCriteria(folders, GenreMasterScope.ALBUM,
+                GenreMasterSort.FREQUENCY);
         cacheKey = utilities.createCacheKey(criteria);
         assertEquals("ALBUM,FREQUENCY,[99],[]", cacheKey);
     }
@@ -340,8 +341,8 @@ class SearchServiceUtilitiesTest {
 
     @Test
     void testGenreCache() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(), Scope.ALBUM,
-                Sort.FREQUENCY);
+        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
+                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
         assertTrue(utilities.getCache(criteria).isEmpty());
         utilities.putCache(criteria, List.of(new Genre("genre", 0, 0)));
         assertFalse(utilities.getCache(criteria).isEmpty());
@@ -384,8 +385,8 @@ class SearchServiceUtilitiesTest {
 
     @Test
     void testRemoveCacheAll() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(), Scope.ALBUM,
-                Sort.FREQUENCY);
+        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
+                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
         assertTrue(utilities.getCache(criteria).isEmpty());
         utilities.putCache(criteria, List.of(new Genre("genre", 0, 0)));
         assertFalse(utilities.getCache(criteria).isEmpty());

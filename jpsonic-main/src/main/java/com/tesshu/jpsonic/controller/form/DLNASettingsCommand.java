@@ -24,15 +24,15 @@ import java.util.Map;
 
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpCryptSettingsForm;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
 public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryptSettingsForm {
 
@@ -62,10 +62,10 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
     private Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos;
 
     // Display options / Access control
-    private List<Sort> avairableAlbumGenreSort;
-    private Sort albumGenreSort;
-    private List<Sort> avairableSongGenreSort;
-    private Sort songGenreSort;
+    private List<GenreMasterSort> avairableAlbumGenreSort;
+    private GenreMasterSort albumGenreSort;
+    private List<GenreMasterSort> avairableSongGenreSort;
+    private GenreMasterSort songGenreSort;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -230,35 +230,35 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
         this.subMenuItemRowInfos = subMenuItemRowInfos;
     }
 
-    public List<Sort> getAvairableAlbumGenreSort() {
+    public List<GenreMasterSort> getAvairableAlbumGenreSort() {
         return avairableAlbumGenreSort;
     }
 
-    public void setAvairableAlbumGenreSort(List<Sort> avairableAlbumGenreSort) {
+    public void setAvairableAlbumGenreSort(List<GenreMasterSort> avairableAlbumGenreSort) {
         this.avairableAlbumGenreSort = avairableAlbumGenreSort;
     }
 
-    public Sort getAlbumGenreSort() {
+    public GenreMasterSort getAlbumGenreSort() {
         return albumGenreSort;
     }
 
-    public List<Sort> getAvairableSongGenreSort() {
+    public List<GenreMasterSort> getAvairableSongGenreSort() {
         return avairableSongGenreSort;
     }
 
-    public void setAvairableSongGenreSort(List<Sort> avairableMusicGenreSort) {
+    public void setAvairableSongGenreSort(List<GenreMasterSort> avairableMusicGenreSort) {
         this.avairableSongGenreSort = avairableMusicGenreSort;
     }
 
-    public void setAlbumGenreSort(Sort albumGenreSort) {
+    public void setAlbumGenreSort(GenreMasterSort albumGenreSort) {
         this.albumGenreSort = albumGenreSort;
     }
 
-    public Sort getSongGenreSort() {
+    public GenreMasterSort getSongGenreSort() {
         return songGenreSort;
     }
 
-    public void setSongGenreSort(Sort musicGenreSort) {
+    public void setSongGenreSort(GenreMasterSort musicGenreSort) {
         this.songGenreSort = musicGenreSort;
     }
 
