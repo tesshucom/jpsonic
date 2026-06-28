@@ -24,12 +24,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,16 +36,22 @@ import java.util.List;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.JWTSecurityService;
+import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,36 +60,48 @@ import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLObject.Property.UPNP.AUTHOR;
 import org.jupnp.support.model.item.MusicTrack;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class WMPProcTest {
 
     private MediaFileService mediaFileService;
+    private TranscodingService transcodingService;
     private UpnpProcessorUtil util;
     private WMPProc wmpProcessor;
+    private final com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
+            com.tesshu.jpsonic.domain.model.MediaFile.class);
 
     @BeforeEach
     void setup() throws URISyntaxException {
         mediaFileService = mock(MediaFileService.class);
         util = mock(UpnpProcessorUtil.class);
+        transcodingService = mock(TranscodingService.class);
+        UpnpKeyManager upnpKeyManager = mock(UpnpKeyManager.class);
+        when(upnpKeyManager.getKey()).thenReturn("dummyKey");
+
         SettingsFacade settingsFacade = SettingsFacadeBuilder
             .create()
+            .withString(SKeys.transcoding.preferredFormat, "flac")
             .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
             .build();
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
-        UriComponents components = mock(UriComponents.class);
-        when(components.encode()).thenReturn(components);
-        when(components.toUri()).thenReturn(new URI("https://192.168.1.1/dummyArt.jpg"));
-        when(builder.build()).thenReturn(components);
-        when(builder.toUriString()).thenReturn("https://192.168.1.1/dummyResource.mp3");
-        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class))).thenReturn(builder);
-        PlayerService playerService = mock(PlayerService.class);
-        TranscodingService transcodingService = mock(TranscodingService.class);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
-                mediaFileService, playerService, transcodingService);
+
+        UpnpKeyManager keyManager = mock(UpnpKeyManager.class);
+        when(keyManager.getKey()).thenReturn("dummyKey");
+        UpnpPayloadCodec codec = new UpnpPayloadCodec(upnpKeyManager);
+
+        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
+        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                mediaFile, null, null);
+        when(parametersPlanner
+            .resolveAudioTranscodingParameters(
+                    nullable(com.tesshu.jpsonic.domain.model.Player.class),
+                    nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
+                    nullable(Integer.class), nullable(String.class)))
+            .thenReturn(param);
+
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, codec, mediaFileService,
+                mock(MediaFileProvider.class), mock(PlayerProvider.class), parametersPlanner);
+
         wmpProcessor = new WMPProc(util, factory, mediaFileService);
         TestCaseUtils.setLogLevel(WMPProc.class, Level.DEBUG);
     }
@@ -121,6 +138,9 @@ class WMPProcTest {
         m.setPathString("path1");
         // when(factory.toRes(m)).thenReturn(null);
         // when(factory.toAlbumArt(m)).thenReturn(null);
+
+        when(mediaFile.format())
+            .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
 
         MusicTrack mt = wmpProcessor.createMusicTrack(m);
         assertNull(mt.getParentID());
@@ -188,11 +208,18 @@ class WMPProcTest {
             MediaFile m = new MediaFile();
             m.setPathString("path2");
             m.setTitle("dummy title");
+            m.setFormat("flac");
+            assertFalse(m.isVideo());
             List<MediaFile> songs = Arrays.asList(m);
+
             MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null, 0, false);
             List<MusicFolder> folders = Arrays.asList(mf);
             when(util.getGuestFolders()).thenReturn(folders);
             when(mediaFileService.getSongs(anyLong(), anyLong(), anyList())).thenReturn(songs);
+            when(transcodingService
+                .getSuffix(nullable(Player.class), nullable(MediaFile.class),
+                        nullable(String.class)))
+                .thenReturn(m.getFormat());
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
@@ -200,29 +227,34 @@ class WMPProcTest {
             when(mediaFileService.getParentOf(m)).thenReturn(parent);
             when(mediaFileService.countSongs(anyList())).thenReturn(20L);
 
+            when(mediaFile.format())
+                .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("flac"));
+
             result = wmpProcessor
                 .getBrowseResult(
                         "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false",
                         "*", 1, 1);
 
-            assertEquals(
-                    """
-                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\
-                            \sxmlns:dc="http://purl.org/dc/elements/1.1/"\
-                            \sxmlns:sec="http://www.sec.co.kr/"\
-                            \sxmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
-                            <item id="0" parentID="200" restricted="1">\
-                            <dc:title>dummy title</dc:title>\
-                            <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
-                            <upnp:album/>\
-                            <upnp:originalTrackNumber/>\
-                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
-                            <dc:description/>\
-                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
-                            </item>\
-                            </DIDL-Lite>\
-                            """,
-                    result.getResult());
+            assertEquals("""
+                    <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\
+                    \sxmlns:dc="http://purl.org/dc/elements/1.1/"\
+                    \sxmlns:sec="http://www.sec.co.kr/"\
+                    \sxmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                    <item id="0" parentID="200" restricted="1">\
+                    <dc:title>dummy title</dc:title>\
+                    <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
+                    <upnp:album/>\
+                    <upnp:originalTrackNumber/>\
+                    <upnp:albumArtURI>\
+                    https://192.168.1.1:4040/ext/upnp/art/ec2432921fa73a.jpeg\
+                    </upnp:albumArtURI>\
+                    <dc:description/>\
+                    <res protocolInfo="http-get:*:audio/flac:*">\
+                    https://192.168.1.1:4040/ext/upnp/stream/ec24379a1b.flac\
+                    </res>\
+                    </item>\
+                    </DIDL-Lite>\
+                    """, result.getResult());
             assertEquals(1, result.getCount().getValue());
             assertEquals(20, result.getTotalMatches().getValue());
         }
@@ -246,17 +278,27 @@ class WMPProcTest {
             MediaFile m = new MediaFile();
             m.setPathString("path5");
             m.setTitle("dummy title");
+            m.setMediaType(MediaType.VIDEO);
+            m.setFormat("mp4");
+
             List<MediaFile> songs = Arrays.asList(m);
             MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null, 0, false);
             List<MusicFolder> folders = Arrays.asList(mf);
             when(util.getGuestFolders()).thenReturn(folders);
             when(mediaFileService.getVideos(anyLong(), anyLong(), anyList())).thenReturn(songs);
+            when(transcodingService
+                .getSuffix(nullable(Player.class), nullable(MediaFile.class),
+                        nullable(String.class)))
+                .thenReturn(m.getFormat());
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
             parent.setPathString("parentPath1");
             when(mediaFileService.getParentOf(m)).thenReturn(parent);
             when(mediaFileService.countVideos(anyList())).thenReturn(20L);
+
+            when(mediaFile.format())
+                .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp4"));
 
             result = wmpProcessor
                 .getBrowseResult(
@@ -272,9 +314,11 @@ class WMPProcTest {
                             <item id="0" parentID="200" restricted="1">\
                             <dc:title>dummy title</dc:title>\
                             <upnp:class>object.item.videoItem</upnp:class>\
-                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
+                            <upnp:albumArtURI>https://192.168.1.1:4040/ext/upnp/art/ec2432921fa73a.jpeg</upnp:albumArtURI>\
                             <dc:description/>\
-                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
+                            <res protocolInfo="http-get:*:video/mp4:*">\
+                            https://192.168.1.1:4040/ext/upnp/stream/ec24379a1a.mp4\
+                            </res>\
                             </item>\
                             </DIDL-Lite>\
                             """,
@@ -300,13 +344,21 @@ class WMPProcTest {
             m.setTitle("dummy title");
             when(mediaFileService.getMediaFileStrict(id)).thenReturn(m);
             assertEmpty(wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0));
-
             m.setMediaType(MediaType.MUSIC);
+            m.setFormat("mp3");
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
             parent.setPathString("parentPath4");
+            when(transcodingService
+                .getSuffix(nullable(Player.class), nullable(MediaFile.class),
+                        nullable(String.class)))
+                .thenReturn(m.getFormat());
             when(mediaFileService.getParentOf(m)).thenReturn(parent);
+
+            when(mediaFile.format())
+                .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+
             BrowseResult result = wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0);
             assertEquals(
                     """
@@ -319,9 +371,9 @@ class WMPProcTest {
                             <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
                             <upnp:album/>\
                             <upnp:originalTrackNumber/>\
-                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
+                            <upnp:albumArtURI>https://192.168.1.1:4040/ext/upnp/art/ec2432921fa73a.jpeg</upnp:albumArtURI>\
                             <dc:description/>\
-                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
+                            <res protocolInfo="http-get:*:audio/mpeg:*">https://192.168.1.1:4040/ext/upnp/stream/ec2434b11b.mp3</res>\
                             </item>\
                             </DIDL-Lite>\
                             """,

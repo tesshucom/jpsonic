@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -55,8 +57,6 @@ import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
 import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
 import com.tesshu.jpsonic.service.scanner.ScanContext;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import net.sf.ehcache.Ehcache;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
@@ -273,8 +273,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c00() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                    Sort.NAME);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.ALBUM, GenreMasterSort.NAME);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -297,8 +297,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.AlbumCount
         @Test
         void c01() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                    Sort.ALBUM_COUNT);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.ALBUM, GenreMasterSort.ALBUM_COUNT);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("GENRE_D", genres.get(0).getName());
@@ -335,8 +335,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
         @Test
         void c02() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                    Sort.SONG_COUNT);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.ALBUM, GenreMasterSort.SONG_COUNT);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -373,8 +373,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c03() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
-                    Sort.NAME, MediaType.MUSIC);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.SONG, GenreMasterSort.NAME, MediaType.MUSIC);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(13, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -396,8 +396,8 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.SongCount
         @Test
         void c04() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
-                    Sort.SONG_COUNT, MediaType.MUSIC);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.SONG, GenreMasterSort.SONG_COUNT, MediaType.MUSIC);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(13, genres.size());
             assertEquals("GENRE_A", genres.get(0).getName());
@@ -432,8 +432,9 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Name
         @Test
         void c05() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
-                    Sort.NAME, MediaType.MUSIC, MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.SONG, GenreMasterSort.NAME, MediaType.MUSIC,
+                    MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(15, genres.size());
             assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -457,8 +458,9 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
         @Test
         void c06() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                    Sort.FREQUENCY, MediaType.MUSIC, MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY, MediaType.MUSIC,
+                    MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(14, genres.size());
             for (int i = 0; i < genres.size(); i++) {
@@ -477,8 +479,9 @@ class IndexManagerTest {
         @CreateGenreMasterDecisions.Conditions.Criteria.Sort.Frequency
         @Test
         void c07() {
-            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.SONG,
-                    Sort.FREQUENCY, MediaType.MUSIC, MediaType.AUDIOBOOK);
+            GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders,
+                    GenreMasterScope.SONG, GenreMasterSort.FREQUENCY, MediaType.MUSIC,
+                    MediaType.AUDIOBOOK);
             List<Genre> genres = indexManager.createGenreMaster(criteria);
             assertEquals(15, genres.size());
             for (int i = 0; i < genres.size(); i++) {

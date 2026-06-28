@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -53,7 +54,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.search.ParamSearchResult;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

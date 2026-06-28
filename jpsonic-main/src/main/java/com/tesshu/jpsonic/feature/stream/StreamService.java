@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -132,11 +132,11 @@ public class StreamService {
      */
     public @Nullable String getFormat(HttpServletRequest request, Player player, Boolean isRest) {
         String format = request.getParameter(Attributes.Request.FORMAT.value());
-        PreferredFormatSheme sheme = PreferredFormatSheme
+        PreferredFormatScheme sheme = PreferredFormatScheme
             .of(settingsFacade.get(SKeys.transcoding.preferredFormatShemeName));
-        if (sheme == PreferredFormatSheme.ANNOYMOUS
+        if (sheme == PreferredFormatScheme.ANNOYMOUS
                 && JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
-                || sheme == PreferredFormatSheme.OTHER_THAN_REQUEST
+                || sheme == PreferredFormatScheme.OTHER_THAN_REQUEST
                         && (isRest == null || !isRest)) {
             return StringUtils
                 .defaultIfEmpty(format, settingsFacade.get(SKeys.transcoding.preferredFormat));

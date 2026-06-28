@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.contentdirectory.ContentDirectoryException;

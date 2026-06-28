@@ -4,7 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
+    <%@ page import="com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit" %>
     <script src="<c:url value='/script/utils.js'/>"></script>
     <script>
         <c:if test="${settings_reload}">
@@ -122,9 +122,10 @@
             </c:if>
             <dt><fmt:message key="playersettings.maxbitrate"/></dt>
             <dd>
-                <form:select path="transcodeScheme">
-                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                <% pageContext.setAttribute("bitRateLimits", BitRateLimit.values()); %>
+                <form:select path="bitRateLimit">
+                    <c:forEach items="${bitRateLimits}" var="bitRate">
+                        <form:option value="${bitRate}" label="${bitRate.toString()}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>

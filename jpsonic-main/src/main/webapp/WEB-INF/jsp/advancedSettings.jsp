@@ -251,6 +251,13 @@ function postRotate() {
                     <form:option value="1048576" label="1Mb"/>
                     <form:option value="6291456" label="6Mb: tcp_rmem#max"/>
                 </form:select>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="buffersize"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="upnpUseChunked" id="upnpUseChunked"/>
+                <label for="upnpUseChunked"><fmt:message key="advancedsettings.upnpusechunked"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpusechunked"/></c:import>
             </dd>
         </dl>
     </details>

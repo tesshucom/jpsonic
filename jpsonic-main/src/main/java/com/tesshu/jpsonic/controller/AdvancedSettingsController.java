@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
-import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.feature.auth.rememberme.RMSKeys;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeStagingApplier;
 import com.tesshu.jpsonic.feature.auth.rememberme.TokenValidityPeriod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -120,7 +121,8 @@ public class AdvancedSettingsController {
                 .valueOf(settingsFacade.get(SKeys.advanced.bandwidth.uploadBitrateLimit)));
         command
             .setBufferSize(String.valueOf(settingsFacade.get(SKeys.advanced.bandwidth.bufferSize)));
-
+        command.setUpnpUseChunked(settingsFacade.get(UPnPSKeys.advanced.useChunked));
+        
         // Email notification
         command.setSmtpFrom(settingsFacade.get(SKeys.advanced.smtp.from));
         command.setSmtpServer(settingsFacade.get(SKeys.advanced.smtp.server));
@@ -202,6 +204,7 @@ public class AdvancedSettingsController {
                 LOG.error("Error in parse of bitrateLimit or bufferSize.", e);
             }
         }
+        settingsFacade.staging(UPnPSKeys.advanced.useChunked, command.isUpnpUseChunked());
 
         // Email notification
         settingsFacade.staging(SKeys.advanced.smtp.from, command.getSmtpFrom());

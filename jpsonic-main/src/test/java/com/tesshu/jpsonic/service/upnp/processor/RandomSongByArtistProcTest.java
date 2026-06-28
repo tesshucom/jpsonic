@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,9 +40,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -49,12 +54,8 @@ import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,6 @@ import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;
 import org.jupnp.support.model.item.MusicTrack;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RandomSongByArtistProcTest {
@@ -93,19 +93,23 @@ class RandomSongByArtistProcTest {
 
         @Ignore
         void init() {
-            JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-            UriComponentsBuilder coverArtbuilder = UriComponentsBuilder
-                .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
-                        + ViewName.COVER_ART.value())
-                .queryParam("id", "99")
-                .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-            when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class)))
-                .thenReturn(coverArtbuilder);
-
             util = mock(UpnpProcessorUtil.class);
-            factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
-                    mock(MediaFileService.class), mock(PlayerService.class),
-                    mock(TranscodingService.class));
+            TranscodingParametersPlanner parametersPlanner = mock(
+                    TranscodingParametersPlanner.class);
+            com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
+                    com.tesshu.jpsonic.domain.model.MediaFile.class);
+            when(mediaFile.format())
+                .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+            ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                    mediaFile, null, null);
+            when(parametersPlanner
+                .resolveAudioTranscodingParameters(nullable(Player.class),
+                        nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
+                        nullable(Integer.class), nullable(String.class)))
+                .thenReturn(param);
+            factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                    mock(MediaFileService.class), mock(MediaFileProvider.class),
+                    mock(PlayerProvider.class), parametersPlanner);
             artistDao = mock(ArtistDao.class);
             searchService = mock(SearchService.class);
             proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,

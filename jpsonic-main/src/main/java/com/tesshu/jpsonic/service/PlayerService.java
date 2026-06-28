@@ -61,7 +61,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
  *
  * @see Player
  */
-@Service
+@Service("playerService")
 @DependsOn("liquibase")
 public class PlayerService implements ReadWriteLockSupport {
 
@@ -446,7 +446,7 @@ public class PlayerService implements ReadWriteLockSupport {
                         JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                                 ? User.USERNAME_GUEST
                                 : player.getUsername());
-            player.setTranscodeScheme(userSettings.getTranscodeScheme());
+            player.setBitRateLimit(userSettings.getBitRateLimit());
             playerDao.createPlayer(player);
             if (isInitTranscoding) {
                 transcodingService
@@ -522,5 +522,9 @@ public class PlayerService implements ReadWriteLockSupport {
             updatePlayer(player);
         }
         return player;
+    }
+
+    public com.tesshu.jpsonic.domain.model.Player getDomainUPnPPlayer() {
+        return playerDao.getDomainPlayers(User.USERNAME_GUEST, UPNP_PLAYER_ID);
     }
 }

@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.GenericDaoHelper;
 import com.tesshu.jpsonic.persistence.core.entity.User;
@@ -231,7 +231,7 @@ class UserDaoTest {
         assertFalse(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
         assertNull(userSettings.getListenBrainzToken(), "Error in getUserSettings().");
         Assertions
-            .assertSame(TranscodeScheme.OFF, userSettings.getTranscodeScheme(),
+            .assertSame(BitRateLimit.OFF, userSettings.getBitRateLimit(),
                     "Error in getUserSettings().");
         assertEquals(-1, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertFalse(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
@@ -262,7 +262,7 @@ class UserDaoTest {
         settings.setLastFmPassword("last_pass");
         settings.setListenBrainzEnabled(true);
         settings.setListenBrainzToken("01234567-89ab-cdef-0123-456789abcdef");
-        settings.setTranscodeScheme(TranscodeScheme.MAX_256);
+        settings.setBitRateLimit(BitRateLimit.MAX_256);
         settings.setSelectedMusicFolderId(3);
         settings.setPartyModeEnabled(true);
         settings.setNowPlayingAllowed(true);
@@ -304,7 +304,7 @@ class UserDaoTest {
         assertEquals("01234567-89ab-cdef-0123-456789abcdef", userSettings.getListenBrainzToken(),
                 "Error in getUserSettings().");
         Assertions
-            .assertSame(TranscodeScheme.MAX_256, userSettings.getTranscodeScheme(),
+            .assertSame(BitRateLimit.MAX_256, userSettings.getBitRateLimit(),
                     "Error in getUserSettings().");
         assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
         assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");

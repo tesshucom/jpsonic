@@ -4,7 +4,7 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
     <c:choose>
@@ -21,7 +21,7 @@
     function checkBitrateAvailability() {
         var c = 0;
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
-        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+        $('[name="bitRateLimit"]').prop("disabled", c == 0);
     }
 
     $(document).ready(function(){
@@ -112,10 +112,11 @@
                         </c:if>
                         <dt><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd>
-                            <form:select path="transcodeScheme">
-                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                                    <c:if test="${command.maxBitrate.getMaxBitRate() eq 0 or scheme.getMaxBitRate() ne 0 and scheme.getMaxBitRate() le command.maxBitrate.getMaxBitRate()}">
-                                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                            <% pageContext.setAttribute("bitRateLimits", BitRateLimit.values()); %>
+                            <form:select path="bitRateLimit">
+                                <c:forEach items="${bitRateLimits}" var="bitRate">
+                                    <c:if test="${command.maxBitrate.getMaxBitRate() eq 0 or bitRate.getMaxBitRate() ne 0 and bitRate.getMaxBitRate() le command.maxBitrate.getMaxBitRate()}">
+                                        <form:option value="${bitRate}" label="${bitRate.toString()}"/>
                                     </c:if>
                                 </c:forEach>
                             </form:select>

@@ -29,9 +29,9 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
-import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey.AuthKeyType;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeForm;
 import com.tesshu.jpsonic.feature.auth.rememberme.RememberMeKeyManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;

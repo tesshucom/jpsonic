@@ -33,15 +33,16 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,18 +59,20 @@ class AlbumByGenreProcTest {
     private UpnpProcessorUtil util;
     private UpnpDIDLFactory factory;
     private MediaFileService mediaFileService;
+    private MediaFileProvider mediaFileProvider;
+    private PlayerProvider playerProvider;
     private SearchService searchService;
     private AlbumByGenreProc proc;
+    private TranscodingParametersPlanner transcodingParametersPlanner;
 
     @BeforeEach
     void setup() {
         settingsFacade = mock(SettingsFacade.class);
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        PlayerService playerService = mock(PlayerService.class);
-        TranscodingService transcodingService = mock(TranscodingService.class);
-        factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService, mediaFileService,
-                playerService, transcodingService);
         mediaFileService = mock(MediaFileService.class);
+        mediaFileProvider = mock(MediaFileProvider.class);
+        playerProvider = mock(PlayerProvider.class);
+        factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mediaFileService, mediaFileProvider, playerProvider, transcodingParametersPlanner);
         searchService = mock(SearchService.class);
         util = new UpnpProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                 settingsFacade, mock(JpsonicComparators.class));

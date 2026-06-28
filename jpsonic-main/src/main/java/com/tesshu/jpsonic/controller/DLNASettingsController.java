@@ -35,8 +35,11 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -56,9 +59,6 @@ import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -146,11 +146,10 @@ public class DLNASettingsController {
                 .mapToInt(Transcoding::getId)
                 .toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
-        command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
-        command.setDlnaDefaultFilteredIp(UPnPSKeys.basic.filteredIp.defaultValue());
-        command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp));
-        command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.basic.filteredIp));
-        command.setUriWithFileExtensions(settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions));
+        command.setBitRateLimit(guestPlayer.getBitRateLimit());
+        command.setDlnaDefaultFilteredIp(UPnPSKeys.advanced.filteredIp.defaultValue());
+        command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.advanced.enabledFilteredIp));
+        command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.advanced.filteredIp));
 
         // Menu settings
         List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
@@ -180,12 +179,17 @@ public class DLNASettingsController {
         command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control
-        command.setAvairableAlbumGenreSort(Arrays.asList(Sort.values()));
+        command.setAvairableAlbumGenreSort(Arrays.asList(GenreMasterSort.values()));
         command
-            .setAlbumGenreSort(Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)));
+            .setAlbumGenreSort(
+                    GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)));
         command
-            .setAvairableSongGenreSort(Arrays.asList(Sort.FREQUENCY, Sort.NAME, Sort.SONG_COUNT));
-        command.setSongGenreSort(Sort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)));
+            .setAvairableSongGenreSort(Arrays
+                .asList(GenreMasterSort.FREQUENCY, GenreMasterSort.NAME,
+                        GenreMasterSort.SONG_COUNT));
+        command
+            .setSongGenreSort(
+                    GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)));
         command.setDlnaRandomMax(settingsFacade.get(UPnPSKeys.options.randomMax));
         command.setDlnaGuestPublish(settingsFacade.get(UPnPSKeys.options.guestPublish));
 
@@ -227,10 +231,10 @@ public class DLNASettingsController {
                     .getDlnaBaseLANURL()
                     .equals(settingsFacade.get(UPnPSKeys.basic.baseLanUrl))
                 || command.isDlnaEnabledFilteredIp() != settingsFacade
-                    .get(UPnPSKeys.basic.enabledFilteredIp)
+                    .get(UPnPSKeys.advanced.enabledFilteredIp)
                 || !isEmpty(command.getDlnaFilteredIp()) && !command
                     .getDlnaFilteredIp()
-                    .equals(settingsFacade.get(UPnPSKeys.basic.filteredIp));
+                    .equals(settingsFacade.get(UPnPSKeys.advanced.filteredIp));
 
         /*
          * Changes to property file
@@ -246,16 +250,12 @@ public class DLNASettingsController {
 
         settingsFacade.staging(UPnPSKeys.basic.baseLanUrl, command.getDlnaBaseLANURL());
         settingsFacade
-            .staging(UPnPSKeys.basic.enabledFilteredIp, command.isDlnaEnabledFilteredIp());
-
+            .staging(UPnPSKeys.advanced.enabledFilteredIp, command.isDlnaEnabledFilteredIp());
         String filteredIpIn = command.getDlnaFilteredIp();
         String filteredIp = filteredIpIn != null && IPV4_STR.matcher(filteredIpIn).matches()
                 ? filteredIpIn
-                : UPnPSKeys.basic.filteredIp.defaultValue();
-        settingsFacade.staging(UPnPSKeys.basic.filteredIp, filteredIp);
-
-        settingsFacade
-            .staging(UPnPSKeys.basic.uriWithFileExtensions, command.isUriWithFileExtensions());
+                : UPnPSKeys.advanced.filteredIp.defaultValue();
+        settingsFacade.staging(UPnPSKeys.advanced.filteredIp, filteredIp);
 
         // Display options / Access control
         settingsFacade
@@ -288,14 +288,14 @@ public class DLNASettingsController {
         User guestUser = userService.getGuestUser();
         musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
         UserSettings userSettings = userService.getUserSettings(guestUser.getUsername());
-        userSettings.setTranscodeScheme(command.getTranscodeScheme());
+        userSettings.setBitRateLimit(command.getBitRateLimit());
         userSettings.setChanged(now());
         Player guestPlayer = playerService.getUPnPPlayer();
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         if (command.getActiveTranscodingIds().length == 0) {
-            guestPlayer.setTranscodeScheme(TranscodeScheme.OFF);
+            guestPlayer.setBitRateLimit(BitRateLimit.OFF);
         } else {
-            guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
+            guestPlayer.setBitRateLimit(command.getBitRateLimit());
         }
         playerService.updatePlayer(guestPlayer);
 

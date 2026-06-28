@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.service.UPnPService;
@@ -110,8 +111,8 @@ public class UpnpServiceFactory {
                 EnvironmentProvider.getInstance().getBrand(), versionService.getLocalVersion());
 
         return new UpnpServiceImpl(conf,
-                settingsFacade.get(UPnPSKeys.basic.enabledFilteredIp)
-                        ? settingsFacade.get(UPnPSKeys.basic.filteredIp)
+                settingsFacade.get(UPnPSKeys.advanced.enabledFilteredIp)
+                        ? settingsFacade.get(UPnPSKeys.advanced.filteredIp)
                         : null);
     }
 

@@ -29,15 +29,16 @@ import static org.mockito.ArgumentMatchers.anyList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFArtist;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,9 +60,9 @@ class FolderOrArtistLogicTest {
         util = mock(UpnpProcessorUtil.class);
         artistDao = mock(ArtistDao.class);
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
-                mock(JWTSecurityService.class), mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mock(MediaFileService.class), mock(MediaFileProvider.class),
+                mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
         logic = new FolderOrArtistLogic(util, factory, artistDao);
     }
 

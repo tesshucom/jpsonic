@@ -23,9 +23,9 @@ import java.sql.ResultSet;
 import java.time.Instant;
 
 import com.drew.lang.annotations.Nullable;
-import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey.AuthKeyType;
 import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
-import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

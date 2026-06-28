@@ -22,16 +22,19 @@ package com.tesshu.jpsonic.controller.form;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
+import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpCryptSettingsForm;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
 
-public class DLNASettingsCommand extends SettingsPageCommons {
+public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryptSettingsForm {
 
     // UPnP basic settings
     private boolean dlnaEnabled;
@@ -41,13 +44,14 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds = new int[0];
     private List<Transcoding> allTranscodings;
-    private TranscodeScheme transcodeScheme;
+    private BitRateLimit bitRateLimit;
     private int[] activeTranscodingIds = new int[0];
     private boolean transcodingSupported;
     private String dlnaDefaultFilteredIp;
     private boolean dlnaEnabledFilteredIp;
     private String dlnaFilteredIp;
-    private boolean uriWithFileExtensions;
+    private KeyRotationType dlnaKeyRotationType;
+    private KeyRotationPeriod dlnaKeyRotationPeriod;
 
     // Menu settings
     private List<MenuItemWithDefaultName> topMenuItems;
@@ -58,10 +62,10 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos;
 
     // Display options / Access control
-    private List<Sort> avairableAlbumGenreSort;
-    private Sort albumGenreSort;
-    private List<Sort> avairableSongGenreSort;
-    private Sort songGenreSort;
+    private List<GenreMasterSort> avairableAlbumGenreSort;
+    private GenreMasterSort albumGenreSort;
+    private List<GenreMasterSort> avairableSongGenreSort;
+    private GenreMasterSort songGenreSort;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -126,12 +130,12 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.allTranscodings = allTranscodings;
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     public int[] getActiveTranscodingIds() {
@@ -176,12 +180,22 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.dlnaFilteredIp = dlnaFilteredIp;
     }
 
-    public boolean isUriWithFileExtensions() {
-        return uriWithFileExtensions;
+    @Override
+    public KeyRotationType getDlnaKeyRotationType() {
+        return dlnaKeyRotationType;
     }
 
-    public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
-        this.uriWithFileExtensions = uriWithFileExtensions;
+    public void setDlnaKeyRotationType(KeyRotationType dlnaKeyRotationType) {
+        this.dlnaKeyRotationType = dlnaKeyRotationType;
+    }
+
+    @Override
+    public KeyRotationPeriod getDlnaKeyRotationPeriod() {
+        return dlnaKeyRotationPeriod;
+    }
+
+    public void setDlnaKeyRotationPeriod(KeyRotationPeriod dlnaKeyRotationPeriod) {
+        this.dlnaKeyRotationPeriod = dlnaKeyRotationPeriod;
     }
 
     public List<MenuItemWithDefaultName> getTopMenuItems() {
@@ -216,35 +230,35 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.subMenuItemRowInfos = subMenuItemRowInfos;
     }
 
-    public List<Sort> getAvairableAlbumGenreSort() {
+    public List<GenreMasterSort> getAvairableAlbumGenreSort() {
         return avairableAlbumGenreSort;
     }
 
-    public void setAvairableAlbumGenreSort(List<Sort> avairableAlbumGenreSort) {
+    public void setAvairableAlbumGenreSort(List<GenreMasterSort> avairableAlbumGenreSort) {
         this.avairableAlbumGenreSort = avairableAlbumGenreSort;
     }
 
-    public Sort getAlbumGenreSort() {
+    public GenreMasterSort getAlbumGenreSort() {
         return albumGenreSort;
     }
 
-    public List<Sort> getAvairableSongGenreSort() {
+    public List<GenreMasterSort> getAvairableSongGenreSort() {
         return avairableSongGenreSort;
     }
 
-    public void setAvairableSongGenreSort(List<Sort> avairableMusicGenreSort) {
+    public void setAvairableSongGenreSort(List<GenreMasterSort> avairableMusicGenreSort) {
         this.avairableSongGenreSort = avairableMusicGenreSort;
     }
 
-    public void setAlbumGenreSort(Sort albumGenreSort) {
+    public void setAlbumGenreSort(GenreMasterSort albumGenreSort) {
         this.albumGenreSort = albumGenreSort;
     }
 
-    public Sort getSongGenreSort() {
+    public GenreMasterSort getSongGenreSort() {
         return songGenreSort;
     }
 
-    public void setSongGenreSort(Sort musicGenreSort) {
+    public void setSongGenreSort(GenreMasterSort musicGenreSort) {
         this.songGenreSort = musicGenreSort;
     }
 

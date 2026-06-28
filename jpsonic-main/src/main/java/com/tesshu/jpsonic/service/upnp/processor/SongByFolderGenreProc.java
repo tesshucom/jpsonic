@@ -23,15 +23,15 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFGenre;
@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrSong> {
 
-    protected static final Scope SCOPE = GenreMasterCriteria.Scope.SONG;
+    protected static final GenreMasterScope SCOPE = GenreMasterScope.SONG;
     static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final SettingsFacade settingsFacade;
@@ -64,8 +64,8 @@ public class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGe
         return ProcId.SONG_BY_FOLDER_GENRE;
     }
 
-    protected Sort getSort() {
-        return Sort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort));
+    protected GenreMasterSort getSort() {
+        return GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort));
     }
 
     @Override

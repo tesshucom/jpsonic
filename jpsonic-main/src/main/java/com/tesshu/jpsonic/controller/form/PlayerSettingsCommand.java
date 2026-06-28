@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.PlayerSettingsController;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -50,8 +50,8 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean guest;
     private boolean anonymous;
     private List<Transcoding> allTranscodings;
-    private TranscodeScheme maxBitrate;
-    private TranscodeScheme transcodeScheme;
+    private BitRateLimit maxBitrate;
+    private BitRateLimit bitRateLimit;
     private int[] activeTranscodingIds;
     private boolean dynamicIp;
     private ZonedDateTime lastSeen;
@@ -144,20 +144,20 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.allTranscodings = allTranscodings;
     }
 
-    public TranscodeScheme getMaxBitrate() {
+    public BitRateLimit getMaxBitrate() {
         return maxBitrate;
     }
 
-    public void setMaxBitrate(TranscodeScheme maxBitrate) {
+    public void setMaxBitrate(BitRateLimit maxBitrate) {
         this.maxBitrate = maxBitrate;
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     public int[] getActiveTranscodingIds() {

@@ -14,22 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2025 tesshucom
+ * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.auth.core;
+package com.tesshu.jpsonic.adapter;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.model.TransferStatus;
+import com.tesshu.jpsonic.domain.service.TransferStatusStore;
+import com.tesshu.jpsonic.service.StatusService;
+import org.springframework.stereotype.Component;
 
-public class PlainTextPasswordEncoder implements PasswordEncoder {
+@Component
+public class TransferStatusStoreAdapter implements TransferStatusStore {
 
-    @Override
-    public String encode(CharSequence rawPassword) {
-        return rawPassword.toString();
+    private final StatusService statusService;
+
+    public TransferStatusStoreAdapter(StatusService statusService) {
+        super();
+        this.statusService = statusService;
     }
 
     @Override
-    public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return rawPassword.toString().equals(encodedPassword);
+    public TransferStatus createStreamStatus(Player player) {
+        return new TransferStatus();
     }
 }

@@ -26,12 +26,20 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
+import com.tesshu.jpsonic.domain.model.MediaFile.Format;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
-import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
-import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
+import com.tesshu.jpsonic.domain.type.CoverArtType;
+import com.tesshu.jpsonic.feature.crypt.upnp.StreamPayload.StreamType;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
@@ -39,16 +47,10 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
-import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
@@ -57,6 +59,7 @@ import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLObject.Property;
 import org.jupnp.support.model.DIDLObject.Property.UPNP;
 import org.jupnp.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
@@ -81,27 +84,29 @@ import org.springframework.web.util.UriComponentsBuilder;
  * multiple ContentProcessors.
  */
 @Component
-public class UpnpDIDLFactory implements CoverArtPresentation {
+public class UpnpDIDLFactory {
 
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
         .withInitial(
                 () -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
-    private static final String SUB_DIR_EXT = "/ext/";
 
     private final SettingsFacade settingsFacade;
-    private final JWTSecurityService jwtSecurityService;
     private final MediaFileService mediaFileService;
-    private final PlayerService playerService;
-    private final TranscodingService transcodingService;
+    private final MediaFileProvider mediaFileProvider;
+    private final PlayerProvider playerProvider;
+    private final UpnpPayloadCodec upnpPayloadCodec;
+    private final TranscodingParametersPlanner transcodingParametersPlanner;
 
-    public UpnpDIDLFactory(SettingsFacade settingsFacade, JWTSecurityService jwtSecurityService,
-            MediaFileService mediaFileService, PlayerService playerService,
-            TranscodingService transcodingService) {
+    public UpnpDIDLFactory(SettingsFacade settingsFacade, UpnpPayloadCodec upnpPayloadCodec,
+            MediaFileService mediaFileService, MediaFileProvider mediaFileProvider,
+            PlayerProvider playerProvider,
+            TranscodingParametersPlanner transcodingParametersPlanner) {
         this.settingsFacade = settingsFacade;
-        this.jwtSecurityService = jwtSecurityService;
+        this.upnpPayloadCodec = upnpPayloadCodec;
         this.mediaFileService = mediaFileService;
-        this.playerService = playerService;
-        this.transcodingService = transcodingService;
+        this.mediaFileProvider = mediaFileProvider;
+        this.playerProvider = playerProvider;
+        this.transcodingParametersPlanner = transcodingParametersPlanner;
     }
 
     public UPNP.ARTIST toPerson(String artistName) {
@@ -112,25 +117,6 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return new AUTHOR(new PersonWithRole(composerName, "composer"));
     }
 
-    private UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
-        return jwtSecurityService.addJWTToken(builder);
-    }
-
-    String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
-        String token = addJWTToken(builder).toUriString();
-        if (settingsFacade.get(UPnPSKeys.basic.uriWithFileExtensions)
-                && !StringUtils.isEmpty(song.getFormat())) {
-            Player player = playerService.getUPnPPlayer();
-            String fmt = transcodingService.getSuffix(player, song, null);
-            token = token.concat(".").concat(fmt);
-        }
-        return token;
-    }
-
-    private URI createURIWithToken(UriComponentsBuilder builder) {
-        return addJWTToken(builder).build().encode().toUri();
-    }
-
     private String getBaseUrl() {
         String dlnaBaseLANURL = settingsFacade.get(UPnPSKeys.basic.baseLanUrl);
         if (StringUtils.isBlank(dlnaBaseLANURL)) {
@@ -139,66 +125,49 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return dlnaBaseLANURL;
     }
 
+    URI createCoverArtURI(String id, int size) {
+        String payload = upnpPayloadCodec.encodeArt(id, size);
+        // The file extension is provisional (it wasn't originally designed precisely).
+        return UriComponentsBuilder
+            .fromUriString(getBaseUrl() + "/ext/upnp/art/" + payload + ".jpeg")
+            .build()
+            .toUri();
+    }
+
     private Property<URI> toArtistArt(@NonNull MediaFile artist) {
-        URI uri = createURIWithToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", artist.getId())
-            .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        URI uri = createCoverArtURI(Integer.toString(artist.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toArtistArt(Artist artist) {
-        URI uri = createURIWithToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", createCoverArtKey(artist))
-            .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        URI uri = createCoverArtURI(CoverArtType.ARTIST.createKey(artist.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(@NonNull MediaFile album) {
-        URI uri = createURIWithToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", album.getId())
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+        URI uri = createCoverArtURI(Integer.toString(album.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(Album album) {
-        URI uri = createURIWithToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", createCoverArtKey(album))
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+        URI uri = createCoverArtURI(CoverArtType.ID3ALBUM.createKey(album.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPodcastArt(PodcastChannel channel) {
-        URI uri = createURIWithToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", createCoverArtKey(channel))
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()));
+        URI uri = createCoverArtURI(CoverArtType.PODCAST.createKey(channel.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPlaylistArt(Playlist playlist) {
-        URI uri = addJWTToken(UriComponentsBuilder
-            .fromUriString(getBaseUrl() + SUB_DIR_EXT + ViewName.COVER_ART.value())
-            .queryParam("id", createCoverArtKey(playlist))
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize()))
-            .build()
-            .encode()
-            .toUri();
+        URI uri = createCoverArtURI(CoverArtType.PLAYLIST.createKey(playlist.getId()),
+                CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
-    }
-
-    private String createStreamURI(MediaFile song, Player player) {
-        UriComponentsBuilder builder = UriComponentsBuilder
-            .fromUriString(getBaseUrl() + "/ext/stream")
-            .queryParam("id", song.getId())
-            .queryParam("player", player.getId());
-        if (song.isVideo()) {
-            builder.queryParam("format", TranscodingService.FORMAT_RAW);
-        }
-        return createURIStringWithToken(builder, song);
     }
 
     private String formatDuration(Integer seconds) {
@@ -206,14 +175,6 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
             return null;
         }
         return StringUtil.formatDurationHMMSS(seconds) + ".0";
-    }
-
-    private MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? PathInspector.getExtension(song.getPathString())
-                : transcodingService.getSuffix(player, song, null);
-        String mimeTypeString = MediaTypeDetector.getMimeType(suffix);
-
-        return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }
 
     private StorageFolder createMusicFolder(ProcId procId, int id, String name, int childCount) {
@@ -393,10 +354,33 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         return container;
     }
 
+    @Nullable
+    String getPreferredTargetFormat() {
+        PreferredFormatScheme formatSheme = PreferredFormatScheme
+            .of(settingsFacade.get(SKeys.transcoding.preferredFormatShemeName));
+        return switch (formatSheme) {
+        case ANNOYMOUS, OTHER_THAN_REQUEST -> settingsFacade.get(SKeys.transcoding.preferredFormat);
+        case REQUEST_ONLY -> null;
+        };
+    }
+
     Res toRes(MediaFile file) {
-        Player player = playerService.getUPnPPlayer();
-        MimeType mimeType = getMimeType(file, player);
-        Res res = new Res(mimeType, null, createStreamURI(file, player));
+        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mediaFileProvider
+            .requireMediaFile(file.getId());
+        Player player = playerProvider.getUPnPPlayer();
+        ResolvedAudioTranscodingParameters parameters = transcodingParametersPlanner
+            .resolveAudioTranscodingParameters(player, mediaFile, null, getPreferredTargetFormat());
+
+        Format format = parameters.outputFormat();
+        String payload = upnpPayloadCodec
+            .encodeStream(file.getId(), file.isVideo() ? StreamType.MOVIE : StreamType.MUSIC);
+        String fileName = format == Format.UNDEFINED ? payload : payload + "." + format.value();
+        String resourceUri = UriComponentsBuilder
+            .fromUriString(getBaseUrl() + "/ext/upnp/stream/" + fileName)
+            .toUriString();
+
+        MimeType mimeType = MimeType.valueOf(parameters.outputMime());
+        Res res = new Res(mimeType, null, resourceUri);
         res.setDuration(formatDuration(file.getDurationSeconds()));
         return res;
     }

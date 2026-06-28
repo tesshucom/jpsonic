@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.controller.validator.UserSettingsValidator;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -113,13 +113,13 @@ public class UserSettingsController {
                 command.setNewUser(true);
                 command.setStreamRole(true);
                 command.setSettingsRole(true);
-                command.setTranscodeScheme(TranscodeScheme.OFF);
+                command.setBitRateLimit(BitRateLimit.OFF);
             } else {
                 // User update
                 command.setUser(user);
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = userService.getUserSettings(user.getUsername());
-                command.setTranscodeScheme(userSettings.getTranscodeScheme());
+                command.setBitRateLimit(userSettings.getBitRateLimit());
                 command
                     .setAllowedMusicFolderIds(
                             PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
@@ -252,18 +252,18 @@ public class UserSettingsController {
         userService.updateUser(user);
 
         UserSettings userSettings = userService.getUserSettings(command.getUsername());
-        userSettings.setTranscodeScheme(command.getTranscodeScheme());
-        if (command.getTranscodeScheme() != TranscodeScheme.OFF) {
+        userSettings.setBitRateLimit(command.getBitRateLimit());
+        if (command.getBitRateLimit() != BitRateLimit.OFF) {
             List<Player> userPlayers = playerService
                 .getAllPlayers()
                 .stream()
                 .filter(p -> command.getUsername().equals(p.getUsername()))
                 .collect(Collectors.toList());
             for (Player player : userPlayers) {
-                if (player.getTranscodeScheme() == TranscodeScheme.OFF || player
-                    .getTranscodeScheme()
-                    .getMaxBitRate() > command.getTranscodeScheme().getMaxBitRate()) {
-                    player.setTranscodeScheme(command.getTranscodeScheme());
+                if (player.getBitRateLimit() == BitRateLimit.OFF || player
+                    .getBitRateLimit()
+                    .getMaxBitRate() > command.getBitRateLimit().getMaxBitRate()) {
+                    player.setBitRateLimit(command.getBitRateLimit());
                     playerService.updatePlayer(player);
                 }
             }

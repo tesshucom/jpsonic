@@ -47,6 +47,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons implements Reme
     private String downloadLimit;
     private String uploadLimit;
     private String bufferSize;
+    private boolean upnpUseChunked;
 
     // Email notification
     private String smtpFrom;
@@ -161,6 +162,14 @@ public class AdvancedSettingsCommand extends SettingsPageCommons implements Reme
 
     public void setBufferSize(String bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public boolean isUpnpUseChunked() {
+        return upnpUseChunked;
+    }
+
+    public void setUpnpUseChunked(boolean upnpUseChunked) {
+        this.upnpUseChunked = upnpUseChunked;
     }
 
     public String getSmtpFrom() {

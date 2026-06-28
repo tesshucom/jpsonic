@@ -33,9 +33,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -51,9 +54,6 @@ import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
@@ -156,16 +156,16 @@ class DLNASettingsControllerTest {
     void testTranscoding() throws Exception {
         DLNASettingsCommand command = new DLNASettingsCommand();
         command.setActiveTranscodingIds(0);
-        command.setTranscodeScheme(TranscodeScheme.MAX_1411);
+        command.setBitRateLimit(BitRateLimit.MAX_1411);
         command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
-        command.setAlbumGenreSort(Sort.FREQUENCY);
-        command.setSongGenreSort(Sort.FREQUENCY);
+        command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+        command.setSongGenreSort(GenreMasterSort.FREQUENCY);
         command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(playerService, Mockito.times(1)).updatePlayer(playerCaptor.capture());
-        assertEquals(TranscodeScheme.MAX_1411, playerCaptor.getValue().getTranscodeScheme());
+        assertEquals(BitRateLimit.MAX_1411, playerCaptor.getValue().getBitRateLimit());
     }
 
     @Nested
@@ -289,8 +289,8 @@ class DLNASettingsControllerTest {
             command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
         }
 
@@ -449,8 +449,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSubMenuItemRowInfos(Collections.emptyMap());
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
@@ -499,8 +499,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
@@ -556,8 +556,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
@@ -619,8 +619,8 @@ class DLNASettingsControllerTest {
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
@@ -705,7 +705,7 @@ class DLNASettingsControllerTest {
 
         private static final String DLNA_SERVER_NAME = "jpsonic";
         private static final String DLNA_BASE_LAN_URL = "url";
-        private static final String DLNA_FILTERED_IP = UPnPSKeys.basic.filteredIp.defaultValue();
+        private static final String DLNA_FILTERED_IP = UPnPSKeys.advanced.filteredIp.defaultValue();
 
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
@@ -729,8 +729,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -762,8 +762,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -797,8 +797,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             controller.post(command, Mockito.mock(RedirectAttributes.class));
 
@@ -831,8 +831,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             assertEquals(0, captor.getAllValues().size());
@@ -864,8 +864,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL("changedDlnaBaseLANURL");
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -888,8 +888,8 @@ class DLNASettingsControllerTest {
                 .withBoolean(UPnPSKeys.basic.enabled, false)
                 .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
                 .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
-                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
-                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .withBoolean(UPnPSKeys.advanced.enabledFilteredIp, true)
+                .withString(UPnPSKeys.advanced.filteredIp, DLNA_FILTERED_IP)
                 .captureBoolean(UPnPSKeys.basic.enabled, captor)
                 .build();
             init();
@@ -900,8 +900,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -927,8 +927,8 @@ class DLNASettingsControllerTest {
                 .withBoolean(UPnPSKeys.basic.enabled, true)
                 .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
                 .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
-                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
-                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .withBoolean(UPnPSKeys.advanced.enabledFilteredIp, true)
+                .withString(UPnPSKeys.advanced.filteredIp, DLNA_FILTERED_IP)
                 .captureBoolean(UPnPSKeys.basic.enabled, captor)
                 .build();
             init();
@@ -939,8 +939,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -965,8 +965,8 @@ class DLNASettingsControllerTest {
                 .withBoolean(UPnPSKeys.basic.enabled, false)
                 .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
                 .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
-                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
-                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .withBoolean(UPnPSKeys.advanced.enabledFilteredIp, true)
+                .withString(UPnPSKeys.advanced.filteredIp, DLNA_FILTERED_IP)
                 .captureBoolean(UPnPSKeys.basic.enabled, captor)
                 .build();
             init();
@@ -977,8 +977,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -1005,8 +1005,8 @@ class DLNASettingsControllerTest {
                 .withBoolean(UPnPSKeys.basic.enabled, true)
                 .withString(UPnPSKeys.basic.serverName, DLNA_SERVER_NAME)
                 .withString(UPnPSKeys.basic.baseLanUrl, DLNA_BASE_LAN_URL)
-                .withBoolean(UPnPSKeys.basic.enabledFilteredIp, true)
-                .withString(UPnPSKeys.basic.filteredIp, DLNA_FILTERED_IP)
+                .withBoolean(UPnPSKeys.advanced.enabledFilteredIp, true)
+                .withString(UPnPSKeys.advanced.filteredIp, DLNA_FILTERED_IP)
                 .captureBoolean(UPnPSKeys.basic.enabled, captor)
                 .build();
             init();
@@ -1017,8 +1017,8 @@ class DLNASettingsControllerTest {
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
-            command.setAlbumGenreSort(Sort.FREQUENCY);
-            command.setSongGenreSort(Sort.FREQUENCY);
+            command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
+            command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
