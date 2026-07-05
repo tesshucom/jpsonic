@@ -212,11 +212,18 @@ public class UserDao {
         template.update(sql, newPass, ldapAuthenticated, user.getUsername());
     }
 
-    public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded,
-            String username) {
-        String sql = "update " + getUserTable()
-                + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
-        template.update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
+    public void incrementUserByteCounts(long bytesStreamedIncrement, long bytesDownloadedIncrement,
+            long bytesUploadedIncrement, String username) {
+        String sql = """
+                update user
+                set bytes_streamed = bytes_streamed + ?,
+                    bytes_downloaded = bytes_downloaded + ?,
+                    bytes_uploaded = bytes_uploaded + ?
+                where username = ?
+                """;
+        template
+            .update(sql, bytesStreamedIncrement, bytesDownloadedIncrement, bytesUploadedIncrement,
+                    username);
     }
 
     /**

@@ -281,7 +281,7 @@ public class StreamService {
 
     public void removeStreamStatus(@NonNull User user, @Nullable TransferStatus status) {
         if (status != null) {
-            userService.updateUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
+            userService.incrementUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
             statusService.removeStreamStatus(status);
         }
     }

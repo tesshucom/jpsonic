@@ -676,7 +676,7 @@ class StreamServiceTest {
         streamService.removeStreamStatus(user, null);
         Mockito
             .verify(userService, Mockito.never())
-            .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
+            .incrementUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
                     Mockito.anyLong());
         Mockito
             .verify(statusService, Mockito.never())
@@ -686,7 +686,7 @@ class StreamServiceTest {
         streamService.removeStreamStatus(user, status);
         Mockito
             .verify(userService, Mockito.times(1))
-            .updateUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
+            .incrementUserByteCounts(Mockito.any(User.class), Mockito.anyLong(), Mockito.anyLong(),
                     Mockito.anyLong());
         Mockito
             .verify(statusService, Mockito.times(1))

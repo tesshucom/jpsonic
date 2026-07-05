@@ -21,12 +21,14 @@ import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.PlayerProvider;
 import com.tesshu.jpsonic.domain.provider.TranscodingProvider;
 import com.tesshu.jpsonic.domain.provider.UserProvider;
+import com.tesshu.jpsonic.domain.registrar.UserRegister;
 import com.tesshu.jpsonic.feature.crypt.upnp.StreamPayload;
 import com.tesshu.jpsonic.feature.crypt.upnp.StreamPayload.StreamType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.PlayerDao;
+import com.tesshu.jpsonic.persistence.core.repository.UserDao;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +45,7 @@ import org.springframework.test.context.ActiveProfiles;
 class AdapterTest extends AbstractNeedsScan {
 
     @Autowired
-    private MediaFileProvider nediaFileProvider;
+    private MediaFileProvider mediaFileProvider;
     @Autowired
     private PlayerProvider playerProvider;
     @Autowired
@@ -54,13 +56,17 @@ class AdapterTest extends AbstractNeedsScan {
     @Autowired
     private UserProvider userProvider;
     @Autowired
+    private UserRegister userRegister;
+    @Autowired
     private PlayerDao playerDao;
-
     @Autowired
     private PlayerService playerService;
 
     @Autowired
     private UpnpPayloadCodec upnpPayloadCodec;
+
+    @Autowired
+    private UserDao userDao;
 
     @BeforeEach
     void setup() {
@@ -70,9 +76,9 @@ class AdapterTest extends AbstractNeedsScan {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void testRequireMediaFile() {
-        final MediaFile mediaFile1 = nediaFileProvider.requireMediaFile(2);
-        final MediaFile mediaFile2 = nediaFileProvider.requireMediaFile(6);
-        final MediaFile mediaFile3 = nediaFileProvider.requireMediaFile(4);
+        final MediaFile mediaFile1 = mediaFileProvider.requireMediaFile(2);
+        final MediaFile mediaFile2 = mediaFileProvider.requireMediaFile(6);
+        final MediaFile mediaFile3 = mediaFileProvider.requireMediaFile(4);
 
         assertEquals(2, mediaFile1.id());
         assertEquals(1, mediaFile1.folderId());
@@ -148,5 +154,26 @@ class AdapterTest extends AbstractNeedsScan {
         com.tesshu.jpsonic.persistence.api.entity.Player player = playerService.getUPnPPlayer();
         List<Transcoding> transcodings = transcodingService.getTranscodingsForPlayer(player);
         assertEquals(0, transcodings.size());
+    }
+
+    @Test
+    void testUserRegister() {
+        com.tesshu.jpsonic.persistence.core.entity.User user = userDao
+            .getUserByName(User.USERNAME_GUEST, false);
+        assertEquals(0, user.getBytesStreamed());
+        assertEquals(0, user.getBytesDownloaded());
+        assertEquals(0, user.getBytesUploaded());
+
+        userRegister.incrementByteCounts(User.USERNAME_GUEST, 1, 2, 3);
+        user = userDao.getUserByName(User.USERNAME_GUEST, false);
+        assertEquals(1, user.getBytesStreamed());
+        assertEquals(2, user.getBytesDownloaded());
+        assertEquals(3, user.getBytesUploaded());
+
+        userRegister.incrementByteCounts(User.USERNAME_GUEST, 1, 2, 3);
+        user = userDao.getUserByName(User.USERNAME_GUEST, false);
+        assertEquals(2, user.getBytesStreamed());
+        assertEquals(4, user.getBytesDownloaded());
+        assertEquals(6, user.getBytesUploaded());
     }
 }

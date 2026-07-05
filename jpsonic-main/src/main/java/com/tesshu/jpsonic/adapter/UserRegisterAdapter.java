@@ -43,7 +43,7 @@ public class UserRegisterAdapter implements UserRegister {
     public void incrementByteCounts(String userName, long bytesStreamedIncrement,
             long bytesDownloadedIncrement, long bytesUploadedIncrement) {
         userDao
-            .updateUserByteCounts(bytesStreamedIncrement, bytesDownloadedIncrement,
+            .incrementUserByteCounts(bytesStreamedIncrement, bytesDownloadedIncrement,
                     bytesUploadedIncrement, userName);
     }
 }

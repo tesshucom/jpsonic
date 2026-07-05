@@ -332,15 +332,14 @@ public class UserService implements UserDetailsService {
      * @param bytesDownloadedDelta Increment bytes downloaded count with this value.
      * @param bytesUploadedDelta   Increment bytes uploaded count with this value.
      */
-    public void updateUserByteCounts(User user, long bytesStreamedDelta, long bytesDownloadedDelta,
-            long bytesUploadedDelta) {
+    public void incrementUserByteCounts(User user, long bytesStreamedDelta,
+            long bytesDownloadedDelta, long bytesUploadedDelta) {
         if (user == null) {
             return;
         }
         userDao
-            .updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
-                    user.getBytesDownloaded() + bytesDownloadedDelta,
-                    user.getBytesUploaded() + bytesUploadedDelta, user.getUsername());
+            .incrementUserByteCounts(bytesStreamedDelta, bytesDownloadedDelta, bytesUploadedDelta,
+                    user.getUsername());
     }
 
     /**
