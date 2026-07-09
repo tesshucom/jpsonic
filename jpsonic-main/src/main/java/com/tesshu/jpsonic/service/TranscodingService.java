@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
-import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -724,23 +724,24 @@ public class TranscodingService {
      * not guaranteed. Delete insert is done, in this method.
      */
     @Transactional
-    public void restoreTranscoding(@NonNull Transcodings transcode, boolean addTag) {
+    public void restoreTranscoding(@NonNull Transcodings transcode) {
         if (transcode == null) {
             return;
         }
         Transcoding transcoding = switch (transcode) {
         case MP3 -> new Transcoding(null, Transcodings.MP3.getName(),
-                "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
-                "ffmpeg -i %s -map 0:0 -b:a %bk "
-                    .concat(addTag ? "-id3v2_version 3 " : "")
-                    .concat("-v 0 -f mp3 -"),
+                "mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
+                "ffmpeg -v fatal -i %s -map 0:a:0 -b:a %bk -id3v2_version 3 -f mp3 -", null, null,
+                true);
+        case OPUS -> new Transcoding(null, Transcodings.OPUS.getName(),
+                "mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "opus",
+                "ffmpeg -v fatal -i %s -map 0:a:0 -c:a libopus -b:a %bk -vbr constrained -f ogg -",
                 null, null, true);
         case FLAC -> new Transcoding(null, Transcodings.FLAC.getName(), FORMAT_FLAC, FORMAT_FLAC,
-                "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -",
+                "ffmpeg -v fatal -i %s -map 0:0 -vn -c:a flac -sample_fmt s16 -ar 44100 -ac 2 -f flac -",
                 null, null, false);
-        case DSF -> new Transcoding(null, Transcodings.DSF.getName(), "dsf", FORMAT_FLAC,
-                "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -af \"lowpass=24000, volume=6dB\" -",
-                null, null, false);
+        case PCM -> new Transcoding(null, Transcodings.PCM.getName(), FORMAT_FLAC, "wav",
+                "ffmpeg -v fatal -nostats -i %s -vn -c:a pcm_s16le -f wav -", null, null, false);
         case FLV -> new Transcoding(null, Transcodings.FLV.getName(),
                 "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
                 "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",

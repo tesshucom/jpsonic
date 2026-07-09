@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
-import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;

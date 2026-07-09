@@ -1212,7 +1212,7 @@ class StreamControllerTest {
                     .get(TEST_URL)
                     .param(Attributes.Request.HLS.value(), "true"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "video/MP2T"));
+                .andExpect(MockMvcResultMatchers.header().string("Content-Type", "video/mp2t"));
             verify(streamService, times(1))
                 .removeStreamStatus(nullable(User.class), nullable(TransferStatus.class));
 

@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
-import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -37,7 +37,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -182,10 +181,9 @@ public class TranscodingSettingsController {
 
     private boolean restoreTranscoding(HttpServletRequest request) {
         String[] restoredNames = request.getParameterValues("restoredNames");
-        boolean addTag = ServletRequestUtils.getBooleanParameter(request, "addTag", false);
         if (restoredNames != null && restoredNames.length > 0) {
             for (String restoredName : restoredNames) {
-                transcodingService.restoreTranscoding(Transcodings.of(restoredName), addTag);
+                transcodingService.restoreTranscoding(Transcodings.of(restoredName));
             }
             return true;
         }

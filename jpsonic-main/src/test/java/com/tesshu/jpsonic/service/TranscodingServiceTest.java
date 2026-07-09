@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
-import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,9 +41,9 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
-import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
@@ -214,7 +213,6 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(2)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class SetTranscodingsForPlayerTest {
 
         @Order(1)
@@ -395,14 +393,14 @@ class TranscodingServiceTest {
         assertEquals(FMT_MP3, transcodingService.getSuffix(player, mediaFile, FMT_MP3));
 
         mediaFile.setFormat(FMT_FLAC);
-        assertEquals(FMT_MP3, transcodingService.getSuffix(player, mediaFile, FMT_FLAC));
+        assertEquals(FMT_FLAC, transcodingService.getSuffix(player, mediaFile, FMT_FLAC));
 
         mediaFile.setFormat(FMT_RMF);
         assertEquals(FMT_RMF, transcodingService.getSuffix(player, mediaFile, FMT_MP3));
 
         mediaFile.setMediaType(MediaType.VIDEO);
         mediaFile.setFormat(FMT_MPEG);
-        assertEquals(FMT_FLV, transcodingService.getSuffix(player, mediaFile, FMT_MPEG));
+        assertEquals(FMT_MP4, transcodingService.getSuffix(player, mediaFile, FMT_MPEG));
         mediaFile.setFormat(FMT_MP4);
         assertEquals(FMT_MP4, transcodingService.getSuffix(player, mediaFile, FMT_MP4));
     }
@@ -416,7 +414,6 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(8)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class GetTranscodedInputStreamTest {
 
         private static final String STEP1 = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -";
@@ -435,6 +432,7 @@ class TranscodingServiceTest {
          */
         @Order(2)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testGTI2() throws IOException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(FAKE_PATH);
@@ -452,6 +450,7 @@ class TranscodingServiceTest {
         @EnabledOnOs(OS.WINDOWS)
         @Order(3)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testGTI3Win() throws IOException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString("*fake-path*");
@@ -460,7 +459,7 @@ class TranscodingServiceTest {
 
             // Because * is included in fakePath
             Assertions
-                .assertThrows(InvalidPathException.class,
+                .assertThrows(NoSuchFileException.class,
                         () -> transcodingService.getTranscodedInputStream(parameters));
         }
 
@@ -494,7 +493,6 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(9)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class CreateTranscodedInputStreamTest {
 
         private static final String STEP = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -f flv -";
@@ -511,9 +509,9 @@ class TranscodingServiceTest {
             return parameters;
         }
 
-        @EnabledOnOs(OS.LINUX)
         @Order(1)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI1() throws ExecutionException {
             Parameters parameters = createParam();
             Transcoding transcoding = new Transcoding(null, null, FMT_MP3, FMT_WAV, STEP, null,
@@ -529,6 +527,7 @@ class TranscodingServiceTest {
 
         @Order(2)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI2() throws ExecutionException {
             Parameters parameters = createParam();
             Transcoding transcoding = new Transcoding(null, null, FMT_MP3, FMT_WAV, STEP, null,
@@ -544,6 +543,7 @@ class TranscodingServiceTest {
 
         @Order(3)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI3() throws ExecutionException {
             Parameters parameters = createParam();
             Transcoding transcoding = new Transcoding(null, null, FMT_MP3, FMT_WAV, STEP, STEP,
@@ -559,6 +559,7 @@ class TranscodingServiceTest {
 
         @Order(4)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI4() throws ExecutionException {
             Parameters parameters = createParam();
             Transcoding transcoding = new Transcoding(null, null, FMT_MP3, FMT_WAV, STEP, STEP,
@@ -587,13 +588,13 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(11)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class CreateTranscodeInputStreamTest {
 
         private static final String COMMAND = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 22050 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
 
         @Order(1)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI1() throws IOException {
             Integer maxBitRate = null;
             VideoTranscodingSettings videoTranscodingSettings = null;
@@ -609,6 +610,7 @@ class TranscodingServiceTest {
 
         @Order(2)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testCTI2() throws IOException {
             final Integer maxBitRate = null;
             final VideoTranscodingSettings videoTranscodingSettings = new VideoTranscodingSettings(
@@ -630,7 +632,6 @@ class TranscodingServiceTest {
 
     @Order(12)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class GetTranscodingTest {
 
         @Order(1)
@@ -662,6 +663,7 @@ class TranscodingServiceTest {
 
         @Order(3)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testPreferred() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(FMT_FLAC);
@@ -687,6 +689,7 @@ class TranscodingServiceTest {
 
         @Order(4)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testNotPreferred() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(FMT_FLAC);
@@ -732,6 +735,7 @@ class TranscodingServiceTest {
 
         @Order(6)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testVideo() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setMediaType(MediaType.VIDEO);
@@ -750,9 +754,9 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService
                 .getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(Transcodings.FLV.getName(), transcoding.getName());
+            assertEquals(Transcodings.MP4.getName(), transcoding.getName());
             assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(FMT_MPEG::equals));
-            assertEquals(FMT_FLV, transcoding.getTargetFormat());
+            assertEquals(FMT_MP4, transcoding.getTargetFormat());
         }
 
         @Order(7)
@@ -804,7 +808,6 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(14)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class TranscoderInstalledTest {
 
         private static final String FFMPEG = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -836,6 +839,7 @@ class TranscodingServiceTest {
 
         @Order(4)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testITI4() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, FMT_FLAC, FMT_MP3, FFMPEG, FFMPEG,
                     FFMPEG, true);
@@ -1119,6 +1123,7 @@ class TranscodingServiceTest {
         @GetParametersDecision.Conditions.MaxBitRate.NotNull
         @Order(2)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testGP2() {
 
             MediaFile mediaFile = new MediaFile();
@@ -1151,6 +1156,7 @@ class TranscodingServiceTest {
         @GetParametersDecision.Conditions.MediaFile.Format.NotNull
         @Order(3)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testGP3() {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(FAKE_PATH);
@@ -1173,7 +1179,7 @@ class TranscodingServiceTest {
             assertEquals(500_000, parameters.getExpectedLength());
             assertEquals(2000, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(Transcodings.FLV.getName(), parameters.getTranscoding().getName());
+            assertEquals(Transcodings.MP4.getName(), parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
@@ -1184,6 +1190,7 @@ class TranscodingServiceTest {
         @GetParametersDecision.Conditions.VideoTranscodingSettings.Hls.False
         @Order(4)
         @Test
+        @DisabledOnWindowsJdk21OrEarlier
         void testGP4() {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(FAKE_PATH);
@@ -1590,13 +1597,12 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    @EnabledOnOs(OS.LINUX)
     class RestoreTranscodingTest {
 
         @Order(1)
         @Test
         void testNullParam() {
-            transcodingService.restoreTranscoding(null, false);
+            transcodingService.restoreTranscoding(null);
             Mockito
                 .verify(transcodingDao, Mockito.never())
                 .createTranscoding(Mockito.nullable(Transcoding.class));
@@ -1624,7 +1630,7 @@ class TranscodingServiceTest {
 
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MP3, false);
+            transcodingService.restoreTranscoding(Transcodings.MP3);
 
             Mockito
                 .verify(transcodingDao, Mockito.times(1))
@@ -1643,18 +1649,18 @@ class TranscodingServiceTest {
             Mockito
                 .when(transcodingDao.createTranscoding(transcodingCaptor.capture()))
                 .thenReturn(0);
-            transcodingService.restoreTranscoding(Transcodings.MP3, false);
+            transcodingService.restoreTranscoding(Transcodings.MP3);
             assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
-            assertEquals("ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -",
+            assertEquals("ffmpeg -v fatal -i %s -map 0:a:0 -b:a %bk -id3v2_version 3 -f mp3 -",
                     transcodingCaptor.getValue().getStep1());
 
             transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             Mockito
                 .when(transcodingDao.createTranscoding(transcodingCaptor.capture()))
                 .thenReturn(0);
-            transcodingService.restoreTranscoding(Transcodings.MP3, true);
+            transcodingService.restoreTranscoding(Transcodings.MP3);
             assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
-            assertEquals("ffmpeg -i %s -map 0:0 -b:a %bk -id3v2_version 3 -v 0 -f mp3 -",
+            assertEquals("ffmpeg -v fatal -i %s -map 0:a:0 -b:a %bk -id3v2_version 3 -f mp3 -",
                     transcodingCaptor.getValue().getStep1());
         }
 
@@ -1663,7 +1669,7 @@ class TranscodingServiceTest {
         void testRestoreFlv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.FLV, false);
+            transcodingService.restoreTranscoding(Transcodings.FLV);
 
             Mockito
                 .verify(transcodingDao, Mockito.times(1))
@@ -1679,7 +1685,7 @@ class TranscodingServiceTest {
         void testRestoreMkv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MKV, false);
+            transcodingService.restoreTranscoding(Transcodings.MKV);
 
             Mockito
                 .verify(transcodingDao, Mockito.times(1))
@@ -1695,7 +1701,7 @@ class TranscodingServiceTest {
         void testRestoreMp4() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MP4, false);
+            transcodingService.restoreTranscoding(Transcodings.MP4);
 
             Mockito
                 .verify(transcodingDao, Mockito.times(1))
@@ -1753,7 +1759,7 @@ class TranscodingServiceTest {
             transcodings.add(created);
             Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
 
-            transcodingService.restoreTranscoding(Transcodings.MP3, false);
+            transcodingService.restoreTranscoding(Transcodings.MP3);
 
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
@@ -1814,7 +1820,7 @@ class TranscodingServiceTest {
 
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor
                 .forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.FLAC, false);
+            transcodingService.restoreTranscoding(Transcodings.FLAC);
 
             Mockito
                 .verify(transcodingDao, Mockito.times(1))
@@ -1825,7 +1831,7 @@ class TranscodingServiceTest {
 
             // This transcoding is rewstore only. Not registered in DB at the time of
             // installation.
-            Mockito.verify(transcodingDao, Mockito.never()).deleteTranscoding(Mockito.anyInt());
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(Mockito.anyInt());
 
             // This transcoding is registered in the DB at restore, but is not enabled for
             // existing players.

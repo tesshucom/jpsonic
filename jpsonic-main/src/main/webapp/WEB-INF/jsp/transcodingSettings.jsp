@@ -5,7 +5,7 @@
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
 <%@ page import="com.tesshu.jpsonic.domain.system.PreferredFormatScheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.system.Transcodings" %>
+<%@ page import="com.tesshu.jpsonic.feature.transcoding.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
@@ -162,12 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
                      <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox" onclick="resetAddTag()"/>
                     <label for="restored${transcoding}">${transcoding.getName()}</label>
                 </c:forEach>
-            </dd>
-            <dt><fmt:message key="transcodingsettings.restoreoption"/></dt>
-            <dd>
-                <input type="checkbox" id="addTag" name="addTag"/>
-                <label for="addTag"><fmt:message key="transcodingsettings.restoreaddtag" /></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="restoreaddtag"/></c:import>
             </dd>
         </dl>
    </details>
