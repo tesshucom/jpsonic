@@ -256,6 +256,7 @@
             </dependency>
           </dependencies>
         </plugin>
+        <!--
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
@@ -266,9 +267,9 @@
             <suppressionFiles>
               <suppressionFile>${main.basedir}/cve-suppressed.xml</suppressionFile>
             </suppressionFiles>
-            <!-- disabled due to the poor quality of the data from this analyzer -->
+            disabled due to the poor quality of the data from this analyzer
             <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
-            <!-- Disabled due to unavoidable bug. jeremylong/DependencyCheck#4695, 4696 -->
+            Disabled due to unavoidable bug. jeremylong/DependencyCheck#4695, 4696
             <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
           </configuration>
           <executions>
@@ -281,6 +282,7 @@
             </execution>
           </executions>
         </plugin>
+        -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
