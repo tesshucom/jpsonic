@@ -65,7 +65,7 @@ class IndexControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         assertNotNull(model);
         assertEquals(3, model.size());
-        assertEquals(model.get("brand"), "Jpsonic");
+        assertEquals("Jpsonic", model.get("brand"));
         assertFalse((Boolean) model.get("keyboardShortcutsEnabled"));
         assertFalse((Boolean) model.get("showLeft"));
     }
@@ -87,9 +87,9 @@ class IndexControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         assertNotNull(model);
         assertEquals(4, model.size());
-        assertEquals(model.get("brand"), "Jpsonic");
+        assertEquals("Jpsonic", model.get("brand"));
         assertFalse((Boolean) model.get("keyboardShortcutsEnabled"));
         assertFalse((Boolean) model.get("showLeft"));
-        assertEquals(model.get("mainView"), "musicFolderSettings.view");
+        assertEquals("musicFolderSettings.view", model.get("mainView"));
     }
 }

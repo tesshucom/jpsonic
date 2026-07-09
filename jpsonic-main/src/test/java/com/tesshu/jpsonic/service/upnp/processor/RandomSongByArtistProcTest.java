@@ -228,14 +228,14 @@ class RandomSongByArtistProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 10);
+            assertEquals(10, c.size());
 
             items = randomSongByArtistProc.getDirectChildren(10, 10);
             items
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 20);
+            assertEquals(20, c.size());
 
             items = randomSongByArtistProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
@@ -243,7 +243,7 @@ class RandomSongByArtistProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 31);
+            assertEquals(31, c.size());
         }
 
         @Test
@@ -262,7 +262,7 @@ class RandomSongByArtistProcTest {
                 .stream()
                 .filter(m -> !c.containsKey(m.getArtist()))
                 .forEach(m -> c.put(m.getArtist(), m));
-            assertEquals(c.size(), 1);
+            assertEquals(1, c.size());
         }
 
         @Test

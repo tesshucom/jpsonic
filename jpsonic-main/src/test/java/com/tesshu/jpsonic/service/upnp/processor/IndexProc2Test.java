@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.upnp.processor.composite.IndexOrSong;
@@ -44,7 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Originally a Nested class of IndexProcTest. (Avoiding the phenomenon that often occurs in JUnit, where multi-nested classes do not work.)
  */
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-class IndexProcTest2 {
+@DisabledOnWindowsJdk21OrEarlier
+class IndexProc2Test {
 
     @Order(3)
     @Nested

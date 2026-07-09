@@ -117,7 +117,7 @@ class StreamServiceTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         streamService.setUpPlayQueue(request, response, player, playlistId);
         assertEquals(songs, player.getPlayQueue().getFiles());
-        assertEquals(response.getHeader(HttpHeaders.CONTENT_LENGTH), "2048");
+        assertEquals("2048", response.getHeader(HttpHeaders.CONTENT_LENGTH));
     }
 
     @Documented

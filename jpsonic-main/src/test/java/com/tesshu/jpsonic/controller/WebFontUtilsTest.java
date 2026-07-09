@@ -63,9 +63,9 @@ class WebFontUtilsTest {
         // DEFAULT
         HttpServletRequest request = new MockHttpServletRequest();
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), "");
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY), WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals("", request.getAttribute(FONT_FACE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, request.getAttribute(FONT_FAMILY_KEY));
 
         // JP_EMBED
         PersonalSettingsCommand command = new PersonalSettingsCommand();
@@ -73,24 +73,24 @@ class WebFontUtilsTest {
         command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), """
+        assertEquals("""
                 @font-face {\
                 font-family: "Kazesawa-Regular";\
                 src: \
                 url("/fonts/kazesawa/Kazesawa-Regular.woff") format("woff"), \
                 url("/fonts/kazesawa/Kazesawa-Regular.ttf") format("truetype");\
                 }\
-                """);
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_JP_FONT_SIZE);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY),
-                WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
+                """, request.getAttribute(FONT_FACE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_JP_FONT_SIZE, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals(WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY,
+                request.getAttribute(FONT_FAMILY_KEY));
 
         // no settings(logon)
         request = new MockHttpServletRequest();
         WebFontUtils.setToRequest(null, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), "");
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY), WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals("", request.getAttribute(FONT_FACE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, request.getAttribute(FONT_FAMILY_KEY));
 
         // CUSTOM
         request = new MockHttpServletRequest();
@@ -100,9 +100,9 @@ class WebFontUtilsTest {
         command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), "");
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY), WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals("", request.getAttribute(FONT_FACE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, request.getAttribute(FONT_FAMILY_KEY));
 
         command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, settings);
@@ -110,18 +110,18 @@ class WebFontUtilsTest {
         command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), "");
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_JP_FONT_SIZE);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY),
-                WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals("", request.getAttribute(FONT_FACE_KEY));
+        assertEquals(WebFontUtils.DEFAULT_JP_FONT_SIZE, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals(WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY,
+                request.getAttribute(FONT_FAMILY_KEY));
 
         command.setFontFamily("Arial");
         command.setFontSize(20);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY), "");
-        assertEquals(request.getAttribute(FONT_SIZE_KEY), 20);
-        assertEquals(request.getAttribute(FONT_FAMILY_KEY), "Arial");
+        assertEquals("", request.getAttribute(FONT_FACE_KEY));
+        assertEquals(20, request.getAttribute(FONT_SIZE_KEY));
+        assertEquals("Arial", request.getAttribute(FONT_FAMILY_KEY));
     }
 
     @Order(2)

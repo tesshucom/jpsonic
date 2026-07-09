@@ -27,8 +27,8 @@
     <versions.airsonic-taglibs>1.0.0</versions.airsonic-taglibs>
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
 
-    <versions.checkstyle>13.6.0</versions.checkstyle>
-    <versions.pmd>7.25.0</versions.pmd>
+    <versions.checkstyle>13.7.0</versions.checkstyle>
+    <versions.pmd>7.26.0</versions.pmd>
     <versions.spotbugs>4.10.2</versions.spotbugs>
   </properties>
 
@@ -328,7 +328,7 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>3.7.0</version>
+          <version>3.8.0</version>
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>

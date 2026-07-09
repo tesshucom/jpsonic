@@ -126,6 +126,6 @@ class IndexTypeTest {
     @Test
     void testGenreBoosts() {
         assertEquals(1, IndexType.GENRE.getBoosts().size());
-        assertEquals(IndexType.GENRE.getBoosts().get(FieldNamesConstants.GENRE_KEY), 1.1F);
+        assertEquals(1.1F, IndexType.GENRE.getBoosts().get(FieldNamesConstants.GENRE_KEY));
     }
 }
