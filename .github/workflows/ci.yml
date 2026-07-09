@@ -87,9 +87,15 @@ jobs:
           java-version: 21
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y ffmpeg
+            echo "ffmpeg-path=/usr/bin" >> $GITHUB_OUTPUT
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ffmpeg -y --outputdirectory="C:\ffmpeg_target"
+            echo "ffmpeg-path=C:\ffmpeg_target\ffmpeg\bin" >> $GITHUB_OUTPUT
+          fi
       - name: Get current date
         id: cve-date
         shell: bash
@@ -143,9 +149,15 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y ffmpeg
+            echo "ffmpeg-path=/usr/bin" >> $GITHUB_OUTPUT
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ffmpeg -y --outputdirectory="C:\ffmpeg_target"
+            echo "ffmpeg-path=C:\ffmpeg_target\ffmpeg\bin" >> $GITHUB_OUTPUT
+          fi
       - name: Get current date
         id: cve-date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT

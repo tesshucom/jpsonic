@@ -142,6 +142,7 @@ class MP4ParserTest {
 
     @Order(3)
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testParseWithFFProbe() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();

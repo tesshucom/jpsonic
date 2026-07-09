@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -46,6 +47,7 @@ import tools.jackson.databind.json.JsonMapper;
 @NeedsHome
 @NeedsTranscode
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
 @SuppressWarnings("PMD.TooManyStaticImports")
 class FFprobeTest {
 

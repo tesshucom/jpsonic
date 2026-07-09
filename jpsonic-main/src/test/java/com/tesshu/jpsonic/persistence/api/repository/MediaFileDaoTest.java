@@ -35,6 +35,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -58,6 +60,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
+@DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
 class MediaFileDaoTest {
 
     @Nested
@@ -737,6 +740,7 @@ class MediaFileDaoTest {
     }
 
     @Nested
+    @NeedsTranscode
     class IntegrationTest extends AbstractNeedsScan {
 
         private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,

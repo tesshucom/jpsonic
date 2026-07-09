@@ -109,7 +109,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @NeedsHome
-@NeedsTranscode
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
@@ -837,6 +836,7 @@ class StreamControllerTest {
 
     @Order(4)
     @Nested
+    @NeedsTranscode
     class ContentTypeAndDurationTest {
 
         private MediaFile song;
