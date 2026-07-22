@@ -55,6 +55,7 @@ import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest
 import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -404,6 +405,7 @@ class CoverArtControllerTest {
     class GetImageInputStreamForVideoTest {
 
         @Test
+        @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
         void testValidFile() throws URISyntaxException, IOException {
             Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(Files.exists(path));

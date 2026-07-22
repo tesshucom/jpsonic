@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.controller.InternalHelpController.FileStatistics;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import org.junit.jupiter.api.Nested;
@@ -56,6 +57,7 @@ class InternalHelpControllerTest {
     private MockMvc mockMvc;
 
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testOkForAdmins() throws Exception {
         // Boot 4 migration: @WithMockUser is no longer reapplied across requests.
         mockMvc

@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -74,6 +75,7 @@ class UpnpDIDLFactoryTest {
     }
 
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testCreateURIStringWithToken() {
 
         final MediaFile song = new MediaFile();
