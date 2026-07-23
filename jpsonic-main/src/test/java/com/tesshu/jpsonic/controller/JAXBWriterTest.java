@@ -125,7 +125,7 @@ class JAXBWriterTest {
 
             // No format
             writer.writeResponse(request, httpResponse, response);
-            assertEquals(httpResponse.getContentType(), "text/xml;charset=UTF-8");
+            assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
 
             // format=xml
             Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("xml");

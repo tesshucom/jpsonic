@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -108,6 +109,7 @@ class MP4ParserTest {
 
     @EnabledOnOs(OS.LINUX)
     @Order(2)
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
         ObjectMapper mapper = JsonMapper.builder().build();
@@ -142,6 +144,7 @@ class MP4ParserTest {
 
     @Order(3)
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testParseWithFFProbe() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -166,6 +169,7 @@ class MP4ParserTest {
 
     @Order(5)
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testGetRawMetaData(@TempDir Path emptytranscodeDir)
             throws URISyntaxException, IOException {
         ObjectMapper mapper = JsonMapper.builder().build();

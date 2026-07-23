@@ -47,7 +47,6 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
-import com.tesshu.jpsonic.infrastructure.filesystem.ExecutableResolver;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -374,25 +373,23 @@ public class InternalHelpController {
     }
 
     private void gatherTranscodingInfo(Map<String, Object> map) {
-        map.put("fsFfprobeInfo", gatherStatisticsForTranscodingExecutable("ffprobe"));
-        FileStatistics ffmpegStatistics = gatherStatisticsForTranscodingExecutable("ffmpeg");
-        map.put("fsFfmpegInfo", ffmpegStatistics);
+        EnvironmentProvider.TranscodeStatus status = EnvironmentProvider
+            .getInstance()
+            .getTranscodeStatus();
+
+        status.ffmpegPath().ifPresent(p -> map.put("ffmpegPath", p.toString()));
+        map.put("ffmpegReadable", status.ffmpegReadable());
+        map.put("ffmpegExecutable", status.ffmpegExecutable());
+
+        status.ffprobePath().ifPresent(p -> map.put("ffprobePath", p.toString()));
+        map.put("ffprobeReadable", status.ffprobeReadable());
+        map.put("ffprobeExecutable", status.ffprobeExecutable());
+
         String version = "Unknown";
-        if (ffmpegStatistics != null && ffmpegStatistics.isReadable()
-                && ffmpegStatistics.isExecutable()) {
+        if (status.ffmpegExecutable()) {
             version = ffmpeg.getVersion();
         }
         map.put("ffmpegVersion", formatFFmpegVersion(version));
-    }
-
-    private FileStatistics gatherStatisticsForTranscodingExecutable(String executableName) {
-        FileStatistics executableStatistics = null;
-        Path executableLocation = ExecutableResolver.lookForTranscodingExecutable(executableName);
-        if (executableLocation != null) {
-            executableStatistics = new FileStatistics();
-            executableStatistics.setFromPath(executableLocation);
-        }
-        return executableStatistics;
     }
 
     public static class IndexStatistics {

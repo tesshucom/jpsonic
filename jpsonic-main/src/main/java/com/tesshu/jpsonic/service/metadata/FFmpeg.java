@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -55,11 +54,12 @@ public class FFmpeg {
     private static final String SEEKED_OPTIONS = "-v quiet -r 1 -ss %o -t 1 -s %wx%h -v 0 -f image2";
 
     private @Nullable String getCommandPathStr() {
-        Path cmdPath = EnvironmentProvider.getInstance().getFfmpegPath();
-        if (Files.exists(cmdPath)) {
-            return cmdPath.toString();
-        }
-        return null;
+        return EnvironmentProvider
+            .getInstance()
+            .getTranscodeStatus()
+            .ffmpegPath()
+            .map(Path::toString)
+            .orElse(null);
     }
 
     public @Nullable String getVersion() {

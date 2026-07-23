@@ -148,7 +148,12 @@ public class FFprobe {
         ProcessBuilder pb = new ProcessBuilder();
         pb
             .command()
-            .add(EnvironmentProvider.getInstance().getFfprobePath().toAbsolutePath().toString());
+            .add(EnvironmentProvider
+                .getInstance()
+                .getTranscodeStatus()
+                .ffprobePath()
+                .get()
+                .toString());
         Stream.of(FFPROBE_OPTIONS).forEach(op -> pb.command().add(op));
         pb.command().add(path.toString());
 
