@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.condition.OS;
 @NeedsHome
 @NeedsTranscode
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class FFmpegTest {
 

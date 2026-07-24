@@ -197,14 +197,14 @@ class SongByGenreProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 10);
+            assertEquals(10, c.size());
 
             items = songByGenreProc.getDirectChildren(10, 10);
             items
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 20);
+            assertEquals(20, c.size());
 
             items = songByGenreProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
@@ -212,7 +212,7 @@ class SongByGenreProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 31);
+            assertEquals(31, c.size());
 
         }
 
@@ -230,14 +230,14 @@ class SongByGenreProcTest {
                 .stream()
                 .filter(m -> !c.containsKey(m.getGenre()))
                 .forEach(m -> c.put(m.getGenre(), m));
-            assertEquals(c.size(), 10);
+            assertEquals(10, c.size());
 
             children = songByGenreProc.getChildren(artists.get(0), 10, 10);
             children
                 .stream()
                 .filter(m -> !c.containsKey(m.getGenre()))
                 .forEach(m -> c.put(m.getGenre(), m));
-            assertEquals(c.size(), 20);
+            assertEquals(20, c.size());
 
             children = songByGenreProc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
@@ -245,7 +245,7 @@ class SongByGenreProcTest {
                 .stream()
                 .filter(m -> !c.containsKey(m.getGenre()))
                 .forEach(m -> c.put(m.getGenre(), m));
-            assertEquals(c.size(), 31);
+            assertEquals(31, c.size());
 
         }
 

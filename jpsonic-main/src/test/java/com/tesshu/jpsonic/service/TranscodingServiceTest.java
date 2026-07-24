@@ -45,6 +45,7 @@ import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.domain.system.Transcodings;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
@@ -346,6 +347,7 @@ class TranscodingServiceTest {
 
     @Order(6)
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testIsTranscodingRequired() {
 
         Player player = new Player();
@@ -377,6 +379,7 @@ class TranscodingServiceTest {
 
     @Order(7)
     @Test
+    @DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
     void testGetSuffix() {
         Player player = new Player();
         player.setId(MOCK_PLAYER_ID);

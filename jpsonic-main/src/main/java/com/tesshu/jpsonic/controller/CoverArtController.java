@@ -551,24 +551,24 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return artist.getCoverArtPath() == null ? createCoverArtKey(artist)
                     : artist.getCoverArtPath();
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return coverArt == null ? artist.getLastScanned().toEpochMilli()
                     : getLastModified(coverArt);
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return null;
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return artist.getName();
         }
     }
@@ -583,24 +583,24 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return album.getCoverArtPath() == null ? createCoverArtKey(album)
                     : album.getCoverArtPath();
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return coverArt == null ? album.getLastScanned().toEpochMilli()
                     : getLastModified(coverArt);
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return album.getName();
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return album.getArtist();
         }
     }
@@ -622,27 +622,27 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return createCoverArtKey(playlist);
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return playlist.getChanged().toEpochMilli();
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return null;
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return playlist.getName();
         }
 
         @Override
-        public BufferedImage createImage(int size) {
+        BufferedImage createImage(int size) {
             List<MediaFile> albums = getRepresentativeAlbums();
             if (albums.isEmpty()) {
                 return createAutoCover(size, size);
@@ -700,22 +700,22 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return createCoverArtKey(channel);
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return -1;
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return null;
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return channel.getTitle() == null ? channel.getUrl() : channel.getTitle();
         }
     }
@@ -732,22 +732,22 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return coverArt == null ? dir.getPathString() : coverArt.toString();
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return coverArt == null ? dir.getChanged().toEpochMilli() : getLastModified(coverArt);
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return dir.getName();
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return dir.getAlbumArtist() == null ? dir.getArtist() : dir.getAlbumArtist();
         }
     }
@@ -765,7 +765,7 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public BufferedImage createImage(int size) {
+        BufferedImage createImage(int size) {
             int height = size;
             int width = height * 16 / 9;
 
@@ -780,22 +780,22 @@ public class CoverArtController implements CoverArtPresentation {
         }
 
         @Override
-        public String getKey() {
+        String getKey() {
             return mediaFile.getPathString() + "/" + offset;
         }
 
         @Override
-        public long lastModified() {
+        long lastModified() {
             return mediaFile.getChanged().toEpochMilli();
         }
 
         @Override
-        public String getAlbum() {
+        String getAlbum() {
             return null;
         }
 
         @Override
-        public String getArtist() {
+        String getArtist() {
             return mediaFile.getName();
         }
     }

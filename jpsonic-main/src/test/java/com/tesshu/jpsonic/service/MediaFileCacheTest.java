@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
-public class MediaFileCacheTest {
+class MediaFileCacheTest {
 
     private Ehcache cache;
     private MediaFileCache mediaFileCache;

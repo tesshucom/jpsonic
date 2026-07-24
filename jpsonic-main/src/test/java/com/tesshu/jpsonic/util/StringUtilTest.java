@@ -45,10 +45,10 @@ class StringUtilTest {
     @Test
     void testToHtml() {
         assertNull(StringEscapeUtils.escapeHtml4(null));
-        assertEquals(StringEscapeUtils.escapeHtml4(""), "");
-        assertEquals(StringEscapeUtils.escapeHtml4(" "), " ");
-        assertEquals(StringEscapeUtils.escapeHtml4("q & a"), "q &amp; a");
-        assertEquals(StringEscapeUtils.escapeHtml4("q & a <> b"), "q &amp; a &lt;&gt; b");
+        assertEquals("", StringEscapeUtils.escapeHtml4(""));
+        assertEquals(" ", StringEscapeUtils.escapeHtml4(" "));
+        assertEquals("q &amp; a", StringEscapeUtils.escapeHtml4("q & a"));
+        assertEquals("q &amp; a &lt;&gt; b", StringEscapeUtils.escapeHtml4("q & a <> b"));
     }
 
     @Test

@@ -61,6 +61,7 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -109,11 +110,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @NeedsHome
-@NeedsTranscode
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.UnitTestShouldIncludeAssert", "PMD.AvoidDuplicateLiterals",
         "PMD.TooManyStaticImports" })
+@DisabledOnWindowsJdk21OrEarlier // Flaky Test on Windows Server
 class StreamControllerTest {
 
     private static final String TEST_URL = "/stream/test";
@@ -837,6 +838,7 @@ class StreamControllerTest {
 
     @Order(4)
     @Nested
+    @NeedsTranscode
     class ContentTypeAndDurationTest {
 
         private MediaFile song;

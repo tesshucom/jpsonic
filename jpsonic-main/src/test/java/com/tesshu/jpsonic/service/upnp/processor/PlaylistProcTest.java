@@ -238,14 +238,14 @@ class PlaylistProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 10);
+            assertEquals(10, c.size());
 
             items = playlistProc.getDirectChildren(10, 10);
             items
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 20);
+            assertEquals(20, c.size());
 
             items = playlistProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
@@ -253,7 +253,7 @@ class PlaylistProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 31);
+            assertEquals(31, c.size());
         }
 
         @Test
@@ -270,14 +270,14 @@ class PlaylistProcTest {
                 .stream()
                 .filter(m -> !c.containsKey(m.getId()))
                 .forEach(m -> c.put(m.getId(), m));
-            assertEquals(children.size(), 20);
+            assertEquals(20, children.size());
 
             children = playlistProc.getChildren(playlists.get(0), 20, 20);
             children
                 .stream()
                 .filter(m -> !c.containsKey(m.getId()))
                 .forEach(m -> c.put(m.getId(), m));
-            assertEquals(c.size(), 40);
+            assertEquals(40, c.size());
 
             children = playlistProc.getChildren(playlists.get(0), 40, 100);
             assertEquals(21, children.size());
@@ -285,7 +285,7 @@ class PlaylistProcTest {
                 .stream()
                 .filter(m -> !c.containsKey(m.getId()))
                 .forEach(m -> c.put(m.getId(), m));
-            assertEquals(c.size(), 61);
+            assertEquals(61, c.size());
         }
 
         @Test

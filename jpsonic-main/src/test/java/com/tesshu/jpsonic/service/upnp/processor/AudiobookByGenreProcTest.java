@@ -191,7 +191,7 @@ class AudiobookByGenreProcTest {
                 .stream()
                 .filter(g -> !c.containsKey(g.getName()))
                 .forEach(g -> c.put(g.getName(), g));
-            assertEquals(c.size(), 2);
+            assertEquals(2, c.size());
         }
 
         @Test
