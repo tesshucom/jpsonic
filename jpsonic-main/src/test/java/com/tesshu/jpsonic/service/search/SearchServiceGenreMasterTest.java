@@ -28,11 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +61,8 @@ class SearchServiceGenreMasterTest extends AbstractNeedsScan {
      */
     @Test
     void testGet() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                Sort.NAME);
+        GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, GenreMasterScope.ALBUM,
+                GenreMasterSort.NAME);
         List<Genre> genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
         assertEquals(14, genres.size());
         assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -85,8 +85,8 @@ class SearchServiceGenreMasterTest extends AbstractNeedsScan {
     @Test
     void testOffsetCount() {
 
-        GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, Scope.ALBUM,
-                Sort.NAME);
+        GenreMasterCriteria criteria = new GenreMasterCriteria(musicFolders, GenreMasterScope.ALBUM,
+                GenreMasterSort.NAME);
         List<Genre> genres = searchService.getGenres(criteria, 0, 3);
         assertEquals(3, genres.size());
         assertEquals("Audiobook - Historical", genres.get(0).getName());

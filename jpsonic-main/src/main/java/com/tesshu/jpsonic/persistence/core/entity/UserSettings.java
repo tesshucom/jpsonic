@@ -26,9 +26,9 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import java.time.Instant;
 import java.util.Locale;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
 
 /**
  * Represent user-specific settings.
@@ -56,7 +56,7 @@ public class UserSettings {
     private String lastFmUsername;
     private String lastFmPassword;
     private String listenBrainzToken;
-    private TranscodeScheme transcodeScheme;
+    private BitRateLimit bitRateLimit;
     private int selectedMusicFolderId;
     private boolean partyModeEnabled;
     private boolean nowPlayingAllowed;
@@ -103,7 +103,7 @@ public class UserSettings {
         defaultAlbumList = AlbumListType.RANDOM;
         mainVisibility = new Visibility();
         playlistVisibility = new Visibility();
-        transcodeScheme = TranscodeScheme.OFF;
+        bitRateLimit = BitRateLimit.OFF;
         selectedMusicFolderId = -1;
         avatarScheme = AvatarScheme.NONE;
         systemAvatarId = 101;
@@ -226,12 +226,12 @@ public class UserSettings {
         this.listenBrainzToken = listenBrainzToken;
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     public int getSelectedMusicFolderId() {

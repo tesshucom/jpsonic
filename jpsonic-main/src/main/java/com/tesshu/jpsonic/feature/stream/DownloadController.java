@@ -184,7 +184,7 @@ public class DownloadController {
         } finally {
             if (status != null) {
                 statusService.removeDownloadStatus(status);
-                userService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
+                userService.incrementUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
             }
         }
     }

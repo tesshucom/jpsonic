@@ -23,13 +23,13 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -222,6 +222,14 @@
 
         <!-- Most of them have low reusability. -->
         <exclude name="NoInlineScript" />
+
+        <!-- NoScriptlets is intentionally disabled.
+        There are cases where JSP must directly access classes or enums located
+        in nested JAR structures. For simple view concerns such as enum-based
+        selection lists, forcing all data through controllers increases
+        complexity and may reduce maintainability.
+        -->
+        <exclude name="NoScriptlets" />
     </rule>
 
     <!-- JSP Rules:Error Prone -->

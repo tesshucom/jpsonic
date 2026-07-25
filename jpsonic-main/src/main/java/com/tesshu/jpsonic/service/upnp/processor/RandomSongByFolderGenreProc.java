@@ -23,12 +23,12 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FGenreOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFGenre;

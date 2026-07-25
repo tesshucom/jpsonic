@@ -27,6 +27,7 @@ function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
     $('[name="uploadLimit"]').val(0);
     $('[name="bufferSize"]').prop("selectedIndex", 3);
+    $("#forceCompatibilityMode").prop('checked', false);
 }
 
 function resetScanLog() {
@@ -251,6 +252,13 @@ function postRotate() {
                     <form:option value="1048576" label="1Mb"/>
                     <form:option value="6291456" label="6Mb: tcp_rmem#max"/>
                 </form:select>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="buffersize"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="forceCompatibilityMode" id="forceCompatibilityMode"/>
+                <label for="forceCompatibilityMode"><fmt:message key="advancedsettings.forcecompatibilitymode"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="forcecompatibilitymode"/></c:import>
             </dd>
         </dl>
     </details>

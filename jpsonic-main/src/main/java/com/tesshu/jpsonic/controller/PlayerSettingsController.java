@@ -126,8 +126,8 @@ public class PlayerSettingsController {
             command.setSameSegment(subnet.isInUPnPRange(player.getIpAddress()));
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             UserSettings userSettings = userService.getUserSettings(player.getUsername());
-            command.setMaxBitrate(userSettings.getTranscodeScheme());
-            command.setTranscodeScheme(player.getTranscodeScheme());
+            command.setMaxBitrate(userSettings.getBitRateLimit());
+            command.setBitRateLimit(player.getBitRateLimit());
             command
                 .setActiveTranscodingIds(transcodingService
                     .getTranscodingsForPlayer(player)
@@ -165,7 +165,7 @@ public class PlayerSettingsController {
 
             // Player settings
             player.setName(StringUtils.trimToNull(command.getName()));
-            player.setTranscodeScheme(command.getTranscodeScheme());
+            player.setBitRateLimit(command.getBitRateLimit());
             player.setDynamicIp(command.isDynamicIp());
 
             playerService.updatePlayer(player);

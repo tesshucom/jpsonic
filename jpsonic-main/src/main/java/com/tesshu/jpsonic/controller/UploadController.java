@@ -189,7 +189,7 @@ public class UploadController {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
             User user = userService.getCurrentUserStrict(request);
-            userService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
+            userService.incrementUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
 
