@@ -158,6 +158,7 @@ public class UserSettings {
         return betaVersionNotificationEnabled;
     }
 
+    @Deprecated
     public void setBetaVersionNotificationEnabled(boolean betaVersionNotificationEnabled) {
         this.betaVersionNotificationEnabled = betaVersionNotificationEnabled;
     }

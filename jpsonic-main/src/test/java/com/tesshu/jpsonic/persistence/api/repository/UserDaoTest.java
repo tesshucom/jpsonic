@@ -246,7 +246,6 @@ class UserDaoTest {
         UserSettings settings = mockService.getUserSettings("sindre");
         settings.setLocale(Locale.SIMPLIFIED_CHINESE);
         settings.setThemeId("midnight");
-        settings.setBetaVersionNotificationEnabled(true);
         settings.setSongNotificationEnabled(false);
         settings.setCloseDrawer(true);
         settings.getMainVisibility().setBitRateVisible(true);
@@ -279,7 +278,6 @@ class UserDaoTest {
                 "Error in getUserSettings().");
         assertFalse(userSettings.isFinalVersionNotificationEnabled(),
                 "Error in getUserSettings().");
-        assertTrue(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isCloseDrawer(), "Error in getUserSettings().");
         assertEquals("midnight", userSettings.getThemeId(), "Error in getUserSettings().");

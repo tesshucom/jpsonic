@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -45,7 +46,6 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -88,7 +88,7 @@ class TopControllerTest {
             .when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
             .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
         controller = new TopController(settingsFacade, musicFolderService, userService,
-                scannerState, musicIndexService, mock(VersionService.class),
+                scannerState, musicIndexService, mock(BuildInfoProvider.class),
                 mock(InternetRadioService.class), airsonicLocaleResolver);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

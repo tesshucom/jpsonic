@@ -31,12 +31,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.TestCaseUtils;
-import com.tesshu.jpsonic.domain.system.Version;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.VersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -56,8 +55,8 @@ class HelpControllerTest {
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException, IOException {
         UserService userService = mock(UserService.class);
-        VersionService versionService = mock(VersionService.class);
-        Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
+        BuildInfoProvider versionService = mock(BuildInfoProvider.class);
+        Mockito.when(versionService.getLocalVersion()).thenReturn("v110.0.0");
         mockMvc = MockMvcBuilders
             .standaloneSetup(new HelpController(versionService, userService))
             .build();
