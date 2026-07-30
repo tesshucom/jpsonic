@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.controller.form.PlayerSettingsCommand;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -39,7 +40,6 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;

@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.transcoding.Transcodings;
+import com.tesshu.jpsonic.feature.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -40,7 +41,6 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
