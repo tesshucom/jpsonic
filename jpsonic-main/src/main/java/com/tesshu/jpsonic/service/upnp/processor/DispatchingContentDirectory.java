@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.QueryFactory;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteriaDirector;
-import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.contentdirectory.ContentDirectoryErrorCode;

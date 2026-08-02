@@ -225,7 +225,6 @@ public class PersonalSettingsController {
         // Update notification
         command
             .setFinalVersionNotificationEnabled(userSettings.isFinalVersionNotificationEnabled());
-        command.setBetaVersionNotificationEnabled(userSettings.isBetaVersionNotificationEnabled());
 
         // for view page control
         command
@@ -333,7 +332,6 @@ public class PersonalSettingsController {
 
         // Update notification
         settings.setFinalVersionNotificationEnabled(command.isFinalVersionNotificationEnabled());
-        settings.setBetaVersionNotificationEnabled(command.isBetaVersionNotificationEnabled());
 
         // for view page control
         settings.setOpenDetailIndex(command.isOpenDetailIndex());

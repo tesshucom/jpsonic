@@ -424,7 +424,7 @@ public class UserDao {
             settings.setLocale(StringUtil.parseLocale(rs.getString(col++)));
             settings.setThemeId(rs.getString(col++));
             settings.setFinalVersionNotificationEnabled(rs.getBoolean(col++));
-            settings.setBetaVersionNotificationEnabled(rs.getBoolean(col++));
+            col++; // BetaVersionNotificationEnable
             settings.setSongNotificationEnabled(rs.getBoolean(col++));
 
             settings.getMainVisibility().setTrackNumberVisible(rs.getBoolean(col++));

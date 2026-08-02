@@ -36,9 +36,9 @@ import java.util.Map;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.input.ReversedLinesFileReader;
@@ -61,12 +61,12 @@ public class HelpController {
     private static final Logger LOG = LoggerFactory.getLogger(HelpController.class);
     private static final int LOG_LINES_TO_SHOW = 50;
 
-    private final VersionService versionService;
+    private final BuildInfoProvider buildInfoProvider;
     private final UserService userService;
 
-    public HelpController(VersionService versionService, UserService userService) {
+    public HelpController(BuildInfoProvider buildInfoProvider, UserService userService) {
         super();
-        this.versionService = versionService;
+        this.buildInfoProvider = buildInfoProvider;
         this.userService = userService;
     }
 
@@ -75,21 +75,18 @@ public class HelpController {
     protected ModelAndView get(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
-        if (versionService.isNewFinalVersionAvailable()) {
+        if (buildInfoProvider.isNewVersionAvailable()) {
             map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestFinalVersion());
-        } else if (versionService.isNewBetaVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestBetaVersion());
+            map.put("latestVersion", buildInfoProvider.getLatestVersion());
         }
 
         User user = userService.getCurrentUserStrict(request);
         map.put("user", user);
         map.put("admin", userService.isAdmin(user.getUsername()));
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
-        map.put("localVersion", versionService.getLocalVersion());
-        map.put("buildDate", versionService.getLocalBuildDate());
-        map.put("buildNumber", versionService.getLocalBuildNumber());
+        map.put("localVersion", buildInfoProvider.getLocalVersion());
+        map.put("buildDate", buildInfoProvider.getLocalBuildDate());
+        map.put("buildNumber", buildInfoProvider.getLocalBuildNumber());
         Path logFile = EnvironmentProvider.getInstance().getLogFilePath();
         if (Files.exists(logFile)) {
             List<String> latestLogEntries = getLatestLogEntries(logFile);
