@@ -681,16 +681,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <details ${isOpen}>
         <summary class="legacy"><fmt:message key="personalsettings.updatenotification"/></summary>
-        <dl>
+        <dl class="single">
             <dt></dt>
             <dd>
                 <form:checkbox path="finalVersionNotificationEnabled" id="final" />
                 <label for="final"><fmt:message key="personalsettings.finalversionnotification"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="betaVersionNotificationEnabled" id="beta" />
-                <label for="beta"><fmt:message key="personalsettings.betaversionnotification"/></label>
             </dd>
         </dl>
     </details>
