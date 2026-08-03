@@ -40,9 +40,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-import com.tesshu.jpsonic.domain.entity.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey;
+import com.tesshu.jpsonic.domain.model.AuthKey.AuthKeyType;
 import com.tesshu.jpsonic.domain.repository.AuthKeyRepository;
-import com.tesshu.jpsonic.domain.type.AuthKeyType;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.NeedsDB;

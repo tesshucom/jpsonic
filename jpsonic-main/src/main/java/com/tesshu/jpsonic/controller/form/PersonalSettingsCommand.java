@@ -121,7 +121,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
 
     // Update notification
     private boolean finalVersionNotificationEnabled;
-    private boolean betaVersionNotificationEnabled;
 
     public User getUser() {
         return user;
@@ -644,13 +643,4 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     public void setFinalVersionNotificationEnabled(boolean finalVersionNotificationEnabled) {
         this.finalVersionNotificationEnabled = finalVersionNotificationEnabled;
     }
-
-    public boolean isBetaVersionNotificationEnabled() {
-        return betaVersionNotificationEnabled;
-    }
-
-    public void setBetaVersionNotificationEnabled(boolean betaVersionNotificationEnabled) {
-        this.betaVersionNotificationEnabled = betaVersionNotificationEnabled;
-    }
-
 }

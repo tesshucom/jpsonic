@@ -28,13 +28,13 @@ import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +64,10 @@ class MediaScannerServiceImplGenrePersistenceTest extends AbstractNeedsScan {
      */
     @Test
     void testGenreCountPersistence() throws IOException {
-        GenreMasterCriteria albumGenreCriteria = new GenreMasterCriteria(folders, Scope.ALBUM,
-                Sort.NAME);
-        GenreMasterCriteria songGenreCriteria = new GenreMasterCriteria(folders, Scope.SONG,
-                Sort.NAME);
+        GenreMasterCriteria albumGenreCriteria = new GenreMasterCriteria(folders,
+                GenreMasterScope.ALBUM, GenreMasterSort.NAME);
+        GenreMasterCriteria songGenreCriteria = new GenreMasterCriteria(folders,
+                GenreMasterScope.SONG, GenreMasterSort.NAME);
         assertTrue(assertAlbumGenreCount(
                 searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
         assertTrue(assertSongGenreCount(

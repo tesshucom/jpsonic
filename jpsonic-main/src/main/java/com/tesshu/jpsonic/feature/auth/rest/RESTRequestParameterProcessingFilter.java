@@ -26,7 +26,7 @@ import java.io.IOException;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.JAXBWriter;
 import com.tesshu.jpsonic.controller.SubsonicRESTController;
-import com.tesshu.jpsonic.domain.system.Version;
+import com.tesshu.jpsonic.infrastructure.metadata.Version;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.StringUtil;

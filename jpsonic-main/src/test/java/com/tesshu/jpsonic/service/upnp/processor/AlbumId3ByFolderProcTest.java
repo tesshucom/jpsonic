@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -27,23 +26,26 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.controller.Attributes;
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.AlbumOrSong;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrFAlbum;
@@ -51,7 +53,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class AlbumId3ByFolderProcTest {
@@ -69,19 +70,21 @@ class AlbumId3ByFolderProcTest {
             .create()
             .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
             .build();
-
-        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
-        UriComponentsBuilder dummyCoverArtbuilder = UriComponentsBuilder
-            .fromUriString(settingsFacade.get(UPnPSKeys.basic.baseLanUrl) + "/ext/"
-                    + ViewName.COVER_ART.value())
-            .queryParam("id", "99")
-            .queryParam(Attributes.Request.SIZE.value(), CoverArtScheme.LARGE.getSize());
-        Mockito
-            .when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class)))
-            .thenReturn(dummyCoverArtbuilder);
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, jwtSecurityService,
-                mock(MediaFileService.class), mock(PlayerService.class),
-                mock(TranscodingService.class));
+        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
+        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
+                com.tesshu.jpsonic.domain.model.MediaFile.class);
+        when(mediaFile.format())
+            .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                mediaFile, null, null);
+        when(parametersPlanner
+            .resolveAudioTranscodingParameters(nullable(Player.class),
+                    nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
+                    nullable(Integer.class), nullable(String.class)))
+            .thenReturn(param);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mock(MediaFileService.class), mock(MediaFileProvider.class),
+                mock(PlayerProvider.class), parametersPlanner);
         FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
         proc = new AlbumId3ByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
     }
@@ -98,7 +101,7 @@ class AlbumId3ByFolderProcTest {
         album.setId(id);
         album.setName("album");
         album.setArtist("artist");
-        Mockito.when(albumDao.getAlbum(id)).thenReturn(album);
+        when(albumDao.getAlbum(id)).thenReturn(album);
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         assertEquals(0, proc.getChildren(folderOrAlbum, 0, 2).size());
@@ -110,9 +113,8 @@ class AlbumId3ByFolderProcTest {
     @Test
     void testGetChildrenWithFolder() {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        Mockito
-            .when(albumDao
-                .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
+        when(albumDao
+            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
             .thenReturn(List.of(new Album()));
         FolderOrFAlbum folderOrArtist = new FolderOrFAlbum(folder);
         assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());

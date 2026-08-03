@@ -23,8 +23,10 @@ package com.tesshu.jpsonic.persistence.base;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -208,5 +210,56 @@ public class TemplateWrapper {
 
     public void checkpoint() {
         daoHelper.checkpoint();
+    }
+
+    // Lower GC pressure at the cost of readability.
+    public static List<String> tokenize(String str) {
+        if (str == null || str.isBlank()) {
+            return List.of();
+        }
+        List<String> result = new ArrayList<>(6);
+        int len = str.length();
+        int start = 0;
+        while (start < len) {
+            int nextSpace = str.indexOf(' ', start, len);
+            if (nextSpace == -1) {
+                result.add(str.substring(start, len));
+                break;
+            }
+            if (nextSpace > start) {
+                result.add(str.substring(start, nextSpace).toLowerCase(Locale.ROOT));
+            }
+            start = nextSpace + 1;
+        }
+        return result;
+    }
+
+    // Lower GC pressure at the cost of readability.
+    @SuppressWarnings("PMD.NPathComplexity")
+    public static List<String> createList(String s1, String s2, String s3) {
+        int count = 0;
+        if (s1 != null && !s1.isBlank()) {
+            count++;
+        }
+        if (s2 != null && !s2.isBlank()) {
+            count++;
+        }
+        if (s3 != null && !s3.isBlank()) {
+            count++;
+        }
+        if (count == 0) {
+            return List.of();
+        }
+        List<String> result = new ArrayList<>(count);
+        if (s1 != null && !s1.isBlank()) {
+            result.add(s1);
+        }
+        if (s2 != null && !s2.isBlank()) {
+            result.add(s2);
+        }
+        if (s3 != null && !s3.isBlank()) {
+            result.add(s3);
+        }
+        return result;
     }
 }

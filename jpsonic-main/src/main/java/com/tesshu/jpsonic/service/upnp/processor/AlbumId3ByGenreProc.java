@@ -22,6 +22,9 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.type.GenreMasterScope;
+import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -30,9 +33,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Scope;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria.Sort;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.composite.GenreAlbum;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
@@ -61,8 +61,9 @@ public class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreA
     }
 
     private GenreMasterCriteria createGenreMasterCriteria() {
-        return new GenreMasterCriteria(util.getGuestFolders(), Scope.ALBUM,
-                Sort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)), TYPES);
+        return new GenreMasterCriteria(util.getGuestFolders(), GenreMasterScope.ALBUM,
+                GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)),
+                TYPES);
     }
 
     @Override

@@ -32,15 +32,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
+import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -56,9 +57,9 @@ class PodcastProcTest {
     @BeforeEach
     void setup() {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade,
-                mock(JWTSecurityService.class), mock(MediaFileService.class),
-                mock(PlayerService.class), mock(TranscodingService.class));
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mock(MediaFileService.class), mock(MediaFileProvider.class),
+                mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
         podcastService = mock(PodcastService.class);
         proc = new PodcastProc(factory, podcastService);
     }

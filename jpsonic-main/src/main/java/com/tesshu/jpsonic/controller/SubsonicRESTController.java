@@ -46,7 +46,8 @@ import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.type.CoverArtType;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
@@ -74,7 +75,6 @@ import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.persistence.result.SavedPlayQueue;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -177,7 +177,7 @@ import org.subsonic.restapi.Videos;
 @SuppressFBWarnings(value = "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING", justification = "Difficult to change as it affects existing apps(Protected by a token).")
 @Controller
 @RequestMapping(value = "/rest", method = { RequestMethod.GET, RequestMethod.POST })
-public class SubsonicRESTController implements CoverArtPresentation {
+public class SubsonicRESTController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubsonicRESTController.class);
     private static final String NOT_YET_IMPLEMENTED = "Not yet implemented";
@@ -684,7 +684,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 .convertDate(mediaFileDao.getMediaFileStarredDate(artist.getId(), username)));
         jaxbArtist.setAlbumCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
-            jaxbArtist.setCoverArt(createCoverArtKey(artist));
+            jaxbArtist.setCoverArt(CoverArtType.ARTIST.createKey(artist.getId()));
         }
         return jaxbArtist;
     }
@@ -738,7 +738,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             }
         }
         if (album.getCoverArtPath() != null) {
-            jaxbAlbum.setCoverArt(createCoverArtKey(album));
+            jaxbAlbum.setCoverArt(CoverArtType.ID3ALBUM.createKey(album.getId()));
         }
         jaxbAlbum.setSongCount(album.getSongCount());
         jaxbAlbum.setDuration(album.getDurationSeconds());
@@ -762,7 +762,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         jaxbPlaylist.setDuration(playlist.getDurationSeconds());
         jaxbPlaylist.setCreated(jaxbWriter.convertDate(playlist.getCreated()));
         jaxbPlaylist.setChanged(jaxbWriter.convertDate(playlist.getChanged()));
-        jaxbPlaylist.setCoverArt(createCoverArtKey(playlist));
+        jaxbPlaylist.setCoverArt(CoverArtType.PLAYLIST.createKey(playlist.getId()));
 
         for (String username : playlistService.getPlaylistUsers(playlist.getId())) {
             jaxbPlaylist.getAllowedUser().add(username);
@@ -1851,7 +1851,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
                 c.setStatus(PodcastStatus.valueOf(channel.getStatus().name()));
                 c.setTitle(channel.getTitle());
                 c.setDescription(channel.getDescription());
-                c.setCoverArt(createCoverArtKey(channel));
+                c.setCoverArt(CoverArtType.PODCAST.createKey(channel.getId()));
                 c.setOriginalImageUrl(channel.getImageUrl());
                 c.setErrorMessage(channel.getErrorMessage());
 
@@ -2405,9 +2405,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         // Useless
         result.setAvatarLastChanged(null);
 
-        TranscodeScheme transcodeScheme = userSettings.getTranscodeScheme();
-        if (transcodeScheme != null && transcodeScheme != TranscodeScheme.OFF) {
-            result.setMaxBitRate(transcodeScheme.getMaxBitRate());
+        BitRateLimit bitRateLimit = userSettings.getBitRateLimit();
+        if (bitRateLimit != null && bitRateLimit != BitRateLimit.OFF) {
+            result.setMaxBitRate(bitRateLimit.getMaxBitRate());
         }
 
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
@@ -2470,7 +2470,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         command
             .setShareRole(ServletRequestUtils
                 .getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
-        command.setTranscodeScheme(TranscodeScheme.OFF);
+        command.setBitRateLimit(BitRateLimit.OFF);
 
         int[] folderIds = ServletRequestUtils
             .getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
@@ -2562,10 +2562,10 @@ public class SubsonicRESTController implements CoverArtPresentation {
         UserSettings s = userService.getUserSettings(username);
         int maxBitRate = ServletRequestUtils
             .getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
-                    s.getTranscodeScheme().getMaxBitRate());
-        TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
-        if (transcodeScheme != null) {
-            command.setTranscodeScheme(transcodeScheme);
+                    s.getBitRateLimit().getMaxBitRate());
+        BitRateLimit bitRateLimit = BitRateLimit.fromMaxBitRate(maxBitRate);
+        if (bitRateLimit != null) {
+            command.setBitRateLimit(bitRateLimit);
         }
 
         if (hasParameter(request, Attributes.Request.PASSWORD.value())) {
@@ -2786,8 +2786,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
     }
 
     protected final String mapId(String id) {
-        if (id == null || isAlbumCoverArt(id) || isArtistCoverArt(id)
-                || StringUtils.isNumeric(id)) {
+        CoverArtType coverArtType = CoverArtType.detect(id);
+        if (id == null || coverArtType == CoverArtType.ARTIST
+                || coverArtType == CoverArtType.ID3ALBUM || StringUtils.isNumeric(id)) {
             return id;
         }
         try {

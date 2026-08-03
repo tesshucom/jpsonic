@@ -28,8 +28,9 @@ import java.lang.annotation.Documented;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.system.PreferredFormatSheme;
-import com.tesshu.jpsonic.domain.system.Transcodings;
+import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
+import com.tesshu.jpsonic.feature.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -40,7 +41,6 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +73,7 @@ class TranscodingSettingsControllerTest {
             .create()
             .withString(SKeys.transcoding.preferredFormat, "mp3")
             .withString(SKeys.transcoding.preferredFormatShemeName,
-                    PreferredFormatSheme.ANNOYMOUS.name())
+                    PreferredFormatScheme.ANNOYMOUS.name())
             .build();
         init();
     }
@@ -111,7 +111,7 @@ class TranscodingSettingsControllerTest {
         assertFalse((Boolean) model.get("useRadio"));
         assertEquals(settingsFacade.get(SKeys.transcoding.preferredFormat),
                 model.get("preferredFormat"));
-        assertEquals(PreferredFormatSheme.ANNOYMOUS, model.get("preferredFormatSheme"));
+        assertEquals(PreferredFormatScheme.ANNOYMOUS, model.get("preferredFormatSchemeName"));
         assertEquals(EnvironmentProvider.getInstance().getBrand(), model.get("brand"));
         assertEquals(transcodingService.getAllTranscodings(), model.get("transcodings"));
     }
@@ -124,7 +124,7 @@ class TranscodingSettingsControllerTest {
             .create()
             .withString(SKeys.transcoding.preferredFormat, "mp3")
             .withString(SKeys.transcoding.preferredFormatShemeName,
-                    PreferredFormatSheme.ANNOYMOUS.name())
+                    PreferredFormatScheme.ANNOYMOUS.name())
             .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
             .build();
         init();
@@ -137,7 +137,7 @@ class TranscodingSettingsControllerTest {
             .create()
             .withString(SKeys.transcoding.preferredFormat, "mp3")
             .withString(SKeys.transcoding.preferredFormatShemeName,
-                    PreferredFormatSheme.ANNOYMOUS.name())
+                    PreferredFormatScheme.ANNOYMOUS.name())
             .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
             .build();
         init();
@@ -151,7 +151,7 @@ class TranscodingSettingsControllerTest {
             .create()
             .withString(SKeys.transcoding.preferredFormat, "mp3")
             .withString(SKeys.transcoding.preferredFormatShemeName,
-                    PreferredFormatSheme.ANNOYMOUS.name())
+                    PreferredFormatScheme.ANNOYMOUS.name())
             .captureString(SKeys.transcoding.preferredFormat, formatCaptor)
             .build();
         init();

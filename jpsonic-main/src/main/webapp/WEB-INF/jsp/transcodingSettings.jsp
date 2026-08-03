@@ -4,12 +4,12 @@
 <head>
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
-<%@ page import="com.tesshu.jpsonic.domain.system.PreferredFormatSheme" %>
-<%@ page import="com.tesshu.jpsonic.domain.system.Transcodings" %>
+<%@ page import="com.tesshu.jpsonic.domain.system.PreferredFormatScheme" %>
+<%@ page import="com.tesshu.jpsonic.feature.transcoding.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
-    $("#radio-${PreferredFormatSheme.ANNOYMOUS.name()}").prop('checked', true);
+    $("#radio-${PreferredFormatScheme.ANNOYMOUS.name()}").prop('checked', true);
 }
 
 function resetAddTag() {
@@ -127,12 +127,12 @@ document.addEventListener('DOMContentLoaded', function () {
             </dt>
             <dd>
                 <ul class="playerSettings">
-                    <c:forEach items="${PreferredFormatSheme.values()}" var="scheme">
+                    <c:forEach items="${PreferredFormatScheme.values()}" var="scheme">
                         <c:set var="schemeName">
                             <fmt:message key="transcodingsettings.preferredformat.${fn:toLowerCase(scheme)}"/>
                         </c:set>
                         <li>
-                            <input type="radio" id="radio-${scheme.name()}" name="preferredFormatShemeName" value="${scheme}" ${scheme eq model.preferredFormatSheme ? 'checked' : ''}/>
+                            <input type="radio" id="radio-${scheme.name()}" name="preferredFormatSchemeName" value="${scheme.name()}" ${scheme eq model.preferredFormatSchemeName ? 'checked' : ''}/>
                             <label for="radio-${scheme.name()}">${schemeName}</label>
                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="preferredformat${fn:toLowerCase(scheme)}"/></c:import>
                         </li>
@@ -162,12 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
                      <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox" onclick="resetAddTag()"/>
                     <label for="restored${transcoding}">${transcoding.getName()}</label>
                 </c:forEach>
-            </dd>
-            <dt><fmt:message key="transcodingsettings.restoreoption"/></dt>
-            <dd>
-                <input type="checkbox" id="addTag" name="addTag"/>
-                <label for="addTag"><fmt:message key="transcodingsettings.restoreaddtag" /></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="restoreaddtag"/></c:import>
             </dd>
         </dl>
    </details>
