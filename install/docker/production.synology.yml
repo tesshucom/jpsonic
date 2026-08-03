@@ -11,11 +11,16 @@
 # depending on the version of Docker you are using.
 # https://docs.docker.com/compose/migrate/
 #
-# @since 114.2.0
+# If you are upgrading from an earlier release, the Compose service name
+# has changed. Update your Compose file and run:
+#
+#   docker compose -f production.synology.yml up -d --remove-orphans
+#
+# @since 115.1.0
 #
 
 services:
-  app:
+  jpsonic:
     image: 'jpsonic/jpsonic:latest'
     container_name: 'jpsonic'
 
