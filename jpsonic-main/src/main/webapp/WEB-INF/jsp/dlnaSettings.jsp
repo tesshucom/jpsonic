@@ -21,10 +21,12 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<%@ page import="com.tesshu.jpsonic.domain.system.TranscodeScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit" %>
+<%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType" %>
+<%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod" %>
 <%@ page import="com.tesshu.jpsonic.domain.system.MenuItemId" %>
 <%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
-<%@ page import="com.tesshu.jpsonic.service.search.UPnPSearchMethod" %>
+<%@ page import="com.tesshu.jpsonic.feature.search.UPnPSearchMethod" %>
 
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
@@ -32,17 +34,30 @@
     function checkBitrateAvailability() {
         var c = 0;
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
-        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+        $('[name="bitRateLimit"]').prop("disabled", c == 0);
     }
 
     function resetBasicSettings() {
         Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
-        $('[name="transcodeScheme"]').prop("selectedIndex", 4);
+        $('[name="bitRateLimit"]').prop("selectedIndex", 4);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
-        document.getElementsByName('uriWithFileExtensions')[0].checked = true;
         checkBitrateAvailability();
     }
-    
+
+    function resetMiscellaneous() {
+        $("#dlnaEnabledFilteredIp").prop('checked', true);
+        $("#dlnaFilteredIp").prop('disabled', false);
+        $("#dlnaFilteredIp").val('172.17.16.1');
+        $("#dlnaKeyRotationType").prop("selectedIndex", 2);
+        $("#dlnaKeyRotationPeriod").prop("selectedIndex", 2);
+        dlnaKeyKeyRotationTypeChanged();
+    }
+
+    function dlnaKeyKeyRotationTypeChanged() {
+        var value = $("#dlnaKeyRotationType").val();
+        $("#dlnaKeyRotationPeriod").prop('disabled', value !== '${KeyRotationType.PERIOD.name()}');
+    }
+
     $(document).ready(function(){
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
         checkBitrateAvailability();
@@ -53,7 +68,17 @@
             $("#dlnaFilteredIp").prop('disabled', !e.target.checked);
         };
         $("#dlnaFilteredIp").prop('disabled', !${command.dlnaEnabledFilteredIp});
+
+        dlnaKeyKeyRotationTypeChanged();
+        $("#dlnaKeyRotationType").on('change', function(e){
+            dlnaKeyKeyRotationTypeChanged();
+        });
+
     }, false);
+
+    function postRotate() {
+        document.getElementById('rotateForm').submit();
+    }
 
 </script>
 </head>
@@ -127,28 +152,16 @@
             </c:if>
             <dt><fmt:message key="playersettings.maxbitrate"/></dt>
             <dd>
-                <form:select path="transcodeScheme">
-                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                <% pageContext.setAttribute("bitRateLimits", BitRateLimit.values()); %>
+                <form:select path="bitRateLimit">
+                    <c:forEach items="${bitRateLimits}" var="bitRate">
+                        <form:option value="${bitRate}" label="${bitRate.toString()}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
                 <c:if test="${not command.transcodingSupported}">
                     <strong><fmt:message key="playersettings.notranscoder"/></strong>
                 </c:if>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="dlnaEnabledFilteredIp" id="dlnaEnabledFilteredIp"/>
-                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.filteredIp"/></label>
-                <input type="text" name="dlnaFilteredIp" id="dlnaFilteredIp"
-                        value="<c:out value='${command.dlnaFilteredIp}' escapeXml='true'/>" placeholder="${command.dlnaDefaultFilteredIp}"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="filteredIp"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
-                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.uriwithfileextensions"/></label>
             </dd>
         </dl>
     </details>
@@ -467,10 +480,74 @@
 
     </details>
 
+    <details ${isOpen}>
+
+        <summary class="jpsonic"><fmt:message key="dlnasettings.upnp.miscellaneous"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetMiscellaneous()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
+        <dl>
+            <dt><fmt:message key="dlnasettings.upnp.traffic"/></dt>
+            <dd>
+                <form:checkbox path="dlnaEnabledFilteredIp" id="dlnaEnabledFilteredIp"/>
+                <label for=dlnaFilteredIp><fmt:message key="dlnasettings.filteredIp"/></label>
+                <input type="text" name="dlnaFilteredIp" id="dlnaFilteredIp"
+                        value="<c:out value='${command.dlnaFilteredIp}' escapeXml='true'/>" placeholder="${command.dlnaDefaultFilteredIp}"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="filteredIp"/></c:import>
+            </dd>
+            <dt>
+                <fmt:message key="dlnasettings.upnp.rotation-type"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnp-rotation-type"/></c:import>
+            </dt>
+            <dd>
+                <form:select path="dlnaKeyRotationType" id="dlnaKeyRotationType">
+                    <c:forEach items="${KeyRotationType.values()}" var="keyRotationType">
+                        <c:set var="keyRotationTypeViewName">
+                            <fmt:message key="dlnasettings.upnp.rotation-type.${fn:toLowerCase(keyRotationType)}"/>
+                        </c:set>
+                        <form:option value="${keyRotationType}" label="${keyRotationTypeViewName}"/>
+                    </c:forEach>
+                </form:select>
+            </dd>
+            <dt>
+                <fmt:message key="dlnasettings.upnp.rotation-period"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="rememberme-rotation-period"/></c:import>
+            </dt>
+            <dd>
+                <form:select path="dlnaKeyRotationPeriod" id="dlnaKeyRotationPeriod">
+                    <c:forEach items="${KeyRotationPeriod.values()}" var="keyRotationPeriod">
+                        <c:set var="keyRotationPeriodViewName">
+                            <fmt:message key="dlnasettings.upnp.rotation-period.${fn:toLowerCase(keyRotationPeriod)}"/>
+                        </c:set>
+                        <form:option value="${keyRotationPeriod}" label="${keyRotationPeriodViewName}"/>
+                    </c:forEach>
+                </form:select>
+            </dd>
+            <dt><fmt:message key='advancedsettings.rememberme.key-lastupdate'/></dt>
+            <dd>${command.dlnaKeyLastUpdate}
+            </dd>
+            <dt>
+                <fmt:message key='advancedsettings.rememberme.key-rotate'/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnp-exec-rotation"/></c:import>
+            </dt>
+            <dd>
+                <div>
+                    <input id="rotateNow" type="button" onClick="postRotate()" value="<fmt:message key='advancedsettings.rememberme.exec-key-rotate'/>"/>
+                </div>
+            </dd>
+        </dl>
+    </details>
+
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.save'/>">
     </div>
 
 </form:form>
+
+<form:form id="rotateForm" action="dlnaSettings/rotate" method="post" style="display:none;" />
 
 </body></html>

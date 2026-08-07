@@ -17,11 +17,16 @@
 # 2. I/O: Desperately slow due to the 9P protocol overhead on Windows.
 # 3. Network: Host mode is unavailable. UDP/UPnP features will not work.
 #
-# @since 114.2.0
+# If you are upgrading from an earlier release, the Compose service name
+# has changed. Update your Compose file and run:
+#
+#   docker compose -f production.synology.yml up -d --remove-orphans
+#
+# @since 115.1.0
 #
 
 services:
-  app:
+  jpsonic:
     image: 'jpsonic/jpsonic:latest'
     container_name: 'jpsonic'
 

@@ -3,10 +3,39 @@
 # jpsonic/jpsonic
 # -->
 
-## v115.0.0
+
+
+## v115.1.0
+
+Release Notes Companion for v115.1 ([#2892](https://github.com/tesshucom/jpsonic/issues/2902))
+
+#### Bug fixes
+
+ - Fix transcoder installation check issue [#2892](https://github.com/tesshucom/jpsonic/issues/2892)
+
+#### Enhancement
+
+ - Redesign the UPnP streaming pipeline [#2896](https://github.com/tesshucom/jpsonic/issues/2896)
+
+#### Maintenance
+
+ - UPnP Processing Externalization [#2900](https://github.com/tesshucom/jpsonic/issues/2900)
+ - Change the default branch from master to main [#2887](https://github.com/tesshucom/jpsonic/issues/2887)
+ - Externalize Dependencies [#2885](https://github.com/tesshucom/jpsonic/issues/2885)
+ - Externalize core and architectural modules [#2888](https://github.com/tesshucom/jpsonic/issues/2888)
+ - migrate to Node 24 and optimize Dependency-Check cache [#2880](https://github.com/tesshucom/jpsonic/issues/2880)
+
+#### Update Libs
+
+ - v115.0.4 : [#2895](https://github.com/tesshucom/jpsonic/issues/2895)
+ - v115.0.3 : [#2890](https://github.com/tesshucom/jpsonic/issues/2890)
+ - v115.0.2 : [#2886](https://github.com/tesshucom/jpsonic/issues/2886)
+ - v115.0.1 : [#2877](https://github.com/tesshucom/jpsonic/issues/2877)
 
 <details>
-<summary>🆙  Platform Updates & CI/CD Release Management</summary>
+<summary>v115.0.0</summary>
+
+🆙  Platform Updates & CI/CD Release Management
 
   - JDK
     - Handle Java 21 strict Locale/URL parsing([#2814](https://github.com/tesshucom/jpsonic/issues/2814))
@@ -26,23 +55,17 @@
     - CI rotation: drop Java 17 support and update Docker targets([#2813](https://github.com/tesshucom/jpsonic/issues/2813))
     - Add FFmpeg version to Help page([#2752](https://github.com/tesshucom/jpsonic/issues/2752))
 
-</details>
-<details>
-<summary>🔒 Security & Authentication</summary>
+🔒 Security & Authentication
 
  - Improve RememberMe Implementation([#2865](https://github.com/tesshucom/jpsonic/issues/2865))
 
-</details>
-<details>
-<summary>📡 UPnP / DLNA / Networking</summary>
+📡 UPnP / DLNA / Networking
 
  - Add a setting to prevent UPnP from accessing the default gateway([#2759](https://github.com/tesshucom/jpsonic/issues/2759))
  - Change to make FileStructure/ID3 selectable in UPnP search([#2718](https://github.com/tesshucom/jpsonic/issues/2718))
  - Improve path matching logic in JWTAuthenticationProvider to resolve 403 errors on Linux([#2875](https://github.com/tesshucom/jpsonic/issues/2875))
 
-</details>
-<details>
-<summary>🐛 Bug Fixes & Improvements</summary>
+🐛 Bug Fixes & Improvements
 
  - Improve URL validation for DlnaBaseLANURL([#2747](https://github.com/tesshucom/jpsonic/issues/2747))
  - Fix to filter unknown menus([#2757](https://github.com/tesshucom/jpsonic/issues/2757))
@@ -50,9 +73,7 @@
  - Fix bug that UPnP:By Folder(ID3) did not work([#2715](https://github.com/tesshucom/jpsonic/issues/2715))
  - Fix bug regarding ID3 album stars([#2713](https://github.com/tesshucom/jpsonic/issues/2713))
 
-</details>
-<details>
-<summary>🛠️ Internal Architecture & Refactoring</summary>
+🛠️ Internal Architecture & Refactoring
 
  - Internal Architecture Cleanup: Package Reorganization([#2838](https://github.com/tesshucom/jpsonic/issues/2838))
  - Internal Architecture Cleanup: Package Reorganization([#2861](https://github.com/tesshucom/jpsonic/issues/2861))
@@ -63,10 +84,9 @@
  - Improving the Shutdown Process([#2803](https://github.com/tesshucom/jpsonic/issues/2803))
  - Remove PGJDBC-NG([#2874](https://github.com/tesshucom/jpsonic/issues/2874))
 
-</details>
-
 [More...](https://github.com/tesshucom/jpsonic/milestone/74)
 
+</details>
 <details>
 <summary>v114.2.0</summary>
 

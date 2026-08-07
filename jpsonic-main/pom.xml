@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>115.0.4</version>
+    <version>115.1.0</version>
   </parent>
   <artifactId>jpsonic-main</artifactId>
   <packaging>war</packaging>
@@ -43,6 +43,10 @@
     <dependency>
       <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>jpsonic-feature</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tesshu.jpsonic</groupId>
+      <artifactId>jpsonic-upnp-core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic</groupId>

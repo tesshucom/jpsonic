@@ -35,10 +35,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
-import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;

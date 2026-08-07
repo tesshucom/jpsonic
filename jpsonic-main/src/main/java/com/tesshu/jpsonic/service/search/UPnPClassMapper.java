@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+
 /**
  * Mapper class that converts UPnP class names and derived class names into the
  * IndexType used internally for search processing.

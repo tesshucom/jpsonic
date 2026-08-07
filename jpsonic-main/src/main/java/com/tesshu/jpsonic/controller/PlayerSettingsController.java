@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.controller.form.PlayerSettingsCommand;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -39,7 +40,6 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -126,8 +126,8 @@ public class PlayerSettingsController {
             command.setSameSegment(subnet.isInUPnPRange(player.getIpAddress()));
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             UserSettings userSettings = userService.getUserSettings(player.getUsername());
-            command.setMaxBitrate(userSettings.getTranscodeScheme());
-            command.setTranscodeScheme(player.getTranscodeScheme());
+            command.setMaxBitrate(userSettings.getBitRateLimit());
+            command.setBitRateLimit(player.getBitRateLimit());
             command
                 .setActiveTranscodingIds(transcodingService
                     .getTranscodingsForPlayer(player)
@@ -165,7 +165,7 @@ public class PlayerSettingsController {
 
             // Player settings
             player.setName(StringUtils.trimToNull(command.getName()));
-            player.setTranscodeScheme(command.getTranscodeScheme());
+            player.setBitRateLimit(command.getBitRateLimit());
             player.setDynamicIp(command.isDynamicIp());
 
             playerService.updatePlayer(player);

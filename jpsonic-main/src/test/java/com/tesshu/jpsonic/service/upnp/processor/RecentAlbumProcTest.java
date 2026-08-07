@@ -30,9 +30,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

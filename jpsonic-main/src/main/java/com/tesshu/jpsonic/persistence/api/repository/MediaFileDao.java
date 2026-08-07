@@ -77,6 +77,8 @@ public class MediaFileDao {
 
     private final TemplateWrapper template;
     private final RowMapper<MediaFile> rowMapper = DaoUtils.createRowMapper(MediaFile.class);
+    private final RowMapper<com.tesshu.jpsonic.domain.model.MediaFile> domainRowMapper = DaoUtils
+        .createRowMapper(com.tesshu.jpsonic.domain.model.MediaFile.class);
     private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> new Genre(rs.getString(1),
             rs.getInt(2), rs.getInt(3));
     private final RowMapper<IndexWithCount> indexWithCountMapper = (ResultSet rs,
@@ -126,6 +128,26 @@ public class MediaFileDao {
                 where present and type= :type and folder in(:folders)
                 limit :count offset :offset
                 """, rowMapper, args);
+    }
+
+    public com.tesshu.jpsonic.domain.model.MediaFile getDomainMediaFile(int id) {
+        return template.queryOne("""
+                select
+                m.id,
+                f.id,
+                m.path,
+                m.format,
+                m.type,
+                m.bit_Rate,
+                m.duration_seconds,
+                m.file_size,
+                m.artist,
+                m.album,
+                m.title
+                from media_file m
+                join music_folder f on m.folder = f.path
+                where id=?
+                """, domainRowMapper, id);
     }
 
     public List<MediaFile> getVideos(final int count, final int offset,

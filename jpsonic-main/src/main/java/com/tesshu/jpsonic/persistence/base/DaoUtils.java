@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.apache.commons.lang3.StringUtils;
@@ -94,8 +95,36 @@ public final class DaoUtils {
             return (RowMapper<T>) createMediaFileRowMapper();
         } else if (domainClass == Album.class) {
             return (RowMapper<T>) createAlbumRowMapper();
+        } else if (domainClass == com.tesshu.jpsonic.domain.model.MediaFile.class) {
+            return (RowMapper<T>) createDomainMediaFileRowMapper();
+        } else if (domainClass == com.tesshu.jpsonic.domain.model.Player.class) {
+            return (RowMapper<T>) createDomainPlayerRowMapper();
         }
         throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
+    }
+
+    private static RowMapper<com.tesshu.jpsonic.domain.model.Player> createDomainPlayerRowMapper() {
+        return (rs, num) -> new com.tesshu.jpsonic.domain.model.Player(rs.getInt(1), // id
+                rs.getString(2), // userName
+                BitRateLimit.of(rs.getString(3)), // bitRateLimit
+                rs.getString(4), // ipAddress
+                nullableInstantOf(rs.getTimestamp(5)) // lastSeen
+        );
+    }
+
+    private static RowMapper<com.tesshu.jpsonic.domain.model.MediaFile> createDomainMediaFileRowMapper() {
+        return (rs, num) -> new com.tesshu.jpsonic.domain.model.MediaFile(rs.getInt(1), // id
+                rs.getInt(2), // folderId
+                rs.getString(3), // path
+                rs.getString(4), // format
+                rs.getString(5), // type
+                rs.getInt(6), // bitRate
+                rs.getInt(7), // durationSeconds
+                rs.getLong(8), // fileSize
+                rs.getString(9), // artist
+                rs.getString(10), // album
+                rs.getString(11) // title
+        );
     }
 
     @SuppressWarnings({ "PMD.CognitiveComplexity" })

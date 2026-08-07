@@ -41,6 +41,7 @@ import java.util.zip.ZipFile;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -52,7 +53,6 @@ import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
-import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload2.core.DiskFileItem;
@@ -189,7 +189,7 @@ public class UploadController {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
             User user = userService.getCurrentUserStrict(request);
-            userService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
+            userService.incrementUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
 

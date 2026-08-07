@@ -1,0 +1,58 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd">
+	<changeSet id="change-audio-transcodings" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="transcoding2" />
+        </preConditions>
+        <delete tableName="transcoding2">
+            <where>name='mp3 audio' or name='flac resampling' or name='dsf2flac' or name='flv/h264 video' or name='mkv video' or name='mp4/h264 video'</where>
+        </delete>
+        <insert tableName="transcoding2">
+            <column name="name" value="MP3 Audio" />
+            <column name="source_formats" value="mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn" />
+            <column name="target_format" value="mp3" />
+            <column name="step1" value="ffmpeg -v fatal -i %s -map 0:a:0 -b:a %bk -id3v2_version 3 -f mp3 -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="Opus Audio" />
+            <column name="source_formats" value="mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn" />
+            <column name="target_format" value="opus" />
+            <column name="step1" value="ffmpeg -v fatal -i %s -map 0:a:0 -c:a libopus -b:a %bk -vbr constrained -f ogg -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="Hi-Res to CD FLAC" />
+            <column name="source_formats" value="flac" />
+            <column name="target_format" value="flac" />
+            <column name="step1" value="ffmpeg -v fatal -i %s -map 0:0 -vn -c:a flac -sample_fmt s16 -ar 44100 -ac 2 -f flac -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="FLAC to PCM" />
+            <column name="source_formats" value="flac" />
+            <column name="target_format" value="wav" />
+            <column name="step1" value="ffmpeg -v fatal -nostats -i %s -vn -c:a pcm_s16le -f wav -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="MP4 Video" />
+            <column name="source_formats" value="avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts" />
+            <column name="target_format" value="mp4" />
+            <column name="step1" value="ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="FLV Video" />
+            <column name="source_formats" value="avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts" />
+            <column name="target_format" value="flv" />
+            <column name="step1" value="ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -"/>
+        </insert>
+        <insert tableName="transcoding2">
+            <column name="name" value="MKV Video" />
+            <column name="source_formats" value="avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts" />
+            <column name="target_format" value="mkv" />
+            <column name="step1" value="ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -"/>
+        </insert>
+        <rollback>delete from transcoding2</rollback>
+	</changeSet>
+</databaseChangeLog>

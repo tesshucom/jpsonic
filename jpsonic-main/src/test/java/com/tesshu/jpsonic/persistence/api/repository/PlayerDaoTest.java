@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -79,7 +79,7 @@ class PlayerDaoTest {
         player.setDynamicIp(false);
         player.setClientId("android");
         player.setLastSeen(now());
-        player.setTranscodeScheme(TranscodeScheme.MAX_256);
+        player.setBitRateLimit(BitRateLimit.MAX_256);
 
         playerDao.createPlayer(player);
         Player newPlayer = playerDao.getAllPlayers().get(0);
@@ -173,7 +173,7 @@ class PlayerDaoTest {
         player.setIpAddress("ipaddress");
         player.setDynamicIp(true);
         player.setLastSeen(now());
-        player.setTranscodeScheme(TranscodeScheme.MAX_256);
+        player.setBitRateLimit(BitRateLimit.MAX_256);
 
         playerDao.updatePlayer(player);
         Player newPlayer = playerDao.getAllPlayers().get(0);
@@ -206,7 +206,7 @@ class PlayerDaoTest {
         assertEquals(expected.getIpAddress(), actual.getIpAddress(), "Wrong IP address.");
         assertEquals(expected.isDynamicIp(), actual.isDynamicIp(), "Wrong dynamic IP.");
         assertEquals(expected.getLastSeen(), actual.getLastSeen(), "Wrong last seen.");
-        assertEquals(expected.getTranscodeScheme(), actual.getTranscodeScheme(),
+        assertEquals(expected.getBitRateLimit(), actual.getBitRateLimit(),
                 "Wrong transcode scheme.");
     }
 

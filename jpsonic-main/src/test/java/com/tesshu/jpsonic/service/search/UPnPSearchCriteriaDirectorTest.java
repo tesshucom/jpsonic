@@ -33,6 +33,8 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -40,7 +42,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;

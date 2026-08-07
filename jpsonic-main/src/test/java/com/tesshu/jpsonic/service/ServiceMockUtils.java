@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
+import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.api.repository.TranscodingDao;
@@ -37,20 +38,33 @@ public final class ServiceMockUtils {
     public static final String ADMIN_NAME = "admin";
 
     private static final List<Transcoding> DEFAULT_TRANSCODINGS = Arrays
-        .asList(new Transcoding(0, "mp3 audio",
-                "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
-                "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, true),
-                new Transcoding(1, "flv/h264 video",
+        .asList(new Transcoding(0, Transcodings.MP3.getName(),
+                "mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
+                "ffmpeg -v fatal -i %s -map 0:a:0 -b:a %bk -id3v2_version 3 -f mp3 -", null, null,
+                true),
+                new Transcoding(1, Transcodings.OPUS.getName(),
+                        "mp3 opus ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "opus",
+                        "ffmpeg -v fatal -i %s -map 0:a:0 -c:a libopus -b:a %bk -vbr constrained -f ogg -",
+                        null, null, true),
+
+                new Transcoding(2, Transcodings.FLAC.getName(), "flac dff dsf", "flac",
+                        "ffmpeg -v fatal -i %s -map 0:0 -vn -c:a flac -sample_fmt s16 -ar 44100 -ac 2 -f flac -",
+                        null, null, true),
+
+                new Transcoding(3, Transcodings.PCM.getName(), "flac", "wav",
+                        "ffmpeg -v fatal -nostats -i %s -vn -c:a pcm_s16le -f wav -", null, null,
+                        true),
+                new Transcoding(4, Transcodings.MP4.getName(),
+                        "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts", "mp4",
+                        "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
+                        null, null, true),
+                new Transcoding(5, Transcodings.FLV.getName(),
                         "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
                         "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",
                         null, null, true),
-                new Transcoding(2, "mkv video", "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts",
-                        "mkv",
+                new Transcoding(6, Transcodings.MKV.getName(),
+                        "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "mkv",
                         "ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -",
-                        null, null, true),
-                new Transcoding(3, "mp4/h264 video",
-                        "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts", "mp4",
-                        "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
                         null, null, true));
 
     private ServiceMockUtils() {

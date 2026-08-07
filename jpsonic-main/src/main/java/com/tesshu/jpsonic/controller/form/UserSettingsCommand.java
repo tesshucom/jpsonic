@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.controller.form;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.UserSettingsController;
-import com.tesshu.jpsonic.domain.system.TranscodeScheme;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 
@@ -50,7 +50,7 @@ public class UserSettingsCommand extends SettingsPageCommons {
     private boolean adminRole;
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds;
-    private TranscodeScheme transcodeScheme;
+    private BitRateLimit bitRateLimit;
     private boolean transcodingSupported;
     private boolean settingsRole;
     private boolean streamRole;
@@ -184,12 +184,12 @@ public class UserSettingsCommand extends SettingsPageCommons {
         }
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public BitRateLimit getBitRateLimit() {
+        return bitRateLimit;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
+    public void setBitRateLimit(BitRateLimit bitRateLimit) {
+        this.bitRateLimit = bitRateLimit;
     }
 
     public boolean isTranscodingSupported() {

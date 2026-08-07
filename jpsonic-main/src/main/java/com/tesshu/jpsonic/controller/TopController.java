@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
@@ -47,7 +48,6 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -83,13 +83,13 @@ public class TopController {
     private final UserService userService;
     private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
-    private final VersionService versionService;
+    private final BuildInfoProvider buildInfoProvider;
     private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
     public TopController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
             UserService userService, ScannerStateService scannerStateService,
-            MusicIndexService musicIndexService, VersionService versionService,
+            MusicIndexService musicIndexService, BuildInfoProvider buildInfoProvider,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsFacade = settingsFacade;
@@ -97,7 +97,7 @@ public class TopController {
         this.userService = userService;
         this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
-        this.versionService = versionService;
+        this.buildInfoProvider = buildInfoProvider;
         this.internetRadioService = internetRadioService;
         this.localeResolver = localeResolver;
     }
@@ -149,14 +149,9 @@ public class TopController {
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
 
         if (userSettings.isFinalVersionNotificationEnabled()
-                && versionService.isNewFinalVersionAvailable()) {
+                && buildInfoProvider.isNewVersionAvailable()) {
             map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestFinalVersion());
-
-        } else if (userSettings.isBetaVersionNotificationEnabled()
-                && versionService.isNewBetaVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestBetaVersion());
+            map.put("latestVersion", buildInfoProvider.getLatestVersion());
         }
         map.put("brand", EnvironmentProvider.getInstance().getBrand());
 

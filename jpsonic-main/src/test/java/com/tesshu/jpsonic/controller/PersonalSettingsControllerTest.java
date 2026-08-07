@@ -109,7 +109,6 @@ class PersonalSettingsControllerTest {
         assertTrue(command.isAutoHidePlayQueue());
         assertEquals(-1, command.getAvatarId());
         assertEquals(30, command.getAvatars().size());
-        assertFalse(command.isBetaVersionNotificationEnabled());
         assertTrue(command.isBreadcrumbIndex());
         assertFalse(command.isCloseDrawer());
         assertTrue(command.isClosePlayQueue());
