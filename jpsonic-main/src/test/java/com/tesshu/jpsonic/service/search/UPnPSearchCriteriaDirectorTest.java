@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -42,7 +43,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -232,7 +232,7 @@ public class UPnPSearchCriteriaDirectorTest {
     }
 
     private SettingsFacade settingsFacade;
-    private UpnpProcessorUtil util;
+    private UPnPProcessorUtil util;
     private MusicFolderService musicFolderService;
     private UPnPSearchCriteriaDirector director;
 
@@ -271,7 +271,7 @@ public class UPnPSearchCriteriaDirectorTest {
         path = path.trim();
         fid = fid.trim();
 
-        util = new UpnpProcessorUtil(musicFolderService, mock(UserService.class), settingsFacade,
+        util = new UPnPProcessorUtil(musicFolderService, mock(UserService.class), settingsFacade,
                 null);
         director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
                 util.getGuestFolders(),
