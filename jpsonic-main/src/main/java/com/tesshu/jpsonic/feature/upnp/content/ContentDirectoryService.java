@@ -29,11 +29,11 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteria;
+import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.QueryFactory;
-import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
-import com.tesshu.jpsonic.service.search.UPnPSearchCriteriaDirector;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.contentdirectory.AbstractContentDirectoryService;
@@ -69,16 +69,16 @@ class ContentDirectoryService extends AbstractContentDirectoryService implements
     private final UPnPContentProcessorResolver uPnPContentProcessorResolver;
     private final UPnPProcessorUtil uPnPProcessorUtil;
     private final QueryFactory queryFactory;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
 
     ContentDirectoryService(UPnPContentProcessorResolver uPnPContentProcessorResolver,
             UPnPProcessorUtil uPnPProcessorUtil, QueryFactory queryFactory,
-            SearchService searchService) {
+            MediaSearchProvider mediaSearchProvider) {
         super(Arrays.asList("*"), Collections.emptyList());
         this.uPnPContentProcessorResolver = uPnPContentProcessorResolver;
         this.uPnPProcessorUtil = uPnPProcessorUtil;
         this.queryFactory = queryFactory;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
     }
 
     ProcId getProcId(@NonNull String objectId) {
@@ -155,6 +155,6 @@ class ContentDirectoryService extends AbstractContentDirectoryService implements
         SearchResultProcessor<?> searchResultProcessor = uPnPContentProcessorResolver
             .findSearchResultProcessor(searchResultProcId);
 
-        return searchResultProcessor.toBrowseResult(searchService.search(criteria));
+        return searchResultProcessor.toBrowseResult(mediaSearchProvider.search(criteria));
     }
 }

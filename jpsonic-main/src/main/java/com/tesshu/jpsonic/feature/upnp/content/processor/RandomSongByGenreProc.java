@@ -25,10 +25,10 @@ import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.SearchService;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
 
@@ -38,15 +38,15 @@ class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
     private final SettingsFacade settingsFacade;
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
 
     RandomSongByGenreProc(SettingsFacade settingsFacade, UPnPProcessorUtil util,
-            UPnPDIDLFactory factory, SearchService searchService) {
-        super(settingsFacade, util, factory, searchService);
+            UPnPDIDLFactory factory, MediaSearchProvider mediaSearchProvider) {
+        super(settingsFacade, util, factory, mediaSearchProvider);
         this.settingsFacade = settingsFacade;
         this.util = util;
         this.factory = factory;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
     }
 
     @Override
@@ -64,7 +64,7 @@ class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
         int offset = (int) firstResult;
         int max = getChildSizeOf(genre);
         int count = toCount(firstResult, maxResults, max);
-        return searchService
+        return mediaSearchProvider
             .getRandomSongs(count, offset, max, util.getGuestFolders(), genre.getName());
     }
 

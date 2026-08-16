@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Component;
 public class JpsonicComparatorsTestUtils {
 
     @Autowired
-    private JapaneseReadingUtils utils;
+    private JapaneseReadingProcessor proc;
 
     /*
      * Dictionary order that Japanese feel natural.
@@ -94,7 +95,7 @@ public class JpsonicComparatorsTestUtils {
         file.setTitle(name);
         file.setPathString(name);
         file.setMediaType(MediaType.DIRECTORY);
-        utils.analyze(file);
+        proc.analyze(file);
         return file;
     };
 
@@ -144,7 +145,7 @@ public class JpsonicComparatorsTestUtils {
         file.setPathString(name);
         file.setMediaType(MediaType.MUSIC);
 
-        utils.analyze(file);
+        proc.analyze(file);
 
         return file;
     };
@@ -178,7 +179,7 @@ public class JpsonicComparatorsTestUtils {
         file.setPathString(name);
         file.setMediaType(MediaType.ALBUM);
 
-        utils.analyze(file);
+        proc.analyze(file);
 
         return file;
     };

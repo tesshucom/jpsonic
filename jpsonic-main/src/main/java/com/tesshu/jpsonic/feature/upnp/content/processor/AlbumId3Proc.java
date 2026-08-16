@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.SearchResultProcessor;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
@@ -30,7 +31,6 @@ import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -97,11 +97,11 @@ class AlbumId3Proc extends DirectChildrenContentProc<Album, MediaFile>
     }
 
     @Override
-    public final BrowseResult toBrowseResult(ParamSearchResult<Album> searchResult) {
+    public final BrowseResult toBrowseResult(SearchResult<Album> searchResult) {
         DIDLContent parent = new DIDLContent();
         try {
-            searchResult.getItems().forEach(album -> addDirectChild(parent, album));
-            return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
+            searchResult.items().forEach(album -> addDirectChild(parent, album));
+            return createBrowseResult(parent, (int) parent.getCount(), searchResult.totalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return null;

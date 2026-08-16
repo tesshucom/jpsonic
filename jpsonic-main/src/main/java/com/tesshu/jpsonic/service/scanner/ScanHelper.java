@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -20,7 +21,6 @@ import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.entity.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;

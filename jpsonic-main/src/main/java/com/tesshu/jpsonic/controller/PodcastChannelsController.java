@@ -29,12 +29,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;

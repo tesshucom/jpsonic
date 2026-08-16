@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FArtistOrSong
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrArtistLogic;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -49,7 +50,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ class RandomSongByFolderArtistProcTest {
 
         private UPnPProcessorUtil util;
         private ArtistDao artistDao;
-        private SearchService searchService;
+        private MediaSearchProvider mediaSearchProvider;
         private SettingsFacade settingsFacade;
         private FolderOrArtistLogic folderOrArtistProc;
         private RandomSongByFolderArtistProc proc;
@@ -74,14 +74,14 @@ class RandomSongByFolderArtistProcTest {
         void setup() {
             util = mock(UPnPProcessorUtil.class);
             artistDao = mock(ArtistDao.class);
-            searchService = mock(SearchService.class);
+            mediaSearchProvider = mock(MediaSearchProvider.class);
             settingsFacade = SettingsFacadeBuilder.create().build();
             UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade,
                     mock(UpnpPayloadCodec.class), mock(MediaFileService.class),
                     mock(MediaFileProvider.class), mock(PlayerProvider.class),
                     mock(TranscodingParametersPlanner.class));
             folderOrArtistProc = new FolderOrArtistLogic(util, factory, artistDao);
-            proc = new RandomSongByFolderArtistProc(util, factory, artistDao, searchService,
+            proc = new RandomSongByFolderArtistProc(util, factory, artistDao, mediaSearchProvider,
                     settingsFacade, folderOrArtistProc);
         }
 
@@ -102,7 +102,7 @@ class RandomSongByFolderArtistProcTest {
 
             assertEquals(0, proc.getChildren(folderOrArtist, 0, 2).size());
             Mockito
-                .verify(searchService, Mockito.times(1))
+                .verify(mediaSearchProvider, Mockito.times(1))
                 .getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(), anyList());
         }
 
@@ -138,7 +138,7 @@ class RandomSongByFolderArtistProcTest {
             artistOrSong = new FArtistOrSong(song);
 
             proc = new RandomSongByFolderArtistProc(util, mock(UPnPDIDLFactory.class), artistDao,
-                    searchService, settingsFacade, folderOrArtistProc);
+                    mediaSearchProvider, settingsFacade, folderOrArtistProc);
             assertEquals(0, content.getItems().size());
             proc.addChild(content, artistOrSong);
             assertEquals(1, content.getItems().size());

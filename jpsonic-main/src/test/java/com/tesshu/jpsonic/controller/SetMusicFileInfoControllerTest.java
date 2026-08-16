@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -33,13 +35,11 @@ import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -78,7 +78,7 @@ class SetMusicFileInfoControllerTest {
                 mediaFileDao, scannerStateService, mock(MediaFileService.class),
                 mock(AlbumDao.class), mock(MediaFileCache.class), mock(MusicParser.class),
                 mock(VideoParser.class), settingsFacade, mock(LibraryAccessPolicy.class),
-                new ScanningExclusionPolicy(settingsFacade), mock(JapaneseReadingUtils.class),
+                new ScanningExclusionPolicy(settingsFacade), mock(JapaneseReadingProcessor.class),
                 mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

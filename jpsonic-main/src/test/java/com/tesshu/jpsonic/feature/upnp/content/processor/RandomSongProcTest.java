@@ -27,11 +27,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ import org.mockito.Mockito;
 
 class RandomSongProcTest {
 
-    private SearchService searchService;
+    private MediaSearchProvider mediaSearchProvider;
     private SettingsFacade settingsFacade;
     private RandomSongProc proc;
 
@@ -53,9 +53,9 @@ class RandomSongProcTest {
 
     @Ignore
     void init() {
-        searchService = mock(SearchService.class);
+        mediaSearchProvider = mock(MediaSearchProvider.class);
         proc = new RandomSongProc(mock(UPnPProcessorUtil.class), mock(UPnPDIDLFactory.class),
-                mock(MediaFileService.class), searchService, settingsFacade);
+                mock(MediaFileService.class), mediaSearchProvider, settingsFacade);
     }
 
     @Test
@@ -79,7 +79,7 @@ class RandomSongProcTest {
         assertEquals(0, result.getCount().getValue());
         assertEquals(2, count.get());
         Mockito
-            .verify(searchService, Mockito.times(1))
+            .verify(mediaSearchProvider, Mockito.times(1))
             .getRandomSongs(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
                     ArgumentMatchers.<MusicFolder>anyList());
     }
@@ -88,7 +88,7 @@ class RandomSongProcTest {
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, 100).size());
         Mockito
-            .verify(searchService, Mockito.times(1))
+            .verify(mediaSearchProvider, Mockito.times(1))
             .getRandomSongs(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
                     ArgumentMatchers.<MusicFolder>anyList());
     }

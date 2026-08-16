@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.SearchResultProcessor;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
@@ -33,7 +34,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -125,11 +125,11 @@ class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFile>
     }
 
     @Override
-    public BrowseResult toBrowseResult(ParamSearchResult<MediaFile> searchResult) {
+    public BrowseResult toBrowseResult(SearchResult<MediaFile> searchResult) {
         DIDLContent parent = new DIDLContent();
         try {
-            searchResult.getItems().forEach(song -> addChild(parent, song));
-            return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
+            searchResult.items().forEach(song -> addChild(parent, song));
+            return createBrowseResult(parent, (int) parent.getCount(), searchResult.totalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return null;

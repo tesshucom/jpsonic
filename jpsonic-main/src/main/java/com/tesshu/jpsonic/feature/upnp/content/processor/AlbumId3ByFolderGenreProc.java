@@ -34,6 +34,8 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderGenreAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFGenre;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrGenreLogic;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -41,8 +43,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -57,18 +57,18 @@ class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
     private final SettingsFacade settingsFacade;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final AlbumDao albumDao;
     private final FolderOrGenreLogic deligate;
 
     AlbumId3ByFolderGenreProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            SettingsFacade settingsFacade, SearchService searchService, AlbumDao albumDao,
-            FolderOrGenreLogic folderOrGenreLogic) {
+            SettingsFacade settingsFacade, MediaSearchProvider mediaSearchProvider,
+            AlbumDao albumDao, FolderOrGenreLogic folderOrGenreLogic) {
         super();
         this.util = util;
         this.factory = factory;
         this.settingsFacade = settingsFacade;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.albumDao = albumDao;
         this.deligate = folderOrGenreLogic;
     }
@@ -108,7 +108,7 @@ class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService
+            return mediaSearchProvider
                 .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
                 .stream()
                 .map(album -> new FolderGenreAlbum(folder, genre, album))
@@ -118,7 +118,7 @@ class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre
         MusicFolder folder = folderOrGenre.getFolder();
         GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(),
                 TYPES);
-        return searchService
+        return mediaSearchProvider
             .getGenres(criteria, offset, count)
             .stream()
             .map(genre -> new FolderGenre(folder, genre))
@@ -135,7 +135,7 @@ class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre
         String genre = compositeAlbum.genre().getName();
         Album album = compositeAlbum.album();
         MusicFolder folder = compositeAlbum.folder();
-        int childCount = searchService.getChildSizeOf(genre, album, asList(folder), types);
+        int childCount = mediaSearchProvider.getChildSizeOf(genre, album, asList(folder), types);
         parent.addContainer(factory.toAlbum(compositeAlbum, childCount));
     }
 
@@ -161,9 +161,9 @@ class AlbumId3ByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre
             .orElseGet(null);
         Album album = albumDao.getAlbum(FolderGenreAlbum.parseAlbumId(fgaId));
         String genre = FolderGenreAlbum.parseGenreName(fgaId);
-        List<MediaFile> songs = searchService
+        List<MediaFile> songs = mediaSearchProvider
             .getChildrenOf(genre, album, (int) offset, (int) maxLength, asList(folder), TYPES);
-        int childSize = searchService.getChildSizeOf(genre, album, asList(folder), TYPES);
+        int childSize = mediaSearchProvider.getChildSizeOf(genre, album, asList(folder), TYPES);
         DIDLContent parent = new DIDLContent();
         songs.stream().forEach(song -> parent.addItem(factory.toMusicTrack(song)));
         return createBrowseResult(parent, songs.size(), childSize);

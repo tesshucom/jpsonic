@@ -45,6 +45,8 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -55,12 +57,10 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -127,7 +127,7 @@ public class WritableMediaFileService {
     private final SettingsFacade settingsFacade;
     private final LibraryAccessPolicy libraryAccessPolicy;
     private final ScanningExclusionPolicy scanningExclusionPolicy;
-    private final JapaneseReadingUtils readingUtils;
+    private final JapaneseReadingProcessor readingProcessor;
     private final IndexManager indexManager;
     private final MusicIndexServiceImpl musicIndexService;
 
@@ -136,8 +136,9 @@ public class WritableMediaFileService {
             AlbumDao albumDao, MediaFileCache mediaFileCache, MusicParser musicParser,
             VideoParser videoParser, SettingsFacade settingsFacade,
             LibraryAccessPolicy libraryAccessPolicy,
-            ScanningExclusionPolicy scanningExclusionPolicy, JapaneseReadingUtils readingUtils,
-            IndexManager indexManager, MusicIndexServiceImpl musicIndexService) {
+            ScanningExclusionPolicy scanningExclusionPolicy,
+            JapaneseReadingProcessor readingProcessor, IndexManager indexManager,
+            MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -149,7 +150,7 @@ public class WritableMediaFileService {
         this.settingsFacade = settingsFacade;
         this.libraryAccessPolicy = libraryAccessPolicy;
         this.scanningExclusionPolicy = scanningExclusionPolicy;
-        this.readingUtils = readingUtils;
+        this.readingProcessor = readingProcessor;
         this.indexManager = indexManager;
         this.musicIndexService = musicIndexService;
     }
@@ -473,12 +474,12 @@ public class WritableMediaFileService {
             to.setComposer(metaData.getComposer());
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
-            readingUtils.analyze(to);
+            readingProcessor.analyze(to);
             to.setLastScanned(scanDate);
         } else if (videoParser.isApplicable(path)) {
             to.setLastScanned(FAR_FUTURE);
         } else {
-            readingUtils.analyze(to);
+            readingProcessor.analyze(to);
             to.setLastScanned(scanDate);
         }
 
@@ -572,7 +573,7 @@ public class WritableMediaFileService {
             // registered.setComposerSort(metaData.getComposerSort());
             // registered.setComposerSortRaw(metaData.getComposerSort());
         }
-        readingUtils.analyze(registered);
+        readingProcessor.analyze(registered);
         registered.setLastScanned(scanDate);
         return registered;
     }

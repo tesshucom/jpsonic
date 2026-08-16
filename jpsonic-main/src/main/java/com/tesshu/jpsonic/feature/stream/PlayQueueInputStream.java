@@ -32,11 +32,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
@@ -60,7 +60,7 @@ public class PlayQueueInputStream extends InputStream {
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
     private final WritableMediaFileService writableMediaFileService;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final AsyncTaskExecutor executor;
 
     private AtomicReference<MediaFile> currentFile;
@@ -69,15 +69,15 @@ public class PlayQueueInputStream extends InputStream {
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate,
             String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings,
             TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
-            WritableMediaFileService writableMediaFileService, SearchService searchService,
-            AsyncTaskExecutor executor) {
+            WritableMediaFileService writableMediaFileService,
+            MediaSearchProvider mediaSearchProvider, AsyncTaskExecutor executor) {
         super();
         this.player = player;
         this.status = status;
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
         this.writableMediaFileService = writableMediaFileService;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.executor = executor;
         transParam = transcodingService
             .getParameters(player.getPlayQueue().getCurrentFile(), player, maxBitRate,
@@ -188,7 +188,8 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     protected void populateRandomPlaylist(PlayQueue playQueue) {
-        List<MediaFile> files = searchService.getRandomSongs(playQueue.getShuffleSelectionParam());
+        List<MediaFile> files = mediaSearchProvider
+            .getRandomSongs(playQueue.getShuffleSelectionParam());
         playQueue.addFiles(false, files);
         if (LOG.isInfoEnabled()) {
             LOG.info("Recreated random playlist with " + playQueue.size() + " songs.");

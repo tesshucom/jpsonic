@@ -26,12 +26,12 @@ import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -41,17 +41,17 @@ import org.springframework.stereotype.Controller;
 class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     private final SettingsFacade settingsFacade;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final UPnPDIDLFactory factory;
     private final UPnPProcessorUtil util;
 
     AudiobookByGenreProc(SettingsFacade settingsFacade, UPnPProcessorUtil util,
-            UPnPDIDLFactory factory, SearchService searchService) {
+            UPnPDIDLFactory factory, MediaSearchProvider mediaSearchProvider) {
         super();
         this.settingsFacade = settingsFacade;
         this.util = util;
         this.factory = factory;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
     }
 
     private GenreMasterCriteria createGenreMasterCriteria() {
@@ -72,17 +72,17 @@ class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public List<Genre> getDirectChildren(long offset, long maxResults) {
-        return searchService.getGenres(createGenreMasterCriteria(), offset, maxResults);
+        return mediaSearchProvider.getGenres(createGenreMasterCriteria(), offset, maxResults);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return searchService.getGenresCount(createGenreMasterCriteria());
+        return mediaSearchProvider.getGenresCount(createGenreMasterCriteria());
     }
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService
+        return mediaSearchProvider
             .getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE)
             .stream()
             .filter(genre -> genre.getName().equals(id))
@@ -92,7 +92,7 @@ class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService
+        return mediaSearchProvider
             .getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
                     util.getGuestFolders(), MediaType.AUDIOBOOK);
     }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
@@ -36,7 +37,6 @@ import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;

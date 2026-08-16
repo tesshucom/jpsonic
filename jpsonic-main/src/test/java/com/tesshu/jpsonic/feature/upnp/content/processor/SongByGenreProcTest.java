@@ -46,6 +46,9 @@ import com.tesshu.jpsonic.domain.provider.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -54,11 +57,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
-import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -76,7 +76,7 @@ class SongByGenreProcTest {
         private SettingsFacade settingsFacade;
         private UPnPProcessorUtil util;
         private UPnPDIDLFactory factory;
-        private SearchService searchService;
+        private MediaSearchProvider mediaSearchProvider;
         private SongByGenreProc proc;
 
         @BeforeEach
@@ -85,10 +85,10 @@ class SongByGenreProcTest {
             factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
                     mock(MediaFileService.class), mock(MediaFileProvider.class),
                     mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
-            searchService = mock(SearchService.class);
+            mediaSearchProvider = mock(MediaSearchProvider.class);
             util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                     settingsFacade, mock(JpsonicComparators.class));
-            proc = new SongByGenreProc(settingsFacade, util, factory, searchService);
+            proc = new SongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
         }
 
         @Test
@@ -110,20 +110,21 @@ class SongByGenreProcTest {
         @Test
         void testGetDirectChildren() {
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(searchService, times(1))
+            verify(mediaSearchProvider, times(1))
                 .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         }
 
         @Test
         void testGetDirectChildrenCount() {
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(searchService, times(1)).getGenresCount(any(GenreMasterCriteria.class));
+            verify(mediaSearchProvider, times(1)).getGenresCount(any(GenreMasterCriteria.class));
         }
 
         @Test
         void testGetDirectChild() {
             Genre genre = new Genre("English/Japanese", 50, 100);
-            when(searchService.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
+            when(mediaSearchProvider
+                .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
                 .thenReturn(List.of(genre));
             assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
             assertNull(proc.getDirectChild("None"));
@@ -133,7 +134,7 @@ class SongByGenreProcTest {
         void testGetChildren() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-            verify(searchService, times(1))
+            verify(mediaSearchProvider, times(1))
                 .getSongsByGenres(anyString(), anyInt(), anyInt(), anyList());
         }
 
@@ -148,7 +149,7 @@ class SongByGenreProcTest {
             DIDLContent content = new DIDLContent();
             MediaFile song = new MediaFile();
             factory = mock(UPnPDIDLFactory.class);
-            proc = new SongByGenreProc(settingsFacade, util, factory, searchService);
+            proc = new SongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());

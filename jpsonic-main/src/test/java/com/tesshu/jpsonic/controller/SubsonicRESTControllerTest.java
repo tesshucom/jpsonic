@@ -48,6 +48,9 @@ import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -77,14 +80,12 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.JAXB;
 import org.awaitility.Awaitility;
@@ -168,7 +169,8 @@ class SubsonicRESTControllerTest {
             final AudioScrobblerService audioScrobblerService = mock(AudioScrobblerService.class);
             podcastService = mock(PodcastService.class);
             final RatingService ratingService = mock(RatingService.class);
-            final SearchService searchService = mock(SearchService.class);
+            final LegacySearch legacySearch = mock(LegacySearch.class);
+            final MediaSearchProvider mediaSearchProvider = mock(MediaSearchProvider.class);
             final InternetRadioService internetRadioService = mock(InternetRadioService.class);
             final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
             final ArtistDao artistDao = mock(ArtistDao.class);
@@ -185,9 +187,10 @@ class SubsonicRESTControllerTest {
                     transcodingService, downloadController, coverArtController, avatarController,
                     userSettingsController, topController, statusService, streamController,
                     hlsController, shareService, playlistService, lyricsService,
-                    audioScrobblerService, podcastService, ratingService, searchService,
-                    internetRadioService, mediaFileDao, artistDao, albumDao, bookmarkService,
-                    playQueueDao, mediaScannerService, airsonicLocaleResolver, director);
+                    audioScrobblerService, podcastService, ratingService, mediaSearchProvider,
+                    legacySearch, internetRadioService, mediaFileDao, artistDao, albumDao,
+                    bookmarkService, playQueueDao, mediaScannerService, airsonicLocaleResolver,
+                    director);
         }
 
         @Test

@@ -35,10 +35,10 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ import org.springframework.util.ObjectUtils;
 class MediaScannerServiceImplGenreCRUDTest extends AbstractNeedsScan {
 
     @Autowired
-    private SearchService searchService;
+    private MediaSearchProvider mediaSearchProvider;
 
     @TempDir
     private Path tempDir;
@@ -94,7 +94,7 @@ class MediaScannerServiceImplGenreCRUDTest extends AbstractNeedsScan {
         // Test CR
         GenreMasterCriteria criteria = new GenreMasterCriteria(folders, GenreMasterScope.ALBUM,
                 GenreMasterSort.NAME);
-        List<Genre> genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
+        List<Genre> genres = mediaSearchProvider.getGenres(criteria, 0, Integer.MAX_VALUE);
         assertEquals(14, genres.size());
         assertEquals("Audiobook - Historical", genres.get(0).getName());
         assertEquals(1, genres.get(0).getAlbumCount());
@@ -132,7 +132,7 @@ class MediaScannerServiceImplGenreCRUDTest extends AbstractNeedsScan {
         TestCaseUtils.execScan(mediaScannerService);
 
         // Deleting a file will reduce the number of genres by 2.
-        genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
+        genres = mediaSearchProvider.getGenres(criteria, 0, Integer.MAX_VALUE);
         assertEquals(12, genres.size());
 
         assertEquals("Audiobook - Historical", genres.get(0).getName());
@@ -180,7 +180,7 @@ class MediaScannerServiceImplGenreCRUDTest extends AbstractNeedsScan {
         TestCaseUtils.execScan(mediaScannerService);
 
         // Deleting a file will reduce the number of genres by 2.
-        genres = searchService.getGenres(criteria, 0, Integer.MAX_VALUE);
+        genres = mediaSearchProvider.getGenres(criteria, 0, Integer.MAX_VALUE);
         assertEquals(13, genres.size());
 
         assertEquals("Audiobook - Historical", genres.get(0).getName());

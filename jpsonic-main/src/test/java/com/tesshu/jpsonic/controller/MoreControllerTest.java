@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,13 +56,13 @@ class MoreControllerTest {
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        SearchService searchService = mock(SearchService.class);
+        MediaSearchProvider mediaSearchProvider = mock(MediaSearchProvider.class);
         PlayerService playerService = mock(PlayerService.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(
-                    new MoreController(musicFolderService, mock(UserService.class), searchService))
+            .standaloneSetup(new MoreController(musicFolderService, mock(UserService.class),
+                    mediaSearchProvider))
             .build();
-        Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
+        Mockito.when(mediaSearchProvider.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito
             .when(playerService.getPlayer(Mockito.any(), Mockito.any()))
             .thenReturn(new Player());

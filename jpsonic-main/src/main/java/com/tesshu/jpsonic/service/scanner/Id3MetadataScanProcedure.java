@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -35,7 +36,6 @@ import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;

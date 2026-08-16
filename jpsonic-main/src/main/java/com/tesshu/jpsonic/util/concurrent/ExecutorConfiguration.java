@@ -151,7 +151,7 @@ public class ExecutorConfiguration {
 
     /**
      * @see org.jupnp.DefaultUpnpServiceConfiguration.JUPnPExecutor
-     * @see com.tesshu.jpsonic.service.upnp.transport.UpnpServiceConfigurationAdapter
+     * @see com.tesshu.jpsonic.feature.upnp.transport.UpnpServiceConfigurationAdapter
      */
     @Lazy
     @Bean

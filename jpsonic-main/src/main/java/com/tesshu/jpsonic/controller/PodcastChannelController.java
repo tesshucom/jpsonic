@@ -26,10 +26,10 @@ import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;

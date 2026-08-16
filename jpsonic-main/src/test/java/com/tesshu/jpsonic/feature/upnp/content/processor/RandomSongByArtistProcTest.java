@@ -48,6 +48,8 @@ import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -56,8 +58,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -78,7 +78,7 @@ class RandomSongByArtistProcTest {
         private UPnPProcessorUtil util;
         private UPnPDIDLFactory factory;
         private ArtistDao artistDao;
-        private SearchService searchService;
+        private MediaSearchProvider mediaSearchProvider;
         private SettingsFacade settingsFacade;
 
         private RandomSongByArtistProc proc;
@@ -112,8 +112,8 @@ class RandomSongByArtistProcTest {
                     mock(MediaFileService.class), mock(MediaFileProvider.class),
                     mock(PlayerProvider.class), parametersPlanner);
             artistDao = mock(ArtistDao.class);
-            searchService = mock(SearchService.class);
-            proc = new RandomSongByArtistProc(util, factory, artistDao, searchService,
+            mediaSearchProvider = mock(MediaSearchProvider.class);
+            proc = new RandomSongByArtistProc(util, factory, artistDao, mediaSearchProvider,
                     settingsFacade);
         }
 
@@ -156,7 +156,7 @@ class RandomSongByArtistProcTest {
         @Test
         void testGetChildren() {
             assertEquals(0, proc.getChildren(new Artist(), 0, 0).size());
-            verify(searchService, times(1))
+            verify(mediaSearchProvider, times(1))
                 .getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(), anyList());
         }
 

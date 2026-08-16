@@ -32,12 +32,12 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FGenreOrSong;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFGenre;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrGenreLogic;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -49,15 +49,15 @@ class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FG
     static final MediaType[] TYPES = { MediaType.MUSIC };
 
     private final SettingsFacade settingsFacade;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final UPnPDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
 
-    SongByFolderGenreProc(SettingsFacade settingsFacade, SearchService searchService,
+    SongByFolderGenreProc(SettingsFacade settingsFacade, MediaSearchProvider mediaSearchProvider,
             UPnPDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
         super();
         this.settingsFacade = settingsFacade;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.factory = factory;
         this.deligate = folderOrGenreLogic;
     }
@@ -96,7 +96,7 @@ class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FG
         if (folderOrGenre.isFolderGenre()) {
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
-            return searchService
+            return mediaSearchProvider
                 .getSongsByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
                 .stream()
                 .map(FGenreOrSong::new)
@@ -105,7 +105,7 @@ class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FG
         MusicFolder folder = folderOrGenre.getFolder();
         GenreMasterCriteria criteria = new GenreMasterCriteria(asList(folder), SCOPE, getSort(),
                 TYPES);
-        return searchService
+        return mediaSearchProvider
             .getGenres(criteria, offset, count)
             .stream()
             .map(genre -> new FolderGenre(folder, genre))

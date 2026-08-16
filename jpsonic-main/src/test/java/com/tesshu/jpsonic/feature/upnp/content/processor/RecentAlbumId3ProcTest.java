@@ -39,11 +39,11 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

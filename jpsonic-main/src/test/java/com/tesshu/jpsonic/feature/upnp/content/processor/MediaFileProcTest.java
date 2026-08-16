@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
@@ -55,7 +56,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -489,9 +489,7 @@ class MediaFileProcTest {
             List<MediaFile> songs = mediaFileProc.getChildren(album, 0, Integer.MAX_VALUE);
             MediaFile song = songs.get(0);
 
-            ParamSearchResult<MediaFile> searchResult = new ParamSearchResult<>();
-            searchResult.getItems().add(song);
-
+            SearchResult<MediaFile> searchResult = new SearchResult<>(song);
             BrowseResult browseResult = mediaFileProc.toBrowseResult(searchResult);
             assertTrue(browseResult.getResult().startsWith("""
                     <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \

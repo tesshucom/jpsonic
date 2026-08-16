@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -39,7 +40,6 @@ import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -255,8 +255,7 @@ class ArtistProcTest extends AbstractNeedsScan {
     @Test
     void testToBrowseResult() {
         Artist artist = proc.getDirectChildren(0, 1).get(0);
-        ParamSearchResult<Artist> searchResult = new ParamSearchResult<>();
-        searchResult.getItems().add(artist);
+        SearchResult<Artist> searchResult = new SearchResult<>(artist);
         BrowseResult browseResult = proc.toBrowseResult(searchResult);
         assertEquals(
                 """

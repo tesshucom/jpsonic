@@ -30,10 +30,10 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FArtistOrSong
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrArtistLogic;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.SearchService;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -45,18 +45,18 @@ class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFAr
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
     private final ArtistDao artistDao;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
     private final FolderOrArtistLogic deligate;
 
     RandomSongByFolderArtistProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            ArtistDao artistDao, SearchService searchService, SettingsFacade settingsFacade,
-            FolderOrArtistLogic folderOrArtistLogic) {
+            ArtistDao artistDao, MediaSearchProvider mediaSearchProvider,
+            SettingsFacade settingsFacade, FolderOrArtistLogic folderOrArtistLogic) {
         super();
         this.util = util;
         this.factory = factory;
         this.artistDao = artistDao;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
         this.deligate = folderOrArtistLogic;
     }
@@ -93,7 +93,7 @@ class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFAr
         if (folderOrArtist.isFolderArtist()) {
             int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
             int count = toCount(firstResult, maxResults, randomMax);
-            return searchService
+            return mediaSearchProvider
                 .getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,
                         randomMax, util.getGuestFolders())
                 .stream()

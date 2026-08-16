@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.transcoding.Transcodings;
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -32,7 +33,6 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;

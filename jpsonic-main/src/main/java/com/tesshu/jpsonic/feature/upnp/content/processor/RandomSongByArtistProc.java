@@ -25,11 +25,11 @@ import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.SearchService;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;
@@ -42,16 +42,16 @@ class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
     private final ArtistDao artistDao;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
 
     RandomSongByArtistProc(UPnPProcessorUtil util, UPnPDIDLFactory factory, ArtistDao artistDao,
-            SearchService searchService, SettingsFacade settingsFacade) {
+            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade) {
         super();
         this.util = util;
         this.factory = factory;
         this.artistDao = artistDao;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
     }
 
@@ -88,7 +88,7 @@ class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile
         int offset = (int) firstResult;
         int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
         int count = toCount(firstResult, maxResults, randomMax);
-        return searchService
+        return mediaSearchProvider
             .getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
     }
 

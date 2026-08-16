@@ -25,25 +25,25 @@ import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class RandomSongProc extends MediaFileByFolderProc implements CountLimitProc {
 
     private final UPnPProcessorUtil util;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
 
     RandomSongProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, SearchService searchService,
+            MediaFileService mediaFileService, MediaSearchProvider mediaSearchProvider,
             SettingsFacade settingsFacade) {
         super(util, factory, mediaFileService);
         this.util = util;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
     }
 
@@ -57,7 +57,7 @@ class RandomSongProc extends MediaFileByFolderProc implements CountLimitProc {
         int offset = (int) firstResult;
         int max = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, max);
-        return searchService.getRandomSongs(count, offset, max, util.getGuestFolders());
+        return mediaSearchProvider.getRandomSongs(count, offset, max, util.getGuestFolders());
     }
 
     @Override

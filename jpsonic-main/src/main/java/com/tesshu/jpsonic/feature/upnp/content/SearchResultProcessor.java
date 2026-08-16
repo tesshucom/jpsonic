@@ -1,6 +1,6 @@
 package com.tesshu.jpsonic.feature.upnp.content;
 
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import org.jupnp.support.model.BrowseResult;
 
 /**
@@ -17,5 +17,5 @@ import org.jupnp.support.model.BrowseResult;
 @FunctionalInterface
 public interface SearchResultProcessor<T> {
 
-    BrowseResult toBrowseResult(ParamSearchResult<T> searchResult);
+    BrowseResult toBrowseResult(SearchResult<T> searchResult);
 }

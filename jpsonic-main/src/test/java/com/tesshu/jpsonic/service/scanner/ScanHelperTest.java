@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -37,9 +39,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -223,9 +223,9 @@ class ScanHelperTest {
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
-        JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
+        JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
         JpsonicComparators comparators = new JpsonicComparators(settingsFacade, serverLocaleService,
-                readingUtils);
+                proc);
         WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
 
         ArgumentCaptor<MediaFile> captor = ArgumentCaptor.forClass(MediaFile.class);

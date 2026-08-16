@@ -30,13 +30,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.search.ParamSearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -208,8 +208,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
     @Test
     void testToBrowseResult() {
         Album album = proc.getDirectChildren(0, 1).get(0);
-        ParamSearchResult<Album> searchResult = new ParamSearchResult<>();
-        searchResult.getItems().add(album);
+        SearchResult<Album> searchResult = new SearchResult<>(album);
         BrowseResult browseResult = proc.toBrowseResult(searchResult);
         assertTrue(browseResult.getResult().startsWith("""
                 <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \

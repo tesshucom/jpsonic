@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
@@ -34,7 +35,6 @@ import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate;
 import com.tesshu.jpsonic.persistence.result.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.persistence.result.DuplicateSort;
 import com.tesshu.jpsonic.persistence.result.SortCandidate;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
@@ -68,19 +68,19 @@ public class SortProcedureService {
     private static final int SINGLE_FIELD_UPDATE_FOR_ROW = 1;
 
     private final MediaFileDao mediaFileDao;
-    private final JapaneseReadingUtils utils;
+    private final JapaneseReadingProcessor readingProcessor;
     private final MusicIndexServiceImpl musicIndexService;
 
-    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils,
-            MusicIndexServiceImpl musicIndexService) {
+    public SortProcedureService(MediaFileDao mediaFileDao,
+            JapaneseReadingProcessor readingProcessor, MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
-        this.utils = utils;
+        this.readingProcessor = readingProcessor;
         this.musicIndexService = musicIndexService;
     }
 
     void clearMemoryCache() {
-        utils.clear();
+        readingProcessor.clear();
     }
 
     private void repeatWait() {
@@ -93,31 +93,31 @@ public class SortProcedureService {
 
     List<Integer> compensateSortOfAlbum(List<MusicFolder> folders) {
         List<SortCandidate> cands = mediaFileDao.getNoSortAlbums(folders);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateAlbumSort(cands);
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {
         List<ArtistSortCandidate> cands = mediaFileDao.getNoSortPersons(folders);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateArtistSort(cands);
     }
 
     List<Integer> copySortOfAlbum(List<MusicFolder> folders) {
         List<SortCandidate> cands = mediaFileDao.getCopyableSortAlbums(folders);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateAlbumSort(cands);
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {
         List<ArtistSortCandidate> cands = mediaFileDao.getCopyableSortPersons(folders);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateArtistSort(cands);
     }
 
     List<Integer> mergeSortOfAlbum(List<MusicFolder> folders) {
         List<SortCandidate> cands = mediaFileDao.getDuplicateSortAlbums(folders);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateAlbumSort(cands);
     }
 
@@ -127,7 +127,7 @@ public class SortProcedureService {
             return Collections.emptyList();
         }
         List<ArtistSortCandidate> cands = mediaFileDao.getSortCandidatePersons(dups);
-        cands.forEach(utils::analyze);
+        cands.forEach(readingProcessor::analyze);
         return updateArtistSort(cands);
     }
 

@@ -30,11 +30,11 @@ import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderGenre;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFGenre;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.GenreContainer;
@@ -45,14 +45,14 @@ public class FolderOrGenreLogic {
 
     private static final int SINGLE_FOLDER = 1;
 
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
 
-    public FolderOrGenreLogic(SearchService searchService, UPnPProcessorUtil util,
+    public FolderOrGenreLogic(MediaSearchProvider mediaSearchProvider, UPnPProcessorUtil util,
             UPnPDIDLFactory factory) {
         super();
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.util = util;
         this.factory = factory;
     }
@@ -82,7 +82,7 @@ public class FolderOrGenreLogic {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
-            return searchService
+            return mediaSearchProvider
                 .getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), offset,
                         count)
                 .stream()
@@ -97,7 +97,7 @@ public class FolderOrGenreLogic {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
             MusicFolder folder = folders.get(0);
-            return searchService
+            return mediaSearchProvider
                 .getGenresCount(new GenreMasterCriteria(asList(folder), scope, sort, types));
         }
         return folders.size();
@@ -113,7 +113,7 @@ public class FolderOrGenreLogic {
             .findFirst()
             .orElseGet(null);
         String genreName = FolderGenre.parseGenreName(folderGenreId);
-        Genre genre = searchService
+        Genre genre = mediaSearchProvider
             .getGenres(new GenreMasterCriteria(asList(folder), scope, sort, types), 0,
                     Integer.MAX_VALUE)
             .stream()
@@ -151,7 +151,7 @@ public class FolderOrGenreLogic {
 
     private int getChildSizeOf(MusicFolder musicFolder, GenreMasterScope scope,
             GenreMasterSort sort, MediaType... types) {
-        return searchService
+        return mediaSearchProvider
             .getGenresCount(new GenreMasterCriteria(asList(musicFolder), scope, sort, types));
     }
 

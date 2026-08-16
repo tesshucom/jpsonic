@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
@@ -40,8 +42,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

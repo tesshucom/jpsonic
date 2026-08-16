@@ -24,11 +24,11 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -43,16 +43,16 @@ class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     private final UPnPProcessorUtil util;
     private final UPnPDIDLFactory factory;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final MediaFileService mediaFileService;
 
     AlbumByGenreProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, SearchService searchService) {
+            MediaFileService mediaFileService, MediaSearchProvider mediaSearchProvider) {
         super();
         this.util = util;
         this.factory = factory;
         this.mediaFileService = mediaFileService;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
     }
 
     @Override
@@ -67,17 +67,17 @@ class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public List<Genre> getDirectChildren(long offset, long maxResults) {
-        return searchService.getGenres(false, offset, maxResults);
+        return mediaSearchProvider.getGenres(false, offset, maxResults);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return searchService.getGenresCount(false);
+        return mediaSearchProvider.getGenresCount(false);
     }
 
     @Override
     public @Nullable Genre getDirectChild(String id) {
-        return searchService
+        return mediaSearchProvider
             .getGenres(false)
             .stream()
             .filter(genre -> genre.getName().equals(id))
@@ -87,7 +87,7 @@ class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long count) {
-        return searchService
+        return mediaSearchProvider
             .getAlbumsByGenres(item.getName(), (int) offset, (int) count, util.getGuestFolders());
     }
 

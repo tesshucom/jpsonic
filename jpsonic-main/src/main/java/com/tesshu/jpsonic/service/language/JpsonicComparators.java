@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -58,14 +59,14 @@ public class JpsonicComparators {
 
     private final SettingsFacade settingsFacade;
     private final ServerLocaleService serverLocaleService;
-    private final JapaneseReadingUtils utils;
+    private final JapaneseReadingProcessor processor;
 
     public JpsonicComparators(SettingsFacade settingsFacade,
-            ServerLocaleService serverLocaleService, JapaneseReadingUtils utils) {
+            ServerLocaleService serverLocaleService, JapaneseReadingProcessor processor) {
         super();
         this.serverLocaleService = serverLocaleService;
         this.settingsFacade = settingsFacade;
-        this.utils = utils;
+        this.processor = processor;
     }
 
     /**
@@ -119,7 +120,7 @@ public class JpsonicComparators {
     }
 
     public Comparator<Genre> genreOrderByAlpha() {
-        return new GenreComparator(utils, createCollator());
+        return new GenreComparator(processor, createCollator());
     }
 
     private boolean isSortAlbumsByYear(MediaFile parent) {
@@ -224,41 +225,41 @@ public class JpsonicComparators {
     }
 
     public Comparator<Playlist> playlistOrder() {
-        return new PlaylistComparator(utils, createCollator());
+        return new PlaylistComparator(processor, createCollator());
     }
 
     private static class GenreComparator implements Comparator<Genre> {
-        private final JapaneseReadingUtils utils;
+        private final JapaneseReadingProcessor processor;
         private final Collator collator;
 
-        GenreComparator(JapaneseReadingUtils utils, Collator collator) {
+        GenreComparator(JapaneseReadingProcessor processor, Collator collator) {
             super();
-            this.utils = utils;
+            this.processor = processor;
             this.collator = collator;
         }
 
         @Override
         public int compare(Genre o1, Genre o2) {
-            this.utils.analyze(o1);
-            this.utils.analyze(o2);
+            this.processor.analyze(o1);
+            this.processor.analyze(o2);
             return this.collator.compare(o1.getReading(), o2.getReading());
         }
     }
 
     private static class PlaylistComparator implements Comparator<Playlist> {
-        private final JapaneseReadingUtils utils;
+        private final JapaneseReadingProcessor processor;
         private final Collator collator;
 
-        PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
+        PlaylistComparator(JapaneseReadingProcessor processor, Collator collator) {
             super();
-            this.utils = utils;
+            this.processor = processor;
             this.collator = collator;
         }
 
         @Override
         public int compare(Playlist o1, Playlist o2) {
-            this.utils.analyze(o1);
-            this.utils.analyze(o2);
+            this.processor.analyze(o1);
+            this.processor.analyze(o2);
             return this.collator.compare(o1.getReading(), o2.getReading());
         }
     }

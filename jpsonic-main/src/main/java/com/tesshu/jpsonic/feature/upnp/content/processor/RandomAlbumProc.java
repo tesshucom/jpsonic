@@ -25,26 +25,26 @@ import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SearchService;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
 
     private final UPnPProcessorUtil util;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
 
     RandomAlbumProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, AlbumDao albumDao, SearchService searchService,
-            SettingsFacade settingsFacade) {
+            MediaFileService mediaFileService, AlbumDao albumDao,
+            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade) {
         super(util, factory, mediaFileService, albumDao);
         this.util = util;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
     }
 
@@ -63,6 +63,6 @@ class RandomAlbumProc extends AlbumId3Proc implements CountLimitProc {
         int offset = (int) firstResults;
         int max = getDirectChildrenCount();
         int count = toCount(firstResults, maxResults, max);
-        return searchService.getRandomAlbumsId3(count, offset, max, util.getGuestFolders());
+        return mediaSearchProvider.getRandomAlbumsId3(count, offset, max, util.getGuestFolders());
     }
 }

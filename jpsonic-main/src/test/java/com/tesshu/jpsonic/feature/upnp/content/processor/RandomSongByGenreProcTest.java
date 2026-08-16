@@ -35,13 +35,13 @@ import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.Ignore;
@@ -61,7 +61,7 @@ class RandomSongByGenreProcTest {
         private SettingsFacade settingsFacade;
         private UPnPProcessorUtil util;
         private UPnPDIDLFactory factory;
-        private SearchService searchService;
+        private MediaSearchProvider mediaSearchProvider;
         private RandomSongByGenreProc proc;
 
         @BeforeEach
@@ -75,10 +75,10 @@ class RandomSongByGenreProcTest {
             factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
                     mock(MediaFileService.class), mock(MediaFileProvider.class),
                     mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
-            searchService = mock(SearchService.class);
+            mediaSearchProvider = mock(MediaSearchProvider.class);
             util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
                     settingsFacade, mock(JpsonicComparators.class));
-            proc = new RandomSongByGenreProc(settingsFacade, util, factory, searchService);
+            proc = new RandomSongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
         }
 
         @Test
@@ -101,7 +101,7 @@ class RandomSongByGenreProcTest {
         void testGetChildren() {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
-            verify(searchService, times(1))
+            verify(mediaSearchProvider, times(1))
                 .getRandomSongs(anyInt(), anyInt(), anyInt(),
                         ArgumentMatchers.<MusicFolder>anyList(), any(String[].class));
         }

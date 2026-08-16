@@ -50,6 +50,8 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -73,12 +75,10 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -225,7 +225,7 @@ class MediaScannerServiceImplTest {
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
             final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
-            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+            final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
             final JpsonicComparators comparators = mock(JpsonicComparators.class);
             final ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
 
@@ -237,8 +237,7 @@ class MediaScannerServiceImplTest {
                     writableMediaFileService, scannerStateService, indexManager, scanHelper);
             fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mediaFileDao, utils,
-                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
-                    comparators);
+                    scannerStateService, scanHelper, musicIndexServiceImpl, proc, comparators);
             id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
                     comparators, scanHelper);
@@ -772,7 +771,7 @@ class MediaScannerServiceImplTest {
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
             final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
-            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+            final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
 
             ScanHelper scanHelper = mock(ScanHelper.class);
             PreScanProcedure preScanProc = new PreScanProcedure(musicFolderService, indexManager,
@@ -783,7 +782,7 @@ class MediaScannerServiceImplTest {
             FileMetadataScanProcedure fileMetaProc = new FileMetadataScanProcedure(
                     musicFolderService, indexManager, mediaFileService, writableMediaFileService,
                     mediaFileDao, sortProcedureService, scannerStateService, scanHelper,
-                    musicIndexServiceImpl, japaneseReadingUtils, comparators);
+                    musicIndexServiceImpl, proc, comparators);
             Id3MetadataScanProcedure id3MetaProc = new Id3MetadataScanProcedure(musicFolderService,
                     indexManager, mediaFileService, mediaFileDao, artistDao, albumDao,
                     musicIndexServiceImpl, comparators, scanHelper);
@@ -1015,7 +1014,7 @@ class MediaScannerServiceImplTest {
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
             final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
-            final JapaneseReadingUtils japaneseReadingUtils = mock(JapaneseReadingUtils.class);
+            final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
 
             scanHelper = mock(ScanHelper.class);
             preScanProc = new PreScanProcedure(musicFolderService, indexManager, mediaFileDao,
@@ -1024,8 +1023,7 @@ class MediaScannerServiceImplTest {
                     writableMediaFileService, scannerStateService, indexManager, scanHelper);
             fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mediaFileDao, sortProcedureService,
-                    scannerStateService, scanHelper, musicIndexServiceImpl, japaneseReadingUtils,
-                    comparators);
+                    scannerStateService, scanHelper, musicIndexServiceImpl, proc, comparators);
             id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
                     comparators, scanHelper);
