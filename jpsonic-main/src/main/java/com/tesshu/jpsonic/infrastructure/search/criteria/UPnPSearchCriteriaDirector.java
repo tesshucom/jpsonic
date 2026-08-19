@@ -31,10 +31,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.search.index.FieldNamesConstants;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
-import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
+import com.tesshu.jpsonic.infrastructure.search.query.PhraseSearchQueryFactory;
 import com.tesshu.jpsonic.infrastructure.search.query.UPnPClassMapper;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaLexer;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaListener;
@@ -67,8 +69,7 @@ import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaPar
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.StringOpContext;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.VTabContext;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.WCharContext;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -143,7 +144,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private final UPnPClassMapper classMapper;
     private final List<MusicFolder> folders;
-    private final QueryFactory queryFactory;
+    private final PhraseSearchQueryFactory queryFactory;
     private final List<List<String>> enteredSearchFields = new ArrayList<>();
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
@@ -173,7 +174,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     public UPnPSearchCriteriaDirector(UPnPSearchMethod searchMethod, List<MusicFolder> folders,
-            QueryFactory queryFactory) {
+            PhraseSearchQueryFactory queryFactory) {
         this.classMapper = new UPnPClassMapper(searchMethod);
         this.folders = folders;
         this.queryFactory = queryFactory;
@@ -315,17 +316,18 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         }
 
         switch (complement) {
-        case "object.item.audioItem.musicTrack" ->
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+        case "object.item.audioItem.musicTrack" -> addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE,
+                MediaFile.Type.MUSIC.name(), Occur.SHOULD);
         case "object.item.audioItem" -> {
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(),
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaFile.Type.MUSIC.name(),
                     Occur.SHOULD);
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(),
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaFile.Type.PODCAST.name(),
+                    Occur.SHOULD);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaFile.Type.AUDIOBOOK.name(),
                     Occur.SHOULD);
         }
-        case "object.item.videoItem" ->
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
+        case "object.item.videoItem" -> addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE,
+                MediaFile.Type.VIDEO.name(), Occur.SHOULD);
         }
 
         return indexType;
@@ -343,15 +345,16 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         }
 
         switch (complement) {
-        case "object.item.audioItem.musicTrack" ->
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+        case "object.item.audioItem.musicTrack" -> addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE,
+                MediaFile.Type.MUSIC.name(), Occur.SHOULD);
         case "object.item.audioItem.audioBroadcast" -> addMediaTypeQuery(
-                FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+                FieldNamesConstants.MEDIA_TYPE, MediaFile.Type.PODCAST.name(), Occur.SHOULD);
         case "object.item.audioItem.audioBook" -> addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE,
-                MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+                MediaFile.Type.AUDIOBOOK.name(), Occur.SHOULD);
         case "object.item.videoItem.movie", "object.item.videoItem.videoBroadcast",
                 "object.item.videoItem.musicVideoClip" ->
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaFile.Type.VIDEO.name(),
+                    Occur.MUST);
         }
 
         return indexType;

@@ -18,6 +18,7 @@ import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.model.User;
 import com.tesshu.jpsonic.domain.model.UserSettings;
 import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.PlayerProvider;
 import com.tesshu.jpsonic.domain.provider.TranscodingProvider;
 import com.tesshu.jpsonic.domain.provider.UserProvider;
@@ -50,6 +51,8 @@ class AdapterTest extends AbstractNeedsScan {
     private PlayerProvider playerProvider;
     @Autowired
     private TranscodingProvider transcodingProvider;
+    @Autowired
+    private MusicFolderProvider musicFolderProvider;
 
     @Autowired
     private TranscodingService transcodingService;
@@ -175,5 +178,10 @@ class AdapterTest extends AbstractNeedsScan {
         assertEquals(2, user.getBytesStreamed());
         assertEquals(4, user.getBytesDownloaded());
         assertEquals(6, user.getBytesUploaded());
+    }
+
+    @Test
+    void testMusicFolderProvider() {
+        assertEquals(3, musicFolderProvider.getGuestFolders().size());
     }
 }

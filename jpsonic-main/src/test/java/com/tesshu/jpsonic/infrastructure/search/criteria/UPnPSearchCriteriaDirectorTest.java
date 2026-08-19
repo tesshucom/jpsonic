@@ -31,10 +31,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tesshu.jpsonic.adapter.MusicFolderProviderAdapter;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
-import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.search.analysis.AnalyzerFactory;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
@@ -42,10 +44,7 @@ import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.core.entity.User;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -235,8 +234,8 @@ public class UPnPSearchCriteriaDirectorTest {
     }
 
     private SettingsFacade settingsFacade;
-    private UPnPProcessorUtil util;
-    private MusicFolderService musicFolderService;
+    private MusicFolderProvider musicFolderProvider;
+    private MusicFolderServiceImpl musicFolderService;
     private UPnPSearchCriteriaDirector director;
 
     private String path = "";
@@ -260,24 +259,21 @@ public class UPnPSearchCriteriaDirectorTest {
     void init() {
         List<MusicFolder> musicFolders = new ArrayList<>();
         musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now(), 1, false));
-        musicFolderService = mock(MusicFolderService.class);
-        Mockito
-            .when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST))
-            .thenReturn(musicFolders);
+        musicFolderService = mock(MusicFolderServiceImpl.class);
+        Mockito.when(musicFolderService.getDomainGuestFolders()).thenReturn(musicFolders);
 
         path = "";
         fid = "";
         for (MusicFolder m : musicFolders) {
-            path = path.concat("f:").concat(m.getPathString()).concat(" ");
-            fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
+            path = path.concat("f:").concat(m.pathString()).concat(" ");
+            fid = fid.concat("fId:").concat(Integer.toString(m.id())).concat(" ");
         }
         path = path.trim();
         fid = fid.trim();
-
-        util = new UPnPProcessorUtil(musicFolderService, mock(UserService.class), settingsFacade,
-                null);
-        director = new UPnPSearchCriteriaDirector(util.getUPnPSearchMethod(),
-                util.getGuestFolders(),
+        musicFolderProvider = new MusicFolderProviderAdapter(musicFolderService);
+        director = new UPnPSearchCriteriaDirector(
+                UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod)),
+                musicFolderProvider.getGuestFolders(),
                 new QueryFactory(settingsFacade, new AnalyzerFactory(settingsFacade)));
     }
 

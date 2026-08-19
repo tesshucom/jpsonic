@@ -26,14 +26,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteriaDirector;
-import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.search.query.PhraseSearchQueryFactory;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.contentdirectory.AbstractContentDirectoryService;
@@ -66,15 +67,18 @@ class ContentDirectoryService extends AbstractContentDirectoryService implements
 
     private static final int SEARCH_COUNT_MAX = 50;
 
+    private final MusicFolderProvider musicFolderProvider;
     private final UPnPContentProcessorResolver uPnPContentProcessorResolver;
     private final UPnPProcessorUtil uPnPProcessorUtil;
-    private final QueryFactory queryFactory;
+    private final PhraseSearchQueryFactory queryFactory;
     private final MediaSearchProvider mediaSearchProvider;
 
-    ContentDirectoryService(UPnPContentProcessorResolver uPnPContentProcessorResolver,
-            UPnPProcessorUtil uPnPProcessorUtil, QueryFactory queryFactory,
+    ContentDirectoryService(MusicFolderProvider musicFolderProvider,
+            UPnPContentProcessorResolver uPnPContentProcessorResolver,
+            UPnPProcessorUtil uPnPProcessorUtil, PhraseSearchQueryFactory queryFactory,
             MediaSearchProvider mediaSearchProvider) {
         super(Arrays.asList("*"), Collections.emptyList());
+        this.musicFolderProvider = musicFolderProvider;
         this.uPnPContentProcessorResolver = uPnPContentProcessorResolver;
         this.uPnPProcessorUtil = uPnPProcessorUtil;
         this.queryFactory = queryFactory;
@@ -141,7 +145,7 @@ class ContentDirectoryService extends AbstractContentDirectoryService implements
         int offset = (int) firstResult;
         int count = toCount(firstResult, maxResults, SEARCH_COUNT_MAX);
         UPnPSearchMethod searchMethod = uPnPProcessorUtil.getUPnPSearchMethod();
-        List<MusicFolder> folders = uPnPProcessorUtil.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(searchMethod, folders,
                 queryFactory);
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
