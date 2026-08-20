@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -60,7 +61,6 @@ import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
-import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -160,7 +160,8 @@ public class InternalHelpController {
                             LocalDateTime.ofInstant(stat.getExecuted(), ZoneId.systemDefault()),
                             folder.getName(), stat.getArtistCount(), stat.getAlbumCount(),
                             stat.getSongCount(), stat.getVideoCount(),
-                            StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
+                            com.tesshu.jpsonic.util.StringUtil
+                                .formatDurationHMMSS(stat.getTotalDuration()),
                             PathInspector.byteCountToDisplaySize(stat.getTotalSize()));
                     result.add(vo);
                 });

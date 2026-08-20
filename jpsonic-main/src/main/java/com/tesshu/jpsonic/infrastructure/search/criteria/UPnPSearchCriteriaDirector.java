@@ -69,7 +69,6 @@ import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaPar
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.StringOpContext;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.VTabContext;
 import com.tesshu.jpsonic.infrastructure.search.query.upnp.UPnPSearchCriteriaParser.WCharContext;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;

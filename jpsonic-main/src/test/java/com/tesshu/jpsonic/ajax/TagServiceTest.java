@@ -20,7 +20,9 @@
 package com.tesshu.jpsonic.ajax;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -59,6 +61,29 @@ class TagServiceTest {
         tagService = new TagService(metaDataParserFactory, mediaFileService,
                 writableMediaFileService, scannerStateService);
         parser = new MusicParser(mock(MusicFolderService.class));
+    }
+
+    @Test
+    void testEquals() {
+        assertTrue(tagService.equals(null, null));
+        assertFalse(tagService.equals(null, "a"));
+        assertFalse(tagService.equals("a", null));
+        assertTrue(tagService.equals("a", "a"));
+        assertFalse(tagService.equals("a", "A"));
+        assertFalse(tagService.equals("a", "b"));
+        assertFalse(tagService.equals("abc", "c"));
+        assertFalse(tagService.equals("abc", "d"));
+        assertFalse(tagService.equals("i", "İ"));
+
+        String s = "a";
+        assertTrue(tagService.equals(s, s));
+        assertTrue(tagService.equals("", ""));
+        assertFalse(tagService.equals("", "a"));
+        assertFalse(tagService.equals("a", ""));
+        assertTrue(tagService.equals("こんにちは", "こんにちは"));
+        assertFalse(tagService.equals("こんにちは", "こんばんは"));
+        assertFalse(tagService.equals("abcd", "abce"));
+        assertFalse(tagService.equals("a\nb", "a b"));
     }
 
     @Test

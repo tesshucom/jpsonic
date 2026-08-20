@@ -33,7 +33,6 @@ import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +62,10 @@ public class TagService {
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
         this.scannerStateService = scannerStateService;
+    }
+
+    boolean equals(String a, String b) {
+        return Objects.equals(a, b);
     }
 
     /**
@@ -103,11 +106,10 @@ public class TagService {
         Integer trackNumber = getTrackNumber(track);
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
-        if (StringUtil.equals(artist, mediaFile.getArtist())
-                && StringUtil.equals(album, mediaFile.getAlbumName())
-                && StringUtil.equals(title, mediaFile.getTitle())
+        if (equals(artist, mediaFile.getArtist()) && equals(album, mediaFile.getAlbumName())
+                && equals(title, mediaFile.getTitle())
                 && Objects.equals(yearNumber, mediaFile.getYear())
-                && StringUtil.equals(genre, mediaFile.getGenre())
+                && equals(genre, mediaFile.getGenre())
                 && Objects.equals(trackNumber, mediaFile.getTrackNumber())) {
             return "SKIPPED";
         }

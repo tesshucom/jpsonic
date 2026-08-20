@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -105,7 +105,11 @@ public class ServerLocaleService {
             }
 
             try (InputStream in = ServerLocaleService.class.getResourceAsStream(LOCALES_FILE)) {
-                locales = StringUtil.readLines(in).stream().map(StringUtil::parseLocale).toList();
+                locales = com.tesshu.jpsonic.util.StringUtil
+                    .readLines(in)
+                    .stream()
+                    .map(StringUtil::parseLocale)
+                    .toList();
                 locales = Collections.unmodifiableList(locales);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
