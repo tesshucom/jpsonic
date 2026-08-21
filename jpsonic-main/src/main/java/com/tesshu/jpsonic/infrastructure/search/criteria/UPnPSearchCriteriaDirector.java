@@ -33,7 +33,7 @@ import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.search.index.FieldNamesConstants;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.search.query.PhraseSearchQueryFactory;

@@ -21,9 +21,6 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
@@ -35,14 +32,12 @@ public class UPnPProcessorUtil {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final SettingsFacade settingsFacade;
     private final JpsonicComparators comparators;
 
     public UPnPProcessorUtil(MusicFolderService musicFolderService, UserService userService,
-            SettingsFacade settingsFacade, JpsonicComparators comparators) {
+            JpsonicComparators comparators) {
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.settingsFacade = settingsFacade;
         this.comparators = comparators;
     }
 
@@ -52,9 +47,5 @@ public class UPnPProcessorUtil {
 
     public boolean isSortAlbumsByYear(String artist) {
         return comparators.isSortAlbumsByYear(artist);
-    }
-
-    public UPnPSearchMethod getUPnPSearchMethod() {
-        return UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod));
     }
 }

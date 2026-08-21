@@ -35,9 +35,9 @@ import com.tesshu.jpsonic.adapter.MusicFolderProviderAdapter;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.search.analysis.AnalyzerFactory;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
@@ -247,7 +247,7 @@ public class UPnPSearchCriteriaDirectorTest {
         settingsFacade = SettingsFacadeBuilder
             .create()
             .withBoolean(SKeys.general.search.searchComposer, true)
-            .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+            .withString(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
             .withString(I18nSKeys.localeLanguage, "ja")
             .withString(I18nSKeys.localeCountry, "ja")
             .withString(SKeys.advanced.index.indexSchemeName, IndexScheme.NATIVE_JAPANESE.name())
@@ -272,7 +272,7 @@ public class UPnPSearchCriteriaDirectorTest {
         fid = fid.trim();
         musicFolderProvider = new MusicFolderProviderAdapter(musicFolderService);
         director = new UPnPSearchCriteriaDirector(
-                UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod)),
+                UPnPSearchMethod.of(settingsFacade.get(SearchSKeys.search.upnpSearchMethod)),
                 musicFolderProvider.getGuestFolders(),
                 new QueryFactory(settingsFacade, new AnalyzerFactory(settingsFacade)));
     }
@@ -394,7 +394,7 @@ public class UPnPSearchCriteriaDirectorTest {
                 settingsFacade = SettingsFacadeBuilder
                     .create()
                     .withBoolean(SKeys.general.search.searchComposer, true)
-                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                    .withString(SearchSKeys.search.upnpSearchMethod,
                             UPnPSearchMethod.FILE_STRUCTURE.name())
                     .build();
                 init();
@@ -416,7 +416,7 @@ public class UPnPSearchCriteriaDirectorTest {
                 settingsFacade = SettingsFacadeBuilder
                     .create()
                     .withBoolean(SKeys.general.search.searchComposer, true)
-                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                    .withString(SearchSKeys.search.upnpSearchMethod,
                             UPnPSearchMethod.FILE_STRUCTURE.name())
                     .build();
                 init();
@@ -560,7 +560,7 @@ public class UPnPSearchCriteriaDirectorTest {
                 settingsFacade = SettingsFacadeBuilder
                     .create()
                     .withBoolean(SKeys.general.search.searchComposer, true)
-                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                    .withString(SearchSKeys.search.upnpSearchMethod,
                             UPnPSearchMethod.FILE_STRUCTURE.name())
                     .build();
                 init();
@@ -582,7 +582,7 @@ public class UPnPSearchCriteriaDirectorTest {
                 settingsFacade = SettingsFacadeBuilder
                     .create()
                     .withBoolean(SKeys.general.search.searchComposer, true)
-                    .withString(UPnPSKeys.search.upnpSearchMethod,
+                    .withString(SearchSKeys.search.upnpSearchMethod,
                             UPnPSearchMethod.FILE_STRUCTURE.name())
                     .build();
                 init();
@@ -963,7 +963,7 @@ public class UPnPSearchCriteriaDirectorTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withBoolean(SKeys.general.search.searchComposer, false)
-                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .withString(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
                 .withString(I18nSKeys.localeLanguage, "ja")
                 .withString(I18nSKeys.localeCountry, "ja")
                 .withString(SKeys.advanced.index.indexSchemeName,
@@ -1067,7 +1067,7 @@ public class UPnPSearchCriteriaDirectorTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withBoolean(SKeys.general.search.searchComposer, false)
-                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .withString(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
                 .build();
             init();
 
@@ -1123,7 +1123,7 @@ public class UPnPSearchCriteriaDirectorTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withBoolean(SKeys.general.search.searchComposer, false)
-                .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
+                .withString(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
                 .build();
             init();
 

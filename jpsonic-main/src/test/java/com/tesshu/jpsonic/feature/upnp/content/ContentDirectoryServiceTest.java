@@ -28,8 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,7 +109,7 @@ class ContentDirectoryServiceTest extends AbstractNeedsScan {
         // management. Therefore, if a tag is missing, the same result as the File
         // Structure will be
         // returned, preventing missing results.
-        settings.commit(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
+        settings.commit(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
         query = """
                 (upnp:class = "object.container.person.musicArtist" \
                 and dc:title contains "はるなつあきふゆ")\

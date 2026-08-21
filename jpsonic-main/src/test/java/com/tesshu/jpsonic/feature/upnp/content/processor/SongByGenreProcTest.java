@@ -87,7 +87,7 @@ class SongByGenreProcTest {
                     mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
             mediaSearchProvider = mock(MediaSearchProvider.class);
             util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                    settingsFacade, mock(JpsonicComparators.class));
+                    mock(JpsonicComparators.class));
             proc = new SongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
         }
 

@@ -76,7 +76,7 @@ class AlbumByGenreProcTest {
                 mediaFileService, mediaFileProvider, playerProvider, transcodingParametersPlanner);
         mediaSearchProvider = mock(MediaSearchProvider.class);
         util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                settingsFacade, mock(JpsonicComparators.class));
+                mock(JpsonicComparators.class));
         proc = new AlbumByGenreProc(util, factory, mediaFileService, mediaSearchProvider);
     }
 

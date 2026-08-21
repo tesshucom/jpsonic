@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.infrastructure.search.query;
 
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 
 /**

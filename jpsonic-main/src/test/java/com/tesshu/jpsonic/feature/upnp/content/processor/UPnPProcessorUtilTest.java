@@ -21,12 +21,7 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
-import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
@@ -36,39 +31,19 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.SingularField")
 class UPnPProcessorUtilTest {
 
-    private SettingsFacade settingsFacade;
     private UPnPProcessorUtil util;
 
     @BeforeEach
     void setup() {
-        settingsFacade = SettingsFacadeBuilder.create().build();
         util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                settingsFacade, mock(JpsonicComparators.class));
+                mock(JpsonicComparators.class));
     }
 
     @Test
     void testGetAllMusicFolders() {
-        settingsFacade = SettingsFacadeBuilder
-            .create()
-            .withBoolean(UPnPSKeys.options.guestPublish, true)
-            .build();
         util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                settingsFacade, mock(JpsonicComparators.class));
+                mock(JpsonicComparators.class));
 
         assertNotNull(util.getGuestFolders());
-    }
-
-    @Test
-    void testGetUPnPSearchMethod() {
-        assertEquals(UPnPSearchMethod.FILE_STRUCTURE, util.getUPnPSearchMethod());
-
-        settingsFacade = SettingsFacadeBuilder
-            .create()
-            .withString(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name())
-            .build();
-        util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                settingsFacade, mock(JpsonicComparators.class));
-
-        assertEquals(UPnPSearchMethod.ID3, util.getUPnPSearchMethod());
     }
 }

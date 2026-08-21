@@ -28,8 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,7 +110,7 @@ class ContentDirectoryService2Test extends AbstractNeedsScan {
         // music lib
         // does not have a three-layer structure.
 
-        settingsFacade.commit(UPnPSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
+        settingsFacade.commit(SearchSKeys.search.upnpSearchMethod, UPnPSearchMethod.ID3.name());
 
         query = """
                 (upnp:class = "object.container.person.musicArtist" \
