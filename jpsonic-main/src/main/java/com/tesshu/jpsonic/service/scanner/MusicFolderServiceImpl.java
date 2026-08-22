@@ -77,8 +77,11 @@ import org.springframework.stereotype.Service;
 @DependsOn("scannerStateService")
 public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLockSupport {
 
+    public static final String USERNAME_GUEST = "guest";
+
     private final ConcurrentMap<String, List<MusicFolder>> cachedUserFolders;
     private List<MusicFolder> cachedMusicFolders;
+    private List<com.tesshu.jpsonic.domain.model.MusicFolder> cachedDomainGuestFolders;
 
     private final MusicFolderDao musicFolderDao;
     private final StaticsDao staticsDao;
@@ -111,6 +114,19 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
                 .filter(folder -> includeDisabled || folder.isEnabled())
                 .filter(folder -> includeNonExisting || Files.exists(folder.toPath()))
                 .collect(Collectors.toList());
+        } finally {
+            readUnlock(cacheLock);
+        }
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MusicFolder> getDomainGuestFolders() {
+        readLock(cacheLock);
+        try {
+            if (cachedDomainGuestFolders == null) {
+                cachedDomainGuestFolders = musicFolderDao
+                    .getDomainMusicFoldersForUser(USERNAME_GUEST);
+            }
+            return cachedDomainGuestFolders;
         } finally {
             readUnlock(cacheLock);
         }
@@ -233,6 +249,9 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
         try {
             cachedMusicFolders = null;
             cachedUserFolders.clear();
+            if (cachedDomainGuestFolders != null) {
+                cachedDomainGuestFolders.clear();
+            }
         } finally {
             writeUnlock(cacheLock);
         }

@@ -36,14 +36,14 @@ import java.util.List;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
+import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
-import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -72,7 +72,7 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
     @Autowired
     private HttpSearchCriteriaDirector criteriaDirector;
     @Autowired
-    private SearchService searchService;
+    private LegacySearch legacySearch;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -175,19 +175,19 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
         /*
          * Not reflected in the search at this point. (It's a expected behavior)
          */
-        SearchResult result = searchService
+        LegacySearchResult result = legacySearch
             .search(criteriaDirector
                 .construct("Edited", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
         assertEquals(1, result.getMediaFiles().size());
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("sample", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
         assertEquals(0, result.getMediaFiles().size());
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("ALBUM", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ALBUM));
         assertEquals(1, result.getMediaFiles().size());
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("ARTIST", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ARTIST));
         assertEquals(1, result.getMediaFiles().size());
@@ -217,17 +217,17 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
         assertEquals("Edited artist!", song.getArtist());
         assertEquals("Edited album!", song.getAlbumName());
 
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("sample", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
         assertEquals(0, result.getMediaFiles().size()); // good (1 -> 0)
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("Edited song!", 0, Integer.MAX_VALUE, false, musicFolders,
                         IndexType.SONG));
         assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
 
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("Edited album!", 0, Integer.MAX_VALUE, false, musicFolders,
                         IndexType.ALBUM));
@@ -236,22 +236,22 @@ class MediaScannerServiceImplGetChildrenOfTest extends AbstractNeedsScan {
         /*
          * Not reflected in the artist of file structure. (It's a expected behavior)
          */
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("Edited artist!", 0, Integer.MAX_VALUE, false, musicFolders,
                         IndexType.ARTIST));
         assertEquals(0, result.getMediaFiles().size()); // good
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("ARTIST", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ARTIST));
         assertEquals(1, result.getMediaFiles().size()); // good (1 -> 1)
 
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("Edited album!", 0, Integer.MAX_VALUE, false, musicFolders,
                         IndexType.ALBUM_ID3));
         assertEquals(1, result.getAlbums().size());
-        result = searchService
+        result = legacySearch
             .search(criteriaDirector
                 .construct("Edited artist!", 0, Integer.MAX_VALUE, false, musicFolders,
                         IndexType.ARTIST_ID3));

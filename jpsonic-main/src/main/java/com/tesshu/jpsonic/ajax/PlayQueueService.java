@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -59,7 +60,6 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -85,7 +85,7 @@ public class PlayQueueService {
     private final JpsonicComparators comparators;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
     private final RatingService ratingService;
     private final PodcastService podcastService;
     private final PlaylistService playlistService;
@@ -99,10 +99,11 @@ public class PlayQueueService {
     public PlayQueueService(MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, JpsonicComparators comparators,
             MediaFileService mediaFileService, LastFmService lastFmService,
-            SearchService searchService, RatingService ratingService, PodcastService podcastService,
-            PlaylistService playlistService, MediaFileDao mediaFileDao, PlayQueueDao playQueueDao,
-            InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
-            InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
+            MediaSearchProvider mediaSearchProvider, RatingService ratingService,
+            PodcastService podcastService, PlaylistService playlistService,
+            MediaFileDao mediaFileDao, PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao,
+            JWTSecurityService jwtSecurityService, InternetRadioService internetRadioService,
+            AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
@@ -110,7 +111,7 @@ public class PlayQueueService {
         this.comparators = comparators;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.ratingService = ratingService;
         this.podcastService = podcastService;
         this.playlistService = playlistService;
@@ -411,7 +412,7 @@ public class PlayQueueService {
         } else if ("starred".equals(albumListType)) {
             albums = mediaFileService.getStarredAlbums(offset, count, username, musicFolders);
         } else if ("random".equals(albumListType)) {
-            albums = searchService.getRandomAlbums(count, musicFolders);
+            albums = mediaSearchProvider.getRandomAlbums(count, musicFolders);
         } else if ("alphabetical".equals(albumListType)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, count, true, musicFolders);
         } else if ("decade".equals(albumListType)) {
@@ -420,7 +421,7 @@ public class PlayQueueService {
             albums = mediaFileService
                 .getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
         } else if ("genre".equals(albumListType)) {
-            albums = searchService.getAlbumsByGenres(genre, offset, count, musicFolders);
+            albums = mediaSearchProvider.getAlbumsByGenres(genre, offset, count, musicFolders);
         } else {
             albums = Collections.emptyList();
         }

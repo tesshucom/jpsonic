@@ -30,6 +30,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
@@ -43,7 +44,6 @@ import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -76,17 +76,17 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     private final SettingsFacade settingsFacade;
     private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
-    private final JapaneseReadingUtils readingUtils;
+    private final JapaneseReadingProcessor readingProcessor;
 
     private MusicIndexParser parser;
 
     public MusicIndexServiceImpl(SettingsFacade settingsFacade, MediaFileService mediaFileService,
-            ArtistDao artistDao, JapaneseReadingUtils readingUtils) {
+            ArtistDao artistDao, JapaneseReadingProcessor readingProcessor) {
         super();
         this.settingsFacade = settingsFacade;
         this.mediaFileService = mediaFileService;
         this.artistDao = artistDao;
-        this.readingUtils = readingUtils;
+        this.readingProcessor = readingProcessor;
     }
 
     private <T extends Indexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(
@@ -143,7 +143,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         }
 
         parser = new MusicIndexParser(settingsFacade.get(SKeys.general.index.indexString),
-                readingUtils);
+                readingProcessor);
         return parser;
     }
 
@@ -185,11 +185,11 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     static class MusicIndexParser {
 
         List<MusicIndex> indexes;
-        JapaneseReadingUtils readingUtils;
+        JapaneseReadingProcessor readingProcessor;
 
-        private MusicIndexParser(String expr, JapaneseReadingUtils readingUtils) {
+        private MusicIndexParser(String expr, JapaneseReadingProcessor readingProcessor) {
             indexes = createIndexesFromExpression(expr);
-            this.readingUtils = readingUtils;
+            this.readingProcessor = readingProcessor;
         }
 
         private List<MusicIndex> createIndexesFromExpression(String expr) {
@@ -215,7 +215,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         }
 
         MusicIndex getIndex(Indexable indexable) {
-            String indexableName = readingUtils.createIndexableName(indexable);
+            String indexableName = readingProcessor.createIndexableName(indexable);
             return indexes
                 .stream()
                 .filter(musicIndex -> musicIndex

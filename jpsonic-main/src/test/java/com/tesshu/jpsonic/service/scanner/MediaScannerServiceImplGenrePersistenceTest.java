@@ -30,11 +30,11 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.search.GenreMasterCriteria;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class MediaScannerServiceImplGenrePersistenceTest extends AbstractNeedsScan {
 
     @Autowired
-    private SearchService searchService;
+    private MediaSearchProvider mediaSearchProvider;
 
     private final List<MusicFolder> folders = List
         .of(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 0,
@@ -69,24 +69,24 @@ class MediaScannerServiceImplGenrePersistenceTest extends AbstractNeedsScan {
         GenreMasterCriteria songGenreCriteria = new GenreMasterCriteria(folders,
                 GenreMasterScope.SONG, GenreMasterSort.NAME);
         assertTrue(assertAlbumGenreCount(
-                searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
         assertTrue(assertSongGenreCount(
-                searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
 
         // Run a scan
         TestCaseUtils.execScan(mediaScannerService);
         assertTrue(assertAlbumGenreCount(
-                searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
         assertTrue(assertSongGenreCount(
-                searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
 
         // Scan with IgnoreFileTimestamps enabled
         settingsFacade.commit(SKeys.musicFolder.scan.ignoreFileTimestamps, true);
         TestCaseUtils.execScan(mediaScannerService);
         assertTrue(assertAlbumGenreCount(
-                searchService.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(albumGenreCriteria, 0, Integer.MAX_VALUE)));
         assertTrue(assertSongGenreCount(
-                searchService.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
+                mediaSearchProvider.getGenres(songGenreCriteria, 0, Integer.MAX_VALUE)));
     }
 
     private boolean assertAlbumGenreCount(List<Genre> genres) {

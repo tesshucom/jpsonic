@@ -46,10 +46,11 @@ import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyStagingApplier;
-import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.UPnPService;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
+import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -203,7 +204,7 @@ public class DLNASettingsController {
         // Search
         command
             .setSearchMethod(
-                    UPnPSearchMethod.of(settingsFacade.get(UPnPSKeys.search.upnpSearchMethod)));
+                    UPnPSearchMethod.of(settingsFacade.get(SearchSKeys.search.upnpSearchMethod)));
 
         // Advanced
         command.setDlnaDefaultFilteredIp(UPnPSKeys.advanced.filteredIp.defaultValue());
@@ -301,7 +302,8 @@ public class DLNASettingsController {
         settingsFacade.staging(UPnPSKeys.options.randomMax, normalized);
 
         // Search
-        settingsFacade.staging(UPnPSKeys.search.upnpSearchMethod, command.getSearchMethod().name());
+        settingsFacade
+            .staging(SearchSKeys.search.upnpSearchMethod, command.getSearchMethod().name());
 
         // Advanced
         settingsFacade

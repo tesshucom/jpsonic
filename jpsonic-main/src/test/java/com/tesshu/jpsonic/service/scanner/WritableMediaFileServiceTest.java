@@ -45,6 +45,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -55,12 +57,10 @@ import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -98,12 +98,12 @@ class WritableMediaFileServiceTest {
                 new ScanningExclusionPolicy(settingsFacade), mock(MusicFolderService.class),
                 libraryAccessPolicy, mediaFileCache, mediaFileDao, mock(JpsonicComparators.class));
         AlbumDao albumDao = mock(AlbumDao.class);
-        JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
+        JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 mock(ScannerStateService.class), mediaFileService, albumDao, mediaFileCache,
                 musicParser, mock(VideoParser.class), settingsFacade, libraryAccessPolicy,
-                new ScanningExclusionPolicy(settingsFacade), readingUtils, mock(IndexManager.class),
-                new MusicIndexServiceImpl(settingsFacade, null, null, readingUtils));
+                new ScanningExclusionPolicy(settingsFacade), proc, mock(IndexManager.class),
+                new MusicIndexServiceImpl(settingsFacade, null, null, proc));
 
         Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }

@@ -40,6 +40,11 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.controller.MainController;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
+import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
+import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -55,12 +60,7 @@ import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
-import com.tesshu.jpsonic.service.search.HttpSearchCriteria;
-import com.tesshu.jpsonic.service.search.HttpSearchCriteriaDirector;
-import com.tesshu.jpsonic.service.search.IndexType;
-import com.tesshu.jpsonic.service.search.SearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -1208,7 +1208,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         private MusicIndexServiceImpl musicIndexService;
 
         @Autowired
-        private SearchService searchService;
+        private LegacySearch legacySearch;
 
         @Autowired
         private MediaFileService mediaFileService;
@@ -1275,7 +1275,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testGetMultiFolderChildren() throws IOException {
             HttpSearchCriteria criteria = director
                 .construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS, IndexType.ARTIST);
-            SearchResult result = searchService.search(criteria);
+            LegacySearchResult result = legacySearch.search(criteria);
             List<MediaFile> artists = mainController.getMultiFolderChildren(result.getMediaFiles());
             List<String> artistNames = artists
                 .stream()
@@ -1307,7 +1307,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testGetChildrenOf() throws IOException {
             HttpSearchCriteria criteria = director
                 .construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS, IndexType.ARTIST);
-            SearchResult result = searchService.search(criteria);
+            LegacySearchResult result = legacySearch.search(criteria);
             List<MediaFile> files = mediaFileService
                 .getChildrenOf(result.getMediaFiles().get(0), true, true);
             List<String> albums = files
@@ -1342,7 +1342,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testPlayQueueSort() throws IOException {
             HttpSearchCriteria criteria = director
                 .construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS, IndexType.SONG);
-            SearchResult result = searchService.search(criteria);
+            LegacySearchResult result = legacySearch.search(criteria);
             PlayQueue playQueue = new PlayQueue();
             playQueue.addFiles(true, result.getMediaFiles());
             playQueue.shuffle();

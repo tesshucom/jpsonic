@@ -314,4 +314,14 @@ class PodcastServiceImplTest {
                     + fileName, podcastService.getFile(channel, episode).toString());
         }
     }
+
+    @Test
+    void testRemoveMarkup() {
+        assertEquals("foo", podcastService.removeMarkup("<b>foo</b>"), "Error in removeMarkup()");
+        assertEquals("foobar", podcastService.removeMarkup("<b>foo</b>bar"),
+                "Error in removeMarkup()");
+        assertEquals("foo", podcastService.removeMarkup("foo"), "Error in removeMarkup()");
+        assertEquals("foo", podcastService.removeMarkup("<b>foo"), "Error in removeMarkup()");
+        assertNull("Error in removeMarkup()", podcastService.removeMarkup(null));
+    }
 }

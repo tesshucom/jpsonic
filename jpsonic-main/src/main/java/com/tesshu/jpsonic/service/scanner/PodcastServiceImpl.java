@@ -50,6 +50,7 @@ import com.tesshu.jpsonic.infrastructure.filesystem.FileNameSanitizer;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -61,7 +62,6 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
@@ -359,10 +359,9 @@ public class PodcastServiceImpl implements PodcastService {
             try {
                 Document document = createSAXBuilder().build(response.getEntity().getContent());
                 Element channelElement = document.getRootElement().getChild("channel");
-                channel.setTitle(StringUtil.removeMarkup(channelElement.getChildTextTrim("title")));
+                channel.setTitle(removeMarkup(channelElement.getChildTextTrim("title")));
                 channel
-                    .setDescription(StringUtil
-                        .removeMarkup(channelElement.getChildTextTrim("description")));
+                    .setDescription(removeMarkup(channelElement.getChildTextTrim("description")));
                 channel.setImageUrl(getChannelImageUrl(channelElement));
                 channel.setStatus(PodcastStatus.COMPLETED);
                 channel.setErrorMessage(null);
@@ -542,7 +541,7 @@ public class PodcastServiceImpl implements PodcastService {
 
         for (Element episodeElement : episodeElements) {
 
-            String title = StringUtil.removeMarkup(episodeElement.getChildTextTrim("title"));
+            String title = removeMarkup(episodeElement.getChildTextTrim("title"));
 
             Element enclosure = episodeElement.getChild("enclosure");
             if (enclosure == null) {
@@ -602,7 +601,7 @@ public class PodcastServiceImpl implements PodcastService {
         if (StringUtils.isBlank(description)) {
             description = getITunesElement(element, "summary");
         }
-        return StringUtil.removeMarkup(description);
+        return removeMarkup(description);
     }
 
     Instant parseDate(String s) {
@@ -940,5 +939,13 @@ public class PodcastServiceImpl implements PodcastService {
         } else {
             podcastDao.deleteEpisode(episodeId);
         }
+    }
+
+    @Nullable
+    String removeMarkup(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.replaceAll("<.*?>", "");
     }
 }

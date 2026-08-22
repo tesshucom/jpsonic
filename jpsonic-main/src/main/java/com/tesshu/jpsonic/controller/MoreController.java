@@ -25,13 +25,13 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
+import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -51,14 +51,14 @@ public class MoreController {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final SearchService searchService;
+    private final MediaSearchProvider mediaSearchProvider;
 
     public MoreController(MusicFolderService musicFolderService, UserService userService,
-            SearchService searchService) {
+            MediaSearchProvider mediaSearchProvider) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.searchService = searchService;
+        this.mediaSearchProvider = mediaSearchProvider;
     }
 
     @GetMapping
@@ -78,7 +78,7 @@ public class MoreController {
         result
             .addObject("model", LegacyMap
                 .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                        searchService.getGenres(false), "currentYear",
+                        mediaSearchProvider.getGenres(false), "currentYear",
                         Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
                         "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;

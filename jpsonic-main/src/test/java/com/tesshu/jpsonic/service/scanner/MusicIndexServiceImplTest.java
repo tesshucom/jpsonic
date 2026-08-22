@@ -37,7 +37,9 @@ import java.util.List;
 import java.util.SortedMap;
 
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.feature.i18n.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -49,7 +51,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl.MusicIndexParser;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,8 +92,9 @@ class MusicIndexServiceImplTest {
         mediaFileService = mock(MediaFileService.class);
         artistDao = mock(ArtistDao.class);
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
+        JapaneseReadingProcessor proc = new JapaneseReadingProcessor(settingsFacade, readingUtils);
         musicIndexService = new MusicIndexServiceImpl(settingsFacade, mediaFileService, artistDao,
-                readingUtils);
+                proc);
     }
 
     @Test

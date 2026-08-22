@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -34,9 +36,7 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -100,7 +100,7 @@ public class FileMetadataScanProcedure {
     private final ScannerStateServiceImpl scannerState;
     private final ScanHelper scanHelper;
     private final MusicIndexServiceImpl musicIndexService;
-    private final JapaneseReadingUtils readingUtils;
+    private final JapaneseReadingProcessor readingProcessor;
     private final JpsonicComparators comparators;
 
     public FileMetadataScanProcedure(MusicFolderServiceImpl musicFolderService,
@@ -108,7 +108,7 @@ public class FileMetadataScanProcedure {
             WritableMediaFileService wmfs, MediaFileDao mediaFileDao,
             SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState,
             ScanHelper scanHelper, MusicIndexServiceImpl musicIndexService,
-            JapaneseReadingUtils readingUtils, JpsonicComparators comparators) {
+            JapaneseReadingProcessor readingProcessor, JpsonicComparators comparators) {
         super();
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
@@ -119,7 +119,7 @@ public class FileMetadataScanProcedure {
         this.scannerState = scannerState;
         this.scanHelper = scanHelper;
         this.musicIndexService = musicIndexService;
-        this.readingUtils = readingUtils;
+        this.readingProcessor = readingProcessor;
         this.comparators = comparators;
     }
 
@@ -263,7 +263,7 @@ public class FileMetadataScanProcedure {
 
         // Mark as present and analyze
         album.setPresent(true);
-        readingUtils.analyze(album);
+        readingProcessor.analyze(album);
 
         return album;
     }
