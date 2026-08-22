@@ -17,13 +17,17 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.upnp.content;
+package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.feature.upnp.content.ProcId;
+import com.tesshu.jpsonic.feature.upnp.content.SearchFilterProcessor;
+import com.tesshu.jpsonic.feature.upnp.content.SearchResultProcessor;
+import com.tesshu.jpsonic.feature.upnp.content.UPnPContentProcessorResolver;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
