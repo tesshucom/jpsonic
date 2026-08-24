@@ -79,6 +79,16 @@ class QueryFactoryTest {
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays
         .asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
+    private static final com.tesshu.jpsonic.domain.model.MusicFolder DOMAIN_MUSIC_FOLDER1 = new com.tesshu.jpsonic.domain.model.MusicFolder(
+            FID1, PATH1, "music1", true, null, 0, false);
+    private static final com.tesshu.jpsonic.domain.model.MusicFolder DOMAIN_MUSIC_FOLDER2 = new com.tesshu.jpsonic.domain.model.MusicFolder(
+            FID2, PATH2, "music2", true, null, 0, false);
+
+    private static final List<com.tesshu.jpsonic.domain.model.MusicFolder> DOMAIN_SINGLE_FOLDERS = Arrays
+        .asList(DOMAIN_MUSIC_FOLDER1);
+    private static final List<com.tesshu.jpsonic.domain.model.MusicFolder> DOMAIN_MULTI_FOLDERS = Arrays
+        .asList(DOMAIN_MUSIC_FOLDER1, DOMAIN_MUSIC_FOLDER2);
+
     private SettingsFacade settingsFacade;
 
     @BeforeEach
@@ -368,18 +378,18 @@ class QueryFactoryTest {
     @Order(5)
     @Test
     void testGetRandomSongsByMusicFolder() throws IOException {
-        Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS);
+        Query query = queryFactory.getRandomSongs(DOMAIN_SINGLE_FOLDERS);
         assertEquals("+m:MUSIC +(f:" + PATH1 + ")", query.toString());
-        query = queryFactory.getRandomSongs(MULTI_FOLDERS);
+        query = queryFactory.getRandomSongs(DOMAIN_MULTI_FOLDERS);
         assertEquals("+m:MUSIC +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }
 
     @Order(6)
     @Test
     void testGetRandomSongsByMusicFolderAndGenre() throws IOException {
-        Query query = queryFactory.getRandomSongs(SINGLE_FOLDERS, "Rock & Roll", "Pop/Funk");
+        Query query = queryFactory.getRandomSongs(DOMAIN_SINGLE_FOLDERS, "Rock & Roll", "Pop/Funk");
         assertEquals("+m:MUSIC +(f:" + PATH1 + ") +(g:Rock & Roll g:Pop/Funk)", query.toString());
-        query = queryFactory.getRandomSongs(MULTI_FOLDERS, "Rock & Roll", "Pop/Funk");
+        query = queryFactory.getRandomSongs(DOMAIN_MULTI_FOLDERS, "Rock & Roll", "Pop/Funk");
         assertEquals("+m:MUSIC +(f:" + PATH1 + " f:" + PATH2 + ") +(g:Rock & Roll g:Pop/Funk)",
                 query.toString());
     }

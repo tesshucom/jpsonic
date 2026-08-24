@@ -25,20 +25,21 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.FieldDeclarationsShouldBeAtStartOfClass" })
 public class MenuItemDao {
 
     private static final String QUERY_COLUMNS = """
             view_type, id, parent, name, enabled, menu_item_order\s
             """;
+
     private final TemplateWrapper template;
     private final RowMapper<MenuItem> rowMapper = (ResultSet rs, int num) -> new MenuItem(
             ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)),
@@ -48,13 +49,6 @@ public class MenuItemDao {
 
     public MenuItemDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
-    }
-
-    public MenuItem getMenuItem(int id) {
-        return template.queryOne("select " + QUERY_COLUMNS + """
-                from menu_item
-                where id=?
-                """, rowMapper, id);
     }
 
     public List<MenuItemId> getTopMenuIds(ViewType viewType) {
@@ -84,7 +78,7 @@ public class MenuItemDao {
                 """, idRowMapper, viewType.value(), id.value(), true);
     }
 
-    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly,
+    public List<MenuItem> findChildlen(ViewType viewType, MenuItemId id, boolean enabledOnly,
             long offset, long count) {
         Map<String, Object> args = Map
             .of("type", viewType.value(), "parentId", id.value(), "enabledOnly", enabledOnly,
@@ -124,4 +118,27 @@ public class MenuItemDao {
                                     """,
                     rowMapper, args);
     }
+
+    public MenuItem getMenuItem(int id) {
+        return template.queryOne("select " + QUERY_COLUMNS + """
+                from menu_item
+                where id=?
+                """, rowMapper, id);
+    }
+
+    // ############################################################################
+    // Jpsonic domain
+
+    private final RowMapper<com.tesshu.jpsonic.domain.model.MenuItem> domainRowMapper = (
+            ResultSet rs, int num) -> new com.tesshu.jpsonic.domain.model.MenuItem(
+                    ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)),
+                    MenuItemId.of(rs.getInt(3)), rs.getString(4), rs.getBoolean(5), rs.getInt(6));
+
+    public com.tesshu.jpsonic.domain.model.MenuItem getDomainMenuItem(int id) {
+        return template.queryOne("select " + QUERY_COLUMNS + """
+                from menu_item
+                where id=?
+                """, domainRowMapper, id);
+    }
+
 }

@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -51,14 +51,14 @@ public class MoreController {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final MediaSearchProvider mediaSearchProvider;
+    private final LegacySearch legacySearch;
 
     public MoreController(MusicFolderService musicFolderService, UserService userService,
-            MediaSearchProvider mediaSearchProvider) {
+            LegacySearch legacySearch) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.mediaSearchProvider = mediaSearchProvider;
+        this.legacySearch = legacySearch;
     }
 
     @GetMapping
@@ -78,7 +78,7 @@ public class MoreController {
         result
             .addObject("model", LegacyMap
                 .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                        mediaSearchProvider.getGenres(false), "currentYear",
+                        legacySearch.getGenres(false), "currentYear",
                         Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
                         "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;

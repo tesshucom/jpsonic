@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -85,7 +85,7 @@ public class PlayQueueService {
     private final JpsonicComparators comparators;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
-    private final MediaSearchProvider mediaSearchProvider;
+    private final LegacySearch legacySearch;
     private final RatingService ratingService;
     private final PodcastService podcastService;
     private final PlaylistService playlistService;
@@ -99,11 +99,10 @@ public class PlayQueueService {
     public PlayQueueService(MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, JpsonicComparators comparators,
             MediaFileService mediaFileService, LastFmService lastFmService,
-            MediaSearchProvider mediaSearchProvider, RatingService ratingService,
-            PodcastService podcastService, PlaylistService playlistService,
-            MediaFileDao mediaFileDao, PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao,
-            JWTSecurityService jwtSecurityService, InternetRadioService internetRadioService,
-            AjaxHelper ajaxHelper) {
+            LegacySearch legacySearch, RatingService ratingService, PodcastService podcastService,
+            PlaylistService playlistService, MediaFileDao mediaFileDao, PlayQueueDao playQueueDao,
+            InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
+            InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
@@ -111,7 +110,7 @@ public class PlayQueueService {
         this.comparators = comparators;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
-        this.mediaSearchProvider = mediaSearchProvider;
+        this.legacySearch = legacySearch;
         this.ratingService = ratingService;
         this.podcastService = podcastService;
         this.playlistService = playlistService;
@@ -412,7 +411,7 @@ public class PlayQueueService {
         } else if ("starred".equals(albumListType)) {
             albums = mediaFileService.getStarredAlbums(offset, count, username, musicFolders);
         } else if ("random".equals(albumListType)) {
-            albums = mediaSearchProvider.getRandomAlbums(count, musicFolders);
+            albums = legacySearch.getRandomAlbums(count, musicFolders);
         } else if ("alphabetical".equals(albumListType)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, count, true, musicFolders);
         } else if ("decade".equals(albumListType)) {
@@ -421,7 +420,7 @@ public class PlayQueueService {
             albums = mediaFileService
                 .getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
         } else if ("genre".equals(albumListType)) {
-            albums = mediaSearchProvider.getAlbumsByGenres(genre, offset, count, musicFolders);
+            albums = legacySearch.getAlbumsByGenres(genre, offset, count, musicFolders);
         } else {
             albums = Collections.emptyList();
         }

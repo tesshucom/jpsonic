@@ -19,22 +19,19 @@
 
 package com.tesshu.jpsonic.persistence.core.entity;
 
-import java.util.stream.Stream;
-
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class MenuItem {
 
-    private ViewType viewType;
+    private com.tesshu.jpsonic.domain.model.MenuItem.ViewType viewType;
     private MenuItemId id;
     private MenuItemId parent;
     private String name;
     private boolean enabled;
     private int menuItemOrder;
 
-    public MenuItem(ViewType viewType, MenuItemId id, MenuItemId parent, String name,
-            boolean enabled, int menuItemOrder) {
+    public MenuItem(com.tesshu.jpsonic.domain.model.MenuItem.ViewType viewType, MenuItemId id,
+            MenuItemId parent, String name, boolean enabled, int menuItemOrder) {
         super();
         this.viewType = viewType;
         this.id = id;
@@ -44,11 +41,11 @@ public class MenuItem {
         this.menuItemOrder = menuItemOrder;
     }
 
-    public ViewType getViewType() {
+    public com.tesshu.jpsonic.domain.model.MenuItem.ViewType getViewType() {
         return viewType;
     }
 
-    public void setViewType(ViewType viewType) {
+    public void setViewType(com.tesshu.jpsonic.domain.model.MenuItem.ViewType viewType) {
         this.viewType = viewType;
     }
 
@@ -90,24 +87,5 @@ public class MenuItem {
 
     public void setMenuItemOrder(int menuItemOrder) {
         this.menuItemOrder = menuItemOrder;
-    }
-
-    public enum ViewType {
-
-        ANY(0), UPNP(1), WEB(2);
-
-        private final int v;
-
-        ViewType(int v) {
-            this.v = v;
-        }
-
-        public int value() {
-            return v;
-        }
-
-        public static @NonNull ViewType of(int value) {
-            return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ANY);
-        }
     }
 }

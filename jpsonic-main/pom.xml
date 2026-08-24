@@ -52,6 +52,10 @@
       <groupId>com.tesshu.jpsonic</groupId>
       <artifactId>jpsonic-upnp-template</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.tesshu.jpsonic</groupId>
+      <artifactId>jpsonic-upnp-content</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.github.muff1nman.chameleon</groupId>

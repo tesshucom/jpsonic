@@ -28,8 +28,9 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -222,10 +223,10 @@ class ScanHelperTest {
         m3.setOrder(3);
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
         JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
-        JpsonicComparators comparators = new JpsonicComparators(settingsFacade, serverLocaleService,
-                proc);
+        JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
+                serverLocaleProvider, proc);
         WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
 
         ArgumentCaptor<MediaFile> captor = ArgumentCaptor.forClass(MediaFile.class);

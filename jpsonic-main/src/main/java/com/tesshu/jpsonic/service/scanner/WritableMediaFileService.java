@@ -129,7 +129,7 @@ public class WritableMediaFileService {
     private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final JapaneseReadingProcessor readingProcessor;
     private final IndexManager indexManager;
-    private final MusicIndexServiceImpl musicIndexService;
+    private final MusicIndexProviderImpl musicIndexProvider;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao,
             ScannerStateService scannerStateService, MediaFileService mediaFileService,
@@ -138,7 +138,7 @@ public class WritableMediaFileService {
             LibraryAccessPolicy libraryAccessPolicy,
             ScanningExclusionPolicy scanningExclusionPolicy,
             JapaneseReadingProcessor readingProcessor, IndexManager indexManager,
-            MusicIndexServiceImpl musicIndexService) {
+            MusicIndexProviderImpl musicIndexProvider) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -152,7 +152,7 @@ public class WritableMediaFileService {
         this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.readingProcessor = readingProcessor;
         this.indexManager = indexManager;
-        this.musicIndexService = musicIndexService;
+        this.musicIndexProvider = musicIndexProvider;
     }
 
     /**
@@ -503,7 +503,7 @@ public class WritableMediaFileService {
             }, () -> {
                 to.setArtist(dirPath.getFileName().toString());
                 if (!settingsFacade.get(SKeys.advanced.sort.strict)) {
-                    String index = musicIndexService.getParser().getIndex(to).getIndex();
+                    String index = musicIndexProvider.getParser().getIndex(to).index();
                     to.setMusicIndex(index);
                 }
                 to.setLastScanned(scanDate);

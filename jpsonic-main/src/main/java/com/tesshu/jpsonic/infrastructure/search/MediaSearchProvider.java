@@ -14,254 +14,656 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
  * (C) 2018 tesshucom
  */
 
 package com.tesshu.jpsonic.infrastructure.search;
 
-import java.util.List;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.SearchResult;
-import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterCriteria;
+import com.tesshu.jpsonic.infrastructure.cache.CacheKeys;
+import com.tesshu.jpsonic.infrastructure.cache.EhcacheConfiguration.RandomCacheKey;
+import com.tesshu.jpsonic.infrastructure.cache.ModelCache;
+import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteria;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
+import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
+import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
+import com.tesshu.jpsonic.infrastructure.search.legacy.SearchServiceUtilities;
+import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
+import com.tesshu.jpsonic.infrastructure.settings.SKeys;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-public interface MediaSearchProvider {
+/**
+ * Implementation of the SearchService interface providing various search
+ * capabilities over music data indexed with Lucene.
+ * 
+ * <p>
+ * This service handles executing Lucene queries, converting search results into
+ * domain entities, caching random search results, and managing pagination and
+ * filtering based on music folders, genres, artists, and media types.
+ * </p>
+ * 
+ * <p>
+ * Dependencies include:
+ * <ul>
+ * <li>Lucene utilities for search execution and query building</li>
+ * <li>Data access objects (DAOs) for Albums and MediaFiles</li>
+ * <li>Application-specific utilities and settings services</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * The service supports both standard web search criteria and UPnP search
+ * criteria, offering random selection capabilities with caching to optimize
+ * performance.
+ * </p>
+ * 
+ * <p>
+ * Exception handling ensures that IO and Lucene-related errors are logged
+ * without crashing the service, and resources such as IndexSearcher are
+ * properly released.
+ * </p>
+ * 
+ * @see SearchService
+ * @see QueryFactory
+ * @see IndexManager
+ */
+@Service
+public class MediaSearchProvider implements LegacySearch {
 
-    /**
-     * Perform a search that comply with the UPnP Service Template with
-     * UPnPCriteria. Criteria is built using a dedicated Director class
-     * (UPnPCriteriaDirector).
-     *
-     * @param <T> see UPnPCriteria#getAssignableClass
-     *
-     * @since 106.1.0
-     *
-     * @return search result
-     */
-    <T> SearchResult<T> search(UPnPSearchCriteria criteria);
+    private static final Logger LOG = LoggerFactory.getLogger(MediaSearchProvider.class);
 
-    /**
-     * Returns a number of random songs.
-     *
-     * @param criteria Search criteria.
-     *
-     * @return List of random songs.
-     */
-    List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria);
+    private final QueryFactory queryFactory;
+    private final IndexManager indexManager;
+    private final SearchServiceUtilities util;
+    private final SettingsFacade settingsFacade;
+    private final MediaFileDao mediaFileDao;
+    private final AlbumDao albumDao;
+    private final ModelCache modelCache;
 
-    /**
-     * Returns random songs. The song returned by this list is limited to
-     * MesiaType=SONG. In other words, PODCAST, AUDIOBOOK and VIDEO are not
-     * included.
-     * <p>
-     * This method uses a very short-lived cache. This cache is not for long-running
-     * transactions like paging, but for short-term repetitive calls.
-     *
-     * @version 114.2.0
-     *
-     * @since 106.1.0
-     *
-     * @param count        Number of albums to return.
-     * @param offset       offset
-     * @param casheMax     Data duplication due to paging is avoided when the cache
-     *                     is an iterative call within the valid period.
-     * @param musicFolders Only return albums from these folders.
-     * @param genres       Genres
-     *
-     * @return List of random albums.
-     */
-    List<MediaFile> getRandomSongs(int count, int offset, int casheMax,
-            List<MusicFolder> musicFolders, String... genres);
+    MediaSearchProvider(QueryFactory queryFactory, IndexManager indexManager,
+            SearchServiceUtilities util, SettingsFacade settingsFacade, MediaFileDao mediaFileDao,
+            AlbumDao albumDao, ModelCache modelCache) {
+        super();
+        this.queryFactory = queryFactory;
+        this.indexManager = indexManager;
+        this.util = util;
+        this.settingsFacade = settingsFacade;
+        this.mediaFileDao = mediaFileDao;
+        this.albumDao = albumDao;
+        this.modelCache = modelCache;
+    }
 
-    /**
-     * Returns random songs. The song returned by this list is limited to
-     * MesiaType=SONG. In other words, PODCAST, AUDIOBOOK and VIDEO are not
-     * included.
-     * <p>
-     * This method uses a very short-lived cache. This cache is not for long-running
-     * transactions like paging, but for short-term repetitive calls.
-     *
-     * @since 107.0.0
-     *
-     * @param count        Number of albums to return.
-     * @param offset       offset
-     * @param casheMax     Data duplication due to paging is avoided when the cache
-     *                     is an iterative call within the valid period.
-     * @param musicFolders Only return albums from these folders.
-     *
-     * @return List of random albums.
-     */
-    List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax,
-            List<MusicFolder> musicFolders);
+    // Logs the search query if settings and log level allow it
+    private void logSearchQueryIfNeeded(HttpSearchCriteria criteria) {
+        if (settingsFacade.get(SKeys.general.search.outputSearchQuery) && LOG.isInfoEnabled()) {
+            LOG
+                .info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}",
+                        criteria.targetType(), criteria.input(), criteria.offset(),
+                        criteria.count());
+        }
+    }
 
-    /**
-     * Returns a number of random albums.
-     *
-     * @param count        Number of albums to return.
-     * @param musicFolders Only return albums from these folders.
-     *
-     * @return List of random albums.
-     */
-    List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
+    @Override
+    public LegacySearchResult search(HttpSearchCriteria criteria) {
+        LegacySearchResult result = new LegacySearchResult();
+        int offset = criteria.offset();
+        int count = criteria.count();
+        result.setOffset(offset);
 
-    /**
-     * Returns random albums, using ID3 tag.
-     *
-     * @param count        Number of albums to return.
-     * @param musicFolders Only return albums from these folders.
-     *
-     * @return List of random albums.
-     */
-    List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
+        // Return early if count is less than or equal to zero
+        if (count <= 0) {
+            return result;
+        }
 
-    /**
-     * Returns random albums, using ID3 tag.
-     * <p>
-     * Unlike getRandom Album Id3, this method uses a very short-lived. This cache
-     * is not for long-running transactions like paging, but for short-term
-     * repetitive calls.
-     *
-     * @since 106.1.0
-     *
-     * @param count        Number of albums to return.
-     * @param offset       offset
-     * @param casheMax     Data duplication due to paging is avoided when the cache
-     *                     is an iterative call within the valid period.
-     * @param musicFolders Only return albums from these folders.
-     *
-     * @return List of random albums.
-     */
-    List<Album> getRandomAlbumsId3(int count, int offset, int casheMax,
-            List<MusicFolder> musicFolders);
+        // Get the IndexSearcher for the given target type
+        IndexSearcher searcher = indexManager.getSearcher(criteria.targetType());
+        if (searcher == null) {
+            return result;
+        }
 
-    /**
-     * Returns all genres in the music collection. The method for simulating the
-     * genre specification of legacy servers. Use
-     * {@link #getGenres(GenreMasterCriteria, long, long)}, if you don't need
-     * backward compatibility.
-     *
-     * @since 101.2.0
-     *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
-     *
-     * @return Sorted list of genres.
-     */
-    List<Genre> getGenres(boolean sortByAlbum);
+        try {
+            // Execute search with offset + count to allow paging
+            TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
 
-    /**
-     * Returns all genres in the music collection. The method for simulating the
-     * genre specification of legacy servers. Use
-     * {@link #getGenres(GenreMasterCriteria, long, long)}, if you don't need
-     * backward compatibility.
-     *
-     * @since 105.3.0
-     *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
-     * @param offset      offset
-     * @param maxResults  maxResults
-     *
-     * @return Sorted list of genres.
-     */
-    List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults);
+            // Get the rounded total number of hits
+            int totalHits = util.round(topDocs.totalHits.value());
+            result.setTotalHits(totalHits);
 
-    /**
-     * Returns all genres in the music collection.
-     *
-     * @since 114.2.0
-     */
-    List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults);
+            // Calculate the result range (start to end) safely within bounds
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
 
-    /**
-     * Returns count of Genres. The method for simulating the genre specification of
-     * legacy servers. Use {@link #getGenresCount(GenreMasterCriteria)}, if you
-     * don't need backward compatibility.
-     *
-     * @since 105.3.0
-     *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
-     *
-     * @return Count of Genres
-     */
-    int getGenresCount(boolean sortByAlbum);
+            // Add documents in the specified range to the result if they match
+            for (int i = start; i < end; i++) {
+                util
+                    .addIfAnyMatch(result, criteria.targetType(),
+                            searcher.storedFields().document(topDocs.scoreDocs[i].doc));
+            }
 
-    /**
-     * Returns the number of genres in the specified Folders and Scope.
-     *
-     * @since 114.2.0
-     */
-    int getGenresCount(GenreMasterCriteria criteria);
+            // Log the search query info if logging is enabled
+            logSearchQueryIfNeeded(criteria);
 
-    /**
-     * Returns albums in a genre.
-     *
-     * @since 101.2.0
-     *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param genres       A genre name or multiple genres represented by delimiter
-     *                     strings defined in the specification.
-     * @param musicFolders Only return albums in these folders.
-     *
-     * @return Albums in the genre.
-     */
-    List<MediaFile> getAlbumsByGenres(String genres, int offset, int count,
-            List<MusicFolder> musicFolders);
+        } catch (IOException e) {
+            // Handle search failure
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            // Always release the searcher to avoid resource leaks
+            indexManager.release(criteria.targetType(), searcher);
+        }
+
+        return result;
+    }
+
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. #1585")
+    public <T> SearchResult<T> search(UPnPSearchCriteria criteria) {
+        int offset = criteria.offset();
+        int count = criteria.count();
+
+        IndexType indexType = criteria.targetType();
+
+        // Early return if count is invalid or index type is null
+        if (count <= 0 || indexType == null) {
+            return new SearchResult<>(offset);
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        if (searcher == null) {
+            return new SearchResult<>(offset);
+        }
+
+        // Optionally log search info
+        writeUPnPSerchLog(indexType, criteria);
+
+        try {
+            // Execute Lucene search with enough results for paging
+            TopDocs topDocs = searcher.search(criteria.parsedQuery(), offset + count);
+
+            // Calculate result bounds
+            int totalHits = util.round(topDocs.totalHits.value());
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            // Dispatch by index type
+            if (IndexType.ARTIST_ID3 == indexType) {
+                return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
+                        com.tesshu.jpsonic.domain.model.Artist.class);
+            } else if (IndexType.ALBUM_ID3 == indexType) {
+                return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
+                        com.tesshu.jpsonic.domain.model.Album.class);
+            } else {
+                return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
+                        com.tesshu.jpsonic.domain.model.MediaFile.class);
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            // Always release resources
+            indexManager.release(indexType, searcher);
+        }
+        return new SearchResult<>(criteria.offset());
+    }
 
     /**
-     * Returns albums in a genre.
-     *
-     * @since 101.2.0
-     *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param genres       A genre name or multiple genres represented by delimiter
-     *                     strings defined in the specification.
-     * @param musicFolders Only return albums from these folders.
-     *
-     * @return Albums in the genre.
+     * Generic method to extract documents, convert them to desired type, and add to
+     * result.
      */
-    List<Album> getAlbumId3sByGenres(String genres, int offset, int count,
-            List<MusicFolder> musicFolders);
+    private <T> SearchResult<T> processDocuments(IndexSearcher searcher, TopDocs topDocs, int start,
+            int end, IndexType indexType, Class<T> clazz) throws IOException {
+        List<T> dist = new ArrayList<>();
+        for (int i = start; i < end; i++) {
+            Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
+            util.addEntityIfPresent(dist, indexType, util.getId(doc), clazz);
+        }
+        int totalHits = util.round(topDocs.totalHits.value());
+        return new SearchResult<>(dist, start, totalHits);
+    }
+
+    private void writeUPnPSerchLog(IndexType indexType, UPnPSearchCriteria criteria) {
+        if (settingsFacade.get(SKeys.general.search.outputSearchQuery) && LOG.isInfoEnabled()) {
+            LOG
+                .info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}",
+                        indexType, criteria.input(), criteria.offset(), criteria.count());
+        }
+    }
 
     /**
-     * Returns songs in a genre.
+     * Common processing of random method.
      *
-     * @version 114.2.0
-     *
-     * @since 101.2.0
-     *
-     * @param offset       Number of songs to skip.
-     * @param count        Maximum number of songs to return.
-     * @param genres       A genre name or multiple genres represented by delimiter
-     *                     strings defined in the specification.
-     * @param musicFolders Only return songs from these folders.
-     *
-     * @return songs in the genre.
+     * @param count            Number of albums to return.
+     * @param idToListCallback Callback to get D from id and store it in List
      */
-    List<MediaFile> getSongsByGenres(String genres, int offset, int count,
-            List<MusicFolder> musicFolders, MediaType... types);
+    private <D> List<D> createRandomDocsList(long count, IndexSearcher searcher, Query query,
+            BiConsumer<List<D>, Integer> idToListCallback) throws IOException {
 
-    /**
-     * Returns only the children size of an Album that match the specified criteria.
-     *
-     * @since 114.2.0
-     */
-    int getChildSizeOf(String genre, Album album, List<MusicFolder> folders, MediaType... types);
+        // Get all matching document IDs from Lucene
+        List<Integer> docIds = Arrays
+            .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+            .map(sd -> sd.doc)
+            .collect(Collectors.toList());
 
-    /**
-     * Returns only the children of an Album that match the specified criteria. The
-     * size of the expected result is assumed to be finite, so offset and count are
-     * unsupported.
-     *
-     * @since 114.2.0
-     */
-    List<MediaFile> getChildrenOf(String genre, Album album, int offset, int count,
-            List<MusicFolder> folders, MediaType... types);
+        List<D> result = new ArrayList<>();
+
+        // Randomly pick documents until the desired count is reached or list is
+        // exhausted
+        while (!docIds.isEmpty() && result.size() < count) {
+            int randomIndex = util.nextInt(docIds.size());
+
+            // Fetch the document at the random position
+            Document document = searcher.storedFields().document(docIds.get(randomIndex));
+
+            // Convert the document ID and add to result via the callback
+            idToListCallback.accept(result, util.getId(document));
+
+            // Remove selected doc to avoid duplicates
+            docIds.remove(randomIndex);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
+    @Override
+    public List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria) {
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+
+        // Return empty list if no searcher is available (e.g., on first startup)
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Build query to fetch candidate songs for random selection
+            Query query = queryFactory.getRandomSongs(criteria);
+
+            // Create a random list of MediaFile objects using the callback
+            return createRandomDocsList(criteria.getCount(), searcher, query,
+                    (resultList, id) -> util.addMediaFileIfAnyMatch(resultList, id));
+
+        } catch (IOException e) {
+            // Log any Lucene or IO-related failures
+            LOG.error("Failed to search for random songs.", e);
+        } finally {
+            // Always release the searcher to prevent resource leaks
+            indexManager.release(IndexType.SONG, searcher);
+        }
+
+        // Return empty list if something went wrong
+        return Collections.emptyList();
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongs(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
+            int cacheMax, String... genres) {
+
+        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
+
+        // Callback to add a sublist of IDs (after offset & limit) to the result list
+        Consumer<List<Integer>> addSubsetToResult = ids -> ids
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .map(mediaFileDao::getDomainMediaFile)
+            .filter(Objects::nonNull)
+            .forEach(result::add);
+
+        // Try to get cached IDs first
+        modelCache
+            .getCache(CacheKeys.random.song, cacheMax, musicFolders)
+            .ifPresent(addSubsetToResult);
+        if (!result.isEmpty()) {
+            return result; // Return if cache hit
+        }
+
+        // Get Lucene IndexSearcher for songs
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+        if (searcher == null) {
+            return result;
+        }
+
+        try {
+            // Build query based on folders and genres
+            Query query = queryFactory.getRandomSongs(musicFolders, genres);
+
+            // Fetch all matching Lucene documents
+            List<Integer> docIds = Arrays
+                .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                .map(sd -> sd.doc)
+                .collect(Collectors.toList());
+
+            // Select up to `cacheMax` unique random IDs
+            List<Integer> ids = new ArrayList<>();
+            while (!docIds.isEmpty() && ids.size() < cacheMax) {
+                int randomIndex = util.nextInt(docIds.size());
+                Document doc = searcher.storedFields().document(docIds.get(randomIndex));
+                ids.add(util.getId(doc));
+                docIds.remove(randomIndex);
+            }
+
+            // Store the randomly selected IDs in cache
+            modelCache.putCache(CacheKeys.random.song, cacheMax, musicFolders, ids);
+
+            // Apply offset & limit, and add to result
+            addSubsetToResult.accept(ids);
+
+        } catch (IOException e) {
+            LOG.error("Failed to search for random songs.", e);
+        } finally {
+            // Always release searcher to avoid resource leak
+            indexManager.release(IndexType.SONG, searcher);
+        }
+
+        return result;
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongsByArtist(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            com.tesshu.jpsonic.domain.model.Artist artist, long offset, long count, int cacheMax) {
+
+        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
+
+        // Define logic to extract a sublist (offset + count) from the source list
+        Consumer<List<com.tesshu.jpsonic.domain.model.MediaFile>> addSubsetToResult = files -> files
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .forEach(result::add);
+
+        // Try retrieving from cache first
+        modelCache
+            .getCache(CacheKeys.random.songByArtist, cacheMax, folders, artist.name())
+            .ifPresent(addSubsetToResult);
+
+        if (!result.isEmpty()) {
+            return result; // Return if cached result exists
+        }
+
+        // Get random songs for the artist from the database
+        List<com.tesshu.jpsonic.domain.model.MediaFile> songs = mediaFileDao
+            .getDomainRandomSongsForAlbumArtist(cacheMax, artist.name(), folders,
+                    (range, limit) -> {
+                        // Generate a list of unique random integers within [0, range)
+                        List<Integer> randomIndices = new ArrayList<>();
+                        while (randomIndices.size() < Math.min(limit, range)) {
+                            int random = util.nextInt(range);
+                            if (!randomIndices.contains(random)) {
+                                randomIndices.add(random);
+                            }
+                        }
+                        return randomIndices;
+                    });
+
+        // Cache the retrieved songs for future access
+        modelCache.putCache(CacheKeys.random.songByArtist, cacheMax, folders, songs, artist.name());
+
+        // Add the subset (offset + count) to the result
+        addSubsetToResult.accept(songs);
+
+        return result;
+    }
+
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
+    @Override
+    public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
+        // Get Lucene IndexSearcher for albums
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
+
+        // Return empty list if searcher is unavailable (e.g., index not ready)
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Create query to retrieve albums from the given folders
+            Query query = queryFactory.getRandomAlbums(musicFolders);
+
+            // Select random documents and convert them to MediaFile objects
+            return createRandomDocsList(count, searcher, query,
+                    (resultList, id) -> util.addMediaFileIfAnyMatch(resultList, id));
+
+        } catch (IOException e) {
+            // Log error if Lucene search fails
+            LOG.error("Failed to search for random albums.", e);
+
+        } finally {
+            // Ensure resources are properly released
+            indexManager.release(IndexType.ALBUM, searcher);
+        }
+
+        // Fallback: return empty list if exception occurs
+        return Collections.emptyList();
+    }
+
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
+    @Override
+    public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
+        // Obtain IndexSearcher for ID3-based albums
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+
+        // Return empty list if index is not available
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Build query to search for random albums (ID3-based) within the given folders
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
+            // Fetch random album documents and convert them to Album entities
+            return createRandomDocsList(count, searcher, query,
+                    (resultList, id) -> util.addAlbumId3IfAnyMatch(resultList, id));
+
+        } catch (IOException e) {
+            // Log any IO or Lucene search error
+            LOG.error("Failed to search for random albums (ID3).", e);
+
+        } finally {
+            // Ensure the IndexSearcher is always released
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+
+        // Fallback in case of errors
+        return Collections.emptyList();
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.Album> getRandomAlbumsId3(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
+            int casheMax) {
+        // Obtain IndexSearcher for ID3-based albums
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+
+        // Return empty list if index is not available
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Build query to search for random albums (ID3-based) within the given folders
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
+            // Fetch random album documents and convert them to Album entities
+            return createRandomDocsList(count, searcher, query, util::addAlbumId3IfAnyMatch);
+
+        } catch (IOException e) {
+            // Log any IO or Lucene search error
+            LOG.error("Failed to search for random albums (ID3).", e);
+
+        } finally {
+            // Ensure the IndexSearcher is always released
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+
+        // Fallback in case of errors
+        return Collections.emptyList();
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.Genre> findLegacyGenres(boolean sortByAlbum,
+            long offset, long count) {
+        return indexManager
+            .getDomainGenres(sortByAlbum)
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .toList();
+    }
+
+    @Override
+    public List<Genre> getGenres(boolean sortByAlbum) {
+        return indexManager.getGenres(sortByAlbum);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.Genre> getGenres(GenreMasterCriteria criteria,
+            long offset, long maxResults) {
+        // Return empty list if maxResults is zero or negative
+        if (maxResults <= 0) {
+            return Collections.emptyList();
+        }
+
+        // Try to get cached genres for the given criteria
+        List<com.tesshu.jpsonic.domain.model.Genre> genres = modelCache.getCache(criteria);
+
+        // If cache is empty, create genre master list and cache it
+        if (genres.isEmpty()) {
+            genres = indexManager.createGenreMaster(criteria);
+            modelCache.putCache(criteria, genres);
+        }
+
+        // Safely skip offset and limit results, making sure not to exceed list size
+        int start = (int) Math.min(offset, genres.size());
+        int limit = (int) Math.min(maxResults, genres.size() - start);
+
+        return genres.stream().skip(start).limit(limit).toList();
+    }
+
+    public int getGenresCount(boolean sortByAlbum) {
+        return getGenres(sortByAlbum).size();
+    }
+
+    public int getGenresCount(GenreMasterCriteria criteria) {
+        return getGenres(criteria, 0, Integer.MAX_VALUE).size();
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findAlbumsByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, String genres, long offset,
+            long count) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), true);
+
+        return mediaFileDao.findAlbumsByGenres(folders, preAnalyzedGenres, offset, count);
+    }
+
+    @Override
+    public List<MediaFile> getAlbumsByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), true);
+        return mediaFileDao.getAlbumsByGenre(offset, count, preAnalyzedGenres, musicFolders);
+    }
+
+    @Override
+    public List<Album> getAlbumId3sByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), false);
+        return albumDao.getAlbumsByGenre(offset, count, preAnalyzedGenres, musicFolders);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.Album> findAlbumId3sByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, String genres,
+            long offset, long count) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), false);
+        return albumDao
+            .findAlbums(musicFolders, preAnalyzedGenres, AlbumSortOrder.DEFAULT, offset, count);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getSongsByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, String genres, long offset,
+            long count, com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+        List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(List.of(genres), true);
+        return mediaFileDao.getSongsByGenres(folders, preAnalyzedGenres, offset, count, types);
+    }
+
+    @Override
+    public List<MediaFile> getSongsByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders, MediaFile.MediaType... types) {
+        // Return empty list if genres string is null or empty
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+
+        // Convert input genres string (already processed as a list) into pre-analyzed
+        // genre tokens
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), true);
+
+        // Use provided media types or default to MUSIC and AUDIOBOOK
+        List<MediaType> targetTypes = (types.length == 0)
+                ? Arrays.asList(MediaType.MUSIC, MediaType.AUDIOBOOK)
+                : Arrays.asList(types);
+        // Delegate search to DAO
+        return mediaFileDao
+            .getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders, targetTypes);
+    }
+
+    public int countChldren(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            String genres, com.tesshu.jpsonic.domain.model.Album album, Type... types) {
+        return mediaFileDao
+            .countChldren(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true),
+                    album, types);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findChildren(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, String genres,
+            com.tesshu.jpsonic.domain.model.Album album, long offset, long count,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+        return mediaFileDao
+            .findChildren(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true),
+                    album, offset, count, types);
+    }
 }

@@ -28,11 +28,11 @@ import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpCryptSettingsForm;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 
 public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryptSettingsForm {
 

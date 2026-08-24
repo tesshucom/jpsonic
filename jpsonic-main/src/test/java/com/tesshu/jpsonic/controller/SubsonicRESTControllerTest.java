@@ -40,16 +40,19 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -75,7 +78,6 @@ import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
@@ -144,7 +146,8 @@ class SubsonicRESTControllerTest {
         @BeforeEach
         void setup() {
             final SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-            final ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            final ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(
+                    settingsFacade);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
             userService = mock(UserService.class);
             final PlayerService playerService = mock(PlayerService.class);
@@ -152,7 +155,7 @@ class SubsonicRESTControllerTest {
             final WritableMediaFileService writableMediaFileService = mock(
                     WritableMediaFileService.class);
             final LastFmService lastFmService = mock(LastFmService.class);
-            final MusicIndexService musicIndexService = mock(MusicIndexService.class);
+            final MusicIndexProvider musicIndexProvider = mock(MusicIndexProvider.class);
             final TranscodingService transcodingService = mock(TranscodingService.class);
             final DownloadController downloadController = mock(DownloadController.class);
             final CoverArtController coverArtController = mock(CoverArtController.class);
@@ -170,7 +173,6 @@ class SubsonicRESTControllerTest {
             podcastService = mock(PodcastService.class);
             final RatingService ratingService = mock(RatingService.class);
             final LegacySearch legacySearch = mock(LegacySearch.class);
-            final MediaSearchProvider mediaSearchProvider = mock(MediaSearchProvider.class);
             final InternetRadioService internetRadioService = mock(InternetRadioService.class);
             final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
             final ArtistDao artistDao = mock(ArtistDao.class);
@@ -181,16 +183,16 @@ class SubsonicRESTControllerTest {
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(
                     AirsonicLocaleResolver.class);
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
-            controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
+            controller = new SubsonicRESTController(settingsFacade, serverLocaleProvider,
                     musicFolderService, mock(LibraryAccessPolicy.class), userService, playerService,
-                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService,
+                    mediaFileService, mock(MediaFileProvider.class), writableMediaFileService,
+                    lastFmService, mock(MusicFolderProvider.class), musicIndexProvider,
                     transcodingService, downloadController, coverArtController, avatarController,
                     userSettingsController, topController, statusService, streamController,
                     hlsController, shareService, playlistService, lyricsService,
-                    audioScrobblerService, podcastService, ratingService, mediaSearchProvider,
-                    legacySearch, internetRadioService, mediaFileDao, artistDao, albumDao,
-                    bookmarkService, playQueueDao, mediaScannerService, airsonicLocaleResolver,
-                    director);
+                    audioScrobblerService, podcastService, ratingService, legacySearch,
+                    internetRadioService, mediaFileDao, artistDao, albumDao, bookmarkService,
+                    playQueueDao, mediaScannerService, airsonicLocaleResolver, director);
         }
 
         @Test
