@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor.composite;
 
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 
 public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album)
         implements CompositeModel {
@@ -31,7 +31,7 @@ public record FolderGenreAlbum(MusicFolder folder, Genre genre, Album album)
 
     @Override
     public String createCompositeId() {
-        return TYPE_PREFIX + folder.getId() + SEPA + album.getId() + SEPA + genre.getName();
+        return TYPE_PREFIX + folder.id() + SEPA + album.id() + SEPA + genre.name();
     }
 
     public static boolean isCompositeId(String s) {

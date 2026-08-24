@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.service.InternetRadioService.InternetRadioSource;
 import org.junit.jupiter.api.BeforeEach;

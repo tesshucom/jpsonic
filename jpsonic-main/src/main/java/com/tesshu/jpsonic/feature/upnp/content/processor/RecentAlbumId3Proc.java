@@ -19,15 +19,15 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -35,14 +35,14 @@ class RecentAlbumId3Proc extends AlbumId3Proc implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 
-    private final UPnPProcessorUtil util;
-    private final AlbumDao albumDao;
+    private final MusicFolderProvider musicFolderProvider;
+    private final AlbumProvider albumProvider;
 
-    RecentAlbumId3Proc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, AlbumDao albumDao) {
-        super(util, factory, mediaFileService, albumDao);
-        this.util = util;
-        this.albumDao = albumDao;
+    RecentAlbumId3Proc(MusicFolderProvider musicFolderProvider, AlbumProvider albumProvider,
+            MediaFileProvider mediaFileProvider, UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaFileProvider, albumProvider, factory);
+        this.musicFolderProvider = musicFolderProvider;
+        this.albumProvider = albumProvider;
     }
 
     @Override
@@ -53,16 +53,14 @@ class RecentAlbumId3Proc extends AlbumId3Proc implements CountLimitProc {
     @Override
     public List<Album> getDirectChildren(long firstResult, long maxResults) {
         int offset = (int) firstResult;
-        int directChildrenCount = getDirectChildrenCount();
-        int count = toCount(firstResult, maxResults, directChildrenCount);
-        if (count == 0) {
-            return Collections.emptyList();
-        }
-        return albumDao.getNewestAlbums(offset, count, util.getGuestFolders());
+        int max = getDirectChildrenCount();
+        int count = toCount(firstResult, maxResults, max);
+        return albumProvider.findNewestAlbums(musicFolderProvider.getGuestFolders(), offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return Math.min(albumDao.getAlbumCount(util.getGuestFolders()), RECENT_COUNT);
+        return Math
+            .min(albumProvider.countAlbums(musicFolderProvider.getGuestFolders()), RECENT_COUNT);
     }
 }

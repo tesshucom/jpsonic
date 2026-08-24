@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,12 +31,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,17 +47,18 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RecentAlbumByFolderProcTest {
 
-    private UPnPProcessorUtil util;
-    private MediaFileService mediaFileService;
+    private MediaFileProvider mediaFileProvider;
+    private MusicFolderProvider musicFolderProvider;
     private RecentAlbumByFolderProc processor;
 
     @BeforeEach
     void setup() {
-        util = mock(UPnPProcessorUtil.class);
         UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
-        mediaFileService = mock(MediaFileService.class);
-        processor = new RecentAlbumByFolderProc(util, factory, mediaFileService);
-
+        mediaFileProvider = mock(MediaFileProvider.class);
+        musicFolderProvider = mock(MusicFolderProvider.class);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        processor = new RecentAlbumByFolderProc(musicFolderProvider, mediaFileProvider,
+                settingsFacade, factory);
     }
 
     @Test
@@ -71,46 +73,52 @@ class RecentAlbumByFolderProcTest {
 
         @BeforeEach
         void setup() {
-            folder = new MediaFile();
-            folder.setMediaType(MediaType.DIRECTORY);
-            folder.setPathString("pathString");
-            when(util.getGuestFolders())
+            folder = new MediaFile(1, "pathString", 0, "format", "DIRECTORY", 256, 60, 9999,
+                    "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri",
+                    "composer", "reading", "#", "comment");
+            when(musicFolderProvider.getGuestFolders())
                 .thenReturn(List
-                    .of(new MusicFolder(folder.getPathString(), "name1", true, null, false)));
+                    .of(new MusicFolder(0, folder.pathString(), "name1", false, null, 0, false)));
         }
 
         @Test
         void testAlbumChildren() {
-            MediaFile album = new MediaFile();
-            album.setMediaType(MediaType.ALBUM);
+            MediaFile album = new MediaFile(1, "pathString", 0, "format", "ALBUM", 256, 60, 9999,
+                    "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri",
+                    "composer", "reading", "#", "comment");
             assertTrue(processor.getChildren(album, 0, 0).isEmpty());
-            verify(mediaFileService, times(1))
-                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(MediaType[].class));
-            verify(mediaFileService, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+
+            verify(mediaFileProvider, times(1))
+                .findChildren(any(MediaFile.class), any(RuntimeOrderPolicy.ChildOrder.class),
+                        anyLong(), anyLong(), any(MediaFile.Type[].class));
+            verify(mediaFileProvider, never())
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testFolderChildrenWithCountZero() {
-            assertTrue(processor.getChildren(folder, 0, 0).isEmpty());
-            verify(mediaFileService, never())
-                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(MediaType[].class));
-            verify(mediaFileService, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            when(mediaFileProvider.countAlbums(ArgumentMatchers.<MusicFolder>anyList()))
+                .thenReturn(100);
+            assertTrue(processor.getChildren(folder, 0, Integer.MAX_VALUE).isEmpty());
+
+            verify(mediaFileProvider, never())
+                .findChildren(any(MediaFile.class), any(RuntimeOrderPolicy.ChildOrder.class),
+                        anyLong(), anyLong(), any(MediaFile.Type[].class));
+            verify(mediaFileProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testFolderChildrenWithValidValue() {
-            when(mediaFileService.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList()))
-                .thenReturn(1L);
+            when(mediaFileProvider.countAlbums(ArgumentMatchers.<MusicFolder>anyList()))
+                .thenReturn(1);
             assertTrue(processor.getChildren(folder, 0, 1).isEmpty());
-            verify(mediaFileService, never())
-                .getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(MediaType[].class));
-            verify(mediaFileService, times(1))
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+
+            verify(mediaFileProvider, never())
+                .findChildren(any(MediaFile.class), any(RuntimeOrderPolicy.ChildOrder.class),
+                        anyLong(), anyLong(), any(MediaFile.Type[].class));
+            verify(mediaFileProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
     }
 }

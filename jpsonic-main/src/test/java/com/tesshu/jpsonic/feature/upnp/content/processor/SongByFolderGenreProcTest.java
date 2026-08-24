@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
@@ -37,9 +36,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.Player;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.TranscodingDefinition;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
@@ -54,10 +58,6 @@ import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,9 +71,9 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class SongByFolderGenreProcTest {
 
-    private UPnPProcessorUtil util;
-    private SettingsFacade settingsFacade;
+    private MusicFolderProvider musicFolderProvider;
     private MediaSearchProvider mediaSearchProvider;
+    private SettingsFacade settingsFacade;
     private SongByFolderGenreProc proc;
 
     @BeforeEach
@@ -87,25 +87,27 @@ class SongByFolderGenreProcTest {
 
     @Ignore
     void init() {
-        util = mock(UPnPProcessorUtil.class);
         TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
-        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
-                com.tesshu.jpsonic.domain.model.MediaFile.class);
-        when(mediaFile.format())
-            .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+        MediaFile mediaFile = new MediaFile(1, "pathString", null, "mp3", "MUSIC", 256, 60, 9999,
+                "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri", "composer",
+                "reading", "#", "comment");
+        TranscodingDefinition availableDefinition = mock(TranscodingDefinition.class);
+        when(availableDefinition.outputFormat()).thenReturn("mp3");
         ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
                 mediaFile, null, null);
         when(parametersPlanner
-            .resolveAudioTranscodingParameters(nullable(Player.class),
-                    nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
+            .resolveAudioTranscodingParameters(nullable(Player.class), nullable(MediaFile.class),
                     nullable(Integer.class), nullable(String.class)))
             .thenReturn(param);
+
+        musicFolderProvider = mock(MusicFolderProvider.class);
         UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                mock(MediaFileService.class), mock(MediaFileProvider.class),
-                mock(PlayerProvider.class), parametersPlanner);
+                mock(MediaFileProvider.class), mock(PlayerProvider.class), parametersPlanner);
+
         mediaSearchProvider = mock(MediaSearchProvider.class);
-        FolderOrGenreLogic deligate = new FolderOrGenreLogic(mediaSearchProvider, util, factory);
-        proc = new SongByFolderGenreProc(settingsFacade, mediaSearchProvider, factory, deligate);
+        FolderOrGenreLogic deligate = new FolderOrGenreLogic(mediaSearchProvider,
+                musicFolderProvider, factory);
+        proc = new SongByFolderGenreProc(mediaSearchProvider, deligate, settingsFacade, factory);
     }
 
     @Test
@@ -116,8 +118,9 @@ class SongByFolderGenreProcTest {
     @Test
     void testCreateContainer() {
         UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
-        FolderOrGenreLogic deligate = new FolderOrGenreLogic(mediaSearchProvider, util, factory);
-        proc = new SongByFolderGenreProc(settingsFacade, mediaSearchProvider, factory, deligate);
+        FolderOrGenreLogic deligate = new FolderOrGenreLogic(mediaSearchProvider,
+                musicFolderProvider, factory);
+        proc = new SongByFolderGenreProc(mediaSearchProvider, deligate, settingsFacade, factory);
 
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrGenre = new FolderOrFGenre(folder);
@@ -135,15 +138,15 @@ class SongByFolderGenreProcTest {
 
     @Test
     void testGetDirectChildren() {
-        MusicFolder folder0 = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0));
+        MusicFolder folder0 = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder0));
         proc.getDirectChildren(0, Integer.MAX_VALUE);
         verify(mediaSearchProvider, times(1))
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(mediaSearchProvider);
 
-        MusicFolder folder1 = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0, folder1));
+        MusicFolder folder1 = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder0, folder1));
         proc.getDirectChildren(0, Integer.MAX_VALUE);
         verify(mediaSearchProvider, never())
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
@@ -151,22 +154,22 @@ class SongByFolderGenreProcTest {
 
     @Test
     void testGetDirectChildrenCount() {
-        MusicFolder folder0 = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0));
+        MusicFolder folder0 = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder0));
         proc.getDirectChildrenCount();
         verify(mediaSearchProvider, times(1)).getGenresCount(any(GenreMasterCriteria.class));
         clearInvocations(mediaSearchProvider);
 
-        MusicFolder folder1 = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder0, folder1));
+        MusicFolder folder1 = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder0, folder1));
         proc.getDirectChildrenCount();
         verify(mediaSearchProvider, never()).getGenresCount(any(GenreMasterCriteria.class));
     }
 
     @Test
     void testGetDirectChild() {
-        MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder));
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder));
         Genre genre = new Genre("genre", 0, 0);
         when(mediaSearchProvider.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
             .thenReturn(Arrays.asList(genre));
@@ -176,14 +179,14 @@ class SongByFolderGenreProcTest {
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(mediaSearchProvider);
 
-        proc.getDirectChild(Integer.toString(folder.getId()));
+        proc.getDirectChild(Integer.toString(folder.id()));
         verify(mediaSearchProvider, never())
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
     }
 
     @Test
     void testGetChildren() {
-        MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrFGenre = new FolderOrFGenre(folder);
         proc.getChildren(folderOrFGenre, 0, Integer.MAX_VALUE);
         verify(mediaSearchProvider, times(1))
@@ -195,13 +198,14 @@ class SongByFolderGenreProcTest {
         folderOrFGenre = new FolderOrFGenre(folderGenre);
         proc.getChildren(folderOrFGenre, 0, Integer.MAX_VALUE);
         verify(mediaSearchProvider, times(1))
-            .getSongsByGenres(anyString(), anyInt(), anyInt(),
-                    ArgumentMatchers.<MusicFolder>anyList());
+            .getSongsByGenres(ArgumentMatchers.<MusicFolder>anyList(),
+                    ArgumentMatchers.<String>anyList(), anyLong(), anyLong(),
+                    any(MediaFile.Type[].class));
     }
 
     @Test
     void testGetChildSizeOf() {
-        MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
         FolderOrFGenre folderOrFGenre = new FolderOrFGenre(folder);
         proc.getChildSizeOf(folderOrFGenre);
         verify(mediaSearchProvider, times(1)).getGenresCount(any(GenreMasterCriteria.class));
@@ -216,7 +220,7 @@ class SongByFolderGenreProcTest {
 
     @Test
     void testAddChild() {
-        MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
         Genre genre = new Genre("genre", 0, 0);
         FolderGenre folderGenre = new FolderGenre(folder, genre);
         FGenreOrSong genreOrSong = new FGenreOrSong(folderGenre);
@@ -227,8 +231,9 @@ class SongByFolderGenreProcTest {
         assertEquals(1, containers.size());
         assertEquals(GenreContainer.class, containers.get(0).getClass());
 
-        MediaFile song = new MediaFile();
-        song.setId(0);
+        MediaFile song = new MediaFile(0, "pathString", null, "format", "MUSIC", 256, 60, 9999,
+                "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri", "composer",
+                "reading", "#", "comment");
         genreOrSong = new FGenreOrSong(song);
         parent = new DIDLContent();
         proc.addChild(parent, genreOrSong);
@@ -242,8 +247,8 @@ class SongByFolderGenreProcTest {
     @Test
     void testBrowseLeaf() throws ExecutionException {
         // Browse Genre
-        MusicFolder folder = new MusicFolder(0, null, null, false, null, null, false);
-        when(util.getGuestFolders()).thenReturn(Arrays.asList(folder));
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, Instant.now(), 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(Arrays.asList(folder));
         Genre genre = new Genre("genre", 0, 0);
         when(mediaSearchProvider.getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
             .thenReturn(Arrays.asList(genre));
@@ -252,12 +257,12 @@ class SongByFolderGenreProcTest {
         verify(mediaSearchProvider, times(1))
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
         clearInvocations(mediaSearchProvider);
-        proc.getDirectChild(Integer.toString(folder.getId()));
+        proc.getDirectChild(Integer.toString(folder.id()));
         verify(mediaSearchProvider, never())
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
 
         // Browse Folder
-        proc.browseLeaf(Integer.toString(folder.getId()), null, 0, Integer.MAX_VALUE);
+        proc.browseLeaf(Integer.toString(folder.id()), null, 0, Integer.MAX_VALUE);
         verify(mediaSearchProvider, times(1))
             .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong());
     }

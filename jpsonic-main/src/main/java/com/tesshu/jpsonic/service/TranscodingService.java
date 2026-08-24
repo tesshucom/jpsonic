@@ -39,13 +39,13 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
 import com.tesshu.jpsonic.feature.stream.TranscodeInputStream;
 import com.tesshu.jpsonic.feature.transcoding.Transcodings;
 import com.tesshu.jpsonic.feature.upnp.UPnPSubnet;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;

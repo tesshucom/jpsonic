@@ -218,12 +218,13 @@ class MediaScannerServiceImplTest {
                     scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
                     mock(MusicParser.class), mock(VideoParser.class), settingsFacade,
                     mock(LibraryAccessPolicy.class), new ScanningExclusionPolicy(settingsFacade),
-                    null, mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
+                    null, mock(IndexManager.class), mock(MusicIndexProviderImpl.class));
 
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final PlaylistService playlistService = mock(PlaylistService.class);
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
-            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MusicIndexProviderImpl musicIndexProviderImpl = mock(
+                    MusicIndexProviderImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
             final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
             final JpsonicComparators comparators = mock(JpsonicComparators.class);
@@ -237,9 +238,9 @@ class MediaScannerServiceImplTest {
                     writableMediaFileService, scannerStateService, indexManager, scanHelper);
             fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mediaFileDao, utils,
-                    scannerStateService, scanHelper, musicIndexServiceImpl, proc, comparators);
+                    scannerStateService, scanHelper, musicIndexProviderImpl, proc, comparators);
             id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
-                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexProviderImpl,
                     comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
                     templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
@@ -759,7 +760,7 @@ class MediaScannerServiceImplTest {
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsFacade, mock(LibraryAccessPolicy.class),
                     new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
-                    mock(MusicIndexServiceImpl.class));
+                    mock(MusicIndexProviderImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
             final StaticsDao staticsDao = mock(StaticsDao.class);
@@ -769,7 +770,8 @@ class MediaScannerServiceImplTest {
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final PlaylistService playlistService = mock(PlaylistService.class);
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
-            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MusicIndexProviderImpl musicIndexProviderImpl = mock(
+                    MusicIndexProviderImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
             final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
 
@@ -782,10 +784,10 @@ class MediaScannerServiceImplTest {
             FileMetadataScanProcedure fileMetaProc = new FileMetadataScanProcedure(
                     musicFolderService, indexManager, mediaFileService, writableMediaFileService,
                     mediaFileDao, sortProcedureService, scannerStateService, scanHelper,
-                    musicIndexServiceImpl, proc, comparators);
+                    musicIndexProviderImpl, proc, comparators);
             Id3MetadataScanProcedure id3MetaProc = new Id3MetadataScanProcedure(musicFolderService,
                     indexManager, mediaFileService, mediaFileDao, artistDao, albumDao,
-                    musicIndexServiceImpl, comparators, scanHelper);
+                    musicIndexProviderImpl, comparators, scanHelper);
             PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
                     playlistService, templateWrapper, staticsDao, sortProcedureService,
                     mediaFileCache, scanHelper);
@@ -1003,7 +1005,7 @@ class MediaScannerServiceImplTest {
                     mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsFacade, mock(LibraryAccessPolicy.class),
                     new ScanningExclusionPolicy(settingsFacade), null, mock(IndexManager.class),
-                    mock(MusicIndexServiceImpl.class));
+                    mock(MusicIndexProviderImpl.class));
             final MusicFolderServiceImpl musicFolderService = mock(MusicFolderServiceImpl.class);
             final JpsonicComparators comparators = mock(JpsonicComparators.class);
             staticsDao = mock(StaticsDao.class);
@@ -1012,7 +1014,8 @@ class MediaScannerServiceImplTest {
 
             final PlaylistService playlistService = mock(PlaylistService.class);
             final TemplateWrapper templateWrapper = mock(TemplateWrapper.class);
-            final MusicIndexServiceImpl musicIndexServiceImpl = mock(MusicIndexServiceImpl.class);
+            final MusicIndexProviderImpl musicIndexProviderImpl = mock(
+                    MusicIndexProviderImpl.class);
             final MediaFileCache mediaFileCache = mock(MediaFileCache.class);
             final JapaneseReadingProcessor proc = mock(JapaneseReadingProcessor.class);
 
@@ -1023,9 +1026,9 @@ class MediaScannerServiceImplTest {
                     writableMediaFileService, scannerStateService, indexManager, scanHelper);
             fileMetaProc = new FileMetadataScanProcedure(musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mediaFileDao, sortProcedureService,
-                    scannerStateService, scanHelper, musicIndexServiceImpl, proc, comparators);
+                    scannerStateService, scanHelper, musicIndexProviderImpl, proc, comparators);
             id3MetaProc = new Id3MetadataScanProcedure(musicFolderService, indexManager,
-                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexServiceImpl,
+                    mediaFileService, mediaFileDao, artistDao, albumDao, musicIndexProviderImpl,
                     comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
                     templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper);

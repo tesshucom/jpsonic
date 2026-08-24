@@ -21,32 +21,37 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.AlbumOrSong;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrAlbumLogic;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class RecentAlbumId3ByFolderProc extends AlbumId3ByFolderProc implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
+    private static final MediaFile.Type[] EXCLUDED_TYPES = Stream
+        .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO)
+        .toArray(size -> new MediaFile.Type[size]);
 
-    private final MediaFileService mediaFileService;
-    private final AlbumDao albumDao;
+    private final MediaFileProvider mediaFileProvider;
+    private final AlbumProvider albumProvider;
 
-    RecentAlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao,
-            UPnPDIDLFactory factory, FolderOrAlbumLogic folderOrAlbumLogic) {
-        super(mediaFileService, albumDao, factory, folderOrAlbumLogic);
-        this.mediaFileService = mediaFileService;
-        this.albumDao = albumDao;
+    RecentAlbumId3ByFolderProc(MediaFileProvider mediaFileProvider, AlbumProvider albumProvider,
+            FolderOrAlbumLogic folderOrAlbumLogic, UPnPDIDLFactory factory) {
+        super(mediaFileProvider, albumProvider, folderOrAlbumLogic, factory);
+        this.mediaFileProvider = mediaFileProvider;
+        this.albumProvider = albumProvider;
     }
 
     @Override
@@ -55,25 +60,24 @@ class RecentAlbumId3ByFolderProc extends AlbumId3ByFolderProc implements CountLi
     }
 
     @Override
-    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long firstResult,
-            long maxResults) {
+    public List<AlbumOrSong> getChildren(FolderOrFAlbum folderOrAlbum, long offset, long count) {
         if (folderOrAlbum.isFolderAlbum()) {
             Album album = folderOrAlbum.getFolderAlbum().album();
-            return mediaFileService
-                .getSongsForAlbum(firstResult, maxResults, album.getArtist(), album.getName())
+            MusicFolder folder = folderOrAlbum.getFolderAlbum().folder();
+            return mediaFileProvider
+                .findChildren(List.of(folder), album, offset, count, EXCLUDED_TYPES)
                 .stream()
                 .map(AlbumOrSong::new)
                 .toList();
         }
-        int offset = (int) firstResult;
         MusicFolder folder = folderOrAlbum.getFolder();
-        int albumCount = albumDao.getAlbumCount(List.of(folder));
-        int count = toCount(firstResult, maxResults, Math.min(albumCount, RECENT_COUNT));
+        int albumCount = albumProvider.countAlbums(List.of(folder));
+        int resultCount = toCount(offset, count, Math.min(albumCount, RECENT_COUNT));
         if (count == 0) {
             return Collections.emptyList();
         }
-        return albumDao
-            .getNewestAlbums(offset, count, List.of(folderOrAlbum.getFolder()))
+        return albumProvider
+            .findNewestAlbums(List.of(folderOrAlbum.getFolder()), offset, resultCount)
             .stream()
             .map(AlbumOrSong::new)
             .toList();

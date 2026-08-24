@@ -21,12 +21,11 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.PodcastChannel;
+import com.tesshu.jpsonic.domain.model.PodcastEpisode;
+import com.tesshu.jpsonic.domain.provider.resource.PodcastProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.PodcastService;
-import net.sf.ehcache.util.FindBugsSuppressWarnings;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -35,12 +34,12 @@ import org.springframework.stereotype.Controller;
 class PodcastProc extends DirectChildrenContentProc<PodcastChannel, PodcastEpisode> {
 
     private final UPnPDIDLFactory factory;
-    private final PodcastService podcastService;
+    private final PodcastProvider podcastProvider;
 
-    PodcastProc(UPnPDIDLFactory factory, PodcastService podcastService) {
+    PodcastProc(PodcastProvider podcastProvider, UPnPDIDLFactory factory) {
         super();
         this.factory = factory;
-        this.podcastService = podcastService;
+        this.podcastProvider = podcastProvider;
     }
 
     @Override
@@ -50,49 +49,39 @@ class PodcastProc extends DirectChildrenContentProc<PodcastChannel, PodcastEpiso
 
     @Override
     public Container createContainer(PodcastChannel channel) {
-        return factory.toAlbum(channel, podcastService.getEpisodes(channel.getId()).size());
+        return factory.toAlbum(channel, getChildSizeOf(channel));
     }
 
     @Override
     public List<PodcastChannel> getDirectChildren(long offset, long count) {
-        return podcastService.getAllChannels().stream().skip(offset).limit(count).toList();
+        return podcastProvider.findChannels(offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return podcastService.getAllChannels().size();
+        return podcastProvider.countChannels();
     }
 
     @Override
     public PodcastChannel getDirectChild(String id) {
-        return podcastService.getChannel(Integer.parseInt(id));
+        return podcastProvider.requireChannel(Integer.parseInt(id));
     }
 
     @Override
     public List<PodcastEpisode> getChildren(PodcastChannel channel, long offset, long count) {
-        return podcastService
-            .getEpisodes(channel.getId())
-            .stream()
-            .skip(offset)
-            .limit(count)
-            .toList();
+        return podcastProvider
+            .findEpisodes(channel, offset, count, PodcastEpisode.EpisodePhase.COMPLETED);
     }
 
     @Override
     public int getChildSizeOf(PodcastChannel channel) {
-        return podcastService.getEpisodes(channel.getId()).size();
+        return podcastProvider.countEpisodes(channel, PodcastEpisode.EpisodePhase.COMPLETED);
     }
 
-    @FindBugsSuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE") // false positive
     @Override
     public void addChild(DIDLContent parent, PodcastEpisode episode) {
-        if (episode.getId() == null || episode.getChannelId() == null) {
-            return;
-        }
-        PodcastChannel channel = podcastService.getChannel(episode.getChannelId());
-        if (channel == null) {
-            return;
-        }
-        parent.addItem(factory.toMusicTrack(episode, channel));
+        parent
+            .addItem(factory
+                .toMusicTrack(episode, podcastProvider.requireChannel(episode.channelId())));
     }
 }

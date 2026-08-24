@@ -23,6 +23,9 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
@@ -35,9 +38,6 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrGenreLogi
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -46,20 +46,21 @@ import org.springframework.stereotype.Controller;
 class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FGenreOrSong> {
 
     protected static final GenreMasterScope SCOPE = GenreMasterScope.SONG;
-    static final MediaType[] TYPES = { MediaType.MUSIC };
+    static final MediaFile.Type[] TYPES = { MediaFile.Type.MUSIC };
 
-    private final SettingsFacade settingsFacade;
     private final MediaSearchProvider mediaSearchProvider;
-    private final UPnPDIDLFactory factory;
     private final FolderOrGenreLogic deligate;
+    private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    SongByFolderGenreProc(SettingsFacade settingsFacade, MediaSearchProvider mediaSearchProvider,
-            UPnPDIDLFactory factory, FolderOrGenreLogic folderOrGenreLogic) {
+    SongByFolderGenreProc(MediaSearchProvider mediaSearchProvider,
+            FolderOrGenreLogic folderOrGenreLogic, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
         super();
-        this.settingsFacade = settingsFacade;
         this.mediaSearchProvider = mediaSearchProvider;
-        this.factory = factory;
         this.deligate = folderOrGenreLogic;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     @Override
@@ -97,7 +98,7 @@ class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FG
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
             return mediaSearchProvider
-                .getSongsByGenres(genre.getName(), (int) offset, (int) count, asList(folder))
+                .getSongsByGenres(List.of(folder), List.of(genre.name()), offset, count, TYPES)
                 .stream()
                 .map(FGenreOrSong::new)
                 .toList();
@@ -125,7 +126,7 @@ class SongByFolderGenreProc extends DirectChildrenContentProc<FolderOrFGenre, FG
         } else {
             deligate
                 .addChild(parent, getProcId(), genreOrSong.getGenre(),
-                        genreOrSong.getGenre().genre().getSongCount());
+                        genreOrSong.getGenre().genre().songCount());
         }
     }
 }

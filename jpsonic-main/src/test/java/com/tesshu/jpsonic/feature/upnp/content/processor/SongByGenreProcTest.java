@@ -27,10 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,8 +38,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
@@ -52,19 +52,13 @@ import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.GenreContainer;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
@@ -74,21 +68,21 @@ class SongByGenreProcTest {
     @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
         private SettingsFacade settingsFacade;
-        private UPnPProcessorUtil util;
         private UPnPDIDLFactory factory;
         private MediaSearchProvider mediaSearchProvider;
         private SongByGenreProc proc;
+        private MusicFolderProvider musicFolderProvider;
 
         @BeforeEach
         void setup() {
             settingsFacade = SettingsFacadeBuilder.create().build();
             factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                    mock(MediaFileService.class), mock(MediaFileProvider.class),
-                    mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
+                    mock(MediaFileProvider.class), mock(PlayerProvider.class),
+                    mock(TranscodingParametersPlanner.class));
             mediaSearchProvider = mock(MediaSearchProvider.class);
-            util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                    mock(JpsonicComparators.class));
-            proc = new SongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
+            musicFolderProvider = mock(MusicFolderProvider.class);
+            proc = new SongByGenreProc(musicFolderProvider, mediaSearchProvider, settingsFacade,
+                    factory);
         }
 
         @Test
@@ -126,7 +120,7 @@ class SongByGenreProcTest {
             when(mediaSearchProvider
                 .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
                 .thenReturn(List.of(genre));
-            assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
+            assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").name());
             assertNull(proc.getDirectChild("None"));
         }
 
@@ -135,7 +129,8 @@ class SongByGenreProcTest {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
             verify(mediaSearchProvider, times(1))
-                .getSongsByGenres(anyString(), anyInt(), anyInt(), anyList());
+                .getSongsByGenres(ArgumentMatchers.anyList(), ArgumentMatchers.anyList(), anyLong(),
+                        anyLong(), any(MediaFile.Type[].class));
         }
 
         @Test
@@ -147,9 +142,12 @@ class SongByGenreProcTest {
         @Test
         void testAddChild() {
             DIDLContent content = new DIDLContent();
-            MediaFile song = new MediaFile();
+            MediaFile song = new MediaFile(1, "pathString", 0, "format", "MUSIC", 256, 60, 9999,
+                    "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri",
+                    "composer", "reading", "#", "comment");
             factory = mock(UPnPDIDLFactory.class);
-            proc = new SongByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
+            proc = new SongByGenreProc(musicFolderProvider, mediaSearchProvider, settingsFacade,
+                    factory);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());
@@ -161,15 +159,16 @@ class SongByGenreProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
-                    true, now(), 1, false));
+        private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                    resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1,
+                    false));
 
         @Autowired
         private SongByGenreProc songByGenreProc;
 
         @Override
-        public List<MusicFolder> getMusicFolders() {
+        public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
         }
 
@@ -192,25 +191,16 @@ class SongByGenreProcTest {
             Map<String, Genre> c = LegacyMap.of();
 
             List<Genre> items = songByGenreProc.getDirectChildren(0, 10);
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(10, c.size());
 
             items = songByGenreProc.getDirectChildren(10, 10);
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(20, c.size());
 
             items = songByGenreProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(31, c.size());
 
         }
@@ -218,32 +208,26 @@ class SongByGenreProcTest {
         @Test
         void testGetChildren() {
 
-            List<Genre> artists = songByGenreProc.getDirectChildren(0, 1);
-            assertEquals(1, artists.size());
-            // assertEquals("A;B;C", artists.get(0).getName());
+            List<Genre> genres = songByGenreProc.getDirectChildren(0, 1);
+            assertEquals(1, genres.size());
+            assertEquals("A", genres.get(0).name());
 
             Map<String, MediaFile> c = LegacyMap.of();
+            assertEquals(31, songByGenreProc.getChildSizeOf(genres.get(0)));
 
-            List<MediaFile> children = songByGenreProc.getChildren(artists.get(0), 0, 10);
-            children
-                .stream()
-                .filter(m -> !c.containsKey(m.getGenre()))
-                .forEach(m -> c.put(m.getGenre(), m));
+            List<MediaFile> songs = songByGenreProc.getChildren(genres.get(0), 0, 10);
+            assertEquals(10, songs.size());
+
+            songs.stream().filter(m -> !c.containsKey(m.genre())).forEach(m -> c.put(m.genre(), m));
             assertEquals(10, c.size());
 
-            children = songByGenreProc.getChildren(artists.get(0), 10, 10);
-            children
-                .stream()
-                .filter(m -> !c.containsKey(m.getGenre()))
-                .forEach(m -> c.put(m.getGenre(), m));
+            songs = songByGenreProc.getChildren(genres.get(0), 10, 10);
+            songs.stream().filter(m -> !c.containsKey(m.genre())).forEach(m -> c.put(m.genre(), m));
             assertEquals(20, c.size());
 
-            children = songByGenreProc.getChildren(artists.get(0), 20, 100);
-            assertEquals(11, children.size());
-            children
-                .stream()
-                .filter(m -> !c.containsKey(m.getGenre()))
-                .forEach(m -> c.put(m.getGenre(), m));
+            songs = songByGenreProc.getChildren(genres.get(0), 20, 100);
+            assertEquals(11, songs.size());
+            songs.stream().filter(m -> !c.containsKey(m.genre())).forEach(m -> c.put(m.genre(), m));
             assertEquals(31, c.size());
 
         }

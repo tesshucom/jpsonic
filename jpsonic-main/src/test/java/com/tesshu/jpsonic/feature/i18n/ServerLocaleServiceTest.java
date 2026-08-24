@@ -30,9 +30,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.Test;

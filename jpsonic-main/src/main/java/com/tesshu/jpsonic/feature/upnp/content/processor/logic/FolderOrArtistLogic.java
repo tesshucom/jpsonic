@@ -22,14 +22,14 @@ package com.tesshu.jpsonic.feature.upnp.content.processor.logic;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArtist;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Component;
@@ -39,16 +39,16 @@ public class FolderOrArtistLogic {
 
     private static final int SINGLE_FOLDER = 1;
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final ArtistProvider artistProvider;
     private final UPnPDIDLFactory factory;
-    private final ArtistDao artistDao;
 
-    public FolderOrArtistLogic(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            ArtistDao artistDao) {
+    public FolderOrArtistLogic(MusicFolderProvider musicFolderProvider,
+            ArtistProvider artistProvider, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
+        this.musicFolderProvider = musicFolderProvider;
+        this.artistProvider = artistProvider;
         this.factory = factory;
-        this.artistDao = artistDao;
     }
 
     public Container createContainer(ProcId procId, FolderArtist folderArtist) {
@@ -66,13 +66,13 @@ public class FolderOrArtistLogic {
     }
 
     public List<FolderOrFArtist> getDirectChildren(long offset, long count) {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.size() != SINGLE_FOLDER) {
             return folders.stream().skip(offset).limit(count).map(FolderOrFArtist::new).toList();
         }
         MusicFolder folder = folders.get(0);
-        return artistDao
-            .getAlphabetialArtists((int) offset, (int) count, Arrays.asList(folders.get(0)))
+        return artistProvider
+            .findArtists(Arrays.asList(folders.get(0)), offset, count)
             .stream()
             .map(artist -> new FolderArtist(folder, artist))
             .map(FolderOrFArtist::new)
@@ -80,25 +80,25 @@ public class FolderOrArtistLogic {
     }
 
     public int getDirectChildrenCount() {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.size() == SINGLE_FOLDER) {
-            return artistDao.getArtistsCount(util.getGuestFolders());
+            return artistProvider.countArtists(musicFolderProvider.getGuestFolders());
         }
-        return util.getGuestFolders().size();
+        return musicFolderProvider.getGuestFolders().size();
     }
 
     private @Nullable MusicFolder getFolder(int folderId) {
-        return util
+        return musicFolderProvider
             .getGuestFolders()
             .stream()
-            .filter(musicFolder -> musicFolder.getId() == folderId)
+            .filter(musicFolder -> musicFolder.id() == folderId)
             .findFirst()
             .orElseGet(null);
     }
 
     public FolderOrFArtist getDirectChild(String id) {
         if (FolderArtist.isCompositeId(id)) {
-            Artist artist = artistDao.getArtist(FolderArtist.parseArtistId(id));
+            Artist artist = artistProvider.requireArtist(FolderArtist.parseArtistId(id));
             MusicFolder folder = getFolder(FolderArtist.parseFolderId(id));
             return new FolderOrFArtist(new FolderArtist(folder, artist));
         }
@@ -106,11 +106,11 @@ public class FolderOrArtistLogic {
     }
 
     private int getChildSizeOf(MusicFolder folder) {
-        return artistDao.getArtistsCount(Arrays.asList(folder));
+        return artistProvider.countArtists(Arrays.asList(folder));
     }
 
     private int getChildSizeOf(FolderArtist folderArtist) {
-        return folderArtist.artist().getAlbumCount();
+        return folderArtist.artist().albumCount();
     }
 
     public int getChildSizeOf(FolderOrFArtist folderOrArtist) {

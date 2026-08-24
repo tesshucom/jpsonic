@@ -103,7 +103,7 @@ class WritableMediaFileServiceTest {
                 mock(ScannerStateService.class), mediaFileService, albumDao, mediaFileCache,
                 musicParser, mock(VideoParser.class), settingsFacade, libraryAccessPolicy,
                 new ScanningExclusionPolicy(settingsFacade), proc, mock(IndexManager.class),
-                new MusicIndexServiceImpl(settingsFacade, null, null, proc));
+                new MusicIndexProviderImpl(null, null, settingsFacade, proc));
 
         Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }

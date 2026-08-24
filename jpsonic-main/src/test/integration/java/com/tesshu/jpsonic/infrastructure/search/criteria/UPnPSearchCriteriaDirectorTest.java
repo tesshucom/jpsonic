@@ -31,9 +31,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tesshu.jpsonic.adapter.MusicFolderProviderAdapter;
+import com.tesshu.jpsonic.adapter.resource.ProviderFactory;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
-import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
@@ -44,6 +44,7 @@ import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,7 +271,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
         path = path.trim();
         fid = fid.trim();
-        musicFolderProvider = new MusicFolderProviderAdapter(musicFolderService);
+        musicFolderProvider = ProviderFactory.createMusicFolderProvider(mock(MusicFolderDao.class), musicFolderService);
         director = new UPnPSearchCriteriaDirector(
                 UPnPSearchMethod.of(settingsFacade.get(SearchSKeys.search.upnpSearchMethod)),
                 musicFolderProvider.getGuestFolders(),

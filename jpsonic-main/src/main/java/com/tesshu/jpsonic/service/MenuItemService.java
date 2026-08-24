@@ -31,11 +31,9 @@ import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
-import jakarta.annotation.Resource;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.annotation.Lazy;
@@ -47,12 +45,10 @@ public class MenuItemService {
     private static final Logger LOG = LoggerFactory.getLogger(MenuItemService.class);
     private final ServerLocaleService serverLocaleService;
     private final MenuItemDao menuItemDao;
-
-    @Resource
     private final MessageSource menuItemSource;
 
     public MenuItemService(ServerLocaleService serverLocaleService, MenuItemDao menuItemDao,
-            @Lazy @Qualifier("menuItemSource") MessageSource menuItemSource) {
+            @Lazy MessageSource menuItemSource) {
         this.serverLocaleService = serverLocaleService;
         this.menuItemDao = menuItemDao;
         this.menuItemSource = menuItemSource;

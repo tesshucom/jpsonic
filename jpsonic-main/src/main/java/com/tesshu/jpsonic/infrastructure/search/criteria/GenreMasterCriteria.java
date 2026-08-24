@@ -21,14 +21,14 @@ package com.tesshu.jpsonic.infrastructure.search.criteria;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 
 /**
  * Criteria used when generating Genre Master.
  */
 public record GenreMasterCriteria(List<MusicFolder> folders, GenreMasterScope scope,
-        GenreMasterSort sort, MediaType... types) {
+        GenreMasterSort sort, MediaFile.Type... types) {
 }

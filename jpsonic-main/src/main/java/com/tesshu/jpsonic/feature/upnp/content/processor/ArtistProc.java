@@ -22,15 +22,18 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Artist;
 import com.tesshu.jpsonic.domain.model.SearchResult;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.SearchResultProcessor;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.infrastructure.policy.RuntimeOrderResolver;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -38,20 +41,22 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 class ArtistProc extends DirectChildrenContentProc<Artist, Album>
-        implements SearchResultProcessor<Artist> {
+        implements SearchResultProcessor<Artist>, RuntimeOrderResolver {
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final ArtistProvider artistProvider;
+    private final AlbumProvider albumProvider;
+    private final SettingsFacade settingsFacade;
     private final UPnPDIDLFactory factory;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
 
-    ArtistProc(UPnPProcessorUtil util, UPnPDIDLFactory factory, ArtistDao artistDao,
-            AlbumDao albumDao) {
+    ArtistProc(MusicFolderProvider musicFolderProvider, ArtistProvider artistProvider,
+            AlbumProvider albumProvider, SettingsFacade settingsFacade, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
+        this.musicFolderProvider = musicFolderProvider;
+        this.artistProvider = artistProvider;
+        this.albumProvider = albumProvider;
+        this.settingsFacade = settingsFacade;
         this.factory = factory;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
     }
 
     @Override
@@ -66,29 +71,29 @@ class ArtistProc extends DirectChildrenContentProc<Artist, Album>
 
     @Override
     public List<Artist> getDirectChildren(long offset, long count) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestFolders());
+        return artistProvider.findArtists(musicFolderProvider.getGuestFolders(), offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return artistDao.getArtistsCount(util.getGuestFolders());
+        return artistProvider.countArtists(musicFolderProvider.getGuestFolders());
     }
 
     @Override
     public Artist getDirectChild(String id) {
-        return artistDao.getArtist(Integer.parseInt(id));
+        return artistProvider.requireArtist(Integer.parseInt(id));
     }
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long count) {
-        return albumDao
-            .getAlbumsForArtist(offset, count, artist.getName(),
-                    util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders());
+        AlbumSortOrder order = resolveChildOrder(artist, settingsFacade);
+        return albumProvider
+            .findChildren(musicFolderProvider.getGuestFolders(), artist, order, offset, count);
     }
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        return albumDao.getAlbumsCountForArtist(artist.getName(), util.getGuestFolders());
+        return artistProvider.countChildren(musicFolderProvider.getGuestFolders(), artist.name());
     }
 
     @Override

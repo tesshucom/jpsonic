@@ -27,25 +27,23 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -57,9 +55,8 @@ import org.jupnp.support.model.container.GenreContainer;
 class AlbumByGenreProcTest {
 
     private SettingsFacade settingsFacade;
-    private UPnPProcessorUtil util;
     private UPnPDIDLFactory factory;
-    private MediaFileService mediaFileService;
+    private MusicFolderProvider musicFolderProvider;
     private MediaFileProvider mediaFileProvider;
     private PlayerProvider playerProvider;
     private MediaSearchProvider mediaSearchProvider;
@@ -69,15 +66,14 @@ class AlbumByGenreProcTest {
     @BeforeEach
     void setup() {
         settingsFacade = mock(SettingsFacade.class);
-        mediaFileService = mock(MediaFileService.class);
         mediaFileProvider = mock(MediaFileProvider.class);
         playerProvider = mock(PlayerProvider.class);
-        factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                mediaFileService, mediaFileProvider, playerProvider, transcodingParametersPlanner);
         mediaSearchProvider = mock(MediaSearchProvider.class);
-        util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                mock(JpsonicComparators.class));
-        proc = new AlbumByGenreProc(util, factory, mediaFileService, mediaSearchProvider);
+        factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
+                mediaFileProvider, playerProvider, transcodingParametersPlanner);
+        musicFolderProvider = mock(MusicFolderProvider.class);
+        proc = new AlbumByGenreProc(musicFolderProvider, mediaFileProvider, mediaSearchProvider,
+                factory);
     }
 
     @Test
@@ -101,7 +97,7 @@ class AlbumByGenreProcTest {
         Genre genre = new Genre("English/Japanese", 50, 100);
         assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
         verify(mediaSearchProvider, times(1))
-            .getAlbumsByGenres(anyString(), anyInt(), anyInt(), anyList());
+            .findAlbumsByGenres(anyList(), anyString(), anyLong(), anyLong());
     }
 
     @Test
@@ -113,9 +109,12 @@ class AlbumByGenreProcTest {
     @Test
     void testAddChild() {
         DIDLContent content = new DIDLContent();
-        MediaFile song = new MediaFile();
+        MediaFile song = new MediaFile(1, "pathString", 0, "format", "MUSIC", 256, 60, 9999,
+                "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri", "composer",
+                "reading", "#", "comment");
         factory = mock(UPnPDIDLFactory.class);
-        proc = new AlbumByGenreProc(util, factory, mediaFileService, mediaSearchProvider);
+        proc = new AlbumByGenreProc(musicFolderProvider, mediaFileProvider, mediaSearchProvider,
+                factory);
         proc.addChild(content, song);
         verify(factory, times(1)).toAlbum(any(MediaFile.class), anyInt());
         assertEquals(1, content.getCount());

@@ -22,24 +22,27 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class AlbumByFolderProc extends MediaFileByFolderProc {
 
-    private final UPnPProcessorUtil util;
-    private final MediaFileService mediaFileService;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
 
-    AlbumByFolderProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService) {
-        super(util, factory, mediaFileService);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
+    AlbumByFolderProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            SettingsFacade settingsFacade, UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
     }
 
     @Override
@@ -49,25 +52,27 @@ class AlbumByFolderProc extends MediaFileByFolderProc {
 
     @Override
     public List<MediaFile> getDirectChildren(long offset, long count) {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.isEmpty()) {
             return Collections.emptyList();
         } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            return mediaFileService.getAlphabeticalAlbums((int) offset, (int) count, true, folders);
+            return mediaFileProvider
+                .findAlbums(folders, RuntimeOrderPolicy.AlbumSortOrder.BY_ARTIST_AND_ALBUM, offset,
+                        count);
         }
         return folders
             .stream()
             .skip(offset)
             .limit(count)
-            .map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+            .map(mediaFileProvider::requireMediaFile)
             .toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            return (int) mediaFileService.getAlbumCount(folders);
+            return mediaFileProvider.countAlbums(folders);
         }
         return folders.size();
     }

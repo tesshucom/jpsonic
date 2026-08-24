@@ -27,33 +27,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class MediaFileByFolderProc extends MediaFileProc {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream
-        .of(MediaType.PODCAST, MediaType.VIDEO)
-        .toArray(size -> new MediaType[size]);
+    private static final MediaFile.Type[] EXCLUDED_TYPES = Stream
+        .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO)
+        .toArray(size -> new MediaFile.Type[size]);
     static final int SINGLE_MUSIC_FOLDER = 1;
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
     private final UPnPDIDLFactory factory;
-    private final MediaFileService mediaFileService;
 
-    MediaFileByFolderProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService) {
-        super(util, factory, mediaFileService);
-        this.util = util;
+    MediaFileByFolderProc(MusicFolderProvider musicFolderProvider,
+            MediaFileProvider mediaFileProvider, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
         this.factory = factory;
-        this.mediaFileService = mediaFileService;
     }
 
     @Override
@@ -64,37 +66,37 @@ class MediaFileByFolderProc extends MediaFileProc {
     @Override
     public Container createContainer(MediaFile entity) {
         int childSize = getChildSizeOf(entity);
-        return switch (entity.getMediaType()) {
+        return switch (entity.type()) {
         case ALBUM -> factory.toAlbum(entity, childSize);
         case DIRECTORY ->
-            isEmpty(entity.getArtist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
+            isEmpty(entity.artist()) ? factory.toMusicFolder(getProcId(), entity, childSize)
                     : factory.toArtist(entity, childSize);
-        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.type());
         };
     }
 
     @Override
     public List<MediaFile> getDirectChildren(long offset, long count) {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.isEmpty()) {
             return Collections.emptyList();
         } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            MediaFile folder = mediaFileService.getMediaFileStrict(folders.get(0).getPathString());
+            MediaFile folder = mediaFileProvider.requireMediaFile(folders.get(0));
             return getChildren(folder, offset, count);
         }
         return folders
             .stream()
             .skip(offset)
             .limit(count)
-            .map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+            .map(mediaFileProvider::requireMediaFile)
             .toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            return mediaFileService.getChildSizeOf(folders, EXCLUDED_TYPES);
+            return mediaFileProvider.countChildren(folders, EXCLUDED_TYPES);
         }
         return folders.size();
     }

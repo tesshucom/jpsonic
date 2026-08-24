@@ -21,23 +21,23 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrAlbumLogic;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,19 +46,18 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RecentAlbumId3ByFolderProcTest {
 
-    private MediaFileService mediaFileService;
-    private AlbumDao albumDao;
+    private MediaFileProvider mediaFileProvider;
+    private AlbumProvider albumProvider;
     private RecentAlbumId3ByFolderProc processor;
 
     @BeforeEach
     void setup() {
-        mediaFileService = mock(MediaFileService.class);
-        albumDao = mock(AlbumDao.class);
+        mediaFileProvider = mock(MediaFileProvider.class);
+        albumProvider = mock(AlbumProvider.class);
         UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
         FolderOrAlbumLogic folderOrAlbumLogic = mock(FolderOrAlbumLogic.class);
-        processor = new RecentAlbumId3ByFolderProc(mediaFileService, albumDao, factory,
-                folderOrAlbumLogic);
-
+        processor = new RecentAlbumId3ByFolderProc(mediaFileProvider, albumProvider,
+                folderOrAlbumLogic, factory);
     }
 
     @Test
@@ -69,42 +68,43 @@ class RecentAlbumId3ByFolderProcTest {
     @Nested
     class GetChildrenTest {
 
-        private final MusicFolder folder = new MusicFolder("pathString", "name1", true, null,
+        private final MusicFolder folder = new MusicFolder(0, "pathString", "name1", false, null, 0,
                 false);
 
         @Test
         void testAlbumChildren() {
-            Album album = new Album();
-            album.setArtist("artist");
-            album.setName("album");
+            Album album = new Album(0, "album", "artist", 0, null);
             FolderAlbum folderAlbum = new FolderAlbum(folder, album);
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folderAlbum);
-            assertTrue(processor.getChildren(folderOrAlbum, 0, 0).isEmpty());
-            verify(mediaFileService, times(1))
-                .getSongsForAlbum(anyLong(), anyLong(), anyString(), anyString());
-            verify(albumDao, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            assertTrue(processor.getChildren(folderOrAlbum, 0, Integer.MAX_VALUE).isEmpty());
+            verify(mediaFileProvider, times(1))
+                .findChildren(ArgumentMatchers.<MusicFolder>anyList(), any(Album.class), anyLong(),
+                        anyLong(), any(MediaFile.Type[].class));
+            verify(albumProvider, never())
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testFolderChildrenWithCountZero() {
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
-            assertTrue(processor.getChildren(folderOrAlbum, 0, 0).isEmpty());
-            verify(mediaFileService, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
-            verify(albumDao, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            assertTrue(processor.getChildren(folderOrAlbum, 0, Integer.MAX_VALUE).isEmpty());
+            verify(mediaFileProvider, never())
+                .findChildren(ArgumentMatchers.<MusicFolder>anyList(), any(Album.class), anyLong(),
+                        anyLong(), any(MediaFile.Type[].class));
+            verify(albumProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testFolderChildrenWithValidValue() {
-            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(1);
+            when(albumProvider.countAlbums(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(1);
             FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
             assertTrue(processor.getChildren(folderOrAlbum, 0, 1).isEmpty());
-            verify(mediaFileService, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
-            verify(albumDao, times(1))
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            verify(mediaFileProvider, never())
+                .findChildren(ArgumentMatchers.<MusicFolder>anyList(), any(Album.class), anyLong(),
+                        anyLong(), any(MediaFile.Type[].class));
+            verify(albumProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
     }
 }

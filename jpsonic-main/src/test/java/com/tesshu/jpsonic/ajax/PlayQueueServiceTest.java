@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.clearInvocations;
@@ -663,7 +664,7 @@ class PlayQueueServiceTest {
 
         playQueueService.playShuffle("genre", 0, 0, "Rock", null);
         verify(mediaSearchProvider, times(1))
-            .getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
+            .getAlbumsByGenres(nullable(String.class), anyLong(), anyLong(),
                     ArgumentMatchers.<MusicFolder>anyList());
 
         // Extract Albums

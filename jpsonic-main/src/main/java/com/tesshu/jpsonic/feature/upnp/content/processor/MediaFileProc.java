@@ -24,16 +24,17 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.SearchResult;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.SearchResultProcessor;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.policy.RuntimeOrderResolver;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -41,22 +42,24 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFile>
-        implements SearchResultProcessor<MediaFile> {
+        implements SearchResultProcessor<MediaFile>, RuntimeOrderResolver {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream
-        .of(MediaType.PODCAST, MediaType.VIDEO)
-        .toArray(size -> new MediaType[size]);
+    private static final MediaFile.Type[] EXCLUDED_TYPES = Stream
+        .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO)
+        .toArray(size -> new MediaFile.Type[size]);
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
+    private final SettingsFacade settingsFacade;
     private final UPnPDIDLFactory factory;
-    private final MediaFileService mediaFileService;
 
-    MediaFileProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService) {
+    MediaFileProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            SettingsFacade settingsFacade, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
+        this.settingsFacade = settingsFacade;
         this.factory = factory;
-        this.mediaFileService = mediaFileService;
     }
 
     @Override
@@ -67,10 +70,10 @@ class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFile>
     @Override
     public Container createContainer(MediaFile entity) {
         int childSize = getChildSizeOf(entity);
-        return switch (entity.getMediaType()) {
+        return switch (entity.type()) {
         case ALBUM -> factory.toAlbum(entity, childSize);
         case DIRECTORY -> factory.toArtist(entity, childSize);
-        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.type());
         };
     }
 
@@ -85,38 +88,34 @@ class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFile>
 
     @Override
     public List<MediaFile> getDirectChildren(long offset, long count) {
-        List<MusicFolder> folders = util.getGuestFolders();
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        return mediaFileService
-            .getChildrenOf(util.getGuestFolders(), offset, count, EXCLUDED_TYPES);
+        return mediaFileProvider
+            .findChildren(musicFolderProvider.getGuestFolders(), offset, count, EXCLUDED_TYPES);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return mediaFileService.getChildSizeOf(util.getGuestFolders(), EXCLUDED_TYPES);
+        return mediaFileProvider
+            .countChildren(musicFolderProvider.getGuestFolders(), EXCLUDED_TYPES);
     }
 
     @Override
     public MediaFile getDirectChild(String id) {
-        return mediaFileService.getMediaFileStrict(Integer.parseInt(id));
+        return mediaFileProvider.requireMediaFile(Integer.parseInt(id));
     }
 
     @Override
     public List<MediaFile> getChildren(MediaFile entity, long offset, long count) {
-        ChildOrder childOrder = ChildOrder.BY_ALPHA;
-        if (entity.isAlbum()) {
-            childOrder = ChildOrder.BY_TRACK;
-        } else if (util.isSortAlbumsByYear(entity.getName())) {
-            childOrder = ChildOrder.BY_YEAR;
-        }
-        return mediaFileService.getChildrenOf(entity, offset, count, childOrder, EXCLUDED_TYPES);
+        ChildOrder order = resolveChildOrder(entity, settingsFacade);
+        return mediaFileProvider.findChildren(entity, order, offset, count, EXCLUDED_TYPES);
     }
 
     @Override
     public int getChildSizeOf(MediaFile entity) {
-        return mediaFileService.getChildSizeOf(entity, EXCLUDED_TYPES);
+        return mediaFileProvider.countChildren(entity, EXCLUDED_TYPES);
     }
 
     @Override

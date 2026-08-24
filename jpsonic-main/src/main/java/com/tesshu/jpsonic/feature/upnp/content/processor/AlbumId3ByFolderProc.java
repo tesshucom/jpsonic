@@ -19,17 +19,20 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.AlbumOrSong;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrAlbumLogic;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -37,18 +40,22 @@ import org.springframework.stereotype.Controller;
 @Controller
 class AlbumId3ByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, AlbumOrSong> {
 
-    private final MediaFileService mediaFileService;
-    private final AlbumDao albumDao;
-    private final UPnPDIDLFactory factory;
-    private final FolderOrAlbumLogic deligate;
+    private static final MediaFile.Type[] EXCLUDED_TYPES = Stream
+        .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO)
+        .toArray(size -> new MediaFile.Type[size]);
 
-    AlbumId3ByFolderProc(MediaFileService mediaFileService, AlbumDao albumDao,
-            UPnPDIDLFactory factory, FolderOrAlbumLogic folderOrAlbumLogic) {
+    private final MediaFileProvider mediaFileProvider;
+    private final AlbumProvider albumProvider;
+    private final FolderOrAlbumLogic deligate;
+    private final UPnPDIDLFactory factory;
+
+    AlbumId3ByFolderProc(MediaFileProvider mediaFileProvider, AlbumProvider albumProvider,
+            FolderOrAlbumLogic folderOrAlbumLogic, UPnPDIDLFactory factory) {
         super();
-        this.mediaFileService = mediaFileService;
-        this.albumDao = albumDao;
-        this.factory = factory;
+        this.mediaFileProvider = mediaFileProvider;
+        this.albumProvider = albumProvider;
         this.deligate = folderOrAlbumLogic;
+        this.factory = factory;
     }
 
     @Override
@@ -81,15 +88,16 @@ class AlbumId3ByFolderProc extends DirectChildrenContentProc<FolderOrFAlbum, Alb
 
         if (folderOrAlbum.isFolderAlbum()) {
             Album album = folderOrAlbum.getFolderAlbum().album();
-            return mediaFileService
-                .getSongsForAlbum(offset, count, album.getArtist(), album.getName())
+            MusicFolder folder = folderOrAlbum.getFolderAlbum().folder();
+            return mediaFileProvider
+                .findChildren(List.of(folder), album, offset, count, EXCLUDED_TYPES)
                 .stream()
                 .map(AlbumOrSong::new)
                 .toList();
         }
-        return albumDao
-            .getAlphabeticalAlbums((int) offset, (int) count, false, true,
-                    Arrays.asList(folderOrAlbum.getFolder()))
+        return albumProvider
+            .findAlbums(List.of(folderOrAlbum.getFolder()),
+                    RuntimeOrderPolicy.AlbumSortOrder.DEFAULT, offset, count)
             .stream()
             .map(AlbumOrSong::new)
             .toList();

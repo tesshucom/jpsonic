@@ -21,6 +21,9 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
@@ -29,9 +32,6 @@ import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -40,24 +40,25 @@ import org.springframework.stereotype.Controller;
 @Controller
 class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
-    private final SettingsFacade settingsFacade;
+    private final MusicFolderProvider musicFolderProvider;
     private final MediaSearchProvider mediaSearchProvider;
+    private final SettingsFacade settingsFacade;
     private final UPnPDIDLFactory factory;
-    private final UPnPProcessorUtil util;
 
-    AudiobookByGenreProc(SettingsFacade settingsFacade, UPnPProcessorUtil util,
-            UPnPDIDLFactory factory, MediaSearchProvider mediaSearchProvider) {
+    AudiobookByGenreProc(MusicFolderProvider musicFolderProvider,
+            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
         super();
-        this.settingsFacade = settingsFacade;
-        this.util = util;
-        this.factory = factory;
+        this.musicFolderProvider = musicFolderProvider;
         this.mediaSearchProvider = mediaSearchProvider;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     private GenreMasterCriteria createGenreMasterCriteria() {
-        return new GenreMasterCriteria(util.getGuestFolders(), GenreMasterScope.SONG,
+        return new GenreMasterCriteria(musicFolderProvider.getGuestFolders(), GenreMasterScope.SONG,
                 GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)),
-                MediaType.AUDIOBOOK);
+                MediaFile.Type.AUDIOBOOK);
     }
 
     @Override
@@ -67,7 +68,7 @@ class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(getProcId(), genre, genre.getSongCount());
+        return factory.toGenre(getProcId(), genre, genre.songCount());
     }
 
     @Override
@@ -85,21 +86,21 @@ class AudiobookByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
         return mediaSearchProvider
             .getGenres(createGenreMasterCriteria(), 0, Integer.MAX_VALUE)
             .stream()
-            .filter(genre -> genre.getName().equals(id))
+            .filter(genre -> genre.name().equals(id))
             .findFirst()
             .orElse(null);
     }
 
     @Override
-    public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
+    public List<MediaFile> getChildren(Genre genre, long offset, long maxResults) {
         return mediaSearchProvider
-            .getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
-                    util.getGuestFolders(), MediaType.AUDIOBOOK);
+            .getSongsByGenres(musicFolderProvider.getGuestFolders(), List.of(genre.name()), offset,
+                    maxResults, MediaFile.Type.AUDIOBOOK);
     }
 
     @Override
     public int getChildSizeOf(Genre genre) {
-        return genre.getSongCount();
+        return genre.songCount();
     }
 
     @Override

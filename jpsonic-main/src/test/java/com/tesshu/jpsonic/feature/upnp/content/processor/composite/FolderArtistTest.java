@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.feature.upnp.content.processor.composite;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -31,9 +31,8 @@ class FolderArtistTest {
 
     @Test
     void testCreateCompositeId() {
-        MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Artist artist = new Artist();
-        artist.setId(88);
+        MusicFolder folder = new MusicFolder(99, "path1", "name1", false, null, 0, false);
+        Artist artist = new Artist(88, "artist", "path", 3, 0, "reading", 0, "#");
         CompositeModel folderArtist = new FolderArtist(folder, artist);
         assertEquals("far:99;88", folderArtist.createCompositeId());
     }
@@ -41,8 +40,7 @@ class FolderArtistTest {
     @Test
     void testIsCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Artist artist = new Artist();
-        artist.setId(88);
+        Artist artist = new Artist(88, "artist", "path", 3, 0, "reading", 0, "#");
         CompositeModel folderArtist = new FolderArtist(folder, artist);
         assertTrue(FolderArtist.isCompositeId(folderArtist.createCompositeId()));
     }
@@ -50,8 +48,7 @@ class FolderArtistTest {
     @Test
     void testParseFolderId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Artist artist = new Artist();
-        artist.setId(88);
+        Artist artist = new Artist(88, "artist", "path", 3, 0, "reading", 0, "#");
         CompositeModel folderArtist = new FolderArtist(folder, artist);
         assertEquals(99, FolderArtist.parseFolderId(folderArtist.createCompositeId()));
     }
@@ -59,8 +56,7 @@ class FolderArtistTest {
     @Test
     void testParseGenreName() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
-        Artist artist = new Artist();
-        artist.setId(88);
+        Artist artist = new Artist(88, "artist", "path", 3, 0, "reading", 0, "#");
         CompositeModel folderArtist = new FolderArtist(folder, artist);
         assertEquals(88, FolderArtist.parseArtistId(folderArtist.createCompositeId()));
     }

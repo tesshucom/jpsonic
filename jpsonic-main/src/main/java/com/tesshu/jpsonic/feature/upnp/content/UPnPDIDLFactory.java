@@ -19,19 +19,28 @@
 
 package com.tesshu.jpsonic.feature.upnp.content;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.net.URI;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+import com.tesshu.jpsonic.domain.language.StringUtil;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MediaFile.DurationSeconds;
 import com.tesshu.jpsonic.domain.model.MediaFile.Format;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.model.Player;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.Playlist;
+import com.tesshu.jpsonic.domain.model.PodcastChannel;
+import com.tesshu.jpsonic.domain.model.PodcastEpisode;
+import com.tesshu.jpsonic.domain.model.PodcastEpisode.EpisodePhase;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
-import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.domain.type.CoverArtType;
 import com.tesshu.jpsonic.feature.crypt.upnp.StreamPayload.StreamType;
@@ -46,17 +55,6 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderGenreAl
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
-import com.tesshu.jpsonic.persistence.api.entity.Playlist;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -103,19 +101,16 @@ public class UPnPDIDLFactory {
                 () -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
 
     private final SettingsFacade settingsFacade;
-    private final MediaFileService mediaFileService;
     private final MediaFileProvider mediaFileProvider;
     private final PlayerProvider playerProvider;
     private final UpnpPayloadCodec upnpPayloadCodec;
     private final TranscodingParametersPlanner transcodingParametersPlanner;
 
     public UPnPDIDLFactory(SettingsFacade settingsFacade, UpnpPayloadCodec upnpPayloadCodec,
-            MediaFileService mediaFileService, MediaFileProvider mediaFileProvider,
-            PlayerProvider playerProvider,
+            MediaFileProvider mediaFileProvider, PlayerProvider playerProvider,
             TranscodingParametersPlanner transcodingParametersPlanner) {
         this.settingsFacade = settingsFacade;
         this.upnpPayloadCodec = upnpPayloadCodec;
-        this.mediaFileService = mediaFileService;
         this.mediaFileProvider = mediaFileProvider;
         this.playerProvider = playerProvider;
         this.transcodingParametersPlanner = transcodingParametersPlanner;
@@ -147,46 +142,44 @@ public class UPnPDIDLFactory {
     }
 
     private Property<URI> toArtistArt(@NonNull MediaFile artist) {
-        URI uri = createCoverArtURI(Integer.toString(artist.getId()),
-                CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(Integer.toString(artist.id()), CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toArtistArt(Artist artist) {
-        URI uri = createCoverArtURI(CoverArtType.ARTIST.createKey(artist.getId()),
+        URI uri = createCoverArtURI(CoverArtType.ARTIST.createKey(artist.id()),
                 CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(@NonNull MediaFile album) {
-        URI uri = createCoverArtURI(Integer.toString(album.getId()),
-                CoverArtScheme.LARGE.getSize());
+        URI uri = createCoverArtURI(Integer.toString(album.id()), CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toAlbumArt(Album album) {
-        URI uri = createCoverArtURI(CoverArtType.ID3ALBUM.createKey(album.getId()),
+        URI uri = createCoverArtURI(CoverArtType.ID3ALBUM.createKey(album.id()),
                 CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPodcastArt(PodcastChannel channel) {
-        URI uri = createCoverArtURI(CoverArtType.PODCAST.createKey(channel.getId()),
+        URI uri = createCoverArtURI(CoverArtType.PODCAST.createKey(channel.id()),
                 CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
     private Property<URI> toPlaylistArt(Playlist playlist) {
-        URI uri = createCoverArtURI(CoverArtType.PLAYLIST.createKey(playlist.getId()),
+        URI uri = createCoverArtURI(CoverArtType.PLAYLIST.createKey(playlist.id()),
                 CoverArtScheme.LARGE.getSize());
         return new ALBUM_ART_URI(uri);
     }
 
-    private String formatDuration(Integer seconds) {
-        if (seconds == null) {
+    private String formatDuration(DurationSeconds durationSeconds) {
+        if (durationSeconds == DurationSeconds.UNDEFINED) {
             return null;
         }
-        return StringUtil.formatDurationHMMSS(seconds) + ".0";
+        return StringUtil.formatDurationHMMSS(durationSeconds) + ".0";
     }
 
     private StorageFolder createMusicFolder(ProcId procId, int id, String name, int childCount) {
@@ -199,27 +192,27 @@ public class UPnPDIDLFactory {
     }
 
     public StorageFolder toMusicFolder(ProcId procId, MusicFolder folder, int childCount) {
-        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
+        return createMusicFolder(procId, folder.id(), folder.name(), childCount);
     }
 
     public StorageFolder toMusicFolder(ProcId procId, MediaFile folder, int childCount) {
-        return createMusicFolder(procId, folder.getId(), folder.getName(), childCount);
+        return createMusicFolder(procId, folder.id(), folder.name(), childCount);
     }
 
     public GenreContainer toMusicIndex(ProcId procId, MusicIndex musicIndex, int childCount) {
         GenreContainer container = new GenreContainer();
-        container.setId(procId.getValue() + ProcId.CID_SEPA + musicIndex.getIndex());
+        container.setId(procId.getValue() + ProcId.CID_SEPA + musicIndex.index());
         container.setParentID(procId.getValue());
-        container.setTitle(musicIndex.getIndex());
+        container.setTitle(musicIndex.index());
         container.setChildCount(childCount);
         return container;
     }
 
     public GenreContainer toGenre(ProcId procId, Genre genre, int childCount) {
         GenreContainer container = new GenreContainer();
-        container.setId(procId.getValue() + ProcId.CID_SEPA + genre.getName());
+        container.setId(procId.getValue() + ProcId.CID_SEPA + genre.name());
         container.setParentID(procId.getValue());
-        container.setTitle(genre.getName());
+        container.setTitle(genre.name());
         container.setChildCount(childCount);
         return container;
     }
@@ -228,43 +221,39 @@ public class UPnPDIDLFactory {
         GenreContainer container = new GenreContainer();
         container.setId(procId.getValue() + ProcId.CID_SEPA + folderGenre.createCompositeId());
         container.setParentID(procId.getValue());
-        container.setTitle(folderGenre.genre().getName());
+        container.setTitle(folderGenre.genre().name());
         container.setChildCount(childCount);
         return container;
     }
 
     public PlaylistContainer toPlaylist(Playlist playlist) {
         PlaylistContainer container = new PlaylistContainer();
-        container.setId(ProcId.PLAYLIST.getValue() + ProcId.CID_SEPA + playlist.getId());
+        container.setId(ProcId.PLAYLIST.getValue() + ProcId.CID_SEPA + playlist.id());
         container.setParentID(ProcId.PLAYLIST.getValue());
-        container.setTitle(playlist.getName());
-        container.setDescription(playlist.getComment());
-        container.setChildCount(playlist.getFileCount());
+        container.setTitle(playlist.name());
+        container.setDescription(playlist.comment());
+        container.setChildCount(playlist.fileCount());
         container.addProperty(toPlaylistArt(playlist));
         return container;
     }
 
     public MusicArtist toArtist(MediaFile artist, int childCount) {
         MusicArtist container = new MusicArtist();
-        container.setTitle(artist.getName());
-        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + artist.getId());
-        mediaFileService
-            .getParent(artist)
-            .ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
-        artist.getCoverArtPath().ifPresent(path -> container.addProperty(toArtistArt(artist)));
+        container.setTitle(artist.name());
+        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + artist.id());
+        container.setParentID(ProcId.MEDIA_FILE.getValue());
+        artist.thumbUri().ifPresent(path -> container.addProperty(toArtistArt(artist)));
         container.setChildCount(childCount);
         return container;
     }
 
     public MusicArtist toArtist(Artist artist) {
         MusicArtist container = new MusicArtist();
-        container.setId(ProcId.ARTIST.getValue() + ProcId.CID_SEPA + artist.getId());
+        container.setId(ProcId.ARTIST.getValue() + ProcId.CID_SEPA + artist.id());
         container.setParentID(ProcId.ARTIST.getValue());
-        container.setTitle(artist.getName());
-        container.setChildCount(artist.getAlbumCount());
-        if (artist.getCoverArtPath() != null) {
-            container.addProperty(toArtistArt(artist));
-        }
+        container.setTitle(artist.name());
+        container.setChildCount(artist.albumCount());
+        artist.thumbUri().ifPresent(thumbUri -> container.addProperty(toArtistArt(artist)));
         return container;
     }
 
@@ -272,9 +261,9 @@ public class UPnPDIDLFactory {
         MusicArtist container = new MusicArtist();
         container.setId(procId.getValue() + ProcId.CID_SEPA + folderArtist.createCompositeId());
         container.setParentID(procId.getValue());
-        container.setTitle(folderArtist.artist().getName());
-        container.setChildCount(folderArtist.artist().getAlbumCount());
-        if (folderArtist.artist().getCoverArtPath() != null) {
+        container.setTitle(folderArtist.artist().name());
+        container.setChildCount(folderArtist.artist().albumCount());
+        if (folderArtist.artist().thumbUri() != null) {
             container.addProperty(toArtistArt(folderArtist.artist()));
         }
         return container;
@@ -282,29 +271,25 @@ public class UPnPDIDLFactory {
 
     public MusicAlbum toAlbum(MediaFile album, int childCount) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.getId());
-        mediaFileService
-            .getParent(album)
-            .ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
+        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.id());
+        container.setParentID(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.parentId());
         container.setChildCount(childCount);
-        container.setTitle(album.getName());
-        container.addProperty(toPerson(album.getArtist()));
+        container.setTitle(album.name());
+        container.addProperty(toPerson(album.artist()));
         container.addProperty(toAlbumArt(album));
-        container.setDescription(album.getComment());
+        container.setDescription(album.comment());
         return container;
     }
 
     public MusicAlbum toAlbum(Album album) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.ALBUM_ID3.getValue() + ProcId.CID_SEPA + album.getId());
+        container.setId(ProcId.ALBUM_ID3.getValue() + ProcId.CID_SEPA + album.id());
         container.setParentID(ProcId.ALBUM_ID3.getValue());
-        container.setTitle(album.getName());
-        container.setChildCount(album.getSongCount());
+        container.setTitle(album.name());
+        container.setChildCount(album.songCount());
         container.addProperty(toAlbumArt(album));
-        if (album.getArtist() != null) {
-            container.addProperty(toPerson(album.getArtist()));
-        }
-        container.setDescription(album.getComment());
+        album.artist().ifPresent(artist -> container.addProperty(toPerson(artist)));
+        container.setDescription(album.comment());
         return container;
     }
 
@@ -312,25 +297,21 @@ public class UPnPDIDLFactory {
         MusicAlbum container = new MusicAlbum();
         container.setId(procId.getValue() + ProcId.CID_SEPA + folderAlbum.createCompositeId());
         container.setParentID(procId.getValue());
-        container.setTitle(folderAlbum.album().getName());
+        container.setTitle(folderAlbum.album().name());
         container.setChildCount(childCount);
         container.addProperty(toAlbumArt(folderAlbum.album()));
-        if (folderAlbum.album().getArtist() != null) {
-            container.addProperty(toPerson(folderAlbum.album().getArtist()));
-        }
-        container.setDescription(folderAlbum.album().getComment());
+        folderAlbum.album().artist().ifPresent(artist -> container.addProperty(toPerson(artist)));
+        container.setDescription(folderAlbum.album().comment());
         return container;
     }
 
     public MusicAlbum toAlbum(PodcastChannel channel, int childCount) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.PODCAST.getValue() + ProcId.CID_SEPA + channel.getId());
+        container.setId(ProcId.PODCAST.getValue() + ProcId.CID_SEPA + channel.id());
         container.setParentID(ProcId.PODCAST.getValue());
-        container.setTitle(channel.getTitle());
+        container.setTitle(channel.title());
         container.setChildCount(childCount);
-        if (!isEmpty(channel.getImageUrl())) {
-            container.addProperty(toPodcastArt(channel));
-        }
+        channel.thumbUri().ifPresent(thumbUri -> container.addProperty(toPodcastArt(channel)));
         return container;
     }
 
@@ -340,13 +321,11 @@ public class UPnPDIDLFactory {
             .setId(ProcId.ALBUM_ID3_BY_FOLDER_GENRE.getValue() + ProcId.CID_SEPA
                     + composite.createCompositeId());
         container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
-        container.setTitle(composite.album().getName());
+        container.setTitle(composite.album().name());
         container.setChildCount(childCount);
         container.addProperty(toAlbumArt(composite.album()));
-        if (composite.album().getArtist() != null) {
-            container.addProperty(toPerson(composite.album().getArtist()));
-        }
-        container.setDescription(composite.album().getComment());
+        composite.album().artist().ifPresent(artist -> container.addProperty(toPerson(artist)));
+        container.setDescription(composite.album().comment());
         return container;
     }
 
@@ -356,13 +335,11 @@ public class UPnPDIDLFactory {
             .setId(ProcId.ALBUM_ID3_BY_GENRE.getValue() + ProcId.CID_SEPA
                     + composite.createCompositeId());
         container.setParentID(ProcId.ALBUM_ID3_BY_GENRE.getValue());
-        container.setTitle(composite.album().getName());
+        container.setTitle(composite.album().name());
         container.setChildCount(childCount);
         container.addProperty(toAlbumArt(composite.album()));
-        if (composite.album().getArtist() != null) {
-            container.addProperty(toPerson(composite.album().getArtist()));
-        }
-        container.setDescription(composite.album().getComment());
+        composite.album().artist().ifPresent(artist -> container.addProperty(toPerson(artist)));
+        container.setDescription(composite.album().comment());
         return container;
     }
 
@@ -376,16 +353,15 @@ public class UPnPDIDLFactory {
         };
     }
 
-    Res toRes(MediaFile file) {
-        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mediaFileProvider
-            .requireMediaFile(file.getId());
+    Res toRes(MediaFile mediaFile) {
         Player player = playerProvider.getUPnPPlayer();
         ResolvedAudioTranscodingParameters parameters = transcodingParametersPlanner
             .resolveAudioTranscodingParameters(player, mediaFile, null, getPreferredTargetFormat());
 
         Format format = parameters.outputFormat();
         String payload = upnpPayloadCodec
-            .encodeStream(file.getId(), file.isVideo() ? StreamType.MOVIE : StreamType.MUSIC);
+            .encodeStream(mediaFile.id(),
+                    mediaFile.isVideo() ? StreamType.MOVIE : StreamType.MUSIC);
         String fileName = format == Format.UNDEFINED ? payload : payload + "." + format.value();
         String resourceUri = UriComponentsBuilder
             .fromUriString(getBaseUrl() + "/ext/upnp/stream/" + fileName)
@@ -393,7 +369,7 @@ public class UPnPDIDLFactory {
 
         MimeType mimeType = MimeType.valueOf(parameters.outputMime());
         Res res = new Res(mimeType, null, resourceUri);
-        res.setDuration(formatDuration(file.getDurationSeconds()));
+        res.setDuration(formatDuration(mediaFile.durationSeconds()));
         return res;
     }
 
@@ -401,69 +377,63 @@ public class UPnPDIDLFactory {
 
         MusicTrack item = new MusicTrack();
 
-        item.setId(String.valueOf(song.getId()));
-        item.setTitle(song.getTitle());
-        item.setAlbum(song.getAlbumName());
-        if (song.getArtist() != null) {
-            item.addProperty(toPerson(song.getArtist()));
+        item.setId(String.valueOf(song.id()));
+        item.setTitle(song.title());
+        item.setAlbum(song.album());
+        if (song.artist() != null) {
+            item.addProperty(toPerson(song.artist()));
         }
-        Integer year = song.getYear();
-        if (year != null) {
-            item.setDate(year + "-01-01");
-        }
-        item.setOriginalTrackNumber(song.getTrackNumber());
-        if (song.getGenre() != null) {
-            item.setGenres(new String[] { song.getGenre() });
+        song.year().ifPresent(year -> item.setDate(year.getValue() + "-01-01"));
+        song.trackNumber().ifPresent(item::setOriginalTrackNumber);
+        if (song.genre() != null) {
+            item.setGenres(new String[] { song.genre() });
         }
         item.setResources(Arrays.asList(toRes(song)));
-        item.setDescription(song.getComment());
-
-        MediaFile parent = mediaFileService.getParentOf(song);
-        if (parent != null) {
-            item.setParentID(String.valueOf(parent.getId()));
+        item.setDescription(song.comment());
+        song.parentId().ifPresent(parentId -> {
+            MediaFile parent = mediaFileProvider.requireMediaFile(parentId);
+            item.setParentID(String.valueOf(parent.id()));
             item.addProperty(toAlbumArt(parent));
-        }
-
+        });
         return item;
     }
 
     public MusicTrack toMusicTrack(PodcastEpisode episode, @NonNull PodcastChannel channel) {
         MusicTrack musicTrack = new MusicTrack();
-        musicTrack.setId(String.valueOf(episode.getId()));
-        musicTrack.setTitle(episode.getTitle());
-        musicTrack.setParentID(String.valueOf(episode.getChannelId()));
-        musicTrack.setAlbum(channel.getTitle());
-        if (!isEmpty(channel.getImageUrl())) {
-            musicTrack.addProperty(toPodcastArt(channel));
-        }
-        if (!isEmpty(episode.getPublishDate())) {
-            musicTrack.setDate(DATE_FORMAT.get().format(episode.getPublishDate()));
-        }
-        if (episode.getStatus() == PodcastStatus.COMPLETED && !isEmpty(episode.getMediaFileId())) {
-            MediaFile song = mediaFileService.getMediaFileStrict(episode.getMediaFileId());
-            musicTrack.setResources(Arrays.asList(toRes(song)));
-        }
+        musicTrack.setId(String.valueOf(episode.id()));
+        musicTrack.setTitle(episode.title());
+        musicTrack.setParentID(String.valueOf(episode.channelId()));
+        musicTrack.setAlbum(channel.title());
+        channel.thumbUri().ifPresent(thumbUri -> musicTrack.addProperty(toPodcastArt(channel)));
+        episode
+            .publishDate()
+            .ifPresent(publishDate -> musicTrack.setDate(DATE_FORMAT.get().format(publishDate)));
+        episode.path().ifPresent(path -> {
+            if (episode.episodePhase() == EpisodePhase.COMPLETED) {
+                MediaFile song = mediaFileProvider.requireMediaFile(path);
+                musicTrack.setResources(Arrays.asList(toRes(song)));
+            }
+        });
         return musicTrack;
     }
 
     public VideoItem toVideo(MediaFile video) {
         VideoItem videoItem = new VideoItem();
-        videoItem.setId(String.valueOf(video.getId()));
-        videoItem.setTitle(video.getTitle());
+        videoItem.setId(String.valueOf(video.id()));
+        videoItem.setTitle(video.title());
         videoItem.setResources(Arrays.asList(toRes(video)));
-        videoItem.setDescription(video.getComment());
-
-        MediaFile parent = mediaFileService.getParentOf(video);
-        if (parent != null) {
-            videoItem.setParentID(String.valueOf(parent.getId()));
+        videoItem.setDescription(video.comment());
+        video.parentId().ifPresent(parentId -> {
+            MediaFile parent = mediaFileProvider.requireMediaFile(parentId);
+            videoItem.setParentID(String.valueOf(parent.id()));
             videoItem.addProperty(toAlbumArt(parent));
+        });
+        if (video.genre() != null) {
+            videoItem.setGenres(new String[] { video.genre() });
         }
-        if (video.getGenre() != null) {
-            videoItem.setGenres(new String[] { video.getGenre() });
-        }
-        videoItem.setCreator(video.getArtist());
-        if (video.getComposer() != null) {
-            videoItem.addProperty(toComposer(video.getComposer()));
+        videoItem.setCreator(video.artist());
+        if (video.composer() != null) {
+            videoItem.addProperty(toComposer(video.composer()));
         }
         return videoItem;
     }

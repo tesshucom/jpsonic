@@ -22,13 +22,13 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -37,22 +37,22 @@ import org.springframework.stereotype.Controller;
 @Controller
 class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
-    private static final MediaType[] EXCLUDED_TYPES = Stream
-        .of(MediaType.PODCAST, MediaType.VIDEO)
-        .toArray(size -> new MediaType[size]);
+    private static final MediaFile.Type[] EXCLUDED_TYPES = Stream
+        .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO)
+        .toArray(size -> new MediaFile.Type[size]);
 
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
     private final MediaSearchProvider mediaSearchProvider;
-    private final MediaFileService mediaFileService;
+    private final UPnPDIDLFactory factory;
 
-    AlbumByGenreProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, MediaSearchProvider mediaSearchProvider) {
+    AlbumByGenreProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            MediaSearchProvider mediaSearchProvider, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
-        this.factory = factory;
-        this.mediaFileService = mediaFileService;
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
         this.mediaSearchProvider = mediaSearchProvider;
+        this.factory = factory;
     }
 
     @Override
@@ -62,12 +62,12 @@ class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(getProcId(), genre, genre.getSongCount());
+        return factory.toGenre(getProcId(), genre, genre.songCount());
     }
 
     @Override
     public List<Genre> getDirectChildren(long offset, long maxResults) {
-        return mediaSearchProvider.getGenres(false, offset, maxResults);
+        return mediaSearchProvider.findLegacyGenres(false, offset, maxResults);
     }
 
     @Override
@@ -78,28 +78,29 @@ class AlbumByGenreProc extends DirectChildrenContentProc<Genre, MediaFile> {
     @Override
     public @Nullable Genre getDirectChild(String id) {
         return mediaSearchProvider
-            .getGenres(false)
+            .findLegacyGenres(false, 0, Integer.MAX_VALUE)
             .stream()
-            .filter(genre -> genre.getName().equals(id))
+            .filter(genre -> genre.name().equals(id))
             .findFirst()
             .orElse(null);
     }
 
     @Override
-    public List<MediaFile> getChildren(Genre item, long offset, long count) {
+    public List<MediaFile> getChildren(Genre genre, long offset, long count) {
         return mediaSearchProvider
-            .getAlbumsByGenres(item.getName(), (int) offset, (int) count, util.getGuestFolders());
+            .findAlbumsByGenres(musicFolderProvider.getGuestFolders(), genre.name(), (int) offset,
+                    (int) count);
     }
 
     @Override
     public int getChildSizeOf(Genre genre) {
-        return genre.getAlbumCount();
+        return genre.albumCount();
     }
 
     @Override
     public void addChild(DIDLContent parent, MediaFile album) {
         parent
             .addContainer(
-                    factory.toAlbum(album, mediaFileService.getChildSizeOf(album, EXCLUDED_TYPES)));
+                    factory.toAlbum(album, mediaFileProvider.countChildren(album, EXCLUDED_TYPES)));
     }
 }
