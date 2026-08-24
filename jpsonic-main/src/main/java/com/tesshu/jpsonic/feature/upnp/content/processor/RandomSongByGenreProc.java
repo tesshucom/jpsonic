@@ -21,32 +21,34 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
 
-    private final SettingsFacade settingsFacade;
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
+    private final MusicFolderProvider musicFolderProvider;
     private final MediaSearchProvider mediaSearchProvider;
+    private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    RandomSongByGenreProc(SettingsFacade settingsFacade, UPnPProcessorUtil util,
-            UPnPDIDLFactory factory, MediaSearchProvider mediaSearchProvider) {
-        super(settingsFacade, util, factory, mediaSearchProvider);
-        this.settingsFacade = settingsFacade;
-        this.util = util;
-        this.factory = factory;
+    RandomSongByGenreProc(MusicFolderProvider musicFolderProvider,
+            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaSearchProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
         this.mediaSearchProvider = mediaSearchProvider;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     @Override
@@ -56,7 +58,7 @@ class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(getProcId(), genre, genre.getSongCount());
+        return factory.toGenre(getProcId(), genre, genre.songCount());
     }
 
     @Override
@@ -65,11 +67,12 @@ class RandomSongByGenreProc extends SongByGenreProc implements CountLimitProc {
         int max = getChildSizeOf(genre);
         int count = toCount(firstResult, maxResults, max);
         return mediaSearchProvider
-            .getRandomSongs(count, offset, max, util.getGuestFolders(), genre.getName());
+            .getRandomSongs(musicFolderProvider.getGuestFolders(), offset, count, max,
+                    genre.name());
     }
 
     @Override
     public int getChildSizeOf(Genre genre) {
-        return Math.min(genre.getSongCount(), settingsFacade.get(UPnPSKeys.options.randomMax));
+        return Math.min(genre.songCount(), settingsFacade.get(UPnPSKeys.options.randomMax));
     }
 }

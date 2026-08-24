@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;
@@ -36,7 +37,6 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.UserService;
@@ -85,12 +85,12 @@ public class GeneralSettingsController {
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
-    private final MusicIndexService musicIndexService;
+    private final MusicIndexProvider musicIndexProvider;
 
     public GeneralSettingsController(SettingsFacade settingsFacade, UserService userService,
             ServerLocaleService serverLocaleService, ServerThemeService serverThemeService,
             ShareService shareService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
+            ScannerStateService scannerStateService, MusicIndexProvider musicIndexProvider) {
         super();
         this.settingsFacade = settingsFacade;
         this.userService = userService;
@@ -99,7 +99,7 @@ public class GeneralSettingsController {
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
-        this.musicIndexService = musicIndexService;
+        this.musicIndexProvider = musicIndexProvider;
     }
 
     @ModelAttribute
@@ -241,7 +241,7 @@ public class GeneralSettingsController {
             .getIndex()
             .equals(settingsFacade.get(SKeys.general.index.indexString))) {
             settingsFacade.staging(SKeys.general.index.indexString, command.getIndex());
-            musicIndexService.clear();
+            musicIndexProvider.invalidate();
         }
         settingsFacade.staging(SKeys.general.index.ignoredArticles, command.getIgnoredArticles());
 

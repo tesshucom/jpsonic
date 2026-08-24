@@ -23,20 +23,23 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,15 +48,18 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class AlbumByFolderProcTest {
 
-    private MediaFileService mediaFileService;
-    private UPnPProcessorUtil util;
+    private MusicFolderProvider musicFolderProvider;
+    private MediaFileProvider mediaFileProvider;
     private AlbumByFolderProc proc;
 
     @BeforeEach
     void setup() {
-        mediaFileService = mock(MediaFileService.class);
-        util = mock(UPnPProcessorUtil.class);
-        proc = new AlbumByFolderProc(util, mock(UPnPDIDLFactory.class), mediaFileService);
+        musicFolderProvider = mock(MusicFolderProvider.class);
+        mediaFileProvider = mock(MediaFileProvider.class);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
+        proc = new AlbumByFolderProc(musicFolderProvider, mediaFileProvider, settingsFacade,
+                factory);
     }
 
     @Test
@@ -64,8 +70,10 @@ class AlbumByFolderProcTest {
     @Nested
     class GetDirectChildrenTest {
 
-        private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
-        private final MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
+        private final MusicFolder folder1 = new MusicFolder(0, "path1", "name1", false, null, 0,
+                false);
+        private final MusicFolder folder2 = new MusicFolder(0, "path2", "name2", false, null, 0,
+                false);
 
         @Test
         void testNoFolder() {
@@ -74,47 +82,50 @@ class AlbumByFolderProcTest {
 
         @Test
         void testWithSingleFolder() {
-            when(util.getGuestFolders()).thenReturn(List.of(folder1));
+            when(musicFolderProvider.getGuestFolders()).thenReturn(List.of(folder1));
             assertEquals(0, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
-            verify(mediaFileService, times(1))
-                .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                        ArgumentMatchers.<MusicFolder>anyList());
+            verify(mediaFileProvider, times(1))
+                .findAlbums(ArgumentMatchers.<MusicFolder>anyList(),
+                        any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(), anyLong());
         }
 
         @Test
         void testMultiFolder() {
-            when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2));
+            when(musicFolderProvider.getGuestFolders()).thenReturn(List.of(folder1, folder2));
             assertEquals(2, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
-            verify(mediaFileService, times(2)).getMediaFile(any(Path.class));
+            verify(mediaFileProvider, times(2)).requireMediaFile(any(MusicFolder.class));
         }
     }
 
     @Nested
     class GetDirectChildrenCountTest {
 
-        private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
-        private final MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
+        private final MusicFolder folder1 = new MusicFolder(0, "path1", "name1", false, null, 0,
+                false);
+        private final MusicFolder folder2 = new MusicFolder(0, "path2", "name2", false, null, 0,
+                false);
 
         @Test
         void testNoFolder() {
-            when(util.getGuestFolders()).thenReturn(Collections.emptyList());
+            when(musicFolderProvider.getGuestFolders()).thenReturn(Collections.emptyList());
             assertEquals(0, proc.getDirectChildrenCount());
         }
 
         @Test
         void testWithSingleFolder() {
-            when(util.getGuestFolders()).thenReturn(List.of(folder1));
+            when(musicFolderProvider.getGuestFolders()).thenReturn(List.of(folder1));
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(mediaFileService, times(1))
-                .getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
+            verify(mediaFileProvider, times(1))
+                .countAlbums(ArgumentMatchers.<MusicFolder>anyList());
         }
 
         @Test
         void testMultiFolder() {
-            when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2));
+            when(musicFolderProvider.getGuestFolders()).thenReturn(List.of(folder1, folder2));
             assertEquals(2, proc.getDirectChildrenCount());
-            verify(mediaFileService, never())
-                .getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
+            verify(mediaFileProvider, never())
+                .findAlbums(ArgumentMatchers.<MusicFolder>anyList(),
+                        any(RuntimeOrderPolicy.AlbumSortOrder.class), anyInt(), anyInt());
         }
     }
 }

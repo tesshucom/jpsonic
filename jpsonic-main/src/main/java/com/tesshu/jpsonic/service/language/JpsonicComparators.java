@@ -25,12 +25,14 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.tesshu.jpsonic.domain.contract.Nameable;
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -228,6 +230,10 @@ public class JpsonicComparators {
         return new PlaylistComparator(processor, createCollator());
     }
 
+    public <T extends Nameable> NameableComparator<T> nameableOrder() {
+        return new NameableComparator<>(createCollator());
+    }
+
     private static class GenreComparator implements Comparator<Genre> {
         private final JapaneseReadingProcessor processor;
         private final Collator collator;
@@ -261,6 +267,22 @@ public class JpsonicComparators {
             this.processor.analyze(o1);
             this.processor.analyze(o2);
             return this.collator.compare(o1.getReading(), o2.getReading());
+        }
+    }
+
+    private static class NameableComparator<T extends Nameable>
+            implements Comparator<Entry<T, String>> {
+
+        private final Collator collator;
+
+        NameableComparator(Collator collator) {
+            super();
+            this.collator = collator;
+        }
+
+        @Override
+        public int compare(Entry<T, String> o1, Entry<T, String> o2) {
+            return this.collator.compare(o1.getValue(), o2.getValue());
         }
     }
 }

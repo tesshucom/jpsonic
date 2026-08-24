@@ -21,22 +21,26 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class AlbumProc extends MediaFileProc {
 
-    private final UPnPProcessorUtil util;
-    private final MediaFileService mediaFileService;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
 
-    AlbumProc(UPnPProcessorUtil util, UPnPDIDLFactory factory, MediaFileService mediaFileService) {
-        super(util, factory, mediaFileService);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
+    AlbumProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            SettingsFacade settingsFacade, UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
     }
 
     @Override
@@ -46,12 +50,13 @@ class AlbumProc extends MediaFileProc {
 
     @Override
     public List<MediaFile> getDirectChildren(long offset, long count) {
-        return mediaFileService
-            .getAlphabeticalAlbums((int) offset, (int) count, true, util.getGuestFolders());
+        return mediaFileProvider
+            .findAlbums(musicFolderProvider.getGuestFolders(),
+                    RuntimeOrderPolicy.AlbumSortOrder.BY_ARTIST_AND_ALBUM, offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return (int) mediaFileService.getAlbumCount(util.getGuestFolders());
+        return mediaFileProvider.countAlbums(musicFolderProvider.getGuestFolders());
     }
 }

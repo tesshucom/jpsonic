@@ -23,6 +23,8 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
@@ -34,8 +36,6 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrGenreLogi
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -78,7 +78,7 @@ class RandomSongByFolderGenreProc extends SongByFolderGenreProc implements Count
             MusicFolder folder = folderOrGenre.getFolderGenre().folder();
             Genre genre = folderOrGenre.getFolderGenre().genre();
             return mediaSearchProvider
-                .getRandomSongs(count, offset, max, List.of(folder), genre.getName())
+                .getRandomSongs(List.of(folder), count, offset, max, genre.name())
                 .stream()
                 .map(FGenreOrSong::new)
                 .toList();
@@ -110,7 +110,7 @@ class RandomSongByFolderGenreProc extends SongByFolderGenreProc implements Count
         } else {
             deligate
                 .addChild(parent, getProcId(), genreOrSong.getGenre(),
-                        genreOrSong.getGenre().genre().getSongCount());
+                        genreOrSong.getGenre().genre().songCount());
         }
     }
 }

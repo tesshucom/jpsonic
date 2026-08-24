@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -35,8 +35,7 @@ class FolderGenreAlbumTest {
     void testCreateCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        Album album = new Album();
-        album.setId(88);
+        Album album = new Album(88, "album", "artist", 20, null);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
         assertEquals("fgal:99;88;GENRE", folderGenreAlbum.createCompositeId());
     }
@@ -45,11 +44,10 @@ class FolderGenreAlbumTest {
     void testIsCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        Album album = new Album();
-        album.setId(88);
-        assertFalse(FolderGenreAlbum.isCompositeId(Integer.toString(folder.getId())));
-        assertFalse(FolderGenreAlbum.isCompositeId(genre.getName()));
-        assertFalse(FolderGenreAlbum.isCompositeId(Integer.toString(album.getId())));
+        Album album = new Album(88, "album", "artist", 20, null);
+        assertFalse(FolderGenreAlbum.isCompositeId(Integer.toString(folder.id())));
+        assertFalse(FolderGenreAlbum.isCompositeId(genre.name()));
+        assertFalse(FolderGenreAlbum.isCompositeId(Integer.toString(album.id())));
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
         assertTrue(FolderGenreAlbum.isCompositeId(folderGenreAlbum.createCompositeId()));
     }
@@ -58,8 +56,7 @@ class FolderGenreAlbumTest {
     void testParseFolderId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        Album album = new Album();
-        album.setId(88);
+        Album album = new Album(88, "album", "artist", 20, null);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
         assertEquals(99, FolderGenreAlbum.parseFolderId(folderGenreAlbum.createCompositeId()));
     }
@@ -68,8 +65,7 @@ class FolderGenreAlbumTest {
     void testParseAlbumId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        Album album = new Album();
-        album.setId(88);
+        Album album = new Album(88, "album", "artist", 20, null);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
         assertEquals(88, FolderGenreAlbum.parseAlbumId(folderGenreAlbum.createCompositeId()));
     }
@@ -78,8 +74,7 @@ class FolderGenreAlbumTest {
     void testParseGenreName() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        Album album = new Album();
-        album.setId(88);
+        Album album = new Album(88, "album", "artist", 20, null);
         FolderGenreAlbum folderGenreAlbum = new FolderGenreAlbum(folder, genre, album);
         assertEquals("GENRE",
                 FolderGenreAlbum.parseGenreName(folderGenreAlbum.createCompositeId()));

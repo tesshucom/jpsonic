@@ -31,10 +31,10 @@ import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.Player;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.model.UserSettings;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
-import com.tesshu.jpsonic.domain.provider.TranscodingProvider;
-import com.tesshu.jpsonic.domain.provider.UserProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
+import com.tesshu.jpsonic.domain.provider.resource.TranscodingProvider;
+import com.tesshu.jpsonic.domain.provider.resource.UserProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
@@ -43,7 +43,6 @@ import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,7 +87,6 @@ class UPnPDIDLFactoryTest {
 
         mediaFileProvider = mock(MediaFileProvider.class);
         final int id = 0;
-        final int folderId = 0;
         final String pathString = "path";
         final String format = "mp3";
         String type = "MUSIC";
@@ -98,23 +96,34 @@ class UPnPDIDLFactoryTest {
         String artist = "artist";
         String album = "album";
         String title = "title";
-        MediaFile song = new MediaFile(id, folderId, pathString, format, type, bitRate,
-                durationSeconds, fileSize, artist, album, title);
+        MediaFile song = new MediaFile(id, pathString, 1, format, type, bitRate, durationSeconds,
+                fileSize, artist, album, title, "albumArtist", 1, "genre", 2026, "/thumbUri",
+                "composer", "reading", "A", "comment");
         when(mediaFileProvider.requireMediaFile(anyInt())).thenReturn(song);
 
         UpnpKeyManager upnpKeyManager = mock(UpnpKeyManager.class);
         when(upnpKeyManager.getKey()).thenReturn("dummyKey");
         UpnpPayloadCodec upnpPayloadCodec = new UpnpPayloadCodec(upnpKeyManager);
 
-        factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec,
-                mock(MediaFileService.class), mediaFileProvider, playerProvider, parametersPlanner);
+        factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec, mediaFileProvider,
+                playerProvider, parametersPlanner);
     }
 
     @Test
     void testToRes() {
-        com.tesshu.jpsonic.persistence.api.entity.MediaFile dummy = new com.tesshu.jpsonic.persistence.api.entity.MediaFile();
-        dummy.setId(0);
-
+        final int id = 0;
+        final String pathString = "path";
+        final String format = "mp3";
+        String type = "MUSIC";
+        Integer bitRate = 256;
+        Integer durationSeconds = 512;
+        long fileSize = 128;
+        String artist = "artist";
+        String album = "album";
+        String title = "title";
+        MediaFile dummy = new MediaFile(id, pathString, 1, format, type, bitRate, durationSeconds,
+                fileSize, artist, album, title, "albumArtist", 1, "genre", 2026, "/thumbUri",
+                "composer", "reading", "A", "comment");
         Res res = factory.toRes(dummy);
         assertEquals("http://192.168.1.1/ext/upnp/stream/ec24379a1b.mp3", res.getValue());
     }

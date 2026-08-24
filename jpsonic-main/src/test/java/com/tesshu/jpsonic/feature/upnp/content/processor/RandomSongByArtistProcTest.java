@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,9 +41,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.Player;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
@@ -53,11 +58,6 @@ import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -75,11 +75,10 @@ class RandomSongByArtistProcTest {
     @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     class UnitTest {
 
-        private UPnPProcessorUtil util;
         private UPnPDIDLFactory factory;
-        private ArtistDao artistDao;
         private MediaSearchProvider mediaSearchProvider;
         private SettingsFacade settingsFacade;
+        private ArtistProvider artistProvider;
 
         private RandomSongByArtistProc proc;
 
@@ -94,27 +93,28 @@ class RandomSongByArtistProcTest {
 
         @Ignore
         void init() {
-            util = mock(UPnPProcessorUtil.class);
             TranscodingParametersPlanner parametersPlanner = mock(
                     TranscodingParametersPlanner.class);
-            com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
-                    com.tesshu.jpsonic.domain.model.MediaFile.class);
-            when(mediaFile.format())
-                .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
+            MediaFile mediaFile = mock(MediaFile.class);
+            when(mediaFile.format()).thenReturn(new MediaFile.Format("mp3"));
             ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
                     mediaFile, null, null);
             when(parametersPlanner
                 .resolveAudioTranscodingParameters(nullable(Player.class),
-                        nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
-                        nullable(Integer.class), nullable(String.class)))
+                        nullable(MediaFile.class), nullable(Integer.class), nullable(String.class)))
                 .thenReturn(param);
-            factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                    mock(MediaFileService.class), mock(MediaFileProvider.class),
-                    mock(PlayerProvider.class), parametersPlanner);
-            artistDao = mock(ArtistDao.class);
+
+            MediaFileProvider mediaFileProvider = mock(MediaFileProvider.class);
+            PlayerProvider playerProvider = mock(PlayerProvider.class);
+            UpnpPayloadCodec upnpPayloadCodec = mock(UpnpPayloadCodec.class);
+            factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec, mediaFileProvider,
+                    playerProvider, parametersPlanner);
+
             mediaSearchProvider = mock(MediaSearchProvider.class);
-            proc = new RandomSongByArtistProc(util, factory, artistDao, mediaSearchProvider,
-                    settingsFacade);
+            MusicFolderProvider musicFolderProvider = mock(MusicFolderProvider.class);
+            artistProvider = mock(ArtistProvider.class);
+            proc = new RandomSongByArtistProc(musicFolderProvider, artistProvider,
+                    mediaSearchProvider, settingsFacade, factory);
         }
 
         @Test
@@ -124,9 +124,7 @@ class RandomSongByArtistProcTest {
 
         @Test
         void testCreateContainer() {
-            Artist artist = new Artist();
-            artist.setName("artistName");
-            artist.setAlbumCount(50);
+            Artist artist = new Artist(0, "artistName", "path", 50, 0, "reading", 0, "#");
             Container container = proc.createContainer(artist);
             assertInstanceOf(MusicArtist.class, container);
             assertEquals("rsbar/0", container.getId());
@@ -138,26 +136,28 @@ class RandomSongByArtistProcTest {
         @Test
         void testGetDirectChildren() {
             proc.getDirectChildren(0, 0);
-            verify(artistDao, times(1)).getAlphabetialArtists(anyInt(), anyInt(), anyList());
+            verify(artistProvider, times(1)).findArtists(anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testGetDirectChildrenCount() {
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(artistDao, times(1)).getArtistsCount(anyList());
+            verify(artistProvider, times(1)).countArtists(anyList());
         }
 
         @Test
         void testGetDirectChild() {
             assertNull(proc.getDirectChild("0"));
-            verify(artistDao, times(1)).getArtist(anyInt());
+            verify(artistProvider, times(1)).requireArtist(anyInt());
         }
 
         @Test
         void testGetChildren() {
-            assertEquals(0, proc.getChildren(new Artist(), 0, 0).size());
+            Artist artist = new Artist(0, "artistName", "path", 50, 0, "reading", 0, "#");
+            assertEquals(0, proc.getChildren(artist, 0, 0).size());
             verify(mediaSearchProvider, times(1))
-                .getRandomSongsByArtist(any(Artist.class), anyInt(), anyInt(), anyInt(), anyList());
+                .getRandomSongsByArtist(anyList(), any(Artist.class), anyLong(), anyLong(),
+                        anyInt());
         }
 
         @Test
@@ -180,7 +180,9 @@ class RandomSongByArtistProcTest {
         void testAddChild() {
             DIDLContent content = new DIDLContent();
             assertEquals(0, content.getContainers().size());
-            MediaFile song = new MediaFile();
+            MediaFile song = new MediaFile(1, "pathString", null, "format", "MUSIC", 256, 60, 9999,
+                    "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri",
+                    "composer", "reading", "#", "comment");
             factory = mock(UPnPDIDLFactory.class);
             when(factory.toMusicTrack(song)).thenReturn(new MusicTrack());
 
@@ -201,9 +203,10 @@ class RandomSongByArtistProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists",
-                    true, now(), 1, false));
+        private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                    resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1,
+                    false));
 
         @Autowired
         private RandomSongByArtistProc randomSongByArtistProc;
@@ -211,7 +214,7 @@ class RandomSongByArtistProcTest {
         private SettingsFacade settingsFacade;
 
         @Override
-        public List<MusicFolder> getMusicFolders() {
+        public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
         }
 
@@ -229,25 +232,16 @@ class RandomSongByArtistProcTest {
             Map<String, Artist> c = LegacyMap.of();
 
             List<Artist> items = randomSongByArtistProc.getDirectChildren(0, 10);
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(10, c.size());
 
             items = randomSongByArtistProc.getDirectChildren(10, 10);
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(20, c.size());
 
             items = randomSongByArtistProc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(31, c.size());
         }
 
@@ -265,8 +259,8 @@ class RandomSongByArtistProcTest {
             List<MediaFile> children = randomSongByArtistProc.getChildren(artists.get(0), 0, 10);
             children
                 .stream()
-                .filter(m -> !c.containsKey(m.getArtist()))
-                .forEach(m -> c.put(m.getArtist(), m));
+                .filter(m -> !c.containsKey(m.artist()))
+                .forEach(m -> c.put(m.artist(), m));
             assertEquals(1, c.size());
         }
 

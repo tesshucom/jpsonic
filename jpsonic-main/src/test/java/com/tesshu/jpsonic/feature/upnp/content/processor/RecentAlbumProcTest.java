@@ -30,10 +30,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
@@ -41,15 +40,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class RecentAlbumProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true,
-                now(), 1, false));
+    private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
 
     @Autowired
     private RecentAlbumProc processor;
 
     @Override
-    public List<MusicFolder> getMusicFolders() {
+    public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
@@ -81,16 +80,16 @@ class RecentAlbumProcTest extends AbstractNeedsScan {
 
         List<MediaFile> items = processor.getDirectChildren(0, 10);
 
-        items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+        items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
         assertEquals(10, c.size());
 
         items = processor.getDirectChildren(10, 10);
-        items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+        items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
         assertEquals(20, c.size());
 
         items = processor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
-        items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+        items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
         assertEquals(31, c.size());
 
         assertEquals(4, processor.getDirectChildren(0, 4).size());

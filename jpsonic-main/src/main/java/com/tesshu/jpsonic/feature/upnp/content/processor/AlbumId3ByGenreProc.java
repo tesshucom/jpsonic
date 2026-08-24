@@ -22,6 +22,11 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
@@ -31,11 +36,6 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.GenreAlbum;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
@@ -44,27 +44,28 @@ import org.springframework.stereotype.Controller;
 @Controller
 class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
 
-    private static final MediaType[] TYPES = { MediaType.MUSIC };
+    private static final MediaFile.Type[] TYPES = { MediaFile.Type.MUSIC };
 
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
-    private final SettingsFacade settingsFacade;
+    private final MusicFolderProvider musicFolderProvider;
     private final MediaSearchProvider mediaSearchProvider;
-    private final AlbumDao albumDao;
+    private final AlbumProvider albumProvider;
+    private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    AlbumId3ByGenreProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            SettingsFacade settingsFacade, MediaSearchProvider mediaSearchProvider,
-            AlbumDao albumDao) {
+    AlbumId3ByGenreProc(MusicFolderProvider musicFolderProvider,
+            MediaSearchProvider mediaSearchProvider, AlbumProvider albumProvider,
+            SettingsFacade settingsFacade, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
-        this.factory = factory;
-        this.settingsFacade = settingsFacade;
+        this.musicFolderProvider = musicFolderProvider;
         this.mediaSearchProvider = mediaSearchProvider;
-        this.albumDao = albumDao;
+        this.albumProvider = albumProvider;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     private GenreMasterCriteria createGenreMasterCriteria() {
-        return new GenreMasterCriteria(util.getGuestFolders(), GenreMasterScope.ALBUM,
+        return new GenreMasterCriteria(musicFolderProvider.getGuestFolders(),
+                GenreMasterScope.ALBUM,
                 GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpAlbumGenreSort)),
                 TYPES);
     }
@@ -76,7 +77,7 @@ class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
 
     @Override
     public Container createContainer(Genre genre) {
-        return factory.toGenre(getProcId(), genre, genre.getAlbumCount());
+        return factory.toGenre(getProcId(), genre, genre.albumCount());
     }
 
     @Override
@@ -93,16 +94,16 @@ class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
     public Genre getDirectChild(String genreName) {
         return getDirectChildren(0, Integer.MAX_VALUE)
             .stream()
-            .filter(g -> g.getName().equals(genreName))
+            .filter(g -> g.name().equals(genreName))
             .findFirst()
-            .orElseGet(null);
+            .orElse(null);
     }
 
     @Override
-    public List<GenreAlbum> getChildren(Genre genre, long offset, long maxLength) {
+    public List<GenreAlbum> getChildren(Genre genre, long offset, long count) {
         return mediaSearchProvider
-            .getAlbumId3sByGenres(genre.getName(), (int) offset, (int) maxLength,
-                    util.getGuestFolders())
+            .findAlbumId3sByGenres(musicFolderProvider.getGuestFolders(), genre.name(), offset,
+                    count)
             .stream()
             .map(album -> new GenreAlbum(genre, album))
             .toList();
@@ -110,11 +111,12 @@ class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
 
     @Override
     public int getChildSizeOf(Genre genre) {
-        return genre.getAlbumCount();
+        return genre.albumCount();
     }
 
-    private int getChildSizeOf(String genre, Album album) {
-        return mediaSearchProvider.getChildSizeOf(genre, album, util.getGuestFolders(), TYPES);
+    private int countChldren(String genre, Album album) {
+        return mediaSearchProvider
+            .countChldren(musicFolderProvider.getGuestFolders(), genre, album, TYPES);
     }
 
     @Override
@@ -122,26 +124,26 @@ class AlbumId3ByGenreProc extends DirectChildrenContentProc<Genre, GenreAlbum> {
         parent
             .addContainer(factory
                 .toAlbumWithGenre(composite,
-                        getChildSizeOf(composite.genre().getName(), composite.album())));
+                        countChldren(composite.genre().name(), composite.album())));
     }
 
     @Override
-    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength)
+    public BrowseResult browseLeaf(String id, String filter, long offset, long count)
             throws ExecutionException {
         final DIDLContent content = new DIDLContent();
         if (GenreAlbum.isCompositeId(id)) {
             String genre = GenreAlbum.parseGenreName(id);
-            Album album = albumDao.getAlbum(GenreAlbum.parseAlbumId(id));
+            Album album = albumProvider.requireAlbum(GenreAlbum.parseAlbumId(id));
             List<MediaFile> songs = mediaSearchProvider
-                .getChildrenOf(genre, album, (int) offset, (int) maxLength, util.getGuestFolders(),
+                .findChildren(musicFolderProvider.getGuestFolders(), genre, album, offset, count,
                         TYPES);
             songs.stream().forEach(song -> content.addItem(factory.toMusicTrack(song)));
-            return createBrowseResult(content, songs.size(), getChildSizeOf(genre, album));
+            return createBrowseResult(content, songs.size(), countChldren(genre, album));
         }
 
         // If it's not the CompositeId, it's the Genre name
         Genre genre = getDirectChild(id);
-        List<GenreAlbum> albums = getChildren(genre, offset, maxLength);
+        List<GenreAlbum> albums = getChildren(genre, offset, count);
         albums.stream().forEach(album -> addChild(content, album));
         return createBrowseResult(content, albums.size(), getChildSizeOf(genre));
     }

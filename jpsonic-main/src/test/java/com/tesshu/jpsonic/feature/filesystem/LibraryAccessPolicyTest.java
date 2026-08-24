@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -44,17 +45,20 @@ class LibraryAccessPolicyTest {
     private LibraryAccessPolicy service;
     private PathInspector pathInspector;
     private MusicFolderService musicFolderService;
+    private MediaFileProvider mediaFileProvider;
 
     @BeforeEach
     void setup() {
         settingsFacade = SettingsFacadeBuilder.create().build();
         pathInspector = new PathInspector();
         musicFolderService = mock(MusicFolderService.class);
+        mediaFileProvider = mock(MediaFileProvider.class);
     }
 
     @Ignore
     void init() {
-        service = new LibraryAccessPolicy(settingsFacade, pathInspector, musicFolderService);
+        service = new LibraryAccessPolicy(settingsFacade, pathInspector, musicFolderService,
+                mediaFileProvider);
     }
 
     @Test

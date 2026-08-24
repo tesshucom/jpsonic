@@ -43,13 +43,13 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;

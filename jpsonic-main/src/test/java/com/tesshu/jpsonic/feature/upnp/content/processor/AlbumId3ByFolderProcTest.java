@@ -20,21 +20,26 @@
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.Player;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
@@ -46,49 +51,46 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFAlbu
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrAlbumLogic;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class AlbumId3ByFolderProcTest {
 
-    private MediaFileService mediaFileService;
-    private AlbumDao albumDao;
+    private AlbumProvider albumProvider;
     private AlbumId3ByFolderProc proc;
+    private MediaFileProvider mediaFileProvider;
 
     @BeforeEach
     void setup() {
-        mediaFileService = mock(MediaFileService.class);
-        albumDao = mock(AlbumDao.class);
-        UPnPProcessorUtil util = mock(UPnPProcessorUtil.class);
+        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
+        MediaFile mediaFile = mock(MediaFile.class);
+        when(mediaFile.format()).thenReturn(new MediaFile.Format("mp3"));
+        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                mediaFile, null, null);
+        assertNotNull(param.outputFormat());
+        when(parametersPlanner
+            .resolveAudioTranscodingParameters(nullable(Player.class), nullable(MediaFile.class),
+                    nullable(Integer.class), nullable(String.class)))
+            .thenReturn(param);
+
         SettingsFacade settingsFacade = SettingsFacadeBuilder
             .create()
             .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
             .build();
-        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
-        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mock(
-                com.tesshu.jpsonic.domain.model.MediaFile.class);
-        when(mediaFile.format())
-            .thenReturn(new com.tesshu.jpsonic.domain.model.MediaFile.Format("mp3"));
-        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
-                mediaFile, null, null);
-        when(parametersPlanner
-            .resolveAudioTranscodingParameters(nullable(Player.class),
-                    nullable(com.tesshu.jpsonic.domain.model.MediaFile.class),
-                    nullable(Integer.class), nullable(String.class)))
-            .thenReturn(param);
-        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                mock(MediaFileService.class), mock(MediaFileProvider.class),
-                mock(PlayerProvider.class), parametersPlanner);
-        FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(util, factory, albumDao);
-        proc = new AlbumId3ByFolderProc(mediaFileService, albumDao, factory, folderOrAlbumLogic);
+        mediaFileProvider = mock(MediaFileProvider.class);
+        PlayerProvider playerProvider = mock(PlayerProvider.class);
+        UpnpPayloadCodec upnpPayloadCodec = mock(UpnpPayloadCodec.class);
+
+        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec,
+                mediaFileProvider, playerProvider, parametersPlanner);
+        albumProvider = mock(AlbumProvider.class);
+        FolderOrAlbumLogic folderOrAlbumLogic = new FolderOrAlbumLogic(
+                mock(MusicFolderProvider.class), albumProvider, factory);
+        proc = new AlbumId3ByFolderProc(mediaFileProvider, albumProvider, factory,
+                folderOrAlbumLogic);
     }
 
     @Test
@@ -99,38 +101,34 @@ class AlbumId3ByFolderProcTest {
     @Test
     void testGetChildrenWithAlbum() {
         int id = 99;
-        Album album = new Album();
-        album.setId(id);
-        album.setName("album");
-        album.setArtist("artist");
-        when(albumDao.getAlbum(id)).thenReturn(album);
+        Album album = new Album(id, "album", "artist", 1, null);
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         assertEquals(0, proc.getChildren(folderOrAlbum, 0, 2).size());
         Mockito
-            .verify(mediaFileService, Mockito.times(1))
-            .getSongsForAlbum(anyLong(), anyLong(), anyString(), anyString());
+            .verify(mediaFileProvider, Mockito.times(1))
+            .findChildren(anyList(), any(Album.class), anyLong(), anyLong(),
+                    any(MediaFile.Type[].class));
     }
 
     @Test
     void testGetChildrenWithFolder() {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
-        when(albumDao
-            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList()))
-            .thenReturn(List.of(new Album()));
+        when(albumProvider
+            .findAlbums(anyList(), any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(),
+                    anyLong()))
+            .thenReturn(List.of(new Album(0, "album", "artist", 1, null)));
         FolderOrFAlbum folderOrArtist = new FolderOrFAlbum(folder);
         assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());
         Mockito
-            .verify(albumDao, Mockito.times(1))
-            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
+            .verify(albumProvider, Mockito.times(1))
+            .findAlbums(anyList(), any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(),
+                    anyLong());
     }
 
     @Test
     void testAddChild() {
-        Album album = new Album();
-        album.setId(0);
-        album.setName("album");
-        album.setArtist("artist");
+        Album album = new Album(0, "album", "artist", 1, null);
         AlbumOrSong albumOrSong = new AlbumOrSong(album);
 
         DIDLContent content = new DIDLContent();
@@ -141,7 +139,9 @@ class AlbumId3ByFolderProcTest {
         assertEquals(0, content.getItems().size());
 
         content = new DIDLContent();
-        MediaFile song = new MediaFile();
+        MediaFile song = new MediaFile(1, "pathString", null, "format", "MUSIC", 256, 60, 9999,
+                "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri", "composer",
+                "reading", "#", "comment");
         albumOrSong = new AlbumOrSong(song);
         assertEquals(0, content.getItems().size());
         assertEquals(0, content.getItems().size());

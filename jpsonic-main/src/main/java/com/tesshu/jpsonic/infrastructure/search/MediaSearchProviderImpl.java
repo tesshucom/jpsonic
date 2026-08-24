@@ -28,13 +28,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.SearchResult;
-import com.tesshu.jpsonic.infrastructure.core.EhcacheConfiguration.RandomCacheKey;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.infrastructure.cache.CacheKeys;
+import com.tesshu.jpsonic.infrastructure.cache.EhcacheConfiguration.RandomCacheKey;
+import com.tesshu.jpsonic.infrastructure.cache.ModelCache;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.UPnPSearchCriteria;
@@ -46,7 +52,6 @@ import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -108,10 +113,12 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
+    private final MediaFileProvider mediaFileProvider;
+    private final ModelCache modelCache;
 
     public MediaSearchProviderImpl(QueryFactory queryFactory, IndexManager indexManager,
             SearchServiceUtilities util, SettingsFacade settingsFacade, MediaFileDao mediaFileDao,
-            AlbumDao albumDao) {
+            AlbumDao albumDao, MediaFileProvider mediaFileProvider, ModelCache modelCache) {
         super();
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;
@@ -119,6 +126,8 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
         this.settingsFacade = settingsFacade;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
+        this.mediaFileProvider = mediaFileProvider;
+        this.modelCache = modelCache;
     }
 
     // Logs the search query if settings and log level allow it
@@ -215,13 +224,13 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
             // Dispatch by index type
             if (IndexType.ARTIST_ID3 == indexType) {
                 return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
-                        Artist.class);
+                        com.tesshu.jpsonic.domain.model.Artist.class);
             } else if (IndexType.ALBUM_ID3 == indexType) {
                 return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
-                        Album.class);
+                        com.tesshu.jpsonic.domain.model.Album.class);
             } else {
                 return (SearchResult<T>) processDocuments(searcher, topDocs, start, end, indexType,
-                        MediaFile.class);
+                        com.tesshu.jpsonic.domain.model.MediaFile.class);
             }
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
@@ -261,7 +270,7 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
      * @param count            Number of albums to return.
      * @param idToListCallback Callback to get D from id and store it in List
      */
-    private <D> List<D> createRandomDocsList(int count, IndexSearcher searcher, Query query,
+    private <D> List<D> createRandomDocsList(long count, IndexSearcher searcher, Query query,
             BiConsumer<List<D>, Integer> idToListCallback) throws IOException {
 
         // Get all matching document IDs from Lucene
@@ -321,21 +330,25 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<MediaFile> getRandomSongs(int count, int offset, int cacheMax,
-            List<MusicFolder> musicFolders, String... genres) {
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongs(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
+            int cacheMax, String... genres) {
 
-        final List<MediaFile> result = new ArrayList<>();
+        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
 
         // Callback to add a sublist of IDs (after offset & limit) to the result list
         Consumer<List<Integer>> addSubsetToResult = ids -> ids
             .stream()
             .skip(offset)
             .limit(count)
-            .forEach(id -> util.addMediaFileIfAnyMatch(result, id));
+            .map(mediaFileProvider::requireMediaFile)
+            .filter(Objects::nonNull)
+            .forEach(result::add);
 
         // Try to get cached IDs first
-        util.getCache(RandomCacheKey.SONG, cacheMax, musicFolders).ifPresent(addSubsetToResult);
-
+        modelCache
+            .getCache(CacheKeys.random.song, cacheMax, musicFolders)
+            .ifPresent(addSubsetToResult);
         if (!result.isEmpty()) {
             return result; // Return if cache hit
         }
@@ -366,7 +379,7 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
             }
 
             // Store the randomly selected IDs in cache
-            util.putCache(RandomCacheKey.SONG, cacheMax, musicFolders, ids);
+            modelCache.putCache(CacheKeys.random.song, cacheMax, musicFolders, ids);
 
             // Apply offset & limit, and add to result
             addSubsetToResult.accept(ids);
@@ -382,21 +395,22 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset,
-            int cacheMax, List<MusicFolder> musicFolders) {
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongsByArtist(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            com.tesshu.jpsonic.domain.model.Artist artist, long offset, long count, int cacheMax) {
 
-        final List<MediaFile> result = new ArrayList<>();
+        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
 
         // Define logic to extract a sublist (offset + count) from the source list
-        Consumer<List<MediaFile>> addSubsetToResult = files -> files
+        Consumer<List<com.tesshu.jpsonic.domain.model.MediaFile>> addSubsetToResult = files -> files
             .stream()
             .skip(offset)
             .limit(count)
             .forEach(result::add);
 
         // Try retrieving from cache first
-        util
-            .getCache(RandomCacheKey.SONG_BY_ARTIST, cacheMax, musicFolders, artist.getName())
+        modelCache
+            .getCache(CacheKeys.random.songByArtist, cacheMax, folders, artist.name())
             .ifPresent(addSubsetToResult);
 
         if (!result.isEmpty()) {
@@ -404,8 +418,8 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
         }
 
         // Get random songs for the artist from the database
-        List<MediaFile> songs = mediaFileDao
-            .getRandomSongsForAlbumArtist(cacheMax, artist.getName(), musicFolders,
+        List<com.tesshu.jpsonic.domain.model.MediaFile> songs = mediaFileDao
+            .getDomainRandomSongsForAlbumArtist(cacheMax, artist.name(), folders,
                     (range, limit) -> {
                         // Generate a list of unique random integers within [0, range)
                         List<Integer> randomIndices = new ArrayList<>();
@@ -419,9 +433,7 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
                     });
 
         // Cache the retrieved songs for future access
-        util
-            .putCache(RandomCacheKey.SONG_BY_ARTIST, cacheMax, musicFolders, songs,
-                    artist.getName());
+        modelCache.putCache(CacheKeys.random.songByArtist, cacheMax, folders, songs, artist.name());
 
         // Add the subset (offset + count) to the result
         addSubsetToResult.accept(songs);
@@ -494,7 +506,39 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<Album> getRandomAlbumsId3(int count, int offset, int cacheMax,
+    public List<com.tesshu.jpsonic.domain.model.Album> getRandomAlbumsId3(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
+            int casheMax) {
+        // Obtain IndexSearcher for ID3-based albums
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+
+        // Return empty list if index is not available
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Build query to search for random albums (ID3-based) within the given folders
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
+            // Fetch random album documents and convert them to Album entities
+            return createRandomDocsList(count, searcher, query, util::addAlbumId3IfAnyMatch);
+
+        } catch (IOException e) {
+            // Log any IO or Lucene search error
+            LOG.error("Failed to search for random albums (ID3).", e);
+
+        } finally {
+            // Ensure the IndexSearcher is always released
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+
+        // Fallback in case of errors
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Album> getRandomAlbumsId3(long count, long offset, int cacheMax,
             List<MusicFolder> musicFolders) {
         final List<Album> result = new ArrayList<>();
 
@@ -553,34 +597,36 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
+    public List<com.tesshu.jpsonic.domain.model.Genre> findLegacyGenres(boolean sortByAlbum,
+            long offset, long count) {
+        return indexManager
+            .getDomainGenres(sortByAlbum)
+            .stream()
+            .skip(offset)
+            .limit(count)
+            .toList();
+    }
+
+    @Override
     public List<Genre> getGenres(boolean sortByAlbum) {
         return indexManager.getGenres(sortByAlbum);
     }
 
     @Override
-    public List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults) {
-        List<Genre> genres = getGenres(sortByAlbum);
-        return genres
-            .stream()
-            .skip(offset)
-            .limit(Math.min(genres.size() - offset, (int) maxResults))
-            .toList();
-    }
-
-    @Override
-    public List<Genre> getGenres(GenreMasterCriteria criteria, long offset, long maxResults) {
+    public List<com.tesshu.jpsonic.domain.model.Genre> getGenres(GenreMasterCriteria criteria,
+            long offset, long maxResults) {
         // Return empty list if maxResults is zero or negative
         if (maxResults <= 0) {
             return Collections.emptyList();
         }
 
         // Try to get cached genres for the given criteria
-        List<Genre> genres = util.getCache(criteria);
+        List<com.tesshu.jpsonic.domain.model.Genre> genres = modelCache.getCache(criteria);
 
         // If cache is empty, create genre master list and cache it
         if (genres.isEmpty()) {
             genres = indexManager.createGenreMaster(criteria);
-            util.putCache(criteria, genres);
+            modelCache.putCache(criteria, genres);
         }
 
         // Safely skip offset and limit results, making sure not to exceed list size
@@ -601,7 +647,20 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count,
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findAlbumsByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, String genres, long offset,
+            long count) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), true);
+
+        return mediaFileDao.findAlbumsByGenres(folders, preAnalyzedGenres, offset, count);
+    }
+
+    @Override
+    public List<MediaFile> getAlbumsByGenres(String genres, long offset, long count,
             List<MusicFolder> musicFolders) {
         if (isEmpty(genres)) {
             return Collections.emptyList();
@@ -612,7 +671,7 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<Album> getAlbumId3sByGenres(String genres, int offset, int count,
+    public List<Album> getAlbumId3sByGenres(String genres, long offset, long count,
             List<MusicFolder> musicFolders) {
         if (isEmpty(genres)) {
             return Collections.emptyList();
@@ -623,8 +682,29 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
     }
 
     @Override
-    public List<MediaFile> getSongsByGenres(String genres, int offset, int count,
-            List<MusicFolder> musicFolders, MediaType... types) {
+    public List<com.tesshu.jpsonic.domain.model.Album> findAlbumId3sByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, String genres,
+            long offset, long count) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = indexManager
+            .toPreAnalyzedGenres(Arrays.asList(genres), false);
+        return albumDao
+            .findAlbums(musicFolders, preAnalyzedGenres, AlbumSortOrder.DEFAULT, offset, count);
+    }
+
+    @Override
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> getSongsByGenres(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, List<String> genres,
+            long offset, long count, com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+        List<String> preAnalyzedGenres = indexManager.toPreAnalyzedGenres(genres, true);
+        return mediaFileDao.getSongsByGenres(folders, preAnalyzedGenres, offset, count, types);
+    }
+
+    @Override
+    public List<MediaFile> getSongsByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders, MediaFile.MediaType... types) {
         // Return empty list if genres string is null or empty
         if (isEmpty(genres)) {
             return Collections.emptyList();
@@ -639,25 +719,26 @@ public class MediaSearchProviderImpl implements MediaSearchProvider, LegacySearc
         List<MediaType> targetTypes = (types.length == 0)
                 ? Arrays.asList(MediaType.MUSIC, MediaType.AUDIOBOOK)
                 : Arrays.asList(types);
-
         // Delegate search to DAO
         return mediaFileDao
             .getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders, targetTypes);
     }
 
     @Override
-    public int getChildSizeOf(String genre, Album album, List<MusicFolder> folders,
-            MediaType... types) {
+    public int countChldren(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            String genres, com.tesshu.jpsonic.domain.model.Album album, Type... types) {
         return mediaFileDao
-            .getChildSizeOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true),
-                    album.getArtist(), album.getName(), types);
+            .countChldren(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true),
+                    album, types);
     }
 
     @Override
-    public List<MediaFile> getChildrenOf(String genre, Album album, int offset, int count,
-            List<MusicFolder> folders, MediaType... types) {
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findChildren(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, String genres,
+            com.tesshu.jpsonic.domain.model.Album album, long offset, long count,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
         return mediaFileDao
-            .getChildrenOf(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genre), true),
-                    album.getArtist(), album.getName(), offset, count, types);
+            .findChildren(folders, indexManager.toPreAnalyzedGenres(Arrays.asList(genres), true),
+                    album, offset, count, types);
     }
 }

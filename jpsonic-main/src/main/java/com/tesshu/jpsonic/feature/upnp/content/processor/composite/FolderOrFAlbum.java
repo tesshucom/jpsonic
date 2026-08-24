@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor.composite;
 
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 
 public class FolderOrFAlbum {
 

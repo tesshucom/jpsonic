@@ -32,14 +32,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,9 +51,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 class ArtistProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true,
-                now(), 1, false));
+    private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
 
     @Autowired
     private ArtistProc proc;
@@ -67,7 +66,7 @@ class ArtistProcTest extends AbstractNeedsScan {
     private SettingsFacade settingsFacade;
 
     @Override
-    public List<MusicFolder> getMusicFolders() {
+    public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
@@ -101,21 +100,20 @@ class ArtistProcTest extends AbstractNeedsScan {
     void testGetDirectChildren() {
         List<Artist> items = proc.getDirectChildren(0, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
-                    items.get(i).getName());
+            assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).name());
         }
 
         items = proc.getDirectChildren(10, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
-                    items.get(i).getName());
+                    items.get(i).name());
         }
 
         items = proc.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
-                    items.get(i).getName());
+                    items.get(i).name());
         }
     }
 
@@ -128,9 +126,9 @@ class ArtistProcTest extends AbstractNeedsScan {
     void testGetDirectChild() {
         List<Artist> artists = proc.getDirectChildren(0, Integer.MAX_VALUE);
         assertEquals(31, artists.size());
-        Artist artist = proc.getDirectChild(Integer.toString(artists.get(0).getId()));
-        assertEquals(artists.get(0).getId(), artist.getId());
-        assertEquals(artists.get(0).getName(), artist.getName());
+        Artist artist = proc.getDirectChild(Integer.toString(artists.get(0).id()));
+        assertEquals(artists.get(0).id(), artist.id());
+        assertEquals(artists.get(0).name(), artist.name());
     }
 
     @Nested
@@ -143,27 +141,27 @@ class ArtistProcTest extends AbstractNeedsScan {
 
             List<Artist> artists = proc.getDirectChildren(0, 1);
             assertEquals(1, artists.size());
-            assertEquals("10", artists.get(0).getName());
+            assertEquals("10", artists.get(0).name());
 
             List<Album> children = proc.getChildren(artists.get(0), 0, 10);
             for (int i = 0; i < children.size(); i++) {
                 if (0 != i) {
                     assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
-                            children.get(i).getName());
+                            children.get(i).name());
                 }
             }
 
             children = proc.getChildren(artists.get(0), 10, 10);
             for (int i = 0; i < children.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
-                        children.get(i).getName());
+                        children.get(i).name());
             }
 
             children = proc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
             for (int i = 0; i < children.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
-                        children.get(i).getName());
+                        children.get(i).name());
             }
         }
 
@@ -180,25 +178,25 @@ class ArtistProcTest extends AbstractNeedsScan {
 
             List<Artist> artists = proc.getDirectChildren(0, 1);
             assertEquals(1, artists.size());
-            assertEquals("10", artists.get(0).getName());
+            assertEquals("10", artists.get(0).name());
 
             List<Album> children = proc.getChildren(artists.get(0), 0, 10);
 
             for (int i = 0; i < children.size(); i++) {
                 if (0 != i) {
-                    assertEquals(reversedByYear.get(i), children.get(i).getName());
+                    assertEquals(reversedByYear.get(i), children.get(i).name());
                 }
             }
 
             children = proc.getChildren(artists.get(0), 10, 10);
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(reversedByYear.get(i + 10), children.get(i).getName());
+                assertEquals(reversedByYear.get(i + 10), children.get(i).name());
             }
 
             children = proc.getChildren(artists.get(0), 20, 100);
             assertEquals(11, children.size());
             for (int i = 0; i < children.size(); i++) {
-                assertEquals(reversedByYear.get(i + 20), children.get(i).getName());
+                assertEquals(reversedByYear.get(i + 20), children.get(i).name());
             }
         }
 
@@ -210,25 +208,25 @@ class ArtistProcTest extends AbstractNeedsScan {
             List<Artist> artists = proc
                 .getDirectChildren(0, Integer.MAX_VALUE)
                 .stream()
-                .filter(a -> "20".equals(a.getName()))
+                .filter(a -> "20".equals(a.name()))
                 .collect(Collectors.toList());
             assertEquals(1, artists.size());
 
             Artist artist = artists.get(0);
-            assertEquals("20", artist.getName());
+            assertEquals("20", artist.name());
 
             List<Album> albums = proc.getChildren(artist, 0, Integer.MAX_VALUE);
             assertEquals(1, albums.size());
 
             Album album = albums.get(0);
-            assertEquals("AlBum!", album.getName()); // the case where album name is different
-                                                     // between file and id3
+            assertEquals("AlBum!", album.name()); // the case where album name is different
+                                                  // between file and id3
 
             List<MediaFile> songs = albumId3Proc.getChildren(album, 0, Integer.MAX_VALUE);
             assertEquals(1, songs.size());
 
             MediaFile song = songs.get(0);
-            assertEquals("empty", song.getName());
+            assertEquals("empty", song.name());
         }
     }
 
@@ -236,7 +234,7 @@ class ArtistProcTest extends AbstractNeedsScan {
     void testGetChildSizeOf() {
         List<Artist> artists = proc.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
-        assertEquals("10", artists.get(0).getName());
+        assertEquals("10", artists.get(0).name());
         assertEquals(31, proc.getChildSizeOf(artists.get(0)));
     }
 

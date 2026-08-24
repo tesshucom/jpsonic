@@ -25,10 +25,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,8 +37,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
@@ -49,14 +50,6 @@ import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -71,22 +64,22 @@ class AudiobookByGenreProcTest {
     @Nested
     @SuppressWarnings("PMD.SingularField")
     class UnitTest {
-        private SettingsFacade settingsFacade;
-        private UPnPProcessorUtil util;
-        private UPnPDIDLFactory factory;
+        private MusicFolderProvider musicFolderProvider;
         private MediaSearchProvider mediaSearchProvider;
+        private SettingsFacade settingsFacade;
+        private UPnPDIDLFactory factory;
         private AudiobookByGenreProc proc;
 
         @BeforeEach
         void setup() {
+            musicFolderProvider = mock(MusicFolderProvider.class);
+            mediaSearchProvider = mock(MediaSearchProvider.class);
             settingsFacade = SettingsFacadeBuilder.create().build();
             factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                    mock(MediaFileService.class), mock(MediaFileProvider.class),
-                    mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
-            mediaSearchProvider = mock(MediaSearchProvider.class);
-            util = new UPnPProcessorUtil(mock(MusicFolderService.class), mock(UserService.class),
-                    mock(JpsonicComparators.class));
-            proc = new AudiobookByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
+                    mock(MediaFileProvider.class), mock(PlayerProvider.class),
+                    mock(TranscodingParametersPlanner.class));
+            proc = new AudiobookByGenreProc(musicFolderProvider, mediaSearchProvider,
+                    settingsFacade, factory);
         }
 
         @Test
@@ -124,7 +117,7 @@ class AudiobookByGenreProcTest {
             when(mediaSearchProvider
                 .getGenres(any(GenreMasterCriteria.class), anyLong(), anyLong()))
                 .thenReturn(List.of(genre));
-            assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").getName());
+            assertEquals("English/Japanese", proc.getDirectChild("English/Japanese").name());
             assertNull(proc.getDirectChild("None"));
         }
 
@@ -133,8 +126,8 @@ class AudiobookByGenreProcTest {
             Genre genre = new Genre("English/Japanese", 50, 100);
             assertEquals(Collections.emptyList(), proc.getChildren(genre, 0, 0));
             verify(mediaSearchProvider, times(1))
-                .getSongsByGenres(anyString(), anyInt(), anyInt(), anyList(),
-                        any(MediaType[].class));
+                .getSongsByGenres(anyList(), anyList(), anyLong(), anyLong(),
+                        any(MediaFile.Type[].class));
         }
 
         @Test
@@ -146,10 +139,13 @@ class AudiobookByGenreProcTest {
         @Test
         void testAddChild() {
             DIDLContent content = new DIDLContent();
-            MediaFile song = new MediaFile();
+            MediaFile song = new MediaFile(1, "pathString", 0, "format", "MUSIC", 256, 60, 9999,
+                    "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri",
+                    "composer", "reading", "#", "comment");
             factory = mock(UPnPDIDLFactory.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-            proc = new AudiobookByGenreProc(settingsFacade, util, factory, mediaSearchProvider);
+            proc = new AudiobookByGenreProc(musicFolderProvider, mediaSearchProvider,
+                    settingsFacade, factory);
             proc.addChild(content, song);
             verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
             assertEquals(1, content.getCount());
@@ -161,15 +157,15 @@ class AudiobookByGenreProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "MultiGenre", true,
-                    now(), 1, false));
+        private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                    resolveBaseMediaPath("MultiGenre"), "MultiGenre", true, now(), 1, false));
 
         @Autowired
         private AudiobookByGenreProc audiobookByGenreProc;
 
         @Override
-        public List<MusicFolder> getMusicFolders() {
+        public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
         }
 
@@ -187,10 +183,7 @@ class AudiobookByGenreProcTest {
         void testGetDirectChildren() {
             Map<String, Genre> c = LegacyMap.of();
             List<Genre> items = audiobookByGenreProc.getDirectChildren(0, 10);
-            items
-                .stream()
-                .filter(g -> !c.containsKey(g.getName()))
-                .forEach(g -> c.put(g.getName(), g));
+            items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(2, c.size());
         }
 
@@ -198,19 +191,19 @@ class AudiobookByGenreProcTest {
         void testGetChildren() {
             List<Genre> genre = audiobookByGenreProc.getDirectChildren(0, 1);
             assertEquals(1, genre.size());
-            assertEquals("Audiobook - Historical", genre.get(0).getName());
+            assertEquals("Audiobook - Historical", genre.get(0).name());
 
             List<MediaFile> children = audiobookByGenreProc.getChildren(genre.get(0), 0, 10);
             assertEquals(1, children.size());
-            assertEquals("FILE14", children.get(0).getName());
-            assertEquals("Audiobook - Historical", children.get(0).getGenre());
+            assertEquals("FILE14", children.get(0).name());
+            assertEquals("Audiobook - Historical", children.get(0).genre());
         }
 
         @Test
         void testGetChildSizeOf() {
             List<Genre> genre = audiobookByGenreProc.getDirectChildren(0, 1);
             assertEquals(1, genre.size());
-            assertEquals("Audiobook - Historical", genre.get(0).getName());
+            assertEquals("Audiobook - Historical", genre.get(0).name());
 
             assertEquals(1, audiobookByGenreProc.getChildSizeOf(genre.get(0)));
         }

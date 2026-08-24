@@ -69,14 +69,14 @@ public class SortProcedureService {
 
     private final MediaFileDao mediaFileDao;
     private final JapaneseReadingProcessor readingProcessor;
-    private final MusicIndexServiceImpl musicIndexService;
+    private final MusicIndexProviderImpl musicIndexProvider;
 
     public SortProcedureService(MediaFileDao mediaFileDao,
-            JapaneseReadingProcessor readingProcessor, MusicIndexServiceImpl musicIndexService) {
+            JapaneseReadingProcessor readingProcessor, MusicIndexProviderImpl musicIndexProvider) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.readingProcessor = readingProcessor;
-        this.musicIndexService = musicIndexService;
+        this.musicIndexProvider = musicIndexProvider;
     }
 
     void clearMemoryCache() {
@@ -154,7 +154,7 @@ public class SortProcedureService {
             .filter(cand -> cand.getTargetType() == MediaType.DIRECTORY)
             .filter(cand -> cand.getTargetField() == TargetField.ARTIST)
             .forEach(cand -> cand
-                .setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex()));
+                .setMusicIndex(musicIndexProvider.getParser().getIndex(cand).index()));
 
         Map<Integer, List<ArtistSortCandidate>> idMap = new ConcurrentHashMap<>();
         cands.forEach(cand -> {

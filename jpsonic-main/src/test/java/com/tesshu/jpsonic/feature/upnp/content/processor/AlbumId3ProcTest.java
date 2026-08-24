@@ -30,13 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,16 +50,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class AlbumId3ProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true,
-                now(), 1, false));
+    private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
 
     @Autowired
     @Qualifier("albumId3Proc")
     private AlbumId3Proc proc;
 
     @Override
-    public List<MusicFolder> getMusicFolders() {
+    public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
@@ -71,9 +70,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
         settingsFacade.staging(I18nSKeys.localeLanguage, "ja");
         settingsFacade.staging(I18nSKeys.localeCountry, "ja");
         settingsFacade.staging(I18nSKeys.localeVariant, "ja");
-
         settingsFacade.staging(SKeys.advanced.sort.strict, false);
-
         settingsFacade.commitAll();
     }
 
@@ -87,7 +84,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
         Album album = proc.getDirectChildren(0, 1).get(0);
         Container container = proc.createContainer(album);
         assertInstanceOf(MusicAlbum.class, container);
-        // assertEquals("album/0", container.getId()); (Nonconforming test case)
+        // assertEquals("album/0", container.id()); (Nonconforming test case)
         assertEquals("alid3", container.getParentID());
         assertEquals("10", container.getTitle());
         assertEquals(31, container.getChildCount());
@@ -104,20 +101,20 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
 
             items = proc.getDirectChildren(10, 10);
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
 
             items = proc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
         }
 
@@ -130,20 +127,20 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
             List<Album> items = proc.getDirectChildren(0, 10);
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
 
             items = proc.getDirectChildren(10, 10);
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
 
             items = proc.getDirectChildren(20, 100);
             assertEquals(11, items.size());
             for (int i = 0; i < items.size(); i++) {
                 assertEquals(UPnPProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20),
-                        items.get(i).getName());
+                        items.get(i).name());
             }
         }
     }
@@ -157,31 +154,31 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
     void testGetDirectChild() {
         List<Album> albums = proc.getDirectChildren(0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
-        Album album = proc.getDirectChild(Integer.toString(albums.get(0).getId()));
-        assertEquals(albums.get(0).getId(), album.getId());
-        assertEquals(albums.get(0).getName(), album.getName());
+        Album album = proc.getDirectChild(Integer.toString(albums.get(0).id()));
+        assertEquals(albums.get(0).id(), album.id());
+        assertEquals(albums.get(0).name(), album.name());
     }
 
     @Test
     void testGetChildren() {
         List<Album> albums = proc.getDirectChildren(0, 1);
         assertEquals(1, albums.size());
-        assertEquals("10", albums.get(0).getName());
+        assertEquals("10", albums.get(0).name());
 
         List<MediaFile> songs = proc.getChildren(albums.get(0), 0, 10);
         for (int i = 0; i < songs.size(); i++) {
-            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i), songs.get(i).getName());
+            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i), songs.get(i).name());
         }
 
         songs = proc.getChildren(albums.get(0), 10, 10);
         for (int i = 0; i < songs.size(); i++) {
-            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i + 10), songs.get(i).getName());
+            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i + 10), songs.get(i).name());
         }
 
         songs = proc.getChildren(albums.get(0), 20, 100);
         assertEquals(11, songs.size());
         for (int i = 0; i < songs.size(); i++) {
-            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i + 20), songs.get(i).getName());
+            assertEquals(UPnPProcessorTestUtils.CHILDREN_LIST.get(i + 20), songs.get(i).name());
         }
     }
 
@@ -189,7 +186,7 @@ class AlbumId3ProcTest extends AbstractNeedsScan {
     void testGetChildSizeOf() {
         List<Album> albums = proc.getDirectChildren(0, 1);
         assertEquals(1, albums.size());
-        assertEquals("10", albums.get(0).getName());
+        assertEquals("10", albums.get(0).name());
         assertEquals(31, proc.getChildSizeOf(albums.get(0)));
     }
 

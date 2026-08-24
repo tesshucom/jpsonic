@@ -24,10 +24,9 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,12 +37,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,16 +57,17 @@ class RecentAlbumId3ProcTest {
     @Nested
     class UnitTest {
 
-        private AlbumDao albumDao;
+        private AlbumProvider albumProvider;
         private RecentAlbumId3Proc proc;
 
         @BeforeEach
         void setup() {
-            UPnPProcessorUtil util = mock(UPnPProcessorUtil.class);
             UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
-            MediaFileService mediaFileService = mock(MediaFileService.class);
-            albumDao = mock(AlbumDao.class);
-            proc = new RecentAlbumId3Proc(util, factory, mediaFileService, albumDao);
+            MediaFileProvider mediaFileProvider = mock(MediaFileProvider.class);
+            MusicFolderProvider musicFolderProvider = mock(MusicFolderProvider.class);
+            albumProvider = mock(AlbumProvider.class);
+            proc = new RecentAlbumId3Proc(musicFolderProvider, albumProvider, mediaFileProvider,
+                    factory);
         }
 
         @Test
@@ -76,56 +77,57 @@ class RecentAlbumId3ProcTest {
 
         @Test
         void testBrowseRoot() throws ExecutionException {
-            when(albumDao.getNewestAlbums(anyInt(), anyInt(), anyList()))
-                .thenReturn(List.of(new Album()));
-            when(albumDao.getAlbumCount(anyList())).thenReturn(99);
+            when(albumProvider.findNewestAlbums(anyList(), anyLong(), anyLong()))
+                .thenReturn(List.of(new Album(0, "name", "artist", 0, "")));
+            when(albumProvider.countAlbums(anyList())).thenReturn(99);
             BrowseResult result = proc.browseRoot(null, 0, 0);
-            assertEquals(0, result.getCountLong());
+            assertEquals(1, result.getCountLong());
             assertEquals(50, result.getTotalMatches().getValue()); // RECENT_COUNT
-            verify(albumDao, never()).getNewestAlbums(anyInt(), anyInt(), anyList());
-            verify(albumDao, times(2)).getAlbumCount(anyList());
+            verify(albumProvider, times(1)).findNewestAlbums(anyList(), anyLong(), anyLong());
+            verify(albumProvider, times(1)).countAlbums(anyList());
 
-            clearInvocations(albumDao);
+            clearInvocations(albumProvider);
             result = proc.browseRoot(null, 0, 1);
             assertEquals(1, result.getCountLong());
             assertEquals(50, result.getTotalMatches().getValue()); // RECENT_COUNT
-            verify(albumDao, times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
-            verify(albumDao, times(2)).getAlbumCount(anyList());
+            verify(albumProvider, times(1)).findNewestAlbums(anyList(), anyLong(), anyLong());
+            verify(albumProvider, times(1)).countAlbums(anyList());
         }
 
         @Test
         void testGetDirectChildren() {
-            when(albumDao.getAlbumCount(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(50);
+            when(albumProvider.countAlbums(ArgumentMatchers.<MusicFolder>anyList())).thenReturn(50);
 
             assertEquals(0, proc.getDirectChildren(0, 0).size());
-            verify(albumDao, never())
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            verify(albumProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
 
-            clearInvocations(albumDao);
+            clearInvocations(albumProvider);
             assertEquals(0, proc.getDirectChildren(0, 1).size());
-            verify(albumDao, times(1))
-                .getNewestAlbums(anyInt(), anyInt(), ArgumentMatchers.<MusicFolder>anyList());
+            verify(albumProvider, times(1))
+                .findNewestAlbums(ArgumentMatchers.<MusicFolder>anyList(), anyLong(), anyLong());
         }
 
         @Test
         void testGetDirectChildrenCount() {
             assertEquals(0, proc.getDirectChildrenCount());
-            verify(albumDao, times(1)).getAlbumCount(anyList());
+            verify(albumProvider, times(1)).countAlbums(anyList());
         }
     }
 
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums",
-                    true, now(), 1, false));
+        private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                    resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1,
+                    false));
 
         @Autowired
         private RecentAlbumId3Proc processor;
 
         @Override
-        public List<MusicFolder> getMusicFolders() {
+        public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
             return MUSIC_FOLDERS;
         }
 
@@ -142,16 +144,16 @@ class RecentAlbumId3ProcTest {
             Map<Integer, Album> c = LegacyMap.of();
 
             List<Album> items = processor.getDirectChildren(0, 10);
-            items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
             assertEquals(10, c.size());
 
             items = processor.getDirectChildren(10, 10);
-            items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
             assertEquals(20, c.size());
 
             items = processor.getDirectChildren(20, 100);
             assertEquals(11, items.size());
-            items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
+            items.stream().filter(m -> !c.containsKey(m.id())).forEach(m -> c.put(m.id(), m));
             assertEquals(31, c.size());
 
             assertEquals(4, processor.getDirectChildren(0, 4).size());

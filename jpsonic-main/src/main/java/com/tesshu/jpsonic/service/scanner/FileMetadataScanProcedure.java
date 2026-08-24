@@ -99,7 +99,7 @@ public class FileMetadataScanProcedure {
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
     private final ScanHelper scanHelper;
-    private final MusicIndexServiceImpl musicIndexService;
+    private final MusicIndexProviderImpl musicIndexProvider;
     private final JapaneseReadingProcessor readingProcessor;
     private final JpsonicComparators comparators;
 
@@ -107,7 +107,7 @@ public class FileMetadataScanProcedure {
             IndexManager indexManager, MediaFileService mediaFileService,
             WritableMediaFileService wmfs, MediaFileDao mediaFileDao,
             SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState,
-            ScanHelper scanHelper, MusicIndexServiceImpl musicIndexService,
+            ScanHelper scanHelper, MusicIndexProviderImpl musicIndexProvider,
             JapaneseReadingProcessor readingProcessor, JpsonicComparators comparators) {
         super();
         this.musicFolderService = musicFolderService;
@@ -118,7 +118,7 @@ public class FileMetadataScanProcedure {
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerState;
         this.scanHelper = scanHelper;
-        this.musicIndexService = musicIndexService;
+        this.musicIndexProvider = musicIndexProvider;
         this.readingProcessor = readingProcessor;
         this.comparators = comparators;
     }
@@ -436,7 +436,7 @@ public class FileMetadataScanProcedure {
             while (!albums.isEmpty()) {
                 for (MediaFile album : albums) {
                     // Update music index using the parser
-                    String musicIndex = musicIndexService.getParser().getIndex(album).getIndex();
+                    String musicIndex = musicIndexProvider.getParser().getIndex(album).index();
                     album.setMusicIndex(musicIndex);
                     mediaFileDao.updateMediaFile(album);
                 }

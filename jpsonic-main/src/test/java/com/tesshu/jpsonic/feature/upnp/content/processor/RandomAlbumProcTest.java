@@ -21,22 +21,27 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.BrowseResult;
-import org.mockito.Mockito;
 
 class RandomAlbumProcTest {
 
@@ -53,9 +58,12 @@ class RandomAlbumProcTest {
     @Ignore
     void init() {
         mediaSearchProvider = mock(MediaSearchProvider.class);
-        proc = new RandomAlbumProc(mock(UPnPProcessorUtil.class), mock(UPnPDIDLFactory.class),
-                mock(MediaFileService.class), mock(AlbumDao.class), mediaSearchProvider,
-                settingsFacade);
+        MusicFolderProvider musicFolderProvider = mock(MusicFolderProvider.class);
+        AlbumProvider albumProvider = mock(AlbumProvider.class);
+        MediaFileProvider mediaFileProvider = mock(MediaFileProvider.class);
+        UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
+        proc = new RandomAlbumProc(musicFolderProvider, albumProvider, mediaFileProvider, factory,
+                mediaSearchProvider, settingsFacade);
     }
 
     @Test
@@ -79,19 +87,15 @@ class RandomAlbumProcTest {
         assertEquals(0, result.getCount().getValue());
         assertEquals(2, randomMaxCount.get());
 
-        Mockito
-            .verify(mediaSearchProvider, Mockito.times(1))
-            .getRandomAlbumsId3(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
-                    Mockito.anyList());
+        verify(mediaSearchProvider, times(1))
+            .getRandomAlbumsId3(anyList(), anyLong(), anyLong(), anyInt());
     }
 
     @Test
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, 100).size());
-        Mockito
-            .verify(mediaSearchProvider, Mockito.times(1))
-            .getRandomAlbumsId3(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt(),
-                    Mockito.anyList());
+        verify(mediaSearchProvider, times(1))
+            .getRandomAlbumsId3(anyList(), anyLong(), anyLong(), anyInt());
     }
 
     @Test

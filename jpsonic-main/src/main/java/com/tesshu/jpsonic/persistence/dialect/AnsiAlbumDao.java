@@ -46,7 +46,7 @@ public class AnsiAlbumDao implements DialectAlbumDao {
     }
 
     @Override
-    public List<Album> getAlbumsByGenre(int offset, int count, List<String> genres,
+    public List<Album> getAlbumsByGenre(long offset, long count, List<String> genres,
             List<MusicFolder> folders) {
         if (genres.isEmpty() || folders.isEmpty()) {
             return Collections.emptyList();

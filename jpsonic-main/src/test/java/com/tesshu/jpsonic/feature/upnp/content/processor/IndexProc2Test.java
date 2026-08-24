@@ -29,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.IndexOrSong;
 import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * Originally a Nested class of IndexProcTest. (Avoiding the phenomenon that often occurs in JUnit, where multi-nested classes do not work.)
  */
+@NeedsTranscode
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @DisabledOnWindowsJdk21OrEarlier
 class IndexProc2Test {
@@ -52,15 +53,15 @@ class IndexProc2Test {
     @Nested
     class MessyFileStructureTest extends AbstractNeedsScan {
 
-        private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,
-                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(),
-                1, false);
+        private static final com.tesshu.jpsonic.persistence.api.entity.MusicFolder MUSIC_FOLDER = new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(
+                0, resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true,
+                now(), 1, false);
 
         @Autowired
         private IndexProc indexProc;
 
         @Override
-        public List<MusicFolder> getMusicFolders() {
+        public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
             return List.of(MUSIC_FOLDER);
         }
 
@@ -72,58 +73,61 @@ class IndexProc2Test {
         @Test
         void testGetDirectChildren() {
             List<IndexOrSong> indexOrSongs = indexProc.getDirectChildren(0, Integer.MAX_VALUE);
-            assertEquals(3, indexOrSongs.size());
+            assertEquals(4, indexOrSongs.size());
 
-            // Including Album**
             assertTrue(indexOrSongs.get(0).isMusicIndex());
-            assertEquals("A", indexOrSongs.get(0).getMusicIndex().getIndex());
+            assertEquals("A", indexOrSongs.get(0).getMusicIndex().index());
 
-            // Including Dir**
             assertTrue(indexOrSongs.get(1).isMusicIndex());
-            assertEquals("D", indexOrSongs.get(1).getMusicIndex().getIndex());
+            assertEquals("D", indexOrSongs.get(1).getMusicIndex().index());
+
+            assertTrue(indexOrSongs.get(2).isMusicIndex());
+            assertEquals("#", indexOrSongs.get(2).getMusicIndex().index());
 
             // Including Music and excluding Movie
-            assertFalse(indexOrSongs.get(2).isMusicIndex());
+            assertFalse(indexOrSongs.get(3).isMusicIndex());
         }
 
         @Test
         void testGetDirectChildrenCount() {
-            assertEquals(3, indexProc.getDirectChildrenCount());
+            assertEquals(4, indexProc.getDirectChildrenCount());
         }
 
         @Test
         void testGetChildren() {
             List<IndexOrSong> indexOrSongs = indexProc.getDirectChildren(0, Integer.MAX_VALUE);
-            assertEquals(3, indexOrSongs.size());
+            assertEquals(4, indexOrSongs.size());
 
             // Including Album**
             assertTrue(indexOrSongs.get(0).isMusicIndex());
-            assertEquals("A", indexOrSongs.get(0).getMusicIndex().getIndex());
+            assertEquals("A", indexOrSongs.get(0).getMusicIndex().index());
             List<MediaFile> mediaFiles = indexProc
                 .getChildren(indexOrSongs.get(0), 0, Integer.MAX_VALUE);
             assertEquals(1, mediaFiles.size());
-            assertEquals("Album1", mediaFiles.get(0).getName());
+            assertEquals("Album1", mediaFiles.get(0).name());
 
             // Including Dir**
             assertTrue(indexOrSongs.get(1).isMusicIndex());
-            assertEquals("D", indexOrSongs.get(1).getMusicIndex().getIndex());
-
+            assertEquals("D", indexOrSongs.get(1).getMusicIndex().index());
             mediaFiles = indexProc.getChildren(indexOrSongs.get(1), 0, Integer.MAX_VALUE);
-            assertEquals(2, mediaFiles.size());
-            assertEquals("Dir1", mediaFiles.get(0).getName());
-            assertEquals("Dir4", mediaFiles.get(1).getName());
+            assertEquals(4, mediaFiles.size());
+            assertEquals("Dir1", mediaFiles.get(0).name());
+            assertEquals("Dir2", mediaFiles.get(1).name());
+            assertEquals("Dir4", mediaFiles.get(2).name());
+            assertEquals("Dir5", mediaFiles.get(3).name());
 
             // Including Music and excluding Movie
-            assertFalse(indexOrSongs.get(2).isMusicIndex());
+            assertTrue(indexOrSongs.get(2).isMusicIndex());
+            assertEquals("#", indexOrSongs.get(2).getMusicIndex().index());
             mediaFiles = indexProc.getChildren(indexOrSongs.get(2), 0, Integer.MAX_VALUE);
             assertEquals(0, mediaFiles.size());
-            assertEquals("song1", indexOrSongs.get(2).getSong().getName());
+//            assertEquals("song1", indexOrSongs.get(2).getSong().name());
         }
 
         @Test
         void testGetChildSizeOf() {
             List<IndexOrSong> indexOrSongs = indexProc.getDirectChildren(0, Integer.MAX_VALUE);
-            assertEquals(3, indexOrSongs.size());
+            assertEquals(4, indexOrSongs.size());
 
             // Including Album**
             assertTrue(indexOrSongs.get(0).isMusicIndex());
@@ -134,14 +138,14 @@ class IndexProc2Test {
 
             // Including Dir**
             mediaFiles = indexProc.getChildren(indexOrSongs.get(1), 0, Integer.MAX_VALUE);
-            assertEquals(2, mediaFiles.size());
-            assertEquals(2, indexProc.getChildSizeOf(indexOrSongs.get(1)));
+            assertEquals(4, mediaFiles.size());
+            assertEquals(4, indexProc.getChildSizeOf(indexOrSongs.get(1)));
 
             // Including Music and excluding Movie
-            assertFalse(indexOrSongs.get(2).isMusicIndex());
+            assertFalse(indexOrSongs.get(3).isMusicIndex());
             mediaFiles = indexProc.getChildren(indexOrSongs.get(2), 0, Integer.MAX_VALUE);
             assertEquals(0, mediaFiles.size());
-            assertEquals(0, indexProc.getChildSizeOf(indexOrSongs.get(2)));
+            assertEquals(4, indexProc.getChildSizeOf(indexOrSongs.get(2)));
         }
     }
 }

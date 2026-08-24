@@ -27,12 +27,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -42,21 +43,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class IndexId3ProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-        .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1,
-                false));
+    private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1, false));
 
     @Autowired
-    private ArtistDao artistDao;
+    private ArtistProvider artistProvider;
     @Autowired
     private IndexId3Proc proc;
     @Autowired
-    private UPnPProcessorUtil util;
+    private MusicFolderProvider musicFolderProvider;
     @Autowired
     private SettingsFacade settingsFacade;
 
     @Override
-    public List<MusicFolder> getMusicFolders() {
+    public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
@@ -99,107 +100,106 @@ class IndexId3ProcTest extends AbstractNeedsScan {
     void testGetDirectChildren() {
         List<MusicIndex> indexes = proc.getDirectChildren(0, Integer.MAX_VALUE);
         assertEquals(9, indexes.size());
-        assertEquals("A", indexes.get(0).getIndex());
-        assertEquals("B", indexes.get(1).getIndex());
-        assertEquals("C", indexes.get(2).getIndex());
-        assertEquals("D", indexes.get(3).getIndex());
-        assertEquals("E", indexes.get(4).getIndex());
-        assertEquals("あ", indexes.get(5).getIndex());
-        assertEquals("さ", indexes.get(6).getIndex());
-        assertEquals("は", indexes.get(7).getIndex());
-        assertEquals("#", indexes.get(8).getIndex());
+        assertEquals("A", indexes.get(0).index());
+        assertEquals("B", indexes.get(1).index());
+        assertEquals("C", indexes.get(2).index());
+        assertEquals("D", indexes.get(3).index());
+        assertEquals("E", indexes.get(4).index());
+        assertEquals("あ", indexes.get(5).index());
+        assertEquals("さ", indexes.get(6).index());
+        assertEquals("は", indexes.get(7).index());
+        assertEquals("#", indexes.get(8).index());
 
         indexes = proc.getDirectChildren(0, 5);
-        assertEquals("A", indexes.get(0).getIndex());
-        assertEquals("B", indexes.get(1).getIndex());
-        assertEquals("C", indexes.get(2).getIndex());
-        assertEquals("D", indexes.get(3).getIndex());
-        assertEquals("E", indexes.get(4).getIndex());
+        assertEquals("A", indexes.get(0).index());
+        assertEquals("B", indexes.get(1).index());
+        assertEquals("C", indexes.get(2).index());
+        assertEquals("D", indexes.get(3).index());
+        assertEquals("E", indexes.get(4).index());
 
         indexes = proc.getDirectChildren(5, 4);
-        assertEquals("あ", indexes.get(0).getIndex());
-        assertEquals("さ", indexes.get(1).getIndex());
-        assertEquals("は", indexes.get(2).getIndex());
-        assertEquals("#", indexes.get(3).getIndex());
+        assertEquals("あ", indexes.get(0).index());
+        assertEquals("さ", indexes.get(1).index());
+        assertEquals("は", indexes.get(2).index());
+        assertEquals("#", indexes.get(3).index());
     }
 
     @Test
     void testGetDirectChildrenCount() {
 
-        List<MusicFolder> folders = util.getGuestFolders();
-        assertEquals(1, folders.size());
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
 
-        assertEquals(32, artistDao.getArtistsCount(folders));
+        assertEquals(32, artistProvider.countArtists(folders));
 
-        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        List<Artist> artists = artistProvider.findArtists(folders, 0, Integer.MAX_VALUE);
         assertEquals(32, artists.size());
 
         // #
-        assertEquals("10", artists.get(0).getName());
-        assertEquals("20", artists.get(1).getName());
-        assertEquals("50", artists.get(2).getName());
-        assertEquals("60", artists.get(3).getName());
-        assertEquals("70", artists.get(4).getName());
-        assertEquals("98", artists.get(5).getName());
-        assertEquals("99", artists.get(6).getName());
+        assertEquals("10", artists.get(0).name());
+        assertEquals("20", artists.get(1).name());
+        assertEquals("50", artists.get(2).name());
+        assertEquals("60", artists.get(3).name());
+        assertEquals("70", artists.get(4).name());
+        assertEquals("98", artists.get(5).name());
+        assertEquals("99", artists.get(6).name());
 
         // A
-        assertEquals("abcde", artists.get(7).getName());
-        assertEquals("abcいうえおあ", artists.get(8).getName());
-        assertEquals("abc亜伊鵜絵尾", artists.get(9).getName());
+        assertEquals("abcde", artists.get(7).name());
+        assertEquals("abcいうえおあ", artists.get(8).name());
+        assertEquals("abc亜伊鵜絵尾", artists.get(9).name());
 
         // B
-        assertEquals("ＢＣＤＥＡ", artists.get(10).getName());
+        assertEquals("ＢＣＤＥＡ", artists.get(10).name());
 
         // C
-        assertEquals("ĆḊÉÁḂ", artists.get(11).getName());
+        assertEquals("ĆḊÉÁḂ", artists.get(11).name());
 
         // D
-        assertEquals("DEABC", artists.get(12).getName());
+        assertEquals("DEABC", artists.get(12).name());
 
         // E
-        assertEquals("the eabcd", artists.get(13).getName());
-        assertEquals("episode 1", artists.get(14).getName());
-        assertEquals("episode 2", artists.get(15).getName());
-        assertEquals("episode 19", artists.get(16).getName());
+        assertEquals("the eabcd", artists.get(13).name());
+        assertEquals("episode 1", artists.get(14).name());
+        assertEquals("episode 2", artists.get(15).name());
+        assertEquals("episode 19", artists.get(16).name());
 
         // あいうえお
-        assertEquals("亜伊鵜絵尾", artists.get(17).getName());
-        assertEquals("αβγ", artists.get(18).getName());
-        assertEquals("いうえおあ", artists.get(19).getName());
-        assertEquals("ゥェォァィ", artists.get(20).getName());
-        assertEquals("ｴｵｱｲｳ", artists.get(21).getName());
-        assertEquals("ｪｫｧｨｩ", artists.get(22).getName());
-        assertEquals("ぉぁぃぅぇ", artists.get(23).getName());
-        assertEquals("オアイウエ", artists.get(24).getName());
+        assertEquals("亜伊鵜絵尾", artists.get(17).name());
+        assertEquals("αβγ", artists.get(18).name());
+        assertEquals("いうえおあ", artists.get(19).name());
+        assertEquals("ゥェォァィ", artists.get(20).name());
+        assertEquals("ｴｵｱｲｳ", artists.get(21).name());
+        assertEquals("ｪｫｧｨｩ", artists.get(22).name());
+        assertEquals("ぉぁぃぅぇ", artists.get(23).name());
+        assertEquals("オアイウエ", artists.get(24).name());
 
         // さしすせそ
-        assertEquals("春夏秋冬", artists.get(25).getName());
+        assertEquals("春夏秋冬", artists.get(25).name());
 
         // はひふへほ
-        assertEquals("貼られる", artists.get(26).getName());
-        assertEquals("パラレル", artists.get(27).getName());
-        assertEquals("馬力", artists.get(28).getName());
-        assertEquals("張り切る", artists.get(29).getName());
-        assertEquals("はるなつあきふゆ", artists.get(30).getName());
+        assertEquals("貼られる", artists.get(26).name());
+        assertEquals("パラレル", artists.get(27).name());
+        assertEquals("馬力", artists.get(28).name());
+        assertEquals("張り切る", artists.get(29).name());
+        assertEquals("はるなつあきふゆ", artists.get(30).name());
 
         // #
-        assertEquals("♂くんつ", artists.get(31).getName());
+        assertEquals("♂くんつ", artists.get(31).name());
 
         assertEquals(9, proc.getDirectChildrenCount());
     }
 
     @Test
     void testGetDirectChild() {
-        assertEquals("A", proc.getDirectChild("A").getIndex());
-        assertEquals("B", proc.getDirectChild("B").getIndex());
-        assertEquals("C", proc.getDirectChild("C").getIndex());
-        assertEquals("D", proc.getDirectChild("D").getIndex());
-        assertEquals("E", proc.getDirectChild("E").getIndex());
-        assertEquals("あ", proc.getDirectChild("あ").getIndex());
-        assertEquals("さ", proc.getDirectChild("さ").getIndex());
-        assertEquals("は", proc.getDirectChild("は").getIndex());
-        assertEquals("#", proc.getDirectChild("#").getIndex());
+        assertEquals("A", proc.getDirectChild("A").index());
+        assertEquals("B", proc.getDirectChild("B").index());
+        assertEquals("C", proc.getDirectChild("C").index());
+        assertEquals("D", proc.getDirectChild("D").index());
+        assertEquals("E", proc.getDirectChild("E").index());
+        assertEquals("あ", proc.getDirectChild("あ").index());
+        assertEquals("さ", proc.getDirectChild("さ").index());
+        assertEquals("は", proc.getDirectChild("は").index());
+        assertEquals("#", proc.getDirectChild("#").index());
     }
 
     @Test
@@ -207,9 +207,9 @@ class IndexId3ProcTest extends AbstractNeedsScan {
         MusicIndex index = proc.getDirectChild("A");
         List<Artist> artists = proc.getChildren(index, 0, Integer.MAX_VALUE);
         assertEquals(3, artists.size());
-        assertEquals("abcde", artists.get(0).getName());
-        assertEquals("abcいうえおあ", artists.get(1).getName());
-        assertEquals("abc亜伊鵜絵尾", artists.get(2).getName());
+        assertEquals("abcde", artists.get(0).name());
+        assertEquals("abcいうえおあ", artists.get(1).name());
+        assertEquals("abc亜伊鵜絵尾", artists.get(2).name());
     }
 
     @Test

@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -42,8 +42,8 @@ class FolderGenreTest {
     void testIsCompositeId() {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         Genre genre = new Genre("GENRE", 0, 0);
-        assertFalse(GenreAlbum.isCompositeId(Integer.toString(folder.getId())));
-        assertFalse(GenreAlbum.isCompositeId(genre.getName()));
+        assertFalse(GenreAlbum.isCompositeId(Integer.toString(folder.id())));
+        assertFalse(GenreAlbum.isCompositeId(genre.name()));
         FolderGenre folderGenre = new FolderGenre(folder, genre);
         assertTrue(FolderGenre.isCompositeId(folderGenre.createCompositeId()));
     }
