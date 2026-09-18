@@ -22,12 +22,14 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 import java.util.Collections;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -35,14 +37,15 @@ class RecentAlbumByFolderProc extends MediaFileByFolderProc implements CountLimi
 
     private static final int RECENT_COUNT = 50;
 
-    private final UPnPProcessorUtil util;
-    private final MediaFileService mediaFileService;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
 
-    RecentAlbumByFolderProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService) {
-        super(util, factory, mediaFileService);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
+    RecentAlbumByFolderProc(MusicFolderProvider musicFolderProvider,
+            MediaFileProvider mediaFileProvider, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
+        super(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
     }
 
     @Override
@@ -51,22 +54,22 @@ class RecentAlbumByFolderProc extends MediaFileByFolderProc implements CountLimi
     }
 
     @Override
-    public List<MediaFile> getChildren(MediaFile mediaFile, long firstResult, long maxResults) {
+    public List<MediaFile> getChildren(MediaFile mediaFile, long offset, long count) {
         if (mediaFile.isAlbum()) {
-            return super.getChildren(mediaFile, (int) firstResult, (int) maxResults);
+            return super.getChildren(mediaFile, (int) offset, (int) count);
         }
-        int offset = (int) firstResult;
-        MusicFolder folder = util
+
+        MusicFolder folder = musicFolderProvider
             .getGuestFolders()
             .stream()
-            .filter(f -> f.getPathString().equals(mediaFile.getPathString()))
+            .filter(f -> f.pathString().equals(mediaFile.pathString()))
             .findFirst()
             .orElseGet(null);
-        int albumCount = (int) mediaFileService.getAlbumCount(List.of(folder));
-        int count = toCount(firstResult, maxResults, Math.min(albumCount, RECENT_COUNT));
-        if (count == 0) {
+        int albumCount = mediaFileProvider.countAlbums(List.of(folder));
+        int resultCount = toCount(offset, count, Math.min(albumCount, RECENT_COUNT));
+        if (resultCount == 0) {
             return Collections.emptyList();
         }
-        return mediaFileService.getNewestAlbums(offset, count, List.of(folder));
+        return mediaFileProvider.findNewestAlbums(List.of(folder), offset, resultCount);
     }
 }

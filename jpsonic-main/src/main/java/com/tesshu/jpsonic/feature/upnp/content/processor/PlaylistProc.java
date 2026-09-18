@@ -23,11 +23,14 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.Playlist;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlaylistProvider;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.Playlist;
-import com.tesshu.jpsonic.service.PlaylistService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -35,13 +38,18 @@ import org.springframework.stereotype.Controller;
 @Controller
 class PlaylistProc extends DirectChildrenContentProc<Playlist, MediaFile> {
 
+    private final SettingsFacade settingsFacade;
+    private final MusicFolderProvider musicFolderProvider;
+    private final PlaylistProvider playlistProvider;
     private final UPnPDIDLFactory factory;
-    private final PlaylistService playlistService;
 
-    PlaylistProc(UPnPDIDLFactory factory, PlaylistService playlistService) {
+    PlaylistProc(SettingsFacade settingsFacade, MusicFolderProvider musicFolderProvider,
+            PlaylistProvider playlistProvider, UPnPDIDLFactory factory) {
         super();
+        this.settingsFacade = settingsFacade;
+        this.musicFolderProvider = musicFolderProvider;
+        this.playlistProvider = playlistProvider;
         this.factory = factory;
-        this.playlistService = playlistService;
     }
 
     @Override
@@ -56,27 +64,34 @@ class PlaylistProc extends DirectChildrenContentProc<Playlist, MediaFile> {
 
     @Override
     public List<Playlist> getDirectChildren(long offset, long count) {
-        return playlistService.getAllPlaylists().stream().skip(offset).limit(count).toList();
+        if (settingsFacade.get(UPnPSKeys.options.guestPublish)) {
+            return playlistProvider.findPublishedPlaylists(offset, count);
+        }
+        return playlistProvider.findPlaylists(offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return playlistService.getCountAll();
+        if (settingsFacade.get(UPnPSKeys.options.guestPublish)) {
+            return playlistProvider.countPublishedPlaylists();
+        }
+        return playlistProvider.countPlaylists();
     }
 
     @Override
     public Playlist getDirectChild(String id) {
-        return playlistService.getPlaylist(Integer.parseInt(id));
+        return playlistProvider.requirePlaylist(Integer.parseInt(id));
     }
 
     @Override
-    public List<MediaFile> getChildren(Playlist item, long offset, long count) {
-        return playlistService.getFilesInPlaylist(item.getId(), offset, count);
+    public List<MediaFile> getChildren(Playlist playlist, long offset, long count) {
+        return playlistProvider
+            .findChildren(musicFolderProvider.getGuestFolders(), playlist, offset, count);
     }
 
     @Override
     public int getChildSizeOf(Playlist playlist) {
-        return playlist.getFileCount();
+        return playlist.fileCount();
     }
 
     @Override

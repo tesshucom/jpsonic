@@ -37,21 +37,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
+import com.tesshu.jpsonic.domain.language.StringUtil;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.IndexWithCount;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
@@ -65,7 +63,7 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service("mediaFileService")
-public class MediaFileService implements MediaFileProvider {
+public class MediaFileService {
 
     private final SettingsFacade settingsFacade;
     private final ScanningExclusionPolicy scanningExclusionPolicy;
@@ -145,7 +143,6 @@ public class MediaFileService implements MediaFileProvider {
     }
 
     @SuppressWarnings("unused")
-    @Override
     public com.tesshu.jpsonic.domain.model.@NonNull MediaFile requireMediaFile(int id) {
         com.tesshu.jpsonic.domain.model.MediaFile mediaFile = mediaFileDao.getDomainMediaFile(id);
         if (mediaFile == null) {
@@ -424,22 +421,23 @@ public class MediaFileService implements MediaFileProvider {
         return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
     }
 
-    public List<MediaFile> getIndexedDirs(List<MusicFolder> folders) {
-        return mediaFileDao
-            .getIndexedDirs(folders,
-                    settingsFacade.getCachedList(SKeys.general.extension.shortcuts));
-    }
+//    public List<MediaFile> getIndexedDirs(
+//            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders) {
+//        return mediaFileDao
+//            .getIndexedDirs(folders,
+//                    settingsFacade.getCachedList(SKeys.general.extension.shortcuts));
+//    }
 
-    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
-        List<String> shortcutPaths = settingsFacade
-            .getCachedList(SKeys.general.extension.shortcuts)
-            .stream()
-            .flatMap(shortcut -> folders
-                .stream()
-                .map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
-            .toList();
-        return mediaFileDao.getMudicIndexCounts(folders, shortcutPaths);
-    }
+//    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
+//        List<String> shortcutPaths = settingsFacade
+//            .getCachedList(SKeys.general.extension.shortcuts)
+//            .stream()
+//            .flatMap(shortcut -> folders
+//                .stream()
+//                .map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
+//            .toList();
+//        return mediaFileDao.getMudicIndexCounts(folders, shortcutPaths);
+//    }
 
     @Nullable
     public String getID3AlbumGenresString(MediaFile mediaFile) {

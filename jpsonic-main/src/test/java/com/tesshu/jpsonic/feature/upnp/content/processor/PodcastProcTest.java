@@ -20,29 +20,36 @@
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Collections;
 
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.Player;
+import com.tesshu.jpsonic.domain.model.PodcastChannel;
+import com.tesshu.jpsonic.domain.model.PodcastEpisode;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PodcastProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
+import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
+import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
-import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PodcastService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.DIDLContent;
@@ -52,17 +59,35 @@ import org.jupnp.support.model.container.MusicAlbum;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class PodcastProcTest {
 
-    private PodcastService podcastService;
+    private PodcastProvider podcastProvider;
+    private MediaFileProvider mediaFileProvider;
     private PodcastProc proc;
 
     @BeforeEach
     void setup() {
-        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
-        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                mock(MediaFileService.class), mock(MediaFileProvider.class),
-                mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
-        podcastService = mock(PodcastService.class);
-        proc = new PodcastProc(factory, podcastService);
+        TranscodingParametersPlanner parametersPlanner = mock(TranscodingParametersPlanner.class);
+        MediaFile mediaFile = mock(MediaFile.class);
+        when(mediaFile.format()).thenReturn(new MediaFile.Format("mp3"));
+        ResolvedAudioTranscodingParameters param = new ResolvedAudioTranscodingParameters(false,
+                mediaFile, null, null);
+        assertNotNull(param.outputFormat());
+        when(parametersPlanner
+            .resolveAudioTranscodingParameters(nullable(Player.class), nullable(MediaFile.class),
+                    nullable(Integer.class), nullable(String.class)))
+            .thenReturn(param);
+
+        SettingsFacade settingsFacade = SettingsFacadeBuilder
+            .create()
+            .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
+            .build();
+        mediaFileProvider = mock(MediaFileProvider.class);
+        PlayerProvider playerProvider = mock(PlayerProvider.class);
+        UpnpPayloadCodec upnpPayloadCodec = mock(UpnpPayloadCodec.class);
+        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec,
+                mediaFileProvider, playerProvider, parametersPlanner);
+
+        podcastProvider = mock(PodcastProvider.class);
+        proc = new PodcastProc(podcastProvider, factory);
     }
 
     @Test
@@ -72,82 +97,69 @@ class PodcastProcTest {
 
     @Test
     void testCreateContainer() {
-        PodcastChannel podcastChannel = new PodcastChannel(10, "url", "title", null, null, null,
-                null);
-        when(podcastService.getEpisodes(anyInt())).thenReturn(Collections.emptyList());
+        PodcastChannel podcastChannel = new PodcastChannel(99, "title", "COMPLETED", "thumbUri");
+        when(podcastProvider
+            .countEpisodes(any(PodcastChannel.class), any(PodcastEpisode.EpisodePhase[].class)))
+            .thenReturn(5);
+
         Container container = proc.createContainer(podcastChannel);
         assertInstanceOf(MusicAlbum.class, container);
-        assertEquals("podcast/10", container.getId());
+        assertEquals("podcast/99", container.getId());
         assertEquals("podcast", container.getParentID());
         assertEquals("title", container.getTitle());
-        assertEquals(0, container.getChildCount());
+        assertEquals(5, container.getChildCount());
     }
 
     @Test
     void testGetDirectChildren() {
         assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-        verify(podcastService, times(1)).getAllChannels();
+        verify(podcastProvider, times(1))
+            .findChannels(anyLong(), anyLong(), any(PodcastChannel.ChannelPhase[].class));
     }
 
     @Test
     void testGetDirectChildrenCount() {
         assertEquals(0, proc.getDirectChildrenCount());
-        verify(podcastService, times(1)).getAllChannels();
+        verify(podcastProvider, times(1)).countChannels(any(PodcastChannel.ChannelPhase[].class));
     }
 
     @Test
     void testGetDirectChild() {
         assertNull(proc.getDirectChild("0"));
-        verify(podcastService, times(1)).getChannel(anyInt());
+        verify(podcastProvider, times(1)).requireChannel(anyInt());
     }
 
     @Test
     void testGetChildren() {
-        PodcastChannel channel = new PodcastChannel(0, null, null, null, null, null, null);
+        PodcastChannel channel = new PodcastChannel(99, "title", "COMPLETED", "thumbUri");
         assertEquals(Collections.emptyList(), proc.getChildren(channel, 0, 0));
-        verify(podcastService, times(1)).getEpisodes(anyInt());
+        verify(podcastProvider, times(1))
+            .findEpisodes(any(PodcastChannel.class), anyLong(), anyLong(),
+                    any(PodcastEpisode.EpisodePhase[].class));
     }
 
     @Test
     void testGetChildSizeOf() {
-        PodcastChannel channel = new PodcastChannel(0, null, null, null, null, null, null);
+        PodcastChannel channel = new PodcastChannel(99, "title", "COMPLETED", "thumbUri");
         assertEquals(0, proc.getChildSizeOf(channel));
-        verify(podcastService, times(1)).getEpisodes(anyInt());
+        verify(podcastProvider, times(1))
+            .countEpisodes(any(PodcastChannel.class), any(PodcastEpisode.EpisodePhase[].class));
     }
 
     @Test
     void testAddChild() {
+        PodcastEpisode episode = new PodcastEpisode(1, "title", 99, "COMPLETED", Instant.now(),
+                "path");
+        PodcastChannel channel = new PodcastChannel(99, "title", "COMPLETED", "thumbUri");
+        MediaFile song = new MediaFile(1, "pathString", 0, "format", "MUSIC", 256, 60, 9999,
+                "artist", "album", "title", "albumArtist", 0, "genre", 2026, "thumbUri", "composer",
+                "reading", "#", "comment");
+        when(podcastProvider.requireChannel(anyInt())).thenReturn(channel);
+        when(mediaFileProvider.requireMediaFile(any(Path.class))).thenReturn(song);
+
         DIDLContent content = new DIDLContent();
-        PodcastEpisode episode = new PodcastEpisode(null, null, "url", null, null, null, null, null,
-                null, null, null, null);
         proc.addChild(content, episode);
-        verify(podcastService, never()).getChannel(anyInt());
-        assertEquals(0, content.getCount());
-        assertEquals(0, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
-
-        episode = new PodcastEpisode(0, null, "url", null, null, null, null, null, null, null, null,
-                null);
-        proc.addChild(content, episode);
-        verify(podcastService, never()).getChannel(anyInt());
-        assertEquals(0, content.getCount());
-        assertEquals(0, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
-
-        episode = new PodcastEpisode(0, 0, "url", null, null, null, null, null, null, null, null,
-                null);
-        proc.addChild(content, episode);
-        verify(podcastService, times(1)).getChannel(anyInt());
-        assertEquals(0, content.getCount());
-        assertEquals(0, content.getContainers().size());
-        assertEquals(0, content.getItems().size());
-
-        PodcastChannel channel = new PodcastChannel("url");
-        when(podcastService.getChannel(anyInt())).thenReturn(channel);
-        clearInvocations(podcastService);
-        content = new DIDLContent();
-        proc.addChild(content, episode);
-        verify(podcastService, times(1)).getChannel(anyInt());
+        verify(podcastProvider, times(1)).requireChannel(anyInt());
         assertEquals(1, content.getCount());
         assertEquals(0, content.getContainers().size());
         assertEquals(1, content.getItems().size());

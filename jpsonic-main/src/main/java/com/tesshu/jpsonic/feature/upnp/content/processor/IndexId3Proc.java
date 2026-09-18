@@ -21,12 +21,13 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -34,18 +35,18 @@ import org.springframework.stereotype.Controller;
 @Controller
 class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> {
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MusicIndexProvider musicIndexProvider;
+    private final ArtistProvider artistProvider;
     private final UPnPDIDLFactory factory;
-    private final MusicIndexService musicIndexService;
-    private final ArtistDao artistDao;
 
-    IndexId3Proc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MusicIndexService musicIndexService, ArtistDao artistDao) {
+    IndexId3Proc(MusicFolderProvider musicFolderProvider, MusicIndexProvider musicIndexProvider,
+            ArtistProvider artistProvider, UPnPDIDLFactory factory) {
         super();
-        this.util = util;
+        this.musicFolderProvider = musicFolderProvider;
+        this.musicIndexProvider = musicIndexProvider;
+        this.artistProvider = artistProvider;
         this.factory = factory;
-        this.musicIndexService = musicIndexService;
-        this.artistDao = artistDao;
     }
 
     @Override
@@ -60,8 +61,8 @@ class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> {
 
     @Override
     public List<MusicIndex> getDirectChildren(long offset, long count) {
-        return musicIndexService
-            .getIndexedId3ArtistCounts(util.getGuestFolders())
+        return musicIndexProvider
+            .findIndexedId3Artists(musicFolderProvider.getGuestFolders())
             .keySet()
             .stream()
             .skip(offset)
@@ -71,28 +72,31 @@ class IndexId3Proc extends DirectChildrenContentProc<MusicIndex, Artist> {
 
     @Override
     public int getDirectChildrenCount() {
-        return artistDao.getMudicIndexCount(util.getGuestFolders());
+        return artistProvider.countMudicIndexes(musicFolderProvider.getGuestFolders());
     }
 
     @Override
     public MusicIndex getDirectChild(String id) {
-        return musicIndexService
-            .getIndexedId3ArtistCounts(util.getGuestFolders())
+        return musicIndexProvider
+            .findIndexedId3Artists(musicFolderProvider.getGuestFolders())
             .keySet()
             .stream()
-            .filter(i -> i.getIndex().equals(id))
+            .filter(i -> i.index().equals(id))
             .findFirst()
             .get();
     }
 
     @Override
-    public List<Artist> getChildren(MusicIndex musicIndex, long offset, long maxLength) {
-        return artistDao.getArtists(musicIndex, util.getGuestFolders(), offset, maxLength);
+    public List<Artist> getChildren(MusicIndex musicIndex, long offset, long count) {
+        return artistProvider
+            .findArtists(musicFolderProvider.getGuestFolders(), musicIndex.index(), offset, count);
     }
 
     @Override
     public int getChildSizeOf(MusicIndex musicIndex) {
-        return musicIndexService.getIndexedId3ArtistCounts(util.getGuestFolders()).get(musicIndex);
+        return musicIndexProvider
+            .countIndexedId3Artists(musicFolderProvider.getGuestFolders())
+            .get(musicIndex);
     }
 
     @Override

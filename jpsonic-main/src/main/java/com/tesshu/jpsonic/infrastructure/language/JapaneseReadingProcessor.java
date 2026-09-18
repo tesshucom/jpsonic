@@ -23,7 +23,11 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Normalizer;
+import java.util.AbstractMap;
+import java.util.Map.Entry;
 
+import com.tesshu.jpsonic.domain.contract.Indexable;
+import com.tesshu.jpsonic.domain.contract.Nameable;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils.ID;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -31,7 +35,6 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
-import com.tesshu.jpsonic.persistence.contract.Indexable;
 import com.tesshu.jpsonic.persistence.result.SortCandidate;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -96,6 +99,13 @@ public class JapaneseReadingProcessor {
         }
     }
 
+    public <T extends Nameable> Entry<T, String> analyzeName(@NonNull T nameable) {
+        String reading = japaneseReadingUtils
+            .getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? nameable.name()
+                    : japaneseReadingUtils.createJapaneseReading(nameable.name());
+        return new AbstractMap.SimpleEntry<>(nameable, reading);
+    }
+
     /**
      * This method returns the normalized Artist name that can also be used to
      * create the index prefix.
@@ -125,13 +135,13 @@ public class JapaneseReadingProcessor {
     public @NonNull String createIndexableName(@NonNull Indexable indexable) {
         IndexScheme scheme = japaneseReadingUtils.getIndexScheme();
         @NonNull
-        String name = japaneseReadingUtils.removeArticles(indexable.getName());
-        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(indexable.getReading())
-                || indexable.getName().equals(indexable.getReading())
+        String name = japaneseReadingUtils.removeArticles(indexable.name());
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(indexable.reading())
+                || indexable.name().equals(indexable.reading())
                 || !japaneseReadingUtils.isJapaneseReadable(name)) {
             return createIndexableName(name);
         }
-        return createIndexableName(japaneseReadingUtils.removeArticles(indexable.getReading()));
+        return createIndexableName(japaneseReadingUtils.removeArticles(indexable.reading()));
     }
 
     public void clear() {

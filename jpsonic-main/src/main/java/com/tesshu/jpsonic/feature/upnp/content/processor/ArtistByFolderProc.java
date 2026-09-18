@@ -19,38 +19,43 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
-import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.ArtistOrAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArtist;
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrArtistLogic;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
+import com.tesshu.jpsonic.infrastructure.policy.RuntimeOrderResolver;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
 
 @Controller
-class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtist, ArtistOrAlbum> {
+class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtist, ArtistOrAlbum>
+        implements RuntimeOrderResolver {
 
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
+    private final ArtistProvider artistProvider;
+    private final AlbumProvider albumProvider;
     private final FolderOrArtistLogic deligate;
+    private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    ArtistByFolderProc(UPnPProcessorUtil util, UPnPDIDLFactory factory, ArtistDao artistDao,
-            AlbumDao albumDao, FolderOrArtistLogic folderOrArtistLogic) {
+    ArtistByFolderProc(ArtistProvider artistProvider, AlbumProvider albumProvider,
+            FolderOrArtistLogic folderOrArtistLogic, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
         super();
-        this.util = util;
-        this.factory = factory;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
+        this.artistProvider = artistProvider;
+        this.albumProvider = albumProvider;
         this.deligate = folderOrArtistLogic;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     @Override
@@ -79,19 +84,21 @@ class ArtistByFolderProc extends DirectChildrenContentProc<FolderOrFArtist, Arti
     }
 
     @Override
-    public List<ArtistOrAlbum> getChildren(FolderOrFArtist folderOrArtist, long first, long count) {
-        int offset = (int) first;
+    public List<ArtistOrAlbum> getChildren(FolderOrFArtist folderOrArtist, long offset,
+            long count) {
         if (folderOrArtist.isFolderArtist()) {
             Artist artist = folderOrArtist.getFolderArtist().artist();
-            return albumDao
-                .getAlbumsForArtist(offset, count, artist.getName(),
-                        util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders())
+            RuntimeOrderPolicy.AlbumSortOrder order = resolveChildOrder(artist, settingsFacade);
+            List<MusicFolder> folders = List.of(folderOrArtist.getFolderArtist().folder());
+            return albumProvider
+                .findChildren(folders, artist, order, offset, count)
                 .stream()
                 .map(ArtistOrAlbum::new)
                 .toList();
         }
-        return artistDao
-            .getAlphabetialArtists(offset, (int) count, Arrays.asList(folderOrArtist.getFolder()))
+        List<MusicFolder> folders = List.of(folderOrArtist.getFolder());
+        return artistProvider
+            .findArtists(folders, offset, count)
             .stream()
             .map(ArtistOrAlbum::new)
             .toList();

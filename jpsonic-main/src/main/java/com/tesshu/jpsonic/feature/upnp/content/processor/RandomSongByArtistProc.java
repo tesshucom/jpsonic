@@ -21,15 +21,16 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;
@@ -39,20 +40,21 @@ import org.springframework.stereotype.Controller;
 class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile>
         implements CountLimitProc {
 
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
-    private final ArtistDao artistDao;
+    private final MusicFolderProvider musicFolderProvider;
+    private final ArtistProvider artistProvider;
     private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    RandomSongByArtistProc(UPnPProcessorUtil util, UPnPDIDLFactory factory, ArtistDao artistDao,
-            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade) {
+    RandomSongByArtistProc(MusicFolderProvider musicFolderProvider, ArtistProvider artistProvider,
+            MediaSearchProvider mediaSearchProvider, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
         super();
-        this.util = util;
-        this.factory = factory;
-        this.artistDao = artistDao;
+        this.musicFolderProvider = musicFolderProvider;
+        this.artistProvider = artistProvider;
         this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     @Override
@@ -63,24 +65,24 @@ class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile
     @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = factory.toArtist(artist);
-        container.setId(getProcId().getValue() + ProcId.CID_SEPA + artist.getId());
+        container.setId(getProcId().getValue() + ProcId.CID_SEPA + artist.id());
         container.setParentID(getProcId().getValue());
         return container;
     }
 
     @Override
     public List<Artist> getDirectChildren(long offset, long count) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestFolders());
+        return artistProvider.findArtists(musicFolderProvider.getGuestFolders(), offset, count);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return artistDao.getArtistsCount(util.getGuestFolders());
+        return artistProvider.countArtists(musicFolderProvider.getGuestFolders());
     }
 
     @Override
     public Artist getDirectChild(String id) {
-        return artistDao.getArtist(Integer.parseInt(id));
+        return artistProvider.requireArtist(Integer.parseInt(id));
     }
 
     @Override
@@ -89,7 +91,8 @@ class RandomSongByArtistProc extends DirectChildrenContentProc<Artist, MediaFile
         int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
         int count = toCount(firstResult, maxResults, randomMax);
         return mediaSearchProvider
-            .getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
+            .getRandomSongsByArtist(musicFolderProvider.getGuestFolders(), artist, offset, count,
+                    randomMax);
     }
 
     @Override

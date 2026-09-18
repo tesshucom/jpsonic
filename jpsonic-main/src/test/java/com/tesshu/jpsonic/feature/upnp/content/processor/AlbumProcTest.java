@@ -21,14 +21,18 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -36,14 +40,16 @@ import org.mockito.ArgumentMatchers;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class AlbumProcTest {
 
-    private MediaFileService mediaFileService;
+    private MediaFileProvider mediaFileProvider;
     private AlbumProc proc;
 
     @BeforeEach
     void setup() {
-        mediaFileService = mock(MediaFileService.class);
-        proc = new AlbumProc(mock(UPnPProcessorUtil.class), mock(UPnPDIDLFactory.class),
-                mediaFileService);
+        SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
+        UPnPDIDLFactory factory = mock(UPnPDIDLFactory.class);
+        mediaFileProvider = mock(MediaFileProvider.class);
+        MusicFolderProvider musicFolderProvider = mock(MusicFolderProvider.class);
+        proc = new AlbumProc(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
     }
 
     @Test
@@ -54,14 +60,14 @@ class AlbumProcTest {
     @Test
     void testGetDirectChildren() {
         assertEquals(0, proc.getDirectChildren(0, Integer.MAX_VALUE).size());
-        verify(mediaFileService, times(1))
-            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
-                    ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileProvider, times(1))
+            .findAlbums(ArgumentMatchers.<MusicFolder>anyList(),
+                    any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(), anyLong());
     }
 
     @Test
     void testGetDirectChildrenCount() {
         assertEquals(0, proc.getDirectChildrenCount());
-        verify(mediaFileService, times(1)).getAlbumCount(ArgumentMatchers.<MusicFolder>anyList());
+        verify(mediaFileProvider, times(1)).countAlbums(ArgumentMatchers.<MusicFolder>anyList());
     }
 }

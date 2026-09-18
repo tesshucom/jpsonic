@@ -19,8 +19,8 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor.composite;
 
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Artist;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.Artist;
 
 public class ArtistOrAlbum {
 

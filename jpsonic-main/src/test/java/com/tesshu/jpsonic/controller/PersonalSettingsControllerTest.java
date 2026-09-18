@@ -30,12 +30,12 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.form.PersonalSettingsCommand;
+import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.FontScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
-import com.tesshu.jpsonic.infrastructure.language.StringUtil;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ServiceMockUtils;

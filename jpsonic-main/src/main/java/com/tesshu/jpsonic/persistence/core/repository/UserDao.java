@@ -422,7 +422,7 @@ public class UserDao {
             int col = 1;
             UserSettings settings = new UserSettings(rs.getString(col++));
             settings
-                .setLocale(com.tesshu.jpsonic.infrastructure.language.StringUtil
+                .setLocale(com.tesshu.jpsonic.domain.language.StringUtil
                     .parseLocale(rs.getString(col++)));
             settings.setThemeId(rs.getString(col++));
             settings.setFinalVersionNotificationEnabled(rs.getBoolean(col++));

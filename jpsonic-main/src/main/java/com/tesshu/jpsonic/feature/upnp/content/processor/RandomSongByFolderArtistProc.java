@@ -19,9 +19,11 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor;
 
-import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
@@ -32,8 +34,6 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArti
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrArtistLogic;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Controller;
@@ -42,23 +42,24 @@ import org.springframework.stereotype.Controller;
 class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFArtist, FArtistOrSong>
         implements CountLimitProc {
 
-    private final UPnPProcessorUtil util;
-    private final UPnPDIDLFactory factory;
-    private final ArtistDao artistDao;
+    private final MusicFolderProvider musicFolderProvider;
+    private final ArtistProvider artistProvider;
     private final MediaSearchProvider mediaSearchProvider;
-    private final SettingsFacade settingsFacade;
     private final FolderOrArtistLogic deligate;
+    private final SettingsFacade settingsFacade;
+    private final UPnPDIDLFactory factory;
 
-    RandomSongByFolderArtistProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            ArtistDao artistDao, MediaSearchProvider mediaSearchProvider,
-            SettingsFacade settingsFacade, FolderOrArtistLogic folderOrArtistLogic) {
+    RandomSongByFolderArtistProc(MusicFolderProvider musicFolderProvider,
+            ArtistProvider artistProvider, MediaSearchProvider mediaSearchProvider,
+            FolderOrArtistLogic folderOrArtistLogic, SettingsFacade settingsFacade,
+            UPnPDIDLFactory factory) {
         super();
-        this.util = util;
-        this.factory = factory;
-        this.artistDao = artistDao;
+        this.musicFolderProvider = musicFolderProvider;
+        this.artistProvider = artistProvider;
         this.mediaSearchProvider = mediaSearchProvider;
-        this.settingsFacade = settingsFacade;
         this.deligate = folderOrArtistLogic;
+        this.settingsFacade = settingsFacade;
+        this.factory = factory;
     }
 
     @Override
@@ -87,23 +88,21 @@ class RandomSongByFolderArtistProc extends DirectChildrenContentProc<FolderOrFAr
     }
 
     @Override
-    public List<FArtistOrSong> getChildren(FolderOrFArtist folderOrArtist, long firstResult,
-            long maxResults) {
-        int offset = (int) firstResult;
+    public List<FArtistOrSong> getChildren(FolderOrFArtist folderOrArtist, long offset,
+            long count) {
         if (folderOrArtist.isFolderArtist()) {
             int randomMax = settingsFacade.get(UPnPSKeys.options.randomMax);
-            int count = toCount(firstResult, maxResults, randomMax);
+            int resultCount = toCount(offset, count, randomMax);
             return mediaSearchProvider
-                .getRandomSongsByArtist(folderOrArtist.getFolderArtist().artist(), count, offset,
-                        randomMax, util.getGuestFolders())
+                .getRandomSongsByArtist(musicFolderProvider.getGuestFolders(),
+                        folderOrArtist.getFolderArtist().artist(), offset, resultCount, randomMax)
                 .stream()
                 .map(FArtistOrSong::new)
                 .toList();
         }
         MusicFolder folder = folderOrArtist.getFolder();
-        return artistDao
-            .getAlphabetialArtists(offset, (int) maxResults,
-                    Arrays.asList(folderOrArtist.getFolder()))
+        return artistProvider
+            .findArtists(List.of(folderOrArtist.getFolder()), offset, count)
             .stream()
             .map(artist -> new FolderArtist(folder, artist))
             .map(FArtistOrSong::new)

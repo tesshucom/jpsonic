@@ -35,13 +35,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.IndexWithCount;
 import com.tesshu.jpsonic.infrastructure.core.DisabledOnWindowsJdk21OrEarlier;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
-import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.IndexWithCount;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.RandomSongsQueryBuilder;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
@@ -82,6 +82,8 @@ class MediaFileDaoTest {
         void updateArtistSortTest() {
             ArtistSortCandidate artist = new ArtistSortCandidate("artist", "artistSort", 1,
                     "DIRECTORY", TargetField.ARTIST.getValue());
+            artist.setMusicIndex("A");
+            
             List<ArtistSortCandidate> cands = List.of(artist);
             ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
             ArgumentCaptor<Object[]> argCaptor = ArgumentCaptor.forClass(Object[].class);
@@ -832,8 +834,8 @@ class MediaFileDaoTest {
             assertEquals(2, counts.size());
             counts.stream().forEach(index -> {
                 switch (index.index()) {
-                case "D" -> assertEquals(2, index.directoryCount()); // It's ~Folder/Dir**
-                case "A" -> assertEquals(1, index.directoryCount()); // It's ~Folder/Album**
+                case "D" -> assertEquals(2, index.count()); // It's ~Folder/Dir**
+                case "A" -> assertEquals(1, index.count()); // It's ~Folder/Album**
                 default -> throw new IllegalArgumentException("Unexpected value: " + index.index());
                 }
             });

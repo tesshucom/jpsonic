@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.model.MusicFolder;
-import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;

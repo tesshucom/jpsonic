@@ -23,12 +23,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.content.SearchFilterProcessor;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -68,16 +69,16 @@ public class WMPProc implements SearchFilterProcessor {
     private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern
         .compile("dc:title = \"[0-9]+\"");
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MediaFileProvider mediaFileProvider;
     private final UPnPDIDLFactory factory;
-    private final MediaFileService mediaFileService;
 
-    public WMPProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService) {
+    public WMPProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            UPnPDIDLFactory factory) {
         super();
-        this.util = util;
+        this.musicFolderProvider = musicFolderProvider;
+        this.mediaFileProvider = mediaFileProvider;
         this.factory = factory;
-        this.mediaFileService = mediaFileService;
     }
 
     @Override
@@ -89,9 +90,9 @@ public class WMPProc implements SearchFilterProcessor {
     public @Nullable BrowseResult getBrowseResult(@NonNull String query, @Nullable String filter,
             long count, long offset) {
         if (MS_FILTER_FOLDER_PATH.equals(filter)) {
-            return getFolderPaths(query, filter, count, offset);
+            return getFolderPaths(query, filter, offset, count);
         } else if (MS_FILTER_ALL.equals(filter)) {
-            BrowseResult result = getSomthing(query, count, offset);
+            BrowseResult result = getSomthing(query, offset, count);
             if (result != null) {
                 return result;
             }
@@ -115,13 +116,13 @@ public class WMPProc implements SearchFilterProcessor {
     MusicTrack createMusicTrack(MediaFile song) {
         MusicTrack item = factory.toMusicTrack(song);
         // Multi-artist is probably difficult with MS specs
-        if (song.getAlbumArtist() != null) {
+        if (song.albumArtist() != null) {
             item.removeProperties(UPNP.ARTIST.class);
-            item.addProperty(factory.toPerson(song.getAlbumArtist()));
+            item.addProperty(factory.toPerson(song.albumArtist()));
         }
-        item.setCreator(song.getArtist());
-        if (song.getComposer() != null) {
-            item.addProperty(factory.toComposer(song.getComposer()));
+        item.setCreator(song.artist());
+        if (song.composer() != null) {
+            item.addProperty(factory.toComposer(song.composer()));
         }
         return item;
     }
@@ -140,15 +141,15 @@ public class WMPProc implements SearchFilterProcessor {
     }
 
     @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
-    private BrowseResult createAudioItemBrowseResult(long count, long offset) {
+    private BrowseResult createAudioItemBrowseResult(long offset, long count) {
         if (offset == 0) {
             LOG.info("object.item.audioItem data crawling started.");
         }
-        List<MusicFolder> folders = util.getGuestFolders();
-        List<MediaFile> songs = mediaFileService.getSongs(count, offset, folders);
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
+        List<MediaFile> songs = mediaFileProvider.findSongs(folders, offset, count);
         DIDLContent parent = new DIDLContent();
         songs.forEach(song -> parent.addItem(createMusicTrack(song)));
-        long total = mediaFileService.countSongs(folders);
+        long total = mediaFileProvider.countSongs(folders);
         if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != songs.size()
                 || offset + songs.size() == total)) {
             LOG
@@ -164,15 +165,15 @@ public class WMPProc implements SearchFilterProcessor {
     }
 
     @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
-    private BrowseResult createVideoItemBrowseResult(long count, long offset) {
+    private BrowseResult createVideoItemBrowseResult(long offset, long count) {
         if (offset == 0) {
             LOG.info("object.item.videoItem data crawling started.");
         }
-        List<MusicFolder> folders = util.getGuestFolders();
-        List<MediaFile> videos = mediaFileService.getVideos(count, offset, folders);
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
+        List<MediaFile> videos = mediaFileProvider.findVideos(folders, offset, count);
         DIDLContent parent = new DIDLContent();
         videos.forEach(video -> parent.addItem(factory.toVideo(video)));
-        long total = mediaFileService.countVideos(folders);
+        long total = mediaFileProvider.countVideos(folders);
         if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != videos.size()
                 || offset + videos.size() == total)) {
             LOG
@@ -190,7 +191,7 @@ public class WMPProc implements SearchFilterProcessor {
 
     private BrowseResult createSingleObjectBrowseResult(String query) {
         int id = Integer.parseInt(query.replaceAll("[^0-9]", ""));
-        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
+        MediaFile mediaFile = mediaFileProvider.requireMediaFile(id);
         if (mediaFile.isAudio()) {
             DIDLContent parent = new DIDLContent();
             parent.addItem(createMusicTrack(mediaFile));
@@ -208,9 +209,9 @@ public class WMPProc implements SearchFilterProcessor {
 
     final @Nullable BrowseResult getSomthing(String query, long count, long offset) {
         if (MS_QUERY_AUDIO_ITEM_ALL.equals(query)) {
-            return createAudioItemBrowseResult(count, offset);
+            return createAudioItemBrowseResult(offset, count);
         } else if (MS_QUERY_VIDEO_ITEM_ALL.equals(query)) {
-            return createVideoItemBrowseResult(count, offset);
+            return createVideoItemBrowseResult(offset, count);
         } else if (MS_QUERY_IMAGE_ITEM_ALL.equals(query)) {
             return EMPTY; // no spport
         } else if (MS_QUERY_AUDIO_ITEM_SINGLE.matcher(query).matches()) {

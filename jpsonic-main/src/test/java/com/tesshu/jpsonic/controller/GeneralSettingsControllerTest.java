@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
@@ -68,7 +68,7 @@ class GeneralSettingsControllerTest {
         controller = new GeneralSettingsController(settingsFacade, mock(UserService.class),
                 serverLocaleService, serverThemeService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class), mock(ScannerStateService.class),
-                mock(MusicIndexService.class));
+                mock(MusicIndexProvider.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

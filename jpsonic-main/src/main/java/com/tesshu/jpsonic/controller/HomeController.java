@@ -32,6 +32,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.model.MusicFolderContent;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
@@ -41,12 +44,10 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
@@ -78,12 +79,14 @@ public class HomeController {
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final MediaSearchProvider mediaSearchProvider;
-    private final MusicIndexService musicIndexService;
+    private final MusicFolderProvider musicFolderProvider;
+    private final MusicIndexProvider musicIndexProvider;
 
     public HomeController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, ScannerStateService scannerStateService,
             RatingService ratingService, MediaFileService mediaFileService,
-            MediaSearchProvider mediaSearchProvider, MusicIndexService musicIndexService) {
+            MediaSearchProvider mediaSearchProvider, MusicFolderProvider musicFolderProvider,
+            MusicIndexProvider musicIndexProvider) {
         super();
         this.settingsFacade = settingsFacade;
         this.userService = userService;
@@ -92,7 +95,8 @@ public class HomeController {
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
         this.mediaSearchProvider = mediaSearchProvider;
-        this.musicIndexService = musicIndexService;
+        this.musicFolderProvider = musicFolderProvider;
+        this.musicIndexProvider = musicIndexProvider;
     }
 
     @GetMapping
@@ -159,11 +163,16 @@ public class HomeController {
             }
             break;
         case INDEX:
-            MusicFolderContent musicFolderContent = musicIndexService
-                .getMusicFolderContent(musicFolders);
-            map.put("indexedArtists", musicFolderContent.getIndexedArtists());
-            map.put("singleSongs", musicFolderContent.getSingleSongs());
-            map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders = musicFolders
+                .stream()
+                .map(MusicFolder::getId)
+                .map(musicFolderProvider::requireMusicFolder)
+                .toList();
+            MusicFolderContent musicFolderContent = musicIndexProvider
+                .findMusicFolderContent(folders);
+            map.put("indexedArtists", musicFolderContent.indexedArtists());
+            map.put("singleSongs", musicFolderContent.singleSongs());
+            map.put("indexes", musicFolderContent.indexedArtists().keySet());
             map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
             map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
             break;

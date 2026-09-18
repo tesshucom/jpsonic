@@ -21,28 +21,29 @@ package com.tesshu.jpsonic.feature.upnp.content.processor;
 
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.CountLimitProc;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.springframework.stereotype.Controller;
 
 @Controller
 class RandomSongProc extends MediaFileByFolderProc implements CountLimitProc {
 
-    private final UPnPProcessorUtil util;
+    private final MusicFolderProvider musicFolderProvider;
     private final MediaSearchProvider mediaSearchProvider;
     private final SettingsFacade settingsFacade;
 
-    RandomSongProc(UPnPProcessorUtil util, UPnPDIDLFactory factory,
-            MediaFileService mediaFileService, MediaSearchProvider mediaSearchProvider,
-            SettingsFacade settingsFacade) {
-        super(util, factory, mediaFileService);
-        this.util = util;
+    RandomSongProc(MusicFolderProvider musicFolderProvider, MediaFileProvider mediaFileProvider,
+            SettingsFacade settingsFacade, UPnPDIDLFactory factory,
+            MediaSearchProvider mediaSearchProvider) {
+        super(musicFolderProvider, mediaFileProvider, settingsFacade, factory);
+        this.musicFolderProvider = musicFolderProvider;
         this.mediaSearchProvider = mediaSearchProvider;
         this.settingsFacade = settingsFacade;
     }
@@ -57,7 +58,8 @@ class RandomSongProc extends MediaFileByFolderProc implements CountLimitProc {
         int offset = (int) firstResult;
         int max = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, max);
-        return mediaSearchProvider.getRandomSongs(count, offset, max, util.getGuestFolders());
+        return mediaSearchProvider
+            .getRandomSongs(musicFolderProvider.getGuestFolders(), count, offset, max);
     }
 
     @Override

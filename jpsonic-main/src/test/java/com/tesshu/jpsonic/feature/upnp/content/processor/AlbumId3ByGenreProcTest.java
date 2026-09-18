@@ -28,10 +28,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Genre;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -48,15 +47,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-        .asList(new MusicFolder(1, resolveBaseMediaPath("MultiGenre"), "Genres", true, now(), 1,
-                false));
+    private static final List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> MUSIC_FOLDERS = Arrays
+        .asList(new com.tesshu.jpsonic.persistence.api.entity.MusicFolder(1,
+                resolveBaseMediaPath("MultiGenre"), "Genres", true, now(), 1, false));
 
     @Autowired
     private AlbumId3ByGenreProc proc;
 
     @Override
-    public List<MusicFolder> getMusicFolders() {
+    public List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
@@ -100,10 +99,10 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
         Genre genre = proc.getDirectChildren(0, 1).get(0);
         // test getDirectChild
         // test getChildren
-        Genre directChild = proc.getDirectChild(genre.getName());
-        assertEquals(genre.getName(), directChild.getName());
-        assertEquals(genre.getAlbumCount(), directChild.getAlbumCount());
-        assertEquals(genre.getSongCount(), directChild.getSongCount());
+        Genre directChild = proc.getDirectChild(genre.name());
+        assertEquals(genre.name(), directChild.name());
+        assertEquals(genre.albumCount(), directChild.albumCount());
+        assertEquals(genre.songCount(), directChild.songCount());
     }
 
     @Order(5)
@@ -111,7 +110,7 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
     void testBrowseDirectChildren() throws ExecutionException {
         Genre genre = proc.getDirectChildren(0, 1).get(0);
         // test getDirectChild
-        BrowseResult browseResult = proc.browseDirectChildren(genre.getName());
+        BrowseResult browseResult = proc.browseDirectChildren(genre.name());
         assertEquals(1, browseResult.getTotalMatchesLong());
     }
 
@@ -121,26 +120,27 @@ class AlbumId3ByGenreProcTest extends AbstractNeedsScan {
         @Test
         void testBrowseLeafWithGenre() throws ExecutionException {
             Genre genre = proc.getDirectChildren(0, 1).get(0);
-            BrowseResult browseResult = proc
-                .browseLeaf(genre.getName(), null, 0, genre.getAlbumCount());
+            BrowseResult browseResult = proc.browseLeaf(genre.name(), null, 0, genre.albumCount());
             assertEquals(2, browseResult.getTotalMatchesLong());
         }
 
         @Test
         void testBrowseLeafWithCompositeId() throws ExecutionException {
             Genre genre = proc.getDirectChildren(0, 1).get(0);
-            BrowseResult browseResult = proc
-                .browseLeaf(genre.getName(), null, 0, genre.getAlbumCount());
+            BrowseResult browseResult = proc.browseLeaf(genre.name(), null, 0, genre.albumCount());
             String result = browseResult.getResult();
+
             String firstChildIdStartKey = "container childCount=\"1\" id=\"";
             int firstChildIdStart = result.indexOf(firstChildIdStartKey)
                     + firstChildIdStartKey.length();
-            String firstChildIdEndKey = "\"";
-            int firstChildIdEnd = result.indexOf(firstChildIdEndKey, firstChildIdStart);
+            int firstChildIdEnd = result.indexOf('\"', firstChildIdStart);
             String firstChildId = result.substring(firstChildIdStart, firstChildIdEnd);
+
             String leafId = firstChildId
                 .substring(firstChildId.indexOf(ProcId.CID_SEPA) + ProcId.CID_SEPA.length());
-            browseResult = proc.browseLeaf(leafId, null, 0, genre.getAlbumCount());
+
+            assertEquals(2, genre.albumCount());
+            browseResult = proc.browseLeaf(leafId, null, 0, genre.albumCount());
             assertEquals(1, browseResult.getTotalMatchesLong());
         }
     }

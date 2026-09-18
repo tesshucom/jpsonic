@@ -19,8 +19,8 @@
 
 package com.tesshu.jpsonic.feature.upnp.content.processor.composite;
 
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
+import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
 
 public class IndexOrSong {
 

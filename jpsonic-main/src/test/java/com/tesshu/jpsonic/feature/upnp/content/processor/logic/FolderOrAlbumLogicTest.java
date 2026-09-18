@@ -24,28 +24,30 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.provider.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.PlayerProvider;
+import com.tesshu.jpsonic.domain.model.Album;
+import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
-import com.tesshu.jpsonic.feature.upnp.content.processor.UPnPProcessorUtil;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderAlbum;
 import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFAlbum;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jupnp.support.model.container.Container;
@@ -56,44 +58,46 @@ import org.mockito.Mockito;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class FolderOrAlbumLogicTest {
 
-    private UPnPProcessorUtil util;
-    private AlbumDao albumDao;
-    private FolderOrAlbumLogic logic;
+    private MusicFolderProvider musicFolderProvider;
+    private AlbumProvider albumProvider;
+    FolderOrAlbumLogic logic;
 
     @BeforeEach
     void setup() {
-        util = mock(UPnPProcessorUtil.class);
-        albumDao = mock(AlbumDao.class);
         SettingsFacade settingsFacade = SettingsFacadeBuilder
             .create()
             .withString(UPnPSKeys.basic.baseLanUrl, "https://192.168.1.1:4040")
             .build();
-        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, mock(UpnpPayloadCodec.class),
-                mock(MediaFileService.class), mock(MediaFileProvider.class),
-                mock(PlayerProvider.class), mock(TranscodingParametersPlanner.class));
-        logic = new FolderOrAlbumLogic(util, factory, albumDao);
+        MediaFileProvider mediaFileProvider = mock(MediaFileProvider.class);
+        PlayerProvider playerProvider = mock(PlayerProvider.class);
+        UpnpPayloadCodec upnpPayloadCodec = mock(UpnpPayloadCodec.class);
+        TranscodingParametersPlanner transcodingParametersPlanner = mock(
+                TranscodingParametersPlanner.class);
+        UPnPDIDLFactory factory = new UPnPDIDLFactory(settingsFacade, upnpPayloadCodec,
+                mediaFileProvider, playerProvider, transcodingParametersPlanner);
+        musicFolderProvider = mock(MusicFolderProvider.class);
+        albumProvider = mock(AlbumProvider.class);
+        logic = new FolderOrAlbumLogic(musicFolderProvider, albumProvider, factory);
     }
 
     @Test
     void testCreateContainerWithFolder() {
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        MusicFolder folder = new MusicFolder(99, "path", "FolderName", true, null, 0, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
-        Mockito.when(albumDao.getAlbumCount(anyList())).thenReturn(100);
+        when(albumProvider.countAlbums(anyList())).thenReturn(100);
         Container container = logic.createContainer(ProcId.ALBUM_ID3_BY_FOLDER, folderOrAlbum);
+
         assertInstanceOf(StorageFolder.class, container);
         assertEquals("alid3bf/99", container.getId());
         assertEquals("alid3bf", container.getParentID());
-        assertEquals("Music", container.getTitle());
+        assertEquals("FolderName", container.getTitle());
         assertEquals(100, container.getChildCount());
     }
 
     @Test
     void testCreateContainerWithAlbum() {
-        Album album = new Album();
-        album.setId(999);
-        album.setName("Album");
-        album.setSongCount(20);
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        Album album = new Album(999, "Album", "artist", 20, null);
+        MusicFolder folder = new MusicFolder(99, "path", "name", true, null, 0, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         Container container = logic.createContainer(ProcId.ALBUM_ID3_BY_FOLDER, folderOrAlbum);
         assertInstanceOf(MusicAlbum.class, container);
@@ -105,54 +109,52 @@ class FolderOrAlbumLogicTest {
 
     @Test
     void testGetDirectChildren() {
-        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now(), false);
-        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now(), false);
-        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now(), false);
+        MusicFolder folder1 = new MusicFolder(99, "/folder1", "folder1", true, null, 0, false);
+        MusicFolder folder2 = new MusicFolder(99, "/folder2", "folder2", true, null, 0, false);
+        MusicFolder folder3 = new MusicFolder(99, "/folder3", "folder3", true, null, 0, false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
-        Mockito.when(util.getGuestFolders()).thenReturn(folders);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(folders);
         assertEquals(3, logic.getDirectChildren(0, 4).size());
         assertEquals(2, logic.getDirectChildren(0, 2).size());
         assertEquals(2, logic.getDirectChildren(1, 4).size());
         assertEquals(2, logic.getDirectChildren(1, 2).size());
         List<FolderOrFAlbum> folderOrAlbums = logic.getDirectChildren(0, 4);
-        Mockito
-            .verify(albumDao, Mockito.never())
-            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
+        verify(albumProvider, Mockito.never())
+            .findAlbums(anyList(), any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(),
+                    anyLong());
         folderOrAlbums.forEach(folder -> assertFalse(folder.isFolderAlbum()));
 
         folders = List.of(folder1);
-        Mockito.when(util.getGuestFolders()).thenReturn(folders);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(folders);
         assertEquals(0, logic.getDirectChildren(0, 4).size());
-        Mockito
-            .verify(albumDao, Mockito.times(1))
-            .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(), anyBoolean(), anyList());
+        verify(albumProvider, Mockito.times(1))
+            .findAlbums(anyList(), any(RuntimeOrderPolicy.AlbumSortOrder.class), anyLong(),
+                    anyLong());
     }
 
     @Test
     void testGetDirectChildrenCount() {
-        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now(), false);
-        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now(), false);
-        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now(), false);
+        MusicFolder folder1 = new MusicFolder(99, "/folder1", "folder1", true, null, 0, false);
+        MusicFolder folder2 = new MusicFolder(99, "/folder2", "folder2", true, null, 0, false);
+        MusicFolder folder3 = new MusicFolder(99, "/folder3 ", "folder3", true, null, 0, false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
-        Mockito.when(util.getGuestFolders()).thenReturn(folders);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(folders);
         assertEquals(3, logic.getDirectChildrenCount());
-        Mockito.verify(albumDao, Mockito.never()).getAlbumCount(anyList());
+        verify(albumProvider, Mockito.never()).countAlbums(anyList());
 
         folders = List.of(folder1);
-        Mockito.when(util.getGuestFolders()).thenReturn(folders);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(folders);
         assertEquals(0, logic.getDirectChildrenCount());
-        Mockito.verify(albumDao, Mockito.times(1)).getAlbumCount(anyList());
+        verify(albumProvider, Mockito.times(1)).countAlbums(anyList());
     }
 
     @Test
     void testGetDirectChildWithAlbum() {
         int id = 99;
-        Album album = new Album();
-        album.setId(id);
-        album.setName("album");
-        Mockito.when(albumDao.getAlbum(id)).thenReturn(album);
-        MusicFolder folder = new MusicFolder(88, "/Nusic", "Music", true, null, null, false);
-        Mockito.when(util.getGuestFolders()).thenReturn(List.of(folder));
+        Album album = new Album(id, "album", "artist", 20, null);
+        when(albumProvider.requireAlbum(id)).thenReturn(album);
+        MusicFolder folder = new MusicFolder(88, "/folder1", "folder1", true, null, 0, false);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(List.of(folder));
         FolderAlbum folderAlbum = new FolderAlbum(folder, album);
         String compositeId = folderAlbum.createCompositeId();
         assertEquals(album, logic.getDirectChild(compositeId).getFolderAlbum().album());
@@ -164,17 +166,14 @@ class FolderOrAlbumLogicTest {
         MusicFolder folder2 = new MusicFolder(1, "/folder2", "folder2", true, now(), 2, false);
         MusicFolder folder3 = new MusicFolder(2, "/folder3", "folder3", true, now(), 3, false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
-        Mockito.when(util.getGuestFolders()).thenReturn(folders);
+        when(musicFolderProvider.getGuestFolders()).thenReturn(folders);
         assertEquals(folder3, logic.getDirectChild("2").getFolder());
     }
 
     @Test
     void testGetChildSizeOfWithAlbum() {
-        Album album = new Album();
-        album.setId(0);
-        album.setName("album");
-        album.setSongCount(3);
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
+        Album album = new Album(0, "album", "artist", 3, null);
+        MusicFolder folder = new MusicFolder(99, "/folder1", "folder1", true, null, 0, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(new FolderAlbum(folder, album));
         assertEquals(3, logic.getChildSizeOf(folderOrAlbum));
     }
@@ -184,6 +183,6 @@ class FolderOrAlbumLogicTest {
         MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         FolderOrFAlbum folderOrAlbum = new FolderOrFAlbum(folder);
         assertEquals(0, logic.getChildSizeOf(folderOrAlbum));
-        Mockito.verify(albumDao, Mockito.times(1)).getAlbumCount(anyList());
+        verify(albumProvider, Mockito.times(1)).countAlbums(anyList());
     }
 }

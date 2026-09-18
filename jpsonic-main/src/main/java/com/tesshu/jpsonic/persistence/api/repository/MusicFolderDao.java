@@ -130,6 +130,11 @@ public class MusicFolderDao {
                     musicFolder.isArchived(), musicFolder.getId());
     }
 
+    public com.tesshu.jpsonic.domain.model.MusicFolder getDomainMusicFolders(int id) {
+        String sql = "select " + QUERY_COLUMNS + " from music_folder where music_folder.id = ?";
+        return template.queryOne(sql, domainRowMapper, id);
+    }
+
     public List<com.tesshu.jpsonic.domain.model.MusicFolder> getDomainMusicFoldersForUser(
             String username) {
         String sql = "select " + prefix(QUERY_COLUMNS, "music_folder") + """

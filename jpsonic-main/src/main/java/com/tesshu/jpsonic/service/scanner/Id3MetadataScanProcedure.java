@@ -96,13 +96,13 @@ public class Id3MetadataScanProcedure {
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
-    private final MusicIndexServiceImpl musicIndexService;
+    private final MusicIndexProviderImpl musicIndexProvider;
     private final JpsonicComparators comparators;
     private final ScanHelper scanHelper;
 
     public Id3MetadataScanProcedure(MusicFolderServiceImpl musicFolderService,
             IndexManager indexManager, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, MusicIndexServiceImpl musicIndexService,
+            ArtistDao artistDao, AlbumDao albumDao, MusicIndexProviderImpl musicIndexProvider,
             JpsonicComparators comparators, ScanHelper scanHelper) {
         super();
         this.musicFolderService = musicFolderService;
@@ -111,7 +111,7 @@ public class Id3MetadataScanProcedure {
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.musicIndexService = musicIndexService;
+        this.musicIndexProvider = musicIndexProvider;
         this.comparators = comparators;
         this.scanHelper = scanHelper;
     }
@@ -562,7 +562,7 @@ public class Id3MetadataScanProcedure {
         artist.setLastScanned(context.scanDate());
         artist.setPresent(true);
 
-        String index = musicIndexService.getParser().getIndex(artist).getIndex();
+        String index = musicIndexProvider.getParser().getIndex(artist).index();
         artist.setMusicIndex(index);
 
         return artist;

@@ -40,6 +40,9 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
@@ -75,7 +78,6 @@ import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
@@ -152,7 +154,7 @@ class SubsonicRESTControllerTest {
             final WritableMediaFileService writableMediaFileService = mock(
                     WritableMediaFileService.class);
             final LastFmService lastFmService = mock(LastFmService.class);
-            final MusicIndexService musicIndexService = mock(MusicIndexService.class);
+            final MusicIndexProvider musicIndexProvider = mock(MusicIndexProvider.class);
             final TranscodingService transcodingService = mock(TranscodingService.class);
             final DownloadController downloadController = mock(DownloadController.class);
             final CoverArtController coverArtController = mock(CoverArtController.class);
@@ -183,7 +185,8 @@ class SubsonicRESTControllerTest {
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
                     musicFolderService, mock(LibraryAccessPolicy.class), userService, playerService,
-                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService,
+                    mediaFileService, mock(MediaFileProvider.class), writableMediaFileService,
+                    lastFmService, mock(MusicFolderProvider.class), musicIndexProvider,
                     transcodingService, downloadController, coverArtController, avatarController,
                     userSettingsController, topController, statusService, streamController,
                     hlsController, shareService, playlistService, lyricsService,
