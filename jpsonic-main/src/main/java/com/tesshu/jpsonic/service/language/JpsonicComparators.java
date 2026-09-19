@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.domain.contract.Nameable;
 import com.tesshu.jpsonic.domain.language.StringUtil;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -60,13 +60,13 @@ public class JpsonicComparators {
     }
 
     private final SettingsFacade settingsFacade;
-    private final ServerLocaleService serverLocaleService;
+    private final ServerLocaleProvider serverLocaleProvider;
     private final JapaneseReadingProcessor processor;
 
     public JpsonicComparators(SettingsFacade settingsFacade,
-            ServerLocaleService serverLocaleService, JapaneseReadingProcessor processor) {
+            ServerLocaleProvider serverLocaleProvider, JapaneseReadingProcessor processor) {
         super();
-        this.serverLocaleService = serverLocaleService;
+        this.serverLocaleProvider = serverLocaleProvider;
         this.settingsFacade = settingsFacade;
         this.processor = processor;
     }
@@ -111,7 +111,7 @@ public class JpsonicComparators {
      * Returns Collator which is used as standard in Jpsonic.
      */
     protected final Collator createCollator() {
-        Collator collator = Collator.getInstance(serverLocaleService.getLocale());
+        Collator collator = Collator.getInstance(serverLocaleProvider.getLocale());
         return settingsFacade.get(SKeys.advanced.sort.alphanum) ? new AlphanumWrapper(collator)
                 : collator;
     }

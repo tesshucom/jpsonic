@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.i18n;
+package com.tesshu.jpsonic.infrastructure.locale;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +31,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.domain.language.StringUtil;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * Provides access to the server-wide locale configuration.
@@ -57,10 +58,10 @@ import org.springframework.stereotype.Service;
  * </ul>
  *
  */
-@Service
-public class ServerLocaleService {
+@Component
+public class ServerLocaleManager implements ServerLocaleProvider {
 
-    static final String LOCALES_FILE = "/com/tesshu/jpsonic/feature/i18n/locales.txt";
+    static final String LOCALES_FILE = "/com/tesshu/jpsonic/infrastructure/locale/locales.txt";
 
     private final SettingsFacade settingsFacade;
 
@@ -68,8 +69,7 @@ public class ServerLocaleService {
     private final AtomicReference<Locale> locale = new AtomicReference<>();
     private List<Locale> locales = new ArrayList<>();
 
-    public ServerLocaleService(SettingsFacade settingsFacade) {
-        super();
+    public ServerLocaleManager(SettingsFacade settingsFacade) {
         this.settingsFacade = settingsFacade;
     }
 
@@ -94,6 +94,7 @@ public class ServerLocaleService {
      * </ul>
      *
      */
+    @Override
     public List<Locale> getAvailableLocales() {
         if (!locales.isEmpty()) {
             return locales;
@@ -104,7 +105,7 @@ public class ServerLocaleService {
                 return locales;
             }
 
-            try (InputStream in = ServerLocaleService.class.getResourceAsStream(LOCALES_FILE)) {
+            try (InputStream in = ServerLocaleManager.class.getResourceAsStream(LOCALES_FILE)) {
                 locales = com.tesshu.jpsonic.util.StringUtil
                     .readLines(in)
                     .stream()
@@ -129,7 +130,7 @@ public class ServerLocaleService {
      * the login screen, UPnP clients, or before UserLocale resolution.
      * </p>
      */
-    @NonNull
+    @Override
     public Locale getLocale() {
         Locale cached = locale.get();
         if (cached != null) {

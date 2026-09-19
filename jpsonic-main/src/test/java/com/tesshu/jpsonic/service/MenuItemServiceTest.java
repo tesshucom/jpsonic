@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
@@ -55,7 +55,7 @@ import org.springframework.test.context.ActiveProfiles;
 class MenuItemServiceTest {
 
     @Autowired
-    private ServerLocaleService serverLocaleService;
+    private ServerLocaleManager serverLocaleManager;
     @Autowired
     private SettingsFacade settingsFacade;
     @Autowired
@@ -67,9 +67,9 @@ class MenuItemServiceTest {
 
     @BeforeEach
     void setup() throws URISyntaxException {
-        Locale otherThanEnJp = serverLocaleService.getAvailableLocales().get(5);
+        Locale otherThanEnJp = serverLocaleManager.getAvailableLocales().get(5);
         assertEquals("ca", otherThanEnJp.getLanguage());
-        serverLocaleService.stagingLocale(otherThanEnJp);
+        serverLocaleManager.stagingLocale(otherThanEnJp);
         settingsFacade.commitAll();
     }
 

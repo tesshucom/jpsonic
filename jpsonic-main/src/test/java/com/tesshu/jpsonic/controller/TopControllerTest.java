@@ -38,8 +38,9 @@ import com.tesshu.jpsonic.domain.model.MusicFolderContent;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -81,10 +82,10 @@ class TopControllerTest {
         MusicIndexProvider musicIndexProvider = mock(MusicIndexProvider.class);
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
         userService = mock(UserService.class);
         AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(userService,
-                serverLocaleService);
+                serverLocaleProvider);
 
         Mockito
             .when(musicIndexProvider.findMusicFolderContent(Mockito.nullable(List.class)))

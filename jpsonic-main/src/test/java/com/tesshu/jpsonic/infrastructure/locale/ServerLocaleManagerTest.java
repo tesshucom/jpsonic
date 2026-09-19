@@ -17,7 +17,7 @@
  * (C) 2026 tesshucom
  */
 
-package com.tesshu.jpsonic.feature.i18n;
+package com.tesshu.jpsonic.infrastructure.locale;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -40,7 +40,7 @@ import org.mockito.ArgumentCaptor;
 
 @NeedsHome
 @SuppressWarnings("PMD.TooManyStaticImports")
-class ServerLocaleServiceTest {
+class ServerLocaleManagerTest {
 
     @Test
     void testSettingsDefault() {
@@ -53,10 +53,10 @@ class ServerLocaleServiceTest {
     @Test
     void loadsLocalesFromFile() {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
 
         // Ensures that locales.txt is loaded and parsed into Locale objects.
-        List<Locale> locales = serverLocaleService.getAvailableLocales();
+        List<Locale> locales = serverLocaleManager.getAvailableLocales();
 
         // locales.txt must not be empty.
         assertFalse(locales.isEmpty());
@@ -68,20 +68,20 @@ class ServerLocaleServiceTest {
     @Test
     void returnsSameInstanceOnRepeatedCalls() {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
-        List<Locale> first = serverLocaleService.getAvailableLocales();
-        List<Locale> second = serverLocaleService.getAvailableLocales();
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
+        List<Locale> first = serverLocaleManager.getAvailableLocales();
+        List<Locale> second = serverLocaleManager.getAvailableLocales();
         assertSame(first, second);
     }
 
     @Test
     void preservesOrderDefinedInLocalesTxt() throws Exception {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
 
         // Reads locales.txt directly to determine the expected first locale.
-        try (InputStream in = ServerLocaleService.class
-            .getResourceAsStream(ServerLocaleService.LOCALES_FILE)) {
+        try (InputStream in = ServerLocaleManager.class
+            .getResourceAsStream(ServerLocaleManager.LOCALES_FILE)) {
 
             assertNotNull(in);
 
@@ -97,7 +97,7 @@ class ServerLocaleServiceTest {
 
             Locale expectedFirst = StringUtil.parseLocale(firstLocaleLine);
 
-            List<Locale> locales = serverLocaleService.getAvailableLocales();
+            List<Locale> locales = serverLocaleManager.getAvailableLocales();
 
             // The order in locales.txt must be preserved.
             assertEquals(expectedFirst, locales.get(0));
@@ -107,9 +107,9 @@ class ServerLocaleServiceTest {
     @Test
     void returnsCachedLocale() {
         SettingsFacade facade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleService svc = new ServerLocaleService(facade);
-        Locale first = svc.getLocale();
-        Locale second = svc.getLocale();
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(facade);
+        Locale first = serverLocaleManager.getLocale();
+        Locale second = serverLocaleManager.getLocale();
         assertSame(first, second);
     }
 
@@ -125,8 +125,8 @@ class ServerLocaleServiceTest {
             .captureString(I18nSKeys.localeVariant, variant)
             .build();
 
-        ServerLocaleService svc = new ServerLocaleService(facade);
-        svc
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(facade);
+        serverLocaleManager
             .stagingLocale(
                     new Locale.Builder().setLanguage("en").setRegion("US").setVariant("").build());
 
@@ -138,19 +138,19 @@ class ServerLocaleServiceTest {
     @Test
     void emptyVariant() {
         SettingsFacade facade = SettingsFacadeBuilder.create().buildReal();
-        ServerLocaleService serverLocaleService = new ServerLocaleService(facade);
+        ServerLocaleManager serverLocaleManager = new ServerLocaleManager(facade);
 
-        Locale defaultLocale = serverLocaleService.getLocale();
+        Locale defaultLocale = serverLocaleManager.getLocale();
         assertEquals("ja", defaultLocale.getLanguage());
         assertEquals("JP", defaultLocale.getCountry());
         assertEquals("", defaultLocale.getVariant());
 
-        serverLocaleService
+        serverLocaleManager
             .stagingLocale(
                     new Locale.Builder().setLanguage("en").setRegion("US").setVariant("").build());
         facade.commitAll();
 
-        Locale sanitized = serverLocaleService.getLocale();
+        Locale sanitized = serverLocaleManager.getLocale();
         assertEquals("en", sanitized.getLanguage());
         assertEquals("US", sanitized.getCountry());
         assertEquals("", sanitized.getVariant()); // Treated as brank

@@ -38,13 +38,14 @@ import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.model.AuthKey;
 import com.tesshu.jpsonic.domain.model.AuthKey.AuthKeyType;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.UPnPService;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -84,7 +85,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 class DLNASettingsControllerTest {
 
     private SettingsFacade settingsFacade;
-    private ServerLocaleService serverLocaleService;
+    private ServerLocaleProvider serverLocaleProvider;
     private MusicFolderService musicFolderService;
     private PlayerService playerService;
     private UPnPService upnpService;
@@ -100,7 +101,7 @@ class DLNASettingsControllerTest {
 
     @Ignore
     void init() {
-        serverLocaleService = new ServerLocaleService(settingsFacade);
+        serverLocaleProvider = new ServerLocaleManager(settingsFacade);
         musicFolderService = mock(MusicFolderService.class);
         playerService = mock(PlayerService.class);
         upnpService = mock(UPnPService.class);
@@ -452,7 +453,7 @@ class DLNASettingsControllerTest {
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(UserService.class), mock(PlayerService.class),
@@ -482,7 +483,7 @@ class DLNASettingsControllerTest {
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(UserService.class), mock(PlayerService.class),
@@ -531,7 +532,7 @@ class DLNASettingsControllerTest {
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(UserService.class), mock(PlayerService.class),
@@ -592,7 +593,7 @@ class DLNASettingsControllerTest {
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
             MenuItemDao menuItemDao = mock(MenuItemDao.class);
-            MenuItemService menuItemService = new MenuItemService(serverLocaleService, menuItemDao,
+            MenuItemService menuItemService = new MenuItemService(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
                     mock(UserService.class), mock(PlayerService.class),

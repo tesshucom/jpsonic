@@ -57,7 +57,6 @@ import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.PlayerProvider;
 import com.tesshu.jpsonic.domain.provider.resource.PlaylistProvider;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpPayloadCodec;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.transcoding.ResolvedAudioTranscodingParameters;
 import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
@@ -65,6 +64,7 @@ import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -116,12 +116,12 @@ class PlaylistProcTest {
                         nullable(MediaFile.class), nullable(Integer.class), nullable(String.class)))
                 .thenReturn(param);
 
-            ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
             JapaneseReadingUtils japaneseReadingUtils = new JapaneseReadingUtils(settingsFacade);
             JapaneseReadingProcessor processor = new JapaneseReadingProcessor(settingsFacade,
                     japaneseReadingUtils);
             JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
-                    serverLocaleService, processor);
+                    serverLocaleManager, processor);
             mediaFileDao = mock(MediaFileDao.class);
             playlistDao = mock(PlaylistDao.class);
             playlistProvider = ProviderFactory

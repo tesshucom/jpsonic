@@ -43,14 +43,15 @@ import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
@@ -146,7 +147,8 @@ class SubsonicRESTControllerTest {
         @BeforeEach
         void setup() {
             final SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-            final ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            final ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(
+                    settingsFacade);
             final MusicFolderService musicFolderService = mock(MusicFolderService.class);
             userService = mock(UserService.class);
             final PlayerService playerService = mock(PlayerService.class);
@@ -183,7 +185,7 @@ class SubsonicRESTControllerTest {
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(
                     AirsonicLocaleResolver.class);
             final HttpSearchCriteriaDirector director = mock(HttpSearchCriteriaDirector.class);
-            controller = new SubsonicRESTController(settingsFacade, serverLocaleService,
+            controller = new SubsonicRESTController(settingsFacade, serverLocaleProvider,
                     musicFolderService, mock(LibraryAccessPolicy.class), userService, playerService,
                     mediaFileService, mock(MediaFileProvider.class), writableMediaFileService,
                     lastFmService, mock(MusicFolderProvider.class), musicIndexProvider,

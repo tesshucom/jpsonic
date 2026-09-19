@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,17 +37,17 @@ import org.junit.jupiter.api.Test;
 class ServerLocaleServiceRealTest {
 
     private SettingsFacade settingsFacade;
-    private ServerLocaleService serverLocaleService;
+    private ServerLocaleManager serverLocaleManager;
 
     @BeforeEach
     void setUp() {
         settingsFacade = SettingsFacadeBuilder.create().buildReal();
-        serverLocaleService = new ServerLocaleService(settingsFacade);
+        serverLocaleManager = new ServerLocaleManager(settingsFacade);
     }
 
     @Test
     void testSettingsDefault() {
-        Locale locale = serverLocaleService.getLocale();
+        Locale locale = serverLocaleManager.getLocale();
         assertNotNull(locale);
         assertEquals("ja", settingsFacade.get(I18nSKeys.localeLanguage));
         assertEquals("jp", settingsFacade.get(I18nSKeys.localeCountry));
@@ -55,11 +56,11 @@ class ServerLocaleServiceRealTest {
 
     @Test
     void stagingLocaleInvalidatesCacheAndChangesLocale() {
-        Locale first = serverLocaleService.getLocale();
-        serverLocaleService
+        Locale first = serverLocaleManager.getLocale();
+        serverLocaleManager
             .stagingLocale(
                     new Locale.Builder().setLanguage("en").setRegion("US").setVariant("").build());
-        Locale second = serverLocaleService.getLocale();
+        Locale second = serverLocaleManager.getLocale();
 
         assertNotSame(first, second);
         assertEquals("en", second.getLanguage());

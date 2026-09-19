@@ -36,12 +36,13 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
 import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
@@ -153,9 +154,9 @@ class IndexManagerTest {
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
             JapaneseReadingProcessor proc = new JapaneseReadingProcessor(settingsFacade,
                     readingUtils);
-            ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
+            ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
             JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
-                    serverLocaleService, proc);
+                    serverLocaleProvider, proc);
 
             indexManager = new IndexManager(null, null, queryFactory, utils, comparators,
                     settingsFacade, null, null, null, null);

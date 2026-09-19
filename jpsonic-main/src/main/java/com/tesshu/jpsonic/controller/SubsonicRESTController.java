@@ -54,10 +54,10 @@ import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.type.CoverArtType;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
@@ -196,7 +196,7 @@ public class SubsonicRESTController {
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final SettingsFacade settingsFacade;
-    private final ServerLocaleService serverLocaleService;
+    private final ServerLocaleProvider serverLocaleProvider;
     private final MusicFolderService musicFolderService;
     private final LibraryAccessPolicy libraryAccessPolicy;
     private final UserService userService;
@@ -237,7 +237,7 @@ public class SubsonicRESTController {
     private final JAXBWriter jaxbWriter;
 
     public SubsonicRESTController(SettingsFacade settingsFacade,
-            ServerLocaleService serverLocaleService, MusicFolderService musicFolderService,
+            ServerLocaleProvider serverLocaleProvider, MusicFolderService musicFolderService,
             LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             PlayerService playerService, MediaFileService mediaFileService,
             MediaFileProvider mediaFileProvider, WritableMediaFileService writableMediaFileService,
@@ -257,7 +257,7 @@ public class SubsonicRESTController {
             HttpSearchCriteriaDirector director) {
         super();
         this.settingsFacade = settingsFacade;
-        this.serverLocaleService = serverLocaleService;
+        this.serverLocaleProvider = serverLocaleProvider;
         this.musicFolderService = musicFolderService;
         this.libraryAccessPolicy = libraryAccessPolicy;
         this.userService = userService;
@@ -1580,7 +1580,7 @@ public class SubsonicRESTController {
             child.setSuffix(suffix);
             child.setContentType(MediaTypeDetector.getMimeType(suffix));
             child.setIsVideo(mediaFile.isVideo());
-            child.setPath(getRelativePath(mediaFile, serverLocaleService, musicFolderService));
+            child.setPath(getRelativePath(mediaFile, serverLocaleProvider, musicFolderService));
 
             String albumArtist = mediaFile.getAlbumArtist();
             String albumName = mediaFile.getAlbumName();
@@ -1633,21 +1633,21 @@ public class SubsonicRESTController {
     }
 
     public static String getRelativePath(MediaFile musicFile,
-            ServerLocaleService serverLocaleService, MusicFolderService musicFolderService) {
+            ServerLocaleProvider serverLocaleProvider, MusicFolderService musicFolderService) {
 
         String filePath = musicFile.getPathString();
 
         // Convert slashes.
         filePath = filePath.replace('\\', '/');
 
-        String filePathLower = filePath.toLowerCase(serverLocaleService.getLocale());
+        String filePathLower = filePath.toLowerCase(serverLocaleProvider.getLocale());
 
         List<com.tesshu.jpsonic.persistence.api.entity.MusicFolder> musicFolders = musicFolderService
             .getAllMusicFolders(false, true);
         StringBuilder builder = new StringBuilder();
         for (com.tesshu.jpsonic.persistence.api.entity.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPathString().replace('\\', '/');
-            String folderPathLower = folderPath.toLowerCase(serverLocaleService.getLocale());
+            String folderPathLower = folderPath.toLowerCase(serverLocaleProvider.getLocale());
             if (!folderPathLower.endsWith("/")) {
                 builder.setLength(0);
                 folderPathLower = builder.append(folderPathLower).append('/').toString();
