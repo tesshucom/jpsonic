@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import com.tesshu.jpsonic.domain.contract.Nameable;
 import com.tesshu.jpsonic.domain.language.StringUtil;
 import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -61,10 +61,10 @@ public class JpsonicComparators {
 
     private final SettingsFacade settingsFacade;
     private final ServerLocaleProvider serverLocaleProvider;
-    private final JapaneseReadingProcessor processor;
+    private final MetadataReadingProcessor processor;
 
     public JpsonicComparators(SettingsFacade settingsFacade,
-            ServerLocaleProvider serverLocaleProvider, JapaneseReadingProcessor processor) {
+            ServerLocaleProvider serverLocaleProvider, MetadataReadingProcessor processor) {
         super();
         this.serverLocaleProvider = serverLocaleProvider;
         this.settingsFacade = settingsFacade;
@@ -235,10 +235,10 @@ public class JpsonicComparators {
     }
 
     private static class GenreComparator implements Comparator<Genre> {
-        private final JapaneseReadingProcessor processor;
+        private final MetadataReadingProcessor processor;
         private final Collator collator;
 
-        GenreComparator(JapaneseReadingProcessor processor, Collator collator) {
+        GenreComparator(MetadataReadingProcessor processor, Collator collator) {
             super();
             this.processor = processor;
             this.collator = collator;
@@ -246,17 +246,17 @@ public class JpsonicComparators {
 
         @Override
         public int compare(Genre o1, Genre o2) {
-            this.processor.analyze(o1);
-            this.processor.analyze(o2);
+            processor.analyzeSimpleReadingMeta(o1.getName(), o1.getReading(), o1::setReading);
+            processor.analyzeSimpleReadingMeta(o2.getName(), o2.getReading(), o2::setReading);
             return this.collator.compare(o1.getReading(), o2.getReading());
         }
     }
 
     private static class PlaylistComparator implements Comparator<Playlist> {
-        private final JapaneseReadingProcessor processor;
+        private final MetadataReadingProcessor processor;
         private final Collator collator;
 
-        PlaylistComparator(JapaneseReadingProcessor processor, Collator collator) {
+        PlaylistComparator(MetadataReadingProcessor processor, Collator collator) {
             super();
             this.processor = processor;
             this.collator = collator;
@@ -264,8 +264,8 @@ public class JpsonicComparators {
 
         @Override
         public int compare(Playlist o1, Playlist o2) {
-            this.processor.analyze(o1);
-            this.processor.analyze(o2);
+            processor.analyzeSimpleReadingMeta(o1.getName(), o1.getReading(), o1::setReading);
+            processor.analyzeSimpleReadingMeta(o2.getName(), o2.getReading(), o2::setReading);
             return this.collator.compare(o1.getReading(), o2.getReading());
         }
     }

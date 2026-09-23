@@ -27,7 +27,7 @@ import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.Playlist;
 import com.tesshu.jpsonic.domain.provider.resource.PlaylistProvider;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
@@ -41,12 +41,12 @@ class PlaylistProviderAdapter implements PlaylistProvider {
         .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO, MediaFile.Type.DIRECTORY)
         .toArray(size -> new MediaFile.Type[size]);
 
-    private final JapaneseReadingProcessor readingProcessor;
+    private final MetadataReadingProcessor readingProcessor;
     private final JpsonicComparators comparators;
     private final MediaFileDao mediaFileDao;
     private final PlaylistDao playlistDao;
 
-    PlaylistProviderAdapter(JapaneseReadingProcessor readingProcessor,
+    PlaylistProviderAdapter(MetadataReadingProcessor readingProcessor,
             JpsonicComparators comparators, MediaFileDao mediaFileDao, PlaylistDao playlistDao) {
         this.readingProcessor = readingProcessor;
         this.comparators = comparators;

@@ -61,7 +61,7 @@ import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -117,7 +117,7 @@ class PlaylistProcTest {
 
             ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
             JapaneseReadingUtils japaneseReadingUtils = new JapaneseReadingUtils(settingsFacade);
-            JapaneseReadingProcessor processor = new JapaneseReadingProcessor(settingsFacade,
+            MetadataReadingProcessor processor = new MetadataReadingProcessor(settingsFacade,
                     japaneseReadingUtils);
             JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
                     serverLocaleManager, processor);

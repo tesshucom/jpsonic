@@ -38,9 +38,12 @@ import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.type.GenreMasterScope;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
+import com.tesshu.jpsonic.infrastructure.scanner.DirectoryScanProcedure;
+import com.tesshu.jpsonic.infrastructure.scanner.Id3MetadataScanProcedure;
+import com.tesshu.jpsonic.infrastructure.scanner.ScanContext;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
@@ -59,9 +62,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.RatingDao;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.scanner.DirectoryScanProcedure;
-import com.tesshu.jpsonic.service.scanner.Id3MetadataScanProcedure;
-import com.tesshu.jpsonic.service.scanner.ScanContext;
 import net.sf.ehcache.Ehcache;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
@@ -146,7 +146,7 @@ class IndexManagerTest {
             SearchServiceUtilities utils = new SearchServiceUtilities(mock(ArtistDao.class),
                     mock(AlbumDao.class), mock(Ehcache.class), null, mock(MediaFileDao.class));
             JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsFacade);
-            JapaneseReadingProcessor proc = new JapaneseReadingProcessor(settingsFacade,
+            MetadataReadingProcessor proc = new MetadataReadingProcessor(settingsFacade,
                     readingUtils);
             ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
             JpsonicComparators comparators = new JpsonicComparators(settingsFacade,

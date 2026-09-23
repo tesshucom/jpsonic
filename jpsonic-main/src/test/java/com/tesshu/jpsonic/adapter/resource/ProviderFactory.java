@@ -21,12 +21,12 @@ package com.tesshu.jpsonic.adapter.resource;
 
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.PlaylistProvider;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 
 public class ProviderFactory {
 
@@ -39,7 +39,7 @@ public class ProviderFactory {
     }
 
     public static PlaylistProvider createPlaylistProviderAdapter(
-            JapaneseReadingProcessor readingProcessor, JpsonicComparators comparators,
+            MetadataReadingProcessor readingProcessor, JpsonicComparators comparators,
             MediaFileDao mediaFileDao, PlaylistDao playlistDao) {
         return new PlaylistProviderAdapter(readingProcessor, comparators, mediaFileDao,
                 playlistDao);

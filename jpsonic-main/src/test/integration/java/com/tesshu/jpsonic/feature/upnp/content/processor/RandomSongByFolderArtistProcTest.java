@@ -57,10 +57,10 @@ import com.tesshu.jpsonic.feature.upnp.content.processor.composite.FolderOrFArti
 import com.tesshu.jpsonic.feature.upnp.content.processor.logic.FolderOrArtistLogic;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.core.NeedsHome;
+import com.tesshu.jpsonic.infrastructure.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

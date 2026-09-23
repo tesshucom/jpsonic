@@ -23,8 +23,8 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
-import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.springframework.stereotype.Component;
 
 @Component

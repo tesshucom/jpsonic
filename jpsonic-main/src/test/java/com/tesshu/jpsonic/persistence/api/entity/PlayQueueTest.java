@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -67,7 +67,7 @@ class PlayQueueTest {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         ServerLocaleManager serverLocaleManager = new ServerLocaleManager(settingsFacade);
         jpsonicComparators = new JpsonicComparators(settingsFacade, serverLocaleManager,
-                mock(JapaneseReadingProcessor.class));
+                mock(MetadataReadingProcessor.class));
     }
 
     @Test
