@@ -26,7 +26,7 @@
 <%@ page import="com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod" %>
 <%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType" %>
 <%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod" %>
-<%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
+<%@ page import="com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.ResetMode" %>
 
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.infrastructure.search.analysis.AnalyzerFactory;
 import com.tesshu.jpsonic.infrastructure.search.index.FieldNamesConstants;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
@@ -152,16 +153,17 @@ public class QueryFactory implements PhraseSearchQueryFactory {
         return luceneQueryBuilder.buildGenreQuery(List.of(genre));
     }
 
-    public Query getAlbumId3GenreCount(@Nonnull String genre, List<MusicFolder> folders)
-            throws IOException {
+    public Query getAlbumId3GenreCount(@Nonnull String genre,
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders) throws IOException {
         return new BooleanQuery.Builder()
             .add(createFolderQuery(true, folders), BooleanClause.Occur.MUST)
             .add(luceneQueryBuilder.buildGenreQuery(List.of(genre)), BooleanClause.Occur.MUST)
             .build();
     }
 
-    public Query getSongGenreCount(@Nonnull String genre, List<MusicFolder> folders,
-            MediaType... types) throws IOException {
+    public Query getSongGenreCount(@Nonnull String genre,
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, MediaFile.Type... types)
+            throws IOException {
         return new BooleanQuery.Builder()
             .add(createFolderQuery(false, folders), BooleanClause.Occur.MUST)
             .add(luceneQueryBuilder.buildGenreQuery(List.of(genre)), BooleanClause.Occur.MUST)
@@ -176,6 +178,16 @@ public class QueryFactory implements PhraseSearchQueryFactory {
             .add(createFolderQuery(false, folders), BooleanClause.Occur.MUST)
             .add(getTypesQuery(types), BooleanClause.Occur.MUST)
             .build();
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    private Query getTypesQuery(MediaFile.Type... types) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        for (MediaFile.Type type : types) {
+            builder
+                .add(new TermQuery(new Term(MEDIA_TYPE, type.name())), BooleanClause.Occur.SHOULD);
+        }
+        return builder.build();
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
@@ -212,8 +224,9 @@ public class QueryFactory implements PhraseSearchQueryFactory {
         return query.build();
     }
 
-    public Query getRandomSongs(@Nonnull List<MusicFolder> musicFolders, String... genres)
-            throws IOException {
+    public Query getRandomSongs(
+            @Nonnull List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders,
+            String... genres) throws IOException {
         BooleanQuery.Builder builder = new BooleanQuery.Builder()
             .add(new TermQuery(new Term(MEDIA_TYPE, MediaType.MUSIC.name())),
                     BooleanClause.Occur.MUST)
@@ -234,6 +247,13 @@ public class QueryFactory implements PhraseSearchQueryFactory {
     }
 
     public Query getRandomAlbumsId3(@Nonnull List<MusicFolder> musicFolders) {
+        return new BooleanQuery.Builder()
+            .add(createFolderQuery(true, musicFolders), BooleanClause.Occur.SHOULD)
+            .build();
+    }
+
+    public Query getRandomAlbumsId3(
+            @Nonnull Collection<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
             .add(createFolderQuery(true, musicFolders), BooleanClause.Occur.SHOULD)
             .build();

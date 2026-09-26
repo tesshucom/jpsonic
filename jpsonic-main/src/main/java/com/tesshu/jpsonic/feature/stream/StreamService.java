@@ -34,7 +34,8 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.auth.jwt.JWTAuthenticationToken;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -49,7 +50,6 @@ import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,7 +80,7 @@ public class StreamService {
     private final AudioScrobblerService audioScrobblerService;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
-    private final MediaSearchProvider mediaSearchProvider;
+    private final LegacySearch legacySearch;
     // Used to perform transcoding in subthreads (Priority changes)
     private final AsyncTaskExecutor shortExecutor;
 
@@ -88,7 +88,7 @@ public class StreamService {
             UserService userService, SettingsFacade settingsFacade,
             TranscodingService transcodingService, AudioScrobblerService audioScrobblerService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            MediaSearchProvider mediaSearchProvider,
+            LegacySearch legacySearch,
             @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
@@ -99,7 +99,7 @@ public class StreamService {
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
-        this.mediaSearchProvider = mediaSearchProvider;
+        this.legacySearch = legacySearch;
         this.shortExecutor = shortExecutor;
     }
 
@@ -251,7 +251,7 @@ public class StreamService {
             String format, VideoTranscodingSettings videoTranscodingSettings) {
         return new PlayQueueInputStream(player, status, maxBitRate, format,
                 videoTranscodingSettings, transcodingService, audioScrobblerService,
-                writableMediaFileService, mediaSearchProvider, shortExecutor);
+                writableMediaFileService, legacySearch, shortExecutor);
     }
 
     /**

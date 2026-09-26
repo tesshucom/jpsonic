@@ -146,10 +146,6 @@ public class PlaylistService {
         return playlistDao.getPlaylistUsers(playlistId);
     }
 
-    public int getCountInPlaylist(int id) {
-        return mediaFileDao.getCountInPlaylist(id);
-    }
-
     public List<MediaFile> getFilesInPlaylist(int id) {
         return getFilesInPlaylist(id, false);
     }

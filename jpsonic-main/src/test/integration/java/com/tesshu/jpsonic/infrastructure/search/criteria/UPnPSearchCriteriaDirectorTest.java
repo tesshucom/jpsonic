@@ -21,21 +21,22 @@
 
 package com.tesshu.jpsonic.infrastructure.search.criteria;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tesshu.jpsonic.adapter.MusicFolderProviderAdapter;
+import com.tesshu.jpsonic.adapter.resource.ProviderFactory;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
-import com.tesshu.jpsonic.domain.provider.MusicFolderProvider;
+import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.infrastructure.language.I18nSKeys;
+import com.tesshu.jpsonic.infrastructure.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
 import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.search.analysis.AnalyzerFactory;
@@ -44,7 +45,7 @@ import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
+import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -270,7 +271,7 @@ public class UPnPSearchCriteriaDirectorTest {
         }
         path = path.trim();
         fid = fid.trim();
-        musicFolderProvider = new MusicFolderProviderAdapter(musicFolderService);
+        musicFolderProvider = ProviderFactory.createMusicFolderProvider(mock(MusicFolderDao.class), musicFolderService);
         director = new UPnPSearchCriteriaDirector(
                 UPnPSearchMethod.of(settingsFacade.get(SearchSKeys.search.upnpSearchMethod)),
                 musicFolderProvider.getGuestFolders(),

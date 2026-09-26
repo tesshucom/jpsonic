@@ -39,7 +39,9 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.controller.MainController;
+import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
+import com.tesshu.jpsonic.infrastructure.scanner.MusicIndexProviderImpl;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
@@ -53,14 +55,11 @@ import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.api.entity.MusicIndex;
 import com.tesshu.jpsonic.persistence.api.entity.PlayQueue;
 import com.tesshu.jpsonic.persistence.api.entity.Playlist;
 import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -1205,7 +1204,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         private MainController mainController;
 
         @Autowired
-        private MusicIndexServiceImpl musicIndexService;
+        private MusicIndexProviderImpl musicIndexProvider;
 
         @Autowired
         private LegacySearch legacySearch;
@@ -1322,15 +1321,20 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Test
         void testGetIndexedArtists() {
-            List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
-            SortedMap<MusicIndex, List<MediaFile>> m = musicIndexService
-                .getMusicFolderContent(musicFoldersToUse)
-                .getIndexedArtists();
+            MusicFolder testFolder = MUSIC_FOLDERS.get(0);
+            com.tesshu.jpsonic.domain.model.MusicFolder folder = new com.tesshu.jpsonic.domain.model.MusicFolder(
+                    testFolder.getId(), testFolder.getPathString(), testFolder.getName(),
+                    testFolder.isEnabled(), testFolder.getChanged(), testFolder.getFolderOrder(),
+                    false);
+
+            SortedMap<MusicIndex, List<com.tesshu.jpsonic.domain.model.MediaFile>> m = musicIndexProvider
+                .findMusicFolderContent(List.of(folder))
+                .indexedArtists();
             List<String> artists = m
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
-                .map(MediaFile::getName)
+                .map(com.tesshu.jpsonic.domain.model.MediaFile::name)
                 .collect(Collectors.toList());
             assertTrue(validateIndexList(artists));
         }

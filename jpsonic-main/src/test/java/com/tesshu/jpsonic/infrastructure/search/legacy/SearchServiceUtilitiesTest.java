@@ -32,10 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.type.GenreMasterScope;
-import com.tesshu.jpsonic.domain.type.GenreMasterSort;
-import com.tesshu.jpsonic.infrastructure.core.EhcacheConfiguration.RandomCacheKey;
-import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
+import com.tesshu.jpsonic.infrastructure.cache.EhcacheConfiguration;
 import com.tesshu.jpsonic.infrastructure.search.index.FieldNamesConstants;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.search.legacy.SearchServiceUtilities.LegacyGenreCriteria;
@@ -46,7 +43,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.apache.lucene.document.Document;
@@ -60,7 +57,7 @@ class SearchServiceUtilitiesTest {
     private AlbumDao albumDao;
     private Ehcache genreCache;
     private Ehcache randomCache;
-    private MediaFileService mediaFileService;
+    private MediaFileDao mediaFileDao;
     private SearchServiceUtilities utilities;
 
     @BeforeEach
@@ -72,15 +69,15 @@ class SearchServiceUtilitiesTest {
         genreCache.removeAll();
         randomCache = cacheManager.getCache("randomCache");
         randomCache.removeAll();
-        mediaFileService = mock(MediaFileService.class);
+        mediaFileDao = mock(MediaFileDao.class);
         utilities = new SearchServiceUtilities(artistDao, albumDao, genreCache, randomCache,
-                mediaFileService);
+                mediaFileDao);
     }
 
     @Test
     void testPostConstruct() {
         SearchServiceUtilities utilities = new SearchServiceUtilities(artistDao, albumDao,
-                genreCache, randomCache, mediaFileService);
+                genreCache, randomCache, mediaFileDao);
         assertThatExceptionOfType(NullPointerException.class)
             .isThrownBy(() -> utilities.nextInt(50));
         utilities.postConstruct();
@@ -99,12 +96,12 @@ class SearchServiceUtilitiesTest {
         assertEquals(0, dist.size());
 
         // Exists in DB/Not added
-        when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
+        when(mediaFileDao.getMediaFile(id)).thenReturn(mediaFile);
         utilities.addMediaFileIfAnyMatch(dist, id);
         assertEquals(1, dist.size());
 
         // Exists in DB/Added
-        when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
+        when(mediaFileDao.getMediaFile(id)).thenReturn(mediaFile);
         utilities.addMediaFileIfAnyMatch(dist, id);
         assertEquals(1, dist.size());
 
@@ -112,7 +109,7 @@ class SearchServiceUtilitiesTest {
         MediaFile secondMediaFile = new MediaFile();
         Integer secondId = 99;
         secondMediaFile.setId(secondId);
-        when(mediaFileService.getMediaFile(secondId)).thenReturn(secondMediaFile);
+        when(mediaFileDao.getMediaFile(secondId)).thenReturn(secondMediaFile);
         utilities.addMediaFileIfAnyMatch(dist, secondId);
         assertEquals(2, dist.size());
     }
@@ -204,7 +201,7 @@ class SearchServiceUtilitiesTest {
         id = 1;
         MediaFile mediaFile = new MediaFile();
         mediaFile.setId(id);
-        when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
+        when(mediaFileDao.getMediaFile(id)).thenReturn(mediaFile);
         utilities.addMediaFileIfAnyMatch(dist, id);
         assertEquals(1, dist.size());
     }
@@ -212,15 +209,20 @@ class SearchServiceUtilitiesTest {
     @Test
     void testAddIgnoreNullParamSearchResultOfTIndexTypeIntClassOfT() {
         Integer id = 99;
-        MediaFile mediaFile = new MediaFile();
-        mediaFile.setId(id);
+        com.tesshu.jpsonic.domain.model.MediaFile mediaFile = new com.tesshu.jpsonic.domain.model.MediaFile(
+                99, "pathString", 0, "format", "MUSIC", 256, 60, 9999, "artist", "album", "title",
+                "albumArtist", 0, "genre", 2026, "thumbUri", "composer", "reading", "#", "comment");
 
-        List<MediaFile> dist = new ArrayList<>();
-        utilities.addEntityIfPresent(dist, IndexType.SONG, id, MediaFile.class);
+        List<com.tesshu.jpsonic.domain.model.MediaFile> dist = new ArrayList<>();
+        utilities
+            .addEntityIfPresent(dist, IndexType.SONG, id,
+                    com.tesshu.jpsonic.domain.model.MediaFile.class);
         assertEquals(0, dist.size());
 
-        when(mediaFileService.getMediaFile(id)).thenReturn(mediaFile);
-        utilities.addEntityIfPresent(dist, IndexType.SONG, id, MediaFile.class);
+        when(mediaFileDao.getDomainMediaFile(id)).thenReturn(mediaFile);
+        utilities
+            .addEntityIfPresent(dist, IndexType.SONG, id,
+                    com.tesshu.jpsonic.domain.model.MediaFile.class);
         assertEquals(1, dist.size());
     }
 
@@ -243,9 +245,9 @@ class SearchServiceUtilitiesTest {
         Album albumId3 = new Album();
         albumId3.setId(albumId3Id);
 
-        when(mediaFileService.getMediaFile(songId)).thenReturn(song);
-        when(mediaFileService.getMediaFile(artistId)).thenReturn(artist);
-        when(mediaFileService.getMediaFile(albumId)).thenReturn(album);
+        when(mediaFileDao.getMediaFile(songId)).thenReturn(song);
+        when(mediaFileDao.getMediaFile(artistId)).thenReturn(artist);
+        when(mediaFileDao.getMediaFile(albumId)).thenReturn(album);
         when(artistDao.getArtist(artistId3Id)).thenReturn(artistId3);
         when(albumDao.getAlbum(albumId3Id)).thenReturn(albumId3);
 
@@ -297,37 +299,23 @@ class SearchServiceUtilitiesTest {
     @Test
     void testGetCacheRandomCacheKeyIntListOfMusicFolderStringArray() {
         String cacheKey = utilities
-            .createCacheKey(RandomCacheKey.SONG, 10, Collections.emptyList());
+            .createCacheKey(EhcacheConfiguration.RandomCacheKey.SONG, 10, Collections.emptyList());
         assertEquals("SONG,10[]", cacheKey);
 
         cacheKey = utilities
-            .createCacheKey(RandomCacheKey.SONG, 10, Collections.emptyList(), "Additional1",
-                    "Additional2");
+            .createCacheKey(EhcacheConfiguration.RandomCacheKey.SONG, 10, Collections.emptyList(),
+                    "Additional1", "Additional2");
         assertEquals("SONG,10[Additional1,Additional2]", cacheKey);
 
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
-        cacheKey = utilities.createCacheKey(RandomCacheKey.SONG, 10, folders);
+        cacheKey = utilities.createCacheKey(EhcacheConfiguration.RandomCacheKey.SONG, 10, folders);
         assertEquals("SONG,10[99]", cacheKey);
 
         cacheKey = utilities
-            .createCacheKey(RandomCacheKey.SONG, 10, folders, "Additional1", "Additional2");
+            .createCacheKey(EhcacheConfiguration.RandomCacheKey.SONG, 10, folders, "Additional1",
+                    "Additional2");
         assertEquals("SONG,10[99,Additional1,Additional2]", cacheKey);
-    }
-
-    @Test
-    void testGetCacheGenreMasterCriteria() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
-                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
-        String cacheKey = utilities.createCacheKey(criteria);
-        assertEquals("ALBUM,FREQUENCY,[],[]", cacheKey);
-
-        MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
-        List<MusicFolder> folders = List.of(folder);
-        criteria = new GenreMasterCriteria(folders, GenreMasterScope.ALBUM,
-                GenreMasterSort.FREQUENCY);
-        cacheKey = utilities.createCacheKey(criteria);
-        assertEquals("ALBUM,FREQUENCY,[99],[]", cacheKey);
     }
 
     @Test
@@ -343,23 +331,18 @@ class SearchServiceUtilitiesTest {
     }
 
     @Test
-    void testGenreCache() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
-                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
-        assertTrue(utilities.getCache(criteria).isEmpty());
-        utilities.putCache(criteria, List.of(new Genre("genre", 0, 0)));
-        assertFalse(utilities.getCache(criteria).isEmpty());
-    }
-
-    @Test
     void testRandomCache() {
         int casheMax = 30;
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
-        assertTrue(utilities.getCache(RandomCacheKey.SONG, casheMax, folders).isEmpty());
+        assertTrue(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders)
+            .isEmpty());
         List<MediaFile> songs = List.of(new MediaFile());
-        utilities.putCache(RandomCacheKey.SONG, casheMax, folders, songs);
-        assertFalse(utilities.getCache(RandomCacheKey.SONG, casheMax, folders).isEmpty());
+        utilities.putCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders, songs);
+        assertFalse(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders)
+            .isEmpty());
     }
 
     @Test
@@ -367,12 +350,16 @@ class SearchServiceUtilitiesTest {
         int casheMax = 30;
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
-        assertTrue(
-                utilities.getCache(RandomCacheKey.SONG, casheMax, folders, "additional").isEmpty());
+        assertTrue(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders, "additional")
+            .isEmpty());
         List<MediaFile> songs = List.of(new MediaFile());
-        utilities.putCache(RandomCacheKey.SONG, casheMax, folders, songs, "additional");
-        assertFalse(
-                utilities.getCache(RandomCacheKey.SONG, casheMax, folders, "additional").isEmpty());
+        utilities
+            .putCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders, songs,
+                    "additional");
+        assertFalse(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders, "additional")
+            .isEmpty());
     }
 
     @Test
@@ -381,29 +368,33 @@ class SearchServiceUtilitiesTest {
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
         List<Integer> ids = List.of(1, 2, 3);
-        assertTrue(utilities.getCache(RandomCacheKey.ALBUM, casheMax, folders).isEmpty());
-        utilities.putCache(RandomCacheKey.ALBUM, casheMax, folders, ids);
-        assertFalse(utilities.getCache(RandomCacheKey.ALBUM, casheMax, folders).isEmpty());
+        assertTrue(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.ALBUM, casheMax, folders)
+            .isEmpty());
+        utilities.putCache(EhcacheConfiguration.RandomCacheKey.ALBUM, casheMax, folders, ids);
+        assertFalse(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.ALBUM, casheMax, folders)
+            .isEmpty());
     }
 
     @Test
     void testRemoveCacheAll() {
-        GenreMasterCriteria criteria = new GenreMasterCriteria(Collections.emptyList(),
-                GenreMasterScope.ALBUM, GenreMasterSort.FREQUENCY);
-        assertTrue(utilities.getCache(criteria).isEmpty());
-        utilities.putCache(criteria, List.of(new Genre("genre", 0, 0)));
-        assertFalse(utilities.getCache(criteria).isEmpty());
 
         int casheMax = 30;
         MusicFolder folder = new MusicFolder(99, "path", "name", true, Instant.now(), 0, false);
         List<MusicFolder> folders = List.of(folder);
-        assertTrue(utilities.getCache(RandomCacheKey.SONG, casheMax, folders).isEmpty());
+        assertTrue(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders)
+            .isEmpty());
         List<MediaFile> songs = List.of(new MediaFile());
-        utilities.putCache(RandomCacheKey.SONG, casheMax, folders, songs);
-        assertFalse(utilities.getCache(RandomCacheKey.SONG, casheMax, folders).isEmpty());
+        utilities.putCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders, songs);
+        assertFalse(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders)
+            .isEmpty());
 
         utilities.removeCacheAll();
-        assertTrue(utilities.getCache(criteria).isEmpty());
-        assertTrue(utilities.getCache(RandomCacheKey.SONG, casheMax, folders).isEmpty());
+        assertTrue(utilities
+            .getCache(EhcacheConfiguration.RandomCacheKey.SONG, casheMax, folders)
+            .isEmpty());
     }
 }

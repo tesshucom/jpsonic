@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand;
 import com.tesshu.jpsonic.controller.form.DLNASettingsCommand.SubMenuItemRowInfo;
 import com.tesshu.jpsonic.domain.model.AuthKey;
+import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
@@ -49,6 +50,8 @@ import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyStagingApplier;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.UPnPService;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
 import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -57,12 +60,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
 import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem.ViewType;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.MenuItemService;
-import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
-import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -102,14 +101,14 @@ public class DLNASettingsController {
     private final TranscodingService transcodingService;
     private final UPnPService upnpService;
     private final ShareService shareService;
-    private final MenuItemService menuItemService;
+    private final MenuItemManager menuItemManager;
     private final UpnpKeyManager upnpKeyManager;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public DLNASettingsController(SettingsFacade settingsFacade,
             MusicFolderService musicFolderService, UserService userService,
             PlayerService playerService, TranscodingService transcodingService,
-            UPnPService upnpService, ShareService shareService, MenuItemService menuItemService,
+            UPnPService upnpService, ShareService shareService, MenuItemManager menuItemManager,
             UpnpKeyManager upnpKeyManager, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsFacade = settingsFacade;
@@ -119,7 +118,7 @@ public class DLNASettingsController {
         this.transcodingService = transcodingService;
         this.upnpService = upnpService;
         this.shareService = shareService;
-        this.menuItemService = menuItemService;
+        this.menuItemManager = menuItemManager;
         this.upnpKeyManager = upnpKeyManager;
         this.outlineHelpSelector = outlineHelpSelector;
     }
@@ -129,8 +128,10 @@ public class DLNASettingsController {
             @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Optional<Integer> id,
             @RequestParam(value = Attributes.Request.NameConstants.RESET, required = false) Optional<String> mode) {
 
-        id.ifPresent(i -> menuItemService.updateMenuItemOrder(ViewType.UPNP, i));
-        mode.ifPresent(m -> menuItemService.resetMenuItem(ViewType.UPNP, ResetMode.of(m)));
+        id.ifPresent(i -> menuItemManager.updateMenuItemOrder(ViewType.UPNP, i));
+        mode
+            .ifPresent(m -> menuItemManager
+                .resetMenuItem(ViewType.UPNP, MenuItemManager.ResetMode.of(m)));
 
         DLNASettingsCommand command = new DLNASettingsCommand();
 
@@ -160,7 +161,7 @@ public class DLNASettingsController {
         command.setBitRateLimit(guestPlayer.getBitRateLimit());
 
         // Menu settings
-        List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        List<MenuItemWithDefaultName> topMenuItems = menuItemManager.getTopMenuItems(ViewType.UPNP);
         command.setTopMenuItems(topMenuItems);
 
         // Menu detail settings
@@ -168,7 +169,7 @@ public class DLNASettingsController {
             .setTopMenuEnableds(topMenuItems
                 .stream()
                 .collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
-        List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
+        List<MenuItemWithDefaultName> subMenuItems = menuItemManager.getSubMenuItems(ViewType.UPNP);
         command.setSubMenuItems(subMenuItems);
 
         Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
@@ -337,7 +338,7 @@ public class DLNASettingsController {
         playerService.updatePlayer(guestPlayer);
 
         // Menu detail settings
-        menuItemService
+        menuItemManager
             .updateMenuItems(Stream
                 .concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()));
 

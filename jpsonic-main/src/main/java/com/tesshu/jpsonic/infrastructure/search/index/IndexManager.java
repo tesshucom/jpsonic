@@ -38,13 +38,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.ThreadSafe;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterCriteria;
+import com.tesshu.jpsonic.infrastructure.cache.CacheKeys;
+import com.tesshu.jpsonic.infrastructure.cache.ModelCache;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.infrastructure.search.analysis.AnalyzerFactory;
-import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
 import com.tesshu.jpsonic.infrastructure.search.legacy.SearchServiceUtilities;
 import com.tesshu.jpsonic.infrastructure.search.legacy.SearchServiceUtilities.LegacyGenreCriteria;
 import com.tesshu.jpsonic.infrastructure.search.query.QueryFactory;
@@ -58,7 +62,6 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
@@ -136,7 +139,11 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
-    private static final MediaType[] MUSIC_AND_AUDIOBOOK = { MediaType.MUSIC, MediaType.AUDIOBOOK };
+    private static final com.tesshu.jpsonic.domain.model.MediaFile.Type[] MUSIC_AND_AUDIOBOOK = {
+            com.tesshu.jpsonic.domain.model.MediaFile.Type.MUSIC,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type.AUDIOBOOK };
+    private static final Function<Genre, com.tesshu.jpsonic.domain.model.Genre> GENRE_MAPPER = g -> new com.tesshu.jpsonic.domain.model.Genre(
+            g.getName(), g.getSongCount(), g.getAlbumCount());
 
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
@@ -147,6 +154,7 @@ public class IndexManager implements ReadWriteLockSupport {
     private final ScannerStateServiceImpl scannerState;
     private final ArtistDao artistDao;
     private final Executor shortExecutor;
+    private final ModelCache modelCache;
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
@@ -155,7 +163,8 @@ public class IndexManager implements ReadWriteLockSupport {
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory,
             QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
             SettingsFacade settingsFacade, ScannerStateServiceImpl scannerState,
-            ArtistDao artistDao, @Qualifier("shortExecutor") Executor shortExecutor) {
+            ArtistDao artistDao, @Qualifier("shortExecutor") Executor shortExecutor,
+            ModelCache modelCache) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
@@ -166,6 +175,7 @@ public class IndexManager implements ReadWriteLockSupport {
         this.scannerState = scannerState;
         this.artistDao = artistDao;
         this.shortExecutor = shortExecutor;
+        this.modelCache = modelCache;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
     }
@@ -640,6 +650,29 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
+    public List<com.tesshu.jpsonic.domain.model.Genre> getDomainGenres(boolean sortByAlbum) {
+        readLock(genreLock);
+        try {
+            // Refresh genre master cache if song count cache is empty
+            if (modelCache.getCache(CacheKeys.genre.songCount).isEmpty()) {
+                refreshMultiGenreMaster();
+            }
+            if (settingsFacade.get(SKeys.general.sort.genresByAlphabet)) {
+                return getSortedDomainGenres(sortByAlbum);
+            }
+
+            // If sorting alphabetically is not enabled, return cached list
+            List<com.tesshu.jpsonic.domain.model.Genre> genres = sortByAlbum
+                    ? modelCache.getCache(CacheKeys.genre.albumCount)
+                    : modelCache.getCache(CacheKeys.genre.songCount);
+
+            return isEmpty(genres) ? Collections.emptyList() : genres;
+
+        } finally {
+            readUnlock(genreLock);
+        }
+    }
+
     /** Get sorted genres, either by album or song, with caching */
     private List<Genre> getSortedGenres(boolean sortByAlbum) {
         LegacyGenreCriteria alphaCriteria = sortByAlbum ? LegacyGenreCriteria.ALBUM_ALPHABETICAL
@@ -659,6 +692,24 @@ public class IndexManager implements ReadWriteLockSupport {
         }
 
         util.putCache(alphaCriteria, genres);
+        return genres;
+    }
+
+    private List<com.tesshu.jpsonic.domain.model.Genre> getSortedDomainGenres(boolean sortByAlbum) {
+
+        CacheKeys.genre alphaCriteria = sortByAlbum ? CacheKeys.genre.albumAlphabetical
+                : CacheKeys.genre.songAlphabetical;
+        if (modelCache.containsCache(alphaCriteria)) {
+            return modelCache.getCache(alphaCriteria);
+        }
+
+        CacheKeys.genre countCriteria = sortByAlbum ? CacheKeys.genre.albumCount
+                : CacheKeys.genre.songCount;
+        List<com.tesshu.jpsonic.domain.model.Genre> genres = new ArrayList<>();
+        if (!isEmpty(modelCache.getCache(countCriteria))) {
+            genres.addAll(modelCache.getCache(countCriteria));
+            throw new IllegalArgumentException("Not yet");
+        }
         return genres;
     }
 
@@ -742,7 +793,10 @@ public class IndexManager implements ReadWriteLockSupport {
 
     private void cacheGenres(List<Genre> genres) {
         genres.sort(comparators.genreOrder(false));
-        util.putCache(LegacyGenreCriteria.SONG_COUNT, genres);
+        util.putCache(LegacyGenreCriteria.SONG_COUNT, Collections.unmodifiableList(genres));
+        modelCache
+            .putCache(CacheKeys.genre.songCount,
+                    Collections.unmodifiableList(genres.stream().map(GENRE_MAPPER).toList()));
 
         List<Genre> genresByAlbum = genres
             .stream()
@@ -750,7 +804,10 @@ public class IndexManager implements ReadWriteLockSupport {
             .sorted(comparators.genreOrder(true))
             .collect(Collectors.toList());
 
-        util.putCache(LegacyGenreCriteria.ALBUM_COUNT, genresByAlbum);
+        util.putCache(LegacyGenreCriteria.ALBUM_COUNT, Collections.unmodifiableList(genresByAlbum));
+        modelCache
+            .putCache(CacheKeys.genre.albumCount, Collections
+                .unmodifiableList(genresByAlbum.stream().map(GENRE_MAPPER).toList()));
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // lucene/HighFreqTerms#getHighFreqTerms
@@ -801,7 +858,8 @@ public class IndexManager implements ReadWriteLockSupport {
     private int getSongGenreCount(IndexSearcher searcher, String genreName,
             GenreMasterCriteria criteria) {
         try {
-            MediaType[] types = criteria.types().length == 0 ? MUSIC_AND_AUDIOBOOK
+            com.tesshu.jpsonic.domain.model.MediaFile.Type[] types = criteria.types().length == 0
+                    ? MUSIC_AND_AUDIOBOOK
                     : criteria.types();
             Query query = queryFactory.getSongGenreCount(genreName, criteria.folders(), types);
             return searcher.count(query);
@@ -810,7 +868,8 @@ public class IndexManager implements ReadWriteLockSupport {
         }
     }
 
-    public List<Genre> createGenreMaster(GenreMasterCriteria criteria) {
+    public List<com.tesshu.jpsonic.domain.model.Genre> createGenreMaster(
+            GenreMasterCriteria criteria) {
         IndexSearcher songSearcher = getSearcher(IndexType.SONG);
         IndexSearcher albumSearcher = getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(songSearcher) || isEmpty(albumSearcher)) {
@@ -848,8 +907,11 @@ public class IndexManager implements ReadWriteLockSupport {
                 // no sorting needed
             }
             }
-            return result;
-
+            return result
+                .stream()
+                .map(legacy -> new com.tesshu.jpsonic.domain.model.Genre(legacy.getName(),
+                        legacy.getSongCount(), legacy.getAlbumCount()))
+                .toList();
         } finally {
             release(IndexType.SONG, songSearcher);
             release(IndexType.ALBUM, albumSearcher);

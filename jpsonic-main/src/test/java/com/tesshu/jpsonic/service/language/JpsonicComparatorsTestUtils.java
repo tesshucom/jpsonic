@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
+import com.tesshu.jpsonic.infrastructure.scanner.StrictReadingMediaFileAnalysis;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
 import com.tesshu.jpsonic.persistence.api.entity.Genre;
@@ -46,7 +47,8 @@ import org.springframework.stereotype.Component;
 public class JpsonicComparatorsTestUtils {
 
     @Autowired
-    private JapaneseReadingProcessor proc;
+    private MetadataReadingProcessor proc;
+    private StrictReadingMediaFileAnalysis mediaFileAnalysis;
 
     /*
      * Dictionary order that Japanese feel natural.
@@ -95,7 +97,11 @@ public class JpsonicComparatorsTestUtils {
         file.setTitle(name);
         file.setPathString(name);
         file.setMediaType(MediaType.DIRECTORY);
-        proc.analyze(file);
+
+        if (mediaFileAnalysis == null) {
+            mediaFileAnalysis = proc::analyzeStrictReadingMeta;
+        }
+        mediaFileAnalysis.analyze(file);
         return file;
     };
 
@@ -145,8 +151,10 @@ public class JpsonicComparatorsTestUtils {
         file.setPathString(name);
         file.setMediaType(MediaType.MUSIC);
 
-        proc.analyze(file);
-
+        if (mediaFileAnalysis == null) {
+            mediaFileAnalysis = proc::analyzeStrictReadingMeta;
+        }
+        mediaFileAnalysis.analyze(file);
         return file;
     };
 
@@ -179,7 +187,10 @@ public class JpsonicComparatorsTestUtils {
         file.setPathString(name);
         file.setMediaType(MediaType.ALBUM);
 
-        proc.analyze(file);
+        if (mediaFileAnalysis == null) {
+            mediaFileAnalysis = proc::analyzeStrictReadingMeta;
+        }
+        mediaFileAnalysis.analyze(file);
 
         return file;
     };

@@ -21,29 +21,38 @@
 
 package com.tesshu.jpsonic.infrastructure.search;
 
+import java.util.List;
+
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.persistence.api.entity.Album;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
+import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 
 /**
- * Performs Lucene-based searching.
- *
- * @author Sindre Mehus
- *
- * @see MediaScannerService
+ * Legacy search interface for the migration from persistence entities to domain
+ * models. This interface will be removed once the migration is complete.
  */
-@FunctionalInterface
 public interface LegacySearch {
 
-    /**
-     * Perform a multi-field search corresponding to SearchCriteria.
-     * <p>
-     * It is the most popular search inherited from legacy servers and has been used
-     * from the Web and REST since ancient times.
-     *
-     * @since 107.3.0
-     *
-     * @return search result
-     */
     LegacySearchResult search(HttpSearchCriteria criteria);
+
+    List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria);
+
+    List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
+
+    List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
+
+    List<Genre> getGenres(boolean sortByAlbum);
+
+    List<Album> getAlbumId3sByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders);
+
+    List<MediaFile> getAlbumsByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders);
+
+    List<MediaFile> getSongsByGenres(String genres, long offset, long count,
+            List<MusicFolder> musicFolders, MediaFile.MediaType... types);
 }

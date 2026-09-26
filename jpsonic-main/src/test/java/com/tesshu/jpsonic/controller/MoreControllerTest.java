@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -56,13 +56,13 @@ class MoreControllerTest {
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        MediaSearchProvider mediaSearchProvider = mock(MediaSearchProvider.class);
+        LegacySearch legacySearch = mock(LegacySearch.class);
         PlayerService playerService = mock(PlayerService.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new MoreController(musicFolderService, mock(UserService.class),
-                    mediaSearchProvider))
+            .standaloneSetup(
+                    new MoreController(musicFolderService, mock(UserService.class), legacySearch))
             .build();
-        Mockito.when(mediaSearchProvider.getGenres(false)).thenReturn(Collections.emptyList());
+        Mockito.when(legacySearch.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito
             .when(playerService.getPlayer(Mockito.any(), Mockito.any()))
             .thenReturn(new Player());

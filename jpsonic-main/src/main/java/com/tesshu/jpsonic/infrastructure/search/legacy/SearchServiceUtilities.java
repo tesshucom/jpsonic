@@ -38,11 +38,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.infrastructure.core.EhcacheConfiguration.RandomCacheKey;
-import com.tesshu.jpsonic.infrastructure.search.criteria.GenreMasterCriteria;
+import com.tesshu.jpsonic.infrastructure.cache.EhcacheConfiguration.RandomCacheKey;
 import com.tesshu.jpsonic.infrastructure.search.index.FieldNamesConstants;
 import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -52,7 +50,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
-import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import jakarta.annotation.PostConstruct;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -104,7 +102,7 @@ public class SearchServiceUtilities {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
 
-    private final MediaFileService mediaFileService;
+    private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final Ehcache genreCache;
@@ -126,27 +124,29 @@ public class SearchServiceUtilities {
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,
             @Qualifier("genreCache") Ehcache genreCache,
-            @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
+            @Qualifier("randomCache") Ehcache randomCache, MediaFileDao mediaFileDao) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.genreCache = genreCache;
         this.randomCache = randomCache;
-        this.mediaFileService = mediaFileService;
+        this.mediaFileDao = mediaFileDao;
 
-        entityFetchers = Map
-            .of(IndexType.SONG, mediaFileService::getMediaFile, IndexType.ALBUM,
-                    mediaFileService::getMediaFile, IndexType.ARTIST,
-                    mediaFileService::getMediaFile, IndexType.ARTIST_ID3, artistDao::getArtist,
-                    IndexType.ALBUM_ID3, albumDao::getAlbum);
+        // spotless:off
+        entityFetchers = Map.of(
+                IndexType.SONG, mediaFileDao::getDomainMediaFile,
+                IndexType.ALBUM, mediaFileDao::getDomainMediaFile,
+                IndexType.ARTIST, mediaFileDao::getDomainMediaFile,
+                IndexType.ARTIST_ID3, artistDao::getDomainArtist,
+                IndexType.ALBUM_ID3, albumDao::getDomainAlbum);
 
-        indexTypeActions = Map
-            .of(IndexType.ARTIST, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
-                    IndexType.ALBUM, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
-                    IndexType.SONG, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
-                    IndexType.ARTIST_ID3,
-                    (dist, id) -> addArtistId3IfAnyMatch(dist.getArtists(), id),
-                    IndexType.ALBUM_ID3, (dist, id) -> addAlbumId3IfAnyMatch(dist.getAlbums(), id));
+        indexTypeActions = Map.of(
+                IndexType.ARTIST, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                IndexType.ALBUM, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                IndexType.SONG, (dist, id) -> addMediaFileIfAnyMatch(dist.getMediaFiles(), id),
+                IndexType.ARTIST_ID3, (dist, id) -> addArtistId3IfAnyMatch(dist.getArtists(), id),
+                IndexType.ALBUM_ID3, (dist, id) -> addAlbumId3IfAnyMatch(dist.getAlbums(), id));
+        // spotless:on
     }
 
     /**
@@ -219,6 +219,18 @@ public class SearchServiceUtilities {
         return false;
     }
 
+    private static <T> boolean addIfAbsent(Collection<T> targetList, T newItem,
+            Predicate<T> matcher) {
+        if (newItem == null) {
+            return false;
+        }
+        if (targetList.stream().noneMatch(matcher)) {
+            targetList.add(newItem);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Fetches an entity by ID and adds it to the list if it matches the predicate.
      *
@@ -228,6 +240,14 @@ public class SearchServiceUtilities {
      * @param matcher Predicate to check for duplication.
      */
     private static <T> void addEntityIfPresent(List<T> dist, Integer id,
+            Function<Integer, T> fetcher, Predicate<T> matcher) {
+        T entity = fetcher.apply(id);
+        if (entity != null) {
+            addIfAbsent(dist, entity, matcher);
+        }
+    }
+
+    private static <T> void addEntityIfPresent(Collection<T> dist, Integer id,
             Function<Integer, T> fetcher, Predicate<T> matcher) {
         T entity = fetcher.apply(id);
         if (entity != null) {
@@ -254,7 +274,7 @@ public class SearchServiceUtilities {
      * Adds a MediaFile to the list if its ID matches and is not already present.
      */
     public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {
-        addEntityIfPresent(dist, id, mediaFileService::getMediaFile, m -> m.getId() == id);
+        addEntityIfPresent(dist, id, mediaFileDao::getMediaFile, m -> m.getId() == id);
     }
 
     /**
@@ -269,6 +289,11 @@ public class SearchServiceUtilities {
      */
     public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer id) {
         addEntityIfPresent(dist, id, albumDao::getAlbum, a -> a.getId() == id);
+    }
+
+    public final void addAlbumId3IfAnyMatch(Collection<com.tesshu.jpsonic.domain.model.Album> dist,
+            Integer id) {
+        addEntityIfPresent(dist, id, albumDao::getDomainAlbum, a -> a.id() == id);
     }
 
     /**
@@ -336,24 +361,6 @@ public class SearchServiceUtilities {
     }
 
     /**
-     * Builds a string cache key from genre criteria.
-     */
-    String createCacheKey(GenreMasterCriteria criteria) {
-        String folderIds = criteria
-            .folders()
-            .stream()
-            .map(folder -> String.valueOf(folder.getId()))
-            .collect(Collectors.joining(","));
-        String mediaTypes = Stream
-            .of(criteria.types())
-            .map(Enum::name)
-            .collect(Collectors.joining(","));
-        return String
-            .format("%s,%s,[%s],[%s]", criteria.scope().name(), criteria.sort().name(), folderIds,
-                    mediaTypes);
-    }
-
-    /**
      * Retrieves cached list of MediaFile based on key and music folders.
      */
     @SuppressWarnings("unchecked")
@@ -391,21 +398,6 @@ public class SearchServiceUtilities {
             ids = (List<Integer>) element.getObjectValue();
         }
         return Optional.ofNullable(ids);
-    }
-
-    /**
-     * Retrieves cached list of Genre based on GenreMasterCriteria.
-     */
-    @SuppressWarnings("unchecked")
-    public List<Genre> getCache(GenreMasterCriteria criteria) {
-        genreCacheLock.lock();
-        try {
-            Element element = genreCache.get(createCacheKey(criteria));
-            return isEmpty(element) ? Collections.emptyList()
-                    : (List<Genre>) element.getObjectValue();
-        } finally {
-            genreCacheLock.unlock();
-        }
     }
 
     /**
@@ -463,18 +455,6 @@ public class SearchServiceUtilities {
                 .put(new Element(createCacheKey(key, cacheMax, musicFolders, additional), value));
         } finally {
             randomCacheLock.unlock();
-        }
-    }
-
-    /**
-     * Stores a list of Genre based on GenreMasterCriteria in the genre cache.
-     */
-    public void putCache(GenreMasterCriteria criteria, List<Genre> value) {
-        genreCacheLock.lock();
-        try {
-            genreCache.put(new Element(createCacheKey(criteria), value));
-        } finally {
-            genreCacheLock.unlock();
         }
     }
 
