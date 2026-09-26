@@ -180,7 +180,7 @@ public class LibraryAccessPolicy {
 
     public boolean canAccessMediaFile(String username,
             com.tesshu.jpsonic.domain.model.MediaFile mediaFile) {
-        return isInPodcastFolder(mediaFile.toPath()) == mediaFileProvider
-            .existsAccessibleMediaFile(username, mediaFile);
+        return isInPodcastFolder(mediaFile.toPath())
+                || mediaFileProvider.existsAccessibleMediaFile(username, mediaFile);
     }
 }
