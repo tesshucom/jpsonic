@@ -61,14 +61,17 @@ import net.sf.ehcache.Ehcache;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals",
         "PMD.UseUtilityClass" })
@@ -124,6 +127,7 @@ class IndexManagerTest {
     @Nested
     @NeedsDB
     @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
+    @Order(1)
     class GetGenresTest {
 
         private SettingsFacade settingsFacade;
@@ -245,6 +249,7 @@ class IndexManagerTest {
      * for later fix.
      */
     @Nested
+    @Order(3)
     class CreateGenreMasterTest extends AbstractNeedsScan {
 
         @Autowired
@@ -501,6 +506,7 @@ class IndexManagerTest {
     }
 
     @Nested
+    @Order(2)
     class IntegrationTest extends AbstractNeedsScan {
 
         private List<MusicFolder> musicFolders;
