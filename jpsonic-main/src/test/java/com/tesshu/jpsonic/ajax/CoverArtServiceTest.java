@@ -57,16 +57,16 @@ class CoverArtServiceTest extends AbstractNeedsScan {
 
     @BeforeEach
     void setup() {
-        populateDatabaseOnlyOnce();
-    }
-
-    @Override
-    public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = Arrays
                 .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1,
                         false));
         }
+        populateDatabaseOnlyOnce();
+    }
+
+    @Override
+    public List<MusicFolder> getMusicFolders() {
         return musicFolders;
     }
 

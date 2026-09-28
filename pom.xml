@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.tesshu.jpsonic.player</groupId>
   <artifactId>jpsonic</artifactId>
-  <version>115.1.1</version>
+  <version>115.1.2</version>
   <packaging>pom</packaging>
   <name>Jpsonic</name>
 
@@ -37,7 +37,7 @@
       <dependency>
         <groupId>com.tesshu.jpsonic</groupId>
         <artifactId>jpsonic-dependencies</artifactId>
-        <version>115.1.1</version>
+        <version>115.1.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -120,7 +120,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.15.0</version>
+          <version>3.16.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -150,7 +150,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -243,7 +243,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.10.2.0</version>
+          <version>4.10.4.1</version>
           <configuration>
             <plugins>
               <plugin>
@@ -265,7 +265,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>12.2.2</version>
+          <version>13.0.0</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -291,7 +291,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.6</version>
+          <version>3.6.0</version>
           <configuration>
             <excludes>${test.excludes}</excludes>
           </configuration>
@@ -319,12 +319,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.4</version>
+          <version>3.2.0</version>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>5.0.0</version>
+          <version>5.1.2</version>
           <inherited>false</inherited>
         </plugin>
         <plugin>
@@ -335,7 +335,7 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.10.3</version>
           <configuration>
             <lineEndings>UNIX</lineEndings>
             <java>
@@ -466,7 +466,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.21.0</version>
+        <version>2.22.0</version>
         <configuration>
           <rulesUri>file:///${main.basedir}/versions-ignored.xml</rulesUri>
         </configuration>
@@ -485,7 +485,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.8.6</version>
+                  <version>3.8.9</version>
                 </requireMavenVersion>
                 <dependencyConvergence></dependencyConvergence>
               </rules>
