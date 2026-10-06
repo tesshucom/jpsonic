@@ -28,8 +28,8 @@ import java.util.List;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
+import com.tesshu.jpsonic.persistence.core.repository.MenuItemDaoImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class MenuItemDaoTest extends AbstractNeedsScan {
 
     @Autowired
-    private MenuItemDao menuItemDao;
+    private MenuItemDaoImpl menuItemDao;
 
     @BeforeEach
     void setup() {
@@ -46,7 +46,7 @@ class MenuItemDaoTest extends AbstractNeedsScan {
 
     @Test
     void testGetTopMenuItems() {
-        List<MenuItem> menuItems = menuItemDao
+        List<MenuItemData> menuItems = menuItemDao
             .getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
         assertEquals(8, menuItems.size());
         assertEquals(MenuItemId.FOLDER, menuItems.get(0).getId());
@@ -61,7 +61,7 @@ class MenuItemDaoTest extends AbstractNeedsScan {
 
     @Test
     void testFindChildlen() {
-        List<MenuItem> menuItems = menuItemDao
+        List<MenuItemData> menuItems = menuItemDao
             .findChildlen(ViewType.UPNP, MenuItemId.FOLDER, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals(MenuItemId.MEDIA_FILE, menuItems.get(0).getId());

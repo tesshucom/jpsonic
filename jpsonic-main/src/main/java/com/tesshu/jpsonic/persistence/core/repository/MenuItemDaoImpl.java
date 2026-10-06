@@ -25,32 +25,35 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.model.MenuItem;
 import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
+import com.tesshu.jpsonic.infrastructure.persistence.api.MenuItemDao;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-@Repository
+@Repository("menuItemDao")
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.FieldDeclarationsShouldBeAtStartOfClass" })
-public class MenuItemDao {
+public class MenuItemDaoImpl implements MenuItemDao {
 
     private static final String QUERY_COLUMNS = """
             view_type, id, parent, name, enabled, menu_item_order\s
             """;
 
     private final TemplateWrapper template;
-    private final RowMapper<MenuItem> rowMapper = (ResultSet rs, int num) -> new MenuItem(
+    private final RowMapper<MenuItemData> rowMapper = (ResultSet rs, int num) -> new MenuItemData(
             ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)),
             rs.getString(4), rs.getBoolean(5), rs.getInt(6));
     private final RowMapper<MenuItemId> idRowMapper = (ResultSet rs, int num) -> MenuItemId
         .of(rs.getInt(1));
 
-    public MenuItemDao(TemplateWrapper templateWrapper) {
+    public MenuItemDaoImpl(TemplateWrapper templateWrapper) {
         template = templateWrapper;
     }
 
+    @Override
     public List<MenuItemId> getTopMenuIds(ViewType viewType) {
         return template.query("""
                 select id from menu_item
@@ -58,7 +61,8 @@ public class MenuItemDao {
                 """, idRowMapper, viewType.value(), MenuItemId.ROOT.value(), true);
     }
 
-    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset,
+    @Override
+    public List<MenuItemData> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset,
             long count) {
         Map<String, Object> args = Map
             .of("type", viewType.value(), "parentId", MenuItemId.ROOT.value(), "enabledOnly",
@@ -71,6 +75,7 @@ public class MenuItemDao {
                 """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
     }
 
+    @Override
     public List<MenuItemId> getChildIds(ViewType viewType, MenuItemId id) {
         return template.query("""
                 select id from menu_item
@@ -78,7 +83,8 @@ public class MenuItemDao {
                 """, idRowMapper, viewType.value(), id.value(), true);
     }
 
-    public List<MenuItem> findChildlen(ViewType viewType, MenuItemId id, boolean enabledOnly,
+    @Override
+    public List<MenuItemData> findChildlen(ViewType viewType, MenuItemId id, boolean enabledOnly,
             long offset, long count) {
         Map<String, Object> args = Map
             .of("type", viewType.value(), "parentId", id.value(), "enabledOnly", enabledOnly,
@@ -91,7 +97,8 @@ public class MenuItemDao {
                 """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
     }
 
-    public void updateMenuItem(MenuItem menuItem) {
+    @Override
+    public void updateMenuItem(MenuItemData menuItem) {
         String sql = """
                 update menu_item
                 set view_type=?, parent=?, name=?, enabled=?, menu_item_order=?
@@ -103,7 +110,8 @@ public class MenuItemDao {
                     menuItem.getId().value());
     }
 
-    public List<MenuItem> getSubMenuItems(ViewType viewType) {
+    @Override
+    public List<MenuItemData> getSubMenuItems(ViewType viewType) {
         Map<String, Object> args = Map
             .of("type", viewType.value(), "rootId", MenuItemId.ROOT.value());
         return template
@@ -119,7 +127,8 @@ public class MenuItemDao {
                     rowMapper, args);
     }
 
-    public MenuItem getMenuItem(int id) {
+    @Override
+    public MenuItemData getMenuItemData(int id) {
         return template.queryOne("select " + QUERY_COLUMNS + """
                 from menu_item
                 where id=?
@@ -129,12 +138,12 @@ public class MenuItemDao {
     // ############################################################################
     // Jpsonic domain
 
-    private final RowMapper<com.tesshu.jpsonic.domain.model.MenuItem> domainRowMapper = (
-            ResultSet rs, int num) -> new com.tesshu.jpsonic.domain.model.MenuItem(
-                    ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)),
-                    MenuItemId.of(rs.getInt(3)), rs.getString(4), rs.getBoolean(5), rs.getInt(6));
+    private final RowMapper<MenuItem> domainRowMapper = (ResultSet rs, int num) -> new MenuItem(
+            ViewType.of(rs.getInt(1)), MenuItemId.of(rs.getInt(2)), MenuItemId.of(rs.getInt(3)),
+            rs.getString(4), rs.getBoolean(5), rs.getInt(6));
 
-    public com.tesshu.jpsonic.domain.model.MenuItem getDomainMenuItem(int id) {
+    @Override
+    public MenuItem getMenuItem(int id) {
         return template.queryOne("select " + QUERY_COLUMNS + """
                 from menu_item
                 where id=?

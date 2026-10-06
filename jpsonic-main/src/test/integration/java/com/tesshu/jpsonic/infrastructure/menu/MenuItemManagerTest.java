@@ -37,8 +37,7 @@ import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaul
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
+import com.tesshu.jpsonic.persistence.core.repository.MenuItemDaoImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +57,7 @@ class MenuItemManagerTest {
     @Autowired
     private SettingsFacade settingsFacade;
     @Autowired
-    MenuItemDao menuItemDao;
+    MenuItemDaoImpl menuItemDao;
     @Autowired
     private MenuItemManager menuItemManager;
     @Autowired
@@ -187,14 +186,14 @@ class MenuItemManagerTest {
             int enabledSubMenuCount = (int) menuItemManager
                 .getSubMenuItems(ViewType.UPNP)
                 .stream()
-                .filter(MenuItem::isEnabled)
+                .filter(MenuItemData::isEnabled)
                 .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
             menuItemManager.ensureUPnPSubMenuEnabled();
             enabledSubMenuCount = (int) menuItemManager
                 .getSubMenuItems(ViewType.UPNP)
                 .stream()
-                .filter(MenuItem::isEnabled)
+                .filter(MenuItemData::isEnabled)
                 .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
@@ -205,7 +204,7 @@ class MenuItemManagerTest {
             int enabledSubMenuCount = (int) menuItemManager
                 .getSubMenuItems(ViewType.UPNP)
                 .stream()
-                .filter(MenuItem::isEnabled)
+                .filter(MenuItemData::isEnabled)
                 .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
 
@@ -217,7 +216,7 @@ class MenuItemManagerTest {
             enabledSubMenuCount = (int) menuItemManager
                 .getSubMenuItems(ViewType.UPNP)
                 .stream()
-                .filter(MenuItem::isEnabled)
+                .filter(MenuItemData::isEnabled)
                 .count();
             assertEquals(0, enabledSubMenuCount);
 
@@ -225,7 +224,7 @@ class MenuItemManagerTest {
             enabledSubMenuCount = (int) menuItemManager
                 .getSubMenuItems(ViewType.UPNP)
                 .stream()
-                .filter(MenuItem::isEnabled)
+                .filter(MenuItemData::isEnabled)
                 .count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
@@ -242,7 +241,7 @@ class MenuItemManagerTest {
         int enabledSubMenuCount = (int) menuItemManager
             .getSubMenuItems(ViewType.UPNP)
             .stream()
-            .filter(MenuItem::isEnabled)
+            .filter(MenuItemData::isEnabled)
             .count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
         topMenuItems
@@ -266,7 +265,7 @@ class MenuItemManagerTest {
         enabledSubMenuCount = (int) menuItemManager
             .getSubMenuItems(ViewType.UPNP)
             .stream()
-            .filter(MenuItem::isEnabled)
+            .filter(MenuItemData::isEnabled)
             .count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
 
@@ -341,7 +340,7 @@ class MenuItemManagerTest {
 
     @Test
     void testResetMenuItem() {
-        Function<List<MenuItem>, Boolean> validateDefaultSubMenuItems = (subMenuItems) -> {
+        Function<List<MenuItemData>, Boolean> validateDefaultSubMenuItems = (subMenuItems) -> {
             assertEquals(MenuItemId.MEDIA_FILE, subMenuItems.get(0).getId());
             assertEquals(MenuItemId.MEDIA_FILE_BY_FOLDER, subMenuItems.get(1).getId());
             assertEquals(MenuItemId.INDEX, subMenuItems.get(2).getId());
@@ -383,7 +382,7 @@ class MenuItemManagerTest {
             return true;
         };
 
-        List<MenuItem> subMenuItems = menuItemDao.getSubMenuItems(ViewType.UPNP);
+        List<MenuItemData> subMenuItems = menuItemDao.getSubMenuItems(ViewType.UPNP);
         assertTrue(validateDefaultSubMenuItems.apply(subMenuItems));
 
         subMenuItems.forEach(menuItem -> {

@@ -50,6 +50,7 @@ import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyStagingApplier;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.UPnPService;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
 import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager;
 import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.infrastructure.search.SearchSKeys;
@@ -59,7 +60,6 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -168,12 +168,12 @@ public class DLNASettingsController {
         command
             .setTopMenuEnableds(topMenuItems
                 .stream()
-                .collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
+                .collect(Collectors.toMap(MenuItemData::getId, MenuItemData::isEnabled)));
         List<MenuItemWithDefaultName> subMenuItems = menuItemManager.getSubMenuItems(ViewType.UPNP);
         command.setSubMenuItems(subMenuItems);
 
         Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
-        topMenuItems.stream().map(MenuItem::getId).forEach(topMenuItemId -> {
+        topMenuItems.stream().map(MenuItemData::getId).forEach(topMenuItemId -> {
             int count = (int) subMenuItems
                 .stream()
                 .filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
