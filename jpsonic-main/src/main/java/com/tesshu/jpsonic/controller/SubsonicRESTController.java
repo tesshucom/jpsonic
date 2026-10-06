@@ -47,10 +47,12 @@ import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.controller.form.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.Genre;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicFolderContent;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
@@ -61,11 +63,11 @@ import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.feature.stream.DownloadController;
 import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
+import com.tesshu.jpsonic.infrastructure.scanner.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.scanner.IndexType;
 import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
-import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -222,6 +224,7 @@ public class SubsonicRESTController {
     private final PodcastService podcastService;
     private final RatingService ratingService;
     private final LegacySearch legacySearch;
+    private final GenreMasterProvider genreMasterProvider;
     private final InternetRadioService internetRadioService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
@@ -248,10 +251,11 @@ public class SubsonicRESTController {
             ShareService shareService, PlaylistService playlistService, LyricsService lyricsService,
             AudioScrobblerService audioScrobblerService, PodcastService podcastService,
             RatingService ratingService, LegacySearch legacySearch,
-            InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
-            PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
-            AirsonicLocaleResolver airsonicLocaleResolver, HttpSearchCriteriaDirector director) {
+            GenreMasterProvider genreMasterProvider, InternetRadioService internetRadioService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+            BookmarkService bookmarkService, PlayQueueDao playQueueDao,
+            MediaScannerService mediaScannerService, AirsonicLocaleResolver airsonicLocaleResolver,
+            HttpSearchCriteriaDirector director) {
         super();
         this.settingsFacade = settingsFacade;
         this.serverLocaleProvider = serverLocaleProvider;
@@ -281,6 +285,7 @@ public class SubsonicRESTController {
         this.podcastService = podcastService;
         this.ratingService = ratingService;
         this.legacySearch = legacySearch;
+        this.genreMasterProvider = genreMasterProvider;
         this.internetRadioService = internetRadioService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
@@ -437,13 +442,12 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         Genres genres = new Genres();
 
-        for (com.tesshu.jpsonic.persistence.api.entity.Genre genre : legacySearch
-            .getGenres(false)) {
+        for (Genre genre : genreMasterProvider.getLegacyGenres(false)) {
             org.subsonic.restapi.Genre g = new org.subsonic.restapi.Genre();
             genres.getGenre().add(g);
-            g.setContent(genre.getName());
-            g.setAlbumCount(genre.getAlbumCount());
-            g.setSongCount(genre.getSongCount());
+            g.setContent(genre.name());
+            g.setAlbumCount(genre.albumCount());
+            g.setSongCount(genre.songCount());
         }
         Response res = createResponse();
         res.setGenres(genres);
@@ -957,7 +961,7 @@ public class SubsonicRESTController {
             .construct(query.toString().trim(), offset, count, includeComposer, musicFolders,
                     IndexType.SONG);
 
-        com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult result = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = legacySearch
             .search(criteria);
         org.subsonic.restapi.SearchResult searchResult = new org.subsonic.restapi.SearchResult();
         searchResult.setOffset(result.getOffset());
@@ -997,7 +1001,7 @@ public class SubsonicRESTController {
 
         HttpSearchCriteria criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
-        com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult artists = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult artists = legacySearch
             .search(criteria);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
@@ -1010,7 +1014,7 @@ public class SubsonicRESTController {
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
         Player player = playerService.getPlayer(request, response);
-        com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult albums = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult albums = legacySearch
             .search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
@@ -1022,7 +1026,7 @@ public class SubsonicRESTController {
             .getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
-        com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult songs = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult songs = legacySearch
             .search(criteria);
         for (MediaFile mediaFile : songs.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, mediaFile, username));
@@ -1059,7 +1063,7 @@ public class SubsonicRESTController {
         HttpSearchCriteria criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders,
                     IndexType.ARTIST_ID3);
-        com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult result = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = legacySearch
             .search(criteria);
         for (com.tesshu.jpsonic.persistence.api.entity.Artist artist : result.getArtists()) {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));

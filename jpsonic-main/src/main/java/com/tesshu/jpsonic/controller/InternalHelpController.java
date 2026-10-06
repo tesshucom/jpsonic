@@ -50,8 +50,6 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -62,8 +60,6 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.UserService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,20 +85,18 @@ public class InternalHelpController {
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final IndexManager indexManager;
     private final DaoHelper daoHelper;
     private final Environment environment;
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
     public InternalHelpController(SettingsFacade settingsFacade, UserService userService,
-            MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
-            Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
+            MusicFolderService musicFolderService, DaoHelper daoHelper, Environment environment,
+            StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
         this.settingsFacade = settingsFacade;
         this.userService = userService;
         this.musicFolderService = musicFolderService;
-        this.indexManager = indexManager;
         this.daoHelper = daoHelper;
         this.environment = environment;
         this.staticsDao = staticsDao;
@@ -124,7 +118,7 @@ public class InternalHelpController {
         gatherFilesystemInfo(map);
         gatherTranscodingInfo(map);
         gatherLocaleInfo(map);
-        gatherIndexInfo(map);
+        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
         gatherStats(map);
 
         map.put("showIndexDetails", settingsFacade.get(SKeys.general.legacy.showIndexDetails));
@@ -167,38 +161,6 @@ public class InternalHelpController {
                 });
         });
         map.put("stats", result);
-    }
-
-    @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
-    /*
-     * [CloseResource] False positive. SearcherManager inherits Closeable but
-     * ensures each searcher is closed only once all threads have finished using it.
-     * Use release instead of close for reuse. No explicit close is done here.
-     * [AvoidInstantiatingObjectsInLoops] (IndexStatistics) Not reusable
-     */
-    private void gatherIndexInfo(Map<String, Object> map) {
-        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
-        if (!settingsFacade.get(SKeys.general.legacy.showIndexDetails)) {
-            return;
-        }
-
-        SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
-        for (IndexType indexType : IndexType.values()) {
-            IndexStatistics stat = new IndexStatistics();
-            IndexSearcher searcher = indexManager.getSearcher(indexType);
-            stat.setName(indexType.name());
-            indexStats.put(indexType.name(), stat);
-            if (searcher == null) {
-                stat.setCount(0);
-                stat.setDeletedCount(0);
-            } else {
-                IndexReader reader = searcher.getIndexReader();
-                stat.setCount(reader.numDocs());
-                stat.setDeletedCount(reader.numDeletedDocs());
-                indexManager.release(indexType, searcher);
-            }
-        }
-        map.put("indexStatistics", indexStats);
     }
 
     /**
@@ -391,36 +353,6 @@ public class InternalHelpController {
             version = ffmpeg.getVersion();
         }
         map.put("ffmpegVersion", formatFFmpegVersion(version));
-    }
-
-    public static class IndexStatistics {
-        private String name;
-        private int count;
-        private int deletedCount;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public void setCount(int count) {
-            this.count = count;
-        }
-
-        public int getDeletedCount() {
-            return deletedCount;
-        }
-
-        public void setDeletedCount(int deletedCount) {
-            this.deletedCount = deletedCount;
-        }
     }
 
     public static class FileStatistics {

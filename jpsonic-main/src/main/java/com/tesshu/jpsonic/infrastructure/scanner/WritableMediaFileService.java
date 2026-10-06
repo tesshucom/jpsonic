@@ -42,11 +42,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressLint;
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -56,7 +56,6 @@ import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
@@ -116,7 +115,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WritableMediaFileService {
 
-    private final ScannerStateService scannerState;
+    private final ScannerStateProvider scannerState;
     private final MediaFileDao mediaFileDao;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
@@ -128,20 +127,19 @@ public class WritableMediaFileService {
     private final LibraryAccessPolicy libraryAccessPolicy;
     private final ScanningExclusionPolicy scanningExclusionPolicy;
     private final StrictReadingMediaFileAnalysis mediaFileAnalysis;
-    private final IndexManager indexManager;
+    private final Indexer indexer;
     private final MusicIndexProviderImpl musicIndexProvider;
 
-    public WritableMediaFileService(MediaFileDao mediaFileDao,
-            ScannerStateService scannerStateService, MediaFileService mediaFileService,
-            AlbumDao albumDao, MediaFileCache mediaFileCache, MusicParser musicParser,
-            VideoParser videoParser, SettingsFacade settingsFacade,
+    public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateProvider scannerState,
+            MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
+            MusicParser musicParser, VideoParser videoParser, SettingsFacade settingsFacade,
             LibraryAccessPolicy libraryAccessPolicy,
             ScanningExclusionPolicy scanningExclusionPolicy,
-            MetadataReadingProcessor readingProcessor, IndexManager indexManager,
+            MetadataReadingProcessor readingProcessor, Indexer indexer,
             MusicIndexProviderImpl musicIndexProvider) {
         super();
         this.mediaFileDao = mediaFileDao;
-        this.scannerState = scannerStateService;
+        this.scannerState = scannerState;
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
         this.mediaFileCache = mediaFileCache;
@@ -151,7 +149,7 @@ public class WritableMediaFileService {
         this.libraryAccessPolicy = libraryAccessPolicy;
         this.scanningExclusionPolicy = scanningExclusionPolicy;
         this.mediaFileAnalysis = readingProcessor::analyzeStrictReadingMeta;
-        this.indexManager = indexManager;
+        this.indexer = indexer;
         this.musicIndexProvider = musicIndexProvider;
     }
 
@@ -320,13 +318,13 @@ public class WritableMediaFileService {
     private void deleteMediafileIndex(MediaFile mediaFile) {
         switch (mediaFile.getMediaType()) {
         case DIRECTORY:
-            indexManager.expungeArtist(mediaFile.getId());
+            indexer.expungeArtist(mediaFile.getId());
             break;
         case ALBUM:
-            indexManager.expungeAlbum(mediaFile.getId());
+            indexer.expungeAlbum(mediaFile.getId());
             break;
         case MUSIC:
-            indexManager.expungeSong(mediaFile.getId());
+            indexer.expungeSong(mediaFile.getId());
             break;
         default:
             break;
@@ -402,7 +400,7 @@ public class WritableMediaFileService {
     Optional<MediaFile> createMediaFile(@NonNull Instant scanDate, @NonNull Path path) {
         MediaFile created = mediaFileDao.createMediaFile(parseMediaFile(scanDate, path, null));
         if (created != null && created.getMediaType() != MediaType.ALBUM) {
-            indexManager.index(created);
+            indexer.index(created);
         }
         return Optional.ofNullable(created);
     }
@@ -599,7 +597,7 @@ public class WritableMediaFileService {
         Optional<MediaFile> updated = mediaFileDao.updateMediaFile(parsed);
         updated.ifPresent(m -> {
             if (m.getMediaType() != MediaType.ALBUM) {
-                indexManager.index(m);
+                indexer.index(m);
             }
         });
         mediaFileCache.remove(parsed.toPath());

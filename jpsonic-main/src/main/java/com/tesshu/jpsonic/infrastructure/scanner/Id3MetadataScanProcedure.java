@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
+import com.tesshu.jpsonic.domain.model.Genre;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
@@ -91,7 +90,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class Id3MetadataScanProcedure {
 
     private final MusicFolderServiceImpl musicFolderService;
-    private final IndexManager indexManager;
+    private final Indexer indexer;
+    private final GenreMasterProviderAdapter genreMasterProvider;
     private final MediaFileService mediaFileService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
@@ -100,13 +100,15 @@ public class Id3MetadataScanProcedure {
     private final JpsonicComparators comparators;
     private final ScanHelper scanHelper;
 
-    public Id3MetadataScanProcedure(MusicFolderServiceImpl musicFolderService,
-            IndexManager indexManager, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, MusicIndexProviderImpl musicIndexProvider,
-            JpsonicComparators comparators, ScanHelper scanHelper) {
+    public Id3MetadataScanProcedure(MusicFolderServiceImpl musicFolderService, Indexer indexer,
+            GenreMasterProviderAdapter genreMasterProvider, MediaFileService mediaFileService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+            MusicIndexProviderImpl musicIndexProvider, JpsonicComparators comparators,
+            ScanHelper scanHelper) {
         super();
         this.musicFolderService = musicFolderService;
-        this.indexManager = indexManager;
+        this.indexer = indexer;
+        this.genreMasterProvider = genreMasterProvider;
         this.mediaFileService = mediaFileService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
@@ -193,7 +195,7 @@ public class Id3MetadataScanProcedure {
         albumDao.iterateLastScanned(context.scanDate(), withPodcast);
 
         // Expunge outdated ID3 index entries for albums
-        indexManager.expungeAlbumId3(albumDao.getExpungeCandidates(context.scanDate()));
+        indexer.expungeAlbumId3(albumDao.getExpungeCandidates(context.scanDate()));
 
         // Remove stale album records from the database
         albumDao.expunge(context.scanDate());
@@ -245,7 +247,7 @@ public class Id3MetadataScanProcedure {
                     Album album = albumId3Of(context, folder.getId(), song, registered);
 
                     Optional.ofNullable(albumDao.updateAlbum(album)).ifPresent(updated -> {
-                        indexManager.index(updated);
+                        indexer.index(updated);
                         mediaFileDao.updateChildrenLastUpdated(album, context.scanDate());
                         updatedCount.increment();
                     });
@@ -295,7 +297,7 @@ public class Id3MetadataScanProcedure {
                     Album album = albumId3Of(context, folder.getId(), song, null);
 
                     Optional.ofNullable(albumDao.createAlbum(album)).ifPresent(created -> {
-                        indexManager.index(created);
+                        indexer.index(created);
                         mediaFileDao.updateChildrenLastUpdated(album, context.scanDate());
                         createdCount.increment();
                     });
@@ -433,7 +435,7 @@ public class Id3MetadataScanProcedure {
     public void iterateArtistId3(@NonNull ScanContext context, boolean withPodcast) {
         artistDao.iterateLastScanned(context.scanDate(), withPodcast);
 
-        indexManager.expungeArtistId3(artistDao.getExpungeCandidates(context.scanDate()));
+        indexer.expungeArtistId3(artistDao.getExpungeCandidates(context.scanDate()));
 
         artistDao.expunge(context.scanDate());
     }
@@ -474,7 +476,7 @@ public class Id3MetadataScanProcedure {
                             .updateArtist(
                                     artistId3Of(context, folder.getId(), representativeSong, null)))
                         .ifPresent(updated -> {
-                            indexManager.index(updated, folder);
+                            indexer.index(updated, folder);
                             countUpdate.increment();
                         });
                 });
@@ -521,7 +523,7 @@ public class Id3MetadataScanProcedure {
                             .createArtist(
                                     artistId3Of(context, folder.getId(), representativeSong, null)))
                         .ifPresent(created -> {
-                            indexManager.index(created, folder);
+                            indexer.index(created, folder);
                             countNew.increment();
                         });
                 });
@@ -651,7 +653,7 @@ public class Id3MetadataScanProcedure {
 
         List<Genre> genres = mediaFileDao.getGenreCounts();
         mediaFileDao.updateGenres(genres);
-        indexManager.expungeGenreOtherThan(genres);
+        genreMasterProvider.expungeGenreOtherThan(genres);
 
         scanHelper.createScanEvent(context, ScanEventType.UPDATE_GENRE_MASTER, null);
     }

@@ -25,9 +25,9 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -51,14 +51,14 @@ public class MoreController {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final LegacySearch legacySearch;
+    private final GenreMasterProvider genreMasterProvider;
 
     public MoreController(MusicFolderService musicFolderService, UserService userService,
-            LegacySearch legacySearch) {
+            GenreMasterProvider genreMasterProvider) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.legacySearch = legacySearch;
+        this.genreMasterProvider = genreMasterProvider;
     }
 
     @GetMapping
@@ -78,7 +78,7 @@ public class MoreController {
         result
             .addObject("model", LegacyMap
                 .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                        legacySearch.getGenres(false), "currentYear",
+                        genreMasterProvider.getLegacyGenres(false), "currentYear",
                         Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
                         "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;

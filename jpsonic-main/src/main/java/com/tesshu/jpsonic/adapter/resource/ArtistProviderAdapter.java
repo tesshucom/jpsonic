@@ -74,6 +74,6 @@ class ArtistProviderAdapter implements ArtistProvider {
         if (artist == null) {
             throw new IllegalArgumentException("The specified Artist cannot be found.");
         }
-        return artistDao.getDomainArtist(id);
+        return artist;
     }
 }

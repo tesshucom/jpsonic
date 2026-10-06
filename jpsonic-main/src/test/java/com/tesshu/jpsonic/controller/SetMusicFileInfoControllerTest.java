@@ -27,10 +27,8 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
-import com.tesshu.jpsonic.infrastructure.scanner.MusicIndexProviderImpl;
 import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -79,7 +77,7 @@ class SetMusicFileInfoControllerTest {
                 mock(AlbumDao.class), mock(MediaFileCache.class), mock(MusicParser.class),
                 mock(VideoParser.class), settingsFacade, mock(LibraryAccessPolicy.class),
                 new ScanningExclusionPolicy(settingsFacade), mock(MetadataReadingProcessor.class),
-                mock(IndexManager.class), mock(MusicIndexProviderImpl.class));
+                null, null);
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

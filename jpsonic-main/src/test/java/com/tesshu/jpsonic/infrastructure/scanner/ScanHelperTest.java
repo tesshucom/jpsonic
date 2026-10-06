@@ -29,9 +29,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
+import com.tesshu.jpsonic.infrastructure.comparator.ComparatorsFacade;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -40,7 +41,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,10 +80,10 @@ class ScanHelperTest {
         final ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
         staticsDao = mock(StaticsDao.class);
         final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
-        final IndexManager indexManager = mock(IndexManager.class);
+        final Indexer indexer = mock(Indexer.class);
         final WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
         scanHelper = new ScanHelper(scannerStateService, settingsFacade, staticsDao, mediaFileDao,
-                indexManager, wmfs);
+                indexer, wmfs);
     }
 
     @Test
@@ -225,8 +225,9 @@ class ScanHelperTest {
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
         ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
         MetadataReadingProcessor proc = mock(MetadataReadingProcessor.class);
-        JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
+        ComparatorsFacade comparatorsFacade = new ComparatorsFacade(settingsFacade,
                 serverLocaleProvider, proc);
+        JpsonicComparators comparators = new JpsonicComparators(settingsFacade, comparatorsFacade);
         WritableMediaFileService wmfs = mock(WritableMediaFileService.class);
 
         ArgumentCaptor<MediaFile> captor = ArgumentCaptor.forClass(MediaFile.class);

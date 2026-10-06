@@ -43,10 +43,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.filesystem.ScanningExclusionPolicy;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -56,8 +57,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
@@ -100,9 +99,9 @@ class WritableMediaFileServiceTest {
         AlbumDao albumDao = mock(AlbumDao.class);
         MetadataReadingProcessor proc = mock(MetadataReadingProcessor.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao,
-                mock(ScannerStateService.class), mediaFileService, albumDao, mediaFileCache,
+                mock(ScannerStateProvider.class), mediaFileService, albumDao, mediaFileCache,
                 musicParser, mock(VideoParser.class), settingsFacade, libraryAccessPolicy,
-                new ScanningExclusionPolicy(settingsFacade), proc, mock(IndexManager.class),
+                new ScanningExclusionPolicy(settingsFacade), proc, mock(Indexer.class),
                 new MusicIndexProviderImpl(null, null, settingsFacade, proc));
 
         Mockito.when(libraryAccessPolicy.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);

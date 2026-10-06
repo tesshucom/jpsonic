@@ -23,7 +23,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;

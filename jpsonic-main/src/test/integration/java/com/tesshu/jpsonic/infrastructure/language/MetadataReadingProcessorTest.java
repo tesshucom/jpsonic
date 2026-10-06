@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.lang.annotation.Documented;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.contract.StrictReadingMetaAnalysis;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
-import com.tesshu.jpsonic.infrastructure.scanner.StrictReadingMediaFileAnalysis;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
@@ -55,7 +55,7 @@ class MetadataReadingProcessorTest {
     private SettingsFacade settingsFacade;
 
     private MetadataReadingProcessor proc;
-    private StrictReadingMediaFileAnalysis mediaFileAnalysis;
+    private MediaFileAnalysis mediaFileAnalysis;
 
     @BeforeEach
     void setup() {
@@ -1281,5 +1281,28 @@ class MetadataReadingProcessorTest {
             assertEquals("sortTagDerived", mediaFile.getArtistReading());
             assertEquals("sortTagDerived", proc.createIndexableName(mediaFile));
         }
+    }
+    
+    interface MediaFileAnalysis extends StrictReadingMetaAnalysis {
+
+        // spotless:off
+        default void analyze(MediaFile m) {
+            analyzeStrictReadingMeta(
+                    m.getArtist(),
+                    m.getArtistSort(),
+                    m::setArtistSort,
+                    m::setArtistReading);
+            analyzeStrictReadingMeta(
+                    m.getAlbumArtist(),
+                    m.getAlbumArtistSort(),
+                    m::setAlbumArtistSort,
+                    m::setAlbumArtistReading);
+            analyzeStrictReadingMeta(
+                    m.getAlbumName(),
+                    m.getAlbumSort(),
+                    m::setAlbumSort,
+                    m::setAlbumReading);
+        }
+        // spotless:on
     }
 }

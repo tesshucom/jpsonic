@@ -61,6 +61,7 @@ import com.tesshu.jpsonic.feature.transcoding.TranscodingParametersPlanner;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.content.UPnPDIDLFactory;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
+import com.tesshu.jpsonic.infrastructure.comparator.ComparatorsFacade;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.infrastructure.language.JapaneseReadingUtils;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
@@ -69,7 +70,6 @@ import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -119,12 +119,11 @@ class PlaylistProcTest {
             JapaneseReadingUtils japaneseReadingUtils = new JapaneseReadingUtils(settingsFacade);
             MetadataReadingProcessor processor = new MetadataReadingProcessor(settingsFacade,
                     japaneseReadingUtils);
-            JpsonicComparators comparators = new JpsonicComparators(settingsFacade,
-                    serverLocaleManager, processor);
+            ComparatorsFacade comparatorsFacade = new ComparatorsFacade(settingsFacade, serverLocaleManager, processor);
             mediaFileDao = mock(MediaFileDao.class);
             playlistDao = mock(PlaylistDao.class);
             playlistProvider = ProviderFactory
-                .createPlaylistProviderAdapter(processor, comparators, mediaFileDao, playlistDao);
+                .createPlaylistProviderAdapter(playlistDao, mediaFileDao, comparatorsFacade, processor);
             musicFolderProvider = mock(MusicFolderProvider.class);
 
             MediaFileProvider mediaFileProvider = mock(MediaFileProvider.class);

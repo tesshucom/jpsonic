@@ -36,21 +36,22 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.model.Genre;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicFolderContent;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.RatingService;
-import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,8 +82,8 @@ class HomeControllerTest {
             .standaloneSetup(new HomeController(settingsFacade, mock(UserService.class),
                     mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
                     mock(RatingService.class), mock(MediaFileService.class),
-                    mock(LegacySearch.class), mock(MusicFolderProvider.class),
-                    mock(MusicIndexProvider.class)))
+                    mock(LegacySearch.class), mock(GenreMasterProvider.class),
+                    mock(MusicFolderProvider.class), mock(MusicIndexProvider.class)))
             .build();
     }
 
@@ -108,6 +109,7 @@ class HomeControllerTest {
         private RatingService ratingService;
         private MediaFileService mediaFileService;
         private LegacySearch legacySearch;
+        private GenreMasterProvider genreMasterProvider;
         private MusicIndexProvider musicIndexProvider;
         private HomeController controller;
 
@@ -116,14 +118,15 @@ class HomeControllerTest {
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);
             legacySearch = mock(LegacySearch.class);
+            genreMasterProvider = mock(GenreMasterProvider.class);
             musicIndexProvider = mock(MusicIndexProvider.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             UserService userService = mock(UserService.class);
-            ScannerStateService scannerStateService = mock(ScannerStateService.class);
+            ScannerStateProvider scannerStateProvider = mock(ScannerStateProvider.class);
             controller = new HomeController(settingsFacade, userService,
-                    mock(MusicFolderService.class), scannerStateService, ratingService,
-                    mediaFileService, legacySearch, mock(MusicFolderProvider.class),
-                    musicIndexProvider);
+                    mock(MusicFolderService.class), scannerStateProvider, ratingService,
+                    mediaFileService, legacySearch, genreMasterProvider,
+                    mock(MusicFolderProvider.class), musicIndexProvider);
         }
 
         @Test
@@ -252,7 +255,7 @@ class HomeControllerTest {
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.GENRE.getId());
             List<Genre> genres = Arrays.asList(new Genre("pops", 0, 0));
-            Mockito.when(legacySearch.getGenres(true)).thenReturn(genres);
+            Mockito.when(genreMasterProvider.getLegacyGenres(true)).thenReturn(genres);
             controller.handleRequestInternal(req);
             Mockito
                 .verify(legacySearch, Mockito.times(1))

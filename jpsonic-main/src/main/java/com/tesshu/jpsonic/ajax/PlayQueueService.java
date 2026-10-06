@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy.TRACK;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
@@ -61,7 +62,6 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

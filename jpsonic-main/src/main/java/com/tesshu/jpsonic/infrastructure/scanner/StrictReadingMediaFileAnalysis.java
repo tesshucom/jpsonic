@@ -14,7 +14,7 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
  * corresponding sort value.
  */
 @FunctionalInterface
-public interface StrictReadingMediaFileAnalysis extends StrictReadingMetaAnalysis {
+interface StrictReadingMediaFileAnalysis extends StrictReadingMetaAnalysis {
 
     // spotless:off
     default void analyze(MediaFile m) {

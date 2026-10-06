@@ -19,8 +19,12 @@
 
 package com.tesshu.jpsonic.adapter.resource;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +36,9 @@ import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
@@ -45,13 +50,16 @@ class MediaFileProviderAdapter implements MediaFileProvider {
 
     private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
+    @Deprecated
     private final MediaSearchProvider deligate;
+    private final GenreMasterProvider genreMasterProvider;
 
     MediaFileProviderAdapter(SettingsFacade settingsFacade, MediaFileDao mediaFileDao,
-            MediaSearchProvider mediaSearchProvider) {
+            MediaSearchProvider mediaSearchProvider, GenreMasterProvider genreMasterProvider) {
         this.settingsFacade = settingsFacade;
         this.mediaFileDao = mediaFileDao;
         this.deligate = mediaSearchProvider;
+        this.genreMasterProvider = genreMasterProvider;
     }
 
     @Override
@@ -91,9 +99,14 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     }
 
     @Override
-    public List<MediaFile> findAlbumsByGenres(List<MusicFolder> musicFolders, String genres,
-            long offset, long count) {
-        return deligate.findAlbumsByGenres(musicFolders, genres, offset, count);
+    public List<MediaFile> findAlbumsByGenres(List<MusicFolder> folders, String genres, long offset,
+            long count) {
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = genreMasterProvider
+            .findPreAnalyzedGenres(Arrays.asList(genres), true);
+        return mediaFileDao.findAlbumsByGenres(folders, preAnalyzedGenres, offset, count);
     }
 
     @Override
@@ -117,7 +130,10 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     @Override
     public List<MediaFile> findChildren(List<MusicFolder> folders, String genres, Album album,
             long offset, long count, Type... types) {
-        return deligate.findChildren(folders, genres, album, offset, count, types);
+        return mediaFileDao
+            .findChildren(folders,
+                    genreMasterProvider.findPreAnalyzedGenres(Arrays.asList(genres), true), album,
+                    offset, count, types);
     }
 
     @Override
@@ -199,7 +215,9 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     @Override
     public List<MediaFile> findSongsByGenres(List<MusicFolder> folders, String genres, long offset,
             long count, Type... types) {
-        return deligate.getSongsByGenres(folders, genres, offset, count, types);
+        List<String> preAnalyzedGenres = genreMasterProvider
+            .findPreAnalyzedGenres(List.of(genres), true);
+        return mediaFileDao.getSongsByGenres(folders, preAnalyzedGenres, offset, count, types);
     }
 
     @Override
