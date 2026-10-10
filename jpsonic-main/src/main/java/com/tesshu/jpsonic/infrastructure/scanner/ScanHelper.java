@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.domain.contract.Orderable;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -70,19 +69,19 @@ public class ScanHelper {
     private final SettingsFacade settingsFacade;
     private final StaticsDao staticsDao;
     private final MediaFileDao mediaFileDao;
-    private final IndexManager indexManager;
+    private final Indexer indexer;
     private final WritableMediaFileService wmfs;
 
     private final AtomicBoolean cancel = new AtomicBoolean();
 
     public ScanHelper(ScannerStateServiceImpl scannerState, SettingsFacade settingsFacade,
-            StaticsDao staticsDao, MediaFileDao mediaFileDao, IndexManager indexManager,
+            StaticsDao staticsDao, MediaFileDao mediaFileDao, Indexer indexer,
             WritableMediaFileService wmfs) {
         this.scannerState = scannerState;
         this.settingsFacade = settingsFacade;
         this.staticsDao = staticsDao;
         this.mediaFileDao = mediaFileDao;
-        this.indexManager = indexManager;
+        this.indexer = indexer;
         this.wmfs = wmfs;
     }
 
@@ -201,15 +200,15 @@ public class ScanHelper {
      */
     void expungeFileStructure() {
         // Step 1: Remove artists from index
-        mediaFileDao.getArtistExpungeCandidates().forEach(indexManager::expungeArtist);
+        mediaFileDao.getArtistExpungeCandidates().forEach(indexer::expungeArtist);
 
         // Step 2: Remove albums from index
-        mediaFileDao.getAlbumExpungeCandidates().forEach(indexManager::expungeAlbum);
+        mediaFileDao.getAlbumExpungeCandidates().forEach(indexer::expungeAlbum);
 
         // Step 3: Remove songs from index, with periodic wait
         List<Integer> songIds = mediaFileDao.getSongExpungeCandidates();
         for (int i = 0; i < songIds.size(); i++) {
-            indexManager.expungeSong(songIds.get(i));
+            indexer.expungeSong(songIds.get(i));
             if (i % ScanConstants.EXPUNGE_WAIT_INTERVAL == 0) {
                 repeatWait();
                 if (isInterrupted()) {

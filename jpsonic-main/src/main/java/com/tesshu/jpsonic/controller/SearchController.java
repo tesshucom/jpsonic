@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.form.SearchCommand;
+import com.tesshu.jpsonic.infrastructure.scanner.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.scanner.IndexType;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.search.LegacySearchResult;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
-import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteriaDirector;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexType;
-import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;

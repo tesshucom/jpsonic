@@ -24,9 +24,7 @@ package com.tesshu.jpsonic.infrastructure.search;
 import java.util.List;
 
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
-import com.tesshu.jpsonic.infrastructure.search.legacy.LegacySearchResult;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
@@ -44,8 +42,6 @@ public interface LegacySearch {
     List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
 
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
-
-    List<Genre> getGenres(boolean sortByAlbum);
 
     List<Album> getAlbumId3sByGenres(String genres, long offset, long count,
             List<MusicFolder> musicFolders);

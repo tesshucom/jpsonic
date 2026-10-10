@@ -27,10 +27,10 @@ import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.Playlist;
 import com.tesshu.jpsonic.domain.provider.resource.PlaylistProvider;
+import com.tesshu.jpsonic.infrastructure.comparator.ComparatorsFacade;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import com.tesshu.jpsonic.persistence.api.repository.PlaylistDao;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -41,17 +41,17 @@ class PlaylistProviderAdapter implements PlaylistProvider {
         .of(MediaFile.Type.PODCAST, MediaFile.Type.VIDEO, MediaFile.Type.DIRECTORY)
         .toArray(size -> new MediaFile.Type[size]);
 
-    private final MetadataReadingProcessor readingProcessor;
-    private final JpsonicComparators comparators;
-    private final MediaFileDao mediaFileDao;
     private final PlaylistDao playlistDao;
+    private final MediaFileDao mediaFileDao;
+    private final ComparatorsFacade comparatorsFacade;
+    private final MetadataReadingProcessor readingProcessor;
 
-    PlaylistProviderAdapter(MetadataReadingProcessor readingProcessor,
-            JpsonicComparators comparators, MediaFileDao mediaFileDao, PlaylistDao playlistDao) {
-        this.readingProcessor = readingProcessor;
-        this.comparators = comparators;
-        this.mediaFileDao = mediaFileDao;
+    PlaylistProviderAdapter(PlaylistDao playlistDao, MediaFileDao mediaFileDao,
+            ComparatorsFacade comparatorsFacade, MetadataReadingProcessor readingProcessor) {
         this.playlistDao = playlistDao;
+        this.mediaFileDao = mediaFileDao;
+        this.comparatorsFacade = comparatorsFacade;
+        this.readingProcessor = readingProcessor;
     }
 
     @Override
@@ -79,7 +79,7 @@ class PlaylistProviderAdapter implements PlaylistProvider {
             .findPlaylists(0, Integer.MAX_VALUE)
             .stream()
             .map(readingProcessor::analyzeName)
-            .sorted(comparators.nameableOrder())
+            .sorted(comparatorsFacade.nameableOrder())
             .map(Entry::getKey)
             .skip(offset)
             .limit(count)
@@ -95,7 +95,7 @@ class PlaylistProviderAdapter implements PlaylistProvider {
             .findPublishedPlaylists(0, Integer.MAX_VALUE)
             .stream()
             .map(readingProcessor::analyzeName)
-            .sorted(comparators.nameableOrder())
+            .sorted(comparatorsFacade.nameableOrder())
             .map(Entry::getKey)
             .skip(offset)
             .limit(count)

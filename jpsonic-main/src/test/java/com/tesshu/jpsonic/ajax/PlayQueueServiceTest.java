@@ -45,6 +45,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -72,8 +74,6 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
-import com.tesshu.jpsonic.service.language.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

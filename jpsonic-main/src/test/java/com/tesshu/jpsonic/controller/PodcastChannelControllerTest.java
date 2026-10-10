@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastChannel;
 import com.tesshu.jpsonic.persistence.api.entity.PodcastEpisode;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,7 +101,7 @@ class PodcastChannelControllerTest {
         Mockito.when(podcastService.getEpisodes(channelId)).thenReturn(Arrays.asList(episode));
         mockMvc = MockMvcBuilders
             .standaloneSetup(new PodcastChannelController(mock(UserService.class),
-                    mock(ScannerStateService.class), podcastService))
+                    mock(ScannerStateProvider.class), podcastService))
             .build();
         result = mockMvc
             .perform(MockMvcRequestBuilders

@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.domain.model.MusicFolderContent;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.AvatarScheme;
 import com.tesshu.jpsonic.domain.system.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
@@ -49,7 +50,6 @@ import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -83,7 +83,7 @@ public class TopController {
     private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final ScannerStateService scannerStateService;
+    private final ScannerStateProvider scannerStateProvider;
     private final MusicFolderProvider musicFolderProvider;
     private final MusicIndexProvider musicIndexProvider;
     private final MediaFileProvider mediaFileProvider;
@@ -92,7 +92,7 @@ public class TopController {
     private final AirsonicLocaleResolver localeResolver;
 
     public TopController(SettingsFacade settingsFacade, MusicFolderService musicFolderService,
-            UserService userService, ScannerStateService scannerStateService,
+            UserService userService, ScannerStateProvider scannerStateProvider,
             MusicFolderProvider musicFolderProvider, MusicIndexProvider musicIndexProvider,
             MediaFileProvider mediaFileProvider, BuildInfoProvider buildInfoProvider,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
@@ -100,7 +100,7 @@ public class TopController {
         this.settingsFacade = settingsFacade;
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.scannerStateService = scannerStateService;
+        this.scannerStateProvider = scannerStateProvider;
         this.musicFolderProvider = musicFolderProvider;
         this.musicIndexProvider = musicIndexProvider;
         this.mediaFileProvider = mediaFileProvider;
@@ -178,7 +178,7 @@ public class TopController {
             }
         });
         selectedItem.ifPresent(v -> map.put("selectedItem", v));
-        selectedItem.ifPresent(v -> map.put("scanning", scannerStateService.isScanning()));
+        selectedItem.ifPresent(v -> map.put("scanning", scannerStateProvider.isScanning()));
 
         return new ModelAndView("top", "model", map);
     }
@@ -193,7 +193,7 @@ public class TopController {
     public long getLastModified(HttpServletRequest request) throws ServletRequestBindingException {
         saveSelectedMusicFolder(request);
 
-        if (scannerStateService.isScanning()) {
+        if (scannerStateProvider.isScanning()) {
             return -1L;
         }
 

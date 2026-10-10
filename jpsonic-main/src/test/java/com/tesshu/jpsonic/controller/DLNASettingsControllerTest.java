@@ -47,14 +47,14 @@ import com.tesshu.jpsonic.feature.crypt.upnp.UpnpKeyManager;
 import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.feature.upnp.UPnPService;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
 import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager;
 import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
-import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
-import com.tesshu.jpsonic.persistence.core.repository.MenuItemDao;
+import com.tesshu.jpsonic.persistence.core.repository.MenuItemDaoImpl;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -230,32 +230,32 @@ class DLNASettingsControllerTest {
             // Create dummy data
             List<MenuItemWithDefaultName> topMenuItems = new ArrayList<>();
             topMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.FOLDER,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.FOLDER,
                         MenuItemId.ROOT, "", true, 1), "top1"));
             topMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ARTIST,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.ARTIST,
                         MenuItemId.ROOT, "", true, 2), "top2"));
             topMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.ALBUM,
                         MenuItemId.ROOT, "", false, 3), "top3"));
             when(menuItemManager.getTopMenuItems(ViewType.UPNP)).thenReturn(topMenuItems);
 
             List<MenuItemWithDefaultName> subMenuItems = new ArrayList<>();
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE,
-                        MenuItemId.FOLDER, "", true, 1), "sub1"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", true, 1), "sub1"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.INDEX,
                         MenuItemId.FOLDER, "", true, 2), "sub2"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                         MenuItemId.ALBUM_ARTIST, MenuItemId.ARTIST, "", false, 3), "sub3"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX_ID3,
-                        MenuItemId.ARTIST, "", false, 4), "sub4"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.INDEX_ID3, MenuItemId.ARTIST, "", false, 4), "sub4"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3,
-                        MenuItemId.ALBUM, "", false, 5), "sub5"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             when(menuItemManager.getSubMenuItems(ViewType.UPNP)).thenReturn(subMenuItems);
             menuItemManager.getSubMenuItems(ViewType.UPNP);
 
@@ -452,7 +452,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemDaoImpl menuItemDao = mock(MenuItemDaoImpl.class);
             MenuItemManager menuItemManager = new MenuItemManager(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
@@ -470,7 +470,8 @@ class DLNASettingsControllerTest {
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
-            ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
+            ArgumentCaptor<MenuItemData> menuItemCaptor = ArgumentCaptor
+                .forClass(MenuItemData.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -482,7 +483,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemDaoImpl menuItemDao = mock(MenuItemDaoImpl.class);
             MenuItemManager menuItemManager = new MenuItemManager(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
@@ -493,22 +494,22 @@ class DLNASettingsControllerTest {
 
             List<MenuItemWithDefaultName> subMenuItems = new ArrayList<>();
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE,
-                        MenuItemId.FOLDER, "", true, 1), "sub1"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", true, 1), "sub1"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.INDEX,
                         MenuItemId.FOLDER, "", true, 2), "sub2"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                         MenuItemId.ALBUM_ARTIST, MenuItemId.ARTIST, "", false, 3), "sub3"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX_ID3,
-                        MenuItemId.ARTIST, "", false, 4), "sub4"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.INDEX_ID3, MenuItemId.ARTIST, "", false, 4), "sub4"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3,
-                        MenuItemId.ALBUM, "", false, 5), "sub5"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             subMenuItems
-                .forEach(menuItem -> when(menuItemDao.getMenuItem(menuItem.getId().value()))
+                .forEach(menuItem -> when(menuItemDao.getMenuItemData(menuItem.getId().value()))
                     .thenReturn(menuItem));
 
             DLNASettingsCommand command = new DLNASettingsCommand();
@@ -519,7 +520,8 @@ class DLNASettingsControllerTest {
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
-            ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
+            ArgumentCaptor<MenuItemData> menuItemCaptor = ArgumentCaptor
+                .forClass(MenuItemData.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -531,7 +533,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemDaoImpl menuItemDao = mock(MenuItemDaoImpl.class);
             MenuItemManager menuItemManager = new MenuItemManager(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
@@ -543,27 +545,28 @@ class DLNASettingsControllerTest {
             // Create dummy data
             List<MenuItemWithDefaultName> subMenuItems = new ArrayList<>();
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE,
-                        MenuItemId.FOLDER, "", true, 1), "sub1"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", true, 1), "sub1"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.INDEX,
                         MenuItemId.FOLDER, "", true, 2), "sub2"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                         MenuItemId.ALBUM_ARTIST, MenuItemId.ARTIST, "", false, 3), "sub3"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX_ID3,
-                        MenuItemId.ARTIST, "", false, 4), "sub4"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.INDEX_ID3, MenuItemId.ARTIST, "", false, 4), "sub4"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3,
-                        MenuItemId.ALBUM, "", false, 5), "sub5"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             subMenuItems.forEach(menuItem -> {
                 if (menuItem.getId() == MenuItemId.MEDIA_FILE) {
-                    when(menuItemDao.getMenuItem(MenuItemId.MEDIA_FILE.value()))
-                        .thenReturn(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                    when(menuItemDao.getMenuItemData(MenuItemId.MEDIA_FILE.value()))
+                        .thenReturn(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                                 MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", false, 1), "sub1"));
                 } else {
-                    when(menuItemDao.getMenuItem(menuItem.getId().value())).thenReturn(menuItem);
+                    when(menuItemDao.getMenuItemData(menuItem.getId().value()))
+                        .thenReturn(menuItem);
                 }
             });
 
@@ -574,11 +577,12 @@ class DLNASettingsControllerTest {
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
-            ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
+            ArgumentCaptor<MenuItemData> menuItemCaptor = ArgumentCaptor
+                .forClass(MenuItemData.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
 
-            List<MenuItem> results = menuItemCaptor.getAllValues();
+            List<MenuItemData> results = menuItemCaptor.getAllValues();
             assertEquals(5, results.size());
             results
                 .stream()
@@ -592,7 +596,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder.create().build();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemDaoImpl menuItemDao = mock(MenuItemDaoImpl.class);
             MenuItemManager menuItemManager = new MenuItemManager(serverLocaleProvider, menuItemDao,
                     mock(MessageSource.class));
             controller = new DLNASettingsController(settingsFacade, musicFolderService,
@@ -604,27 +608,29 @@ class DLNASettingsControllerTest {
             // Create dummy data
             List<MenuItemWithDefaultName> subMenuItems = new ArrayList<>();
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE,
-                        MenuItemId.FOLDER, "Changed Sub1", true, 1), "sub1"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "Changed Sub1", true, 1),
+                        "sub1"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP, MenuItemId.INDEX,
                         MenuItemId.FOLDER, "", true, 2), "sub2"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                         MenuItemId.ALBUM_ARTIST, MenuItemId.ARTIST, "", false, 3), "sub3"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.INDEX_ID3,
-                        MenuItemId.ARTIST, "", false, 4), "sub4"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.INDEX_ID3, MenuItemId.ARTIST, "", false, 4), "sub4"));
             subMenuItems
-                .add(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3,
-                        MenuItemId.ALBUM, "", false, 5), "sub5"));
+                .add(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
+                        MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             subMenuItems.forEach(menuItem -> {
                 if (menuItem.getId() == MenuItemId.MEDIA_FILE) {
                     when(menuItemManager.getMenuItem(MenuItemId.MEDIA_FILE))
-                        .thenReturn(new MenuItemWithDefaultName(new MenuItem(ViewType.UPNP,
+                        .thenReturn(new MenuItemWithDefaultName(new MenuItemData(ViewType.UPNP,
                                 MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", false, 1), "sub1"));
                 } else {
-                    when(menuItemDao.getMenuItem(menuItem.getId().value())).thenReturn(menuItem);
+                    when(menuItemDao.getMenuItemData(menuItem.getId().value()))
+                        .thenReturn(menuItem);
                 }
             });
 
@@ -636,11 +642,12 @@ class DLNASettingsControllerTest {
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
-            ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
+            ArgumentCaptor<MenuItemData> menuItemCaptor = ArgumentCaptor
+                .forClass(MenuItemData.class);
             Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
 
-            List<MenuItem> results = menuItemCaptor.getAllValues();
+            List<MenuItemData> results = menuItemCaptor.getAllValues();
             assertEquals(5, results.size());
             results
                 .stream()

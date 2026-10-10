@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;

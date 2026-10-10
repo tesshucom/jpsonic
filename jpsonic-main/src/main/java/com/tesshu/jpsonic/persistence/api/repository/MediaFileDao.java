@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.domain.model.Genre;
 import com.tesshu.jpsonic.domain.model.IndexWithCount;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
@@ -46,7 +47,6 @@ import com.tesshu.jpsonic.domain.model.Playlist;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -411,7 +411,7 @@ public class MediaFileDao {
             template.update("""
                     insert into genre(name, song_count, album_count)
                     values(?, ?, ?)
-                    """, genre.getName(), genre.getSongCount(), genre.getAlbumCount());
+                    """, genre.name(), genre.songCount(), genre.albumCount());
         }
     }
 

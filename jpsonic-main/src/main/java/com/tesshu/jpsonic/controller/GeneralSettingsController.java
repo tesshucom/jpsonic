@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.form.GeneralSettingsCommand;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
+import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.theme.ServerThemeService;
 import com.tesshu.jpsonic.feature.theme.Theme;
@@ -37,7 +38,6 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
-import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -84,13 +84,13 @@ public class GeneralSettingsController {
     private final ServerThemeService serverThemeService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
-    private final ScannerStateService scannerStateService;
+    private final ScannerStateProvider scannerStateProvider;
     private final MusicIndexProvider musicIndexProvider;
 
     public GeneralSettingsController(SettingsFacade settingsFacade, UserService userService,
             ServerLocaleManager serverLocaleManager, ServerThemeService serverThemeService,
             ShareService shareService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService, MusicIndexProvider musicIndexProvider) {
+            ScannerStateProvider scannerStateProvider, MusicIndexProvider musicIndexProvider) {
         super();
         this.settingsFacade = settingsFacade;
         this.userService = userService;
@@ -98,7 +98,7 @@ public class GeneralSettingsController {
         this.serverThemeService = serverThemeService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
-        this.scannerStateService = scannerStateService;
+        this.scannerStateProvider = scannerStateProvider;
         this.musicIndexProvider = musicIndexProvider;
     }
 
@@ -194,7 +194,7 @@ public class GeneralSettingsController {
         command.setShareCount(shareService.getAllShares().size());
         UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-        command.setScanning(scannerStateService.isScanning());
+        command.setScanning(scannerStateProvider.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -281,7 +281,7 @@ public class GeneralSettingsController {
         settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
 
         // Extensions and shortcuts
-        if (!scannerStateService.isScanning()) {
+        if (!scannerStateProvider.isScanning()) {
 
             settingsFacade
                 .staging(SKeys.general.extension.musicFileTypes, command.getMusicFileTypes());

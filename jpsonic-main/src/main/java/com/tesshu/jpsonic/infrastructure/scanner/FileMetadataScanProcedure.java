@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.language.MetadataReadingProcessor;
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -36,7 +36,6 @@ import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent;
 import com.tesshu.jpsonic.persistence.core.entity.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.language.JpsonicComparators;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -92,7 +91,7 @@ public class FileMetadataScanProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(FileMetadataScanProcedure.class);
 
     private final MusicFolderServiceImpl musicFolderService;
-    private final IndexManager indexManager;
+    private final Indexer indexer;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService wmfs;
     private final MediaFileDao mediaFileDao;
@@ -103,15 +102,15 @@ public class FileMetadataScanProcedure {
     private final StrictReadingMediaFileAnalysis mediaFileAnalysis;
     private final JpsonicComparators comparators;
 
-    public FileMetadataScanProcedure(MusicFolderServiceImpl musicFolderService,
-            IndexManager indexManager, MediaFileService mediaFileService,
-            WritableMediaFileService wmfs, MediaFileDao mediaFileDao,
-            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState,
-            ScanHelper scanHelper, MusicIndexProviderImpl musicIndexProvider,
-            MetadataReadingProcessor readingProcessor, JpsonicComparators comparators) {
+    public FileMetadataScanProcedure(MusicFolderServiceImpl musicFolderService, Indexer indexer,
+            MediaFileService mediaFileService, WritableMediaFileService wmfs,
+            MediaFileDao mediaFileDao, SortProcedureService sortProcedure,
+            ScannerStateServiceImpl scannerState, ScanHelper scanHelper,
+            MusicIndexProviderImpl musicIndexProvider, MetadataReadingProcessor readingProcessor,
+            JpsonicComparators comparators) {
         super();
         this.musicFolderService = musicFolderService;
-        this.indexManager = indexManager;
+        this.indexer = indexer;
         this.mediaFileService = mediaFileService;
         this.wmfs = wmfs;
         this.mediaFileDao = mediaFileDao;
@@ -176,7 +175,7 @@ public class FileMetadataScanProcedure {
                 album.setChildrenLastUpdated(context.scanDate());
 
                 mediaFileDao.updateMediaFile(album).ifPresent(updated -> {
-                    indexManager.index(updated);
+                    indexer.index(updated);
                     updatedCount.increment();
                 });
             }
@@ -218,7 +217,7 @@ public class FileMetadataScanProcedure {
                 album.setLastScanned(context.scanDate());
 
                 mediaFileDao.updateMediaFile(album).ifPresent(updated -> {
-                    indexManager.index(updated);
+                    indexer.index(updated);
                     createdCount.increment();
                 });
             }
@@ -385,7 +384,7 @@ public class FileMetadataScanProcedure {
         for (int i = 0; i < ids.size(); i++) {
             MediaFile mediaFile = mediaFileService.getMediaFileStrict(ids.get(i));
 
-            indexManager.index(mediaFile);
+            indexer.index(mediaFile);
 
             if (mediaFile.getMediaType() == MediaType.ALBUM
                     && FAR_FUTURE.equals(mediaFile.getChildrenLastUpdated())) {

@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import com.tesshu.jpsonic.infrastructure.search.index.IndexManager;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
@@ -83,19 +82,18 @@ public class DirectoryScanProcedure {
     private final MusicFolderServiceImpl musicFolderService;
     private final WritableMediaFileService wmfs;
     private final ScannerStateServiceImpl scannerState;
-    private final IndexManager indexManager;
+    private final Indexer indexer;
     private final ScanHelper scanHelper;
 
     public DirectoryScanProcedure(MediaFileDao mediaFileDao,
             MusicFolderServiceImpl musicFolderService, WritableMediaFileService wmfs,
-            ScannerStateServiceImpl scannerState, IndexManager indexManager,
-            ScanHelper scanHelper) {
+            ScannerStateServiceImpl scannerState, Indexer indexer, ScanHelper scanHelper) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.musicFolderService = musicFolderService;
         this.wmfs = wmfs;
         this.scannerState = scannerState;
-        this.indexManager = indexManager;
+        this.indexer = indexer;
         this.scanHelper = scanHelper;
     }
 
@@ -216,7 +214,7 @@ public class DirectoryScanProcedure {
                 mediaFileDao
                     .updateMediaFile(wmfs.parseVideo(context.scanDate(), video))
                     .ifPresent(updated -> {
-                        indexManager.index(updated); // index only if update succeeded
+                        indexer.index(updated); // index only if update succeeded
                         count.increment(); // count only parsed + indexed videos
                     });
 

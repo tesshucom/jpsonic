@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.model.MenuItem;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.feature.upnp.content.ProcId;
+import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
 import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -144,7 +145,7 @@ class RootProcTest extends AbstractNeedsScan {
             MenuItem parent = menuItemManager.requireMenuItem(MenuItemId.FOLDER);
             MenuItem sub1 = menuItemManager.requireMenuItem(MenuItemId.MEDIA_FILE);
             assertTrue(sub1.enabled());
-            com.tesshu.jpsonic.persistence.core.entity.MenuItem sub2 = menuItemManager
+            MenuItemData sub2 = menuItemManager
                 .getMenuItem(MenuItemId.INDEX);
             assertFalse(sub2.isEnabled());
             assertEquals(0, proc.getChildSizeOf(parent));
@@ -230,7 +231,7 @@ class RootProcTest extends AbstractNeedsScan {
         void testMultiSubMenues() throws ExecutionException {
             MenuItem sub1 = menuItemManager.requireMenuItem(MenuItemId.MEDIA_FILE);
             assertTrue(sub1.enabled());
-            com.tesshu.jpsonic.persistence.core.entity.MenuItem sub2 = menuItemManager
+            MenuItemData sub2 = menuItemManager
                 .getMenuItem(MenuItemId.INDEX);
             assertFalse(sub2.isEnabled());
             BrowseResult result = proc

@@ -19,6 +19,9 @@
 
 package com.tesshu.jpsonic.adapter.resource;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Collections;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.model.Album;
@@ -26,9 +29,11 @@ import com.tesshu.jpsonic.domain.model.Artist;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
+import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
-import com.tesshu.jpsonic.infrastructure.search.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
+import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,11 +41,16 @@ class AlbumProviderAdapter implements AlbumProvider {
 
     private final AlbumDao albumDao;
     private final MediaSearchProvider deligate;
+    private final GenreMasterProvider genreMasterProvider;
+    private final MediaFileDao mediaFileDao;
 
-    AlbumProviderAdapter(AlbumDao albumDao, MediaSearchProvider deligate) {
+    AlbumProviderAdapter(AlbumDao albumDao, MediaSearchProvider deligate,
+            GenreMasterProvider genreMasterProvider, MediaFileDao mediaFileDao) {
         super();
         this.albumDao = albumDao;
         this.deligate = deligate;
+        this.genreMasterProvider = genreMasterProvider;
+        this.mediaFileDao = mediaFileDao;
     }
 
     @Override
@@ -49,8 +59,13 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
-    public int countChldren(List<MusicFolder> folders, String genre, Album album, Type... types) {
-        return deligate.countChldren(folders, genre, album, types);
+    public int countChldren(List<MusicFolder> folders, String genres, Album album, Type... types) {
+        if (isEmpty(genres)) {
+            return 0;
+        }
+        List<String> preAnalyzedGenres = genreMasterProvider
+            .findPreAnalyzedGenres(List.of(genres), true);
+        return mediaFileDao.countChldren(folders, preAnalyzedGenres, album, types);
     }
 
     @Override
@@ -62,7 +77,13 @@ class AlbumProviderAdapter implements AlbumProvider {
     @Override
     public List<Album> findAlbums(List<MusicFolder> musicFolders, String genres, long offset,
             long count) {
-        return deligate.findAlbumId3sByGenres(musicFolders, genres, offset, count);
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+        List<String> preAnalyzedGenres = genreMasterProvider
+            .findPreAnalyzedGenres(List.of(genres), true);
+        return albumDao
+            .findAlbums(musicFolders, preAnalyzedGenres, AlbumSortOrder.DEFAULT, offset, count);
     }
 
     @Override
