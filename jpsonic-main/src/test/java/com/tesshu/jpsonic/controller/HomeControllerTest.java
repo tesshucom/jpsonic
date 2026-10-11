@@ -255,7 +255,9 @@ class HomeControllerTest {
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.GENRE.getId());
             List<Genre> genres = Arrays.asList(new Genre("pops", 0, 0));
-            Mockito.when(genreMasterProvider.getLegacyGenres(true)).thenReturn(genres);
+            Mockito
+                .when(genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE))
+                .thenReturn(genres);
             controller.handleRequestInternal(req);
             Mockito
                 .verify(legacySearch, Mockito.times(1))

@@ -521,7 +521,7 @@ class SearchServiceTest extends AbstractNeedsScan {
     @Test
     void testGenreMaster() {
 
-        List<Genre> genres = genreMasterProvider.getLegacyGenres(false);
+        List<Genre> genres = genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE);
         assertEquals(5, genres.size(), "Song genre size");
         assertEquals(1L,
                 genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.name())).count(),
@@ -536,7 +536,7 @@ class SearchServiceTest extends AbstractNeedsScan {
         assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.name())).count(),
                 "Song genre: Metal");
 
-        genres = genreMasterProvider.getLegacyGenres(true);
+        genres = genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE);
         assertEquals(4, genres.size(), "Album genre size");
         assertEquals(1L,
                 genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.name())).count(),

@@ -78,9 +78,9 @@ public class MoreController {
         result
             .addObject("model", LegacyMap
                 .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                        genreMasterProvider.getLegacyGenres(false), "currentYear",
-                        Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
-                        "brand", EnvironmentProvider.getInstance().getBrand()));
+                        genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE),
+                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders",
+                        musicFolders, "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;
     }
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.model.Genre;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterCriteria;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
@@ -153,7 +154,7 @@ class GenreMasterProviderAdapterTest {
                 .build();
             init();
 
-            genreMasterProvider.getLegacyGenres(false);
+            genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.FALSE
@@ -167,7 +168,7 @@ class GenreMasterProviderAdapterTest {
                 .build();
             init();
 
-            genreMasterProvider.getLegacyGenres(true);
+            genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.TRUE
@@ -184,7 +185,7 @@ class GenreMasterProviderAdapterTest {
                 .build();
             init();
 
-            genreMasterProvider.getLegacyGenres(false);
+            genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE);
         }
 
         @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.TRUE
@@ -201,7 +202,7 @@ class GenreMasterProviderAdapterTest {
                 .build();
             init();
 
-            genreMasterProvider.getLegacyGenres(true);
+            genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -508,6 +509,72 @@ class GenreMasterProviderAdapterTest {
                     assertEquals(1, genres.get(i).songCount());
                 }
             }
+        }
+        
+        
+        @GetGenresDecisions.Conditions.Settings.IsSortGenresByAlphabet.TRUE
+        @GetGenresDecisions.Conditions.Params.SortByAlbum.TRUE
+        @GetGenresDecisions.Result.GenreSort.AlbumAlphabetical
+        @Test
+        void testSkipOffset() {
+            settingsFacade = SettingsFacadeBuilder
+                .create()
+                .withString(I18nSKeys.localeLanguage, Locale.ROOT.getLanguage())
+                .withString(I18nSKeys.localeCountry, Locale.ROOT.getCountry())
+                .withString(I18nSKeys.localeVariant, Locale.ROOT.getVariant())
+                .withBoolean(SKeys.general.sort.genresByAlphabet, true)
+                .build();
+            init();
+
+            List<Genre> genres = genreMasterProviderAdapter.getLegacyGenres(true, 0, Integer.MAX_VALUE);
+            assertEquals(11, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).name());
+            assertEquals("GENRE_A", genres.get(1).name());
+            assertEquals("GENRE_B", genres.get(2).name());
+            assertEquals("GENRE_D", genres.get(3).name());
+            assertEquals("GENRE_E", genres.get(4).name());
+            assertEquals("GENRE_F", genres.get(5).name());
+            assertEquals("GENRE_G", genres.get(6).name());
+            assertEquals("GENRE_H", genres.get(7).name());
+            assertEquals("GENRE_K", genres.get(8).name());
+            assertEquals("GENRE_L", genres.get(9).name());
+            assertEquals("NO_ALBUM", genres.get(10).name());
+            
+            genres = genreMasterProviderAdapter.getLegacyGenres(true, 1, 1);
+            assertEquals(1, genres.size());
+            assertEquals("GENRE_A", genres.get(0).name());
+            
+            genres = genreMasterProviderAdapter.getLegacyGenres(true, 10, 10);
+            assertEquals(1, genres.size());
+            assertEquals("NO_ALBUM", genres.get(0).name());
+
+            genres = genreMasterProviderAdapter.getLegacyGenres(false, 0, Integer.MAX_VALUE);
+            assertEquals(15, genres.size());
+            assertEquals("Audiobook - Historical", genres.get(0).name());
+            assertEquals("Audiobook - Sports", genres.get(1).name());
+            assertEquals("GENRE_A", genres.get(2).name());
+            assertEquals("GENRE_B", genres.get(3).name());
+            assertEquals("GENRE_C", genres.get(4).name());
+            assertEquals("GENRE_D", genres.get(5).name());
+            assertEquals("GENRE_E", genres.get(6).name());
+            assertEquals("GENRE_F", genres.get(7).name());
+            assertEquals("GENRE_G", genres.get(8).name());
+            assertEquals("GENRE_H", genres.get(9).name());
+            assertEquals("GENRE_I", genres.get(10).name());
+            assertEquals("GENRE_J", genres.get(11).name());
+            assertEquals("GENRE_K", genres.get(12).name());
+            assertEquals("GENRE_L", genres.get(13).name());
+            assertEquals("NO_ALBUM", genres.get(14).name());
+            
+            genres = genreMasterProviderAdapter.getLegacyGenres(false, 1, 1);
+            assertEquals(1, genres.size());
+            assertEquals("Audiobook - Sports", genres.get(0).name());
+            
+            genres = genreMasterProviderAdapter.getLegacyGenres(false, 10, 10);
+            assertEquals(5, genres.size());
+            assertEquals("GENRE_I", genres.get(0).name());
+
+        
         }
     }
 }

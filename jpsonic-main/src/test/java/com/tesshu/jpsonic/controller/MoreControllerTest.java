@@ -63,7 +63,7 @@ class MoreControllerTest {
                     genreMasterProvider))
             .build();
         Mockito
-            .when(genreMasterProvider.getLegacyGenres(false))
+            .when(genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE))
             .thenReturn(Collections.emptyList());
         Mockito
             .when(playerService.getPlayer(Mockito.any(), Mockito.any()))
