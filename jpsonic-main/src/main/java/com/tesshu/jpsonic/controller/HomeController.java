@@ -156,7 +156,7 @@ public class HomeController {
             albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
             break;
         case GENRE:
-            List<Genre> genres = genreMasterProvider.getLegacyGenres(true);
+            List<Genre> genres = genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE);
             map.put("genres", genres);
             if (!genres.isEmpty()) {
                 String genre = getStringParameter(request, Attributes.Request.GENRE.value(),

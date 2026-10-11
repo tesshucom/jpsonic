@@ -442,7 +442,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         Genres genres = new Genres();
 
-        for (Genre genre : genreMasterProvider.getLegacyGenres(false)) {
+        for (Genre genre : genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE)) {
             org.subsonic.restapi.Genre g = new org.subsonic.restapi.Genre();
             genres.getGenre().add(g);
             g.setContent(genre.name());
