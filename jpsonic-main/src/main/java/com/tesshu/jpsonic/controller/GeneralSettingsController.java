@@ -151,8 +151,6 @@ public class GeneralSettingsController {
 
         // Suppressed legacy features
         command.setUseJsonp(settingsFacade.get(SKeys.general.legacy.useJsonp));
-        command.setShowIndexDetails(settingsFacade.get(SKeys.general.legacy.showIndexDetails));
-        command.setShowDBDetails(settingsFacade.get(SKeys.general.legacy.showDbDetails));
         command.setUseCast(settingsFacade.get(SKeys.general.legacy.useCast));
         command.setUsePartyMode(settingsFacade.get(SKeys.general.legacy.usePartyMode));
 
@@ -274,10 +272,7 @@ public class GeneralSettingsController {
         // Suppressed legacy features
         settingsFacade.staging(SKeys.general.legacy.useRadio, command.isUseRadio());
         settingsFacade.staging(SKeys.general.legacy.useJsonp, command.isUseJsonp());
-        settingsFacade.staging(SKeys.general.legacy.showIndexDetails, command.isShowIndexDetails());
-        settingsFacade.staging(SKeys.general.legacy.showDbDetails, command.isShowDBDetails());
         settingsFacade.staging(SKeys.general.legacy.useCast, command.isUseCast());
-        settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
         settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
 
         // Extensions and shortcuts

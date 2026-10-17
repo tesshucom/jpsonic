@@ -31,7 +31,6 @@ import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -50,8 +49,6 @@ import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.DirectoryInfo;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider.LocaleInfo;
 import com.tesshu.jpsonic.infrastructure.db.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
-import com.tesshu.jpsonic.infrastructure.settings.SKeys;
-import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.base.DaoHelper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
@@ -80,9 +77,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class InternalHelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
-    private static final String TABLE_TYPE_TABLE = "table";
 
-    private final SettingsFacade settingsFacade;
     private final MusicFolderService musicFolderService;
     private final UserService userService;
     private final DaoHelper daoHelper;
@@ -90,11 +85,9 @@ public class InternalHelpController {
     private final StaticsDao staticsDao;
     private final FFmpeg ffmpeg;
 
-    public InternalHelpController(SettingsFacade settingsFacade, UserService userService,
-            MusicFolderService musicFolderService, DaoHelper daoHelper, Environment environment,
-            StaticsDao staticsDao, FFmpeg ffmpeg) {
+    public InternalHelpController(UserService userService, MusicFolderService musicFolderService,
+            DaoHelper daoHelper, Environment environment, StaticsDao staticsDao, FFmpeg ffmpeg) {
         super();
-        this.settingsFacade = settingsFacade;
         this.userService = userService;
         this.musicFolderService = musicFolderService;
         this.daoHelper = daoHelper;
@@ -120,9 +113,6 @@ public class InternalHelpController {
         gatherLocaleInfo(map);
         map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
         gatherStats(map);
-
-        map.put("showIndexDetails", settingsFacade.get(SKeys.general.legacy.showIndexDetails));
-        map.put("showDBDetails", settingsFacade.get(SKeys.general.legacy.showDbDetails));
 
         return new ModelAndView("internalhelp", "model", map);
     }
@@ -204,51 +194,16 @@ public class InternalHelpController {
     @SuppressFBWarnings(value = { "CRLF_INJECTION_LOGS",
             "SQL_INJECTION_SPRING_JDBC" }, justification = "False positive. find-sec-bugs#614/find-sec-bugs#385")
     private void gatherDatabaseInfo(Map<String, Object> map) {
-
         try (Connection conn = daoHelper.getDataSource().getConnection()) {
-
             // Driver name/version
             map.put("dbDriverName", conn.getMetaData().getDriverName());
             map.put("dbDriverVersion", conn.getMetaData().getDriverVersion());
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
-
-            if (!settingsFacade.get(SKeys.general.legacy.showDbDetails)) {
-                return;
-            }
-
-            // Gather information for existing database tables
-            try (ResultSet resultSet = conn.getMetaData().getTables(null, null, "%", null)) {
-
-                SortedMap<String, Long> dbTableCount = new TreeMap<>();
-                while (resultSet.next()) {
-                    String tableSchema = resultSet.getString("TABLE_SCHEM");
-                    String tableName = resultSet.getString("TABLE_NAME");
-                    String tableType = resultSet.getString("TABLE_TYPE");
-                    if (LOG.isDebugEnabled()) {
-                        LOG
-                            .debug("Got database table {}, schema {}, type {}", tableName,
-                                    tableSchema, tableType);
-                    }
-                    if (!TABLE_TYPE_TABLE.equalsIgnoreCase(tableType)) {
-                        continue; // Table type
-                    }
-                    // MariaDB has "null" schemas, while other databases use "public".
-                    if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) {
-                        continue; // Table schema
-                    }
-                    Long tableCount = daoHelper
-                        .getJdbcTemplate()
-                        .queryForObject("SELECT count(*) FROM %s".formatted(tableName), Long.class);
-                    dbTableCount.put(tableName, tableCount);
-                }
-                map.put("dbTableCount", dbTableCount);
-            }
         } catch (SQLException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to gather information", e);
             }
         }
-
         putDatabaseLegacyInfoTo(map);
     }
 
