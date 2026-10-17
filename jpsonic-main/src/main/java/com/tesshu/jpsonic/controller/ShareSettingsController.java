@@ -81,13 +81,14 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        model
-            .addAttribute("model",
-                    LegacyMap
-                        .of("shareInfos", getShareInfos(request), "user",
-                                userService.getCurrentUserStrict(request), "useRadio",
-                                settingsFacade.get(SKeys.general.legacy.useRadio), "shareCount",
-                                shareService.getAllShares().size()));
+        // spotless:off
+        model.addAttribute("model", LegacyMap.of(
+                "shareInfos", getShareInfos(request),
+                "user", userService.getCurrentUserStrict(request),
+                "useRadio", settingsFacade.get(SKeys.general.legacy.useRadio),
+                "useDatabaseSettings", settingsFacade.get(SKeys.general.legacy.useDatabaseSettings),
+                "shareCount", shareService.getAllShares().size()));
+        // spotless:on
         return "shareSettings";
     }
 

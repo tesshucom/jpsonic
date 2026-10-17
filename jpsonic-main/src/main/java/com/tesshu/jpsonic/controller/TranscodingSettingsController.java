@@ -77,6 +77,7 @@ public class TranscodingSettingsController {
         User user = userService.getCurrentUserStrict(request);
         UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
+        // spotless:off
         model
             .addAttribute("model", LegacyMap
                 .of("transcodings", transcodingService.getAllTranscodings(), "preferredFormat",
@@ -87,7 +88,9 @@ public class TranscodingSettingsController {
                         "hlsCommand", settingsFacade.get(SKeys.transcoding.hlsCommand), "brand",
                         EnvironmentProvider.getInstance().getBrand(), "isOpenDetailSetting",
                         userSettings.isOpenDetailSetting(), "useRadio",
-                        settingsFacade.get(SKeys.general.legacy.useRadio), "showOutlineHelp",
+                        settingsFacade.get(SKeys.general.legacy.useRadio), "useDatabaseSettings",
+                        settingsFacade.get(SKeys.general.legacy.useDatabaseSettings),
+                        "showOutlineHelp",
                         outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
                         "shareCount", shareService.getAllShares().size()));
         return "transcodingSettings";

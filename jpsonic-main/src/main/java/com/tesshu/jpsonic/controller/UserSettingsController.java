@@ -144,6 +144,8 @@ public class UserSettingsController {
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
+        command
+            .setUseDatabaseSettings(settingsFacade.get(SKeys.general.legacy.useDatabaseSettings));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 

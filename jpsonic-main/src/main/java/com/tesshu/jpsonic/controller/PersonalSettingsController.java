@@ -232,6 +232,8 @@ public class PersonalSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
+        command
+            .setUseDatabaseSettings(settingsFacade.get(SKeys.general.legacy.useDatabaseSettings));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

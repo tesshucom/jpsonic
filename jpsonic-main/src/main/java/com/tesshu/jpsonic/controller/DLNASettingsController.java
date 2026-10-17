@@ -233,6 +233,8 @@ public class DLNASettingsController {
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
         command
+            .setUseDatabaseSettings(settingsFacade.get(SKeys.general.legacy.useDatabaseSettings));
+        command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);

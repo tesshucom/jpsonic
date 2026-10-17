@@ -185,6 +185,8 @@ public class GeneralSettingsController {
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
+        command
+            .setUseDatabaseSettings(settingsFacade.get(SKeys.general.legacy.useDatabaseSettings));
         User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
@@ -271,6 +273,8 @@ public class GeneralSettingsController {
 
         // Suppressed legacy features
         settingsFacade.staging(SKeys.general.legacy.useRadio, command.isUseRadio());
+        settingsFacade
+            .staging(SKeys.general.legacy.useDatabaseSettings, command.isUseDatabaseSettings());
         settingsFacade.staging(SKeys.general.legacy.useJsonp, command.isUseJsonp());
         settingsFacade.staging(SKeys.general.legacy.useCast, command.isUseCast());
         settingsFacade.staging(SKeys.general.legacy.usePartyMode, command.isUsePartyMode());
