@@ -194,6 +194,7 @@ class SongByGenreProcTest {
             Map<String, Genre> c = LegacyMap.of();
 
             List<Genre> items = songByGenreProc.getDirectChildren(0, 10);
+            items.stream().forEach(s -> System.out.println(s));
             items.stream().filter(g -> !c.containsKey(g.name())).forEach(g -> c.put(g.name(), g));
             assertEquals(10, c.size());
 

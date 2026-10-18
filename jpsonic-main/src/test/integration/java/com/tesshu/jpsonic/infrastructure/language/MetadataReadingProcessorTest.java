@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.lang.annotation.Documented;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.contract.Indexable;
 import com.tesshu.jpsonic.domain.contract.StrictReadingMetaAnalysis;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -806,6 +807,8 @@ class MetadataReadingProcessorTest {
         }
     }
 
+    
+    
     @Order(12)
     @Nested
     class CreateIndexableName {
@@ -813,26 +816,26 @@ class MetadataReadingProcessorTest {
         @Test
         void assertDeleteDiacritic() {
             assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                    proc.createIndexableName("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-            assertEquals("ACEGIKLMNOPRSUWYZ", proc.createIndexableName("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ"));
-            assertEquals("AEINOUWY", proc.createIndexableName("ÀÈÌǸÒÙẀỲ"));
-            assertEquals("ACEGHIJNOSUWYZ", proc.createIndexableName("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ"));
-            assertEquals("AEHIOTUWXY", proc.createIndexableName("ÄËḦÏÖT̈ÜẄẌŸ"));
-            assertEquals("AUWY", proc.createIndexableName("ÅŮW̊Y̊"));
-            assertEquals("ACDEGHIKLNORSTUZ", proc.createIndexableName("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ"));
-            assertEquals("AEINOUVY", proc.createIndexableName("ÃẼĨÑÕŨṼỸ"));
-            assertEquals("CDEGHKLNRST", proc.createIndexableName("ÇḐȨĢḨĶĻŅŖŞŢ"));
-            assertEquals("ST", proc.createIndexableName("ȘȚ"));
-            assertEquals("AEGIOU", proc.createIndexableName("ĂĔĞĬŎŬ"));
-            assertEquals("AEGINOUY", proc.createIndexableName("ĀĒḠĪN̄ŌŪȲ"));
-            assertEquals("AEIOU", proc.createIndexableName("ĄĘĮǪŲ"));
-            assertEquals("OU", proc.createIndexableName("ŐŰ"));
+                    proc.createIndexableName(wrapIndexable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")));
+            assertEquals("ACEGIKLMNOPRSUWYZ", proc.createIndexableName(wrapIndexable("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ")));
+            assertEquals("AEINOUWY", proc.createIndexableName(wrapIndexable("ÀÈÌǸÒÙẀỲ")));
+            assertEquals("ACEGHIJNOSUWYZ", proc.createIndexableName(wrapIndexable("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ")));
+            assertEquals("AEHIOTUWXY", proc.createIndexableName(wrapIndexable("ÄËḦÏÖT̈ÜẄẌŸ")));
+            assertEquals("AUWY", proc.createIndexableName(wrapIndexable("ÅŮW̊Y̊")));
+            assertEquals("ACDEGHIKLNORSTUZ", proc.createIndexableName(wrapIndexable("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ")));
+            assertEquals("AEINOUVY", proc.createIndexableName(wrapIndexable("ÃẼĨÑÕŨṼỸ")));
+            assertEquals("CDEGHKLNRST", proc.createIndexableName(wrapIndexable("ÇḐȨĢḨĶĻŅŖŞŢ")));
+            assertEquals("ST", proc.createIndexableName(wrapIndexable("ȘȚ")));
+            assertEquals("AEGIOU", proc.createIndexableName(wrapIndexable("ĂĔĞĬŎŬ")));
+            assertEquals("AEGINOUY", proc.createIndexableName(wrapIndexable("ĀĒḠĪN̄ŌŪȲ")));
+            assertEquals("AEIOU", proc.createIndexableName(wrapIndexable("ĄĘĮǪŲ")));
+            assertEquals("OU", proc.createIndexableName(wrapIndexable("ŐŰ")));
             assertEquals("ABCDEFGHIĿMNOPRSTWXYZ",
-                    proc.createIndexableName("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ"));
-            assertEquals("OU", proc.createIndexableName("ƠƯ"));
+                    proc.createIndexableName(wrapIndexable("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ")));
+            assertEquals("OU", proc.createIndexableName(wrapIndexable("ƠƯ")));
 
             // Currently does not support stroke deletion
-            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", proc.createIndexableName("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ"));
+            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", proc.createIndexableName(wrapIndexable("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ")));
         }
 
         @Test
@@ -852,45 +855,45 @@ class MetadataReadingProcessorTest {
             proc = new MetadataReadingProcessor(settingsFacade, utils);
 
             assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                    proc.createIndexableName("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-            assertEquals("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ", proc.createIndexableName("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ"));
-            assertEquals("ÀÈÌǸÒÙẀỲ", proc.createIndexableName("ÀÈÌǸÒÙẀỲ"));
-            assertEquals("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ", proc.createIndexableName("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ"));
-            assertEquals("ÄËḦÏÖT̈ÜẄẌŸ", proc.createIndexableName("ÄËḦÏÖT̈ÜẄẌŸ"));
-            assertEquals("ÅŮW̊Y̊", proc.createIndexableName("ÅŮW̊Y̊"));
-            assertEquals("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ", proc.createIndexableName("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ"));
-            assertEquals("ÃẼĨÑÕŨṼỸ", proc.createIndexableName("ÃẼĨÑÕŨṼỸ"));
-            assertEquals("ÇḐȨĢḨĶĻŅŖŞŢ", proc.createIndexableName("ÇḐȨĢḨĶĻŅŖŞŢ"));
-            assertEquals("ȘȚ", proc.createIndexableName("ȘȚ"));
-            assertEquals("ĂĔĞĬŎŬ", proc.createIndexableName("ĂĔĞĬŎŬ"));
-            assertEquals("ĀĒḠĪN̄ŌŪȲ", proc.createIndexableName("ĀĒḠĪN̄ŌŪȲ"));
-            assertEquals("ĄĘĮǪŲ", proc.createIndexableName("ĄĘĮǪŲ"));
-            assertEquals("ŐŰ", proc.createIndexableName("ŐŰ"));
+                    proc.createIndexableName(wrapIndexable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")));
+            assertEquals("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ", proc.createIndexableName(wrapIndexable("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ")));
+            assertEquals("ÀÈÌǸÒÙẀỲ", proc.createIndexableName(wrapIndexable("ÀÈÌǸÒÙẀỲ")));
+            assertEquals("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ", proc.createIndexableName(wrapIndexable("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ")));
+            assertEquals("ÄËḦÏÖT̈ÜẄẌŸ", proc.createIndexableName(wrapIndexable("ÄËḦÏÖT̈ÜẄẌŸ")));
+            assertEquals("ÅŮW̊Y̊", proc.createIndexableName(wrapIndexable("ÅŮW̊Y̊")));
+            assertEquals("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ", proc.createIndexableName(wrapIndexable("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ")));
+            assertEquals("ÃẼĨÑÕŨṼỸ", proc.createIndexableName(wrapIndexable("ÃẼĨÑÕŨṼỸ")));
+            assertEquals("ÇḐȨĢḨĶĻŅŖŞŢ", proc.createIndexableName(wrapIndexable("ÇḐȨĢḨĶĻŅŖŞŢ")));
+            assertEquals("ȘȚ", proc.createIndexableName(wrapIndexable("ȘȚ")));
+            assertEquals("ĂĔĞĬŎŬ", proc.createIndexableName(wrapIndexable("ĂĔĞĬŎŬ")));
+            assertEquals("ĀĒḠĪN̄ŌŪȲ", proc.createIndexableName(wrapIndexable("ĀĒḠĪN̄ŌŪȲ")));
+            assertEquals("ĄĘĮǪŲ", proc.createIndexableName(wrapIndexable("ĄĘĮǪŲ")));
+            assertEquals("ŐŰ", proc.createIndexableName(wrapIndexable("ŐŰ")));
             assertEquals("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ",
-                    proc.createIndexableName("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ"));
-            assertEquals("ƠƯ", proc.createIndexableName("ƠƯ"));
+                    proc.createIndexableName(wrapIndexable("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ")));
+            assertEquals("ƠƯ", proc.createIndexableName(wrapIndexable("ƠƯ")));
 
             // Currently does not support stroke deletion
-            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", proc.createIndexableName("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ"));
+            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", proc.createIndexableName(wrapIndexable("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ")));
         }
 
         @CreateIndexableNameDecisions.Conditions.IndexScheme.NativeJapanese
         @Test
         void c01() throws ExecutionException {
 
-            assertEquals("ABCDE", proc.createIndexableName("ABCDE")); // no change
-            assertEquals("アイウエオ", proc.createIndexableName("アイウエオ")); // no change
-            assertEquals("ァィゥェォ", proc.createIndexableName("ァィゥェォ")); // no change
-            assertEquals("ァィゥェォ", proc.createIndexableName("ｧｨｩｪｫ")); // to ** Fullwidth **
-            assertEquals("アイウエオ", proc.createIndexableName("ｱｲｳｴｵ")); // to ** Fullwidth **
-            assertEquals("ツンク♂", proc.createIndexableName("つんく♂")); // to Katakana
-            assertEquals("アイウエオ", proc.createIndexableName("あいうえお")); // to Katakana
-            assertEquals("ゴウヒロミ", proc.createIndexableName("ゴウヒロミ")); // NFD
-            assertEquals("パミュパミュ", proc.createIndexableName("ぱみゅぱみゅ")); // NFD
-            assertEquals("コウダクミ", proc.createIndexableName("コウダクミ")); // NFD
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ABCDE"))); // no change
+            assertEquals("アイウエオ", proc.createIndexableName(wrapIndexable("アイウエオ"))); // no change
+            assertEquals("ァィゥェォ", proc.createIndexableName(wrapIndexable("ァィゥェォ"))); // no change
+            assertEquals("ァィゥェォ", proc.createIndexableName(wrapIndexable("ｧｨｩｪｫ"))); // to ** Fullwidth **
+            assertEquals("アイウエオ", proc.createIndexableName(wrapIndexable("ｱｲｳｴｵ"))); // to ** Fullwidth **
+            assertEquals("ツンク♂", proc.createIndexableName(wrapIndexable("つんく♂"))); // to Katakana
+            assertEquals("アイウエオ", proc.createIndexableName(wrapIndexable("あいうえお"))); // to Katakana
+            assertEquals("ゴウヒロミ", proc.createIndexableName(wrapIndexable("ゴウヒロミ"))); // NFD
+            assertEquals("パミュパミュ", proc.createIndexableName(wrapIndexable("ぱみゅぱみゅ"))); // NFD
+            assertEquals("コウダクミ", proc.createIndexableName(wrapIndexable("コウダクミ"))); // NFD
 
             // Half-width conversion is forcibly executed in this schema.
-            assertEquals("ABCDE", proc.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ＡＢＣＤＥ"))); // to Halfwidth
 
             // Diacritic removed is forcibly executed in this schema.
             assertDeleteDiacritic();
@@ -911,10 +914,10 @@ class MetadataReadingProcessorTest {
             proc = new MetadataReadingProcessor(settingsFacade,
                     new JapaneseReadingUtils(settingsFacade));
 
-            assertEquals("ABCDE", proc.createIndexableName("ABCDE"));
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ABCDE")));
 
             // Half-width conversion is forcibly executed in this schema.
-            assertEquals("ABCDE", proc.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ＡＢＣＤＥ"))); // to Halfwidth
 
             // Diacritic
             assertDeleteDiacritic();
@@ -947,20 +950,20 @@ class MetadataReadingProcessorTest {
             proc = new MetadataReadingProcessor(settingsFacade,
                     new JapaneseReadingUtils(settingsFacade));
 
-            assertEquals("DJ FUMI★YEAH!", proc.createIndexableName("DJ FUMI★YEAH!")); // no change
-            assertEquals("ABCDE", proc.createIndexableName("ABCDE")); // no change
-            assertEquals("ｱｲｳｴｵ", proc.createIndexableName("アイウエオ")); // to Halfwidth
-            assertEquals("ｧｨｩｪｫ", proc.createIndexableName("ァィゥェォ")); // to Halfwidth
-            assertEquals("ｧｨｩｪｫ", proc.createIndexableName("ｧｨｩｪｫ")); // no change
-            assertEquals("ｱｲｳｴｵ", proc.createIndexableName("ｱｲｳｴｵ")); // no change
-            assertEquals("つんく♂", proc.createIndexableName("つんく♂")); // no change
-            assertEquals("あいうえお", proc.createIndexableName("あいうえお")); // no change
-            assertEquals("ｺﾞｳﾋﾛﾐ", proc.createIndexableName("ゴウヒロミ")); // to Halfwidth
-            assertEquals("ぱみゅぱみゅ", proc.createIndexableName("ぱみゅぱみゅ")); // NFD
-            assertEquals("ｺｳﾀﾞｸﾐ", proc.createIndexableName("コウダクミ")); // to Halfwidth
+            assertEquals("DJ FUMI★YEAH!", proc.createIndexableName(wrapIndexable("DJ FUMI★YEAH!"))); // no change
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ABCDE"))); // no change
+            assertEquals("ｱｲｳｴｵ", proc.createIndexableName(wrapIndexable("アイウエオ"))); // to Halfwidth
+            assertEquals("ｧｨｩｪｫ", proc.createIndexableName(wrapIndexable("ァィゥェォ"))); // to Halfwidth
+            assertEquals("ｧｨｩｪｫ", proc.createIndexableName(wrapIndexable("ｧｨｩｪｫ"))); // no change
+            assertEquals("ｱｲｳｴｵ", proc.createIndexableName(wrapIndexable("ｱｲｳｴｵ"))); // no change
+            assertEquals("つんく♂", proc.createIndexableName(wrapIndexable("つんく♂"))); // no change
+            assertEquals("あいうえお", proc.createIndexableName(wrapIndexable("あいうえお"))); // no change
+            assertEquals("ｺﾞｳﾋﾛﾐ", proc.createIndexableName(wrapIndexable("ゴウヒロミ"))); // to Halfwidth
+            assertEquals("ぱみゅぱみゅ", proc.createIndexableName(wrapIndexable("ぱみゅぱみゅ"))); // NFD
+            assertEquals("ｺｳﾀﾞｸﾐ", proc.createIndexableName(wrapIndexable("コウダクミ"))); // to Halfwidth
 
             // Halfwidth
-            assertEquals("ABCDE", proc.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+            assertEquals("ABCDE", proc.createIndexableName(wrapIndexable("ＡＢＣＤＥ"))); // to Halfwidth
 
             settingsFacade = SettingsFacadeBuilder
                 .create()
@@ -974,7 +977,7 @@ class MetadataReadingProcessorTest {
             proc = new MetadataReadingProcessor(settingsFacade,
                     new JapaneseReadingUtils(settingsFacade));
 
-            assertEquals("ＡＢＣＤＥ", proc.createIndexableName("ＡＢＣＤＥ")); // no change
+            assertEquals("ＡＢＣＤＥ", proc.createIndexableName(wrapIndexable("ＡＢＣＤＥ"))); // no change
 
             // Diacritic
             assertDeleteDiacritic();
@@ -1282,7 +1285,11 @@ class MetadataReadingProcessorTest {
             assertEquals("sortTagDerived", proc.createIndexableName(mediaFile));
         }
     }
-    
+
+    private Indexable wrapIndexable(String name) {
+        return new Artist(0, name, null, 0, null, false, null, null, null, 0, null);
+    }
+
     interface MediaFileAnalysis extends StrictReadingMetaAnalysis {
 
         // spotless:off
