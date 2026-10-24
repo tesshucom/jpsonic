@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import com.tesshu.jpsonic.adapter.master.MasterCache;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
@@ -85,12 +86,13 @@ public class PostScanProcedure {
     private final StaticsDao staticsDao;
     private final SortProcedureService sortProcedure;
     private final MediaFileCache mediaFileCache;
+    private final MasterCache masterCache;
     private final ScanHelper scanHelper;
 
     public PostScanProcedure(MusicFolderServiceImpl musicFolderService, IndexManager indexManager,
             PlaylistService playlistService, TemplateWrapper template, StaticsDao staticsDao,
             SortProcedureService sortProcedure, MediaFileCache mediaFileCache,
-            ScanHelper scanHelper) {
+            MasterCache masterCache, ScanHelper scanHelper) {
         super();
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
@@ -99,6 +101,7 @@ public class PostScanProcedure {
         this.staticsDao = staticsDao;
         this.sortProcedure = sortProcedure;
         this.mediaFileCache = mediaFileCache;
+        this.masterCache = masterCache;
         this.scanHelper = scanHelper;
     }
 
@@ -139,6 +142,7 @@ public class PostScanProcedure {
 
     void afterScan(@NonNull ScanContext context) {
         mediaFileCache.setEnabled(true);
+        masterCache.removeCacheAll();
         indexManager.stopIndexing();
         sortProcedure.clearMemoryCache();
         scanHelper.createScanEvent(context, ScanEventType.AFTER_SCAN, null);

@@ -32,11 +32,11 @@ import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
 import com.tesshu.jpsonic.domain.model.IndexWithCount;
 import com.tesshu.jpsonic.domain.model.MediaFile;
-import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
@@ -50,7 +50,6 @@ class MediaFileProviderAdapter implements MediaFileProvider {
 
     private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
-    @Deprecated
     private final MediaSearchProvider deligate;
     private final GenreMasterProvider genreMasterProvider;
 
@@ -110,6 +109,12 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     }
 
     @Override
+    public List<MediaFile> findByYearGroup(List<MusicFolder> folders, YearGroup yearGroup,
+            long offset, long count, MediaFile.Type... types) {
+        return mediaFileDao.findByYearGroup(folders, yearGroup, offset, count, types);
+    }
+
+    @Override
     public List<MediaFile> findChildren(List<MusicFolder> folders, Album album, long offset,
             long count, MediaFile.Type... excludes) {
         return mediaFileDao.findChildren(folders, album, offset, count, excludes);
@@ -129,11 +134,17 @@ class MediaFileProviderAdapter implements MediaFileProvider {
 
     @Override
     public List<MediaFile> findChildren(List<MusicFolder> folders, String genres, Album album,
-            long offset, long count, Type... types) {
+            long offset, long count, MediaFile.Type... types) {
         return mediaFileDao
             .findChildren(folders,
                     genreMasterProvider.findPreAnalyzedGenres(Arrays.asList(genres), true), album,
                     offset, count, types);
+    }
+
+    @Override
+    public List<MediaFile> findChildren(List<MusicFolder> var1, YearGroup yearGroup, Album album,
+            long offset, long count, MediaFile.Type... types) {
+        return mediaFileDao.findChildren(var1, yearGroup, album, offset, count, types);
     }
 
     @Override
@@ -214,7 +225,7 @@ class MediaFileProviderAdapter implements MediaFileProvider {
 
     @Override
     public List<MediaFile> findSongsByGenres(List<MusicFolder> folders, String genres, long offset,
-            long count, Type... types) {
+            long count, MediaFile.Type... types) {
         List<String> preAnalyzedGenres = genreMasterProvider
             .findPreAnalyzedGenres(List.of(genres), true);
         return mediaFileDao.getSongsByGenres(folders, preAnalyzedGenres, offset, count, types);

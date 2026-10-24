@@ -40,6 +40,13 @@ import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterScope;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterProvider.YearsEntry;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterProvider;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
@@ -63,6 +70,8 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
     private MediaFileProvider mediaFileProvider;
     @Autowired
     private AlbumProvider albumProvider;
+    @Autowired
+    private YearMasterProvider yearMasterProvider;
 
     @BeforeEach
     void setup() {
@@ -176,6 +185,41 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
                 mediaFileProvider.findAlbums(folders, RuntimeOrderPolicy.AlbumSortOrder.BY_ARTIST_AND_ALBUM, 1, 2);
         assertEquals("_DIR_ chrome hoof - 2004", files.get(0).name());
         assertEquals("_DIR_ Ravel - Chamber Music With Voice", files.get(1).name());
+    }
+
+    @Test
+    public void testFindChildrenYearGroupAlbumLongLongTypeArray() {
+        YearMasterCriteria criteria = new YearMasterCriteria(musicFolderProvider.getGuestFolders(),
+                YearInterval.TEN_YEARS,
+                YearMasterScope.ALBUM,
+                YearMasterSort.ASC, MediaFile.Type.MUSIC);
+        List<YearsEntry> yearsEntryEntries =  yearMasterProvider.findYearsEntries(criteria, 0, Integer.MAX_VALUE);
+        assertEquals(3, yearsEntryEntries.size());
+        assertEquals("1990 - 1999", yearsEntryEntries.get(0).yearGroup().viewName());
+        assertEquals("2000 - 2009", yearsEntryEntries.get(1).yearGroup().viewName());
+        assertEquals("Undefined", yearsEntryEntries.get(2).yearGroup().viewName());
+        assertEquals(1, yearsEntryEntries.get(0).count());
+        
+        YearGroup yearGroup = yearsEntryEntries.get(0).yearGroup();
+        List<Album> albums =
+        albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(),
+                    yearGroup, 0, Integer.MAX_VALUE);
+        assertEquals(1, albums.size());
+        Album album = albums.get(0);
+        assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", album.name());
+        
+        List<MediaFile> musics = mediaFileProvider
+            .findChildren(musicFolderProvider.getGuestFolders(), yearGroup, album, 0,
+                    Integer.MAX_VALUE, criteria.types());
+        assertEquals(3, musics.size());
+        musics.stream().forEach(s ->System.out.println(s));
+        assertEquals("I Seen What I Saw", musics.get(0).title());
+        assertEquals("Black Soul Choir", musics.get(1).title());
+        assertEquals("Reed Neck Reel", musics.get(2).title());
+        assertEquals(1, musics.get(0).trackNumber().get());
+        assertEquals(2, musics.get(1).trackNumber().get());
+        assertEquals(10, musics.get(2).trackNumber().get());
     }
 
     @Test
@@ -381,5 +425,12 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
         .isThrownBy(() -> mediaFileProvider.requireMediaFile(fake));
     }
 
-
+    @Test
+    public void testFindByYearGroup() {
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<MediaFile> musics = mediaFileProvider.findByYearGroup(folders, yearGroup, 0, Integer.MAX_VALUE, MediaFile.Type.MUSIC);
+        assertEquals(3, musics.size());
+        
+    }
 }

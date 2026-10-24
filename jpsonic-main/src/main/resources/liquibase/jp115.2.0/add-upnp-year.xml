@@ -1,0 +1,149 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="add-menu-item-upnp-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 90
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="90" />
+      <column name="parent" valueNumeric="0" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="true" />
+      <column name="menu_item_order" valueNumeric="4" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 90</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-album-id3-by-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 91
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="91" />
+      <column name="parent" valueNumeric="90" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="true" />
+      <column name="menu_item_order" valueNumeric="91" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 91</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-song-by-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 92
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="92" />
+      <column name="parent" valueNumeric="90" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="false" />
+      <column name="menu_item_order" valueNumeric="92" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 92</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="update-menu-item-upnp-album-id3-by-year-order" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="1">
+        select count(*) from menu_item where id = 91
+      </sqlCheck>
+    </preConditions>
+    <update tableName="menu_item">
+      <column name="menu_item_order" value="51" />
+      <where>id = 91</where>
+    </update>
+    <rollback>
+    </rollback>
+  </changeSet>
+  <changeSet id="update-menu-item-upnp-song-by-year-order" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="1">
+        select count(*) from menu_item where id = 92
+      </sqlCheck>
+    </preConditions>
+    <update tableName="menu_item">
+      <column name="menu_item_order" value="53" />
+      <where>id = 92</where>
+    </update>
+    <rollback>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-album-id3-by-folder-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 93
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="93" />
+      <column name="parent" valueNumeric="90" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="false" />
+      <column name="menu_item_order" valueNumeric="52" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 93</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-song-by-folder-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 94
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="94" />
+      <column name="parent" valueNumeric="90" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="false" />
+      <column name="menu_item_order" valueNumeric="54" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 94</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="reset-menu-item-upnp-order" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+        <tableExists tableName="menu_item" />
+    </preConditions>
+    <sql>
+      update menu_item set menu_item_order = 1 where id = 10;
+      update menu_item set menu_item_order = 2 where id = 20;
+      update menu_item set menu_item_order = 3 where id = 30;
+      update menu_item set menu_item_order = 4 where id = 40;
+      update menu_item set menu_item_order = 5 where id = 90;
+      update menu_item set menu_item_order = 6 where id = 50;
+      update menu_item set menu_item_order = 7 where id = 60;
+      update menu_item set menu_item_order = 8 where id = 70;
+      update menu_item set menu_item_order = 9 where id = 80;
+    </sql>
+    <rollback>
+    </rollback>
+  </changeSet>
+</databaseChangeLog>

@@ -26,10 +26,12 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
@@ -69,6 +71,11 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
+    public int countChldren(List<MusicFolder> folders, YearGroup yearGroup, Album album) {
+        return albumDao.countChldren(folders, yearGroup, album, MediaFile.Type.MUSIC);
+    }
+
+    @Override
     public List<Album> findAlbums(List<MusicFolder> folders, AlbumSortOrder order, long offset,
             long count) {
         return albumDao.findAlbums(folders, order, offset, count);
@@ -84,6 +91,13 @@ class AlbumProviderAdapter implements AlbumProvider {
             .findPreAnalyzedGenres(List.of(genres), true);
         return albumDao
             .findAlbums(musicFolders, preAnalyzedGenres, AlbumSortOrder.DEFAULT, offset, count);
+    }
+
+    @Override
+    public List<Album> findAlbumsByYearGroup(List<MusicFolder> musicFolders, YearGroup yearGroup,
+            long offset, long count) {
+        return albumDao
+            .findAlbumsByYearGroup(musicFolders, yearGroup, offset, count, MediaFile.Type.MUSIC);
     }
 
     @Override

@@ -39,6 +39,8 @@ import com.tesshu.jpsonic.domain.model.AuthKey;
 import com.tesshu.jpsonic.domain.model.AuthKey.AuthKeyType;
 import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
 import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
@@ -174,6 +176,8 @@ class DLNASettingsControllerTest {
         command.setSubMenuItems(Collections.emptyList());
         command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
         command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+        command.setYearSort(YearMasterSort.ASC);
+        command.setYearInterval(YearInterval.TEN_YEARS);
         command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
         command.setDlnaKeyRotationType(KeyRotationType.FIXED);
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
@@ -190,7 +194,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withBoolean(UPnPSKeys.basic.enabled, false)
-                .build();
+                .buildWithDefault();
             init();
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
@@ -215,7 +219,7 @@ class DLNASettingsControllerTest {
             settingsFacade = SettingsFacadeBuilder
                 .create()
                 .withBoolean(UPnPSKeys.basic.enabled, false)
-                .build();
+                .buildWithDefault();
             init();
             musicFolderService = mock(MusicFolderService.class);
 
@@ -305,6 +309,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
         }
@@ -466,6 +472,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSubMenuItemRowInfos(Collections.emptyMap());
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
@@ -517,6 +525,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(subMenuItems);
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -576,6 +586,8 @@ class DLNASettingsControllerTest {
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
             ArgumentCaptor<MenuItemData> menuItemCaptor = ArgumentCaptor
                 .forClass(MenuItemData.class);
@@ -639,6 +651,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(subMenuItems);
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -752,6 +766,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -786,6 +802,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -822,6 +840,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -858,6 +878,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
 
             assertEquals(0, captor.getAllValues().size());
@@ -891,6 +913,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
             command.setDlnaKeyRotationType(KeyRotationType.FIXED);
 
@@ -928,6 +952,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -968,6 +994,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setDlnaEnabledFilteredIp(false);
             command.setDlnaFilteredIp(DLNA_FILTERED_IP);
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -1007,6 +1035,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
@@ -1048,6 +1078,8 @@ class DLNASettingsControllerTest {
             command.setSubMenuItems(Collections.emptyList());
             command.setAlbumGenreSort(GenreMasterSort.FREQUENCY);
             command.setSongGenreSort(GenreMasterSort.FREQUENCY);
+            command.setYearSort(YearMasterSort.ASC);
+            command.setYearInterval(YearInterval.TEN_YEARS);
             command.setDlnaEnabledFilteredIp(true);
             command.setDlnaFilteredIp("123.456.7.8");
             command.setSearchMethod(UPnPSearchMethod.FILE_STRUCTURE);
