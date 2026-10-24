@@ -335,7 +335,7 @@ public class MediaSearchProvider implements LegacySearch {
 
         // Try to get cached IDs first
         cache
-            .getCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders)
+            .getIntCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders, genres)
             .ifPresent(addSubsetToResult);
         if (!result.isEmpty()) {
             return result; // Return if cache hit
@@ -367,7 +367,9 @@ public class MediaSearchProvider implements LegacySearch {
             }
 
             // Store the randomly selected IDs in cache
-            cache.putCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders, ids);
+            cache
+                .putIntCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders, ids,
+                        genres);
 
             // Apply offset & limit, and add to result
             addSubsetToResult.accept(ids);

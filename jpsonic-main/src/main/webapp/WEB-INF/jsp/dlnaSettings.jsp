@@ -27,6 +27,9 @@
 <%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType" %>
 <%@ page import="com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod" %>
 <%@ page import="com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.ResetMode" %>
+<%@ page import="com.tesshu.jpsonic.domain.type.GenreMasterSort" %>
+<%@ page import="com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort" %>
+<%@ page import="com.tesshu.jpsonic.domain.provider.master.YearInterval" %>
 
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
@@ -313,6 +316,7 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_FILE_STRUCTURE}">
                                 [Album Folder] [Song]
                             </c:when>
+
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_GENRE}">
                                 [Genre] [Album] [MUSIC]
                             </c:when>
@@ -331,6 +335,20 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
                                 [Genre] [Album Folder] [Song]
                             </c:when>
+
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_YEAR}">
+                                [Year] [Album] [MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3_BY_FOLDER_YEAR}">
+                                [Music Folder] [Year] [Album] [MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_YEAR}">
+                                [Year] [MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_FOLDER_YEAR}">
+                                [Music Folder] [Year] [MUSIC]
+                            </c:when>
+
                             <c:when test="${subMenuItem.id eq MenuItemId.PODCAST_DEFALT}">
                                 [Channel] [Episode] [Media(Audio)]
                             </c:when>
@@ -379,7 +397,7 @@
                                         <form:select path="albumGenreSort">
                                             <c:forEach items="${command.avairableAlbumGenreSort}" var="genreSort">
                                                 <c:set var="genreSortViewName">
-                                                    <fmt:message key="dlnasettings.dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
+                                                    <fmt:message key="dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
                                                 </c:set>
                                                 <form:option value="${genreSort}" label="${genreSortViewName}"/>
                                             </c:forEach>
@@ -397,7 +415,7 @@
                                         <form:select path="songGenreSort">
                                             <c:forEach items="${command.avairableSongGenreSort}" var="genreSort">
                                                 <c:set var="genreSortViewName">
-                                                    <fmt:message key="dlnasettings.dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
+                                                    <fmt:message key="dlnasettings.genresort.${fn:toLowerCase(genreSort.name())}"/>
                                                 </c:set>
                                                 <form:option value="${genreSort}" label="${genreSortViewName}"/>
                                             </c:forEach>
@@ -416,12 +434,38 @@
                                     </td>
                                 </c:when>
                                 <c:otherwise>
-                                    <td class="${ifDisabled}"/>
+                                    <td class="${ifDisabled}"></td>
                                 </c:otherwise>
                             </c:choose>
                         </c:when>
+
                         <c:when test="${isFirstSubMenu}">
                             <c:choose>
+                                <c:when test="${subMenuItem.parent eq MenuItemId.YEAR}">
+                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
+                                        <form:select path="yearInterval">
+                                            <c:forEach items="${command.avairableYearInterval}" var="yearInterval">
+                                                <c:set var="yearIntervalViewName">
+                                                    <fmt:message key="dlnasettings.yearinterval.${fn:toLowerCase(yearInterval.name())}"/>
+                                                </c:set>
+                                                <form:option value="${yearInterval}" label="${yearIntervalViewName}"/>
+                                            </c:forEach>
+                                        </form:select>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenresort"/></c:import>
+                                        <br>
+
+                                        <form:select path="yearSort">
+                                            <c:forEach items="${command.avairableYearSort}" var="yearSort">
+                                                <c:set var="yearSortViewName">
+                                                    <fmt:message key="dlnasettings.yearsort.${fn:toLowerCase(yearSort.name())}"/>
+                                                </c:set>
+                                                <form:option value="${yearSort}" label="${yearSortViewName}"/>
+                                            </c:forEach>
+                                        </form:select>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="upnpgenresort"/></c:import>
+                                    </td>
+                                </c:when>
+
                                 <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
                                     <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
                                         <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
