@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
@@ -61,6 +63,10 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
     private GenreMasterSort albumGenreSort;
     private List<GenreMasterSort> avairableSongGenreSort;
     private GenreMasterSort songGenreSort;
+    private List<YearMasterSort> avairableYearSort;
+    private YearMasterSort yearSort;
+    private List<YearInterval> avairableYearInterval;
+    private YearInterval yearInterval;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -221,6 +227,38 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
 
     public void setSongGenreSort(GenreMasterSort musicGenreSort) {
         this.songGenreSort = musicGenreSort;
+    }
+
+    public List<YearMasterSort> getAvairableYearSort() {
+        return avairableYearSort;
+    }
+
+    public void setAvairableYearSort(List<YearMasterSort> avairableYearSort) {
+        this.avairableYearSort = avairableYearSort;
+    }
+
+    public YearMasterSort getYearSort() {
+        return yearSort;
+    }
+
+    public void setYearSort(YearMasterSort yearSort) {
+        this.yearSort = yearSort;
+    }
+
+    public List<YearInterval> getAvairableYearInterval() {
+        return avairableYearInterval;
+    }
+
+    public void setAvairableYearInterval(List<YearInterval> avairableYearInterval) {
+        this.avairableYearInterval = avairableYearInterval;
+    }
+
+    public YearInterval getYearInterval() {
+        return yearInterval;
+    }
+
+    public void setYearInterval(YearInterval yearInterval) {
+        this.yearInterval = yearInterval;
     }
 
     public Integer getDlnaRandomMax() {

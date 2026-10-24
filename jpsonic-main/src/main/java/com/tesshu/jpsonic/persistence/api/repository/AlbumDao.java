@@ -28,9 +28,12 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -537,5 +540,98 @@ public class AlbumDao {
         };
 
         return template.namedQuery(query, domainRowMapper, args);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.Album> findAlbumsByYearGroup(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup,
+            long offset, long count, MediaFile.Type... types) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", folders.stream().map(com.tesshu.jpsonic.domain.model.MusicFolder::id).toList(),
+                "yearFrom", yearGroup.value(),
+                "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
+                "count", count,
+                "offset", offset,
+                "types", Stream.of(types).map(MediaFile.Type::name).toList());
+        // spotless:on
+
+        String whereQuery = switch (yearGroup.interval()) {
+        case UNDEFINED -> """
+                and mf."YEAR" is null
+                """;
+        case YEAR -> """
+                and mf."YEAR" = :yearFrom
+                """;
+        case FIVE_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        case TEN_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        };
+
+        return template
+            .namedQuery("select distinct " + prefix(DOMAIN_COLUMNS_QUERY, "a") + ", a.album_order\s"
+                    + """
+                            from album a
+                            join media_file mf
+                                on a.name = mf.album
+                                and a.artist = mf.album_artist
+                            where mf.type in (:types)
+                                and a.folder_id in (:folders)
+                                %s
+                            order by a.album_order
+                            limit :count offset :offset
+                            """.formatted(whereQuery), domainRowMapper, args);
+    }
+
+    public int countChldren(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            YearGroup yearGroup, com.tesshu.jpsonic.domain.model.Album album,
+            MediaFile.Type... types) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", folders.stream().map(com.tesshu.jpsonic.domain.model.MusicFolder::id).toList(),
+                "yearFrom", yearGroup.value(),
+                "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
+                "artist", album.artist().orElseGet(null),
+                "album", album.name(),
+                "types", Stream.of(types).map(MediaFile.Type::name).toList());
+        // spotless:on
+
+        String whereQuery = switch (yearGroup.interval()) {
+        case UNDEFINED -> """
+                and mf."YEAR" is null
+                """;
+        case YEAR -> """
+                and mf."YEAR" = :yearFrom
+                """;
+        case FIVE_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        case TEN_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        };
+
+        return template.namedQueryForInt("""
+                select count(*)
+                from album a
+                join media_file mf
+                    on a.name = mf.album
+                    and a.artist = mf.album_artist
+                where mf.type in (:types)
+                    and a.folder_id in (:folders)
+                    and a.name = :album
+                    and a.artist = :artist
+                    %s
+                """.formatted(whereQuery), 0, args);
     }
 }

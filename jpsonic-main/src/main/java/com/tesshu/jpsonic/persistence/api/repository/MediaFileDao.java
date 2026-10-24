@@ -45,6 +45,10 @@ import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.model.Playlist;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterProvider.YearsEntry;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -1734,8 +1738,8 @@ public class MediaFileDao {
         }
 
         // spotless:off
-        Map<String, Object> args = Map.of("type",
-                MediaType.ALBUM.name(),
+        Map<String, Object> args = Map.of(
+                "type", MediaType.ALBUM.name(),
                 "genres", genres,
                 "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
                 "count", count,
@@ -1750,5 +1754,289 @@ public class MediaFileDao {
                     order by media_file_order
                     limit :count offset :offset
                     """, domainRowMapper, args);
+    }
+
+    // ############################################################################
+    // Jpsonic domain (Year)
+
+    private RowMapper<YearsEntry> yearsEntryMapper(YearInterval interval) {
+        return (rs, rowNum) -> {
+            int yearFrom = rs.getInt(1);
+            YearInterval groupInterval = yearFrom == 0 ? YearInterval.UNDEFINED : interval;
+            return new YearsEntry(new YearGroup(groupInterval, yearFrom), rs.getInt(2));
+        };
+    }
+
+    public List<YearsEntry> finedSongYearsEntries(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearInterval interval,
+            YearMasterSort sort, long offset, long count,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "interval", interval.years(),
+                "count", count,
+                "offset", offset,
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        String orderQuery = switch (sort) {
+        case ASC -> """
+                order by
+                    case
+                        when year_from = 0 then 1
+                        else 0
+                    end,
+                    year_from
+                """;
+        case DESC -> """
+                    order by
+                        case
+                            when year_from = 0 then 1
+                            else 0
+                        end,
+                    year_from desc
+                """;
+        case FREQUENCY -> """
+                order by song_count desc,
+                    case
+                        when year_from = 0 then 1
+                        else 0
+                    end,
+                    year_from
+                """;
+        };
+
+        return template.namedQuery("""
+                select year_from, song_count
+                from (
+                    select
+                        case
+                            when mf."YEAR" is null then 0
+                            else cast(mf."YEAR" / :interval as integer) * :interval
+                        end as year_from,
+                        count(*) as song_count
+                    from media_file mf
+                    where mf.type in (:types) and mf.folder in (:folders)
+                    group by year_from
+                ) as year_counts
+                %s
+                limit :count offset :offset
+                """.formatted(orderQuery), yearsEntryMapper(interval), args);
+    }
+
+    public List<YearsEntry> finedAlbumYearsEntries(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearInterval interval,
+            YearMasterSort sort, long offset, long count,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "interval", interval.years(),
+                "count", count,
+                "offset", offset,
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        String orderQuery = switch (sort) {
+        case ASC -> """
+                order by
+                    case
+                        when year_from = 0 then 1
+                        else 0
+                    end,
+                    year_from
+                """;
+        case DESC -> """
+                    order by
+                        case
+                            when year_from = 0 then 1
+                            else 0
+                        end,
+                    year_from desc
+                """;
+        case FREQUENCY -> """
+                order by album_count desc,
+                    case
+                        when year_from = 0 then 1
+                        else 0
+                    end,
+                    year_from
+                """;
+        };
+
+        return template.namedQuery("""
+                select year_from, album_count
+                from (
+                    select
+                        case
+                            when mf."YEAR" is null then 0
+                            else cast(mf."YEAR" / :interval as integer) * :interval
+                        end as year_from,
+                        count(distinct a.id) as album_count
+                    from media_file mf
+                    join album a
+                        on a.name = mf.album
+                        and a.artist = mf.album_artist
+                    where mf.type in (:types) and mf.folder in (:folders)
+                    group by year_from
+                ) as year_counts
+                %s
+                limit :count offset :offset
+                """.formatted(orderQuery), yearsEntryMapper(interval), args);
+    }
+
+    public int countSongYearsEntries(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            YearInterval interval, com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "interval", interval.years(),
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        return template.namedQueryForInt("""
+                select count(*)
+                from (
+                    select
+                        case
+                            when mf."YEAR" is null then 0
+                            else cast(mf."YEAR" / :interval as integer) * :interval
+                        end as year_from
+                    from media_file mf
+                    where mf.type in (:types)
+                        and mf.folder in (:folders)
+                    group by year_from
+                ) as year_counts
+                """, 0, args);
+    }
+
+    public int countAlbumYearsEntries(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
+            YearInterval interval, com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "interval", interval.years(),
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        return template.namedQueryForInt("""
+                select count(*)
+                from (
+                    select
+                        case
+                            when mf."YEAR" is null then 0
+                            else cast(mf."YEAR" / :interval as integer) * :interval
+                        end as year_from,
+                        count(distinct a.id) as album_count
+                    from media_file mf
+                    join album a
+                        on a.name = mf.album
+                        and a.artist = mf.album_artist
+                    where mf.type in (:types)
+                        and mf.folder in (:folders)
+                    group by year_from
+                ) as year_counts
+                    """, 0, args);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findChildren(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup,
+            com.tesshu.jpsonic.domain.model.Album album, long offset, long count,
+            com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "yearFrom", yearGroup.value(),
+                "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
+                "artist", album.artist().orElseGet(null),
+                "album", album.name(),
+                "count", count,
+                "offset", offset,
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        String whereQuery = switch (yearGroup.interval()) {
+        case UNDEFINED -> """
+                and mf."YEAR" is null
+                """;
+        case YEAR -> """
+                and mf."YEAR" = :yearFrom
+                """;
+        case FIVE_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        case TEN_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        };
+
+        return template
+            .namedQuery("select " + DOMAIN_JOINED_COLUMNS_QUERY + DOMAIN_JOINED_TABLES_QUERY + """
+                    join album a
+                        on a.name = mf.album
+                        and a.artist = mf.album_artist
+                    where mf.type in (:types)
+                        and mf.folder in (:folders)
+                        and a.artist = :artist
+                        and a.name = :album
+                        %s
+                    order by media_file_order
+                    limit :count offset :offset
+                    """.formatted(whereQuery), domainRowMapper, args);
+    }
+
+    public List<com.tesshu.jpsonic.domain.model.MediaFile> findByYearGroup(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup,
+            long offset, long count, com.tesshu.jpsonic.domain.model.MediaFile.Type... types) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "yearFrom", yearGroup.value(),
+                "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
+                "count", count,
+                "offset", offset,
+                "types", Stream.of(types).map(com.tesshu.jpsonic.domain.model.MediaFile.Type::name).toList());
+        // spotless:on
+
+        String whereQuery = switch (yearGroup.interval()) {
+        case UNDEFINED -> """
+                and mf."YEAR" is null
+                """;
+        case YEAR -> """
+                and mf."YEAR" = :yearFrom
+                """;
+        case FIVE_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        case TEN_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        };
+
+        return template.namedQuery("select " + DOMAIN_JOINED_COLUMNS_QUERY + """
+                from media_file mf
+                left join media_file pmf on mf.parent_path = pmf.path\s
+                where mf.type in (:types)
+                    and mf.folder in (:folders)
+                    %s
+                order by
+                    case when pmf.id is null then 1 else 0 end,
+                    pmf.media_file_order,
+                    media_file_order
+                limit :count offset :offset
+                """.formatted(whereQuery), domainRowMapper, args);
     }
 }
