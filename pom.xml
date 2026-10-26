@@ -29,7 +29,7 @@
 
     <versions.checkstyle>13.7.0</versions.checkstyle>
     <versions.pmd>7.26.0</versions.pmd>
-    <versions.spotbugs>4.10.2</versions.spotbugs>
+    <versions.spotbugs>4.10.5</versions.spotbugs>
   </properties>
 
   <dependencyManagement>
