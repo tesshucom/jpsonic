@@ -180,8 +180,8 @@ public class TemplateWrapper {
         return list.isEmpty() ? null : list.get(0);
     }
 
-    static @Nullable Object[] castArgs(@Nullable Object... args) {
-        return args == null ? null
+    static Object[] castArgs(@Nullable Object... args) {
+        return args == null ? new Object[0]
                 : Stream
                     .of(args)
                     .map(TemplateWrapper::castArg)
