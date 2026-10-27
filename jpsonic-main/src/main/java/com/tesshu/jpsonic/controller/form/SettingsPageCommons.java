@@ -31,8 +31,6 @@ public class SettingsPageCommons {
      */
     private boolean useRadio;
 
-    private boolean useDatabaseSettings;
-
     /**
      * Number of items in share. If 0, Share does not need to be displayed in the
      * menu.
@@ -65,14 +63,6 @@ public class SettingsPageCommons {
 
     public final void setUseRadio(boolean useRadio) {
         this.useRadio = useRadio;
-    }
-
-    public boolean isUseDatabaseSettings() {
-        return useDatabaseSettings;
-    }
-
-    public void setUseDatabaseSettings(boolean useDatabaseSettings) {
-        this.useDatabaseSettings = useDatabaseSettings;
     }
 
     public final int getShareCount() {

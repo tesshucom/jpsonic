@@ -21,8 +21,8 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,13 +35,13 @@ import org.springframework.stereotype.Service;
 @Service("ajaxScanInfoService")
 public class ScanInfoService {
 
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
     private final MediaScannerService mediaScannerService;
 
-    public ScanInfoService(ScannerStateProvider scannerStateProvider,
+    public ScanInfoService(ScannerStateService scannerStateService,
             MediaScannerService mediaScannerService) {
         super();
-        this.scannerStateProvider = scannerStateProvider;
+        this.scannerStateService = scannerStateService;
         this.mediaScannerService = mediaScannerService;
     }
 
@@ -49,8 +49,8 @@ public class ScanInfoService {
      * Returns media folder scanning status.
      */
     public ScanInfo getScanningStatus() {
-        boolean scanning = scannerStateProvider.isScanning();
-        int scanCount = (int) scannerStateProvider.getScanCount();
+        boolean scanning = scannerStateService.isScanning();
+        int scanCount = (int) scannerStateService.getScanCount();
         return mediaScannerService
             .getScanPhaseInfo()
             .map(phaseInfo -> new ScanInfo(scanning, scanCount, phaseInfo.phase(),

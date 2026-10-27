@@ -40,19 +40,19 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.domain.language.StringUtil;
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
-import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.concurrent.ConcurrentUtils;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StatusService.TransferStatus;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload2.core.DiskFileItem;
@@ -90,18 +90,18 @@ public class UploadController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsFacade settingsFacade;
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
 
     public UploadController(LibraryAccessPolicy libraryAccessPolicy, UserService userService,
             PlayerService playerService, StatusService statusService, SettingsFacade settingsFacade,
-            ScannerStateProvider scannerStateProvider) {
+            ScannerStateService scannerStateService) {
         super();
         this.libraryAccessPolicy = libraryAccessPolicy;
         this.userService = userService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsFacade = settingsFacade;
-        this.scannerStateProvider = scannerStateProvider;
+        this.scannerStateService = scannerStateService;
     }
 
     @PostMapping
@@ -109,7 +109,7 @@ public class UploadController {
             HttpServletResponse response) {
 
         Map<String, Object> model = LegacyMap.of();
-        if (scannerStateProvider.isScanning()) {
+        if (scannerStateService.isScanning()) {
             model
                 .put(EXEPTION, new IllegalArgumentException(
                         "Currently scanning. Please try again after a while."));

@@ -34,22 +34,19 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.model.MusicFolderContent;
-import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
-import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
-import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
-import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.feature.i18n.AirsonicLocaleResolver;
-import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
+import com.tesshu.jpsonic.feature.i18n.ServerLocaleService;
 import com.tesshu.jpsonic.infrastructure.metadata.BuildInfoProvider;
-import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -79,20 +76,19 @@ class TopControllerTest {
     void setup() throws ExecutionException {
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);
-        MusicIndexProvider musicIndexProvider = mock(MusicIndexProvider.class);
+        MusicIndexService musicIndexService = mock(MusicIndexService.class);
 
         SettingsFacade settingsFacade = SettingsFacadeBuilder.create().buildWithDefault();
-        ServerLocaleProvider serverLocaleProvider = new ServerLocaleManager(settingsFacade);
+        ServerLocaleService serverLocaleService = new ServerLocaleService(settingsFacade);
         userService = mock(UserService.class);
         AirsonicLocaleResolver airsonicLocaleResolver = new AirsonicLocaleResolver(userService,
-                serverLocaleProvider);
+                serverLocaleService);
 
         Mockito
-            .when(musicIndexProvider.findMusicFolderContent(Mockito.nullable(List.class)))
+            .when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
             .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
         controller = new TopController(settingsFacade, musicFolderService, userService,
-                scannerState, mock(MusicFolderProvider.class), musicIndexProvider,
-                mock(MediaFileProvider.class), mock(BuildInfoProvider.class),
+                scannerState, musicIndexService, mock(BuildInfoProvider.class),
                 mock(InternetRadioService.class), airsonicLocaleResolver);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

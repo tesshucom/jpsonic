@@ -25,13 +25,13 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
-import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -51,14 +51,14 @@ public class MoreController {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final GenreMasterProvider genreMasterProvider;
+    private final SearchService searchService;
 
     public MoreController(MusicFolderService musicFolderService, UserService userService,
-            GenreMasterProvider genreMasterProvider) {
+            SearchService searchService) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.genreMasterProvider = genreMasterProvider;
+        this.searchService = searchService;
     }
 
     @GetMapping
@@ -78,9 +78,9 @@ public class MoreController {
         result
             .addObject("model", LegacyMap
                 .of("user", user, "uploadDirectory", uploadDirectory, "genres",
-                        genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE),
-                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders",
-                        musicFolders, "brand", EnvironmentProvider.getInstance().getBrand()));
+                        searchService.getGenres(false), "currentYear",
+                        Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
+                        "brand", EnvironmentProvider.getInstance().getBrand()));
         return result;
     }
 }

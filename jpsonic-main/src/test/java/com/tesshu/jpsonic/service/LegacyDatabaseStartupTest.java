@@ -41,6 +41,7 @@ import java.util.jar.JarFile;
 import com.tesshu.jpsonic.infrastructure.filesystem.FileOperations;
 import com.tesshu.jpsonic.persistence.NeedsDB;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -109,28 +110,6 @@ class LegacyDatabaseStartupTest {
         return true;
     }
 
-    /**
-     * Removes the specified prefix from the start of the given string, if present.
-     * <p>
-     * If {@code str} starts with {@code remove}, the prefix is removed and the
-     * resulting substring is returned. Otherwise, the original string is returned
-     * unchanged.
-     * <p>
-     * If either {@code str} or {@code remove} is {@code null}, the original
-     * {@code str} is returned.
-     *
-     * @param str    the string to process, may be {@code null}
-     * @param remove the prefix to remove, may be {@code null}
-     * @return the substring without the prefix if present, or the original string
-     *         if not; returns {@code null} if {@code str} is {@code null}
-     */
-    static String removeStart(String str, String remove) {
-        if (str != null && remove != null && str.startsWith(remove)) {
-            return str.substring(remove.length());
-        }
-        return str;
-    }
-
     @SuppressWarnings("PMD.CognitiveComplexity")
     private static boolean copyJarResourcesRecursively(final Path destDir,
             final JarURLConnection jarConnection) throws IOException {
@@ -144,7 +123,7 @@ class LegacyDatabaseStartupTest {
                     continue;
                 }
 
-                final String filename = removeStart(entry.getName(), baseEntryName);
+                final String filename = StringUtil.removeStart(entry.getName(), baseEntryName);
                 final Path f = destDir.resolve(filename);
 
                 if (entry.isDirectory()) {

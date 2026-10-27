@@ -19,16 +19,13 @@
 
 package com.tesshu.jpsonic.persistence.result;
 
-import java.util.Optional;
-
-import com.tesshu.jpsonic.domain.contract.Indexable;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
+import com.tesshu.jpsonic.persistence.contract.Indexable;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * A class that represents suggestions for correction of artist sort tags.
  */
-@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public final class ArtistSortCandidate extends SortCandidate implements Indexable {
 
     private MediaType targetType;
@@ -59,18 +56,8 @@ public final class ArtistSortCandidate extends SortCandidate implements Indexabl
     }
 
     @Override
-    public Optional<String> musicIndex() {
-        return Optional.ofNullable(musicIndex);
-    }
-
-    @Override
-    public @NonNull String name() {
-        return getName();
-    }
-
-    @Override
-    public @NonNull String reading() {
-        return getReading();
+    public String getMusicIndex() {
+        return musicIndex;
     }
 
     public void setMusicIndex(String musicIndex) {

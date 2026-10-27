@@ -27,7 +27,6 @@ import java.time.format.DateTimeFormatter;
 
 import com.tesshu.jpsonic.controller.form.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.model.AuthKey;
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.IndexScheme;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.auth.rememberme.KeyRotationType;
@@ -41,6 +40,7 @@ import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,18 +73,18 @@ public class AdvancedSettingsController {
     private final RememberMeKeyManager rememberMeKeyManager;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
 
     public AdvancedSettingsController(SettingsFacade settingsFacade, UserService userService,
             RememberMeKeyManager rememberMeKeyManager, ShareService shareService,
-            OutlineHelpSelector outlineHelpSelector, ScannerStateProvider scannerStateProvider) {
+            OutlineHelpSelector outlineHelpSelector, ScannerStateService scannerStateService) {
         super();
         this.settingsFacade = settingsFacade;
         this.userService = userService;
         this.rememberMeKeyManager = rememberMeKeyManager;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
-        this.scannerStateProvider = scannerStateProvider;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -164,15 +164,13 @@ public class AdvancedSettingsController {
 
         // for view page control
         command.setUseRadio(settingsFacade.get(SKeys.general.legacy.useRadio));
-        command
-            .setUseDatabaseSettings(settingsFacade.get(SKeys.general.legacy.useDatabaseSettings));
         command.setShareCount(shareService.getAllShares().size());
         User user = userService.getCurrentUserStrict(request);
         command
             .setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = userService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-        command.setScanning(scannerStateProvider.isScanning());
+        command.setScanning(scannerStateService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "advancedSettings";
@@ -239,12 +237,12 @@ public class AdvancedSettingsController {
         }
 
         // Scan log
-        if (!scannerStateProvider.isScanning()) {
+        if (!scannerStateService.isScanning()) {
             setScanLog(command);
         }
 
         // Danger Zone
-        if (!scannerStateProvider.isScanning()) {
+        if (!scannerStateService.isScanning()) {
             setDangerZone(command);
         }
 

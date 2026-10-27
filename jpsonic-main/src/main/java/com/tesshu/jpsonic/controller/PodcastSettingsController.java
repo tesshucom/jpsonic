@@ -22,10 +22,10 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.controller.form.PodcastSettingsCommand;
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.RootPathEntryGuard;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,13 +46,13 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PodcastSettingsController {
 
     private final SettingsFacade settingsFacade;
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
 
     public PodcastSettingsController(SettingsFacade settingsFacade,
-            ScannerStateProvider scannerStateProvider) {
+            ScannerStateService scannerStateService) {
         super();
         this.settingsFacade = settingsFacade;
-        this.scannerStateProvider = scannerStateProvider;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -69,7 +69,7 @@ public class PodcastSettingsController {
         command.setFolder(settingsFacade.get(SKeys.podcast.folder));
 
         // for view page control
-        command.setScanning(scannerStateProvider.isScanning());
+        command.setScanning(scannerStateService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "podcastSettings";
@@ -80,7 +80,7 @@ public class PodcastSettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) PodcastSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        if (!scannerStateProvider.isScanning()) {
+        if (!scannerStateService.isScanning()) {
             settingsFacade
                 .staging(SKeys.podcast.updateInterval, Integer.parseInt(command.getInterval()));
             settingsFacade

@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.feature.i18n;
 
 import java.util.Locale;
 
-import com.tesshu.jpsonic.domain.provider.resource.ServerLocaleProvider;
 import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,13 +41,13 @@ import org.springframework.stereotype.Service;
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
     private final UserService userService;
-    private final ServerLocaleProvider serverLocaleProvider;
+    private final ServerLocaleService serverLocaleService;
 
     public AirsonicLocaleResolver(UserService userService,
-            ServerLocaleProvider serverLocaleService) {
+            ServerLocaleService serverLocaleService) {
         super();
         this.userService = userService;
-        this.serverLocaleProvider = serverLocaleService;
+        this.serverLocaleService = serverLocaleService;
     }
 
     /**
@@ -89,12 +88,12 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
         }
 
         // Return system locale.
-        locale = serverLocaleProvider.getLocale();
+        locale = serverLocaleService.getLocale();
         return localeExists(locale) ? locale : Locale.ENGLISH;
     }
 
     private boolean localeExists(Locale locale) {
-        return serverLocaleProvider.getAvailableLocales().contains(locale);
+        return serverLocaleService.getAvailableLocales().contains(locale);
     }
 
     @Override

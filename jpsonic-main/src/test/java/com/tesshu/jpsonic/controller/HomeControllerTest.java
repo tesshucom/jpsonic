@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.Arrays;
@@ -36,29 +35,25 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.model.Genre;
-import com.tesshu.jpsonic.domain.model.MusicFolder;
-import com.tesshu.jpsonic.domain.model.MusicFolderContent;
-import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
-import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
-import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
-import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
+import com.tesshu.jpsonic.persistence.api.entity.Genre;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
+import com.tesshu.jpsonic.persistence.api.entity.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
+import com.tesshu.jpsonic.service.ScannerStateService;
+import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -82,8 +77,7 @@ class HomeControllerTest {
             .standaloneSetup(new HomeController(settingsFacade, mock(UserService.class),
                     mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
                     mock(RatingService.class), mock(MediaFileService.class),
-                    mock(LegacySearch.class), mock(GenreMasterProvider.class),
-                    mock(MusicFolderProvider.class), mock(MusicIndexProvider.class)))
+                    mock(SearchService.class), mock(MusicIndexService.class)))
             .build();
     }
 
@@ -106,27 +100,26 @@ class HomeControllerTest {
     @Nested
     class GetTest {
 
+        private MusicFolderService musicFolderService;
         private RatingService ratingService;
         private MediaFileService mediaFileService;
-        private LegacySearch legacySearch;
-        private GenreMasterProvider genreMasterProvider;
-        private MusicIndexProvider musicIndexProvider;
+        private SearchService searchService;
+        private MusicIndexService musicIndexService;
         private HomeController controller;
 
         @BeforeEach
         void setup() throws ExecutionException {
+            musicFolderService = mock(MusicFolderService.class);
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);
-            legacySearch = mock(LegacySearch.class);
-            genreMasterProvider = mock(GenreMasterProvider.class);
-            musicIndexProvider = mock(MusicIndexProvider.class);
+            searchService = mock(SearchService.class);
+            musicIndexService = mock(MusicIndexService.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
             UserService userService = mock(UserService.class);
-            ScannerStateProvider scannerStateProvider = mock(ScannerStateProvider.class);
-            controller = new HomeController(settingsFacade, userService,
-                    mock(MusicFolderService.class), scannerStateProvider, ratingService,
-                    mediaFileService, legacySearch, genreMasterProvider,
-                    mock(MusicFolderProvider.class), musicIndexProvider);
+            ScannerStateService scannerStateService = mock(ScannerStateService.class);
+            controller = new HomeController(settingsFacade, userService, musicFolderService,
+                    scannerStateService, ratingService, mediaFileService, searchService,
+                    musicIndexService);
         }
 
         @Test
@@ -221,7 +214,7 @@ class HomeControllerTest {
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.RANDOM.getId());
             controller.handleRequestInternal(req);
-            Mockito.verify(legacySearch, Mockito.times(1)).getRandomAlbums(anyInt(), anyList());
+            Mockito.verify(searchService, Mockito.times(1)).getRandomAlbums(anyInt(), anyList());
         }
 
         @Test
@@ -255,13 +248,11 @@ class HomeControllerTest {
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.GENRE.getId());
             List<Genre> genres = Arrays.asList(new Genre("pops", 0, 0));
-            Mockito
-                .when(genreMasterProvider.getLegacyGenres(true, 0, Integer.MAX_VALUE))
-                .thenReturn(genres);
+            Mockito.when(searchService.getGenres(true)).thenReturn(genres);
             controller.handleRequestInternal(req);
             Mockito
-                .verify(legacySearch, Mockito.times(1))
-                .getAlbumsByGenres(anyString(), anyLong(), anyLong(), anyList());
+                .verify(searchService, Mockito.times(1))
+                .getAlbumsByGenres(anyString(), anyInt(), anyInt(), anyList());
         }
 
         @Test
@@ -270,19 +261,17 @@ class HomeControllerTest {
             Mockito
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.INDEX.getId());
+            List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder("", "name", false, now(), false));
             Mockito
-                .when(musicIndexProvider
-                    .findMusicFolderContent(anyList(),
-                            ArgumentMatchers
-                                .any(com.tesshu.jpsonic.domain.model.MediaFile.Type[].class)))
+                .when(musicFolderService
+                    .getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
+                .thenReturn(musicFolders);
+            Mockito
+                .when(musicIndexService.getMusicFolderContent(musicFolders))
                 .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
             controller.handleRequestInternal(req);
-            ArgumentCaptor<List<MusicFolder>> listCaptor = ArgumentCaptor.forClass(List.class);
-            ArgumentCaptor<com.tesshu.jpsonic.domain.model.MediaFile.Type[]> varargsCaptor = ArgumentCaptor
-                .forClass(com.tesshu.jpsonic.domain.model.MediaFile.Type[].class);
-            Mockito
-                .verify(musicIndexProvider, Mockito.times(1))
-                .findMusicFolderContent(listCaptor.capture(), varargsCaptor.capture());
+            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders);
         }
     }
 }

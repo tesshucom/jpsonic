@@ -29,9 +29,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.domain.contract.Indexable;
-import com.tesshu.jpsonic.domain.contract.Orderable;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
+import com.tesshu.jpsonic.persistence.contract.Indexable;
+import com.tesshu.jpsonic.persistence.contract.Orderable;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -43,7 +43,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Sindre Mehus
  */
 // Will change from non-sealed to final in the future.
-@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class MediaFile implements Orderable, Indexable {
 
     private int id;
@@ -263,12 +262,8 @@ public class MediaFile implements Orderable, Indexable {
         this.albumArtist = albumArtist;
     }
 
-    public @NonNull String getName() {
-        return name();
-    }
-
     @Override
-    public @NonNull String name() {
+    public @NonNull String getName() {
         if (isFile()) {
             return PlayerUtils.defaultIfNull(title, PathInspector.getBaseName(pathString));
         }
@@ -556,12 +551,8 @@ public class MediaFile implements Orderable, Indexable {
         this.artistReading = artistReading;
     }
 
-    public @Nullable String getReading() {
-        return reading();
-    }
-
     @Override
-    public @Nullable String reading() {
+    public @Nullable String getReading() {
         if (MediaType.ALBUM == mediaType) {
             return albumReading;
         }
@@ -626,13 +617,9 @@ public class MediaFile implements Orderable, Indexable {
         this.order = order;
     }
 
+    @Override
     public String getMusicIndex() {
         return musicIndex;
-    }
-
-    @Override
-    public Optional<String> musicIndex() {
-        return Optional.ofNullable(musicIndex);
     }
 
     public void setMusicIndex(String musicIndex) {

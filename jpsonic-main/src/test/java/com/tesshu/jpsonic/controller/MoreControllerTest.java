@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,15 +56,13 @@ class MoreControllerTest {
     @BeforeEach
     void setup() throws ExecutionException, URISyntaxException {
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        GenreMasterProvider genreMasterProvider = mock(GenreMasterProvider.class);
+        SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);
         mockMvc = MockMvcBuilders
-            .standaloneSetup(new MoreController(musicFolderService, mock(UserService.class),
-                    genreMasterProvider))
+            .standaloneSetup(
+                    new MoreController(musicFolderService, mock(UserService.class), searchService))
             .build();
-        Mockito
-            .when(genreMasterProvider.getLegacyGenres(false, 0, Integer.MAX_VALUE))
-            .thenReturn(Collections.emptyList());
+        Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito
             .when(playerService.getPlayer(Mockito.any(), Mockito.any()))
             .thenReturn(new Player());

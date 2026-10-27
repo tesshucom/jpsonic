@@ -25,14 +25,15 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.infrastructure.filesystem.PathInspector;
-import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,20 +53,16 @@ public class TagService {
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
 
     public TagService(MetaDataParserFactory metaDataParserFactory,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            ScannerStateProvider scannerStateProvider) {
+            ScannerStateService scannerStateService) {
         super();
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
-        this.scannerStateProvider = scannerStateProvider;
-    }
-
-    boolean equals(String a, String b) {
-        return Objects.equals(a, b);
+        this.scannerStateService = scannerStateService;
     }
 
     /**
@@ -87,7 +84,7 @@ public class TagService {
             String titleStr, String yearStr, String genreStr) {
 
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
-        if (mediaFile == null || scannerStateProvider.isScanning()) {
+        if (mediaFile == null || scannerStateService.isScanning()) {
             return "SKIPPED";
         }
 
@@ -106,10 +103,11 @@ public class TagService {
         Integer trackNumber = getTrackNumber(track);
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
-        if (equals(artist, mediaFile.getArtist()) && equals(album, mediaFile.getAlbumName())
-                && equals(title, mediaFile.getTitle())
+        if (StringUtil.equals(artist, mediaFile.getArtist())
+                && StringUtil.equals(album, mediaFile.getAlbumName())
+                && StringUtil.equals(title, mediaFile.getTitle())
                 && Objects.equals(yearNumber, mediaFile.getYear())
-                && equals(genre, mediaFile.getGenre())
+                && StringUtil.equals(genre, mediaFile.getGenre())
                 && Objects.equals(trackNumber, mediaFile.getTrackNumber())) {
             return "SKIPPED";
         }

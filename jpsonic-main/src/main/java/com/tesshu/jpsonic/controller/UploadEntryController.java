@@ -22,12 +22,12 @@ package com.tesshu.jpsonic.controller;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
-import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.core.entity.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,14 +40,14 @@ public class UploadEntryController {
 
     private final MusicFolderService musicFolderService;
     private final UserService userService;
-    private final ScannerStateProvider scannerStateProvider;
+    private final ScannerStateService scannerStateService;
 
     public UploadEntryController(MusicFolderService musicFolderService, UserService userService,
-            ScannerStateProvider scannerStateProvider) {
+            ScannerStateService scannerStateService) {
         super();
         this.musicFolderService = musicFolderService;
         this.userService = userService;
-        this.scannerStateProvider = scannerStateProvider;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -67,7 +67,7 @@ public class UploadEntryController {
             .addObject("model",
                     LegacyMap
                         .of("user", user, "uploadDirectory", uploadDirectory, "musicFolders",
-                                musicFolders, "scanning", scannerStateProvider.isScanning()));
+                                musicFolders, "scanning", scannerStateService.isScanning()));
         return result;
     }
 }

@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.domain.system.PreferredFormatScheme;
 import com.tesshu.jpsonic.feature.transcoding.Transcodings;
-import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
 import com.tesshu.jpsonic.infrastructure.core.EnvironmentProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -33,6 +32,7 @@ import com.tesshu.jpsonic.persistence.core.entity.UserSettings;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UserService;
+import com.tesshu.jpsonic.util.LegacyMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -77,7 +77,6 @@ public class TranscodingSettingsController {
         User user = userService.getCurrentUserStrict(request);
         UserSettings userSettings = userService.getUserSettings(user.getUsername());
 
-        // spotless:off
         model
             .addAttribute("model", LegacyMap
                 .of("transcodings", transcodingService.getAllTranscodings(), "preferredFormat",
@@ -88,9 +87,7 @@ public class TranscodingSettingsController {
                         "hlsCommand", settingsFacade.get(SKeys.transcoding.hlsCommand), "brand",
                         EnvironmentProvider.getInstance().getBrand(), "isOpenDetailSetting",
                         userSettings.isOpenDetailSetting(), "useRadio",
-                        settingsFacade.get(SKeys.general.legacy.useRadio), "useDatabaseSettings",
-                        settingsFacade.get(SKeys.general.legacy.useDatabaseSettings),
-                        "showOutlineHelp",
+                        settingsFacade.get(SKeys.general.legacy.useRadio), "showOutlineHelp",
                         outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
                         "shareCount", shareService.getAllShares().size()));
         return "transcodingSettings";

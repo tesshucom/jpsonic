@@ -81,10 +81,6 @@ public interface DialectMediaFileDao {
             List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback);
 
-    List<com.tesshu.jpsonic.domain.model.MediaFile> getDomainRandomSongsForAlbumArtist(int limit,
-            String albumArtist, List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders,
-            BiFunction<Integer, Integer, List<Integer>> randomCallback);
-
-    List<MediaFile> getSongsByGenre(List<String> genres, long offset, long count,
+    List<MediaFile> getSongsByGenre(List<String> genres, int offset, int count,
             List<MusicFolder> musicFolders, List<MediaType> types);
 }

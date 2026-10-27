@@ -23,18 +23,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
-import com.tesshu.jpsonic.domain.provider.master.YearInterval;
-import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationType;
 import com.tesshu.jpsonic.feature.crypt.upnp.UpnpCryptSettingsForm;
-import com.tesshu.jpsonic.infrastructure.menu.MenuItemData;
-import com.tesshu.jpsonic.infrastructure.menu.MenuItemManager.MenuItemWithDefaultName;
-import com.tesshu.jpsonic.infrastructure.search.UPnPSearchMethod;
+import com.tesshu.jpsonic.feature.search.UPnPSearchMethod;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.entity.Transcoding;
+import com.tesshu.jpsonic.persistence.core.entity.MenuItem;
+import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 
 public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryptSettingsForm {
 
@@ -63,10 +61,6 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
     private GenreMasterSort albumGenreSort;
     private List<GenreMasterSort> avairableSongGenreSort;
     private GenreMasterSort songGenreSort;
-    private List<YearMasterSort> avairableYearSort;
-    private YearMasterSort yearSort;
-    private List<YearInterval> avairableYearInterval;
-    private YearInterval yearInterval;
     private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
@@ -229,38 +223,6 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
         this.songGenreSort = musicGenreSort;
     }
 
-    public List<YearMasterSort> getAvairableYearSort() {
-        return avairableYearSort;
-    }
-
-    public void setAvairableYearSort(List<YearMasterSort> avairableYearSort) {
-        this.avairableYearSort = avairableYearSort;
-    }
-
-    public YearMasterSort getYearSort() {
-        return yearSort;
-    }
-
-    public void setYearSort(YearMasterSort yearSort) {
-        this.yearSort = yearSort;
-    }
-
-    public List<YearInterval> getAvairableYearInterval() {
-        return avairableYearInterval;
-    }
-
-    public void setAvairableYearInterval(List<YearInterval> avairableYearInterval) {
-        this.avairableYearInterval = avairableYearInterval;
-    }
-
-    public YearInterval getYearInterval() {
-        return yearInterval;
-    }
-
-    public void setYearInterval(YearInterval yearInterval) {
-        this.yearInterval = yearInterval;
-    }
-
     public Integer getDlnaRandomMax() {
         return dlnaRandomMax;
     }
@@ -335,6 +297,6 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
         this.dlnaKeyLastUpdate = dlnaKeyLastUpdate;
     }
 
-    public record SubMenuItemRowInfo(MenuItemData firstChild, int count) {
+    public record SubMenuItemRowInfo(MenuItem firstChild, int count) {
     }
 }
