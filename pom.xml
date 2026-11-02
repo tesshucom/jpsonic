@@ -28,7 +28,7 @@
     <versions.chameleon>1.2.1-RELEASE</versions.chameleon>
 
     <versions.checkstyle>14.3.0</versions.checkstyle>
-    <versions.pmd>7.28.0</versions.pmd>
+    <versions.pmd>7.29.0</versions.pmd>
     <versions.spotbugs>4.10.5</versions.spotbugs>
   </properties>
 
