@@ -27,6 +27,7 @@ import java.util.List;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
 import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.master.YearInterval;
@@ -163,72 +164,75 @@ public class AlbumProviderAdapterTest extends AbstractNeedsScan {
         // 2004 _ID3_ALBUM_ Chrome Hoof
         // 2005 _ID3_ALBUM_ Chrome Hoof
         YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
-        List<Album> albums = albumProvider
+        List<YearAlbumEntry> entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
 
         yearGroup = new YearGroup(YearInterval.TEN_YEARS, 2000);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(2, albums.size());
+        assertEquals(2, entries.size());
 
         yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 1995);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
 
         yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 2000);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(2, albums.size());
+        assertEquals(2, entries.size());
 
         yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 2005);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
         
         yearGroup = new YearGroup(YearInterval.YEAR, 1996);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
         yearGroup = new YearGroup(YearInterval.YEAR, 2001);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
         yearGroup = new YearGroup(YearInterval.YEAR, 2004);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
         yearGroup = new YearGroup(YearInterval.YEAR, 2005);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
 
         yearGroup = new YearGroup(YearInterval.UNDEFINED, 0);
-        albums = albumProvider
+        entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(2, albums.size());
+        assertEquals(2, entries.size());
     }
 
     @Test
     public void testCountChldren() {
         YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
-        List<Album> albums = albumProvider
+        List<YearAlbumEntry> entries = albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+        assertEquals(1, entries.size());
+        
+        YearAlbumEntry entry = entries.get(0);
         int count = albumProvider
-            .countChldren(musicFolderProvider.getGuestFolders(), yearGroup, albums.get(0));
+            .countChldren(musicFolderProvider.getGuestFolders(), yearGroup,
+                    entry.artistName().orElse(null), entry.albumName());
         assertEquals(3, count);
     }
 }

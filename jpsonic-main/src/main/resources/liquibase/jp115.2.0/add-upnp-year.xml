@@ -146,4 +146,18 @@
     <rollback>
     </rollback>
   </changeSet>
+  <changeSet id="add-year-browse-indexes" author="tesshucom">
+      <createIndex indexName="idx_album_folder_id" tableName="album">
+          <column name="folder_id"/>
+      </createIndex>
+      <createIndex indexName="idx_media_file_album_artist_type_year" tableName="media_file">
+          <column name="album"/>
+          <column name="album_artist"/>
+          <column name="type"/>
+          <column name="year"/>
+      </createIndex>
+      <createIndex indexName="idx_album_order" tableName="album">
+          <column name="album_order"/>
+      </createIndex>
+  </changeSet>
 </databaseChangeLog>

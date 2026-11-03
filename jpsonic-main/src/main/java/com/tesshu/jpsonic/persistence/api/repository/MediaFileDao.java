@@ -1901,7 +1901,7 @@ public class MediaFileDao {
                 "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
                 "yearFrom", yearGroup.value(),
                 "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
-                "artist", album.artist().orElseGet(null),
+                "artist", album.artist().orElse(null),
                 "album", album.name(),
                 "count", count,
                 "offset", offset,

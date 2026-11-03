@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.model.MediaFile.BitRate;
 import com.tesshu.jpsonic.domain.model.MediaFile.DurationSeconds;
 import com.tesshu.jpsonic.domain.model.MediaFile.Format;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
 import com.tesshu.jpsonic.domain.model.MusicIndex;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
@@ -201,14 +202,16 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
         assertEquals(1, yearsEntryEntries.get(0).count());
         
         YearGroup yearGroup = yearsEntryEntries.get(0).yearGroup();
-        List<Album> albums =
+        List<YearAlbumEntry> entries =
         albumProvider
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(),
                     yearGroup, 0, Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
-        Album album = albums.get(0);
-        assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", album.name());
+        assertEquals(1, entries.size());
+        YearAlbumEntry yearAlbumEntry = entries.get(0);
+        assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes", yearAlbumEntry.albumName());
         
+        
+        Album album = albumProvider.requireAlbum(yearAlbumEntry.albumId());
         List<MediaFile> musics = mediaFileProvider
             .findChildren(musicFolderProvider.getGuestFolders(), yearGroup, album, 0,
                     Integer.MAX_VALUE, criteria.types());

@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.model.Artist;
 import com.tesshu.jpsonic.domain.model.MediaFile;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
 import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
@@ -542,7 +543,16 @@ public class AlbumDao {
         return template.namedQuery(query, domainRowMapper, args);
     }
 
-    public List<com.tesshu.jpsonic.domain.model.Album> findAlbumsByYearGroup(
+    private RowMapper<YearAlbumEntry> yearAlbumEntryRowMapper(YearGroup yearGroup) {
+        return (rs, num) -> new YearAlbumEntry(yearGroup, // yearGroup,
+                rs.getInt(1), // albumId
+                rs.getString(2), // artistName
+                rs.getString(3), // albumName
+                rs.getString(4), // comment
+                rs.getInt(5)); // childCount
+    }
+
+    public List<YearAlbumEntry> findAlbumsByYearGroup(
             List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup,
             long offset, long count, MediaFile.Type... types) {
         if (folders.isEmpty()) {
@@ -574,24 +584,34 @@ public class AlbumDao {
                 """;
         };
 
-        return template
-            .namedQuery("select distinct " + prefix(DOMAIN_COLUMNS_QUERY, "a") + ", a.album_order\s"
-                    + """
-                            from album a
-                            join media_file mf
-                                on a.name = mf.album
-                                and a.artist = mf.album_artist
-                            where mf.type in (:types)
-                                and a.folder_id in (:folders)
-                                %s
-                            order by a.album_order
-                            limit :count offset :offset
-                            """.formatted(whereQuery), domainRowMapper, args);
+        return template.namedQuery("""
+                select a.id, a.artist, a.name, a.comment, (select count(*)
+                        from media_file mf
+                        where mf.album = a.name
+                            and mf.album_artist = a.artist
+                            and mf.type in (:types)
+                            %s) as child_count
+                from (
+                    select a.id, a.artist, a.name, a.song_count, a.comment, a.album_order
+                    from album a
+                    where a.folder_id in (:folders)
+                        and exists (
+                                select 1
+                                from media_file mf
+                                where mf.album = a.name
+                                    and mf.album_artist = a.artist
+                                    and mf.type in (:types)
+                                    %s
+                                    )
+                    order by a.album_order
+                    limit :count offset :offset
+                    ) a
+                order by a.album_order
+                """.formatted(whereQuery, whereQuery), yearAlbumEntryRowMapper(yearGroup), args);
     }
 
     public int countChldren(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
-            YearGroup yearGroup, com.tesshu.jpsonic.domain.model.Album album,
-            MediaFile.Type... types) {
+            YearGroup yearGroup, String artistName, String albumName, MediaFile.Type... types) {
         if (folders.isEmpty()) {
             return 0;
         }
@@ -601,8 +621,8 @@ public class AlbumDao {
                 "folders", folders.stream().map(com.tesshu.jpsonic.domain.model.MusicFolder::id).toList(),
                 "yearFrom", yearGroup.value(),
                 "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
-                "artist", album.artist().orElseGet(null),
-                "album", album.name(),
+                "artist", artistName,
+                "album", albumName,
                 "types", Stream.of(types).map(MediaFile.Type::name).toList());
         // spotless:on
 

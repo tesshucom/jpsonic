@@ -29,6 +29,7 @@ import com.tesshu.jpsonic.domain.model.Artist;
 import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.master.YearGroup;
@@ -71,8 +72,10 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
-    public int countChldren(List<MusicFolder> folders, YearGroup yearGroup, Album album) {
-        return albumDao.countChldren(folders, yearGroup, album, MediaFile.Type.MUSIC);
+    public int countChldren(List<MusicFolder> folders, YearGroup yearGroup, String artistName,
+            String albumName) {
+        return albumDao
+            .countChldren(folders, yearGroup, artistName, albumName, MediaFile.Type.MUSIC);
     }
 
     @Override
@@ -94,8 +97,8 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
-    public List<Album> findAlbumsByYearGroup(List<MusicFolder> musicFolders, YearGroup yearGroup,
-            long offset, long count) {
+    public List<YearAlbumEntry> findAlbumsByYearGroup(List<MusicFolder> musicFolders,
+            YearGroup yearGroup, long offset, long count) {
         return albumDao
             .findAlbumsByYearGroup(musicFolders, yearGroup, offset, count, MediaFile.Type.MUSIC);
     }
