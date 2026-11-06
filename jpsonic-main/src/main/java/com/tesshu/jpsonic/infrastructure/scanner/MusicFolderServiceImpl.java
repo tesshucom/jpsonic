@@ -166,11 +166,13 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
     }
 
     @Override
+    @SuppressWarnings("PMD.NullAssignment")
     public void setMusicFoldersForUser(@NonNull String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
         writeLock(cacheLock);
         try {
             cachedUserFolders.remove(username);
+            cachedDomainGuestFolders = null;
         } finally {
             writeUnlock(cacheLock);
         }

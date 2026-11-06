@@ -47,6 +47,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.adapter.master.MasterCache;
 import com.tesshu.jpsonic.feature.filesystem.LibraryAccessPolicy;
 import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy;
@@ -250,7 +251,8 @@ class MediaScannerServiceImplTest {
                     genreMasterProviderAdapter, mediaFileService, mediaFileDao, artistDao, albumDao,
                     musicIndexProviderImpl, comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
-                    templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
+                    templateWrapper, staticsDao, utils, mediaFileCache, mock(MasterCache.class),
+                    scanHelper);
 
             mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
@@ -804,7 +806,7 @@ class MediaScannerServiceImplTest {
                     albumDao, musicIndexProviderImpl, comparators, scanHelper);
             PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
                     playlistService, templateWrapper, staticsDao, sortProcedureService,
-                    mediaFileCache, scanHelper);
+                    mediaFileCache, mock(MasterCache.class), scanHelper);
             mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, executor);
@@ -1051,7 +1053,8 @@ class MediaScannerServiceImplTest {
                     genreMasterProviderAdapter, mediaFileService, mediaFileDao, artistDao, albumDao,
                     musicIndexProviderImpl, comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
-                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper);
+                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache,
+                    mock(MasterCache.class), scanHelper);
         }
 
         @Test

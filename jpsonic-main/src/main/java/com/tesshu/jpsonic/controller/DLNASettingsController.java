@@ -41,6 +41,8 @@ import com.tesshu.jpsonic.controller.form.DLNASettingsCommand.SubMenuItemRowInfo
 import com.tesshu.jpsonic.domain.model.AuthKey;
 import com.tesshu.jpsonic.domain.model.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.model.TranscodingDefinition.BitRateLimit;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
+import com.tesshu.jpsonic.domain.provider.master.YearMasterCriteria.YearMasterSort;
 import com.tesshu.jpsonic.domain.system.MenuItemId;
 import com.tesshu.jpsonic.domain.type.GenreMasterSort;
 import com.tesshu.jpsonic.feature.crypt.upnp.KeyRotationPeriod;
@@ -199,6 +201,18 @@ public class DLNASettingsController {
         command
             .setSongGenreSort(
                     GenreMasterSort.of(settingsFacade.get(UPnPSKeys.options.upnpSongGenreSort)));
+        command
+            .setAvairableYearSort(Arrays
+                .asList(YearMasterSort.ASC, YearMasterSort.DESC, YearMasterSort.FREQUENCY));
+        command
+            .setYearSort(
+                    YearMasterSort.valueOf(settingsFacade.get(UPnPSKeys.options.upnpYearSort)));
+        command
+            .setAvairableYearInterval(Arrays
+                .asList(YearInterval.TEN_YEARS, YearInterval.FIVE_YEARS, YearInterval.YEAR));
+        command
+            .setYearInterval(
+                    YearInterval.valueOf(settingsFacade.get(UPnPSKeys.options.upnpYearInterval)));
         command.setDlnaRandomMax(settingsFacade.get(UPnPSKeys.options.randomMax));
         command.setDlnaGuestPublish(settingsFacade.get(UPnPSKeys.options.guestPublish));
 
@@ -291,6 +305,9 @@ public class DLNASettingsController {
             .staging(UPnPSKeys.options.upnpAlbumGenreSort, command.getAlbumGenreSort().name());
         settingsFacade
             .staging(UPnPSKeys.options.upnpSongGenreSort, command.getSongGenreSort().name());
+        settingsFacade.staging(UPnPSKeys.options.upnpYearSort, command.getYearSort().name());
+        settingsFacade
+            .staging(UPnPSKeys.options.upnpYearInterval, command.getYearInterval().name());
 
         final List<Integer> allowedIds = Arrays
             .stream(command.getAllowedMusicFolderIds())

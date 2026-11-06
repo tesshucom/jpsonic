@@ -23,8 +23,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.Font;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -48,9 +52,13 @@ class FontLoaderTest {
     private FontLoader fontLoader;
 
     @BeforeEach
-    void setup() throws URISyntaxException {
-        Path path = Path.of(FontLoaderTest.class.getResource("/ehcache.xml").toURI());
-        manager = CacheManager.newInstance(path.toString());
+    void setup() throws URISyntaxException, IOException {
+        try (InputStream in = FontLoaderTest.class
+            .getResourceAsStream("/com/tesshu/jpsonic/infrastructure/scanner/ehcache.xml")) {
+            Path path = Files.createTempFile("ehcache", ".xml");
+            Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
+            manager = CacheManager.newInstance(path.toString());
+        }
         fontLoader = new FontLoader(manager.getCache("fontCache"));
     }
 

@@ -141,7 +141,8 @@ public class MusicFolderDao {
                 from music_folder, music_folder_user
                 where music_folder.id = music_folder_user.music_folder_id
                         and music_folder_user.username = ?
-                order by enabled desc, folder_order
+                        and music_folder.enabled
+                order by folder_order
                 """;
         return template.query(sql, domainRowMapper, username);
     }
