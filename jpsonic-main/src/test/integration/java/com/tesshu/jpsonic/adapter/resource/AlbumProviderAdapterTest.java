@@ -27,7 +27,10 @@ import java.util.List;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
+import com.tesshu.jpsonic.domain.provider.master.YearInterval;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
 import com.tesshu.jpsonic.domain.provider.resource.ArtistProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
@@ -148,5 +151,112 @@ public class AlbumProviderAdapterTest extends AbstractNeedsScan {
         assertEquals("_ID3_ALBUM_ Sackcloth 'n' Ashes",
                 albumProvider.requireAlbum(albums.get(3).id()).name());
         assertEquals("Complete Piano Works", albumProvider.requireAlbum(albums.get(4).id()).name());
+    }
+
+    @Test
+    public void testFindAlbumsByYearGroup() {
+        // (music:year)
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 2001 _ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]
+        // 2001 _ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]
+        // 2004 _ID3_ALBUM_ Chrome Hoof
+        // 2005 _ID3_ALBUM_ Chrome Hoof
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<YearAlbumEntry> entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+
+        yearGroup = new YearGroup(YearInterval.TEN_YEARS, 2000);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(2, entries.size());
+
+        yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 1995);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+
+        yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 2000);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(2, entries.size());
+
+        yearGroup = new YearGroup(YearInterval.FIVE_YEARS, 2005);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+        
+        yearGroup = new YearGroup(YearInterval.YEAR, 1996);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+        yearGroup = new YearGroup(YearInterval.YEAR, 2001);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+        yearGroup = new YearGroup(YearInterval.YEAR, 2004);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+        yearGroup = new YearGroup(YearInterval.YEAR, 2005);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+
+        yearGroup = new YearGroup(YearInterval.UNDEFINED, 0);
+        entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(2, entries.size());
+    }
+
+    @Test
+    public void testCountAlbumsByYearGroup() {
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<YearAlbumEntry> entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+        
+        YearAlbumEntry entry = entries.get(0);
+        int count = albumProvider
+            .countAlbums(musicFolderProvider.getGuestFolders(), yearGroup,
+                    entry.artistName().orElse(null), entry.albumName());
+        assertEquals(3, count);
+    }
+
+    @Test
+    public void testFindLegacyAlbumsByYearGroup() {
+        // (music:year)
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 1996 _ID3_ALBUM_ Sackcloth 'n' Ashes
+        // 2001 _ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]
+        // 2001 _ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]
+        // 2004 _ID3_ALBUM_ Chrome Hoof
+        // 2005 _ID3_ALBUM_ Chrome Hoof
+        
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<Album> albums = albumProvider
+            .findLegacyAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, albums.size());
+        
+        yearGroup = new YearGroup(YearInterval.TEN_YEARS, 2000);
+        albums = albumProvider
+            .findLegacyAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(2, albums.size());
     }
 }

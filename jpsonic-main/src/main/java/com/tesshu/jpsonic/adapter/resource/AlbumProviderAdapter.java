@@ -26,10 +26,13 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
+import com.tesshu.jpsonic.domain.model.MediaFile;
 import com.tesshu.jpsonic.domain.model.MediaFile.Type;
 import com.tesshu.jpsonic.domain.model.MusicFolder;
+import com.tesshu.jpsonic.domain.model.summary.YearAlbumEntry;
 import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
+import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
@@ -56,6 +59,13 @@ class AlbumProviderAdapter implements AlbumProvider {
     @Override
     public int countAlbums(List<MusicFolder> folders) {
         return albumDao.countAlbums(folders);
+    }
+
+    @Override
+    public int countChildren(List<MusicFolder> folders, YearGroup yearGroup, String artistName,
+            String albumName) {
+        return albumDao
+            .countChldren(folders, yearGroup, artistName, albumName, MediaFile.Type.MUSIC);
     }
 
     @Override
@@ -87,9 +97,22 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
+    public List<YearAlbumEntry> findAlbumsByYearGroup(List<MusicFolder> musicFolders,
+            YearGroup yearGroup, long offset, long count) {
+        return albumDao
+            .findAlbumsByYearGroup(musicFolders, yearGroup, offset, count, MediaFile.Type.MUSIC);
+    }
+
+    @Override
     public List<Album> findChildren(List<MusicFolder> folders, Artist parent, AlbumSortOrder order,
             long offset, long count) {
         return albumDao.findAlbums(folders, parent, order, offset, count);
+    }
+
+    @Override
+    public List<Album> findLegacyAlbumsByYearGroup(List<MusicFolder> folders, YearGroup yearGroup,
+            long offset, long count) {
+        return albumDao.findLegacyAlbumsByYearGroup(folders, yearGroup, offset, count);
     }
 
     @Override

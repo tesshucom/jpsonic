@@ -101,16 +101,17 @@ class RootProcTest extends AbstractNeedsScan {
         assertEquals(MenuItemId.ALBUM, menuItems.get(2).id());
         assertEquals(MenuItemId.GENRE, menuItems.get(3).id());
         menuItems = proc.getDirectChildren(4, Integer.MAX_VALUE);
-        assertEquals(4, menuItems.size());
-        assertEquals(MenuItemId.PODCAST, menuItems.get(0).id());
-        assertEquals(MenuItemId.PLAYLISTS, menuItems.get(1).id());
-        assertEquals(MenuItemId.RECENTLY, menuItems.get(2).id());
-        assertEquals(MenuItemId.SHUFFLE, menuItems.get(3).id());
+        assertEquals(5, menuItems.size());
+        assertEquals(MenuItemId.YEAR, menuItems.get(0).id());
+        assertEquals(MenuItemId.PODCAST, menuItems.get(1).id());
+        assertEquals(MenuItemId.PLAYLISTS, menuItems.get(2).id());
+        assertEquals(MenuItemId.RECENTLY, menuItems.get(3).id());
+        assertEquals(MenuItemId.SHUFFLE, menuItems.get(4).id());
     }
 
     @Test
     void testGetDirectChildrenCount() {
-        assertEquals(8, proc.getDirectChildrenCount());
+        assertEquals(9, proc.getDirectChildrenCount());
     }
 
     @Test
