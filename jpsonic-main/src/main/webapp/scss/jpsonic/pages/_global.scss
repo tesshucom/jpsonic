@@ -12,6 +12,8 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 select {
+  margin-top: 2px;
+  margin-bottom: 2px;
   padding-right: 5px;
   padding-left: 5px;
   &:focus,
