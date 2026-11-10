@@ -90,6 +90,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -250,7 +251,8 @@ class MediaScannerServiceImplTest {
                     genreMasterProviderAdapter, mediaFileService, mediaFileDao, artistDao, albumDao,
                     musicIndexProviderImpl, comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
-                    templateWrapper, staticsDao, utils, mediaFileCache, scanHelper);
+                    templateWrapper, staticsDao, utils, mediaFileCache, scanHelper,
+                    mock(ApplicationEventPublisher.class));
 
             mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
@@ -804,7 +806,7 @@ class MediaScannerServiceImplTest {
                     albumDao, musicIndexProviderImpl, comparators, scanHelper);
             PostScanProcedure postScanProc = new PostScanProcedure(musicFolderService, indexManager,
                     playlistService, templateWrapper, staticsDao, sortProcedureService,
-                    mediaFileCache, scanHelper);
+                    mediaFileCache, scanHelper, mock(ApplicationEventPublisher.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsFacade, scannerStateService,
                     preScanProc, directoryScanProc, fileMetaProc, id3MetaProc, postScanProc,
                     scanHelper, staticsDao, executor);
@@ -1051,7 +1053,8 @@ class MediaScannerServiceImplTest {
                     genreMasterProviderAdapter, mediaFileService, mediaFileDao, artistDao, albumDao,
                     musicIndexProviderImpl, comparators, scanHelper);
             postScanProc = new PostScanProcedure(musicFolderService, indexManager, playlistService,
-                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper);
+                    templateWrapper, staticsDao, sortProcedureService, mediaFileCache, scanHelper,
+                    mock(ApplicationEventPublisher.class));
         }
 
         @Test

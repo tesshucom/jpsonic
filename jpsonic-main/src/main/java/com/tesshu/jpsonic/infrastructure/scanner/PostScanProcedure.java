@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.event.ScanFinishedEvent;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.base.TemplateWrapper;
 import com.tesshu.jpsonic.persistence.core.entity.MediaLibraryStatistics;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
@@ -86,11 +88,12 @@ public class PostScanProcedure {
     private final SortProcedureService sortProcedure;
     private final MediaFileCache mediaFileCache;
     private final ScanHelper scanHelper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PostScanProcedure(MusicFolderServiceImpl musicFolderService, IndexManager indexManager,
             PlaylistService playlistService, TemplateWrapper template, StaticsDao staticsDao,
             SortProcedureService sortProcedure, MediaFileCache mediaFileCache,
-            ScanHelper scanHelper) {
+            ScanHelper scanHelper, ApplicationEventPublisher eventPublisher) {
         super();
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
@@ -100,6 +103,7 @@ public class PostScanProcedure {
         this.sortProcedure = sortProcedure;
         this.mediaFileCache = mediaFileCache;
         this.scanHelper = scanHelper;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -142,6 +146,7 @@ public class PostScanProcedure {
         indexManager.stopIndexing();
         sortProcedure.clearMemoryCache();
         scanHelper.createScanEvent(context, ScanEventType.AFTER_SCAN, null);
+        eventPublisher.publishEvent(new ScanFinishedEvent());
     }
 
     void importPlaylists(@NonNull ScanContext context) {
