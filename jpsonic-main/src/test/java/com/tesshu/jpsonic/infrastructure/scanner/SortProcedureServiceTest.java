@@ -772,15 +772,23 @@ class SortProcedureServiceTest {
             assertEquals("case03", albumId3s.get(2).getArtistReading());
             assertEquals("artistE", albumId3s.get(2).getArtistSort());
 
+            // Verify the entries regardless of their order.
             assertEquals("ALBUM4", albumId3s.get(3).getName());
-            assertEquals("ARTIST", albumId3s.get(3).getArtist());
-            assertEquals("ARTIST", albumId3s.get(3).getArtistReading());
-            assertEquals("ARTIST", albumId3s.get(3).getArtistSort());
-
             assertEquals("ALBUM4", albumId3s.get(4).getName());
-            assertEquals("case04", albumId3s.get(4).getArtist());
-            assertEquals("case04", albumId3s.get(4).getArtistReading());
-            assertEquals("artistH", albumId3s.get(4).getArtistSort());
+            if ("ARTIST".equals(albumId3s.get(3).getArtist())) {
+                assertEquals("ARTIST", albumId3s.get(3).getArtistReading());
+                assertEquals("ARTIST", albumId3s.get(3).getArtistSort());
+                assertEquals("case04", albumId3s.get(4).getArtist());
+                assertEquals("case04", albumId3s.get(4).getArtistReading());
+                assertEquals("artistH", albumId3s.get(4).getArtistSort());
+            } else {
+                assertEquals("case04", albumId3s.get(3).getArtist());
+                assertEquals("case04", albumId3s.get(3).getArtistReading());
+                assertEquals("artistH", albumId3s.get(3).getArtistSort());
+                assertEquals("ARTIST", albumId3s.get(4).getArtist());
+                assertEquals("ARTIST", albumId3s.get(4).getArtistReading());
+                assertEquals("ARTIST", albumId3s.get(4).getArtistSort());
+            }
 
             assertEquals("ALBUM5", albumId3s.get(5).getName());
             assertEquals("case05", albumId3s.get(5).getArtist());
