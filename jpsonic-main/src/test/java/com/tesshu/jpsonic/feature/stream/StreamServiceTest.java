@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.feature.stream;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -641,7 +642,7 @@ class StreamServiceTest {
         try (InputStream inputStream = streamService
             .createInputStream(player, null, null, null, null)) {
             assertNotNull(inputStream);
-            assertTrue(inputStream instanceof PlayQueueInputStream);
+            assertInstanceOf(PlayQueueInputStream.class, inputStream);
         }
     }
 
