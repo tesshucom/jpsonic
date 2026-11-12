@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.domain.event.MusicFolderChangedEvent;
 import com.tesshu.jpsonic.infrastructure.concurrent.ReadWriteLockSupport;
 import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
 import com.tesshu.jpsonic.persistence.api.repository.MusicFolderDao;
@@ -36,6 +37,7 @@ import com.tesshu.jpsonic.persistence.core.repository.StaticsDao;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -87,12 +89,14 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
     private final StaticsDao staticsDao;
     private final ScannerStateServiceImpl scannerStateService;
     private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
+    private final ApplicationEventPublisher eventPublisher;
 
     public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao,
-            ScannerStateServiceImpl scannerStateService) {
+            ScannerStateServiceImpl scannerStateService, ApplicationEventPublisher eventPublisher) {
         this.musicFolderDao = musicFolderDao;
         this.staticsDao = staticsDao;
         this.scannerStateService = scannerStateService;
+        this.eventPublisher = eventPublisher;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
 
@@ -124,7 +128,10 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
         try {
             if (cachedDomainGuestFolders == null) {
                 cachedDomainGuestFolders = musicFolderDao
-                    .getDomainMusicFoldersForUser(USERNAME_GUEST);
+                    .getDomainMusicFoldersForUser(USERNAME_GUEST)
+                    .stream()
+                    .filter(com.tesshu.jpsonic.domain.model.MusicFolder::enabled)
+                    .toList();
             }
             return cachedDomainGuestFolders;
         } finally {
@@ -171,6 +178,9 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
         writeLock(cacheLock);
         try {
             cachedUserFolders.remove(username);
+            if (USERNAME_GUEST.equals(username)) {
+                clearMusicFolderCache();
+            }
         } finally {
             writeUnlock(cacheLock);
         }
@@ -242,17 +252,15 @@ public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLock
         }
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear
-                                            // cache
+    @SuppressWarnings("PMD.NullAssignment")
     public void clearMusicFolderCache() {
         writeLock(cacheLock);
         try {
-            cachedMusicFolders = null;
             cachedUserFolders.clear();
-            if (cachedDomainGuestFolders != null) {
-                cachedDomainGuestFolders.clear();
-            }
+            cachedMusicFolders = null;
+            cachedDomainGuestFolders = null;
         } finally {
+            eventPublisher.publishEvent(new MusicFolderChangedEvent());
             writeUnlock(cacheLock);
         }
     }

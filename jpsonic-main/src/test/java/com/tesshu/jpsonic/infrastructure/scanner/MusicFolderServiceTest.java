@@ -41,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class MusicFolderServiceTest {
@@ -56,7 +57,7 @@ class MusicFolderServiceTest {
         ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
         Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
         musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class),
-                scannerStateService);
+                scannerStateService, mock(ApplicationEventPublisher.class));
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null, 0,
                 false);
