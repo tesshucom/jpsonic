@@ -371,15 +371,15 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
     @Test
     public void testRequireMediaFileMusicFolder() {
         List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
-        assertEquals(3, folders.size());
+        assertEquals(2, folders.size());
         MusicFolder musicFolder = folders.get(0);
         MediaFile mediaFile = mediaFileProvider.requireMediaFile(musicFolder);
         assertEquals(musicFolder.toPath(), mediaFile.toPath());
+        MediaFile mediaFile2 = mediaFileProvider.requireMediaFile(mediaFile.id());
+        assertEquals(mediaFile2.toPath(), mediaFile.toPath());
         
         MusicFolder fake = new MusicFolder(0, "/tmp/fake", null, isDataBaseReady(), null, 0, isDataBasePopulated());
         assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> mediaFileProvider.requireMediaFile(fake));
     }
-
-
 }

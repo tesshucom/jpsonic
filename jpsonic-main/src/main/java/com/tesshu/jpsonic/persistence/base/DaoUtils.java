@@ -64,7 +64,7 @@ public final class DaoUtils {
             """;
     public static final String DOMAIN_JOINED_TABLES_QUERY = """
             from media_file mf
-            join media_file pmf on mf.parent_path = pmf.path\s
+            left join media_file pmf on mf.parent_path = pmf.path\s
             """;
 
     public static final String DOMAIN_ROOT_COLUMNS_QUERY = """
@@ -147,7 +147,7 @@ public final class DaoUtils {
         return (rs, num) -> new com.tesshu.jpsonic.domain.model.MediaFile(//
                 rs.getInt(1), // id
                 rs.getString(2), // pathString
-                rs.getInt(3), // parentId
+                rs.getObject(3, Integer.class), // parentId
                 rs.getString(4), // format
                 rs.getString(5), // type
                 rs.getInt(6), // bitRate
