@@ -112,6 +112,7 @@ public class DatabaseConfiguration {
         config.setMaxLifetime(DS_MAX_LIFE_TIME);
         config.setIdleTimeout(DS_IDLE_TIMEOUT);
         config.setKeepaliveTime(DS_KEEP_ALIVE_TIME);
+        config.setRegisterMbeans(true);
         return config;
     }
 
