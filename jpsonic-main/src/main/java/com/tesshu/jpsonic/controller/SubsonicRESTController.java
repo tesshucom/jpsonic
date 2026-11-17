@@ -65,8 +65,8 @@ import com.tesshu.jpsonic.feature.stream.StreamController;
 import com.tesshu.jpsonic.infrastructure.filesystem.MediaTypeDetector;
 import com.tesshu.jpsonic.infrastructure.scanner.HttpSearchCriteriaDirector;
 import com.tesshu.jpsonic.infrastructure.scanner.IndexType;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
@@ -223,7 +223,7 @@ public class SubsonicRESTController {
     private final AudioScrobblerService audioScrobblerService;
     private final PodcastService podcastService;
     private final RatingService ratingService;
-    private final LegacySearch legacySearch;
+    private final MediaSearchProvider mediaSearchProvider;
     private final GenreMasterProvider genreMasterProvider;
     private final InternetRadioService internetRadioService;
     private final MediaFileDao mediaFileDao;
@@ -250,7 +250,7 @@ public class SubsonicRESTController {
             StreamController streamController, HLSController hlsController,
             ShareService shareService, PlaylistService playlistService, LyricsService lyricsService,
             AudioScrobblerService audioScrobblerService, PodcastService podcastService,
-            RatingService ratingService, LegacySearch legacySearch,
+            RatingService ratingService, MediaSearchProvider mediaSearchProvider,
             GenreMasterProvider genreMasterProvider, InternetRadioService internetRadioService,
             MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
             BookmarkService bookmarkService, PlayQueueDao playQueueDao,
@@ -284,7 +284,7 @@ public class SubsonicRESTController {
         this.audioScrobblerService = audioScrobblerService;
         this.podcastService = podcastService;
         this.ratingService = ratingService;
-        this.legacySearch = legacySearch;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.genreMasterProvider = genreMasterProvider;
         this.internetRadioService = internetRadioService;
         this.mediaFileDao = mediaFileDao;
@@ -477,7 +477,7 @@ public class SubsonicRESTController {
 
         MediaFile.MediaType[] types = { MediaFile.MediaType.MUSIC, MediaFile.MediaType.AUDIOBOOK,
                 MediaFile.MediaType.PODCAST };
-        for (MediaFile mediaFile : legacySearch
+        for (MediaFile mediaFile : mediaSearchProvider
             .getSongsByGenres(genre, offset, count, musicFolders, types)) {
             songs.getSong().add(createJaxbChild(player, mediaFile, user.getUsername()));
         }
@@ -961,7 +961,7 @@ public class SubsonicRESTController {
             .construct(query.toString().trim(), offset, count, includeComposer, musicFolders,
                     IndexType.SONG);
 
-        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = mediaSearchProvider
             .search(criteria);
         org.subsonic.restapi.SearchResult searchResult = new org.subsonic.restapi.SearchResult();
         searchResult.setOffset(result.getOffset());
@@ -1001,7 +1001,7 @@ public class SubsonicRESTController {
 
         HttpSearchCriteria criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
-        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult artists = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult artists = mediaSearchProvider
             .search(criteria);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
@@ -1014,7 +1014,7 @@ public class SubsonicRESTController {
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
         Player player = playerService.getPlayer(request, response);
-        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult albums = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult albums = mediaSearchProvider
             .search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
@@ -1026,7 +1026,7 @@ public class SubsonicRESTController {
             .getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
-        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult songs = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult songs = mediaSearchProvider
             .search(criteria);
         for (MediaFile mediaFile : songs.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, mediaFile, username));
@@ -1063,7 +1063,7 @@ public class SubsonicRESTController {
         HttpSearchCriteria criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders,
                     IndexType.ARTIST_ID3);
-        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = legacySearch
+        com.tesshu.jpsonic.infrastructure.search.LegacySearchResult result = mediaSearchProvider
             .search(criteria);
         for (com.tesshu.jpsonic.persistence.api.entity.Artist artist : result.getArtists()) {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
@@ -1076,7 +1076,7 @@ public class SubsonicRESTController {
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders,
                     IndexType.ALBUM_ID3);
-        result = legacySearch.search(criteria);
+        result = mediaSearchProvider.search(criteria);
         for (Album album : result.getAlbums()) {
             searchResult.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
@@ -1088,7 +1088,7 @@ public class SubsonicRESTController {
         criteria = director
             .construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
         Player player = playerService.getPlayer(request, response);
-        result = legacySearch.search(criteria);
+        result = mediaSearchProvider.search(criteria);
         for (MediaFile song : result.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, song, username));
         }
@@ -1348,7 +1348,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = legacySearch
+            albums = mediaSearchProvider
                 .getAlbumsByGenres(
                         ServletRequestUtils
                             .getRequiredStringParameter(request, Attributes.Request.GENRE.value()),
@@ -1362,7 +1362,7 @@ public class SubsonicRESTController {
                             .getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
                         musicFolders);
         } else if ("random".equals(type)) {
-            albums = legacySearch.getRandomAlbums(size, musicFolders);
+            albums = mediaSearchProvider.getRandomAlbums(size, musicFolders);
         } else {
             throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
@@ -1408,7 +1408,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = albumDao.getAlphabeticalAlbums(offset, size, false, true, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = legacySearch
+            albums = mediaSearchProvider
                 .getAlbumId3sByGenres(
                         ServletRequestUtils
                             .getRequiredStringParameter(request, Attributes.Request.GENRE.value()),
@@ -1426,7 +1426,7 @@ public class SubsonicRESTController {
                 .getStarredAlbums(offset, size,
                         userService.getCurrentUserStrict(request).getUsername(), musicFolders);
         } else if ("random".equals(type)) {
-            albums = legacySearch.getRandomAlbumsId3(size, musicFolders);
+            albums = mediaSearchProvider.getRandomAlbumsId3(size, musicFolders);
         } else {
             throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
@@ -1467,7 +1467,7 @@ public class SubsonicRESTController {
                 musicFolders);
 
         Songs result = new Songs();
-        for (MediaFile mediaFile : legacySearch.getRandomSongs(criteria)) {
+        for (MediaFile mediaFile : mediaSearchProvider.getRandomSongs(criteria)) {
             result.getSong().add(createJaxbChild(player, mediaFile, user.getUsername()));
         }
         Response res = createResponse();

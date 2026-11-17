@@ -44,8 +44,8 @@ import com.tesshu.jpsonic.domain.provider.resource.MusicFolderProvider;
 import com.tesshu.jpsonic.domain.provider.resource.MusicIndexProvider;
 import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.ScannerStateServiceImpl;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -82,7 +82,7 @@ class HomeControllerTest {
             .standaloneSetup(new HomeController(settingsFacade, mock(UserService.class),
                     mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class),
                     mock(RatingService.class), mock(MediaFileService.class),
-                    mock(LegacySearch.class), mock(GenreMasterProvider.class),
+                    mock(MediaSearchProvider.class), mock(GenreMasterProvider.class),
                     mock(MusicFolderProvider.class), mock(MusicIndexProvider.class)))
             .build();
     }
@@ -108,7 +108,7 @@ class HomeControllerTest {
 
         private RatingService ratingService;
         private MediaFileService mediaFileService;
-        private LegacySearch legacySearch;
+        private MediaSearchProvider mediaSearchProvider;
         private GenreMasterProvider genreMasterProvider;
         private MusicIndexProvider musicIndexProvider;
         private HomeController controller;
@@ -117,7 +117,7 @@ class HomeControllerTest {
         void setup() throws ExecutionException {
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);
-            legacySearch = mock(LegacySearch.class);
+            mediaSearchProvider = mock(MediaSearchProvider.class);
             genreMasterProvider = mock(GenreMasterProvider.class);
             musicIndexProvider = mock(MusicIndexProvider.class);
             SettingsFacade settingsFacade = SettingsFacadeBuilder.create().build();
@@ -125,7 +125,7 @@ class HomeControllerTest {
             ScannerStateProvider scannerStateProvider = mock(ScannerStateProvider.class);
             controller = new HomeController(settingsFacade, userService,
                     mock(MusicFolderService.class), scannerStateProvider, ratingService,
-                    mediaFileService, legacySearch, genreMasterProvider,
+                    mediaFileService, mediaSearchProvider, genreMasterProvider,
                     mock(MusicFolderProvider.class), musicIndexProvider);
         }
 
@@ -221,7 +221,9 @@ class HomeControllerTest {
                 .when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                 .thenReturn(AlbumListType.RANDOM.getId());
             controller.handleRequestInternal(req);
-            Mockito.verify(legacySearch, Mockito.times(1)).getRandomAlbums(anyInt(), anyList());
+            Mockito
+                .verify(mediaSearchProvider, Mockito.times(1))
+                .getRandomAlbums(anyInt(), anyList());
         }
 
         @Test
@@ -260,7 +262,7 @@ class HomeControllerTest {
                 .thenReturn(genres);
             controller.handleRequestInternal(req);
             Mockito
-                .verify(legacySearch, Mockito.times(1))
+                .verify(mediaSearchProvider, Mockito.times(1))
                 .getAlbumsByGenres(anyString(), anyLong(), anyLong(), anyList());
         }
 

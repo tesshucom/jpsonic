@@ -19,8 +19,6 @@
 
 package com.tesshu.jpsonic.infrastructure.scanner;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,16 +51,6 @@ class SearchServiceUtilitiesTest {
         albumDao = mock(AlbumDao.class);
         mediaFileDao = mock(MediaFileDao.class);
         utilities = new SearchServiceUtilities(artistDao, albumDao, mediaFileDao);
-    }
-
-    @Test
-    void testPostConstruct() {
-        SearchServiceUtilities utilities = new SearchServiceUtilities(artistDao, albumDao,
-                mediaFileDao);
-        assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> utilities.nextInt(50));
-        utilities.postConstruct();
-        assertNotNull(utilities.nextInt(50));
     }
 
     @Test

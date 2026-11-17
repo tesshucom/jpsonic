@@ -385,6 +385,12 @@
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE}">
                                 [Music Folder] [Genre] [Random MUSIC]
                             </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_YEAR}">
+                                [Year] [Random MUSIC]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_YEAR}">
+                                [Music Folder] [Year] [Random MUSIC]
+                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
                                 [Random Album] [MUSIC]
                             </c:when>

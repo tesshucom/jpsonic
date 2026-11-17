@@ -438,4 +438,32 @@ class MediaFileProviderAdapterTest extends AbstractNeedsScan {
         assertEquals(3, musics.size());
         
     }
+
+    @Test
+    public void testFindRandomSongsByArtist() {
+    }
+
+    @Test
+    public void testFindRandomSongsByYear() {
+        List<MusicFolder> folders = musicFolderProvider.getGuestFolders();
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<MediaFile> musics = mediaFileProvider
+            .findRandomSongs(folders, 0, Integer.MAX_VALUE, 2000, yearGroup);
+        assertEquals(3, musics.size());
+        musics = mediaFileProvider.findRandomSongs(folders, 0, Integer.MAX_VALUE, 2000, yearGroup);
+        assertEquals(3, musics.size()); // Cache
+
+        assertEquals("Music", folders.get(0).name());
+        assertEquals("Music2", folders.get(1).name());
+        musics = mediaFileProvider
+            .findRandomSongs(List.of(folders.get(0)), 0, Integer.MAX_VALUE, 2000, yearGroup);
+        assertEquals(3, musics.size()); // Music
+        musics = mediaFileProvider
+            .findRandomSongs(List.of(folders.get(1)), 0, Integer.MAX_VALUE, 2000, yearGroup);
+        assertEquals(0, musics.size()); // Music2
+
+        yearGroup = new YearGroup(YearInterval.TEN_YEARS, 2000);
+        musics = mediaFileProvider.findRandomSongs(folders, 0, Integer.MAX_VALUE, 2000, yearGroup);
+        assertEquals(4, musics.size()); // countAll == 0
+    }
 }

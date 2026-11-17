@@ -56,9 +56,9 @@ import org.springframework.stereotype.Component;
 @DependsOn({ "queryFactory", "settingsFacade" })
 public class HttpSearchCriteriaDirector {
 
-    private final QueryFactory queryFactory;
+    private final LegacyQueryFactory queryFactory;
 
-    public HttpSearchCriteriaDirector(QueryFactory queryFactory) {
+    public HttpSearchCriteriaDirector(LegacyQueryFactory queryFactory) {
         super();
         this.queryFactory = queryFactory;
     }

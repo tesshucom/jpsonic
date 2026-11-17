@@ -41,7 +41,7 @@ import com.tesshu.jpsonic.domain.provider.state.ScannerStateProvider;
 import com.tesshu.jpsonic.domain.system.AlbumListType;
 import com.tesshu.jpsonic.domain.system.CoverArtScheme;
 import com.tesshu.jpsonic.infrastructure.collection.util.LegacyMap;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
@@ -79,7 +79,7 @@ public class HomeController {
     private final ScannerStateProvider scannerStateProvider;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
-    private final LegacySearch legacySearch;
+    private final MediaSearchProvider mediaSearchProvider;
     private final GenreMasterProvider genreMasterProvider;
     private final MusicFolderProvider musicFolderProvider;
     private final MusicIndexProvider musicIndexProvider;
@@ -87,7 +87,7 @@ public class HomeController {
     public HomeController(SettingsFacade settingsFacade, UserService userService,
             MusicFolderService musicFolderService, ScannerStateProvider scannerStateProvider,
             RatingService ratingService, MediaFileService mediaFileService,
-            LegacySearch legacySearch, GenreMasterProvider genreMasterProvider,
+            MediaSearchProvider mediaSearchProvider, GenreMasterProvider genreMasterProvider,
             MusicFolderProvider musicFolderProvider, MusicIndexProvider musicIndexProvider) {
         super();
         this.settingsFacade = settingsFacade;
@@ -96,7 +96,7 @@ public class HomeController {
         this.scannerStateProvider = scannerStateProvider;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
-        this.legacySearch = legacySearch;
+        this.mediaSearchProvider = mediaSearchProvider;
         this.genreMasterProvider = genreMasterProvider;
         this.musicFolderProvider = musicFolderProvider;
         this.musicIndexProvider = musicIndexProvider;
@@ -260,7 +260,7 @@ public class HomeController {
 
     private List<Album> getRandom(int count, List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : legacySearch.getRandomAlbums(count, musicFolders)) {
+        for (MediaFile file : mediaSearchProvider.getRandomAlbums(count, musicFolders)) {
             result.add(createAlbum(file));
         }
         return result;
@@ -300,7 +300,8 @@ public class HomeController {
     private List<Album> getByGenre(int offset, int count, String genre,
             List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : legacySearch.getAlbumsByGenres(genre, offset, count, musicFolders)) {
+        for (MediaFile file : mediaSearchProvider
+            .getAlbumsByGenres(genre, offset, count, musicFolders)) {
             result.add(createAlbum(file));
         }
         return result;

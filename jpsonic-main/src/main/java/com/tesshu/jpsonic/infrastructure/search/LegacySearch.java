@@ -21,34 +21,15 @@
 
 package com.tesshu.jpsonic.infrastructure.search;
 
-import java.util.List;
-
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
-import com.tesshu.jpsonic.persistence.api.entity.Album;
-import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
-import com.tesshu.jpsonic.persistence.api.entity.MusicFolder;
-import com.tesshu.jpsonic.persistence.param.ShuffleSelectionParam;
 
 /**
  * Legacy search interface for the migration from persistence entities to domain
  * models. This interface will be removed once the migration is complete.
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface LegacySearch {
 
     LegacySearchResult search(HttpSearchCriteria criteria);
 
-    List<MediaFile> getRandomSongs(ShuffleSelectionParam criteria);
-
-    List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
-
-    List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
-
-    List<Album> getAlbumId3sByGenres(String genres, long offset, long count,
-            List<MusicFolder> musicFolders);
-
-    List<MediaFile> getAlbumsByGenres(String genres, long offset, long count,
-            List<MusicFolder> musicFolders);
-
-    List<MediaFile> getSongsByGenres(String genres, long offset, long count,
-            List<MusicFolder> musicFolders, MediaFile.MediaType... types);
 }

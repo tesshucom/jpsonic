@@ -54,8 +54,8 @@ import com.tesshu.jpsonic.feature.upnp.UPnPSKeys;
 import com.tesshu.jpsonic.infrastructure.core.NeedsTranscode;
 import com.tesshu.jpsonic.infrastructure.locale.ServerLocaleManager;
 import com.tesshu.jpsonic.infrastructure.scanner.HttpSearchCriteriaDirector;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.infrastructure.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacadeBuilder;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
@@ -173,7 +173,7 @@ class SubsonicRESTControllerTest {
             final AudioScrobblerService audioScrobblerService = mock(AudioScrobblerService.class);
             podcastService = mock(PodcastService.class);
             final RatingService ratingService = mock(RatingService.class);
-            final LegacySearch legacySearch = mock(LegacySearch.class);
+            final MediaSearchProvider mediaSearchProvider = mock(MediaSearchProvider.class);
             final GenreMasterProvider genreMasterProvider = mock(GenreMasterProvider.class);
             final InternetRadioService internetRadioService = mock(InternetRadioService.class);
             final MediaFileDao mediaFileDao = mock(MediaFileDao.class);
@@ -192,7 +192,7 @@ class SubsonicRESTControllerTest {
                     transcodingService, downloadController, coverArtController, avatarController,
                     userSettingsController, topController, statusService, streamController,
                     hlsController, shareService, playlistService, lyricsService,
-                    audioScrobblerService, podcastService, ratingService, legacySearch,
+                    audioScrobblerService, podcastService, ratingService, mediaSearchProvider,
                     genreMasterProvider, internetRadioService, mediaFileDao, artistDao, albumDao,
                     bookmarkService, playQueueDao, mediaScannerService, airsonicLocaleResolver,
                     director);
