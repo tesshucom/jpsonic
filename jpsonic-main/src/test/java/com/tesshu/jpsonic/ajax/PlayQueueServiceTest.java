@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.domain.system.PodcastStatus;
 import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators;
 import com.tesshu.jpsonic.infrastructure.comparator.JpsonicComparators.OrderBy;
-import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
+import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
 import com.tesshu.jpsonic.persistence.api.entity.InternetRadio;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -99,7 +99,7 @@ class PlayQueueServiceTest {
     private PodcastService podcastService;
     private MediaFileDao mediaFileDao;
     private RatingService ratingService;
-    private LegacySearch legacySearch;
+    private MediaSearchProvider mediaSearchProvider;
     private AjaxHelper ajaxHelper;
     private JpsonicComparators comparators;
 
@@ -130,11 +130,11 @@ class PlayQueueServiceTest {
         lastFmService = mock(LastFmService.class);
         mediaFileDao = mock(MediaFileDao.class);
         ratingService = mock(RatingService.class);
-        legacySearch = mock(LegacySearch.class);
+        mediaSearchProvider = mock(MediaSearchProvider.class);
         ajaxHelper = AjaxMockUtils.mock(AjaxHelper.class);
         comparators = mock(JpsonicComparators.class);
         playQueueService = new PlayQueueService(mock(MusicFolderService.class), userService,
-                playerService, comparators, mediaFileService, lastFmService, legacySearch,
+                playerService, comparators, mediaFileService, lastFmService, mediaSearchProvider,
                 ratingService, podcastService, playlistService, mediaFileDao, playQueueDao,
                 internetRadioDao, mock(JWTSecurityService.class), internetRadioService, ajaxHelper);
     }
@@ -613,7 +613,7 @@ class PlayQueueServiceTest {
         verify(mediaFileService, never())
             .getStarredAlbums(anyInt(), anyInt(), nullable(String.class),
                     ArgumentMatchers.<MusicFolder>anyList());
-        verify(legacySearch, never())
+        verify(mediaSearchProvider, never())
             .getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder>anyList());
         verify(mediaFileService, never())
             .getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
@@ -621,7 +621,7 @@ class PlayQueueServiceTest {
         verify(mediaFileService, never())
             .getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
                     ArgumentMatchers.<MusicFolder>anyList());
-        verify(legacySearch, never())
+        verify(mediaSearchProvider, never())
             .getAlbumsByGenres(nullable(String.class), anyInt(), anyInt(),
                     ArgumentMatchers.<MusicFolder>anyList());
 
@@ -649,7 +649,7 @@ class PlayQueueServiceTest {
                     ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("random", 0, 0, null, null);
-        verify(legacySearch, times(1))
+        verify(mediaSearchProvider, times(1))
             .getRandomAlbums(anyInt(), ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("alphabetical", 0, 0, null, null);
@@ -663,7 +663,7 @@ class PlayQueueServiceTest {
                     ArgumentMatchers.<MusicFolder>anyList());
 
         playQueueService.playShuffle("genre", 0, 0, "Rock", null);
-        verify(legacySearch, times(1))
+        verify(mediaSearchProvider, times(1))
             .getAlbumsByGenres(nullable(String.class), anyLong(), anyLong(),
                     ArgumentMatchers.<MusicFolder>anyList());
 

@@ -180,4 +180,55 @@
       </delete>
     </rollback>
   </changeSet>
+
+  <changeSet id="reset-menu-item-upnp-order2" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+        <tableExists tableName="menu_item" />
+    </preConditions>
+    <sql>
+      update menu_item set menu_item_order = 98 where id = 81;
+    </sql>
+    <rollback>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-random-song-by-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 87
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="87" />
+      <column name="parent" valueNumeric="80" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="false" />
+      <column name="menu_item_order" valueNumeric="96" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 87</where>
+      </delete>
+    </rollback>
+  </changeSet>
+  <changeSet id="add-menu-item-upnp-random-song-by-folder-year" author="tesshucom">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="0">select count(*) from menu_item
+        where id = 88
+      </sqlCheck>
+    </preConditions>
+    <insert tableName="menu_item">
+      <column name="view_type" valueNumeric="1" />
+      <column name="id" valueNumeric="88" />
+      <column name="parent" valueNumeric="80" />
+      <column name="name" value="" />
+      <column name="enabled" valueBoolean="false" />
+      <column name="menu_item_order" valueNumeric="97" />
+    </insert>
+    <rollback>
+      <delete tableName="menu_item">
+        <where>id = 88</where>
+      </delete>
+    </rollback>
+  </changeSet>
 </databaseChangeLog>

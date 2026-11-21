@@ -645,10 +645,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     @Override
     public List<com.tesshu.jpsonic.domain.model.MediaFile> getDomainRandomSongsForAlbumArtist(
             int limit, String albumArtist,
-            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders,
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
-
-        String type = com.tesshu.jpsonic.domain.model.MediaFile.Type.MUSIC.name();
 
         /* Run the query twice. */
 
@@ -658,19 +656,34 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
          * this time is too large, the subsequent performance is likely to be affected.
          * If the number isn't too large, it doesn't matter much.
          */
-        int countAll = template.queryForInt("""
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "type", com.tesshu.jpsonic.domain.model.MediaFile.Type.MUSIC.name(),
+                "albumArtist", albumArtist);
+        // spotless:on
+
+        int countAll = template.namedQueryForInt("""
                 select count(*)
                 from media_file
-                where type = ? and album_artist = ?
-                """, 0, type, albumArtist);
+                where type = :type
+                    and album_artist = :albumArtist
+                    and folder in (:folders)
+                """, 0, args);
         if (0 == countAll) {
             return Collections.emptyList();
         }
 
         List<Integer> randomRownum = randomCallback.apply(countAll, limit);
 
-        Map<String, Object> args = LegacyMap
-            .of("type", type, "artist", albumArtist, "randomRownum", randomRownum, "limit", limit);
+        // spotless:off
+        args = Map.of(
+                "folders", com.tesshu.jpsonic.domain.model.MusicFolder.toPathList(folders),
+                "type", com.tesshu.jpsonic.domain.model.MediaFile.Type.MUSIC.name(),
+                "albumArtist", albumArtist,
+                "randomRownum", randomRownum,
+                "limit", limit);
+        // spotless:on
 
         /*
          * Perform a conditional search and add a row number. Returns the result whose
@@ -691,13 +704,17 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                             (select
                                     (select count(id)
                                     from media_file
-                                    where id < boo.id and type = :type
-                                            and album_artist = :artist) as irownum,
+                                    where id < boo.id
+                                            and folder in (:folders)
+                                            and type = :type
+                                            and album_artist = :albumArtist) as irownum,
                                     boo.*
                             from
                                     (select *
                                     from media_file
-                                    where type = :type and album_artist = :artist) boo) as mf
+                                    where type = :type
+                                            and folder in (:folders)
+                                            and album_artist = :albumArtist) boo) as mf
                             join media_file pmf on mf.parent_path = pmf.path
                             where mf.irownum in ( :randomRownum )
                     limit :limit

@@ -231,7 +231,7 @@ public class AlbumProviderAdapterTest extends AbstractNeedsScan {
         
         YearAlbumEntry entry = entries.get(0);
         int count = albumProvider
-            .countAlbums(musicFolderProvider.getGuestFolders(), yearGroup,
+            .countChildren(musicFolderProvider.getGuestFolders(), yearGroup,
                     entry.artistName().orElse(null), entry.albumName());
         assertEquals(3, count);
     }

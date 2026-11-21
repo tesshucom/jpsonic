@@ -23,6 +23,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
@@ -34,7 +35,7 @@ import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy.AlbumSortOrder;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.resource.AlbumProvider;
-import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.IndexedRandomizer;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
 import org.springframework.stereotype.Component;
@@ -42,17 +43,17 @@ import org.springframework.stereotype.Component;
 @Component
 class AlbumProviderAdapter implements AlbumProvider {
 
-    private final AlbumDao albumDao;
-    private final MediaSearchProvider deligate;
     private final GenreMasterProvider genreMasterProvider;
+    private final IndexedRandomizer indexedRandomizer;
+    private final AlbumDao albumDao;
     private final MediaFileDao mediaFileDao;
 
-    AlbumProviderAdapter(AlbumDao albumDao, MediaSearchProvider deligate,
-            GenreMasterProvider genreMasterProvider, MediaFileDao mediaFileDao) {
+    AlbumProviderAdapter(GenreMasterProvider genreMasterProvider, IndexedRandomizer randomizer,
+            AlbumDao albumDao, MediaFileDao mediaFileDao) {
         super();
-        this.albumDao = albumDao;
-        this.deligate = deligate;
         this.genreMasterProvider = genreMasterProvider;
+        this.indexedRandomizer = randomizer;
+        this.albumDao = albumDao;
         this.mediaFileDao = mediaFileDao;
     }
 
@@ -76,6 +77,11 @@ class AlbumProviderAdapter implements AlbumProvider {
         List<String> preAnalyzedGenres = genreMasterProvider
             .findPreAnalyzedGenres(List.of(genres), true);
         return mediaFileDao.countChldren(folders, preAnalyzedGenres, album, types);
+    }
+
+    @Override
+    public Optional<Album> findAlbum(int id) {
+        return Optional.ofNullable(albumDao.getDomainAlbum(id));
     }
 
     @Override
@@ -123,7 +129,8 @@ class AlbumProviderAdapter implements AlbumProvider {
     @Override
     public List<Album> findRandomAlbums(List<MusicFolder> musicFolders, long offset, long count,
             int cacheMax) {
-        return deligate.getRandomAlbumsId3(musicFolders, offset, count, cacheMax);
+        return indexedRandomizer
+            .findRandomAlbums(musicFolders, offset, count, cacheMax, this::findAlbum);
     }
 
     @Override

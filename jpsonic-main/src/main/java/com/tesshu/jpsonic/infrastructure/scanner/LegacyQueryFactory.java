@@ -20,11 +20,9 @@
 package com.tesshu.jpsonic.infrastructure.scanner;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import com.tesshu.jpsonic.infrastructure.search.query.PhraseSearchQueryFactory;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.entity.MediaFile.MediaType;
@@ -45,11 +43,12 @@ import org.springframework.stereotype.Component;
  * and manages application-specific concerns like index scheme and composer
  * field inclusion.
  */
-@Component("queryFactory")
-class QueryFactory implements PhraseSearchQueryFactory {
+@Component
+class LegacyQueryFactory {
 
     private final SettingsFacade settingsFacade;
     private final LuceneQueryBuilder luceneQueryBuilder;
+    private final QueryFactory queryFactory;
 
     private static final String MEDIA_TYPE = SearchIndexFields.mediaType.value();
 
@@ -59,8 +58,10 @@ class QueryFactory implements PhraseSearchQueryFactory {
      * @param settingsFacade  the settings
      * @param analyzerFactory the analyzer factory
      */
-    QueryFactory(SettingsFacade settingsFacade, AnalyzerFactory analyzerFactory) {
+    LegacyQueryFactory(SettingsFacade settingsFacade, AnalyzerFactory analyzerFactory,
+            QueryFactory queryFactory) {
         this.settingsFacade = settingsFacade;
+        this.queryFactory = queryFactory;
         this.luceneQueryBuilder = new LuceneQueryBuilder(analyzerFactory, settingsFacade);
     }
 
@@ -75,42 +76,6 @@ class QueryFactory implements PhraseSearchQueryFactory {
             .map(value -> new TermQuery(new Term(field, value)))
             .forEach(query -> builder.add(query, BooleanClause.Occur.SHOULD));
         return builder.build();
-    }
-
-    @Override
-    public Query createFolderQuery(boolean isId3,
-            Collection<com.tesshu.jpsonic.domain.model.MusicFolder> folders) {
-        return luceneQueryBuilder.buildFolderQuery(isId3, folders);
-    }
-
-    /**
-     * Creates a year range query.
-     *
-     * @param from the start year (nullable)
-     * @param to   the end year (nullable)
-     * @return range query
-     */
-    @Nonnull
-    Query createYearRangeQuery(@Nullable Integer from, @Nullable Integer to) {
-        return luceneQueryBuilder.buildYearRangeQuery(from, to);
-    }
-
-    /**
-     * Creates a phrase query with optional composer fields.
-     *
-     * @param targetFields the fields to search
-     * @param queryString  the phrase to search
-     * @param indexType    the index type
-     * @return an optional Lucene query
-     * @throws IOException if tokenization fails
-     */
-    @Override
-    public Optional<Query> createPhraseQuery(List<String> targetFields, @Nonnull String queryString,
-            @Nonnull IndexType indexType) {
-        boolean includeComposer = settingsFacade.get(SKeys.general.search.searchComposer);
-        return luceneQueryBuilder
-            .buildMultiFieldQueryWithBoost(targetFields, queryString, indexType.getBoosts(),
-                    includeComposer);
     }
 
     /**
@@ -157,28 +122,14 @@ class QueryFactory implements PhraseSearchQueryFactory {
 
         if (criteria.getFromYear() != null || criteria.getToYear() != null) {
             query
-                .add(createYearRangeQuery(criteria.getFromYear(), criteria.getToYear()),
+                .add(queryFactory
+                    .createYearRangeQuery(criteria.getFromYear(), criteria.getToYear()),
                         BooleanClause.Occur.MUST);
         }
 
         query.add(createFolderQuery(false, criteria.getMusicFolders()), BooleanClause.Occur.MUST);
 
         return query.build();
-    }
-
-    Query getRandomSongs(@Nonnull List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders,
-            String... genres) throws IOException {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder()
-            .add(new TermQuery(new Term(MEDIA_TYPE, MediaType.MUSIC.name())),
-                    BooleanClause.Occur.MUST)
-            .add(createFolderQuery(false, musicFolders), BooleanClause.Occur.MUST);
-
-        if (genres.length > 0) {
-            builder
-                .add(luceneQueryBuilder.buildGenreQuery(List.of(genres)), BooleanClause.Occur.MUST);
-        }
-
-        return builder.build();
     }
 
     Query getRandomAlbums(@Nonnull List<MusicFolder> musicFolders) {
@@ -188,13 +139,6 @@ class QueryFactory implements PhraseSearchQueryFactory {
     }
 
     Query getRandomAlbumsId3(@Nonnull List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder()
-            .add(createFolderQuery(true, musicFolders), BooleanClause.Occur.SHOULD)
-            .build();
-    }
-
-    Query getRandomAlbumsId3(
-            @Nonnull Collection<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
             .add(createFolderQuery(true, musicFolders), BooleanClause.Occur.SHOULD)
             .build();
@@ -225,5 +169,4 @@ class QueryFactory implements PhraseSearchQueryFactory {
         builder.add(createFolderQuery(false, folders), BooleanClause.Occur.MUST);
         return builder.build();
     }
-
 }

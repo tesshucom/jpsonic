@@ -28,14 +28,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.model.SearchResult;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
+import com.tesshu.jpsonic.infrastructure.core.RandomNumberGenerator;
+import com.tesshu.jpsonic.infrastructure.search.LegacyIndexedRandomizer;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearch;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearchResult;
 import com.tesshu.jpsonic.infrastructure.search.criteria.HttpSearchCriteria;
@@ -93,22 +93,23 @@ import org.springframework.stereotype.Service;
  * @see IndexManager
  */
 @Service
-public class MediaSearchProvider implements LegacySearch {
+public class MediaSearchProvider implements LegacySearch, LegacyIndexedRandomizer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaSearchProvider.class);
 
-    private final QueryFactory queryFactory;
+    private final LegacyQueryFactory queryFactory;
     private final IndexManager indexManager;
     private final SearchServiceUtilities util;
     private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
-    private final InternalSearchCache cache;
     private final GenreMasterProvider genreMasterProvider;
+    private final RandomNumberGenerator randomGenerator;
 
-    MediaSearchProvider(QueryFactory queryFactory, IndexManager indexManager,
+    MediaSearchProvider(LegacyQueryFactory queryFactory, IndexManager indexManager,
             SearchServiceUtilities util, SettingsFacade settingsFacade, MediaFileDao mediaFileDao,
-            AlbumDao albumDao, InternalSearchCache cache, GenreMasterProvider genreMasterProvider) {
+            AlbumDao albumDao, GenreMasterProvider genreMasterProvider,
+            RandomNumberGenerator randomGenerator) {
         super();
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;
@@ -116,8 +117,8 @@ public class MediaSearchProvider implements LegacySearch {
         this.settingsFacade = settingsFacade;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
-        this.cache = cache;
         this.genreMasterProvider = genreMasterProvider;
+        this.randomGenerator = randomGenerator;
     }
 
     // Logs the search query if settings and log level allow it
@@ -273,7 +274,7 @@ public class MediaSearchProvider implements LegacySearch {
         // Randomly pick documents until the desired count is reached or list is
         // exhausted
         while (!docIds.isEmpty() && result.size() < count) {
-            int randomIndex = util.nextInt(docIds.size());
+            int randomIndex = randomGenerator.nextInt(docIds.size());
 
             // Fetch the document at the random position
             Document document = searcher.storedFields().document(docIds.get(randomIndex));
@@ -318,120 +319,6 @@ public class MediaSearchProvider implements LegacySearch {
         return Collections.emptyList();
     }
 
-    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongs(
-            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
-            int cacheMax, String... genres) {
-
-        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
-
-        // Callback to add a sublist of IDs (after offset & limit) to the result list
-        Consumer<List<Integer>> addSubsetToResult = ids -> ids
-            .stream()
-            .skip(offset)
-            .limit(count)
-            .map(mediaFileDao::getDomainMediaFile)
-            .filter(Objects::nonNull)
-            .forEach(result::add);
-
-        // Try to get cached IDs first
-        cache
-            .getIntCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders, genres)
-            .ifPresent(addSubsetToResult);
-        if (!result.isEmpty()) {
-            return result; // Return if cache hit
-        }
-
-        // Get Lucene IndexSearcher for songs
-        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
-        if (searcher == null) {
-            return result;
-        }
-
-        try {
-            // Build query based on folders and genres
-            Query query = queryFactory.getRandomSongs(musicFolders, genres);
-
-            // Fetch all matching Lucene documents
-            List<Integer> docIds = Arrays
-                .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
-                .map(sd -> sd.doc)
-                .collect(Collectors.toList());
-
-            // Select up to `cacheMax` unique random IDs
-            List<Integer> ids = new ArrayList<>();
-            while (!docIds.isEmpty() && ids.size() < cacheMax) {
-                int randomIndex = util.nextInt(docIds.size());
-                Document doc = searcher.storedFields().document(docIds.get(randomIndex));
-                ids.add(util.getId(doc));
-                docIds.remove(randomIndex);
-            }
-
-            // Store the randomly selected IDs in cache
-            cache
-                .putIntCache(InternalSearchCacheKeys.random.song, cacheMax, musicFolders, ids,
-                        genres);
-
-            // Apply offset & limit, and add to result
-            addSubsetToResult.accept(ids);
-
-        } catch (IOException e) {
-            LOG.error("Failed to search for random songs.", e);
-        } finally {
-            // Always release searcher to avoid resource leak
-            indexManager.release(IndexType.SONG, searcher);
-        }
-
-        return result;
-    }
-
-    public List<com.tesshu.jpsonic.domain.model.MediaFile> getRandomSongsByArtist(
-            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,
-            com.tesshu.jpsonic.domain.model.Artist artist, long offset, long count, int cacheMax) {
-
-        final List<com.tesshu.jpsonic.domain.model.MediaFile> result = new ArrayList<>();
-
-        // Define logic to extract a sublist (offset + count) from the source list
-        Consumer<List<com.tesshu.jpsonic.domain.model.MediaFile>> addSubsetToResult = files -> files
-            .stream()
-            .skip(offset)
-            .limit(count)
-            .forEach(result::add);
-
-        // Try retrieving from cache first
-        cache
-            .getCache(InternalSearchCacheKeys.random.songByArtist, cacheMax, folders, artist.name())
-            .ifPresent(addSubsetToResult);
-
-        if (!result.isEmpty()) {
-            return result; // Return if cached result exists
-        }
-
-        // Get random songs for the artist from the database
-        List<com.tesshu.jpsonic.domain.model.MediaFile> songs = mediaFileDao
-            .getDomainRandomSongsForAlbumArtist(cacheMax, artist.name(), folders,
-                    (range, limit) -> {
-                        // Generate a list of unique random integers within [0, range)
-                        List<Integer> randomIndices = new ArrayList<>();
-                        while (randomIndices.size() < Math.min(limit, range)) {
-                            int random = util.nextInt(range);
-                            if (!randomIndices.contains(random)) {
-                                randomIndices.add(random);
-                            }
-                        }
-                        return randomIndices;
-                    });
-
-        // Cache the retrieved songs for future access
-        cache
-            .putCache(InternalSearchCacheKeys.random.songByArtist, cacheMax, folders, songs,
-                    artist.name());
-
-        // Add the subset (offset + count) to the result
-        addSubsetToResult.accept(songs);
-
-        return result;
-    }
-
     @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
     @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
@@ -461,69 +348,6 @@ public class MediaSearchProvider implements LegacySearch {
         }
 
         // Fallback: return empty list if exception occurs
-        return Collections.emptyList();
-    }
-
-    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
-    @Override
-    public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
-        // Obtain IndexSearcher for ID3-based albums
-        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-
-        // Return empty list if index is not available
-        if (searcher == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            // Build query to search for random albums (ID3-based) within the given folders
-            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
-
-            // Fetch random album documents and convert them to Album entities
-            return createRandomDocsList(count, searcher, query,
-                    (resultList, id) -> util.addAlbumId3IfAnyMatch(resultList, id));
-
-        } catch (IOException e) {
-            // Log any IO or Lucene search error
-            LOG.error("Failed to search for random albums (ID3).", e);
-
-        } finally {
-            // Ensure the IndexSearcher is always released
-            indexManager.release(IndexType.ALBUM_ID3, searcher);
-        }
-
-        // Fallback in case of errors
-        return Collections.emptyList();
-    }
-
-    public List<com.tesshu.jpsonic.domain.model.Album> getRandomAlbumsId3(
-            List<com.tesshu.jpsonic.domain.model.MusicFolder> musicFolders, long offset, long count,
-            int casheMax) {
-        // Obtain IndexSearcher for ID3-based albums
-        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-
-        // Return empty list if index is not available
-        if (searcher == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            // Build query to search for random albums (ID3-based) within the given folders
-            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
-
-            // Fetch random album documents and convert them to Album entities
-            return createRandomDocsList(count, searcher, query, util::addAlbumId3IfAnyMatch);
-
-        } catch (IOException e) {
-            // Log any IO or Lucene search error
-            LOG.error("Failed to search for random albums (ID3).", e);
-
-        } finally {
-            // Ensure the IndexSearcher is always released
-            indexManager.release(IndexType.ALBUM_ID3, searcher);
-        }
-
-        // Fallback in case of errors
         return Collections.emptyList();
     }
 
@@ -569,5 +393,37 @@ public class MediaSearchProvider implements LegacySearch {
         // Delegate search to DAO
         return mediaFileDao
             .getSongsByGenre(preAnalyzedGenres, offset, count, musicFolders, targetTypes);
+    }
+
+    @Override
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference") // false positive
+    public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
+        // Obtain IndexSearcher for ID3-based albums
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+
+        // Return empty list if index is not available
+        if (searcher == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            // Build query to search for random albums (ID3-based) within the given folders
+            Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
+            // Fetch random album documents and convert them to Album entities
+            return createRandomDocsList(count, searcher, query,
+                    (resultList, id) -> util.addAlbumId3IfAnyMatch(resultList, id));
+
+        } catch (IOException e) {
+            // Log any IO or Lucene search error
+            LOG.error("Failed to search for random albums (ID3).", e);
+
+        } finally {
+            // Ensure the IndexSearcher is always released
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+
+        // Fallback in case of errors
+        return Collections.emptyList();
     }
 }

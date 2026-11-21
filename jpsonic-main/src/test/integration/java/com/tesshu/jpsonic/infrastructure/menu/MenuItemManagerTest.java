@@ -180,13 +180,15 @@ class MenuItemManagerTest {
 
         menuItems = menuItemManager
             .findChildlen(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
-        assertEquals(6, menuItems.size());
+        assertEquals(8, menuItems.size());
         assertEquals("Music", menuItems.get(0).name());
         assertEquals("Music By Artist", menuItems.get(1).name());
         assertEquals("Music By Folder&Artist", menuItems.get(2).name());
         assertEquals("Music By Genre", menuItems.get(3).name());
         assertEquals("Music By Folder&Genre", menuItems.get(4).name());
-        assertEquals("Album", menuItems.get(5).name());
+        assertEquals("Music By Year", menuItems.get(5).name());
+        assertEquals("Music By Folder&Year", menuItems.get(6).name());
+        assertEquals("Album", menuItems.get(7).name());
     }
 
     @Nested
@@ -392,7 +394,9 @@ class MenuItemManagerTest {
             assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(29).getId());
             assertEquals(MenuItemId.RANDOM_SONG_BY_GENRE, subMenuItems.get(30).getId());
             assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_GENRE, subMenuItems.get(31).getId());
-            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(32).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_YEAR, subMenuItems.get(32).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_YEAR, subMenuItems.get(33).getId());
+            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(34).getId());
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {
@@ -492,7 +496,7 @@ class MenuItemManagerTest {
                         .size());
 
             int subMenuItemsSize = menuItemDao.getSubMenuItems(ViewType.UPNP).size();
-            assertEquals(33, subMenuItemsSize);
+            assertEquals(35, subMenuItemsSize);
             assertEquals(subMenuItemsSize, menuItemManager.getSubMenuItems(ViewType.UPNP).size());
 
             // Add a dummy sub menu

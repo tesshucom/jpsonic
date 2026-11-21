@@ -21,19 +21,14 @@
 
 package com.tesshu.jpsonic.infrastructure.scanner;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.infrastructure.search.LegacySearchResult;
 import com.tesshu.jpsonic.persistence.api.entity.Album;
 import com.tesshu.jpsonic.persistence.api.entity.Artist;
@@ -41,11 +36,8 @@ import com.tesshu.jpsonic.persistence.api.entity.MediaFile;
 import com.tesshu.jpsonic.persistence.api.repository.AlbumDao;
 import com.tesshu.jpsonic.persistence.api.repository.ArtistDao;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
-import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -87,16 +79,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SearchServiceUtilities {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
-
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
 
     private final Map<IndexType, Function<Integer, Object>> entityFetchers;
     private final Map<IndexType, BiConsumer<LegacySearchResult, Integer>> indexTypeActions;
-
-    private Random random;
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao,
             MediaFileDao mediaFileDao) {
@@ -123,13 +111,6 @@ public class SearchServiceUtilities {
     }
 
     /**
-     * Generates a random integer between 0 (inclusive) and range (exclusive).
-     */
-    public int nextInt(int range) {
-        return random.nextInt(range);
-    }
-
-    /**
      * Converts a Long value to int by truncation.
      */
     public int round(long value) {
@@ -141,35 +122,6 @@ public class SearchServiceUtilities {
      */
     public int getId(@NonNull Document document) {
         return Integer.parseInt(document.get(SearchIndexFields.id.value()));
-    }
-
-    /**
-     * Initializes the random number generator securely.
-     * <p>
-     * This method is automatically called by Spring after dependency injection
-     * (annotated with {@code @PostConstruct}).
-     */
-    @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "Typically, SecureRandom is used.")
-    @PostConstruct
-    public void postConstruct() {
-        try {
-            random = SecureRandom.getInstance("NativePRNG");
-            if (LOG.isInfoEnabled()) {
-                LOG.info("NativePRNG is used to create a random list of songs.");
-            }
-        } catch (NoSuchAlgorithmException e) {
-            try {
-                random = SecureRandom.getInstance("SHA1PRNG");
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("SHA1PRNG is used to create a random list of songs.");
-                }
-            } catch (NoSuchAlgorithmException e1) {
-                random = new Random(Instant.now().toEpochMilli());
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
-                }
-            }
-        }
     }
 
     /**
@@ -192,18 +144,6 @@ public class SearchServiceUtilities {
         return false;
     }
 
-    private static <T> boolean addIfAbsent(Collection<T> targetList, T newItem,
-            Predicate<T> matcher) {
-        if (newItem == null) {
-            return false;
-        }
-        if (targetList.stream().noneMatch(matcher)) {
-            targetList.add(newItem);
-            return true;
-        }
-        return false;
-    }
-
     /**
      * Fetches an entity by ID and adds it to the list if it matches the predicate.
      *
@@ -213,14 +153,6 @@ public class SearchServiceUtilities {
      * @param matcher Predicate to check for duplication.
      */
     private static <T> void addEntityIfPresent(List<T> dist, Integer id,
-            Function<Integer, T> fetcher, Predicate<T> matcher) {
-        T entity = fetcher.apply(id);
-        if (entity != null) {
-            addIfAbsent(dist, entity, matcher);
-        }
-    }
-
-    private static <T> void addEntityIfPresent(Collection<T> dist, Integer id,
             Function<Integer, T> fetcher, Predicate<T> matcher) {
         T entity = fetcher.apply(id);
         if (entity != null) {
@@ -265,11 +197,6 @@ public class SearchServiceUtilities {
     @Deprecated
     public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer id) {
         addEntityIfPresent(dist, id, albumDao::getAlbum, a -> a.getId() == id);
-    }
-
-    public final void addAlbumId3IfAnyMatch(Collection<com.tesshu.jpsonic.domain.model.Album> dist,
-            Integer id) {
-        addEntityIfPresent(dist, id, albumDao::getDomainAlbum, a -> a.id() == id);
     }
 
     /**

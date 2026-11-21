@@ -38,7 +38,7 @@ import com.tesshu.jpsonic.domain.policy.RuntimeOrderPolicy;
 import com.tesshu.jpsonic.domain.provider.master.GenreMasterProvider;
 import com.tesshu.jpsonic.domain.provider.master.YearGroup;
 import com.tesshu.jpsonic.domain.provider.resource.MediaFileProvider;
-import com.tesshu.jpsonic.infrastructure.scanner.MediaSearchProvider;
+import com.tesshu.jpsonic.infrastructure.scanner.IndexedRandomizer;
 import com.tesshu.jpsonic.infrastructure.settings.SKeys;
 import com.tesshu.jpsonic.infrastructure.settings.SettingsFacade;
 import com.tesshu.jpsonic.persistence.api.repository.MediaFileDao;
@@ -50,14 +50,17 @@ class MediaFileProviderAdapter implements MediaFileProvider {
 
     private final SettingsFacade settingsFacade;
     private final MediaFileDao mediaFileDao;
-    private final MediaSearchProvider deligate;
+    private final RandomizerAdapter randomizerAdapter;
+    private final IndexedRandomizer indexedRandomizer;
     private final GenreMasterProvider genreMasterProvider;
 
     MediaFileProviderAdapter(SettingsFacade settingsFacade, MediaFileDao mediaFileDao,
-            MediaSearchProvider mediaSearchProvider, GenreMasterProvider genreMasterProvider) {
+            RandomizerAdapter randomizerAdapter, IndexedRandomizer indexedRandomizer,
+            GenreMasterProvider genreMasterProvider) {
         this.settingsFacade = settingsFacade;
         this.mediaFileDao = mediaFileDao;
-        this.deligate = mediaSearchProvider;
+        this.randomizerAdapter = randomizerAdapter;
+        this.indexedRandomizer = indexedRandomizer;
         this.genreMasterProvider = genreMasterProvider;
     }
 
@@ -172,6 +175,11 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     }
 
     @Override
+    public Optional<MediaFile> findMediaFile(int id) {
+        return Optional.ofNullable(mediaFileDao.getDomainMediaFile(id));
+    }
+
+    @Override
     public Optional<MediaFile> findMediaFile(Path path) {
         return Optional.ofNullable(mediaFileDao.getDomainMediaFile(path));
     }
@@ -184,13 +192,22 @@ class MediaFileProviderAdapter implements MediaFileProvider {
     @Override
     public List<MediaFile> findRandomSongs(List<MusicFolder> musicFolders, long offset, long count,
             int cacheMax, String... genres) {
-        return deligate.getRandomSongs(musicFolders, offset, count, cacheMax, genres);
+        return indexedRandomizer
+            .findRandomSongs(musicFolders, offset, count, cacheMax, this::findMediaFile, genres);
+    }
+
+    @Override
+    public List<MediaFile> findRandomSongs(List<MusicFolder> musicFolders, long offset, long count,
+            int cacheMax, YearGroup yearGroup) {
+        return indexedRandomizer
+            .findRandomSongs(musicFolders, offset, count, cacheMax, yearGroup, this::findMediaFile);
     }
 
     @Override
     public List<MediaFile> findRandomSongsByArtist(List<MusicFolder> musicFolders, Artist artist,
             long offset, long count, int cacheMax) {
-        return deligate.getRandomSongsByArtist(musicFolders, artist, offset, count, cacheMax);
+        return randomizerAdapter
+            .findRandomSongsByArtist(musicFolders, artist, offset, count, cacheMax);
     }
 
     @Override
