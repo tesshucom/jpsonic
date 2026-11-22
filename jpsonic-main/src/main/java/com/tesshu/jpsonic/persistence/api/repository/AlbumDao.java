@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.model.Artist;
@@ -48,6 +49,7 @@ import com.tesshu.jpsonic.persistence.dialect.DialectAlbumDao;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -510,6 +512,10 @@ public class AlbumDao {
                 """, domainRowMapper, id);
     }
 
+    public Optional<com.tesshu.jpsonic.domain.model.Album> findAlbum(int id) {
+        return Optional.ofNullable(getDomainAlbum(id));
+    }
+
     public List<com.tesshu.jpsonic.domain.model.Album> findAlbums(
             List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, List<String> genres,
             AlbumSortOrder order, long offset, long count) {
@@ -558,9 +564,46 @@ public class AlbumDao {
                 rs.getInt(5)); // childCount
     }
 
-    public List<YearAlbumEntry> findAlbumsByYearGroup(
-            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup,
-            long offset, long count, MediaFile.Type... types) {
+    public Optional<YearAlbumEntry> getYearAlbumEntry(int id, YearGroup yearGroup) {
+
+        // spotless:off
+        Map<String, Object> args = Map.of(
+                "id", id,
+                "yearFrom", yearGroup.value(),
+                "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
+                "type", MediaFile.Type.MUSIC.name());
+        // spotless:on
+
+        String whereQuery = switch (yearGroup.interval()) {
+        case UNDEFINED -> """
+                and mf."YEAR" is null
+                """;
+        case YEAR -> """
+                and mf."YEAR" = :yearFrom
+                """;
+        case FIVE_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        case TEN_YEARS -> """
+                and mf."YEAR" between :yearFrom and :yearTo
+                """;
+        };
+
+        return Optional.ofNullable(template.namedQueryOne("""
+                select a.id, a.artist, a.name, a.comment,
+                    (select count(*)
+                     from media_file mf
+                     where mf.album = a.name
+                         and mf.album_artist = a.artist
+                         and mf.type = :type
+                         %s) as child_count
+                from album a
+                where a.id = :id
+                """.formatted(whereQuery), yearAlbumEntryRowMapper(yearGroup), args));
+    }
+
+    public List<Integer> findYearAlbumEntrys(
+            List<com.tesshu.jpsonic.domain.model.MusicFolder> folders, YearGroup yearGroup) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -570,9 +613,7 @@ public class AlbumDao {
                 "folders", folders.stream().map(com.tesshu.jpsonic.domain.model.MusicFolder::id).toList(),
                 "yearFrom", yearGroup.value(),
                 "yearTo", yearGroup.value() + yearGroup.interval().years() - 1,
-                "count", count,
-                "offset", offset,
-                "types", Stream.of(types).map(MediaFile.Type::name).toList());
+                "type", MediaFile.Type.MUSIC.name());
         // spotless:on
 
         String whereQuery = switch (yearGroup.interval()) {
@@ -591,29 +632,19 @@ public class AlbumDao {
         };
 
         return template.namedQuery("""
-                select a.id, a.artist, a.name, a.comment, (select count(*)
+                select a.id
+                from album a
+                where a.folder_id in (:folders)
+                    and exists (
+                        select 1
                         from media_file mf
                         where mf.album = a.name
                             and mf.album_artist = a.artist
-                            and mf.type in (:types)
-                            %s) as child_count
-                from (
-                    select a.id, a.artist, a.name, a.song_count, a.comment, a.album_order
-                    from album a
-                    where a.folder_id in (:folders)
-                        and exists (
-                                select 1
-                                from media_file mf
-                                where mf.album = a.name
-                                    and mf.album_artist = a.artist
-                                    and mf.type in (:types)
-                                    %s
-                                    )
-                    order by a.album_order
-                    limit :count offset :offset
-                    ) a
+                            and mf.type = :type
+                            %s
+                    )
                 order by a.album_order
-                """.formatted(whereQuery, whereQuery), yearAlbumEntryRowMapper(yearGroup), args);
+                """.formatted(whereQuery), new SingleColumnRowMapper<>(Integer.class), args);
     }
 
     public int countChldren(List<com.tesshu.jpsonic.domain.model.MusicFolder> folders,

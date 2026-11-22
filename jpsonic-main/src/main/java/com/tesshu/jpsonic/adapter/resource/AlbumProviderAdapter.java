@@ -23,7 +23,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.model.Album;
 import com.tesshu.jpsonic.domain.model.Artist;
@@ -45,14 +44,16 @@ class AlbumProviderAdapter implements AlbumProvider {
 
     private final GenreMasterProvider genreMasterProvider;
     private final IndexedRandomizer indexedRandomizer;
+    private final ResourceCacheResolver cacheResolver;
     private final AlbumDao albumDao;
     private final MediaFileDao mediaFileDao;
 
     AlbumProviderAdapter(GenreMasterProvider genreMasterProvider, IndexedRandomizer randomizer,
-            AlbumDao albumDao, MediaFileDao mediaFileDao) {
+            ResourceCacheResolver cacheResolver, AlbumDao albumDao, MediaFileDao mediaFileDao) {
         super();
         this.genreMasterProvider = genreMasterProvider;
         this.indexedRandomizer = randomizer;
+        this.cacheResolver = cacheResolver;
         this.albumDao = albumDao;
         this.mediaFileDao = mediaFileDao;
     }
@@ -80,11 +81,6 @@ class AlbumProviderAdapter implements AlbumProvider {
     }
 
     @Override
-    public Optional<Album> findAlbum(int id) {
-        return Optional.ofNullable(albumDao.getDomainAlbum(id));
-    }
-
-    @Override
     public List<Album> findAlbums(List<MusicFolder> folders, AlbumSortOrder order, long offset,
             long count) {
         return albumDao.findAlbums(folders, order, offset, count);
@@ -105,8 +101,9 @@ class AlbumProviderAdapter implements AlbumProvider {
     @Override
     public List<YearAlbumEntry> findAlbumsByYearGroup(List<MusicFolder> musicFolders,
             YearGroup yearGroup, long offset, long count) {
-        return albumDao
-            .findAlbumsByYearGroup(musicFolders, yearGroup, offset, count, MediaFile.Type.MUSIC);
+        return cacheResolver
+            .findAlbumsByYearGroup(musicFolders, yearGroup, albumDao::findYearAlbumEntrys,
+                    albumDao::getYearAlbumEntry, offset, count);
     }
 
     @Override
@@ -130,15 +127,14 @@ class AlbumProviderAdapter implements AlbumProvider {
     public List<Album> findRandomAlbums(List<MusicFolder> musicFolders, long offset, long count,
             int cacheMax) {
         return indexedRandomizer
-            .findRandomAlbums(musicFolders, offset, count, cacheMax, this::findAlbum);
+            .findRandomAlbums(musicFolders, offset, count, cacheMax, albumDao::findAlbum);
     }
 
     @Override
     public Album requireAlbum(int id) {
-        Album album = albumDao.getDomainAlbum(id);
-        if (album == null) {
-            throw new IllegalArgumentException("The specified Album cannot be found.");
-        }
-        return album;
+        return albumDao
+            .findAlbum(id)
+            .orElseThrow(
+                    () -> new IllegalArgumentException("The specified Album cannot be found."));
     }
 }
