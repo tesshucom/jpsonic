@@ -20,7 +20,7 @@
 package com.tesshu.jpsonic.adapter.resource;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -168,6 +168,10 @@ public class AlbumProviderAdapterTest extends AbstractNeedsScan {
             .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
                     Integer.MAX_VALUE);
         assertEquals(1, entries.size());
+        entries = albumProvider
+                .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                        Integer.MAX_VALUE);
+            assertEquals(1, entries.size()); // cashe
 
         yearGroup = new YearGroup(YearInterval.TEN_YEARS, 2000);
         entries = albumProvider
@@ -220,6 +224,19 @@ public class AlbumProviderAdapterTest extends AbstractNeedsScan {
                     Integer.MAX_VALUE);
         assertEquals(2, entries.size());
     }
+    
+
+    
+    @Test
+    public void testCountYearAlbumEntry() {
+        YearGroup yearGroup = new YearGroup(YearInterval.TEN_YEARS, 1990);
+        List<YearAlbumEntry> entries = albumProvider
+            .findAlbumsByYearGroup(musicFolderProvider.getGuestFolders(), yearGroup, 0,
+                    Integer.MAX_VALUE);
+        assertEquals(1, entries.size());
+
+    }
+    
 
     @Test
     public void testCountAlbumsByYearGroup() {
