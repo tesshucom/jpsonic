@@ -226,6 +226,9 @@ public class DLNASettingsController {
         command.setDlnaEnabledFilteredIp(settingsFacade.get(UPnPSKeys.advanced.enabledFilteredIp));
         command.setDlnaFilteredIp(settingsFacade.get(UPnPSKeys.advanced.filteredIp));
         command
+            .setDlnaRestrictToLocalNetwork(
+                    settingsFacade.get(UPnPSKeys.advanced.restrictToLocalNetwork));
+        command
             .setDlnaKeyRotationType(
                     KeyRotationType.of(settingsFacade.get(UPnPSKeys.advanced.rotationType)));
         command
@@ -333,6 +336,10 @@ public class DLNASettingsController {
                 ? filteredIpIn
                 : UPnPSKeys.advanced.filteredIp.defaultValue();
         settingsFacade.staging(UPnPSKeys.advanced.filteredIp, filteredIp);
+        settingsFacade
+            .staging(UPnPSKeys.advanced.restrictToLocalNetwork,
+                    command.isDlnaRestrictToLocalNetwork());
+
         new UpnpKeyStagingApplier().apply(command, settingsFacade);
 
         settingsFacade.commitAll();

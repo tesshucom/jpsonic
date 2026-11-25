@@ -77,6 +77,7 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
     private String dlnaDefaultFilteredIp;
     private boolean dlnaEnabledFilteredIp;
     private String dlnaFilteredIp;
+    private boolean dlnaRestrictToLocalNetwork;
     private KeyRotationType dlnaKeyRotationType;
     private KeyRotationPeriod dlnaKeyRotationPeriod;
     private String dlnaKeyLastUpdate;
@@ -307,6 +308,14 @@ public class DLNASettingsCommand extends SettingsPageCommons implements UpnpCryp
 
     public void setDlnaFilteredIp(String dlnaFilteredIp) {
         this.dlnaFilteredIp = dlnaFilteredIp;
+    }
+
+    public boolean isDlnaRestrictToLocalNetwork() {
+        return dlnaRestrictToLocalNetwork;
+    }
+
+    public void setDlnaRestrictToLocalNetwork(boolean dlnaRestrictToLocalNetwork) {
+        this.dlnaRestrictToLocalNetwork = dlnaRestrictToLocalNetwork;
     }
 
     @Override
