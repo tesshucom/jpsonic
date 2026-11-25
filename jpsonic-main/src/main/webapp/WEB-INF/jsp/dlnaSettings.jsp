@@ -53,6 +53,7 @@
         $("#dlnaFilteredIp").val('172.17.16.1');
         $("#dlnaKeyRotationType").prop("selectedIndex", 2);
         $("#dlnaKeyRotationPeriod").prop("selectedIndex", 2);
+        $("#dlnaRestrictToLocalNetwork").prop('checked', true);
         dlnaKeyKeyRotationTypeChanged();
     }
 
@@ -483,7 +484,7 @@
                                 <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">
                                     <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
                                         <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
-                                        <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
+                                        <label for="dlnaGuestPublish"><fmt:message key="dlnasettings.guestpublish"/></label>
                                     </td>
                                 </c:when>
                                 <c:otherwise>
@@ -547,10 +548,16 @@
             <dt><fmt:message key="dlnasettings.upnp.traffic"/></dt>
             <dd>
                 <form:checkbox path="dlnaEnabledFilteredIp" id="dlnaEnabledFilteredIp"/>
-                <label for=dlnaFilteredIp><fmt:message key="dlnasettings.filteredIp"/></label>
+                <label for="dlnaFilteredIp"><fmt:message key="dlnasettings.filteredIp"/></label>
                 <input type="text" name="dlnaFilteredIp" id="dlnaFilteredIp"
                         value="<c:out value='${command.dlnaFilteredIp}' escapeXml='true'/>" placeholder="${command.dlnaDefaultFilteredIp}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="filteredIp"/></c:import>
+            </dd>
+            <dt><fmt:message key="dlnasettings.upnp.portprotection"/></dt>
+            <dd>
+                <form:checkbox path="dlnaRestrictToLocalNetwork" id="dlnaRestrictToLocalNetwork"/>
+                <label for="restrictToLocalNetwork"><fmt:message key="dlnasettings.restrict2localnetwork"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="restrict2localnetwork"/></c:import>
             </dd>
             <dt>
                 <fmt:message key="dlnasettings.upnp.rotation-type"/>
